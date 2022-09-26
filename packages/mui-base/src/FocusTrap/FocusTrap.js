@@ -115,7 +115,7 @@ function defaultIsEnabled() {
 /**
  * Utility component that locks focus inside the component.
  */
-function TrapFocus(props) {
+function FocusTrap(props) {
   const {
     children,
     disableAutoFocus = false,
@@ -190,7 +190,7 @@ function TrapFocus(props) {
       }
     };
     // Missing `disableRestoreFocus` which is fine.
-    // We don't support changing that prop on an open TrapFocus
+    // We don't support changing that prop on an open FocusTrap
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -341,7 +341,7 @@ function TrapFocus(props) {
   );
 }
 
-TrapFocus.propTypes /* remove-proptypes */ = {
+FocusTrap.propTypes /* remove-proptypes */ = {
   // ----------------------------- Warning --------------------------------
   // | These PropTypes are generated from the TypeScript type definitions |
   // |     To update them edit the d.ts file and run "yarn proptypes"     |
@@ -351,26 +351,26 @@ TrapFocus.propTypes /* remove-proptypes */ = {
    */
   children: elementAcceptingRef,
   /**
-   * If `true`, the trap focus will not automatically shift focus to itself when it opens, and
+   * If `true`, the focus trap will not automatically shift focus to itself when it opens, and
    * replace it to the last focused element when it closes.
-   * This also works correctly with any trap focus children that have the `disableAutoFocus` prop.
+   * This also works correctly with any focus trap children that have the `disableAutoFocus` prop.
    *
-   * Generally this should never be set to `true` as it makes the trap focus less
+   * Generally this should never be set to `true` as it makes the focus trap less
    * accessible to assistive technologies, like screen readers.
    * @default false
    */
   disableAutoFocus: PropTypes.bool,
   /**
-   * If `true`, the trap focus will not prevent focus from leaving the trap focus while open.
+   * If `true`, the focus trap will not prevent focus from leaving the focus trap while open.
    *
-   * Generally this should never be set to `true` as it makes the trap focus less
+   * Generally this should never be set to `true` as it makes the focus trap less
    * accessible to assistive technologies, like screen readers.
    * @default false
    */
   disableEnforceFocus: PropTypes.bool,
   /**
-   * If `true`, the trap focus will not restore focus to previously focused element once
-   * trap focus is hidden or unmounted.
+   * If `true`, the focus trap will not restore focus to previously focused element once
+   * focus trap is hidden or unmounted.
    * @default false
    */
   disableRestoreFocus: PropTypes.bool,
@@ -384,7 +384,7 @@ TrapFocus.propTypes /* remove-proptypes */ = {
    * This prop extends the `open` prop.
    * It allows to toggle the open state without having to wait for a rerender when changing the `open` prop.
    * This prop should be memoized.
-   * It can be used to support multiple trap focus mounted at the same time.
+   * It can be used to support multiple focus trap mounted at the same time.
    * @default function defaultIsEnabled() {
    *   return true;
    * }
@@ -398,7 +398,7 @@ TrapFocus.propTypes /* remove-proptypes */ = {
 
 if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line
-  TrapFocus['propTypes' + ''] = exactProp(TrapFocus.propTypes);
+  FocusTrap['propTypes' + ''] = exactProp(FocusTrap.propTypes);
 }
 
-export default TrapFocus;
+export default FocusTrap;
