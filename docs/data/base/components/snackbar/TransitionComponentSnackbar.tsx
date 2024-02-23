@@ -59,7 +59,10 @@ export default function TransitionComponentSnackbar() {
               ref={nodeRef}
             >
               <div className="snackbar-title">Hello World</div>
-              <CloseIcon onClick={handleClose} className="snackbar-close-icon" />
+              <CloseIcon
+                onClick={handleClose as () => void}
+                className="snackbar-close-icon"
+              />
             </SnackbarContent>
           )}
         </Transition>
