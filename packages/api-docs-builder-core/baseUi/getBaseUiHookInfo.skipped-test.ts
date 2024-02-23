@@ -1,3 +1,5 @@
+// TODO: restore when api-docs-builder is imported from a package
+
 import path from 'path';
 import fs from 'fs';
 import { expect } from 'chai';

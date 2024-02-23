@@ -19,7 +19,9 @@ module.exports = function getBabelConfig(api) {
     '@mui/base': resolveAliasPath('./packages/mui-base/src'),
     docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
-    '@mui-internal/api-docs-builder': '@mui/monorepo/packages/api-docs-builder',
+    '@mui-internal/api-docs-builder': resolveAliasPath(
+      './node_modules/@mui/monorepo/packages/api-docs-builder',
+    ),
   };
 
   const presets = [
