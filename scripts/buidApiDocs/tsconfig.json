@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+
+    "module": "node16",
+    "target": "es2022",
+    "moduleResolution": "node16",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+
+    "noEmit": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "jsx": "react",
+
+    "types": ["node", "mocha"],
+    "paths": {
+      "@mui/base": ["../../packages/mui-base/src"],
+      "@mui/base/*": ["../../packages/mui-base/src/*"],
+      "@mui-internal/api-docs-builder": [
+        "../../node_modules/@mui/monorepo/packages/api-docs-builder"
+      ],
+      "@mui-internal/api-docs-builder/*": [
+        "../../node_modules/@mui/monorepo/packages/api-docs-builder/*"
+      ]
+    }
+  },
+  "include": ["./**/*.ts"]
+}
