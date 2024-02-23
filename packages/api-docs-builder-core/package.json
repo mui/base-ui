@@ -15,10 +15,15 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__traverse": "^7.20.5",
     "@types/chai": "^4.3.11",
+    "@types/doctrine": "^0.0.9",
+    "@types/mdast": "4.0.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.19.15",
     "@types/sinon": "^10.0.20",
+    "ast-types": "^0.14.2",
     "chai": "^4.4.1",
     "sinon": "^15.2.0",
     "typescript": "^5.3.3"

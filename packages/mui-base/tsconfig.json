@@ -1,4 +1,9 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "test/**/*"]
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "node_modules/@mui/internal-test-utils/build/initMatchers.d.ts",
+    "node_modules/@mui/internal-test-utils/build/initPlaywrightMatchers.d.ts"
+  ]
 }
