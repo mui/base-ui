@@ -33,10 +33,10 @@ As such, it should be used sparingly—only when the app _requires_ user input b
 
 Modal is a lower-level construct that is used in the following Material UI components:
 
-- [Dialog](/material-ui/react-dialog/)
-- [Drawer](/material-ui/react-drawer/)
-- [Menu](/material-ui/react-menu/)
-- [Popover](/material-ui/react-popover/)
+- [Dialog](https://mui.com/material-ui/react-dialog/)
+- [Drawer](https://mui.com/material-ui/react-drawer/)
+- [Menu](https://mui.com/material-ui/react-menu/)
+- [Popover](https://mui.com/material-ui/react-popover/)
 
 ## Component
 

@@ -87,7 +87,7 @@ See our [Working with Tailwind CSS guide](/base-ui/guides/working-with-tailwind-
 
 #### Styled components
 
-If you use a CSS-in-JS solution with a styled-components-like API (such as [MUI System](/system/getting-started/) or [Emotion](https://emotion.sh/docs/introduction)), the best method is to provide the styled subcomponents using the [`slots` prop](#overriding-subcomponent-slots), as shown in the [demo below](#overriding-subcomponent-slots).
+If you use a CSS-in-JS solution with a styled-components-like API (such as [MUI System](https://mui.com/system/getting-started/) or [Emotion](https://emotion.sh/docs/introduction)), the best method is to provide the styled subcomponents using the [`slots` prop](#overriding-subcomponent-slots), as shown in the [demo below](#overriding-subcomponent-slots).
 
 Alternatively, you can wrap the whole unstyled component in a `styled` utility and target the individual subcomponents using CSS classes:
 
@@ -117,7 +117,7 @@ If you want to make changes to a component's rendered HTML structure, you can ov
 
 The following demo uses [Switch](/base-ui/react-switch/) to show how to create a styled component by applying styles to three of its subcomponent slots: `root`, `thumb`, and `input`.
 
-Note that although this demo uses [MUI System](/system/styled/) as a styling solution, you are free to choose any alternative.
+Note that although this demo uses [MUI System](https://mui.com/system/styled/) as a styling solution, you are free to choose any alternative.
 
 {{"demo": "StylingSlots.js"}}
 

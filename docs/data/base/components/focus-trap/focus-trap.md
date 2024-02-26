@@ -35,7 +35,7 @@ For instance, if the focus needs to stay inside of an [Menu](/base-ui/react-menu
 </FocusTrap>
 ```
 
-The following demo shows a `<button>` that opens a [Box](/material-ui/react-box/) component nested inside of a Focus Trap.
+The following demo shows a `<button>` that opens a [Box](https://mui.com/material-ui/react-box/) component nested inside of a Focus Trap.
 As long as the Box is open, the user's keyboard cannot interact with the rest of the app.
 Press the **Open** button and then use the <kbd class="key">Tab</kbd> key to move the focus—notice that it will not leave the Box:
 

@@ -93,7 +93,7 @@ The uncontrolled component accepts the `defaultValue` that can be used to set th
 To deselect all values, pass `null` to the respective prop.
 
 :::warning
-This pattern is where Base UI's Select differs from the equivalent [Material UI component](/material-ui/react-select/).
+This pattern is where Base UI's Select differs from the equivalent [Material UI component](https://mui.com/material-ui/react-select/).
 The Material UI Select takes an empty string to deselect all values.
 In Base UI, you must use `null` to achieve this.
 :::
