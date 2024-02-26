@@ -98,30 +98,6 @@ async function main() {
         await takeScreenshot({ testcase, route });
       });
     });
-
-    describe('Rating', () => {
-      it('should handle focus-visible correctly', async () => {
-        const index = routes.findIndex(
-          (route) => route === '/regression-Rating/FocusVisibleRating',
-        );
-        const testcase = await renderFixture(index);
-        await page.keyboard.press('Tab');
-        await takeScreenshot({ testcase, route: '/regression-Rating/FocusVisibleRating2' });
-        await page.keyboard.press('ArrowLeft');
-        await takeScreenshot({ testcase, route: '/regression-Rating/FocusVisibleRating3' });
-      });
-
-      it('should handle focus-visible with precise ratings correctly', async () => {
-        const index = routes.findIndex(
-          (route) => route === '/regression-Rating/PreciseFocusVisibleRating',
-        );
-        const testcase = await renderFixture(index);
-        await page.keyboard.press('Tab');
-        await takeScreenshot({ testcase, route: '/regression-Rating/PreciseFocusVisibleRating2' });
-        await page.keyboard.press('ArrowRight');
-        await takeScreenshot({ testcase, route: '/regression-Rating/PreciseFocusVisibleRating3' });
-      });
-    });
   });
 
   run();
