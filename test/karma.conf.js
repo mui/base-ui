@@ -135,31 +135,6 @@ module.exports = function setKarmaConfig(config) {
           },
           // transpile 3rd party packages with dependencies in this repository
           {
-            test: /\.(js|mjs|jsx)$/,
-            include:
-              /node_modules(\/|\\)(notistack|@mui(\/|\\)x-data-grid|@mui(\/|\\)x-data-grid-pro|@mui(\/|\\)x-license-pro|@mui(\/|\\)x-data-grid-generator|@mui(\/|\\)x-date-pickers-pro|@mui(\/|\\)x-date-pickers|@mui(\/|\\)x-tree-view)/,
-            use: {
-              loader: 'babel-loader',
-              options: {
-                // We have to apply `babel-plugin-module-resolve` to the files in `@mui/x-date-pickers`.
-                // Otherwise we can't import `@mui/material` from `@mui/x-date-pickers` in `pnpm test:karma`.
-                sourceType: 'unambiguous',
-                plugins: [
-                  [
-                    'babel-plugin-module-resolver',
-                    {
-                      alias: {
-                        // all packages in this monorepo
-                        '@mui/base': './packages/mui-base/src',
-                      },
-                      transformFunctions: ['require'],
-                    },
-                  ],
-                ],
-              },
-            },
-          },
-          {
             test: /\.(js|mjs|ts|tsx)$/,
             use: {
               loader: 'babel-loader',
