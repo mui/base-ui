@@ -105,8 +105,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@mui/internal-markdown':
-        specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI'
+        specifier: ^1.0.0
+        version: 1.0.0
       '@mui/internal-scripts':
         specifier: ^1.0.1
         version: 1.0.1
@@ -117,8 +117,8 @@ importers:
         specifier: ^5.15.10
         version: 5.15.10(@emotion/react@11.11.3)(@emotion/styled@11.11.0)(@types/react@18.2.55)(react-dom@18.2.0)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#markdown-package
-        version: github.com/michaldudak/material-ui/adf52262dd3d70ad1ed96920d5c8d45da2395a7d
+        specifier: github:mui/material-ui#5e4e18a10085b7e65955ca11ba6c93c838003e0c
+        version: github.com/mui/material-ui/5e4e18a10085b7e65955ca11ba6c93c838003e0c
       '@mui/utils':
         specifier: ^5.15.11
         version: 5.15.11(@types/react@18.2.55)(react@18.2.0)
@@ -411,8 +411,8 @@ importers:
         specifier: 5.15.10
         version: 5.15.10(@mui/material@5.15.10)(@types/react@18.2.55)(react@18.2.0)
       '@mui/internal-markdown':
-        specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI'
+        specifier: ^1.0.0
+        version: 1.0.0
       '@mui/internal-scripts':
         specifier: ^1.0.1
         version: 1.0.1
@@ -426,8 +426,8 @@ importers:
         specifier: ^5.15.9
         version: 5.15.9(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.10)(@types/react@18.2.55)(next@14.1.0)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#markdown-package
-        version: github.com/michaldudak/material-ui/adf52262dd3d70ad1ed96920d5c8d45da2395a7d
+        specifier: github:mui/material-ui#5e4e18a10085b7e65955ca11ba6c93c838003e0c
+        version: github.com/mui/material-ui/5e4e18a10085b7e65955ca11ba6c93c838003e0c
       '@mui/styles':
         specifier: ^5.15.9
         version: 5.15.10(@types/react@18.2.55)(react@18.2.0)
@@ -724,11 +724,11 @@ importers:
   packages/api-docs-builder-core:
     dependencies:
       '@mui/internal-markdown':
-        specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI'
+        specifier: ^1.0.0
+        version: 1.0.0
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#markdown-package
-        version: github.com/michaldudak/material-ui/adf52262dd3d70ad1ed96920d5c8d45da2395a7d
+        specifier: github:mui/material-ui#5e4e18a10085b7e65955ca11ba6c93c838003e0c
+        version: github.com/mui/material-ui/5e4e18a10085b7e65955ca11ba6c93c838003e0c
       docs:
         specifier: workspace:^
         version: link:../../docs
@@ -3607,6 +3607,14 @@ packages:
       '@mui/utils': 5.15.11(@types/react@18.2.55)(react@18.2.0)
       babel-plugin-macros: 3.1.0
     dev: true
+
+  /@mui/internal-markdown@1.0.0:
+    resolution: {integrity: sha512-jbj1XYQZN5Jqphq9K/Tyt42v/eRPmXEZzAYOHbsvHfFo9XnMC2OKJAsYOwpXGVmZQpvkg1z9vA55gOe6ceTW/w==}
+    dependencies:
+      '@babel/runtime': 7.23.9
+      lodash: 4.17.21
+      marked: 5.1.2
+      prismjs: 1.29.0
 
   /@mui/internal-scripts@1.0.1:
     resolution: {integrity: sha512-vUSVgbEDsfEZt4/pvBKoqPZ0iCi/jujhQxoK6zLnzDITzzWf+gyhKqWcN/jNQjlKD0vLc2Xiqpqk3yj9C2RT+A==}
@@ -18837,16 +18845,6 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI':
-    resolution: {tarball: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI}
-    name: '@mui/internal-markdown'
-    version: 1.0.0
-    dependencies:
-      '@babel/runtime': 7.23.9
-      lodash: 4.17.21
-      marked: 5.1.2
-      prismjs: 1.29.0
-
   '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.23.9)(@types/react@18.2.55)(react-dom@18.2.0)(react@18.2.0)':
     resolution: {tarball: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils}
     id: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils'
@@ -18889,8 +18887,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  github.com/michaldudak/material-ui/adf52262dd3d70ad1ed96920d5c8d45da2395a7d:
-    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/adf52262dd3d70ad1ed96920d5c8d45da2395a7d}
+  github.com/mui/material-ui/5e4e18a10085b7e65955ca11ba6c93c838003e0c:
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/5e4e18a10085b7e65955ca11ba6c93c838003e0c}
     name: '@mui/monorepo'
     version: 5.15.11
     requiresBuild: true
