@@ -18,6 +18,8 @@ const prettier = require('prettier');
 const {
   getPropTypesFromFile,
   injectPropTypesInFile,
+  // false positive
+  // eslint-disable-next-line import/no-unresolved
 } = require('@mui/internal-scripts/typescript-to-proptypes');
 const {
   createTypeScriptProjectBuilder,
