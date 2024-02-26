@@ -25,5 +25,3 @@ declare module 'docs/src/modules/components/HighlightedCode' {
   }
   export default function HighlightedCode(props: Props): React.ReactElement;
 }
-
-declare module 'react-imask';
