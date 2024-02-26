@@ -106,7 +106,7 @@ importers:
         version: 1.0.2
       '@mui/internal-markdown':
         specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%25252521362213&authkey=!AOZKXZXlBciduTI'
+        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI'
       '@mui/internal-scripts':
         specifier: ^1.0.1
         version: 1.0.1
@@ -412,7 +412,7 @@ importers:
         version: 5.15.10(@mui/material@5.15.10)(@types/react@18.2.55)(react@18.2.0)
       '@mui/internal-markdown':
         specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%25252521362213&authkey=!AOZKXZXlBciduTI'
+        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI'
       '@mui/internal-scripts':
         specifier: ^1.0.1
         version: 1.0.1
@@ -711,6 +711,9 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
+      serve:
+        specifier: ^14.2.1
+        version: 14.2.1
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.1
@@ -722,7 +725,7 @@ importers:
     dependencies:
       '@mui/internal-markdown':
         specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%25252521362213&authkey=!AOZKXZXlBciduTI'
+        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI'
       '@mui/monorepo':
         specifier: github:michaldudak/material-ui#markdown-package
         version: github.com/michaldudak/material-ui/adf52262dd3d70ad1ed96920d5c8d45da2395a7d
@@ -18834,7 +18837,7 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  '@onedrive.live.com/download?resid=6FF75D08A3A962DD%25252521362213&authkey=!AOZKXZXlBciduTI':
+  '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2525252521362213&authkey=!AOZKXZXlBciduTI':
     resolution: {tarball: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI}
     name: '@mui/internal-markdown'
     version: 1.0.0
