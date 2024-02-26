@@ -222,12 +222,6 @@ The screenshots are evaluated in another step.
 This typechecks the repository.
 The log of the failed build should list any issues.
 
-#### ci/circleci: test_bundle_size_monitor
-
-This task is primarily responsible for monitoring the bundle size.
-It will only report the size if the change exceeds a certain threshold.
-If it fails, then there's usually something wrong with the way the packages or docs were built.
-
 #### argos
 
 This evaluates the screenshots taken in `test/regressions/tests`, and fails if it detects
