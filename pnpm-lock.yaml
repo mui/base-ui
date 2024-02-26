@@ -28,6 +28,11 @@ overrides:
   cross-fetch: ^4.0.0
   '@mui-internal/docs-utils': ^1.0.2
 
+patchedDependencies:
+  '@mui/docs@5.15.11':
+    hash: 2kkyu37pdgk3j6wiigodzywhim
+    path: patches/@mui__docs@5.15.11.patch
+
 importers:
 
   .:
@@ -101,7 +106,7 @@ importers:
         version: 1.0.2
       '@mui/internal-markdown':
         specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2521362213&authkey=!AOZKXZXlBciduTI'
+        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%252521362213&authkey=!AOZKXZXlBciduTI'
       '@mui/internal-scripts':
         specifier: ^1.0.1
         version: 1.0.1
@@ -401,13 +406,13 @@ importers:
         version: link:../packages/mui-base/build
       '@mui/docs':
         specifier: ^5.15.11
-        version: 5.15.11(@mui/material@5.15.10)(@types/react@18.2.55)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0)
+        version: 5.15.11(patch_hash=2kkyu37pdgk3j6wiigodzywhim)(@mui/material@5.15.10)(@types/react@18.2.55)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0)
       '@mui/icons-material':
         specifier: 5.15.10
         version: 5.15.10(@mui/material@5.15.10)(@types/react@18.2.55)(react@18.2.0)
       '@mui/internal-markdown':
         specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2521362213&authkey=!AOZKXZXlBciduTI'
+        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%252521362213&authkey=!AOZKXZXlBciduTI'
       '@mui/internal-scripts':
         specifier: ^1.0.1
         version: 1.0.1
@@ -717,7 +722,7 @@ importers:
     dependencies:
       '@mui/internal-markdown':
         specifier: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI
-        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2521362213&authkey=!AOZKXZXlBciduTI'
+        version: '@onedrive.live.com/download?resid=6FF75D08A3A962DD%252521362213&authkey=!AOZKXZXlBciduTI'
       '@mui/monorepo':
         specifier: github:michaldudak/material-ui#markdown-package
         version: github.com/michaldudak/material-ui/adf52262dd3d70ad1ed96920d5c8d45da2395a7d
@@ -3545,7 +3550,7 @@ packages:
   /@mui/core-downloads-tracker@5.15.10:
     resolution: {integrity: sha512-qPv7B+LeMatYuzRjB3hlZUHqinHx/fX4YFBiaS19oC02A1e9JFuDKDvlyRQQ5oRSbJJt0QlaLTlr0IcauVcJRQ==}
 
-  /@mui/docs@5.15.11(@mui/material@5.15.10)(@types/react@18.2.55)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0):
+  /@mui/docs@5.15.11(patch_hash=2kkyu37pdgk3j6wiigodzywhim)(@mui/material@5.15.10)(@types/react@18.2.55)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-X3NXbaDskXVSf+JlQ5RAKFszs3swxLxMWLsZX0eY8JEdAXl3xzRufCtDAHmGk7tTc+bd2rrx1pEglJcJHTZ2Xw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -3570,6 +3575,7 @@ packages:
     transitivePeerDependencies:
       - react-dom
     dev: false
+    patched: true
 
   /@mui/icons-material@5.15.10(@mui/material@5.15.10)(@types/react@18.2.55)(react@18.2.0):
     resolution: {integrity: sha512-9cF8oUHZKo9oQ7EQ3pxPELaZuZVmphskU4OI6NiJNDVN7zcuvrEsuWjYo1Zh4fLiC39Nrvm30h/B51rcUjvSGA==}
@@ -18826,7 +18832,7 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  '@onedrive.live.com/download?resid=6FF75D08A3A962DD%2521362213&authkey=!AOZKXZXlBciduTI':
+  '@onedrive.live.com/download?resid=6FF75D08A3A962DD%252521362213&authkey=!AOZKXZXlBciduTI':
     resolution: {tarball: https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI}
     name: '@mui/internal-markdown'
     version: 1.0.0

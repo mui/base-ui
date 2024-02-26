@@ -84,10 +84,10 @@
     "@babel/preset-typescript": "^7.23.3",
     "@babel/register": "^7.23.7",
     "@mnajdova/enzyme-adapter-react-18": "^0.2.0",
-    "@mui/internal-scripts": "^1.0.1",
     "@mui-internal/api-docs-builder-core": "workspace:^",
     "@mui-internal/docs-utils": "^1.0.2",
     "@mui/internal-markdown": "https://onedrive.live.com/download?resid=6FF75D08A3A962DD%21362213&authkey=!AOZKXZXlBciduTI",
+    "@mui/internal-scripts": "^1.0.1",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@mui/material": "^5.15.10",
     "@mui/monorepo": "github:michaldudak/material-ui#markdown-package",
@@ -208,5 +208,10 @@
     ],
     "sourceMap": false,
     "instrument": false
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@mui/docs@5.15.11": "patches/@mui__docs@5.15.11.patch"
+    }
   }
 }
