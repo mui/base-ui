@@ -33,7 +33,7 @@
     "@mui/internal-markdown": "^1.0.0",
     "@mui/internal-scripts": "^1.0.1",
     "@mui/joy": "5.0.0-beta.28",
-    "@mui/material": "^5.15.10",
+    "@mui/material": "^5.15.11",
     "@mui/material-nextjs": "^5.15.9",
     "@mui/monorepo": "github:mui/material-ui#5e4e18a10085b7e65955ca11ba6c93c838003e0c",
     "@mui/styles": "^5.15.9",

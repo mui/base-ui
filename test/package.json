@@ -14,7 +14,7 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/joy": "5.0.0-beta.28",
     "@mui/lab": "5.0.0-alpha.165",
-    "@mui/material": "^5.15.10",
+    "@mui/material": "^5.15.11",
     "@mui/system": "^5.15.9",
     "@mui/utils": "^5.15.11",
     "@playwright/test": "1.41.2",
