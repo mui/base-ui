@@ -68,7 +68,7 @@
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
     "react-is": "^18.2.0",
-    "react-router-dom": "^6.21.3",
+    "react-router-dom": "^6.22.1",
     "react-runner": "^1.0.3",
     "react-simple-code-editor": "^0.13.1",
     "react-spring": "^9.7.3",
