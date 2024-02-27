@@ -59,13 +59,13 @@
     "@types/prop-types": "^15.7.11",
     "@types/react": "18.2.55",
     "@types/react-dom": "18.2.19",
-    "@types/sinon": "^10.0.20",
+    "@types/sinon": "^17.0.3",
     "chai": "^4.4.1",
     "fast-glob": "^3.3.2",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sinon": "^15.2.0"
+    "sinon": "^17.0.1"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0 || ^18.0.0",
