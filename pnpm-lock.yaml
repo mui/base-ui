@@ -686,6 +686,9 @@ importers:
       sinon:
         specifier: ^17.0.1
         version: 17.0.1
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
     publishDirectory: build
 
   test:
