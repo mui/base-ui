@@ -5,7 +5,7 @@
   "description": "Custom eslint rules for Base UI.",
   "main": "src/index.js",
   "devDependencies": {
-    "@types/eslint": "^8.56.2",
+    "@types/eslint": "^8.56.3",
     "@typescript-eslint/experimental-utils": "^5.62.0",
     "@typescript-eslint/parser": "^6.20.0"
   },
