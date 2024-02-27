@@ -8,7 +8,7 @@
   "devDependencies": {
     "@babel/runtime": "^7.23.9",
     "@emotion/cache": "^11.11.0",
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "^11.11.4",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@mui/base": "workspace:*",
     "@mui/icons-material": "^5.15.10",
