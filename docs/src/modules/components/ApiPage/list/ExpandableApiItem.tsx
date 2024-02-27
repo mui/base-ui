@@ -189,7 +189,7 @@ export default function ExpandableApiItem(props: ExpandableApiItemProps) {
       )}
     >
       <div className="MuiApi-item-header">
-        <a className="MuiApi-item-link-visual" href={`#${id}`}>
+        <a className="MuiApi-item-link-visual" href={`#${id}`} aria-labelledby={id}>
           <svg>
             <use xlinkHref="#anchor-link-icon" />
           </svg>
