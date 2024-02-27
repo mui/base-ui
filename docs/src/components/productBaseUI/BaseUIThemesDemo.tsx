@@ -840,7 +840,7 @@ export default function BaseUIThemesDemo() {
                 <Box
                   component="img"
                   alt="Michał Dudak, the leading engineer for Base UI."
-                  src="/static/branding/about/michał-dudak.png"
+                  src="/static/branding/base-ui/avatar.png"
                   sx={{
                     display: 'inline-block',
                     verticalAlign: 'middle',
