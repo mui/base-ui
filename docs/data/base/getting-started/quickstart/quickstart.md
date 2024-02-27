@@ -134,9 +134,9 @@ The demo below shows how to build the Primer button using Tailwind CSS:
 
 ### Styling with MUI System
 
-[MUI System](/system/getting-started/) is a small set of CSS utilities that provide a styled-components-like API for building out designs that adhere to a theme.
+[MUI System](https://mui.com/system/getting-started/) is a small set of CSS utilities that provide a styled-components-like API for building out designs that adhere to a theme.
 
-MUI System's core utility is a [`styled` function](/system/styled/) that's equivalent to the `styled()` function in emotion and styled-components.
+MUI System's core utility is a [`styled` function](https://mui.com/system/styled/) that's equivalent to the `styled()` function in emotion and styled-components.
 Interpolations or arguments that are functions called by `styled` receive the `theme` from an upper `ThemeProvider`.
 
 ```tsx
@@ -170,7 +170,7 @@ export default function App() {
 ```
 
 Most of the demos in the Base UI docs are styled with MUI System in this way.
-You can inspect the `theme` object used on this site in your browser console, or explore the default structure in the Material UI [Default theme](/material-ui/customization/default-theme/) documentation.
+You can inspect the `theme` object used on this site in your browser console, or explore the default structure in the Material UI [Default theme](https://mui.com/material-ui/customization/default-theme/) documentation.
 
 The demos below show how to create the Primer button using MUI System:
 
@@ -222,7 +222,7 @@ export default function App() {
 
 ### Using the sx prop
 
-MUI System supports the [`sx` prop](/system/getting-started/the-sx-prop/), which provides a quick way to apply ad-hoc styles using theme-aware values to any component created with `styled`.
+MUI System supports the [`sx` prop](https://mui.com/system/getting-started/the-sx-prop/), which provides a quick way to apply ad-hoc styles using theme-aware values to any component created with `styled`.
 
 ```tsx
 const GitHubButton = styled(Button)(
@@ -245,4 +245,4 @@ The demo below shows how to build the Primer button using MUI System along with
 
 {{"demo": "BaseButtonMuiSystem.js", "defaultCodeOpen": false}}
 
-Read the [MUI System Usage](/system/getting-started/usage/) doc for further details.
+Read the [MUI System Usage](https://mui.com/system/getting-started/usage/) doc for further details.

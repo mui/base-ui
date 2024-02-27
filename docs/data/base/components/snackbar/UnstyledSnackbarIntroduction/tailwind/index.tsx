@@ -89,7 +89,7 @@ export default function UnstyledSnackbarIntroduction() {
                 </p>
               </div>
               <CloseIcon
-                onClick={handleClose}
+                onClick={handleClose as () => void}
                 className="cursor-pointer	shrink-0	p-0.5	rounded hover:bg-slate-50 hover:dark:bg-slate-800"
               />
             </div>

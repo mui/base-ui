@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es5",
+    "lib": ["es2020", "dom"],
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "baseUrl": "./",
+    "allowSyntheticDefaultImports": true,
+    "noErrorTruncation": false,
+    "allowJs": true,
+    "paths": {
+      "@mui/base": ["./packages/mui-base/src"],
+      "@mui/base/*": ["./packages/mui-base/src/*"],
+      "@mui-internal/api-docs-builder": ["./node_modules/@mui/monorepo/packages/api-docs-builder"],
+      "@mui-internal/api-docs-builder/*": [
+        "./node_modules/@mui/monorepo/packages/api-docs-builder/*"
+      ]
+    }
+  },
+  "exclude": ["**/.*/", "**/build", "**/node_modules", "docs/export"]
+}

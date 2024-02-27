@@ -28,8 +28,8 @@ Material UI and Joy UI have Autocomplete components that are built using the `
 
 To learn more about implementing a custom Autocomplete, you can explore the [`useAutocomplete` API docs](/base-ui/react-autocomplete/hooks-api/#use-autocomplete), or reference the Material UI and Joy UI implementations:
 
-- [Material UI Autocomplete](/material-ui/react-autocomplete/)
-- [Joy UI Autocomplete](/joy-ui/react-autocomplete/)
+- [Material UI Autocomplete](https://mui.com/material-ui/react-autocomplete/)
+- [Joy UI Autocomplete](https://mui.com/joy-ui/react-autocomplete/)
 
 :::
 

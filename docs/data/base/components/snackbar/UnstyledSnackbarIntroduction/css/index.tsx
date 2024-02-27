@@ -79,7 +79,10 @@ export default function UnstyledSnackbarIntroduction() {
                   Everything was sent to the desired address.
                 </p>
               </div>
-              <CloseIcon onClick={handleClose} className="snackbar-close-icon" />
+              <CloseIcon
+                onClick={handleClose as () => void}
+                className="snackbar-close-icon"
+              />
             </div>
           )}
         </Transition>

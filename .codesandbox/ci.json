@@ -1,0 +1,11 @@
+{
+  "buildCommand": "build:codesandbox",
+  "installCommand": "install:codesandbox",
+  "node": "18",
+  "packages": ["packages/mui-base"],
+  "publishDirectory": {
+    "@mui/base": "packages/mui-base/build"
+  },
+  "sandboxes": ["/examples/base-ui-cra-ts"],
+  "silent": true
+}
