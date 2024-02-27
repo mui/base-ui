@@ -415,8 +415,8 @@ importers:
         specifier: github:mui/material-ui#5e4e18a10085b7e65955ca11ba6c93c838003e0c
         version: github.com/mui/material-ui/5e4e18a10085b7e65955ca11ba6c93c838003e0c
       '@mui/styles':
-        specifier: ^5.15.9
-        version: 5.15.10(@types/react@18.2.60)(react@18.2.0)
+        specifier: ^5.15.11
+        version: 5.15.11(@types/react@18.2.60)(react@18.2.0)
       '@mui/system':
         specifier: ^5.15.9
         version: 5.15.9(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react@18.2.0)
@@ -3532,8 +3532,8 @@ packages:
       react-is: 18.2.0
       react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
 
-  /@mui/private-theming@5.15.9(@types/react@18.2.60)(react@18.2.0):
-    resolution: {integrity: sha512-/aMJlDOxOTAXyp4F2rIukW1O0anodAMCkv1DfBh/z9vaKHY3bd5fFf42wmP+0GRmwMinC5aWPpNfHXOED1fEtg==}
+  /@mui/private-theming@5.15.11(@types/react@18.2.60)(react@18.2.0):
+    resolution: {integrity: sha512-jY/696SnSxSzO1u86Thym7ky5T9CgfidU3NFJjguldqK4f3Z5S97amZ6nffg8gTD0HBjY9scB+4ekqDEUmxZOA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@types/react': ^18.2.60
@@ -3569,8 +3569,8 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
 
-  /@mui/styles@5.15.10(@types/react@18.2.60)(react@18.2.0):
-    resolution: {integrity: sha512-VUl9rCK89lkCZ+ctYv1hSCN9gBke9CfnXF9BtGPkw9jTxPkrW6fQQYep2wcHdzLORE3w96oq9BbSXDqrOnSEPA==}
+  /@mui/styles@5.15.11(@types/react@18.2.60)(react@18.2.0):
+    resolution: {integrity: sha512-7TCs+0AGCtNaqBHhj0ZODYLnQjVrY9nG4PrT2bzIGIh3zvJxF7zY6IRiPyBFsKY1OjdVHjjYuan4U81QbdBrew==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@types/react': ^18.2.60
@@ -3581,7 +3581,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.9
       '@emotion/hash': 0.9.1
-      '@mui/private-theming': 5.15.9(@types/react@18.2.60)(react@18.2.0)
+      '@mui/private-theming': 5.15.11(@types/react@18.2.60)(react@18.2.0)
       '@mui/types': 7.2.13(@types/react@18.2.60)
       '@mui/utils': 5.15.11(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
@@ -3619,7 +3619,7 @@ packages:
       '@babel/runtime': 7.23.9
       '@emotion/react': 11.11.4(@types/react@18.2.60)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.4)(@types/react@18.2.60)(react@18.2.0)
-      '@mui/private-theming': 5.15.9(@types/react@18.2.60)(react@18.2.0)
+      '@mui/private-theming': 5.15.11(@types/react@18.2.60)(react@18.2.0)
       '@mui/styled-engine': 5.15.9(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(react@18.2.0)
       '@mui/types': 7.2.13(@types/react@18.2.60)
       '@mui/utils': 5.15.11(@types/react@18.2.60)(react@18.2.0)
