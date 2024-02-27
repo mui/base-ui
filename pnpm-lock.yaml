@@ -394,8 +394,8 @@ importers:
         specifier: ^5.15.11
         version: 5.15.11(patch_hash=2kkyu37pdgk3j6wiigodzywhim)(@mui/material@5.15.10)(@types/react@18.2.60)(next@14.1.0)(react-dom@18.2.0)(react@18.2.0)
       '@mui/icons-material':
-        specifier: 5.15.10
-        version: 5.15.10(@mui/material@5.15.10)(@types/react@18.2.60)(react@18.2.0)
+        specifier: 5.15.11
+        version: 5.15.11(@mui/material@5.15.10)(@types/react@18.2.60)(react@18.2.0)
       '@mui/internal-markdown':
         specifier: ^1.0.0
         version: 1.0.0
@@ -755,8 +755,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/mui-base/build
       '@mui/icons-material':
-        specifier: ^5.15.10
-        version: 5.15.10(@mui/material@5.15.10)(@types/react@18.2.60)(react@18.2.0)
+        specifier: ^5.15.11
+        version: 5.15.11(@mui/material@5.15.10)(@types/react@18.2.60)(react@18.2.0)
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.23.9)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)'
@@ -3356,8 +3356,8 @@ packages:
     dev: false
     patched: true
 
-  /@mui/icons-material@5.15.10(@mui/material@5.15.10)(@types/react@18.2.60)(react@18.2.0):
-    resolution: {integrity: sha512-9cF8oUHZKo9oQ7EQ3pxPELaZuZVmphskU4OI6NiJNDVN7zcuvrEsuWjYo1Zh4fLiC39Nrvm30h/B51rcUjvSGA==}
+  /@mui/icons-material@5.15.11(@mui/material@5.15.10)(@types/react@18.2.60)(react@18.2.0):
+    resolution: {integrity: sha512-R5ZoQqnKpd+5Ew7mBygTFLxgYsQHPhgR3TDXSgIHYIjGzYuyPLmGLSdcPUoMdi6kxiYqHlpPj4NJxlbaFD0UHA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@mui/material': ^5.0.0

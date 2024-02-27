@@ -29,7 +29,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/base": "workspace:*",
     "@mui/docs": "^5.15.11",
-    "@mui/icons-material": "5.15.10",
+    "@mui/icons-material": "5.15.11",
     "@mui/internal-markdown": "^1.0.0",
     "@mui/internal-scripts": "^1.0.1",
     "@mui/joy": "5.0.0-beta.28",
