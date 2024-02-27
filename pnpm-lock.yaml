@@ -409,8 +409,8 @@ importers:
         specifier: ^5.15.10
         version: 5.15.10(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@mui/material-nextjs':
-        specifier: ^5.15.9
-        version: 5.15.9(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.10)(@types/react@18.2.60)(next@14.1.0)(react@18.2.0)
+        specifier: ^5.15.11
+        version: 5.15.11(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.10)(@types/react@18.2.60)(next@14.1.0)(react@18.2.0)
       '@mui/monorepo':
         specifier: github:mui/material-ui#5e4e18a10085b7e65955ca11ba6c93c838003e0c
         version: github.com/mui/material-ui/5e4e18a10085b7e65955ca11ba6c93c838003e0c
@@ -3471,8 +3471,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: true
 
-  /@mui/material-nextjs@5.15.9(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.10)(@types/react@18.2.60)(next@14.1.0)(react@18.2.0):
-    resolution: {integrity: sha512-Bk4Qb/cLpRhnoYPIyVJZvIlmjDNAHAUGB+UYaiRMEOnS1puQHxq81uw5gdBw+h3Q1WsT4PQ+ARmrfTkzN0RsFw==}
+  /@mui/material-nextjs@5.15.11(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.10)(@types/react@18.2.60)(next@14.1.0)(react@18.2.0):
+    resolution: {integrity: sha512-cp5RWYbBngyi7NKP91R9QITllfxumCVPFjqe4AKzNROVuCot0VpgkafxXqfbv0uFsyUU0ROs0O2M3r17q604Aw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@emotion/cache': ^11.11.0
@@ -3489,6 +3489,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
+      '@babel/runtime': 7.23.9
       '@emotion/cache': 11.11.0
       '@emotion/server': 11.11.0
       '@mui/material': 5.15.10(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
