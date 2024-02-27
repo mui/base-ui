@@ -584,8 +584,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       marked:
-        specifier: ^5.1.2
-        version: 5.1.2
+        specifier: ^12.0.0
+        version: 12.0.0
       playwright:
         specifier: ^1.41.2
         version: 1.41.2
@@ -12031,6 +12031,12 @@ packages:
     dependencies:
       markdown-it: 14.0.0
       markdownlint-micromark: 0.1.8
+    dev: true
+
+  /marked@12.0.0:
+    resolution: {integrity: sha512-Vkwtq9rLqXryZnWaQc86+FHLC6tr/fycMfYAhiOIXkrNmeGAyhSxjqu0Rs1i0bBqw5u0S7+lV9fdH2ZSVaoa0w==}
+    engines: {node: '>= 18'}
+    hasBin: true
     dev: true
 
   /marked@5.1.2:
