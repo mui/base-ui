@@ -639,8 +639,8 @@ importers:
         specifier: ^18.19.15
         version: 18.19.18
       '@types/sinon':
-        specifier: ^10.0.20
-        version: 10.0.20
+        specifier: ^17.0.3
+        version: 17.0.3
       ast-types:
         specifier: ^0.14.2
         version: 0.14.2
@@ -648,8 +648,8 @@ importers:
         specifier: ^4.4.1
         version: 4.4.1
       sinon:
-        specifier: ^15.2.0
-        version: 15.2.0
+        specifier: ^17.0.1
+        version: 17.0.1
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -718,8 +718,8 @@ importers:
         specifier: 18.2.19
         version: 18.2.19
       '@types/sinon':
-        specifier: ^10.0.20
-        version: 10.0.20
+        specifier: ^17.0.3
+        version: 17.0.3
       chai:
         specifier: ^4.4.1
         version: 4.4.1
@@ -736,8 +736,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       sinon:
-        specifier: ^15.2.0
-        version: 15.2.0
+        specifier: ^17.0.1
+        version: 17.0.1
     publishDirectory: build
 
   test:
@@ -791,8 +791,8 @@ importers:
         specifier: ^18.2.4
         version: 18.2.4
       '@types/sinon':
-        specifier: ^10.0.20
-        version: 10.0.20
+        specifier: ^17.0.3
+        version: 17.0.3
       chai:
         specifier: ^4.4.1
         version: 4.4.1
@@ -830,8 +830,8 @@ importers:
         specifier: ^6.21.3
         version: 6.21.3(react-dom@18.2.0)(react@18.2.0)
       sinon:
-        specifier: ^15.2.0
-        version: 15.2.0
+        specifier: ^17.0.1
+        version: 17.0.1
       styled-components:
         specifier: ^6.1.8
         version: 6.1.8(react-dom@18.2.0)(react@18.2.0)
@@ -4946,6 +4946,12 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.0
 
+  /@sinonjs/fake-timers@11.2.2:
+    resolution: {integrity: sha512-G2piCSxQ7oWOxwGSAyFHfPIsyeJGXYtc6mFbnFA+kRXkiEnTl8c/8jul2S329iFBnDI9HGoeWWAZvuvOkZccgw==}
+    dependencies:
+      '@sinonjs/commons': 3.0.0
+    dev: true
+
   /@sinonjs/samsam@8.0.0:
     resolution: {integrity: sha512-Bp8KUVlLp8ibJZrnvq2foVhP0IVX2CIprMJPK0vqGqgrDa0OHVKeZyBykqskkrdxV6yKBPmGasO8LVjAKR3Gew==}
     dependencies:
@@ -5453,8 +5459,8 @@ packages:
       '@types/mime': 3.0.1
       '@types/node': 18.19.18
 
-  /@types/sinon@10.0.20:
-    resolution: {integrity: sha512-2APKKruFNCAZgx3daAyACGzWuJ028VVCUDk6o2rw/Z4PXT0ogwdV4KUegW0MwVs0Zu59auPXbbuBJHF12Sx1Eg==}
+  /@types/sinon@17.0.3:
+    resolution: {integrity: sha512-j3uovdn8ewky9kRBG19bOwaZbexJu/XjtkHyjvUgt4xfPFz18dcORIMqnYh66Fx3Powhcr85NT5+er3+oViapw==}
     dependencies:
       '@types/sinonjs__fake-timers': 8.1.2
     dev: true
@@ -10803,6 +10809,7 @@ packages:
 
   /isarray@0.0.1:
     resolution: {integrity: sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ==}
+    dev: false
 
   /isarray@1.0.0:
     resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
@@ -11352,8 +11359,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /just-extend@4.2.1:
-    resolution: {integrity: sha512-g3UB796vUFIY90VIv/WX3L2c8CS2MdWUww3CNrYmqza1Fg0DURc2K/O4YrnklBdQarSJ/y8JnJYDGc+1iumQjg==}
+  /just-extend@6.2.0:
+    resolution: {integrity: sha512-cYofQu2Xpom82S6qD778jBDpwvvy39s1l/hrYij2u9AMdQcGRpaBu6kY4mVhuno5kJVi1DAz4aiphA2WI1/OAw==}
     dev: true
 
   /jwa@1.4.1:
@@ -12768,14 +12775,14 @@ packages:
     dev: true
     optional: true
 
-  /nise@5.1.4:
-    resolution: {integrity: sha512-8+Ib8rRJ4L0o3kfmyVCL7gzrohyDe0cMFTBa2d364yIrEGMEoetznKJx899YxjybU6bL9SQkYPSBBs1gyYs8Xg==}
+  /nise@5.1.9:
+    resolution: {integrity: sha512-qOnoujW4SV6e40dYxJOb3uvuoPHtmLzIk4TFo+j0jPJoC+5Z9xja5qH5JZobEPsa8+YYphMrOSwnrshEhG2qww==}
     dependencies:
-      '@sinonjs/commons': 2.0.0
-      '@sinonjs/fake-timers': 10.3.0
+      '@sinonjs/commons': 3.0.0
+      '@sinonjs/fake-timers': 11.2.2
       '@sinonjs/text-encoding': 0.7.2
-      just-extend: 4.2.1
-      path-to-regexp: 1.8.0
+      just-extend: 6.2.0
+      path-to-regexp: 6.2.1
     dev: true
 
   /no-case@3.0.4:
@@ -13766,12 +13773,6 @@ packages:
 
   /path-to-regexp@0.1.7:
     resolution: {integrity: sha512-5DFkuoqlv1uYQKxy8omFBeJPQcdoE07Kv2sferDCrAq1ohOU+MSDswDIbnx3YAM60qIOnYa53wBhXW0EbMonrQ==}
-
-  /path-to-regexp@1.8.0:
-    resolution: {integrity: sha512-n43JRhlUKUAlibEJhPeir1ncUID16QnEjNpwzNdO3Lm4ywrBpBZ5oLD0I6br9evr1Y9JTqwRtAh7JLoOzAQdVA==}
-    dependencies:
-      isarray: 0.0.1
-    dev: true
 
   /path-to-regexp@2.2.1:
     resolution: {integrity: sha512-gu9bD6Ta5bwGrrU8muHzVOBFFREpp2iRkVfhBJahwJ6p6Xw20SjT0MxLnwkjOibQmGSYhiUnf2FLe7k+jcFmGQ==}
@@ -15421,7 +15422,18 @@ packages:
       '@sinonjs/fake-timers': 10.3.0
       '@sinonjs/samsam': 8.0.0
       diff: 5.1.0
-      nise: 5.1.4
+      nise: 5.1.9
+      supports-color: 7.2.0
+    dev: true
+
+  /sinon@17.0.1:
+    resolution: {integrity: sha512-wmwE19Lie0MLT+ZYNpDymasPHUKTaZHUH/pKEubRXIzySv9Atnlw+BUMGCzWgV7b7wO+Hw6f1TEOr0IUnmU8/g==}
+    dependencies:
+      '@sinonjs/commons': 3.0.0
+      '@sinonjs/fake-timers': 11.2.2
+      '@sinonjs/samsam': 8.0.0
+      diff: 5.1.0
+      nise: 5.1.9
       supports-color: 7.2.0
     dev: true
 

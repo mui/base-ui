@@ -22,10 +22,10 @@
     "@types/mdast": "4.0.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.19.15",
-    "@types/sinon": "^10.0.20",
+    "@types/sinon": "^17.0.3",
     "ast-types": "^0.14.2",
     "chai": "^4.4.1",
-    "sinon": "^15.2.0",
+    "sinon": "^17.0.1",
     "typescript": "^5.3.3"
   }
 }
