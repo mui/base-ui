@@ -22,7 +22,7 @@ overrides:
   '@definitelytyped/header-parser': ^0.2.3
   '@definitelytyped/typescript-versions': ^0.1.0
   '@definitelytyped/utils': ^0.1.2
-  '@types/node': ^18.19.15
+  '@types/node': ^18.19.18
   '@types/react': ^18.2.60
   '@types/react-dom': 18.2.19
 
@@ -142,7 +142,7 @@ importers:
         specifier: ^10.0.6
         version: 10.0.6
       '@types/node':
-        specifier: ^18.19.15
+        specifier: ^18.19.18
         version: 18.19.18
       '@types/prettier':
         specifier: ^2.7.3
@@ -560,7 +560,7 @@ importers:
         specifier: ^4.3.12
         version: 4.3.12
       '@types/node':
-        specifier: ^18.19.15
+        specifier: ^18.19.18
         version: 18.19.18
       '@types/prop-types':
         specifier: ^15.7.11
@@ -636,7 +636,7 @@ importers:
         specifier: ^10.0.6
         version: 10.0.6
       '@types/node':
-        specifier: ^18.19.15
+        specifier: ^18.19.18
         version: 18.19.18
       '@types/sinon':
         specifier: ^17.0.3
