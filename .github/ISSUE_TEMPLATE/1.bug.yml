@@ -1,5 +1,5 @@
 name: Bug report 🐛
-description: Create a bug report for Material UI, Base UI, MUI System, or Joy UI.
+description: Create a bug report for Base UI.
 labels: ['status: waiting for maintainer']
 body:
   - type: markdown
@@ -9,7 +9,7 @@ body:
     attributes:
       label: Search keywords
       description: |
-        Your issue may have already been reported! First search for duplicates among the [existing issues](https://github.com/mui/material-ui/issues).
+        Your issue may have already been reported! First search for duplicates among the [existing issues](https://github.com/mui/base-ui/issues).
         If your issue isn't a duplicate, great! Please list the keywords you used so people in the future can find this one more easily:
     validations:
       required: true
@@ -26,7 +26,7 @@ body:
       description: |
         **⚠️ Issues that we can't reproduce can't be fixed.**
 
-        Please provide a link to a live example and an unambiguous set of steps to reproduce this bug. See our [documentation](https://mui.com/material-ui/getting-started/support/#bug-reproductions) on how to build a reproduction case.
+        Please provide a link to a live example and an unambiguous set of steps to reproduce this bug. See our [documentation](https://mui.com/base-ui/getting-started/support/#bug-reproductions) on how to build a reproduction case.
       value: |
         Link to live example: (required)
 
