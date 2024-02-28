@@ -301,7 +301,7 @@ _Jul 25, 2023_
 
 - [Joy] Replace leftover `Joy-` prefix with `Mui-` (#38086) @siriwatknp
 - [Skeleton][joy] Fix WebkitMaskImage CSS property (#38077) @Bestwebdesign
-- [Link][Joy UI] Fix font inherit (#38124) @oliviertassinari
+- [Link][Joy UI] Fix font inherit (#38124) @oliviertassinari
 
 ## 5.14.1
 
@@ -817,7 +817,7 @@ _Sep 19, 2022_
 
   The SelectUnstyled and MultiSelectUnstyled `onChange` callbacks did not have event as the first parameter, leading to inconsistency with other components and native HTML elements.
   This PR adds the event parameter as the first one and moves the newly selected value to the second position. Because of this, it's a breaking change.
-  This also affects Select from Joy UI.
+  This also affects Select from Joy UI.
 
   ```jsx
   // before
