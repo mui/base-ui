@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import kebabCase from 'lodash/kebabCase';
 import { getHeaders, getTitle } from '@mui/internal-markdown';
 import {
   ComponentInfo,
@@ -57,17 +56,8 @@ export function getBaseUiComponentInfo(filename: string): ComponentInfo {
       srcInfo = parseFile(filename);
       return srcInfo;
     },
-    getInheritance: (inheritedComponent = srcInfo?.inheritedComponent) => {
-      if (!inheritedComponent) {
-        return null;
-      }
-      return {
-        name: inheritedComponent,
-        apiPathname:
-          inheritedComponent === 'Transition'
-            ? 'https://reactcommunity.org/react-transition-group/transition/#Transition-props'
-            : `/base-ui/api/${kebabCase(inheritedComponent)}/`,
-      };
+    getInheritance: () => {
+      return null;
     },
     getDemos: () => demos,
   };
