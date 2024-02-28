@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import useControlled from '@mui/utils/useControlled';
+import useId from '@mui/utils/useId';
 import { FormFieldProps, FormFieldOwnerState } from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
 
@@ -13,9 +14,14 @@ const FormField = React.forwardRef(function FormField(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    disabled,
+    dirty: dirtyProp,
+    disabled = false,
+    error = null,
+    invalid = false,
+    touched,
     value: valueProp,
     defaultValue,
+    id: idProp,
     children,
     render: renderProp,
     ...other
@@ -27,6 +33,11 @@ const FormField = React.forwardRef(function FormField(
     name: 'FormField',
     state: 'value',
   });
+
+  // why does TS complain about this
+  const id = useId(idProp) as string;
+  const helpTextId = `${id}-help-text`;
+  const labelId = `${id}-label`;
 
   const { current: initialValueRef } = React.useRef(valueProp ?? defaultValue);
 
@@ -57,22 +68,41 @@ const FormField = React.forwardRef(function FormField(
 
   const ownerState: FormFieldOwnerState = {
     ...props,
-    disabled,
     dirty: isDirty,
+    touched: isTouched,
     focused,
   };
 
   const childContext = React.useMemo(() => {
     return {
+      id,
+      helpTextId,
+      labelId,
       value,
-      defaultValue,
       setValue,
       disabled,
+      invalid,
       dirty: isDirty,
+      touched: isTouched,
       focused,
       setFocused,
+      error,
+      // + additionalContext somehow
     };
-  }, [value, defaultValue, setValue, disabled, isDirty, focused, setFocused]);
+  }, [
+    id,
+    helpTextId,
+    labelId,
+    value,
+    setValue,
+    disabled,
+    invalid,
+    isDirty,
+    isTouched,
+    focused,
+    setFocused,
+    error,
+  ]);
 
   const renderProps = {
     ...other,

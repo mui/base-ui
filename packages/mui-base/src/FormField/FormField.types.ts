@@ -6,13 +6,15 @@ type RenderFunction = (
 ) => React.ReactNode;
 
 export interface FormFieldProps {
+  id?: string;
   value?: unknown;
   defaultValue?: unknown;
   disabled?: boolean;
   invalid?: boolean;
   touched?: boolean;
   dirty?: boolean;
-  error?: any;
+  // to consume `error` with a custom shape, Labels and such must use a custom render function
+  error?: string | null | Record<string, unknown>;
   children?: React.ReactNode;
   render?: RenderFunction;
 }
@@ -20,3 +22,5 @@ export interface FormFieldProps {
 export interface FormFieldOwnerState extends FormFieldProps {
   focused: boolean;
 }
+
+export { FormFieldContextValue } from './FormFieldContext';
