@@ -6,7 +6,7 @@
 
 Starting fresh on a new App Router-based project?
 
-Jump right into the code with [this example: Base UI - Next.js App Router with Tailwind CSS in TypeScript](https://github.com/mui/material-ui/tree/master/examples/base-ui-nextjs-tailwind-ts).
+Jump right into the code with [this example: Base UI - Next.js App Router with Tailwind CSS in TypeScript](https://github.com/mui/base-ui/tree/master/examples/base-ui-nextjs-tailwind-ts).
 
 ## Next.js and React Server Components
 
@@ -46,7 +46,7 @@ module.exports = {
 };
 ```
 
-Refer to this [example repo](https://github.com/mui/material-ui/tree/master/examples/base-ui-nextjs-tailwind-ts) for a full working demo of a Next.js 13 app using Base UI and Tailwind CSS.
+Refer to this [example repo](https://github.com/mui/base-ui/tree/master/examples/base-ui-nextjs-tailwind-ts) for a full working demo of a Next.js 13 app using Base UI and Tailwind CSS.
 
 ### Emotion
 

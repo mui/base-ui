@@ -28,7 +28,7 @@ Use the "base-ui" tag on Stack Overflow to make it easier for the community to f
 
 ## Examples
 
-Our documentation features [a collection of example projects using Base UI](https://github.com/mui/material-ui/tree/master/examples).
+Our documentation features [a collection of example projects using Base UI](https://github.com/mui/base-ui/tree/master/examples).
 
 ## Contributing
 
@@ -39,11 +39,11 @@ There are many other ways to [support MUI](https://mui.com/material-ui/getting-s
 
 ## Changelog
 
-The [changelog](https://github.com/mui/material-ui/releases) is regularly updated to reflect what's changed in each new release.
+The [changelog](https://github.com/mui/base-ui/releases) is regularly updated to reflect what's changed in each new release.
 
 ## Roadmap
 
-Future plans and high-priority features and enhancements can be found in our [roadmap](https://mui.com/material-ui/discover-more/roadmap/).
+Future plans and high-priority features and enhancements can be found in our [roadmap](https://github.com/orgs/mui/projects/1).
 
 ## License
 
@@ -52,4 +52,4 @@ This project is licensed under the terms of the
 
 ## Security
 
-For details of supported versions and contact details for reporting security issues, please refer to the [security policy](https://github.com/mui/material-ui/security/policy).
+For details of supported versions and contact details for reporting security issues, please refer to the [security policy](https://github.com/mui/base-ui/security/policy).
