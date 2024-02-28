@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
-import useControlled from '@mui/utils/useControlled';
-import useId from '@mui/utils/useId';
+import {
+  unstable_useControlled as useControlled,
+  unstable_useId as useId,
+  unstable_isMuiElement as isMuiElement,
+} from '@mui/utils';
 import { FormFieldProps, FormFieldOwnerState } from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
 
@@ -38,6 +41,40 @@ const FormField = React.forwardRef(function FormField(
   const id = useId(idProp) as string;
   const helpTextId = `${id}-help-text`;
   const labelId = `${id}-label`;
+
+  // child Label and HelpText needs to notify this context that a label exists
+  // extract this into a hook
+  const [hasLabel, setHasLabel] = React.useState(() => {
+    let initialHasLabel = false;
+    if (children) {
+      React.Children.forEach(children, (child) => {
+        if (!isMuiElement(child, ['Label'])) {
+          return;
+        }
+
+        if (React.isValidElement(child) && isMuiElement(child, ['Label'])) {
+          initialHasLabel = true;
+        }
+      });
+    }
+    return initialHasLabel;
+  });
+
+  const [hasHelpText, setHasHelpText] = React.useState(() => {
+    let initialHasHelpText = false;
+    if (children) {
+      React.Children.forEach(children, (child) => {
+        if (!isMuiElement(child, ['HelpText'])) {
+          return;
+        }
+
+        if (React.isValidElement(child) && isMuiElement(child, ['HelpText'])) {
+          initialHasHelpText = true;
+        }
+      });
+    }
+    return initialHasHelpText;
+  });
 
   const { current: initialValueRef } = React.useRef(valueProp ?? defaultValue);
 
@@ -87,6 +124,10 @@ const FormField = React.forwardRef(function FormField(
       focused,
       setFocused,
       error,
+      hasLabel,
+      setHasLabel,
+      hasHelpText,
+      setHasHelpText,
       // + additionalContext somehow
     };
   }, [
@@ -102,6 +143,10 @@ const FormField = React.forwardRef(function FormField(
     focused,
     setFocused,
     error,
+    hasLabel,
+    setHasLabel,
+    hasHelpText,
+    setHasHelpText,
   ]);
 
   const renderProps = {

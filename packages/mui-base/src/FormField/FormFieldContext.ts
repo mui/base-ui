@@ -14,6 +14,10 @@ export interface FormFieldContextValue {
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   setValue: React.Dispatch<React.SetStateAction<unknown>>;
   error: string | null | Record<string, unknown>;
+  hasLabel: boolean;
+  setHasLabel: React.Dispatch<React.SetStateAction<boolean>>;
+  hasHelpText: boolean;
+  setHasHelpText: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**

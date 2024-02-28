@@ -24,6 +24,10 @@ const HelpText = React.forwardRef(function HelpText(
 
   const field: FormFieldContextValue | undefined = useFormFieldContext();
 
+  React.useEffect(() => {
+    field?.setHasHelpText(true);
+  }, [field]);
+
   // - field[prop] overrides direct prop
   // - this chunk of logic could be extracted into a hook or util
   const disabled = field?.disabled ?? disabledProp;
@@ -44,11 +48,15 @@ const HelpText = React.forwardRef(function HelpText(
 
   const renderProps = {
     ...other,
+    id: field?.helpTextId,
     children,
     ref: forwardedRef,
   };
 
   return render(renderProps, ownerState);
 });
+
+// @ts-ignore
+HelpText.muiName = 'HelpText';
 
 export { HelpText };
