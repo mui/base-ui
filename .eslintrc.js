@@ -439,5 +439,12 @@ module.exports = {
         'import/prefer-default-export': 'off',
       },
     },
+    {
+      files: ['scripts/buildApiDocs/**/*'],
+      rules: {
+        'import/no-default-export': 'error',
+        'import/prefer-default-export': 'off',
+      },
+    },
   ],
 };
