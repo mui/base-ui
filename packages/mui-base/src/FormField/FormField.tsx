@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import {
-  unstable_useControlled as useControlled,
-  unstable_useId as useId,
-  unstable_isMuiElement as isMuiElement,
-} from '@mui/utils';
+import { unstable_useControlled as useControlled, unstable_useId as useId } from '@mui/utils';
 import { FormFieldProps, FormFieldOwnerState } from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
+import { useRegisterChild } from './useRegisterChild';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
+  // TODO: support:
+  // 1 - rendering a Fragment
+  // 2 - rendering a <fieldset> and setting additional attributes e.g. disabled
   return <div data-testid="FormField" {...props} />;
 }
 
@@ -43,38 +43,9 @@ const FormField = React.forwardRef(function FormField(
   const labelId = `${id}-label`;
 
   // child Label and HelpText needs to notify this context that a label exists
-  // extract this into a hook
-  const [hasLabel, setHasLabel] = React.useState(() => {
-    let initialHasLabel = false;
-    if (children) {
-      React.Children.forEach(children, (child) => {
-        if (!isMuiElement(child, ['Label'])) {
-          return;
-        }
-
-        if (React.isValidElement(child) && isMuiElement(child, ['Label'])) {
-          initialHasLabel = true;
-        }
-      });
-    }
-    return initialHasLabel;
-  });
-
-  const [hasHelpText, setHasHelpText] = React.useState(() => {
-    let initialHasHelpText = false;
-    if (children) {
-      React.Children.forEach(children, (child) => {
-        if (!isMuiElement(child, ['HelpText'])) {
-          return;
-        }
-
-        if (React.isValidElement(child) && isMuiElement(child, ['HelpText'])) {
-          initialHasHelpText = true;
-        }
-      });
-    }
-    return initialHasHelpText;
-  });
+  // TODO: consolidate these states and state setters somehow
+  const [hasLabel, setHasLabel] = useRegisterChild(children, 'Label');
+  const [hasHelpText, setHasHelpText] = useRegisterChild(children, 'HelpText');
 
   const { current: initialValueRef } = React.useRef(valueProp ?? defaultValue);
 
@@ -125,9 +96,15 @@ const FormField = React.forwardRef(function FormField(
       setFocused,
       error,
       hasLabel,
-      setHasLabel,
       hasHelpText,
-      setHasHelpText,
+      registerChild(name: 'Label' | 'HelpText') {
+        if (name === 'Label') {
+          setHasLabel(true);
+        }
+        if (name === 'HelpText') {
+          setHasHelpText(true);
+        }
+      },
       // + additionalContext somehow
     };
   }, [

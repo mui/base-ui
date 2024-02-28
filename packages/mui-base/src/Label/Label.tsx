@@ -24,9 +24,9 @@ const Label = React.forwardRef(function Label(
   } = props;
 
   const field: FormFieldContextValue | undefined = useFormFieldContext();
-
+  // console.log(field);
   React.useEffect(() => {
-    field?.setHasLabel(true);
+    field?.registerChild('Label');
   }, [field]);
 
   // - field[prop] overrides direct prop

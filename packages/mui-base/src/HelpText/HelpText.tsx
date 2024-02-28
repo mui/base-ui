@@ -25,7 +25,7 @@ const HelpText = React.forwardRef(function HelpText(
   const field: FormFieldContextValue | undefined = useFormFieldContext();
 
   React.useEffect(() => {
-    field?.setHasHelpText(true);
+    field?.registerChild('HelpText');
   }, [field]);
 
   // - field[prop] overrides direct prop
