@@ -1,101 +1,61 @@
-import { Simplify } from '@mui/types';
-import { PolymorphicProps, SlotComponentProps } from '../utils';
-import { UseSwitchInputSlotProps, UseSwitchParameters } from '../useSwitch';
+import * as React from 'react';
 
-export interface SwitchRootSlotPropsOverrides {}
-export interface SwitchThumbSlotPropsOverrides {}
-export interface SwitchInputSlotPropsOverrides {}
-export interface SwitchTrackSlotPropsOverrides {}
+// TODO: move to utils
+type ComponentRenderFn<Props, State> = (props: Props, state: State) => React.ReactElement;
 
-export interface SwitchOwnProps extends UseSwitchParameters {
+type BaseUiComponentCommonProps<ElementType extends React.ElementType, OwnerState> = Omit<
+  React.ComponentPropsWithoutRef<ElementType>,
+  'className'
+> & {
   /**
-   * Class name applied to the root element.
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className?: string;
+  className?: string | ((state: OwnerState) => string);
   /**
-   * The components used for each slot inside the Switch.
-   * Either a string to use a HTML element or a component.
-   * @default {}
+   * A function to customize rendering of the component.
    */
-  slots?: SwitchSlots;
-  /**
-   * The props used for each slot inside the Switch.
-   * @default {}
-   */
-  slotProps?: {
-    root?: SlotComponentProps<'span', SwitchRootSlotPropsOverrides, SwitchOwnerState>;
-    thumb?: SlotComponentProps<'span', SwitchThumbSlotPropsOverrides, SwitchOwnerState>;
-    input?: SlotComponentProps<'input', SwitchInputSlotPropsOverrides, SwitchOwnerState>;
-    track?: SlotComponentProps<'span', SwitchTrackSlotPropsOverrides, SwitchOwnerState>;
-  };
-}
-
-export interface SwitchSlots {
-  /**
-   * The component that renders the root.
-   * @default 'span'
-   */
-  root?: React.ElementType;
-  /**
-   * The component that renders the input.
-   * @default 'input'
-   */
-  input?: React.ElementType;
-  /**
-   * The component that renders the thumb.
-   * @default 'span'
-   */
-  thumb?: React.ElementType;
-  /**
-   * The component that renders the track.
-   * @default 'span'
-   */
-  track?: React.ElementType | null;
-}
-
-export interface SwitchTypeMap<
-  AdditionalProps = {},
-  RootComponentType extends React.ElementType = 'span',
-> {
-  props: SwitchOwnProps & AdditionalProps;
-  defaultComponent: RootComponentType;
-}
-
-export type SwitchProps<
-  RootComponentType extends React.ElementType = SwitchTypeMap['defaultComponent'],
-> = PolymorphicProps<SwitchTypeMap<{}, RootComponentType>, RootComponentType>;
-
-export type SwitchOwnerState = Simplify<
-  SwitchOwnProps & {
-    checked: boolean;
-    disabled: boolean;
-    focusVisible: boolean;
-    readOnly: boolean;
-  }
->;
-
-export type SwitchRootSlotProps = {
-  ownerState: SwitchOwnerState;
-  className?: string;
-  children?: React.ReactNode;
+  render?: ComponentRenderFn<React.ComponentPropsWithRef<ElementType>, OwnerState>;
 };
 
-export type SwitchThumbSlotProps = {
-  ownerState: SwitchOwnerState;
-  className?: string;
-  children?: React.ReactNode;
+export type SwitchOwnerState = {
+  checked: boolean;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
 };
 
-export type SwitchTrackSlotProps = {
-  ownerState: SwitchOwnerState;
-  className?: string;
-  children?: React.ReactNode;
-};
+export interface SwitchProps
+  extends Omit<BaseUiComponentCommonProps<'button', SwitchOwnerState>, 'onChange'> {
+  /**
+   * If `true`, the component is checked.
+   */
+  checked?: boolean;
+  /**
+   * The default checked state. Use when the component is not controlled.
+   */
+  defaultChecked?: boolean;
+  /**
+   * If `true`, the component is disabled.
+   */
+  disabled?: boolean;
+  onBlur?: React.FocusEventHandler;
+  /**
+   * Callback fired when the state is changed.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
+   * You can pull out the new value by accessing `event.target.value` (string).
+   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
+   */
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onFocus?: React.FocusEventHandler;
+  /**
+   * If `true`, the component is read only.
+   */
+  readOnly?: boolean;
+  /**
+   * If `true`, the `input` element is required.
+   */
+  required?: boolean;
+}
 
-export type SwitchInputSlotProps = Simplify<
-  UseSwitchInputSlotProps & {
-    ownerState: SwitchOwnerState;
-    className?: string;
-    children?: React.ReactNode;
-  }
->;
+export interface SwitchThumbProps extends BaseUiComponentCommonProps<'span', SwitchOwnerState> {}

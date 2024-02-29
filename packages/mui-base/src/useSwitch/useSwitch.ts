@@ -46,6 +46,8 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
         return;
       }
 
+      console.log('event.target.checked', event.target.checked);
+
       setCheckedState(event.target.checked);
       onChange?.(event);
       otherProps.onChange?.(event);
@@ -100,7 +102,27 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
       otherProps.onBlur?.(event);
     };
 
+  const createHandleClick =
+    (otherProps: React.ButtonHTMLAttributes<HTMLButtonElement>) =>
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      otherProps.onClick?.(event);
+      if (disabled) {
+        return;
+      }
+
+      setCheckedState((prevChecked) => !prevChecked);
+    };
+
   const handleInputRef = useForkRef(focusVisibleRef, inputRef);
+
+  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = (otherProps = {}) => ({
+    role: 'switch',
+    'aria-checked': checked,
+    'aria-disabled': disabled,
+    type: 'button',
+    onClick: createHandleClick(otherProps),
+    ...otherProps,
+  });
 
   const getInputProps: UseSwitchReturnValue['getInputProps'] = (otherProps = {}) => ({
     checked: checkedProp,
@@ -110,8 +132,10 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
     ref: handleInputRef,
     required,
     type: 'checkbox',
-    role: 'switch',
+    'aria-hidden': true,
     'aria-checked': checkedProp,
+    tabIndex: -1,
+    style: { opacity: 0, width: 0, height: 0, margin: 0, padding: 0, overflow: 'hidden' },
     ...otherProps,
     onChange: createHandleInputChange(otherProps),
     onFocus: createHandleFocus(otherProps),
@@ -122,6 +146,7 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
     checked,
     disabled: Boolean(disabled),
     focusVisible,
+    getButtonProps,
     getInputProps,
     inputRef: handleInputRef,
     readOnly: Boolean(readOnly),

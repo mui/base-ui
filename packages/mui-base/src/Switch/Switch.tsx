@@ -1,40 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent } from '../utils/PolymorphicComponent';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { useSwitch } from '../useSwitch';
-import {
-  SwitchProps,
-  SwitchOwnerState,
-  SwitchInputSlotProps,
-  SwitchRootSlotProps,
-  SwitchThumbSlotProps,
-  SwitchTrackSlotProps,
-  SwitchTypeMap,
-} from './Switch.types';
-import { useSlotProps, WithOptionalOwnerState } from '../utils';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
-import { getSwitchUtilityClass } from './switchClasses';
+import { SwitchProps, SwitchOwnerState } from './Switch.types';
+import { resolveClassName } from '../utils/resolveClassName';
+import { SwitchContext } from './SwitchContext';
 
-const useUtilityClasses = (ownerState: SwitchOwnerState) => {
-  const { checked, disabled, focusVisible, readOnly } = ownerState;
-
-  const slots = {
-    root: [
-      'root',
-      checked && 'checked',
-      disabled && 'disabled',
-      focusVisible && 'focusVisible',
-      readOnly && 'readOnly',
-    ],
-    thumb: ['thumb'],
-    input: ['input'],
-    track: ['track'],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getSwitchUtilityClass));
-};
+function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
+  // eslint-disable-next-line react/button-has-type
+  return <button {...props} />;
+}
 
 /**
  * The foundation for building custom-styled switches.
@@ -47,82 +22,53 @@ const useUtilityClasses = (ownerState: SwitchOwnerState) => {
  *
  * - [Switch API](https://mui.com/base-ui/react-switch/components-api/#switch)
  */
-const Switch = React.forwardRef(function Switch<RootComponentType extends React.ElementType>(
-  props: SwitchProps<RootComponentType>,
-  forwardedRef: React.ForwardedRef<Element>,
+const Switch = React.forwardRef(function Switch(
+  props: SwitchProps,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     checked: checkedProp,
+    className: classNameProp,
     defaultChecked,
     disabled: disabledProp,
-    onBlur,
     onChange,
-    onFocus,
-    onFocusVisible,
     readOnly: readOnlyProp,
-    required,
-    slotProps = {},
-    slots = {},
+    required = false,
+    render = defaultRender,
     ...other
   } = props;
 
-  const { getInputProps, checked, disabled, focusVisible, readOnly } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked, disabled, readOnly } = useSwitch(props);
 
-  const ownerState: SwitchOwnerState = {
-    ...props,
-    checked,
-    disabled,
-    focusVisible,
-    readOnly,
+  const ownerState: SwitchOwnerState = React.useMemo(
+    () => ({
+      checked,
+      disabled,
+      readOnly,
+      required,
+    }),
+    [checked, disabled, readOnly, required],
+  );
+
+  const className = resolveClassName(classNameProp, ownerState);
+
+  const buttonProps = {
+    className,
+    'data-disabled': disabled ? 'true' : undefined,
+    'data-read-only': readOnly ? 'true' : undefined,
+    'data-required': required ? 'true' : undefined,
+    'data-state': checked ? 'checked' : 'unchecked',
+    ref: forwardedRef,
+    ...other,
   };
 
-  const classes = useUtilityClasses(ownerState);
-
-  const Root: React.ElementType = slots.root ?? 'span';
-  const rootProps: WithOptionalOwnerState<SwitchRootSlotProps> = useSlotProps({
-    elementType: Root,
-    externalSlotProps: slotProps.root,
-    externalForwardedProps: other,
-    additionalProps: {
-      ref: forwardedRef,
-    },
-    ownerState,
-    className: classes.root,
-  });
-
-  const Thumb: React.ElementType = slots.thumb ?? 'span';
-  const thumbProps: WithOptionalOwnerState<SwitchThumbSlotProps> = useSlotProps({
-    elementType: Thumb,
-    externalSlotProps: slotProps.thumb,
-    ownerState,
-    className: classes.thumb,
-  });
-
-  const Input: React.ElementType = slots.input ?? 'input';
-  const inputProps: WithOptionalOwnerState<SwitchInputSlotProps> = useSlotProps({
-    elementType: Input,
-    getSlotProps: getInputProps,
-    externalSlotProps: slotProps.input,
-    ownerState,
-    className: classes.input,
-  });
-
-  const Track: React.ElementType = slots.track === null ? () => null : slots.track ?? 'span';
-  const trackProps: WithOptionalOwnerState<SwitchTrackSlotProps> = useSlotProps({
-    elementType: Track,
-    externalSlotProps: slotProps.track,
-    ownerState,
-    className: classes.track,
-  });
-
   return (
-    <Root {...rootProps}>
-      <Track {...trackProps} />
-      <Thumb {...thumbProps} />
-      <Input {...inputProps} />
-    </Root>
+    <SwitchContext.Provider value={ownerState}>
+      {render(getButtonProps(buttonProps), ownerState)}
+      <input {...getInputProps()} />
+    </SwitchContext.Provider>
   );
-}) as PolymorphicComponent<SwitchTypeMap>;
+});
 
 Switch.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -134,9 +80,13 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   checked: PropTypes.bool,
   /**
-   * Class name applied to the root element.
+   * @ignore
    */
-  className: PropTypes.string,
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The default checked state. Use when the component is not controlled.
    */
@@ -145,6 +95,10 @@ Switch.propTypes /* remove-proptypes */ = {
    * If `true`, the component is disabled.
    */
   disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * @ignore
    */
@@ -162,38 +116,25 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   onFocus: PropTypes.func,
   /**
-   * @ignore
-   */
-  onFocusVisible: PropTypes.func,
-  /**
    * If `true`, the component is read only.
    */
   readOnly: PropTypes.bool,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.func,
   /**
    * If `true`, the `input` element is required.
    */
   required: PropTypes.bool,
   /**
-   * The props used for each slot inside the Switch.
-   * @default {}
+   * @ignore
    */
-  slotProps: PropTypes.shape({
-    input: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    thumb: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    track: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-  /**
-   * The components used for each slot inside the Switch.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slots: PropTypes /* @typescript-to-proptypes-ignore */.shape({
-    input: PropTypes.elementType,
-    root: PropTypes.elementType,
-    thumb: PropTypes.elementType,
-    track: PropTypes.oneOfType([PropTypes.elementType, PropTypes.oneOf([null])]),
-  }),
+  value: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.number,
+    PropTypes.string,
+  ]),
 } as any;
 
 export { Switch };
