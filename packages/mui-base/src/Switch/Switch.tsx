@@ -97,16 +97,14 @@ Switch.propTypes /* remove-proptypes */ = {
   defaultChecked: PropTypes.bool,
   /**
    * If `true`, the component is disabled.
+   *
+   * @default false
    */
   disabled: PropTypes.bool,
   /**
    * @ignore
    */
   id: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onBlur: PropTypes.func,
   /**
    * Callback fired when the state is changed.
    *
@@ -116,11 +114,9 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   onChange: PropTypes.func,
   /**
-   * @ignore
-   */
-  onFocus: PropTypes.func,
-  /**
    * If `true`, the component is read only.
+   *
+   * @default false
    */
   readOnly: PropTypes.bool,
   /**
@@ -129,6 +125,8 @@ Switch.propTypes /* remove-proptypes */ = {
   render: PropTypes.func,
   /**
    * If `true`, the `input` element is required.
+   *
+   * @default false
    */
   required: PropTypes.bool,
   /**
