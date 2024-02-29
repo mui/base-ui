@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useSwitch } from '../useSwitch';
 import { SwitchProps, SwitchOwnerState } from './Switch.types';
 import { resolveClassName } from '../utils/resolveClassName';
+import { getStyleHookProps } from '../utils/getStyleHookProps';
 import { SwitchContext } from './SwitchContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
@@ -52,13 +53,16 @@ const Switch = React.forwardRef(function Switch(
 
   const className = resolveClassName(classNameProp, ownerState);
 
+  const styleHooks = React.useMemo(() => {
+    return getStyleHookProps(ownerState, {
+      checked: (value) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
+    });
+  }, [ownerState]);
+
   const buttonProps = {
     className,
-    'data-disabled': disabled ? 'true' : undefined,
-    'data-read-only': readOnly ? 'true' : undefined,
-    'data-required': required ? 'true' : undefined,
-    'data-state': checked ? 'checked' : 'unchecked',
     ref: forwardedRef,
+    ...styleHooks,
     ...other,
   };
 
