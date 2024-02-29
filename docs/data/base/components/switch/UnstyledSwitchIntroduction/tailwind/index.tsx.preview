@@ -1,4 +1,12 @@
-<Switch slotProps={{ input: { ...label } }} defaultChecked />
-<Switch slotProps={{ input: { ...label } }} />
-<Switch slotProps={{ input: { ...label } }} defaultChecked disabled />
-<Switch slotProps={{ input: { ...label } }} disabled />
+<Switch aria-label="Basic switch, on by default" defaultChecked>
+  <Thumb />
+</Switch>
+<Switch aria-label="Basic switch, off by default">
+  <Thumb />
+</Switch>
+<Switch aria-label="Disabled switch, on by default" defaultChecked disabled>
+  <Thumb />
+</Switch>
+<Switch aria-label="Disabled switch, off by default" disabled>
+  <Thumb />
+</Switch>
