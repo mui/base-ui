@@ -13,7 +13,6 @@ export interface UseSwitchParameters {
    * If `true`, the component is disabled.
    */
   disabled?: boolean;
-  onBlur?: React.FocusEventHandler;
   /**
    * Callback fired when the state is changed.
    *
@@ -22,8 +21,6 @@ export interface UseSwitchParameters {
    * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  onFocus?: React.FocusEventHandler;
-  onFocusVisible?: React.FocusEventHandler;
   /**
    * If `true`, the component is read only.
    */
@@ -38,11 +35,8 @@ interface UseSwitchInputSlotOwnProps {
   checked?: boolean;
   defaultChecked?: boolean;
   disabled?: boolean;
-  onBlur: React.FocusEventHandler;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
-  onFocus: React.FocusEventHandler;
   readOnly?: boolean;
-  ref: React.RefCallback<HTMLInputElement> | null;
   required?: boolean;
   type: React.HTMLInputTypeAttribute;
 }
@@ -73,10 +67,6 @@ export interface UseSwitchReturnValue {
    */
   disabled: boolean;
   /**
-   * If `true`, it indicates that the component is being focused using keyboard.
-   */
-  focusVisible: boolean;
-  /**
    * Resolver for the input slot's props.
    * @param externalProps props for the input slot
    * @returns props that should be spread on the input slot
@@ -85,12 +75,8 @@ export interface UseSwitchReturnValue {
     externalProps?: React.HTMLAttributes<HTMLInputElement>,
   ) => UseSwitchInputSlotProps;
   getButtonProps: (
-    externalProps?: React.HTMLAttributes<HTMLInputElement>,
+    externalProps?: React.HTMLAttributes<HTMLButtonElement>,
   ) => UseSwitchButtonSlotProps;
-  /**
-   * Ref to the input slot's DOM node.
-   */
-  inputRef: React.RefCallback<HTMLInputElement> | null;
   /**
    * If `true`, the component will be read only.
    */
