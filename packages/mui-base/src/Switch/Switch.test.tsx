@@ -1,37 +1,11 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Switch, SwitchOwnerState, switchClasses } from '@mui/base/Switch';
+import { Switch, SwitchOwnerState } from '@mui/base/Switch';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 describe('<Switch />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
-
-  describeConformanceUnstyled(<Switch />, () => ({
-    inheritComponent: 'span',
-    render,
-    mount,
-    refInstanceof: window.HTMLSpanElement,
-    testComponentPropWith: 'span',
-    slots: {
-      root: {
-        expectedClassName: switchClasses.root,
-      },
-      thumb: {
-        expectedClassName: switchClasses.thumb,
-      },
-      input: {
-        testWithElement: 'input',
-        expectedClassName: switchClasses.input,
-      },
-      track: {
-        expectedClassName: switchClasses.track,
-        isOptional: true,
-      },
-    },
-    skip: ['componentProp'],
-  }));
 
   describe('componentState', () => {
     it('passes the ownerState prop to all the slots', () => {
@@ -48,7 +22,6 @@ describe('<Switch />', () => {
               data-checked={sp.checked}
               data-disabled={sp.disabled}
               data-readonly={sp.readOnly}
-              data-focusvisible={sp.focusVisible}
               data-testid="custom"
             >
               {children}
@@ -63,7 +36,7 @@ describe('<Switch />', () => {
         thumb: CustomSlot,
       };
 
-      const { getAllByTestId } = render(<Switch defaultChecked disabled slots={slots} />);
+      const { getAllByTestId } = render(<Switch defaultChecked disabled />);
       const renderedComponents = getAllByTestId('custom');
 
       expect(renderedComponents.length).to.equal(3);

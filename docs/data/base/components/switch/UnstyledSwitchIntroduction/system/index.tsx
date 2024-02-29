@@ -1,40 +1,29 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Switch, switchClasses } from '@mui/base/Switch';
+import { Switch } from '@mui/base/Switch';
 
 export default function UnstyledSwitchIntroduction() {
   const label = { slotProps: { input: { 'aria-label': 'Demo switch' } } };
 
   return (
     <div>
+      <Switch render={(props) => <Root {...props} />} {...label} defaultChecked>
+        <Switch.Thumb />
+      </Switch>
+      <Switch render={(props) => <Root {...props} />} {...label}>
+        <Switch.Thumb />
+      </Switch>
       <Switch
-        slots={{
-          root: Root,
-        }}
-        {...label}
-        defaultChecked
-      />
-      <Switch
-        slots={{
-          root: Root,
-        }}
-        {...label}
-      />
-      <Switch
-        slots={{
-          root: Root,
-        }}
+        render={(props) => <Root {...props} />}
         {...label}
         defaultChecked
         disabled
-      />
-      <Switch
-        slots={{
-          root: Root,
-        }}
-        {...label}
-        disabled
-      />
+      >
+        <Switch.Thumb />
+      </Switch>
+      <Switch render={(props) => <Root {...props} />} {...label} disabled>
+        <Switch.Thumb />
+      </Switch>
     </div>
   );
 }

@@ -50,6 +50,19 @@ interface UseSwitchInputSlotOwnProps {
 export type UseSwitchInputSlotProps<TOther = {}> = Omit<TOther, keyof UseSwitchInputSlotOwnProps> &
   UseSwitchInputSlotOwnProps;
 
+interface UseSwitchButtonSlotOwnProps {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  role: React.AriaRole;
+  'aria-disabled': React.AriaAttributes['aria-disabled'];
+  'aria-checked': React.AriaAttributes['aria-checked'];
+}
+
+export type UseSwitchButtonSlotProps<TOther = {}> = Omit<
+  TOther,
+  keyof UseSwitchButtonSlotOwnProps
+> &
+  UseSwitchButtonSlotOwnProps;
+
 export interface UseSwitchReturnValue {
   /**
    * If `true`, the component will be checked.
@@ -71,6 +84,9 @@ export interface UseSwitchReturnValue {
   getInputProps: (
     externalProps?: React.HTMLAttributes<HTMLInputElement>,
   ) => UseSwitchInputSlotProps;
+  getButtonProps: (
+    externalProps?: React.HTMLAttributes<HTMLInputElement>,
+  ) => UseSwitchButtonSlotProps;
   /**
    * Ref to the input slot's DOM node.
    */
