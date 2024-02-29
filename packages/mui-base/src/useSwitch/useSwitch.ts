@@ -41,7 +41,7 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
     (otherProps: React.ButtonHTMLAttributes<HTMLButtonElement>) =>
     (event: React.MouseEvent<HTMLButtonElement>) => {
       otherProps.onClick?.(event);
-      if (disabled) {
+      if (disabled || readOnly) {
         return;
       }
 
@@ -49,12 +49,12 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
     };
 
   const getButtonProps: UseSwitchReturnValue['getButtonProps'] = (otherProps = {}) => ({
+    ...otherProps,
+    type: 'button',
     role: 'switch',
     'aria-checked': checked,
     'aria-disabled': disabled,
     'aria-readonly': readOnly,
-    type: 'button',
-    ...otherProps,
     onClick: createHandleClick(otherProps),
   });
 
