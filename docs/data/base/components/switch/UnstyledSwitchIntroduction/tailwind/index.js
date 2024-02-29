@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { Switch as BaseSwitch } from '@mui/base/Switch';
 import { useTheme } from '@mui/system';
@@ -104,16 +103,3 @@ const Switch = React.forwardRef((props, ref) => {
     />
   );
 });
-
-Switch.propTypes = {
-  /**
-   * The props used for each slot inside the Switch.
-   * @default {}
-   */
-  slotProps: PropTypes.shape({
-    input: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    thumb: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    track: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-};
