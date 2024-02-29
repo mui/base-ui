@@ -15,11 +15,7 @@
   "returnValueDescriptions": {
     "checked": { "description": "If <code>true</code>, the component will be checked." },
     "disabled": { "description": "If <code>true</code>, the component will be disabled." },
-    "focusVisible": {
-      "description": "If <code>true</code>, it indicates that the component is being focused using keyboard."
-    },
     "getInputProps": { "description": "Resolver for the input slot&#39;s props." },
-    "inputRef": { "description": "Ref to the input slot&#39;s DOM node." },
     "readOnly": { "description": "If <code>true</code>, the component will be read only." }
   }
 }

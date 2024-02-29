@@ -36,9 +36,10 @@ export interface SwitchProps
   defaultChecked?: boolean;
   /**
    * If `true`, the component is disabled.
+   *
+   * @default false
    */
   disabled?: boolean;
-  onBlur?: React.FocusEventHandler;
   /**
    * Callback fired when the state is changed.
    *
@@ -47,13 +48,16 @@ export interface SwitchProps
    * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  onFocus?: React.FocusEventHandler;
   /**
    * If `true`, the component is read only.
+   *
+   * @default false
    */
   readOnly?: boolean;
   /**
    * If `true`, the `input` element is required.
+   *
+   * @default false
    */
   required?: boolean;
 }
