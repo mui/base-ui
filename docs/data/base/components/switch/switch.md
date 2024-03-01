@@ -42,8 +42,8 @@ The Switch component is composed of a root that houses one interior slot—a thu
 Use the `render` prop to override the root or thumb component:
 
 ```jsx
-<Switch render={(props) => (<MyFancySwitchRoot {...props} />)}>
-  <Switch.Thumb render={(props) => (<MyFancySwitchThumb {...props} />)} />
+<Switch render={(props) => <MyFancySwitchRoot {...props} />}>
+  <Switch.Thumb render={(props) => <MyFancySwitchThumb {...props} />} />
 </Switch>
 ```
 
