@@ -107,6 +107,10 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
+   * @ignore
+   */
+  name: PropTypes.string,
+  /**
    * Callback fired when the state is changed.
    *
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.

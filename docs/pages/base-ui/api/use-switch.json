@@ -3,6 +3,13 @@
     "checked": { "type": { "name": "boolean", "description": "boolean" } },
     "defaultChecked": { "type": { "name": "boolean", "description": "boolean" } },
     "disabled": { "type": { "name": "boolean", "description": "boolean" } },
+    "inputRef": {
+      "type": {
+        "name": "React.Ref&lt;HTMLInputElement&gt;",
+        "description": "React.Ref&lt;HTMLInputElement&gt;"
+      }
+    },
+    "name": { "type": { "name": "string", "description": "string" } },
     "onChange": {
       "type": {
         "name": "React.ChangeEventHandler&lt;HTMLInputElement&gt;",
