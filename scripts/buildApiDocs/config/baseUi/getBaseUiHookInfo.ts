@@ -11,7 +11,6 @@ import {
   parseFile,
 } from '@mui-internal/api-docs-builder/buildApiUtils';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
-import { migratedBaseComponents } from './migratedBaseComponents';
 
 export function getBaseUiHookInfo(filename: string): HookInfo {
   const { name } = extractPackageFile(filename);
@@ -22,10 +21,7 @@ export function getBaseUiHookInfo(filename: string): HookInfo {
 
   const allMarkdowns = findPagesMarkdown()
     .filter((markdown) => {
-      if (migratedBaseComponents.some((component) => filename.includes(component))) {
-        return markdown.filename.match(/[\\/]data[\\/]base[\\/]/);
-      }
-      return true;
+      return markdown.filename.match(/[\\/]data[\\/]base[\\/]/);
     })
     .map((markdown) => {
       const markdownContent = fs.readFileSync(markdown.filename, 'utf8');

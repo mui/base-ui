@@ -1,6 +1,6 @@
 import yargs, { ArgumentsCamelCase } from 'yargs';
 import { ProjectSettings, buildApi } from '@mui-internal/api-docs-builder';
-import { baseUiProjectSettings } from '@mui-internal/api-docs-builder-core';
+import { baseUiProjectSettings } from './config';
 
 const projectSettings: ProjectSettings[] = [baseUiProjectSettings];
 
