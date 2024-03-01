@@ -14,6 +14,14 @@ export interface UseSwitchParameters {
    */
   disabled?: boolean;
   /**
+   * Ref to the underlying input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * Name of the underlying input element.
+   */
+  name?: string;
+  /**
    * Callback fired when the state is changed.
    *
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
@@ -32,13 +40,15 @@ export interface UseSwitchParameters {
 }
 
 interface UseSwitchInputSlotOwnProps {
-  checked?: boolean;
-  defaultChecked?: boolean;
+  checked: boolean;
   disabled?: boolean;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
-  readOnly?: boolean;
+  name?: string;
   required?: boolean;
-  type: React.HTMLInputTypeAttribute;
+  style: React.CSSProperties;
+  type: 'checkbox';
+  'aria-hidden': React.AriaAttributes['aria-hidden'];
+  ref: React.RefCallback<HTMLInputElement> | null;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 export type UseSwitchInputSlotProps<TOther = {}> = Omit<TOther, keyof UseSwitchInputSlotOwnProps> &
@@ -46,9 +56,11 @@ export type UseSwitchInputSlotProps<TOther = {}> = Omit<TOther, keyof UseSwitchI
 
 interface UseSwitchButtonSlotOwnProps {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
-  role: React.AriaRole;
+  type: 'button';
+  role: 'switch';
   'aria-disabled': React.AriaAttributes['aria-disabled'];
   'aria-checked': React.AriaAttributes['aria-checked'];
+  'aria-readonly': React.AriaAttributes['aria-readonly'];
 }
 
 export type UseSwitchButtonSlotProps<TOther = {}> = Omit<

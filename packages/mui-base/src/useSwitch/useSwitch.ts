@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '../utils/useControlled';
 import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
+import { useForkRef } from '../utils/useForkRef';
 
 /**
  * The basic building block for creating custom switches.
@@ -14,8 +15,20 @@ import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
  *
  * - [useSwitch API](https://mui.com/base-ui/react-switch/hooks-api/#use-switch)
  */
-export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
-  const { checked: checkedProp, defaultChecked, disabled, onChange, readOnly, required } = props;
+export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
+  const {
+    checked: checkedProp,
+    defaultChecked,
+    disabled,
+    name,
+    onChange,
+    readOnly,
+    required,
+    inputRef: externalInputRef,
+  } = params;
+
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const handleInputRef = useForkRef(inputRef, externalInputRef);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -41,11 +54,11 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
     (otherProps: React.ButtonHTMLAttributes<HTMLButtonElement>) =>
     (event: React.MouseEvent<HTMLButtonElement>) => {
       otherProps.onClick?.(event);
-      if (disabled || readOnly) {
+      if (event.defaultPrevented || readOnly) {
         return;
       }
 
-      setCheckedState((prevChecked) => !prevChecked);
+      inputRef.current?.click();
     };
 
   const getButtonProps: UseSwitchReturnValue['getButtonProps'] = (otherProps = {}) => ({
@@ -61,13 +74,14 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
   const getInputProps: UseSwitchReturnValue['getInputProps'] = (otherProps = {}) => ({
     checked,
     disabled,
-    readOnly,
+    name,
     required,
+    style: { opacity: 0, width: 0, height: 0, margin: 0, padding: 0, overflow: 'hidden' },
+    tabIndex: -1,
     type: 'checkbox',
     'aria-hidden': true,
-    tabIndex: -1,
-    style: { opacity: 0, width: 0, height: 0, margin: 0, padding: 0, overflow: 'hidden' },
     ...otherProps,
+    ref: handleInputRef,
     onChange: createHandleInputChange(otherProps),
   });
 
