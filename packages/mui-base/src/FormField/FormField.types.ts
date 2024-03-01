@@ -1,7 +1,5 @@
-import { ActionWithContext } from '@mui/base/utils/useControllableReducer.types';
-import { FieldAction } from './fieldAction.types';
-
-export type FieldError = string | null | Record<string, unknown>; // this could be expanded to sth to the effect of `validationResult`
+import { FieldAction, FieldError } from './fieldAction.types';
+import { ActionWithContext } from '../utils/useControllableReducer.types';
 
 export interface FieldState {
   value: unknown;
@@ -13,7 +11,9 @@ export interface FieldState {
   error: FieldError;
 }
 
-export type FieldActionContext = {};
+export type FieldActionContext = {
+  disabled: boolean;
+};
 
 export type FieldReducerAction = ActionWithContext<FieldAction, FieldActionContext>;
 
@@ -27,6 +27,7 @@ export interface FormFieldProps {
   value?: unknown;
   defaultValue?: unknown;
   disabled?: boolean;
+  focused?: boolean;
   invalid?: boolean;
   touched?: boolean;
   dirty?: boolean;

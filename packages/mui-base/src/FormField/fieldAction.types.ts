@@ -1,5 +1,3 @@
-import { FieldError } from './FormField.types';
-
 export const FieldActionTypes = {
   touch: 'field:touch',
   untouch: 'field:untouch', // as an escape hatch
@@ -13,6 +11,8 @@ export const FieldActionTypes = {
   // - reset: reset the the value to the initialValue
   // - changeValidationState: cycle error/warning/success/null
 } as const;
+
+export type FieldError = string | null | Record<string, unknown>; // this could be expanded to sth to the effect of `validationResult`
 
 // try to always pass event in Action always just so stateChangeCallback has a truthy event argument
 

@@ -1,9 +1,19 @@
 'use client';
 import * as React from 'react';
-import { unstable_useControlled as useControlled, unstable_useId as useId } from '@mui/utils';
-import { FormFieldProps, FormFieldOwnerState } from './FormField.types';
+import { unstable_useId as useId } from '@mui/utils';
+import { useControllableReducer } from '../utils/useControllableReducer';
+import {
+  FormFieldProps,
+  FormFieldOwnerState,
+  FieldState,
+  FieldActionContext,
+  FieldReducerAction,
+} from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
 import { useRegisterChild } from './useRegisterChild';
+import { FieldAction, FieldActionTypes } from './fieldAction.types';
+import { fieldReducer } from './fieldReducer';
+import { StateChangeCallback } from '../utils/useControllableReducer.types';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   // TODO: support:
@@ -17,11 +27,12 @@ const FormField = React.forwardRef(function FormField(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    dirty: dirtyProp,
+    dirty: dirtyProp = false,
     disabled = false,
-    error = null,
+    focused: focusedProp = false,
+    error: errorProp = null,
     invalid = false,
-    touched,
+    touched: touchedProp,
     value: valueProp,
     defaultValue,
     id: idProp,
@@ -29,13 +40,6 @@ const FormField = React.forwardRef(function FormField(
     render: renderProp,
     ...other
   } = props;
-
-  const [value, setValue] = useControlled({
-    controlled: valueProp,
-    default: defaultValue,
-    name: 'FormField',
-    state: 'value',
-  });
 
   // why does TS complain about this
   const id = useId(idProp) as string;
@@ -49,36 +53,70 @@ const FormField = React.forwardRef(function FormField(
 
   const { current: initialValueRef } = React.useRef(valueProp ?? defaultValue);
 
-  const [isDirty, setDirty] = React.useState(false);
+  const initialState = {
+    value: initialValueRef,
+    dirty: dirtyProp,
+    disabled,
+    focused: focusedProp,
+    invalid,
+    touched: false,
+    error: errorProp,
+  };
+
+  const controlledState = React.useMemo(
+    () => ({
+      value: valueProp,
+      dirty: dirtyProp,
+      focused: focusedProp,
+      invalid,
+      error: errorProp,
+    }),
+    [valueProp, dirtyProp, focusedProp, invalid, errorProp],
+  );
+
+  const handleStateChange: StateChangeCallback<FieldState> = React.useCallback(
+    (event, field, fieldValue, reason) => {
+      console.log('handleStateChange', event, field, fieldValue, reason);
+    },
+    [],
+  );
+
+  const [state, dispatch] = useControllableReducer<FieldState, FieldAction, FieldActionContext>({
+    reducer: fieldReducer as React.Reducer<FieldState, FieldReducerAction>,
+    controlledProps: controlledState,
+    initialState,
+    onStateChange: handleStateChange,
+    actionContext: React.useMemo(
+      () => ({
+        disabled,
+      }),
+      [disabled],
+    ),
+    componentName: 'FormField',
+  });
+
+  const { value, dirty, error, focused, touched } = state;
 
   React.useEffect(() => {
-    if (initialValueRef !== value) {
-      if (!isDirty) {
-        setDirty(true);
-      }
+    if (disabled) {
+      dispatch({
+        type: FieldActionTypes.blur,
+      });
+    } else if (focused) {
+      dispatch({
+        type: FieldActionTypes.focus,
+      });
     }
-  }, [isDirty, setDirty, initialValueRef, value]);
-
-  const [focusedState, setFocused] = React.useState(false);
-  const focused = focusedState && !disabled;
-
-  React.useEffect(() => setFocused((isFocused) => (disabled ? false : isFocused)), [disabled]);
-
-  const [isTouched, setTouched] = React.useState(false);
-
-  React.useEffect(() => {
-    if (focusedState && !isTouched) {
-      setTouched(true);
-    }
-  }, [focusedState, isTouched, setTouched]);
+  }, [disabled, focused, dispatch]);
 
   const render = renderProp ?? defaultRender;
 
   const ownerState: FormFieldOwnerState = {
     ...props,
-    dirty: isDirty,
-    touched: isTouched,
+    dirty,
+    touched,
     focused,
+    invalid,
   };
 
   const childContext = React.useMemo(() => {
@@ -87,14 +125,13 @@ const FormField = React.forwardRef(function FormField(
       helpTextId,
       labelId,
       value,
-      setValue,
+      dirty,
       disabled,
-      invalid,
-      dirty: isDirty,
-      touched: isTouched,
       focused,
-      setFocused,
+      invalid,
+      touched,
       error,
+      dispatch,
       hasLabel,
       hasHelpText,
       registerChild(name: 'Label' | 'HelpText') {
@@ -112,14 +149,13 @@ const FormField = React.forwardRef(function FormField(
     helpTextId,
     labelId,
     value,
-    setValue,
+    dirty,
     disabled,
-    invalid,
-    isDirty,
-    isTouched,
-    focused,
-    setFocused,
     error,
+    focused,
+    invalid,
+    touched,
+    dispatch,
     hasLabel,
     setHasLabel,
     hasHelpText,

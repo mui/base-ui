@@ -2,7 +2,7 @@ import { FieldState, FieldReducerAction } from './FormField.types';
 import { FieldActionTypes } from './fieldAction.types';
 
 export function fieldReducer(state: FieldState, action: FieldReducerAction): FieldState {
-  const { type } = action;
+  const { type, context } = action;
 
   switch (type) {
     case FieldActionTypes.touch:
@@ -16,6 +16,10 @@ export function fieldReducer(state: FieldState, action: FieldReducerAction): Fie
         touched: false,
       };
     case FieldActionTypes.focus:
+      if (context.disabled) {
+        return state;
+      }
+
       return {
         ...state,
         focused: true,
@@ -29,6 +33,7 @@ export function fieldReducer(state: FieldState, action: FieldReducerAction): Fie
     case FieldActionTypes.changeValue:
       return {
         ...state,
+        dirty: true,
         value: action.value,
       };
     case FieldActionTypes.setError:

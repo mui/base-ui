@@ -13,11 +13,16 @@ const initialState = {
   error: null,
 };
 
+const defaultContext = {
+  disabled: false,
+};
+
 describe('fieldReducer', () => {
   describe('action: touch', () => {
     it('sets the touched state to true', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.touch,
+        context: defaultContext,
       };
 
       const result = fieldReducer(initialState, action);
@@ -30,6 +35,7 @@ describe('fieldReducer', () => {
     it('sets the touched state to false', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.untouch,
+        context: defaultContext,
       };
 
       const result = fieldReducer(initialState, action);
@@ -42,12 +48,24 @@ describe('fieldReducer', () => {
     it('sets the focused state and touched state to true', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.focus,
+        context: defaultContext,
       };
 
       const result = fieldReducer(initialState, action);
 
       expect(result.focused).to.equal(true);
       expect(result.touched).to.equal(true);
+    });
+
+    it('does not change the state if the field is disabled', () => {
+      const action: FieldReducerAction = {
+        type: FieldActionTypes.focus,
+        context: { disabled: true },
+      };
+
+      const result = fieldReducer(initialState, action);
+
+      expect(result).to.deep.equal(initialState);
     });
   });
 
@@ -61,6 +79,7 @@ describe('fieldReducer', () => {
 
       const action: FieldReducerAction = {
         type: FieldActionTypes.blur,
+        context: defaultContext,
       };
 
       const result = fieldReducer(state, action);
@@ -74,12 +93,14 @@ describe('fieldReducer', () => {
     it('updates the value', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.changeValue,
+        context: defaultContext,
         value: 'Hello world',
       };
 
       const result = fieldReducer(initialState, action);
 
       expect(result.value).to.equal('Hello world');
+      expect(result.dirty).to.equal(true);
     });
   });
 
@@ -87,6 +108,7 @@ describe('fieldReducer', () => {
     it('sets the invalid state without extra error details', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.setError,
+        context: defaultContext,
       };
 
       const result = fieldReducer(initialState, action);
@@ -98,6 +120,7 @@ describe('fieldReducer', () => {
     it('sets the invalid state with error message', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.setError,
+        context: defaultContext,
         error: 'Username already taken',
       };
 
@@ -115,6 +138,7 @@ describe('fieldReducer', () => {
       };
       const action: FieldReducerAction = {
         type: FieldActionTypes.setError,
+        context: defaultContext,
         error,
       };
 
@@ -129,6 +153,7 @@ describe('fieldReducer', () => {
     it('clears the invalid state and error', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.clearError,
+        context: defaultContext,
       };
 
       const result = fieldReducer(initialState, action);

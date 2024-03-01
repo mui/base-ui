@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { FieldAction } from './fieldAction.types';
 // import { FormFieldProps } from './FormField.types';
 
 export interface FormFieldContextValue {
@@ -11,8 +12,7 @@ export interface FormFieldContextValue {
   focused: boolean;
   invalid: boolean;
   touched: boolean;
-  setFocused: React.Dispatch<React.SetStateAction<boolean>>;
-  setValue: React.Dispatch<React.SetStateAction<unknown>>;
+  dispatch: (action: FieldAction) => void;
   error: string | null | Record<string, unknown>;
   hasLabel: boolean;
   hasHelpText: boolean;
