@@ -1,4 +1,21 @@
-// import { FormFieldContextValue } from './FormFieldContext';
+import { ActionWithContext } from '@mui/base/utils/useControllableReducer.types';
+import { FieldAction } from './fieldAction.types';
+
+export type FieldError = string | null | Record<string, unknown>; // this could be expanded to sth to the effect of `validationResult`
+
+export interface FieldState {
+  value: unknown;
+  dirty: boolean;
+  disabled: boolean;
+  focused: boolean;
+  invalid: boolean;
+  touched: boolean;
+  error: FieldError;
+}
+
+export type FieldActionContext = {};
+
+export type FieldReducerAction = ActionWithContext<FieldAction, FieldActionContext>;
 
 type RenderFunction = (
   props: React.ComponentPropsWithRef<'div'>,
