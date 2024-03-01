@@ -25,7 +25,7 @@
 
 Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full documentation.
 
-**Note**: Base UI is currently being rewritten and isn't adding new features or components to the current implementation.
+**Note**: Base UI's API is currently being revised and we don't plan to add new features or components to the current implementation.
 More details about future plans for it can be found in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
 
 ## Sponsors
