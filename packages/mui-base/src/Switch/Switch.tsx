@@ -69,6 +69,7 @@ const Switch = React.forwardRef(function Switch(
   return (
     <SwitchContext.Provider value={ownerState}>
       {render(getButtonProps(buttonProps), ownerState)}
+      {!checked && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
     </SwitchContext.Provider>
   );

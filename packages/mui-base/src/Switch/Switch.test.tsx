@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { createRenderer, act } from '@mui/internal-test-utils';
 import { Switch } from '@mui/base/Switch';
 
@@ -83,6 +84,49 @@ describe('<Switch />', () => {
     expect(switchElement).to.have.attribute('aria-checked', 'true');
   });
 
+  it('should update its state when changed from outside', () => {
+    function Test() {
+      const [checked, setChecked] = React.useState(false);
+      return (
+        <div>
+          <button onClick={() => setChecked((c) => !c)}>Toggle</button>
+          <Switch checked={checked} />;
+        </div>
+      );
+    }
+
+    const { getByRole, getByText } = render(<Test />);
+    const switchElement = getByRole('switch');
+    const button = getByText('Toggle');
+
+    expect(switchElement).to.have.attribute('aria-checked', 'false');
+    act(() => {
+      button.click();
+    });
+
+    expect(switchElement).to.have.attribute('aria-checked', 'true');
+
+    act(() => {
+      button.click();
+    });
+
+    expect(switchElement).to.have.attribute('aria-checked', 'false');
+  });
+
+  it('should call onChange when clicked', () => {
+    const handleChange = spy();
+    const { getByRole, container } = render(<Switch onChange={handleChange} />);
+    const switchElement = getByRole('switch');
+    const internalInput = container.querySelector('input[type="checkbox"]')!;
+
+    act(() => {
+      switchElement.click();
+    });
+
+    expect(handleChange.callCount).to.equal(1);
+    expect(handleChange.firstCall.args[0].target).to.equal(internalInput);
+  });
+
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', () => {
       const { getByRole } = render(<Switch disabled />);
@@ -164,5 +208,93 @@ describe('<Switch />', () => {
     expect(thumb).to.have.attribute('data-disabled', 'true');
     expect(thumb).to.have.attribute('data-readonly', 'true');
     expect(thumb).to.have.attribute('data-required', 'true');
+  });
+
+  it('should set the name attribute on the input', () => {
+    const { container } = render(<Switch name="switch-name" />);
+    const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
+
+    expect(internalInput).to.have.attribute('name', 'switch-name');
+  });
+
+  describe('form handling', () => {
+    it('should toggle the switch when a parent label is clicked', () => {
+      const { getByTestId, getByRole } = render(
+        <label data-testid="label">
+          <Switch />
+          Toggle
+        </label>,
+      );
+
+      const switchElement = getByRole('switch');
+      const label = getByTestId('label');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      act(() => {
+        label.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+
+    it('should toggle the switch when a linked label is clicked', () => {
+      const { getByTestId, getByRole } = render(
+        <div>
+          <label htmlFor="test-switch" data-testid="label">
+            Toggle
+          </label>
+          <Switch id="test-switch" />
+        </div>,
+      );
+
+      const switchElement = getByRole('switch');
+      const label = getByTestId('label');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      act(() => {
+        label.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+  });
+
+  it('should include the switch value in the form submission', function test() {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      // FormData is not available in JSDOM
+      this.skip();
+    }
+
+    let stringifiedFormData = '';
+
+    const { getByRole } = render(
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          stringifiedFormData = new URLSearchParams(formData as any).toString();
+        }}
+      >
+        <Switch name="test-switch" />
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const switchElement = getByRole('switch');
+    const submitButton = getByRole('button')!;
+
+    submitButton.click();
+
+    expect(stringifiedFormData).to.equal('test-switch=off');
+
+    act(() => {
+      switchElement.click();
+    });
+
+    submitButton.click();
+
+    expect(stringifiedFormData).to.equal('test-switch=on');
   });
 });
