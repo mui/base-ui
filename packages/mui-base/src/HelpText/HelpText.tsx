@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { HelpTextProps, HelpTextOwnerState } from './HelpText.types';
 import { FormFieldContextValue } from '../FormField';
 import { useFormFieldContext } from '../FormField/useFormFieldContext';
@@ -24,9 +25,7 @@ const HelpText = React.forwardRef(function HelpText(
 
   const field: FormFieldContextValue | undefined = useFormFieldContext();
 
-  React.useEffect(() => {
-    field?.registerChild('HelpText');
-  }, [field]);
+  const handleRef = useForkRef(forwardedRef, field?.registerHelpText);
 
   // - field[prop] overrides direct prop
   // - this chunk of logic could be extracted into a hook or util
@@ -50,13 +49,10 @@ const HelpText = React.forwardRef(function HelpText(
     ...other,
     id: field?.helpTextId,
     children,
-    ref: forwardedRef,
+    ref: handleRef,
   };
 
   return render(renderProps, ownerState);
 });
-
-// @ts-ignore
-HelpText.muiName = 'HelpText';
 
 export { HelpText };

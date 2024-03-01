@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { FieldAction } from './fieldAction.types';
-// import { FormFieldProps } from './FormField.types';
 
 export interface FormFieldContextValue {
   id: string;
@@ -15,8 +14,9 @@ export interface FormFieldContextValue {
   dispatch: (action: FieldAction) => void;
   error: string | null | Record<string, unknown>;
   hasLabel: boolean;
+  registerLabel: (element: Element | null) => void;
   hasHelpText: boolean;
-  registerChild: (name: 'Label' | 'HelpText') => void;
+  registerHelpText: (element: Element | null) => void;
 }
 
 /**

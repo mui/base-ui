@@ -10,7 +10,7 @@ import {
   FieldReducerAction,
 } from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
-import { useRegisterChild } from './useRegisterChild';
+import { useRegisterSlot } from './useRegisterSlot';
 import { FieldAction, FieldActionTypes } from './fieldAction.types';
 import { fieldReducer } from './fieldReducer';
 import { StateChangeCallback } from '../utils/useControllableReducer.types';
@@ -46,10 +46,9 @@ const FormField = React.forwardRef(function FormField(
   const helpTextId = `${id}-help-text`;
   const labelId = `${id}-label`;
 
-  // child Label and HelpText needs to notify this context that a label exists
-  // TODO: consolidate these states and state setters somehow
-  const [hasLabel, setHasLabel] = useRegisterChild(children, 'Label');
-  const [hasHelpText, setHasHelpText] = useRegisterChild(children, 'HelpText');
+  const [hasLabel, registerLabel] = useRegisterSlot();
+  const [hasHelpText, registerHelpText] = useRegisterSlot();
+  // console.log('hasLabel:', hasLabel, '/', 'hasHelpText', hasHelpText);
 
   const { current: initialValueRef } = React.useRef(valueProp ?? defaultValue);
 
@@ -133,15 +132,9 @@ const FormField = React.forwardRef(function FormField(
       error,
       dispatch,
       hasLabel,
+      registerLabel,
       hasHelpText,
-      registerChild(name: 'Label' | 'HelpText') {
-        if (name === 'Label') {
-          setHasLabel(true);
-        }
-        if (name === 'HelpText') {
-          setHasHelpText(true);
-        }
-      },
+      registerHelpText,
       // + additionalContext somehow
     };
   }, [
@@ -157,9 +150,9 @@ const FormField = React.forwardRef(function FormField(
     touched,
     dispatch,
     hasLabel,
-    setHasLabel,
+    registerLabel,
     hasHelpText,
-    setHasHelpText,
+    registerHelpText,
   ]);
 
   const renderProps = {

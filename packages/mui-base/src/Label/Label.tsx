@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-// import { unstable_useForkRef as useForkRef } from '@mui/utils';
+import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { LabelProps, LabelOwnerState } from './Label.types';
 import { FormFieldContextValue } from '../FormField';
 import { useFormFieldContext } from '../FormField/useFormFieldContext';
@@ -24,10 +24,8 @@ const Label = React.forwardRef(function Label(
   } = props;
 
   const field: FormFieldContextValue | undefined = useFormFieldContext();
-  // console.log(field);
-  React.useEffect(() => {
-    field?.registerChild('Label');
-  }, [field]);
+
+  const handleRef = useForkRef(forwardedRef, field?.registerLabel);
 
   // - field[prop] overrides direct prop
   // - this chunk of logic could be extracted into a hook or util
@@ -51,13 +49,10 @@ const Label = React.forwardRef(function Label(
     ...other,
     id: field?.labelId,
     children,
-    ref: forwardedRef,
+    ref: handleRef,
   };
 
   return render(renderProps, ownerState);
 });
-
-// @ts-ignore
-Label.muiName = 'Label';
 
 export { Label };
