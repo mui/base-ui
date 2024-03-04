@@ -8,6 +8,7 @@ import {
   FieldState,
   FieldActionContext,
   FieldReducerAction,
+  OwnerStateKeys,
 } from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
 import { useRegisterSlot } from './useRegisterSlot';
@@ -15,11 +16,21 @@ import { FieldAction, FieldActionTypes } from './fieldAction.types';
 import { fieldReducer } from './fieldReducer';
 import { StateChangeCallback } from '../utils/useControllableReducer.types';
 
+const useDataAttributes = (ownerState: FormFieldOwnerState) => {
+  return (['disabled', 'focused', 'invalid', 'touched', 'dirty'] as Array<OwnerStateKeys>).reduce(
+    (acc: Record<string, boolean>, prop: OwnerStateKeys) => {
+      acc[`data-${prop}`] = ownerState[prop];
+      return acc;
+    },
+    {},
+  );
+};
+
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   // TODO: support:
   // 1 - rendering a Fragment
   // 2 - rendering a <fieldset> and setting additional attributes e.g. disabled
-  return <div data-testid="FormField" {...props} />;
+  return <div {...props} />;
 }
 
 const FormField = React.forwardRef(function FormField(
@@ -27,10 +38,10 @@ const FormField = React.forwardRef(function FormField(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    dirty: dirtyProp = false,
+    dirty: dirtyProp,
     disabled = false,
-    focused: focusedProp = false,
-    error: errorProp = null,
+    focused: focusedProp,
+    error: errorProp,
     invalid = false,
     touched: touchedProp,
     value: valueProp,
@@ -54,12 +65,12 @@ const FormField = React.forwardRef(function FormField(
 
   const initialState = {
     value: initialValueRef,
-    dirty: dirtyProp,
+    dirty: dirtyProp ?? false,
     disabled,
-    focused: focusedProp,
+    focused: focusedProp ?? false,
     invalid,
     touched: false,
-    error: errorProp,
+    error: errorProp ?? null,
   };
 
   const controlledState = React.useMemo(
@@ -75,7 +86,7 @@ const FormField = React.forwardRef(function FormField(
 
   const handleStateChange: StateChangeCallback<FieldState> = React.useCallback(
     (event, field, fieldValue, reason) => {
-      console.log('handleStateChange', event, field, fieldValue, reason);
+      // console.log('handleStateChange', event, field, fieldValue, reason);
     },
     [],
   );
@@ -115,10 +126,14 @@ const FormField = React.forwardRef(function FormField(
   const ownerState: FormFieldOwnerState = {
     ...props,
     dirty,
+    disabled,
     touched,
     focused,
     invalid,
   };
+
+  const dataAttributes = useDataAttributes(ownerState);
+  // console.log(dataAttributes);
 
   const childContext = React.useMemo(() => {
     return {
@@ -159,6 +174,7 @@ const FormField = React.forwardRef(function FormField(
 
   const renderProps = {
     ...other,
+    ...dataAttributes,
     children,
     ref: forwardedRef,
   };

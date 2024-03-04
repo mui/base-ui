@@ -1,3 +1,4 @@
+import { PartiallyRequired } from '@mui/types';
 import { FieldAction, FieldError } from './fieldAction.types';
 import { ActionWithContext } from '../utils/useControllableReducer.types';
 
@@ -38,8 +39,8 @@ export interface FormFieldProps {
   render?: RenderFunction;
 }
 
-export interface FormFieldOwnerState extends FormFieldProps {
-  focused: boolean;
-}
+export type OwnerStateKeys = 'disabled' | 'focused' | 'invalid' | 'touched' | 'dirty';
+
+export interface FormFieldOwnerState extends PartiallyRequired<FormFieldProps, OwnerStateKeys> {}
 
 export { FormFieldContextValue } from './FormFieldContext';
