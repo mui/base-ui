@@ -16,6 +16,7 @@ import { Select, SelectListboxSlotProps, selectClasses } from '@mui/base/Select'
 import { SelectOption } from '@mui/base/useOption';
 import { Option, OptionProps, OptionRootSlotProps, optionClasses } from '@mui/base/Option';
 import { OptionGroup } from '@mui/base/OptionGroup';
+import { FormField, useFormFieldContext } from '@mui/base/FormField';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 // TODO v6: initialize @testing-library/user-event using userEvent.setup() instead of directly calling methods e.g. userEvent.click() for all related tests in this file
@@ -1449,6 +1450,97 @@ describe('<Select />', () => {
       }).toErrorDev(
         'useControllableReducer: The Select component is changing an uncontrolled prop to be controlled: selectedValues',
       );
+    });
+  });
+
+  describe('with FormField', () => {
+    describe('focus/blur', () => {
+      it('updates the field focused and touched states when focused', async () => {
+        const { getByRole, getByTestId } = await render(
+          <FormField data-testid="form-field">
+            <Select>
+              <Option value={1}>One</Option>
+              <Option value={2}>Two</Option>
+            </Select>
+          </FormField>,
+        );
+
+        const field = getByTestId('form-field');
+        const select = getByRole('combobox');
+
+        expect(field).to.have.attribute('data-focused', 'false');
+        expect(field).to.have.attribute('data-touched', 'false');
+
+        act(() => {
+          select.focus();
+        });
+
+        expect(field).to.have.attribute('data-focused', 'true');
+        expect(field).to.have.attribute('data-touched', 'true');
+      });
+
+      it('updates the field focused state without affecting the touched state when blurred', async () => {
+        const { getByRole, getByTestId } = await render(
+          <FormField data-testid="form-field">
+            <Select>
+              <Option value={1}>One</Option>
+              <Option value={2}>Two</Option>
+            </Select>
+          </FormField>,
+        );
+
+        const field = getByTestId('form-field');
+        const select = getByRole('combobox');
+        act(() => {
+          select.focus();
+        });
+
+        expect(field).to.have.attribute('data-focused', 'true');
+        expect(field).to.have.attribute('data-touched', 'true');
+
+        act(() => {
+          select.blur();
+        });
+
+        expect(field).to.have.attribute('data-focused', 'false');
+        expect(field).to.have.attribute('data-touched', 'true');
+      });
+    });
+
+    describe('changeValue', () => {
+      it('updates the value in field context when uncontrolled', async () => {
+        function ValueComponent(props: { 'data-testid': string }) {
+          const formFieldContext = useFormFieldContext();
+          return <span {...props}>{String(formFieldContext?.value)}</span>;
+        }
+        const { getByRole, getByTestId, getByText } = await render(
+          <FormField data-testid="form-field">
+            <Select defaultValue="one">
+              <Option value="one">Option One</Option>
+              <Option value="two">Option Two</Option>
+            </Select>
+            <ValueComponent data-testid="value-component" />
+          </FormField>,
+        );
+
+        const valueComponent = getByTestId('value-component');
+        const select = getByRole('combobox');
+
+        expect(valueComponent).to.have.text('one');
+
+        act(() => {
+          select.click();
+        });
+
+        const optionTwo = getByText('Option Two');
+        act(() => {
+          optionTwo.click();
+        });
+
+        await flushMicrotasks();
+
+        expect(valueComponent).to.have.text('two');
+      });
     });
   });
 });

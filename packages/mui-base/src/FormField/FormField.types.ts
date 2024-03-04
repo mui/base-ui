@@ -39,8 +39,24 @@ export interface FormFieldProps {
   render?: RenderFunction;
 }
 
+export interface FormFieldContextValue {
+  id: string;
+  labelId: string;
+  helpTextId: string;
+  value: unknown;
+  dirty: boolean;
+  disabled: boolean;
+  focused: boolean;
+  invalid: boolean;
+  touched: boolean;
+  dispatch: (action: FieldAction) => void;
+  error: string | null | Record<string, unknown>;
+  hasLabel: boolean;
+  registerLabel: (element: Element | null) => void;
+  hasHelpText: boolean;
+  registerHelpText: (element: Element | null) => void;
+}
+
 export type OwnerStateKeys = 'disabled' | 'focused' | 'invalid' | 'touched' | 'dirty';
 
 export interface FormFieldOwnerState extends PartiallyRequired<FormFieldProps, OwnerStateKeys> {}
-
-export { FormFieldContextValue } from './FormFieldContext';
