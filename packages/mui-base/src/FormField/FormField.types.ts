@@ -33,6 +33,7 @@ export interface FormFieldProps {
   dirty?: boolean;
   // to consume `error` with a custom shape, Labels and such must use a custom render function
   error?: string | null | Record<string, unknown>;
+  className?: string;
   children?: React.ReactNode;
   render?: RenderFunction;
 }
