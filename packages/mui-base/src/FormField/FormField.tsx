@@ -100,10 +100,12 @@ const FormField = React.forwardRef(function FormField(
     if (disabled) {
       dispatch({
         type: FieldActionTypes.blur,
+        event: null,
       });
     } else if (focused) {
       dispatch({
         type: FieldActionTypes.focus,
+        event: null,
       });
     }
   }, [disabled, focused, dispatch]);

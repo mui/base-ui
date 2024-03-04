@@ -48,6 +48,7 @@ describe('fieldReducer', () => {
     it('sets the focused state and touched state to true', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.focus,
+        event: null,
         context: defaultContext,
       };
 
@@ -60,6 +61,7 @@ describe('fieldReducer', () => {
     it('does not change the state if the field is disabled', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.focus,
+        event: null,
         context: { disabled: true },
       };
 
@@ -79,6 +81,7 @@ describe('fieldReducer', () => {
 
       const action: FieldReducerAction = {
         type: FieldActionTypes.blur,
+        event: null,
         context: defaultContext,
       };
 
@@ -93,6 +96,7 @@ describe('fieldReducer', () => {
     it('updates the value', () => {
       const action: FieldReducerAction = {
         type: FieldActionTypes.changeValue,
+        event: null,
         context: defaultContext,
         value: 'Hello world',
       };

@@ -26,14 +26,21 @@ interface FieldUntouchAction {
 
 interface FieldFocusAction {
   type: typeof FieldActionTypes.focus;
+  event: React.FocusEvent | null;
 }
 
 interface FieldBlurAction {
   type: typeof FieldActionTypes.blur;
+  event: React.FocusEvent | null;
 }
 
 interface FieldChangeValueAction {
   type: typeof FieldActionTypes.changeValue;
+  event:
+    | React.MouseEvent<Element, MouseEvent>
+    | React.KeyboardEvent<Element>
+    | React.FocusEvent<Element, Element>
+    | null;
   value: unknown;
 }
 
