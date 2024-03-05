@@ -1523,10 +1523,12 @@ describe('<Select />', () => {
           </FormField>,
         );
 
+        const field = getByTestId('form-field');
         const valueComponent = getByTestId('value-component');
         const select = getByRole('combobox');
 
         expect(valueComponent).to.have.text('one');
+        expect(field).to.have.attribute('data-dirty', 'false');
 
         act(() => {
           select.click();
@@ -1540,6 +1542,7 @@ describe('<Select />', () => {
         await flushMicrotasks();
 
         expect(valueComponent).to.have.text('two');
+        expect(field).to.have.attribute('data-dirty', 'true');
       });
     });
   });
