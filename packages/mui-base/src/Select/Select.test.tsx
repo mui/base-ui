@@ -1454,6 +1454,21 @@ describe('<Select />', () => {
   });
 
   describe('with FormField', () => {
+    it('passes the name attribute to the input element', async () => {
+      const { container } = await render(
+        <FormField name="customFieldName">
+          <Select autoComplete="off">
+            <Option value={1}>One</Option>
+            <Option value={2}>Two</Option>
+          </Select>
+        </FormField>,
+      );
+
+      const hiddenInput = container.querySelector('[autocomplete="off"]');
+
+      expect(hiddenInput.getAttribute('name')).to.equal('customFieldName');
+    });
+
     describe('focus/blur', () => {
       it('updates the field focused and touched states when focused', async () => {
         const { getByRole, getByTestId } = await render(

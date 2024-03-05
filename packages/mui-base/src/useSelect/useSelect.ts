@@ -78,7 +78,7 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
     listboxId: listboxIdProp,
     listboxRef: listboxRefProp,
     multiple = false as Multiple,
-    name,
+    name: nameProp,
     required,
     onChange,
     onHighlightChange,
@@ -540,7 +540,7 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
     const externalEventHandlers = extractEventHandlers(externalProps);
 
     return {
-      name,
+      name: formField?.name ?? nameProp,
       tabIndex: -1,
       'aria-hidden': true,
       required: required ? true : undefined,
