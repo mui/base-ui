@@ -5,7 +5,6 @@ import { ActionWithContext } from '../utils/useControllableReducer.types';
 export interface FieldState {
   value: unknown;
   dirty: boolean;
-  disabled: boolean;
   focused: boolean;
   invalid: boolean;
   touched: boolean;
@@ -25,13 +24,15 @@ type RenderFunction = (
 
 export interface FormFieldProps {
   id?: string;
+  name?: string;
   value?: unknown;
   defaultValue?: unknown;
+  dirty?: boolean;
   disabled?: boolean;
   focused?: boolean;
   invalid?: boolean;
+  required?: boolean;
   touched?: boolean;
-  dirty?: boolean;
   // to consume `error` with a custom shape, Labels and such must use a custom render function
   error?: string | null | Record<string, unknown>;
   className?: string;
@@ -41,6 +42,7 @@ export interface FormFieldProps {
 
 export interface FormFieldContextValue {
   id: string;
+  name?: string;
   labelId: string;
   helpTextId: string;
   value: unknown;
@@ -48,6 +50,7 @@ export interface FormFieldContextValue {
   disabled: boolean;
   focused: boolean;
   invalid: boolean;
+  required: boolean;
   touched: boolean;
   dispatch: (action: FieldAction) => void;
   error: string | null | Record<string, unknown>;

@@ -48,10 +48,12 @@ const FormField = React.forwardRef(function FormField(
     focused: focusedProp,
     error: errorProp,
     invalid = false,
+    required = false,
     touched: touchedProp,
     value: valueProp,
     defaultValue,
     id: idProp,
+    name,
     children,
     render: renderProp,
     ...other
@@ -71,10 +73,9 @@ const FormField = React.forwardRef(function FormField(
   const initialState = {
     value: initialValueRef,
     dirty: dirtyProp ?? false,
-    disabled,
     focused: focusedProp ?? false,
     invalid,
-    touched: false,
+    touched: touchedProp ?? false,
     error: errorProp ?? null,
   };
 
@@ -143,6 +144,7 @@ const FormField = React.forwardRef(function FormField(
   const childContext = React.useMemo(() => {
     return {
       id,
+      name,
       helpTextId,
       labelId,
       value,
@@ -150,6 +152,7 @@ const FormField = React.forwardRef(function FormField(
       disabled,
       focused,
       invalid,
+      required,
       touched,
       error,
       dispatch,
@@ -161,6 +164,7 @@ const FormField = React.forwardRef(function FormField(
     };
   }, [
     id,
+    name,
     helpTextId,
     labelId,
     value,
@@ -169,6 +173,7 @@ const FormField = React.forwardRef(function FormField(
     error,
     focused,
     invalid,
+    required,
     touched,
     dispatch,
     hasLabel,
