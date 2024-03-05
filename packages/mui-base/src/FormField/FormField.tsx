@@ -8,7 +8,7 @@ import {
   FieldState,
   FieldActionContext,
   FieldReducerAction,
-  OwnerStateKeys,
+  FieldOwnerStateCommonRequiredKeys,
 } from './FormField.types';
 import { FormFieldContext } from './FormFieldContext';
 import { useRegisterSlot } from './useRegisterSlot';
@@ -17,13 +17,18 @@ import { fieldReducer } from './fieldReducer';
 import { StateChangeCallback } from '../utils/useControllableReducer.types';
 
 const useDataAttributes = (ownerState: FormFieldOwnerState) => {
-  return (['disabled', 'focused', 'invalid', 'touched', 'dirty'] as Array<OwnerStateKeys>).reduce(
-    (acc: Record<string, boolean>, prop: OwnerStateKeys) => {
-      acc[`data-${prop}`] = ownerState[prop];
-      return acc;
-    },
-    {},
-  );
+  return (
+    [
+      'disabled',
+      'focused',
+      'invalid',
+      'touched',
+      'dirty',
+    ] as Array<FieldOwnerStateCommonRequiredKeys>
+  ).reduce((acc: Record<string, boolean>, prop: FieldOwnerStateCommonRequiredKeys) => {
+    acc[`data-${prop}`] = ownerState[prop];
+    return acc;
+  }, {});
 };
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {

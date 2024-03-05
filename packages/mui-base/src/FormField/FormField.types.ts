@@ -57,6 +57,7 @@ export interface FormFieldContextValue {
   registerHelpText: (element: Element | null) => void;
 }
 
-export type OwnerStateKeys = 'disabled' | 'focused' | 'invalid' | 'touched' | 'dirty';
+export type FieldOwnerStateCommonRequiredKeys = 'disabled' | 'invalid' | 'touched' | 'dirty';
 
-export interface FormFieldOwnerState extends PartiallyRequired<FormFieldProps, OwnerStateKeys> {}
+export interface FormFieldOwnerState
+  extends PartiallyRequired<FormFieldProps, FieldOwnerStateCommonRequiredKeys | 'focused'> {}

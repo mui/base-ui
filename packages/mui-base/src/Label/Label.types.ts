@@ -1,4 +1,5 @@
-import { FormFieldContextValue } from '../FormField';
+import { PartiallyRequired } from '@mui/types';
+import { FormFieldContextValue, FieldOwnerStateCommonRequiredKeys } from '../FormField';
 
 type RenderFunction = (
   props: React.ComponentPropsWithRef<'label'>,
@@ -6,15 +7,16 @@ type RenderFunction = (
 ) => React.ReactNode;
 
 export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
+  dirty?: boolean;
   disabled?: boolean;
   invalid?: boolean;
   touched?: boolean;
-  dirty?: boolean;
   children?: React.ReactNode;
   render?: RenderFunction;
 }
 
-export interface LabelOwnerState extends LabelProps {
-  focused?: boolean;
+export interface LabelOwnerState
+  extends PartiallyRequired<LabelProps, FieldOwnerStateCommonRequiredKeys> {
   field?: FormFieldContextValue;
+  focused: boolean;
 }

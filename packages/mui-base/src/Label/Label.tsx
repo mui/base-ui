@@ -2,8 +2,23 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { LabelProps, LabelOwnerState } from './Label.types';
-import { FormFieldContextValue } from '../FormField';
+import { FormFieldContextValue, FieldOwnerStateCommonRequiredKeys } from '../FormField';
 import { useFormFieldContext } from '../FormField/useFormFieldContext';
+
+const useDataAttributes = (ownerState: LabelOwnerState) => {
+  return (
+    [
+      'disabled',
+      'focused',
+      'invalid',
+      'touched',
+      'dirty',
+    ] as Array<FieldOwnerStateCommonRequiredKeys>
+  ).reduce((acc: Record<string, boolean>, prop: FieldOwnerStateCommonRequiredKeys) => {
+    acc[`data-${prop}`] = ownerState[prop];
+    return acc;
+  }, {});
+};
 
 function defaultRender(props: React.ComponentPropsWithRef<'label'>) {
   return <label {...props} htmlFor={props.htmlFor} />;
@@ -14,10 +29,10 @@ const Label = React.forwardRef(function Label(
   forwardedRef: React.ForwardedRef<HTMLLabelElement>,
 ) {
   const {
-    disabled: disabledProp,
-    invalid: invalidProp,
-    touched: touchedProp,
-    dirty: dirtyProp,
+    disabled: disabledProp = false,
+    invalid: invalidProp = false,
+    touched: touchedProp = false,
+    dirty: dirtyProp = false,
     children,
     render: renderProp,
     ...other
@@ -42,11 +57,14 @@ const Label = React.forwardRef(function Label(
     dirty,
     invalid,
     touched,
-    focused: field?.focused,
+    focused: field?.focused ?? false,
   };
+
+  const dataAttributes = useDataAttributes(ownerState);
 
   const renderProps = {
     ...other,
+    ...dataAttributes,
     id: field?.labelId,
     children,
     ref: handleRef,

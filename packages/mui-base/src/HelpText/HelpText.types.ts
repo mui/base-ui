@@ -1,3 +1,6 @@
+import { PartiallyRequired } from '@mui/types';
+import { FormFieldContextValue, FieldOwnerStateCommonRequiredKeys } from '../FormField';
+
 type RenderFunction = (
   props: React.ComponentPropsWithRef<'span'>,
   ownerState: any,
@@ -12,6 +15,8 @@ export interface HelpTextProps extends React.HTMLAttributes<HTMLSpanElement> {
   render?: RenderFunction;
 }
 
-export interface HelpTextOwnerState extends HelpTextProps {
-  focused?: boolean;
+export interface HelpTextOwnerState
+  extends PartiallyRequired<HelpTextProps, FieldOwnerStateCommonRequiredKeys> {
+  field?: FormFieldContextValue;
+  focused: boolean;
 }

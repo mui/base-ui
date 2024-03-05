@@ -2,8 +2,23 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { HelpTextProps, HelpTextOwnerState } from './HelpText.types';
-import { FormFieldContextValue } from '../FormField';
+import { FormFieldContextValue, FieldOwnerStateCommonRequiredKeys } from '../FormField';
 import { useFormFieldContext } from '../FormField/useFormFieldContext';
+
+const useDataAttributes = (ownerState: HelpTextOwnerState) => {
+  return (
+    [
+      'disabled',
+      'focused',
+      'invalid',
+      'touched',
+      'dirty',
+    ] as Array<FieldOwnerStateCommonRequiredKeys>
+  ).reduce((acc: Record<string, boolean>, prop: FieldOwnerStateCommonRequiredKeys) => {
+    acc[`data-${prop}`] = ownerState[prop];
+    return acc;
+  }, {});
+};
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -14,10 +29,10 @@ const HelpText = React.forwardRef(function HelpText(
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
-    disabled: disabledProp,
-    invalid: invalidProp,
-    touched: touchedProp,
-    dirty: dirtyProp,
+    disabled: disabledProp = false,
+    invalid: invalidProp = false,
+    touched: touchedProp = false,
+    dirty: dirtyProp = false,
     children,
     render: renderProp,
     ...other
@@ -42,11 +57,14 @@ const HelpText = React.forwardRef(function HelpText(
     dirty,
     invalid,
     touched,
-    focused: field?.focused,
+    focused: field?.focused ?? false,
   };
+
+  const dataAttributes = useDataAttributes(ownerState);
 
   const renderProps = {
     ...other,
+    ...dataAttributes,
     id: field?.helpTextId,
     children,
     ref: handleRef,
