@@ -31,6 +31,11 @@ export function fieldReducer(state: FieldState, action: FieldReducerAction): Fie
         dirty: true,
         value: action.value,
       };
+    case FieldActionTypes.initializeValue:
+      return {
+        ...state,
+        value: action.value,
+      };
     case FieldActionTypes.setError:
       return {
         ...state,

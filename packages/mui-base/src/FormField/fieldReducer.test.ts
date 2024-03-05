@@ -95,6 +95,22 @@ describe('fieldReducer', () => {
     });
   });
 
+  describe('action: initializeValue', () => {
+    it('sets the value without changing the dirty state', () => {
+      const action: FieldReducerAction = {
+        type: FieldActionTypes.initializeValue,
+        event: null,
+        context: defaultContext,
+        value: 'Hello world',
+      };
+
+      const result = fieldReducer(initialState, action);
+
+      expect(result.value).to.equal('Hello world');
+      expect(result.dirty).to.equal(false);
+    });
+  });
+
   describe('action: setError', () => {
     it('sets the invalid state without extra error details', () => {
       const action: FieldReducerAction = {

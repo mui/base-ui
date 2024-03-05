@@ -155,7 +155,7 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
 
   useOnMount(() => {
     formFieldDispatch({
-      type: FieldActionTypes.changeValue,
+      type: FieldActionTypes.initializeValue,
       event: null,
       value: defaultValue ?? [],
     });

@@ -3,6 +3,7 @@ export const FieldActionTypes = {
   focus: 'field:focus',
   blur: 'field:blur',
   changeValue: 'field:changeValue',
+  initializeValue: 'field:initializeValue',
   setError: 'field:setError',
   clearError: 'field:clearError',
   // TODO: maybe add these actions
@@ -39,6 +40,16 @@ interface FieldChangeValueAction {
   value: unknown;
 }
 
+interface FieldInitializeValueAction {
+  type: typeof FieldActionTypes.initializeValue;
+  event:
+    | React.MouseEvent<Element, MouseEvent>
+    | React.KeyboardEvent<Element>
+    | React.FocusEvent<Element, Element>
+    | null;
+  value: unknown;
+}
+
 interface FieldSetErrorAction {
   type: typeof FieldActionTypes.setError;
   error?: FieldError;
@@ -53,5 +64,6 @@ export type FieldAction =
   | FieldFocusAction
   | FieldBlurAction
   | FieldChangeValueAction
+  | FieldInitializeValueAction
   | FieldSetErrorAction
   | FieldClearErrorAction;
