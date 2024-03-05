@@ -5,11 +5,6 @@ export function fieldReducer(state: FieldState, action: FieldReducerAction): Fie
   const { type, context } = action;
 
   switch (type) {
-    case FieldActionTypes.touch:
-      return {
-        ...state,
-        touched: true,
-      };
     case FieldActionTypes.untouch:
       return {
         ...state,

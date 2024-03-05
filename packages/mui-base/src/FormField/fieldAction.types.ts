@@ -1,5 +1,4 @@
 export const FieldActionTypes = {
-  touch: 'field:touch',
   untouch: 'field:untouch', // as an escape hatch
   focus: 'field:focus',
   blur: 'field:blur',
@@ -15,10 +14,6 @@ export const FieldActionTypes = {
 export type FieldError = string | null | Record<string, unknown>; // this could be expanded to sth to the effect of `validationResult`
 
 // try to always pass event in Action always just so stateChangeCallback has a truthy event argument
-
-interface FieldTouchAction {
-  type: typeof FieldActionTypes.touch;
-}
 
 interface FieldUntouchAction {
   type: typeof FieldActionTypes.untouch;
@@ -54,7 +49,6 @@ interface FieldClearErrorAction {
 }
 
 export type FieldAction =
-  | FieldTouchAction
   | FieldUntouchAction
   | FieldFocusAction
   | FieldBlurAction

@@ -18,32 +18,6 @@ const defaultContext = {
 };
 
 describe('fieldReducer', () => {
-  describe('action: touch', () => {
-    it('sets the touched state to true', () => {
-      const action: FieldReducerAction = {
-        type: FieldActionTypes.touch,
-        context: defaultContext,
-      };
-
-      const result = fieldReducer(initialState, action);
-
-      expect(result.touched).to.equal(true);
-    });
-  });
-
-  describe('action: untouch', () => {
-    it('sets the touched state to false', () => {
-      const action: FieldReducerAction = {
-        type: FieldActionTypes.untouch,
-        context: defaultContext,
-      };
-
-      const result = fieldReducer(initialState, action);
-
-      expect(result.touched).to.equal(false);
-    });
-  });
-
   describe('action: focus', () => {
     it('sets the focused state and touched state to true', () => {
       const action: FieldReducerAction = {
@@ -72,7 +46,7 @@ describe('fieldReducer', () => {
   });
 
   describe('action: blur', () => {
-    it('sets the focused state to false without changing the dirty state', () => {
+    it('sets the focused state to false without changing the touched state', () => {
       const state = {
         ...initialState,
         focused: true,
@@ -89,6 +63,19 @@ describe('fieldReducer', () => {
 
       expect(result.focused).to.equal(false);
       expect(result.touched).to.equal(true);
+    });
+  });
+
+  describe('action: untouch', () => {
+    it('sets the touched state to false', () => {
+      const action: FieldReducerAction = {
+        type: FieldActionTypes.untouch,
+        context: defaultContext,
+      };
+
+      const result = fieldReducer(initialState, action);
+
+      expect(result.touched).to.equal(false);
     });
   });
 
