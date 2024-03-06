@@ -1,0 +1,10 @@
+<Checkbox aria-label="Indeterminate checkbox" indeterminate>
+  <Indicator>
+    <HorizontalRuleIcon />
+  </Indicator>
+</Checkbox>
+<Checkbox aria-label="Indeterminate disabled checkbox" indeterminate disabled>
+  <Indicator>
+    <HorizontalRuleIcon />
+  </Indicator>
+</Checkbox>
