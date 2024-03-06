@@ -14,7 +14,6 @@ import { FormFieldContext } from './FormFieldContext';
 import { useRegisterSlot } from './useRegisterSlot';
 import { FieldAction, FieldActionTypes } from './fieldAction.types';
 import { fieldReducer } from './fieldReducer';
-import { StateChangeCallback } from '../utils/useControllableReducer.types';
 
 const useDataAttributes = (ownerState: FormFieldOwnerState) => {
   return (
@@ -90,18 +89,10 @@ const FormField = React.forwardRef(function FormField(
     [valueProp, dirtyProp, focusedProp, invalid, errorProp],
   );
 
-  const handleStateChange: StateChangeCallback<FieldState> = React.useCallback(
-    (event, field, fieldValue, reason) => {
-      // console.log('handleStateChange', event, field, fieldValue, reason);
-    },
-    [],
-  );
-
   const [state, dispatch] = useControllableReducer<FieldState, FieldAction, FieldActionContext>({
     reducer: fieldReducer as React.Reducer<FieldState, FieldReducerAction>,
     controlledProps: controlledState,
     initialState,
-    onStateChange: handleStateChange,
     actionContext: React.useMemo(
       () => ({
         disabled,

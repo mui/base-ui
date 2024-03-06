@@ -17,6 +17,8 @@ import { SelectOption } from '@mui/base/useOption';
 import { Option, OptionProps, OptionRootSlotProps, optionClasses } from '@mui/base/Option';
 import { OptionGroup } from '@mui/base/OptionGroup';
 import { FormField, useFormFieldContext } from '@mui/base/FormField';
+import { Label } from '@mui/base/Label';
+import { HelpText } from '@mui/base/HelpText';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 // TODO v6: initialize @testing-library/user-event using userEvent.setup() instead of directly calling methods e.g. userEvent.click() for all related tests in this file
@@ -1467,6 +1469,23 @@ describe('<Select />', () => {
       const hiddenInput = container.querySelector('[autocomplete="off"]');
 
       expect(hiddenInput.getAttribute('name')).to.equal('customFieldName');
+    });
+
+    it('gets aria attributes from Label and HelpText', async () => {
+      const { getByRole } = await render(
+        <FormField id="myField">
+          <Label data-testid="test-label">Label</Label>
+          <HelpText data-testid="test-help-text ">Help text</HelpText>
+          <Select autoComplete="off">
+            <Option value={1}>One</Option>
+            <Option value={2}>Two</Option>
+          </Select>
+        </FormField>,
+      );
+
+      const select = getByRole('combobox');
+      expect(select).to.have.attribute('aria-labelledby', 'myField-label');
+      expect(select).to.have.attribute('aria-describedby', 'myField-help-text');
     });
 
     describe('focus/blur', () => {

@@ -426,6 +426,8 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
       role: 'combobox' as const,
       'aria-expanded': open,
       'aria-controls': listboxId,
+      'aria-describedby': formField?.helpTextId,
+      'aria-labelledby': formField?.labelId,
     };
   };
 
