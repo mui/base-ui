@@ -31,134 +31,147 @@ export default function FormFieldExamples() {
   const submitRhfForm = (data) => console.log('submit', data);
 
   return (
-    <Stack className="m-6" spacing={6}>
-      <FormField className="flex flex-col" id="my-form-field">
-        <Label className="font-sans font-medium text-sm">Shipping Country</Label>
-        <HelpText className="font-sans text-sm mb-2">
-          We cannot ship cards to unsupported countries
-        </HelpText>
-        <Select
-          id="my-select"
-          className="GallerySelect"
-          slots={{
-            root: SelectButton,
-          }}
-          slotProps={{
-            listbox: { className: 'GallerySelect-listbox' },
-            popup: { className: 'GallerySelect-popup' },
-          }}
-          defaultValue="AU"
-        >
-          <Option className="GallerySelect-option" value="AU">
-            Australia
-          </Option>
-          <Option className="GallerySelect-option" value="BE">
-            Belgium
-          </Option>
-          <Option className="GallerySelect-option" value="CA">
-            Canada
-          </Option>
-        </Select>
-      </FormField>
+    <Stack className="m-6 max-w-[640px]" spacing={6}>
+      <div className="grid grid-cols-2">
+        <pre>uncontrolled</pre>
+        <FormField className="flex flex-col" id="my-form-field">
+          <Label className="font-sans font-medium text-sm">Shipping Country</Label>
+          <HelpText className="font-sans text-sm mb-2">
+            We cannot ship cards to unsupported countries
+          </HelpText>
+          <Select
+            id="my-select"
+            className="GallerySelect"
+            slots={{
+              root: SelectButton,
+            }}
+            slotProps={{
+              listbox: { className: 'GallerySelect-listbox' },
+              popup: { className: 'GallerySelect-popup' },
+            }}
+            defaultValue="AU"
+          >
+            <Option className="GallerySelect-option" value="AU">
+              Australia
+            </Option>
+            <Option className="GallerySelect-option" value="BE">
+              Belgium
+            </Option>
+            <Option className="GallerySelect-option" value="CA">
+              Canada
+            </Option>
+          </Select>
+        </FormField>
+      </div>
 
-      <FormField className="flex flex-col w-[300px]">
-        <Label className="font-sans font-medium text-sm">Pronoun</Label>
-        <HelpText className="font-sans text-sm mb-2">
-          Example use: Albert Yu added Meg 2: The Trench to{' '}
-          {
+      <hr />
+
+      <div className="grid grid-cols-2">
+        <pre>controlled</pre>
+        <FormField className="flex flex-col w-[300px]">
+          <Label className="font-sans font-medium text-sm">Pronoun</Label>
+          <HelpText className="font-sans text-sm mb-2">
+            Example use: Albert Yu added Meg 2: The Trench to{' '}
             {
-              1: 'their',
-              2: 'his',
-              3: 'her',
-            }[value]
-          }{' '}
-          watchlist
-        </HelpText>
-        <Select
-          className="GallerySelect"
-          slots={{
-            root: SelectButton,
-          }}
-          slotProps={{
-            listbox: { className: 'GallerySelect-listbox' },
-            popup: { className: 'GallerySelect-popup' },
-          }}
-          value={value}
-          onChange={(ev, newValue) => newValue && setValue(newValue)}
-        >
-          <Option className="GallerySelect-option" value={1}>
-            They/their
-          </Option>
-          <Option className="GallerySelect-option" value={2}>
-            He/his
-          </Option>
-          <Option className="GallerySelect-option" value={3}>
-            She/her
-          </Option>
-        </Select>
-      </FormField>
+              {
+                1: 'their',
+                2: 'his',
+                3: 'her',
+              }[value]
+            }{' '}
+            watchlist
+          </HelpText>
+          <Select
+            className="GallerySelect"
+            slots={{
+              root: SelectButton,
+            }}
+            slotProps={{
+              listbox: { className: 'GallerySelect-listbox' },
+              popup: { className: 'GallerySelect-popup' },
+            }}
+            value={value}
+            onChange={(ev, newValue) => newValue && setValue(newValue)}
+          >
+            <Option className="GallerySelect-option" value={1}>
+              They/their
+            </Option>
+            <Option className="GallerySelect-option" value={2}>
+              He/his
+            </Option>
+            <Option className="GallerySelect-option" value={3}>
+              She/her
+            </Option>
+          </Select>
+        </FormField>
+      </div>
 
-      <form onSubmit={handleSubmit(submitRhfForm)}>
-        <Controller
-          name="replies"
-          control={control}
-          render={({ field, fieldState }) => {
-            const {
-              onChange,
-              // onBlur, // TODO: onBlur callback?
-              value: rhfValue,
-              disabled,
-              name,
-              // ref, // we can't use this
-            } = field;
+      <hr />
 
-            const {
-              invalid,
-              isTouched,
-              isDirty,
-              // error, // we can't use this yet
-            } = fieldState;
+      <div className="grid grid-cols-2">
+        <pre>react-hook-form integration</pre>
+        <form onSubmit={handleSubmit(submitRhfForm)}>
+          <Controller
+            name="replies"
+            control={control}
+            render={({ field, fieldState }) => {
+              const {
+                onChange,
+                // onBlur, // TODO: onBlur callback?
+                value: rhfValue,
+                disabled,
+                name,
+                // ref, // we can't use this
+              } = field;
 
-            return (
-              <FormField
-                name={name}
-                disabled={disabled}
-                invalid={invalid}
-                touched={isTouched}
-                dirty={isDirty}
-                className="flex flex-col w-[300px]"
-              >
-                <Label className="font-sans font-medium text-sm">Replies</Label>
-                <HelpText className="font-sans text-xs mb-2">
-                  This default can be overridden on individual reviews
-                </HelpText>
-                <Select
-                  className="GallerySelect"
-                  slots={{
-                    root: SelectButton,
-                  }}
-                  slotProps={{
-                    listbox: { className: 'GallerySelect-listbox' },
-                    popup: { className: 'GallerySelect-popup' },
-                  }}
-                  value={rhfValue}
-                  onChange={(ev, newValue) => onChange(newValue)}
+              const {
+                invalid,
+                isTouched,
+                isDirty,
+                // error, // we can't use this yet
+              } = fieldState;
+
+              return (
+                <FormField
+                  name={name}
+                  disabled={disabled}
+                  invalid={invalid}
+                  touched={isTouched}
+                  dirty={isDirty}
+                  className="flex flex-col w-[300px]"
                 >
-                  <Option className="GallerySelect-option" value="anyone">
-                    Anyone
-                  </Option>
-                  <Option className="GallerySelect-option" value="friends">
-                    Friends
-                  </Option>
-                  <Option className="GallerySelect-option" value="you">
-                    Only you
-                  </Option>
-                </Select>
-              </FormField>
-            );
-          }}
-        />
-      </form>
+                  <Label className="font-sans font-medium text-sm">Replies</Label>
+                  <HelpText className="font-sans text-xs mb-2">
+                    This default can be overridden on individual reviews
+                  </HelpText>
+                  <Select
+                    className="GallerySelect"
+                    slots={{
+                      root: SelectButton,
+                    }}
+                    slotProps={{
+                      listbox: { className: 'GallerySelect-listbox' },
+                      popup: { className: 'GallerySelect-popup' },
+                    }}
+                    value={rhfValue}
+                    onChange={(ev, newValue) => onChange(newValue)}
+                  >
+                    <Option className="GallerySelect-option" value="anyone">
+                      Anyone
+                    </Option>
+                    <Option className="GallerySelect-option" value="friends">
+                      Friends
+                    </Option>
+                    <Option className="GallerySelect-option" value="you">
+                      Only you
+                    </Option>
+                  </Select>
+                </FormField>
+              );
+            }}
+          />
+        </form>
+      </div>
     </Stack>
   );
 }
