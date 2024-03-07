@@ -2,7 +2,7 @@ import type { FormControlState } from '../FormControl';
 import { TextareaAutosizeProps } from '../TextareaAutosize';
 
 export interface TextareaProps
-  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value'> {
+  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'cols'> {
   error?: boolean;
   /**
    * @default false

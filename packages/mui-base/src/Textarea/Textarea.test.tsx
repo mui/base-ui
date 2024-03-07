@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createMount, createRenderer, fireEvent, act } from '@mui-internal/test-utils';
+import { createMount, createRenderer, fireEvent, act } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Textarea, textareaClasses as classes } from '@mui/base/Textarea';
@@ -25,10 +25,12 @@ describe('<Textarea />', () => {
     skip: ['componentProp', 'slotsProp', 'slotPropsProp', 'slotPropsCallbacks'],
   }));
 
-  it('renders', () => {
+  it('renders a textarea element', () => {
     const { getByTestId } = render(<Textarea data-testid="textarea" />);
 
-    expect(getByTestId('textarea')).to.have.tagName('textarea');
+    const component = getByTestId('textarea');
+
+    expect(component).to.have.tagName('textarea');
   });
 
   it('can attach a ref', () => {
@@ -154,14 +156,14 @@ describe('<Textarea />', () => {
   });
 
   describe('with FormControl', () => {
-    it('should have the formControl class', () => {
+    it('should have the data-formcontrol attribute', () => {
       const { getByTestId } = render(
         <FormControl defaultValue="multiline field">
           <Textarea data-testid="textarea" />
         </FormControl>,
       );
       const textarea = getByTestId('textarea');
-      expect(textarea).to.have.class(classes.formControl);
+      expect(textarea.getAttribute('data-formcontrol')).to.equal('true');
     });
   });
 });

@@ -1,31 +1,24 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import MuiError from '@mui/internal-babel-macros/MuiError.macro';
 import useForkRef from '@mui/utils/useForkRef';
 import { FormControlState, useFormControlContext } from '../FormControl';
-import { getTextareaUtilityClass } from './textareaClasses';
 import { TextareaOwnerState, TextareaProps } from './Textarea.types';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { TextareaAutosize, TextareaAutosizeProps } from '../TextareaAutosize';
 
-const useUtilityClasses = (ownerState: TextareaOwnerState) => {
-  const { disabled, error, focused, formControlContext, readOnly } = ownerState;
-
-  const slots = {
-    textarea: [
-      'textarea',
-      disabled && 'disabled',
-      error && 'error',
-      focused && 'focused',
-      readOnly && 'readOnly',
-      Boolean(formControlContext) && 'formControl',
-    ],
+const useDataAttributes = (ownerState: TextareaOwnerState) => {
+  return {
+    ...['disabled', 'error', 'focused', 'readOnly'].reduce(
+      (acc: Record<string, unknown>, prop: string) => {
+        // @ts-ignore
+        acc[`data-${prop.toLowerCase()}`] = ownerState[prop];
+        return acc;
+      },
+      {},
+    ),
+    'data-formcontrol': Boolean(ownerState.formControlContext),
   };
-
-  return composeClasses(slots, useClassNamesOverride(getTextareaUtilityClass));
 };
 
 function defaultRender(props: TextareaAutosizeProps) {
@@ -45,21 +38,8 @@ const Textarea = React.forwardRef(function Textarea(
     onBlur,
     onChange,
     onFocus,
-    //
-    // 'aria-describedby': ariaDescribedby,
-    // 'aria-label': ariaLabel,
-    // 'aria-labelledby': ariaLabelledby,
-    // autoComplete,
-    // autoFocus,
     className,
-    // id,
-    // name,
-    // onClick,
-    // onKeyDown,
-    // onKeyUp,
-    // placeholder,
     readOnly = false,
-    // rows,
     minRows,
     maxRows,
     render: renderProp,
@@ -121,7 +101,7 @@ const Textarea = React.forwardRef(function Textarea(
     formControlContext,
   };
 
-  const classes = useUtilityClasses(ownerState);
+  const dataAttributes = useDataAttributes(ownerState);
 
   // The blur won't fire when the disabled state is set on a focused input.
   // We need to book keep the focused state manually.
@@ -191,6 +171,7 @@ const Textarea = React.forwardRef(function Textarea(
 
   const mergedProps = {
     ...other,
+    ...dataAttributes,
     ref: handleTextareaRef,
     value: value as string | number | readonly string[] | undefined,
     defaultValue,
@@ -202,7 +183,7 @@ const Textarea = React.forwardRef(function Textarea(
     onBlur: handleBlur,
     minRows,
     maxRows,
-    className: clsx([className, classes.textarea]),
+    className,
   };
 
   const render = renderProp ?? defaultRender;
