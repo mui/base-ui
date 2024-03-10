@@ -95,7 +95,7 @@
     "@types/stylis": "^4.2.5",
     "chai": "^4.4.1",
     "cross-fetch": "^4.0.0",
-    "marked": "^12.0.0",
+    "marked": "^12.0.1",
     "playwright": "^1.41.2",
     "prettier": "^3.2.5",
     "serve": "^14.2.1",
