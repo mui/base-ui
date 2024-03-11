@@ -458,4 +458,17 @@ describe('<TextareaAutosize />', () => {
       expect(input.style).to.have.property('height', `${lineHeight * 2}px`);
     });
   });
+
+  it('should apply the inline styles using the "style" prop', function test() {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      this.skip();
+    }
+
+    render(<TextareaAutosize style={{ backgroundColor: 'yellow' }} />);
+    const input = document.querySelector<HTMLTextAreaElement>('textarea');
+
+    expect(input).toHaveComputedStyle({
+      backgroundColor: 'rgb(255, 255, 0)',
+    });
+  });
 });
