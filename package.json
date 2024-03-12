@@ -192,7 +192,7 @@
     "@definitelytyped/utils": "^0.1.5",
     "@types/node": "^18.19.23",
     "@types/react": "^18.2.65",
-    "@types/react-dom": "18.2.19"
+    "@types/react-dom": "18.2.21"
   },
   "nyc": {
     "include": [
