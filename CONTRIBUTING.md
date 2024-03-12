@@ -363,7 +363,6 @@ $test-project> npm i ./path-to-file/mui-base-x.x.x.tar.gz
 > If you've already installed this package, your changes will not be reflected when you reinstall it.
 > As a quick fix, you can temporarily bump the version number in your `package.json` before running `pnpm build`.
 
-
 ## License
 
 By contributing your code to the [mui/base-ui](https://github.com/mui/base-ui) GitHub repository, you agree to license your contribution under the [MIT license](/LICENSE).
