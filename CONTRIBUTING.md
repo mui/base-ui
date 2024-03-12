@@ -113,7 +113,7 @@ To get started, run:
 pnpm start
 ```
 
-You can now access the documentation site locally: http://localhost:3003.
+You can now access the documentation site locally: http://localhost:3005.
 Changes to the docs will hot reload the site.
 
 ### Trying changes on the playground
@@ -131,10 +131,10 @@ To avoid these problems, you can use this playground:
 pnpm docs:create-playground && pnpm start
 ```
 
-Access it locally at: http://localhost:3003/playground/.
+Access it locally at: http://localhost:3005/playground/.
 
 You can create as many playgrounds as you want by going to the `/docs/pages/playground/` folder and duplicating the `index.tsx` file with a different name: `<file_name>.tsx`.
-The new playground will be accessible at: `http://localhost:3003/playground/<file_name>`.
+The new playground will be accessible at: `http://localhost:3005/playground/<file_name>`.
 
 ### How to increase the chances of being accepted
 
