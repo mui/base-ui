@@ -37,10 +37,10 @@ If you have an idea for an improvement to the code or the docs, we encourage you
 
 Working on your first pull request? You can learn how in this free video series: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
-Get started with [good first issues](https://github.com/mui/material-ui/issues?q=is:open+is:issue+label:"good+first+issue"), which have a limited scope and a working solution that's already been discussed.
+Get started with [good first issues](https://github.com/mui/base-ui/issues?q=is:open+is:issue+label:"good+first+issue"), which have a limited scope and a working solution that's already been discussed.
 This makes them ideal for newer developers, or those who are new to these libraries and want to see how the contribution process works.
 
-We also have a list of [ready to take issues](https://github.com/mui/material-ui/issues?q=is:open+is:issue+label:"ready+to+take"), which are issues that have already been at least partially resolved in discussion, to the point that it's clear what to do next.
+We also have a list of [ready to take issues](https://github.com/mui/base-ui/issues?q=is:open+is:issue+label:"ready+to+take"), which are issues that have already been at least partially resolved in discussion, to the point that it's clear what to do next.
 These issues are great for developers who want to reduce their chances of falling down a rabbit hole in search of a solution.
 
 Of course, you can work on any other issue you like—the "good first" and "ready to take" issues are simply those where the scope and timeline may be better defined.
@@ -65,9 +65,9 @@ It's often best to create two smaller PRs rather than one big one.
 2. Clone the fork to your local machine and add the upstream remote:
 
 ```bash
-git clone https://github.com/<your username>/material-ui.git
-cd material-ui
-git remote add upstream https://github.com/mui/material-ui.git
+git clone https://github.com/<your username>/base-ui.git
+cd base-ui
+git remote add upstream https://github.com/mui/base-ui.git
 ```
 
 <!-- #default-branch-switch -->
@@ -97,14 +97,14 @@ git checkout -b my-topic-branch
 git push -u origin HEAD
 ```
 
-7. Go to [the repository](https://github.com/mui/material-ui) and open a pull request.
+7. Go to [the repository](https://github.com/mui/base-ui) and open a pull request.
 
 The core team actively monitors for new pull requests.
 We will review your PR and either merge it, request changes to it, or close it with an explanation.
 
 ### Trying changes on the documentation site
 
-The documentation site is built with Material UI and contains examples of all of the components.
+The documentation site contains examples of all of the components.
 This is the best place to experiment with your changes—it's the local development environment used by the maintainers.
 
 To get started, run:
@@ -150,9 +150,8 @@ Make sure the following is true:
 - If a feature is being added:
   - If the result was already achievable with the core library, you've explained why this feature needs to be added to the core.
   - If this is a common use case, you've added an example to the documentation.
-- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about our test setup in our test [README](https://github.com/mui/material-ui/blob/HEAD/test/README.md).
+- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about our test setup in our test [README](https://github.com/mui/base-ui/blob/HEAD/test/README.md).
 - If props were added or prop types were changed, you've updated the TypeScript declarations.
-- If submitting a new component, you've added it to the [lab](https://github.com/mui/material-ui/tree/HEAD/packages/mui-lab).
 - The branch is not [behind its target branch](https://github.community/t/branch-10-commits-behind/2403).
 
 We will only merge a PR when all tests pass.
@@ -275,7 +274,7 @@ If you're interested in contributing to the docs but aren't sure where to start,
 
 `is:issue is:open label:docs label:"ready to take"`
 
-Or [follow this link directly to the results of that search](https://github.com/mui/material-ui/issues?q=is%3Aissue+is%3Aopen+label%3Adocs+label%3A%22ready+to+take%22).
+Or [follow this link directly to the results of that search](https://github.com/mui/base-ui/issues?q=is%3Aissue+is%3Aopen+label%3Adocs+label%3A%22ready+to+take%22).
 
 ### How to add a new demo to the docs
 
@@ -319,8 +318,6 @@ Add a header and a brief description of the demo and its use case, along with th
 
 Now you're ready to [open a PR](#sending-a-pull-request) to add your new demo to the docs.
 
-Check out [this Toggle Button demo PR](https://github.com/mui/material-ui/pull/19582/files) for an example of what your new and edited files should look like when opening your own demo PR.
-
 ## How can I use a change that hasn't been released yet?
 
 We use [CodeSandbox CI](https://codesandbox.io/docs/ci) to publish a working version of the packages for each pull request as a "preview."
@@ -336,8 +333,8 @@ index 791a7da1f4..a5db13b414 100644
    "dependencies": {
      "@babel/runtime": "^7.4.4",
      "@mui/styled-engine": "^5.0.0-alpha.16",
--    "@mui/material": "^5.0.0-alpha.15",
-+    "@mui/material": "https://pkg.csb.dev/mui/material-ui/commit/371c952b/@mui/material",
+-    "@mui/base": "^5.0.0-alpha.15",
++    "@mui/base": "https://pkg.csb.dev/mui/base-ui/commit/371c952b/@mui/base",
      "@mui/system": "^5.0.0-alpha.16",
 ```
 
@@ -345,20 +342,20 @@ Alternatively, you can open the Netlify preview of the documentation, and open a
 The documentation automatically configures the dependencies to use the preview packages.
 
 You can also package and test your changes locally.
-The following example shows how to package `@mui/material`, but you can package any npm package with this process:
+The following example shows how to package `@mui/base`, but you can package any npm package with this process:
 
 ```bash
 $> cd packages/mui-material # or path to any other mui package
-$packages\mui-material> pnpm build
-$packages\mui-material> cd ./build
-$packages\mui-material> pnpm pack
+$packages\mui-base> pnpm build
+$packages\mui-base> cd ./build
+$packages\mui-base> pnpm pack
 ```
 
-Navigate to the build folder of your respective package and locate a file with the format `mui-material-x.x.x.tar.gz`.
+Navigate to the build folder of your respective package and locate a file with the format `mui-base-x.x.x.tar.gz`.
 Copy this file and move it to the project directory you want to test in, then run:
 
 ```bash
-$test-project> npm i ./path-to-file/mui-material-x.x.x.tar.gz
+$test-project> npm i ./path-to-file/mui-base-x.x.x.tar.gz
 ```
 
 > **Note**
@@ -366,12 +363,6 @@ $test-project> npm i ./path-to-file/mui-material-x.x.x.tar.gz
 > If you've already installed this package, your changes will not be reflected when you reinstall it.
 > As a quick fix, you can temporarily bump the version number in your `package.json` before running `pnpm build`.
 
-## Roadmap
-
-Learn more about the future by visiting our different projects' roadmaps:
-
-- [Material UI roadmap](https://mui.com/material-ui/discover-more/roadmap/).
-
 ## License
 
-By contributing your code to the [mui/material-ui](https://github.com/mui/material-ui) GitHub repository, you agree to license your contribution under the [MIT license](/LICENSE).
+By contributing your code to the [mui/base-ui](https://github.com/mui/base-ui) GitHub repository, you agree to license your contribution under the [MIT license](/LICENSE).

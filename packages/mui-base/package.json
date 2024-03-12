@@ -14,12 +14,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mui/material-ui.git",
+    "url": "https://github.com/mui/base-ui.git",
     "directory": "packages/mui-base"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mui/material-ui/issues"
+    "url": "https://github.com/mui/base-ui/issues"
   },
   "homepage": "https://mui.com/base-ui/",
   "funding": {

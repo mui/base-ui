@@ -4,12 +4,12 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped using [`create-nex
 
 ## How to use
 
-Download the example [or clone the repo](https://github.com/mui/material-ui):
+Download the example [or clone the repo](https://github.com/mui/base-ui):
 
 <!-- #default-branch-switch -->
 
 ```bash
-curl https://codeload.github.com/mui/material-ui/tar.gz/master | tar -xz --strip=2 material-ui-master/examples/base-ui-nextjs-tailwind-ts
+curl https://codeload.github.com/mui/base-ui/tar.gz/master | tar -xz --strip=2 base-ui-master/examples/base-ui-nextjs-tailwind-ts
 cd base-ui-nextjs-tailwind-ts
 ```
 
