@@ -1,0 +1,17 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "direction": { "description": "The direction that the scrub area should change the value." },
+    "pixelSensitivity": {
+      "description": "Determines the number of pixels the cursor must move before the value changes. A higher value will make the scrubbing less sensitive."
+    },
+    "render": { "description": "A function to customize rendering of the component." },
+    "teleportDistance": {
+      "description": "If specified, how much the cursor can move from the scrubbing starting point before the cursor teleports back to the starting point."
+    }
+  },
+  "classDescriptions": {}
+}
