@@ -334,7 +334,7 @@ index 791a7da1f4..a5db13b414 100644
      "@babel/runtime": "^7.4.4",
      "@mui/styled-engine": "^5.0.0-alpha.16",
 -    "@mui/base": "^5.0.0-alpha.15",
-+    "@mui/base": "https://pkg.csb.dev/mui/base-ui/commit/371c952b/@mui/material",
++    "@mui/base": "https://pkg.csb.dev/mui/base-ui/commit/371c952b/@mui/base",
      "@mui/system": "^5.0.0-alpha.16",
 ```
 
