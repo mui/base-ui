@@ -1,0 +1,88 @@
+{
+  "parameters": {},
+  "returnValue": {
+    "getDecrementButtonProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
+      },
+      "required": true
+    },
+    "getGroupProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
+      },
+      "required": true
+    },
+    "getIncrementButtonProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
+      },
+      "required": true
+    },
+    "getInputProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
+      },
+      "required": true
+    },
+    "getScrubAreaCursorProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    },
+    "getScrubAreaProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    },
+    "inputRef": {
+      "type": {
+        "name": "React.RefObject&lt;HTMLInputElement&gt;",
+        "description": "React.RefObject&lt;HTMLInputElement&gt;"
+      },
+      "required": true
+    },
+    "inputValue": { "type": { "name": "string", "description": "string" }, "required": true },
+    "isScrubbing": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "scrubAreaCursorRef": {
+      "type": {
+        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
+        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
+      },
+      "required": true
+    },
+    "scrubAreaRef": {
+      "type": {
+        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
+        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
+      },
+      "required": true
+    },
+    "scrubHandleRef": {
+      "type": {
+        "name": "React.RefObject&lt;ScrubHandle | null&gt;",
+        "description": "React.RefObject&lt;ScrubHandle | null&gt;"
+      },
+      "required": true
+    },
+    "value": {
+      "type": { "name": "number | null", "description": "number | null" },
+      "required": true
+    }
+  },
+  "name": "useNumberField",
+  "filename": "/packages/mui-base/src/useNumberField/useNumberField.ts",
+  "imports": [
+    "import { useNumberField } from '@mui/base/useNumberField';",
+    "import { useNumberField } from '@mui/base';"
+  ],
+  "demos": "<ul><li><a href=\"/base-ui/react-number-field/#hook\">Number Field</a></li></ul>"
+}
