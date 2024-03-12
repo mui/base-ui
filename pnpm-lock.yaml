@@ -118,8 +118,8 @@ importers:
         specifier: ^5.15.11
         version: 5.15.11(@types/react@18.2.60)(react@18.2.0)
       '@next/eslint-plugin-next':
-        specifier: ^14.1.0
-        version: 14.1.0
+        specifier: ^14.1.3
+        version: 14.1.3
       '@octokit/rest':
         specifier: ^20.0.2
         version: 20.0.2
@@ -3608,8 +3608,8 @@ packages:
     resolution: {integrity: sha512-Py8zIo+02ht82brwwhTg36iogzFqGLPXlRGKQw5s+qP/kMNc4MAyDeEwBKDijk6zTIbegEgu8Qy7C1LboslQAw==}
     dev: false
 
-  /@next/eslint-plugin-next@14.1.0:
-    resolution: {integrity: sha512-x4FavbNEeXx/baD/zC/SdrvkjSby8nBn8KcCREqk6UuwvwoAPZmaV8TFCAuo/cpovBRTIY67mHhe86MQQm/68Q==}
+  /@next/eslint-plugin-next@14.1.3:
+    resolution: {integrity: sha512-VCnZI2cy77Yaj3L7Uhs3+44ikMM1VD/fBMwvTBb3hIaTIuqa+DmG4dhUDq+MASu3yx97KhgsVJbsas0XuiKyww==}
     dependencies:
       glob: 10.3.10
     dev: true
