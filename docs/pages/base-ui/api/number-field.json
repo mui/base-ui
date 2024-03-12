@@ -1,0 +1,41 @@
+{
+  "props": {
+    "allowWheelScrub": { "type": { "name": "bool" }, "default": "false" },
+    "autoFocus": { "type": { "name": "bool" }, "default": "false" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultValue": { "type": { "name": "number" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "format": {
+      "type": {
+        "name": "shape",
+        "description": "{ compactDisplay?: 'long'<br>&#124;&nbsp;'short', currency?: string, currencyDisplay?: string, currencySign?: string, localeMatcher?: string, maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact'<br>&#124;&nbsp;'engineering'<br>&#124;&nbsp;'scientific'<br>&#124;&nbsp;'standard', signDisplay?: 'always'<br>&#124;&nbsp;'auto'<br>&#124;&nbsp;'exceptZero'<br>&#124;&nbsp;'never', style?: string, unit?: string, unitDisplay?: 'long'<br>&#124;&nbsp;'narrow'<br>&#124;&nbsp;'short', useGrouping?: bool }"
+      }
+    },
+    "id": { "type": { "name": "string" } },
+    "invalid": { "type": { "name": "bool" }, "default": "false" },
+    "largeStep": { "type": { "name": "number" }, "default": "10" },
+    "max": { "type": { "name": "number" } },
+    "min": { "type": { "name": "number" } },
+    "name": { "type": { "name": "string" } },
+    "readOnly": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "func" } },
+    "required": { "type": { "name": "bool" }, "default": "false" },
+    "smallStep": { "type": { "name": "number" }, "default": "0.1" },
+    "step": { "type": { "name": "number" } },
+    "value": { "type": { "name": "number" } }
+  },
+  "name": "NumberField",
+  "imports": [
+    "import { NumberField } from '@mui/base/NumberField';",
+    "import { NumberField } from '@mui/base';"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "NumberField",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/NumberField/NumberField.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-number-field/\">Number Field</a></li></ul>",
+  "cssComponent": false
+}

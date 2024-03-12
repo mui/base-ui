@@ -1,0 +1,5 @@
+{
+  "hookDescription": "@ignore - internal hook\nReturns a ref that always holds the latest value passed to it. Useful for non-primitive\nvalues that don't need to be reactive when accessed inside effects and event handlers.\n@param value\n@internal",
+  "parametersDescriptions": {},
+  "returnValueDescriptions": {}
+}

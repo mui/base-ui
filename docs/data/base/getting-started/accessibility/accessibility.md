@@ -39,7 +39,7 @@ You can use [C. Liam Brown's Color Contrast Tool](https://cliambrown.com/contras
 
 It's your responsibility to ensure that components have accessible names.
 
-For form controls (such as the [Input](/base-ui/react-input/), [Number Input](/base-ui/react-number-input/), and [Select](/base-ui/react-select/)), this requires adding an associated `<label>` element, or placing an `aria-label` attribute on the component itself:
+For form controls (such as the [Input](/base-ui/react-input/), [Number Field](/base-ui/react-number-field/), and [Select](/base-ui/react-select/)), this requires adding an associated `<label>` element, or placing an `aria-label` attribute on the component itself:
 
 ```jsx
 <label>
