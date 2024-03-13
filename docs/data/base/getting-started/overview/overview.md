@@ -21,7 +21,7 @@ Base UI is currently in beta.
 
 We're adding new components and features regularly, and you're welcome to contribute!
 
-Look for the [`package: base-ui`](https://github.com/mui/material-ui/labels/package%3A%20base-ui) label on open issues and pull requests in the `mui/material-ui` repository on GitHub to see what other community members are working on, and feel free to submit your own.
+Look for the [open issues](https://github.com/mui/base-ui/issues) and [pull requests](https://github.com/mui/base-ui/pulls) in the `mui/base-ui` repository on GitHub to see what other community members are working on, and feel free to submit your own.
 :::
 
 ## Advantages of Base UI

@@ -283,7 +283,7 @@ jobs:
     <<: *defaults
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.41.2-focal
+      - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -313,7 +313,7 @@ jobs:
   test_profile:
     <<: *defaults
     docker:
-      - image: mcr.microsoft.com/playwright:v1.41.2-focal
+      - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -340,7 +340,7 @@ jobs:
   test_regressions:
     <<: *defaults
     docker:
-      - image: mcr.microsoft.com/playwright:v1.41.2-focal
+      - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -356,7 +356,7 @@ jobs:
   test_benchmark:
     <<: *defaults
     docker:
-      - image: mcr.microsoft.com/playwright:v1.41.2-focal
+      - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:

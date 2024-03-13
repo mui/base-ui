@@ -14,12 +14,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mui/material-ui.git",
+    "url": "https://github.com/mui/base-ui.git",
     "directory": "packages/mui-base"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mui/material-ui/issues"
+    "url": "https://github.com/mui/base-ui/issues"
   },
   "homepage": "https://mui.com/base-ui/",
   "funding": {
@@ -41,7 +41,7 @@
     "typescript:module-augmentation": "node scripts/testModuleAugmentation.js"
   },
   "dependencies": {
-    "@babel/runtime": "^7.23.9",
+    "@babel/runtime": "^7.24.0",
     "@floating-ui/react-dom": "^2.0.8",
     "@mui/types": "^7.2.13",
     "@mui/utils": "^5.15.11",
@@ -57,8 +57,8 @@
     "@types/chai": "^4.3.12",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.11",
-    "@types/react": "18.2.60",
-    "@types/react-dom": "18.2.19",
+    "@types/react": "18.2.65",
+    "@types/react-dom": "18.2.21",
     "@types/sinon": "^17.0.3",
     "chai": "^4.4.1",
     "fast-glob": "^3.3.2",
