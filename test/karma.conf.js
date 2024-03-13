@@ -186,7 +186,7 @@ module.exports = function setKarmaConfig(config) {
         chrome: {
           base: 'BrowserStack',
           os: 'OS X',
-          os_version: 'Catalina',
+          os_version: 'Monterey',
           browser: 'chrome',
           // We support Chrome 109.x per .browserslistrc
           browser_version: '109.0',
@@ -194,7 +194,7 @@ module.exports = function setKarmaConfig(config) {
         safari: {
           base: 'BrowserStack',
           os: 'OS X',
-          os_version: 'Catalina',
+          os_version: 'Monterey',
           browser: 'safari',
           browser_version: '15.6',
         },

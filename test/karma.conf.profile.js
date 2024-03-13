@@ -159,7 +159,7 @@ module.exports = function setKarmaConfig(config) {
         safari: {
           base: 'BrowserStack',
           os: 'OS X',
-          os_version: 'Catalina',
+          os_version: 'Monterey',
           browser: 'safari',
           browser_version: '15.6',
         },
