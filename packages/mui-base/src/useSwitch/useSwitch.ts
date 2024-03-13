@@ -62,29 +62,37 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
       inputRef.current?.click();
     };
 
-  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = (otherProps = {}) => ({
-    ...otherProps,
-    type: 'button',
-    role: 'switch',
-    'aria-checked': checked,
-    'aria-disabled': disabled,
-    'aria-readonly': readOnly,
-    onClick: createHandleClick(otherProps),
-  });
+  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = function getButtonProps(
+    otherProps = {},
+  ) {
+    return {
+      ...otherProps,
+      type: 'button',
+      role: 'switch',
+      'aria-checked': checked,
+      'aria-disabled': disabled,
+      'aria-readonly': readOnly,
+      onClick: createHandleClick(otherProps),
+    };
+  };
 
-  const getInputProps: UseSwitchReturnValue['getInputProps'] = (otherProps = {}) => ({
-    checked,
-    disabled,
-    name,
-    required,
-    style: visuallyHidden,
-    tabIndex: -1,
-    type: 'checkbox',
-    'aria-hidden': true,
-    ...otherProps,
-    ref: handleInputRef,
-    onChange: createHandleInputChange(otherProps),
-  });
+  const getInputProps: UseSwitchReturnValue['getInputProps'] = function getInputProps(
+    otherProps = {},
+  ) {
+    return {
+      checked,
+      disabled,
+      name,
+      required,
+      style: visuallyHidden,
+      tabIndex: -1,
+      type: 'checkbox',
+      'aria-hidden': true,
+      ...otherProps,
+      ref: handleInputRef,
+      onChange: createHandleInputChange(otherProps),
+    };
+  };
 
   return {
     checked,
