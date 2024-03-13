@@ -2,7 +2,7 @@ import * as React from 'react';
 import { SwitchThumbProps } from './Switch.types';
 import { SwitchContext } from './SwitchContext';
 import { resolveClassName } from '../utils/resolveClassName';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
+import { useSwitchStyleHooks } from './useSwitchStyleHooks';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -20,11 +20,7 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
   }
 
   const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = React.useMemo(() => {
-    return getStyleHookProps(ownerState, {
-      checked: (value) => (value === true ? { 'data-state': 'checked' } : null),
-    });
-  }, [ownerState]);
+  const styleHooks = useSwitchStyleHooks(ownerState);
 
   const elementProps = {
     className,

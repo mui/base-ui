@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { useSwitch } from '../useSwitch';
 import { SwitchProps, SwitchOwnerState } from './Switch.types';
 import { resolveClassName } from '../utils/resolveClassName';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
 import { SwitchContext } from './SwitchContext';
+import { useSwitchStyleHooks } from './useSwitchStyleHooks';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   // eslint-disable-next-line react/button-has-type
@@ -52,12 +52,7 @@ const Switch = React.forwardRef(function Switch(
   );
 
   const className = resolveClassName(classNameProp, ownerState);
-
-  const styleHooks = React.useMemo(() => {
-    return getStyleHookProps(ownerState, {
-      checked: (value) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
-    });
-  }, [ownerState]);
+  const styleHooks = useSwitchStyleHooks(ownerState);
 
   const buttonProps = {
     className,
