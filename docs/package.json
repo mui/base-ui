@@ -35,7 +35,7 @@
     "@mui/joy": "5.0.0-beta.28",
     "@mui/material": "^5.15.10",
     "@mui/material-nextjs": "^5.15.9",
-    "@mui/monorepo": "github:michaldudak/material-ui#62018a61226ffd3232197b0de83d321140340082",
+    "@mui/monorepo": "github:mui/material-ui#ad3a9364756881fef41bf01723a886ea1a823b0d",
     "@mui/styles": "^5.15.9",
     "@mui/system": "^5.15.9",
     "@mui/types": "^7.2.13",
