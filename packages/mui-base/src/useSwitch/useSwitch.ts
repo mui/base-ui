@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../utils/useControlled';
 import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
 import { useForkRef } from '../utils/useForkRef';
+import { visuallyHidden } from '../utils/visuallyHidden';
 
 /**
  * The basic building block for creating custom switches.
@@ -76,7 +77,7 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
     disabled,
     name,
     required,
-    style: { opacity: 0, width: 0, height: 0, margin: 0, padding: 0, overflow: 'hidden' },
+    style: visuallyHidden,
     tabIndex: -1,
     type: 'checkbox',
     'aria-hidden': true,
