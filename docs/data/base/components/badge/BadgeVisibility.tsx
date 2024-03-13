@@ -98,15 +98,14 @@ const StyledButton = styled(Button)(
 
 const Switch = styled(BaseSwitch)(
   ({ theme }) => `
-  width: 38px;
-  height: 24px;
-  margin: 10px;
+  width: 32px;
+  height: 20px;
   padding: 0;
   box-sizing: border-box;
-  background: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
-  border-radius: 24px;
-  display: inline-block;
+  background: ${theme.palette.mode === 'dark' ? grey[600] : grey[400]};
+  border-radius: 16px;
+  border: none;
+  display: inline-flex;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 120ms;
@@ -144,9 +143,10 @@ const Thumb = styled(BaseSwitch.Thumb)(
     box-sizing: border-box;
     border: 1px solid ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
     display: block;
-    width: 16px;
-    height: 16px;
-    left: 4px;
+    width: 14px;
+    height: 14px;
+    left: 3px;
+    top: 3px;
     border-radius: 16px;
     background-color: #FFF;
     position: relative;
@@ -158,7 +158,7 @@ const Thumb = styled(BaseSwitch.Thumb)(
     };
 
     &[data-state="checked"] {
-      left: 18px;
+      left: 15px;
       background-color: #fff;
       box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
     }
