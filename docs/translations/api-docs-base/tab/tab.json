@@ -14,17 +14,5 @@
       "description": "You can provide your own value. Otherwise, it falls back to the child position index."
     }
   },
-  "classDescriptions": {
-    "disabled": {
-      "description": "State class applied to {{nodeName}} if {{conditions}}.",
-      "nodeName": "the root <code>button</code> element",
-      "conditions": "<code>disabled={true}</code>"
-    },
-    "selected": {
-      "description": "State class applied to {{nodeName}} if {{conditions}}.",
-      "nodeName": "the root <code>button</code> element",
-      "conditions": "<code>selected={true}</code>"
-    }
-  },
-  "slotDescriptions": { "root": "The component that renders the root." }
+  "classDescriptions": {}
 }

@@ -12,6 +12,8 @@ import {
 } from '@mui-internal/api-docs-builder/buildApiUtils';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
 
+const REPO_ROOT = path.resolve(__dirname, '../../../..');
+
 export function getBaseUiHookInfo(filename: string): HookInfo {
   const { name } = extractPackageFile(filename);
   let srcInfo: null | ReturnType<ComponentInfo['readFile']> = null;
@@ -19,7 +21,7 @@ export function getBaseUiHookInfo(filename: string): HookInfo {
     throw new Error(`Could not find the hook name from: ${filename}`);
   }
 
-  const allMarkdowns = findPagesMarkdown()
+  const allMarkdowns = findPagesMarkdown(path.join(REPO_ROOT, 'docs/data'))
     .filter((markdown) => {
       return markdown.filename.match(/[\\/]data[\\/]base[\\/]/);
     })

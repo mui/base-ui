@@ -20,28 +20,7 @@
   },
   "name": "Badge",
   "imports": ["import { Badge } from '@mui/base/Badge';", "import { Badge } from '@mui/base';"],
-  "slots": [
-    {
-      "name": "root",
-      "description": "The component that renders the root.",
-      "default": "'span'",
-      "class": "base-Badge-root"
-    },
-    {
-      "name": "badge",
-      "description": "The component that renders the badge.",
-      "default": "'span'",
-      "class": "base-Badge-badge"
-    }
-  ],
-  "classes": [
-    {
-      "key": "invisible",
-      "className": "base-Badge-invisible",
-      "description": "State class applied to the badge `span` element if `invisible={true}`.",
-      "isGlobal": false
-    }
-  ],
+  "classes": [],
   "spread": true,
   "muiName": "Badge",
   "forwardsRefTo": "HTMLSpanElement",

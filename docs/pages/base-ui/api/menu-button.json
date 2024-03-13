@@ -19,34 +19,7 @@
     "import { MenuButton } from '@mui/base/MenuButton';",
     "import { MenuButton } from '@mui/base';"
   ],
-  "slots": [
-    {
-      "name": "root",
-      "description": "The component that renders the root.",
-      "default": "'button'",
-      "class": "base-MenuButton-root"
-    }
-  ],
-  "classes": [
-    {
-      "key": "active",
-      "className": "base--active",
-      "description": "State class applied to the root element if `active={true}`.",
-      "isGlobal": true
-    },
-    {
-      "key": "disabled",
-      "className": "base--disabled",
-      "description": "State class applied to the root element if `disabled={true}`.",
-      "isGlobal": true
-    },
-    {
-      "key": "expanded",
-      "className": "base--expanded",
-      "description": "State class applied to the root element if the associated menu is open.",
-      "isGlobal": true
-    }
-  ],
+  "classes": [],
   "spread": true,
   "muiName": "MenuButton",
   "forwardsRefTo": "HTMLButtonElement",

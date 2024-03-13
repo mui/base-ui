@@ -15,34 +15,7 @@
   },
   "name": "Option",
   "imports": ["import { Option } from '@mui/base/Option';", "import { Option } from '@mui/base';"],
-  "slots": [
-    {
-      "name": "root",
-      "description": "The component that renders the root.",
-      "default": "'li'",
-      "class": "base-Option-root"
-    }
-  ],
-  "classes": [
-    {
-      "key": "disabled",
-      "className": "base--disabled",
-      "description": "State class applied to the root `li` element if `disabled={true}`.",
-      "isGlobal": true
-    },
-    {
-      "key": "highlighted",
-      "className": "base-Option-highlighted",
-      "description": "State class applied to the root `li` element if `highlighted={true}`.",
-      "isGlobal": false
-    },
-    {
-      "key": "selected",
-      "className": "base--selected",
-      "description": "State class applied to the root `li` element if `selected={true}`.",
-      "isGlobal": true
-    }
-  ],
+  "classes": [],
   "spread": true,
   "muiName": "Option",
   "forwardsRefTo": "HTMLLIElement",
