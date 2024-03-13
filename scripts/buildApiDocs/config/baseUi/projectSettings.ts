@@ -39,6 +39,7 @@ export const projectSettings: ProjectSettings = {
     return source;
   },
   skipAnnotatingComponentDefinition: true,
+  skipSlotsAndClasses: true,
   generateJsonFileOnly: true,
   translationPagesDirectory: 'docs/translations/api-docs-base',
   generateClassName: generateUtilityClass,

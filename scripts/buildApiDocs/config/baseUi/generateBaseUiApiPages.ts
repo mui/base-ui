@@ -5,9 +5,11 @@ import { getHeaders } from '@mui/internal-markdown';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
 import { writePrettifiedFile } from '@mui-internal/api-docs-builder/buildApiUtils';
 
+const REPO_ROOT = path.resolve(__dirname, '../../../..');
+
 export async function generateBaseUIApiPages() {
   await Promise.all(
-    findPagesMarkdown().map(async (markdown) => {
+    findPagesMarkdown(path.join(REPO_ROOT, 'docs/data')).map(async (markdown) => {
       const markdownContent = fs.readFileSync(markdown.filename, 'utf8');
       const markdownHeaders = getHeaders(markdownContent) as any;
       const pathnameTokens = markdown.pathname.split('/');
