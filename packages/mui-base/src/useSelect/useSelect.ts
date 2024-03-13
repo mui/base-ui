@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
 import {
+  unstable_useEnhancedEffect as useEnhancedEffect,
   unstable_useForkRef as useForkRef,
   unstable_useId as useId,
-  unstable_useEnhancedEffect as useEnhancedEffect,
+  unstable_useOnMount as useOnMount,
   visuallyHidden as visuallyHiddenStyle,
 } from '@mui/utils';
 import { useButton } from '../useButton';
@@ -29,6 +30,9 @@ import { SelectOption } from '../useOption/useOption.types';
 import { selectReducer } from './selectReducer';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
+import { FormFieldContextValue } from '../FormField';
+import { useFormFieldContext } from '../FormField/useFormFieldContext';
+import { FieldActionTypes } from '../FormField/fieldAction.types';
 
 function defaultFormValueProvider<OptionValue>(
   selectedOption: SelectOption<OptionValue> | SelectOption<OptionValue>[] | null,
@@ -74,7 +78,7 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
     listboxId: listboxIdProp,
     listboxRef: listboxRefProp,
     multiple = false as Multiple,
-    name,
+    name: nameProp,
     required,
     onChange,
     onHighlightChange,
@@ -139,6 +143,23 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
 
     return subitems;
   }, [optionsParam, subitems, listboxId]);
+
+  const formField: FormFieldContextValue | undefined = useFormFieldContext();
+
+  const formFieldDispatch: FormFieldContextValue['dispatch'] = React.useCallback(
+    (action) => {
+      formField?.dispatch(action);
+    },
+    [formField],
+  );
+
+  useOnMount(() => {
+    formFieldDispatch({
+      type: FieldActionTypes.initializeValue,
+      event: null,
+      value: defaultValue ?? [],
+    });
+  });
 
   const handleListboxRef = useForkRef(listboxRefProp, listboxRef);
 
@@ -214,11 +235,21 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
     ) => {
       if (multiple) {
         onChange?.(event, newValues as SelectValue<OptionValue, Multiple>);
+        formFieldDispatch({
+          type: FieldActionTypes.changeValue,
+          event,
+          value: newValues,
+        });
       } else {
         onChange?.(event, (newValues[0] ?? null) as SelectValue<OptionValue, Multiple>);
+        formFieldDispatch({
+          type: FieldActionTypes.changeValue,
+          event,
+          value: newValues[0] ?? null,
+        });
       }
     },
-    [multiple, onChange],
+    [multiple, onChange, formFieldDispatch],
   );
 
   const handleHighlightChange = React.useCallback(
@@ -327,6 +358,28 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
     [getOptionByValue],
   );
 
+  const createHandleButtonFocus =
+    (externalEventHandlers?: EventHandlers) => (event: React.FocusEvent & MuiCancellableEvent) => {
+      externalEventHandlers?.onFocus?.(event);
+      if (!event.defaultMuiPrevented) {
+        formFieldDispatch({
+          type: FieldActionTypes.focus,
+          event,
+        });
+      }
+    };
+
+  const createHandleButtonBlur =
+    (externalEventHandlers?: EventHandlers) => (event: React.FocusEvent & MuiCancellableEvent) => {
+      externalEventHandlers?.onBlur?.(event);
+      if (!event.defaultMuiPrevented) {
+        formFieldDispatch({
+          type: FieldActionTypes.blur,
+          event,
+        });
+      }
+    };
+
   const createHandleButtonClick =
     (externalEventHandlers?: EventHandlers) => (event: React.MouseEvent & MuiCancellableEvent) => {
       externalEventHandlers?.onClick?.(event);
@@ -360,6 +413,8 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
   const getButtonOwnRootProps = (otherHandlers: EventHandlers = {}) => ({
     onClick: createHandleButtonClick(otherHandlers),
     onKeyDown: createHandleButtonKeyDown(otherHandlers),
+    onFocus: createHandleButtonFocus(otherHandlers),
+    onBlur: createHandleButtonBlur(otherHandlers),
   });
 
   const getSelectTriggerProps = <OtherHandlers extends EventHandlers>(
@@ -371,6 +426,8 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
       role: 'combobox' as const,
       'aria-expanded': open,
       'aria-controls': listboxId,
+      'aria-describedby': formField?.helpTextId,
+      'aria-labelledby': formField?.labelId,
     };
   };
 
@@ -485,7 +542,7 @@ function useSelect<OptionValue, Multiple extends boolean = false>(
     const externalEventHandlers = extractEventHandlers(externalProps);
 
     return {
-      name,
+      name: formField?.name ?? nameProp,
       tabIndex: -1,
       'aria-hidden': true,
       required: required ? true : undefined,
