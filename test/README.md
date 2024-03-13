@@ -43,7 +43,7 @@ In addition to the core matchers from `chai` we also use matchers from [`chai-do
 
 Deciding where to put a test is (like naming things) a hard problem:
 
-- When in doubt, put the new test case directly in the unit test file for that component e.g. `packages/mui-material/src/Button/Button.test.js`.
+- When in doubt, put the new test case directly in the unit test file for that component e.g. `packages/mui-base/src/Button/Button.test.tsx`.
 - If your test requires multiple components from the library create a new integration test.
 - If you find yourself using a lot of `data-testid` attributes or you're accessing
   a lot of styles consider adding a component (that doesn't require any interaction)
@@ -173,7 +173,7 @@ For example, you've opened a PR with the number 64209 and now after everything i
 
 ```bash
 curl --request POST \
-  --url https://circleci.com/api/v2/project/gh/mui/material-ui/pipeline \
+  --url https://circleci.com/api/v2/project/gh/mui/base-ui/pipeline \
   --header 'content-type: application/json' \
   --header 'Circle-Token: $CIRCLE_TOKEN' \
   --data-raw '{"branch":"pull/64209/head","parameters":{"browserstack-force":true}}'
@@ -229,7 +229,7 @@ The following command triggers the `profile` workflow for the pull request #2428
 
 ```bash
 curl --request POST \
-  --url https://circleci.com/api/v2/project/gh/mui/material-ui/pipeline \
+  --url https://circleci.com/api/v2/project/gh/mui/base-ui/pipeline \
   --header 'content-type: application/json' \
   --header 'Circle-Token: $CIRCLE_TOKEN' \
   --data-raw '{"branch":"pull/24289/head","parameters":{"workflow":"profile"}}'
@@ -238,10 +238,10 @@ curl --request POST \
 To analyze this profile run you can use https://mui-dashboard.netlify.app/test-profile/:job-number.
 
 To find out the job number you can start with the response of the previous CircleCI API request which includes the created pipeline id.
-You then have to search in the [CircleCI UI](https://app.circleci.com/pipelines/github/mui/material-ui) for the job number of `test_profile` that is part of the started pipeline.
+You then have to search in the [CircleCI UI](https://app.circleci.com/pipelines/github/mui/base-ui) for the job number of `test_profile` that is part of the started pipeline.
 The job number can be extracted from the URL of a particular CircleCI job.
 
-For example, in https://app.circleci.com/pipelines/github/mui/material-ui/32796/workflows/23f946de-328e-49b7-9c94-bfe0a0248a12/jobs/211258 `jobs/211258` points to the job number which is in this case `211258` which means you want to visit https://mui-dashboard.netlify.app/test-profile/211258 to analyze the profile.
+For example, in https://app.circleci.com/pipelines/github/mui/base-ui/32796/workflows/23f946de-328e-49b7-9c94-bfe0a0248a12/jobs/211258 `jobs/211258` points to the job number which is in this case `211258` which means you want to visit https://mui-dashboard.netlify.app/test-profile/211258 to analyze the profile.
 
 ### Testing multiple versions of React
 
@@ -262,7 +262,7 @@ PR #24289 for `react@next`
 
 ```bash
 curl --request POST \
-  --url https://circleci.com/api/v2/project/gh/mui/material-ui/pipeline \
+  --url https://circleci.com/api/v2/project/gh/mui/base-ui/pipeline \
   --header 'content-type: application/json' \
   --header 'Circle-Token: $CIRCLE_TOKEN' \
   --data-raw '{"branch":"pull/24289/head","parameters":{"react-version":"next"}}'
