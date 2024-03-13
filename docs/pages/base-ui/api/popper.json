@@ -49,14 +49,7 @@
   },
   "name": "Popper",
   "imports": ["import { Popper } from '@mui/base/Popper';", "import { Popper } from '@mui/base';"],
-  "classes": [
-    {
-      "key": "root",
-      "className": "base-Popper-root",
-      "description": "Class name applied to the root element.",
-      "isGlobal": false
-    }
-  ],
+  "classes": [],
   "spread": true,
   "muiName": "Popper",
   "forwardsRefTo": "HTMLDivElement",

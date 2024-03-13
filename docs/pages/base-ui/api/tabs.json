@@ -25,28 +25,7 @@
   },
   "name": "Tabs",
   "imports": ["import { Tabs } from '@mui/base/Tabs';", "import { Tabs } from '@mui/base';"],
-  "slots": [
-    {
-      "name": "root",
-      "description": "The component that renders the root.",
-      "default": "'div'",
-      "class": "base-Tabs-root"
-    }
-  ],
-  "classes": [
-    {
-      "key": "horizontal",
-      "className": "base-Tabs-horizontal",
-      "description": "Class name applied to the root element if `orientation='horizontal'`.",
-      "isGlobal": false
-    },
-    {
-      "key": "vertical",
-      "className": "base-Tabs-vertical",
-      "description": "Class name applied to the root element if `orientation='vertical'`.",
-      "isGlobal": false
-    }
-  ],
+  "classes": [],
   "spread": true,
   "muiName": "Tabs",
   "forwardsRefTo": "HTMLDivElement",
