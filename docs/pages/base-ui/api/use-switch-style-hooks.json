@@ -1,0 +1,11 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useSwitchStyleHooks",
+  "filename": "/packages/mui-base/src/Switch/useSwitchStyleHooks.ts",
+  "imports": [
+    "import { useSwitchStyleHooks } from '@mui/base/Switch';",
+    "import { useSwitchStyleHooks } from '@mui/base';"
+  ],
+  "demos": "<ul></ul>"
+}

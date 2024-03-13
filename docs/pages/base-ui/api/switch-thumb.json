@@ -1,0 +1,14 @@
+{
+  "props": {},
+  "name": "SwitchThumb",
+  "imports": [
+    "import { SwitchThumb } from '@mui/base/Switch';",
+    "import { SwitchThumb } from '@mui/base';"
+  ],
+  "classes": [],
+  "muiName": "SwitchThumb",
+  "filename": "/packages/mui-base/src/Switch/SwitchThumb.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-switch/\">Switch</a></li></ul>",
+  "cssComponent": false
+}

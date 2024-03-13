@@ -51,6 +51,10 @@ module.exports = [
     title: 'Snackbar',
   },
   { pathname: '/base-ui/react-switch/components-api/#switch', title: 'Switch' },
+  {
+    pathname: '/base-ui/react-switch/components-api/#switch-thumb',
+    title: 'SwitchThumb',
+  },
   { pathname: '/base-ui/react-tabs/components-api/#tab', title: 'Tab' },
   { pathname: '/base-ui/react-tabs/components-api/#tab-panel', title: 'TabPanel' },
   {

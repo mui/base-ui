@@ -280,6 +280,7 @@
     "/base-ui/react-slider/components-api/#slider": "Slider",
     "/base-ui/react-snackbar/components-api/#snackbar": "Snackbar",
     "/base-ui/react-switch/components-api/#switch": "Switch",
+    "/base-ui/react-switch/components-api/#switch-thumb": "SwitchThumb",
     "/base-ui/react-tabs/components-api/#tab": "Tab",
     "/base-ui/react-tabs/components-api/#tab-panel": "TabPanel",
     "/base-ui/react-table-pagination/components-api/#table-pagination": "TablePagination",
