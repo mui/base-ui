@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import { Textarea as BaseTextarea } from '@mui/base/Textarea';
 import { styled } from '@mui/system';
 
-export default function EmptyTextarea() {
+export default function MaxHeightTextarea() {
   const blue = {
     100: '#DAECFF',
     200: '#b6daff',
@@ -25,7 +25,7 @@ export default function EmptyTextarea() {
     900: '#1C2025',
   };
 
-  const Textarea = styled(BaseTextareaAutosize)(
+  const Textarea = styled(BaseTextarea)(
     ({ theme }) => `
     box-sizing: border-box;
     width: 320px;
@@ -45,7 +45,6 @@ export default function EmptyTextarea() {
     }
 
     &:focus {
-      outline: 0;
       border-color: ${blue[400]};
       box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
     }
@@ -57,5 +56,13 @@ export default function EmptyTextarea() {
   `,
   );
 
-  return <Textarea aria-label="empty textarea" placeholder="Empty" />;
+  return (
+    <Textarea
+      maxRows={4}
+      aria-label="maximum height"
+      placeholder="Maximum 4 rows"
+      defaultValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+        ut labore et dolore magna aliqua."
+    />
+  );
 }

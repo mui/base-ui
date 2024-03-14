@@ -64,7 +64,7 @@ module.exports = [
     title: 'Textarea',
   },
   {
-    pathname: '/base-ui/react-textarea-autosize/components-api/#textarea-autosize',
+    pathname: '/base-ui/react-textarea/components-api/#textarea-autosize',
     title: 'TextareaAutosize',
   },
   {

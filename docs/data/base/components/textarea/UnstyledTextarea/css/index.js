@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { Textarea } from '@mui/base/Textarea';
 import { useTheme } from '@mui/system';
 
-export default function UnstyledTextareaIntroduction() {
+export default function UnstyledTextarea() {
   return (
     <React.Fragment>
-      <TextareaAutosize
-        className="CustomTextareaIntrocudtion"
+      <Textarea
+        className="CustomTextarea"
         aria-label="empty textarea"
         placeholder="Empty"
       />
@@ -52,33 +52,33 @@ function Styles() {
   return (
     <style>
       {`
-      .CustomTextareaIntrocudtion {
+      .CustomTextarea {
         box-sizing: border-box;
         width: 320px;
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 0.875rem;
         font-weight: 400;
         line-height: 1.5;
-        padding: 12px;
-        border-radius: 12px 12px 0 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
         color: ${isDarkMode ? grey[300] : grey[900]};
         background: ${isDarkMode ? grey[900] : '#fff'};
         border: 1px solid ${isDarkMode ? grey[700] : grey[200]};
-        box-shadow: 0px 2px 24px ${isDarkMode ? cyan[900] : cyan[100]};
+        box-shadow: 0px 2px 2px ${isDarkMode ? grey[900] : grey[50]};
       }
 
-     .CustomTextareaIntrocudtion:hover {
+     .CustomTextarea:hover {
         border-color: ${cyan[400]};
       }
 
-     .CustomTextareaIntrocudtion:focus {
+     .CustomTextarea:focus {
+        outline: 0;
         border-color: ${cyan[400]};
-        box-shadow: 0 0 0 3px ${isDarkMode ? cyan[600] : cyan[200]};
-        outline: none;
+        box-shadow: 0 0 0 3px ${isDarkMode ? cyan[500] : cyan[200]};
       }
 
       // firefox
-      .CustomTextareaIntrocudtion:focus-visible {
+      .CustomTextarea:focus-visible {
         outline: 0;
       }
     `}

@@ -1,6 +1,6 @@
 <React.Fragment>
-  <TextareaAutosize
-    className="CustomTextareaIntrocudtion"
+  <Textarea
+    className="CustomTextarea"
     aria-label="empty textarea"
     placeholder="Empty"
   />

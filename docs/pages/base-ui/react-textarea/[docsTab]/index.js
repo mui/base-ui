@@ -4,6 +4,7 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs/data/base/components/textarea/textarea.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import TextareaApiJsonPageContent from '../../api/textarea.json';
+import TextareaAutosizeApiJsonPageContent from '../../api/textarea-autosize.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -29,10 +30,23 @@ export const getStaticProps = () => {
   );
   const TextareaApiDescriptions = mapApiPageTranslations(TextareaApiReq);
 
+  const TextareaAutosizeApiReq = require.context(
+    'docs/translations/api-docs-base/textarea-autosize',
+    false,
+    /textarea-autosize.*.json$/,
+  );
+  const TextareaAutosizeApiDescriptions = mapApiPageTranslations(TextareaAutosizeApiReq);
+
   return {
     props: {
-      componentsApiDescriptions: { Textarea: TextareaApiDescriptions },
-      componentsApiPageContents: { Textarea: TextareaApiJsonPageContent },
+      componentsApiDescriptions: {
+        Textarea: TextareaApiDescriptions,
+        TextareaAutosize: TextareaAutosizeApiDescriptions,
+      },
+      componentsApiPageContents: {
+        Textarea: TextareaApiJsonPageContent,
+        TextareaAutosize: TextareaAutosizeApiJsonPageContent,
+      },
       hooksApiDescriptions: {},
       hooksApiPageContents: {},
     },

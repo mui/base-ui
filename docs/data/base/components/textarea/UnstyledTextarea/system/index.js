@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import { Textarea as BaseTextarea } from '@mui/base/Textarea';
 import { styled } from '@mui/system';
 
 export default function EmptyTextarea() {
@@ -25,7 +25,7 @@ export default function EmptyTextarea() {
     900: '#1C2025',
   };
 
-  const Textarea = styled(BaseTextareaAutosize)(
+  const Textarea = styled(BaseTextarea)(
     ({ theme }) => `
     box-sizing: border-box;
     width: 320px;
