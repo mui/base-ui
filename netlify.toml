@@ -9,7 +9,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  PNPM_FLAGS = "--shamefully-hoist"
+  PNPM_FLAGS = "--public-hoist-pattern=* --public-hoist-pattern=!@mui/base"
 
 [[plugins]]
   package = "./node_modules/@mui/monorepo/packages/netlify-plugin-cache-docs"
