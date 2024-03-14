@@ -1,8 +1,14 @@
 {
   "componentDescription": "",
   "propDescriptions": {
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
     "maxRows": { "description": "Maximum number of rows to display." },
-    "minRows": { "description": "Minimum number of rows to display." }
+    "minRows": { "description": "Minimum number of rows to display." },
+    "render": {
+      "description": "If <code>true</code>, a <code>textarea</code> element is rendered."
+    }
   },
   "classDescriptions": {}
 }
