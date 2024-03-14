@@ -27,7 +27,7 @@ export type TextareaOwnerState = {
   disabled: boolean;
   error: boolean;
   focused: boolean;
-  formControlContext: FormControlState | undefined;
+  formControlContext: FormControlState | boolean;
   required: boolean;
   readOnly: boolean;
 };

@@ -6,20 +6,7 @@ import useForkRef from '@mui/utils/useForkRef';
 import { FormControlState, useFormControlContext } from '../FormControl';
 import { TextareaOwnerState, TextareaProps } from './Textarea.types';
 import { TextareaAutosize, TextareaAutosizeProps } from '../TextareaAutosize';
-
-const useDataAttributes = (ownerState: TextareaOwnerState) => {
-  return {
-    ...['disabled', 'error', 'focused', 'readOnly'].reduce(
-      (acc: Record<string, unknown>, prop: string) => {
-        // @ts-ignore
-        acc[`data-${prop.toLowerCase()}`] = ownerState[prop];
-        return acc;
-      },
-      {},
-    ),
-    'data-formcontrol': Boolean(ownerState.formControlContext),
-  };
-};
+import { useTextareaStyleHooks } from './useTextareaStyleHooks';
 
 function defaultRender(props: TextareaAutosizeProps) {
   return <TextareaAutosize {...props} />;
@@ -92,16 +79,15 @@ const Textarea = React.forwardRef(function Textarea(
   const [focused, setFocused] = React.useState(false);
 
   const ownerState: TextareaOwnerState = {
-    ...props,
     focused,
     disabled,
     error,
     required,
     readOnly,
-    formControlContext,
+    formControlContext: formControlContext ?? false,
   };
 
-  const dataAttributes = useDataAttributes(ownerState);
+  const styleHooks = useTextareaStyleHooks(ownerState);
 
   // The blur won't fire when the disabled state is set on a focused input.
   // We need to book keep the focused state manually.
@@ -171,7 +157,7 @@ const Textarea = React.forwardRef(function Textarea(
 
   const mergedProps = {
     ...other,
-    ...dataAttributes,
+    ...styleHooks,
     ref: handleTextareaRef,
     value: value as string | number | readonly string[] | undefined,
     defaultValue,
