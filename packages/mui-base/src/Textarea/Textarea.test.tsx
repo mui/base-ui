@@ -59,16 +59,17 @@ describe('<Textarea />', () => {
   });
 
   describe('prop: render', () => {
-    const Wrapper = React.forwardRef<HTMLTextAreaElement, { children?: React.ReactNode }>(
-      function Wrapper(props, forwardedRef) {
-        const { minRows, maxRows, ...otherProps } = props;
-        return (
-          <div data-testid="wrapper">
-            <textarea ref={forwardedRef} {...otherProps} />
-          </div>
-        );
-      },
-    );
+    const Wrapper = React.forwardRef<
+      HTMLTextAreaElement,
+      { children?: React.ReactNode; minRows?: number | string; maxRows?: number | string }
+    >(function Wrapper(props, forwardedRef) {
+      const { minRows, maxRows, ...otherProps } = props;
+      return (
+        <div data-testid="wrapper">
+          <textarea ref={forwardedRef} {...otherProps} />
+        </div>
+      );
+    });
 
     it('should render the custom component', () => {
       const { container, getByTestId } = render(
@@ -250,7 +251,7 @@ describe('<Textarea />', () => {
         // FormData is not available in JSDOM
         this.skip();
       }
-      const handleSubmit = (event) => {
+      const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         expect(formData.get('textarea-one')).to.equal('Mozilla Firefox');
