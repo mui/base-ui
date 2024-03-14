@@ -1,29 +1,12 @@
 import * as React from 'react';
-import { createMount, createRenderer, fireEvent, act } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent, act } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Textarea, textareaClasses as classes } from '@mui/base/Textarea';
+import { Textarea } from '@mui/base/Textarea';
 import { FormControl } from '@mui/base/FormControl';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 describe('<Textarea />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
-
-  describeConformanceUnstyled(<Textarea />, () => ({
-    inheritComponent: 'div',
-    render,
-    mount,
-    refInstanceof: window.HTMLTextAreaElement,
-    testComponentPropWith: 'textarea',
-    slots: {
-      textarea: {
-        expectedClassName: classes.textarea,
-        testWithElement: 'textarea',
-      },
-    },
-    skip: ['componentProp', 'slotsProp', 'slotPropsProp', 'slotPropsCallbacks'],
-  }));
 
   it('renders a textarea element', () => {
     const { getByTestId } = render(<Textarea data-testid="textarea" />);
@@ -38,6 +21,64 @@ describe('<Textarea />', () => {
     const { getByTestId } = render(<Textarea ref={textareaRef} data-testid="textarea" />);
 
     expect(textareaRef.current).to.deep.equal(getByTestId('textarea'));
+  });
+
+  describe('prop: className', () => {
+    it('should apply the className when passed as a string', () => {
+      const { container } = render(<Textarea className="test-class" />);
+      expect(container.firstElementChild?.className).to.contain('test-class');
+    });
+  });
+
+  describe('extra props', () => {
+    it('should spread extra props', () => {
+      const { container } = render(<Textarea data-extra="Hello world" />);
+      expect(container.firstElementChild as HTMLElement).to.have.attribute(
+        'data-extra',
+        'Hello world',
+      );
+    });
+  });
+
+  describe('prop: render', () => {
+    const Wrapper = React.forwardRef<HTMLTextAreaElement, { children?: React.ReactNode }>(
+      function Wrapper(props, forwardedRef) {
+        const { minRows, maxRows, ...otherProps } = props;
+        return (
+          <div data-testid="wrapper">
+            <textarea ref={forwardedRef} {...otherProps} />
+          </div>
+        );
+      },
+    );
+
+    it('should render the custom component', () => {
+      const { container, getByTestId } = render(
+        <Textarea render={(props) => <Wrapper {...props} />} data-testid="wrapped" />,
+      );
+
+      expect(container.firstElementChild).to.equal(getByTestId('wrapper'));
+    });
+
+    it('should pass the ref to the custom component', () => {
+      let instanceFromRef = null;
+
+      function Test() {
+        return (
+          <Textarea
+            ref={(el) => {
+              instanceFromRef = el;
+            }}
+            render={(props) => <Wrapper {...props} />}
+            data-testid="wrapped"
+          />
+        );
+      }
+
+      render(<Test />);
+      expect(instanceFromRef!.tagName).to.equal('TEXTAREA');
+      expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
+    });
   });
 
   describe('event handlers', () => {
@@ -155,15 +196,63 @@ describe('<Textarea />', () => {
     });
   });
 
-  describe('with FormControl', () => {
-    it('should have the data-formcontrol attribute', () => {
+  describe('style hooks', () => {
+    it('should set style hooks', () => {
       const { getByTestId } = render(
-        <FormControl defaultValue="multiline field">
-          <Textarea data-testid="textarea" />
+        <FormControl defaultValue="multiline field" disabled error required>
+          <Textarea data-testid="textarea" readOnly />
         </FormControl>,
       );
+
       const textarea = getByTestId('textarea');
-      expect(textarea.getAttribute('data-formcontrol')).to.equal('true');
+
+      expect(textarea.getAttribute('data-disabled')).to.equal('true');
+      expect(textarea.getAttribute('data-error')).to.equal('true');
+      expect(textarea.getAttribute('data-required')).to.equal('true');
+      expect(textarea.getAttribute('data-readonly')).to.equal('true');
+      expect(textarea.getAttribute('data-focused')).to.equal(null);
+    });
+
+    it('should set data-focused when focused', () => {
+      const { getByTestId } = render(<Textarea data-testid="textarea" />);
+
+      const textarea = getByTestId('textarea');
+
+      act(() => {
+        textarea.focus();
+      });
+
+      expect(textarea.getAttribute('data-focused')).to.equal('true');
+    });
+  });
+
+  describe('form submission', () => {
+    it('includes the Textarea value in the form data when `name` is provided', async function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // FormData is not available in JSDOM
+        this.skip();
+      }
+      const handleSubmit = (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        expect(formData.get('textarea-one')).to.equal('Mozilla Firefox');
+
+        const formDataAsObject = Object.fromEntries(formData);
+        expect(Object.keys(formDataAsObject).length).to.equal(1);
+      };
+
+      const { getByText } = render(
+        <form onSubmit={handleSubmit}>
+          <Textarea name="textarea-one" defaultValue="Mozilla Firefox" />
+          <Textarea defaultValue="Google Chrome" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const button = getByText('Submit');
+      act(() => {
+        button.click();
+      });
     });
   });
 });
