@@ -7,6 +7,7 @@ import { FormControlState, useFormControlContext } from '../FormControl';
 import { TextareaOwnerState, TextareaProps } from './Textarea.types';
 import { TextareaAutosize, TextareaAutosizeProps } from '../TextareaAutosize';
 import { useTextareaStyleHooks } from './useTextareaStyleHooks';
+import { resolveClassName } from './utils';
 
 function defaultRender(props: TextareaAutosizeProps) {
   return <TextareaAutosize {...props} />;
@@ -25,7 +26,7 @@ const Textarea = React.forwardRef(function Textarea(
     onBlur,
     onChange,
     onFocus,
-    className,
+    className: classNameProp,
     readOnly = false,
     minRows,
     maxRows,
@@ -169,7 +170,7 @@ const Textarea = React.forwardRef(function Textarea(
     onBlur: handleBlur,
     minRows,
     maxRows,
-    className,
+    className: resolveClassName(classNameProp, ownerState),
   };
 
   const render = renderProp ?? defaultRender;
@@ -187,9 +188,9 @@ Textarea.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * @ignore
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className: PropTypes.string,
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * @ignore
    */
@@ -232,7 +233,7 @@ Textarea.propTypes /* remove-proptypes */ = {
    */
   readOnly: PropTypes.bool,
   /**
-   * @ignore
+   * If `true`, a `textarea` element is rendered.
    */
   render: PropTypes.func,
   /**

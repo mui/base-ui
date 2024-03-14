@@ -2,7 +2,7 @@ import type { FormControlState } from '../FormControl';
 import { TextareaAutosizeProps } from '../TextareaAutosize';
 
 export interface TextareaProps
-  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'cols'> {
+  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'className' | 'cols'> {
   error?: boolean;
   /**
    * @default false
@@ -17,10 +17,15 @@ export interface TextareaProps
    * Minimum number of rows to display.
    * @default 1
    */
-  minRows?: number /**
+  minRows?: number;
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className?: string | ((state: TextareaOwnerState) => string);
+  /**
    * If `true`, a `textarea` element is rendered.
-   */;
-  render?: (props: TextareaAutosizeProps, ownerState: TextareaOwnerState) => React.ReactNode;
+   */
+  render?: (props: TextareaAutosizeProps, ownerState: TextareaOwnerState) => React.ReactNode; // TODO: replace with CommonProps
 }
 
 export type TextareaOwnerState = {

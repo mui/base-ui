@@ -28,6 +28,24 @@ describe('<Textarea />', () => {
       const { container } = render(<Textarea className="test-class" />);
       expect(container.firstElementChild?.className).to.contain('test-class');
     });
+
+    it('should apply className when passed as a function', () => {
+      const classNameCallback = spy((args) => {
+        expect(args).to.deep.equal({
+          focused: false,
+          disabled: true,
+          error: false,
+          required: false,
+          readOnly: false,
+          formControlContext: false,
+        });
+        return `my-custom-class${args.disabled && ' my-disabled-class'}`;
+      });
+
+      render(<Textarea disabled className={classNameCallback} />);
+
+      expect(classNameCallback.returned('my-custom-class my-disabled-class')).to.equal(true);
+    });
   });
 
   describe('extra props', () => {
