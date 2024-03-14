@@ -123,10 +123,10 @@ function components() {
       href: '/base-ui/react-tabs/',
     },
     {
-      title: 'Textarea Autosize',
+      title: 'Textarea',
       srcLight: '/static/base-ui/react-components/textarea-light.png',
       srcDark: '/static/base-ui/react-components/textarea-dark.png',
-      href: '/base-ui/react-textarea-autosize/',
+      href: '/base-ui/react-textarea/',
     },
   ];
 }
