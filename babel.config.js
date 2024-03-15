@@ -13,7 +13,7 @@ const productionPlugins = [
 ];
 
 module.exports = function getBabelConfig(api) {
-  const useESModules = api.env(['regressions', 'legacy', 'modern', 'stable', 'rollup']);
+  const useESModules = api.env(['regressions', 'stable', 'rollup']);
 
   const defaultAlias = {
     '@mui/base': resolveAliasPath('./packages/mui-base/src'),
@@ -32,7 +32,6 @@ module.exports = function getBabelConfig(api) {
         browserslistEnv: process.env.BABEL_ENV || process.env.NODE_ENV,
         debug: process.env.MUI_BUILD_VERBOSE === 'true',
         modules: useESModules ? false : 'commonjs',
-        shippedProposals: api.env('modern'),
       },
     ],
     [
@@ -80,15 +79,6 @@ module.exports = function getBabelConfig(api) {
   if (process.env.NODE_ENV === 'production') {
     plugins.push(...productionPlugins);
   }
-  if (process.env.NODE_ENV === 'test') {
-    plugins.push([
-      'babel-plugin-module-resolver',
-      {
-        alias: defaultAlias,
-        root: ['./'],
-      },
-    ]);
-  }
 
   return {
     assumptions: {
@@ -121,11 +111,8 @@ module.exports = function getBabelConfig(api) {
           [
             'babel-plugin-module-resolver',
             {
-              alias: {
-                ...defaultAlias,
-                modules: './modules',
-              },
               root: ['./'],
+              alias: defaultAlias,
             },
           ],
         ],
@@ -138,12 +125,6 @@ module.exports = function getBabelConfig(api) {
               alias: defaultAlias,
             },
           ],
-        ],
-      },
-      legacy: {
-        plugins: [
-          // IE11 support
-          '@babel/plugin-transform-object-assign',
         ],
       },
       test: {
