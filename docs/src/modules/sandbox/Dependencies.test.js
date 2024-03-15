@@ -3,7 +3,7 @@ import SandboxDependencies from './Dependencies';
 
 describe('Dependencies', () => {
   before(() => {
-    process.env.SOURCE_CODE_REPO = 'https://github.com/mui/material-ui';
+    process.env.SOURCE_CODE_REPO = 'https://github.com/mui/base-ui';
   });
 
   after(() => {
@@ -167,7 +167,6 @@ import 'exceljs';
       'react-dom': 'latest',
       '@emotion/react': 'latest',
       '@emotion/styled': 'latest',
-      '@mui/material': 'latest',
       '@types/react-dom': 'latest',
       '@types/react': 'latest',
       typescript: 'latest',
@@ -244,14 +243,13 @@ import * as Utils from '@mui/utils';
       'react-dom': 'latest',
       '@emotion/react': 'latest',
       '@emotion/styled': 'latest',
-      '@mui/material': 'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/material',
-      '@mui/icons-material':
-        'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/icons-material',
-      '@mui/lab': 'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/lab',
-      '@mui/styles': 'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/styles',
-      '@mui/system': 'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/system',
-      '@mui/utils': 'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/utils',
-      '@mui/base': 'https://pkg.csb.dev/mui/material-ui/commit/2d0e8b4d/@mui/base',
+      '@mui/material': 'latest',
+      '@mui/icons-material': 'latest',
+      '@mui/lab': 'latest',
+      '@mui/styles': 'latest',
+      '@mui/system': 'latest',
+      '@mui/utils': 'latest',
+      '@mui/base': 'https://pkg.csb.dev/mui/base-ui/commit/2d0e8b4d/@mui/base',
     });
   });
 

@@ -46,13 +46,13 @@ export default function SandboxDependencies(
   function getMuiPackageVersion(packageName: string): string {
     if (
       commitRef === undefined ||
-      process.env.SOURCE_CODE_REPO !== 'https://github.com/mui/material-ui'
+      process.env.SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui'
     ) {
       // #default-branch-switch
       return 'latest';
     }
     const shortSha = commitRef.slice(0, 8);
-    return `https://pkg.csb.dev/mui/material-ui/commit/${shortSha}/@mui/${packageName}`;
+    return `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@mui/${packageName}`;
   }
 
   function extractDependencies(raw: string) {
@@ -71,11 +71,11 @@ export default function SandboxDependencies(
       };
 
       if (newDeps['@mui/lab'] || newDeps['@mui/icons-material']) {
-        newDeps['@mui/material'] = versions['@mui/material'];
+        newDeps['@mui/material'] = 'latest';
       }
 
       if (newDeps['@mui/x-data-grid']) {
-        newDeps['@mui/material'] = versions['@mui/material'];
+        newDeps['@mui/material'] = 'latest';
       }
 
       // TODO: consider if this configuration could be injected in a "cleaner" way.
@@ -93,19 +93,7 @@ export default function SandboxDependencies(
       'react-dom': 'latest',
       '@emotion/react': 'latest',
       '@emotion/styled': 'latest',
-      '@mui/material': getMuiPackageVersion('material'),
-      '@mui/icons-material': getMuiPackageVersion('icons-material'),
-      '@mui/lab': getMuiPackageVersion('lab'),
-      '@mui/styled-engine': getMuiPackageVersion('styled-engine'),
-      '@mui/styles': getMuiPackageVersion('styles'),
-      '@mui/system': getMuiPackageVersion('system'),
-      '@mui/private-theming': getMuiPackageVersion('theming'),
-      '@mui/private-classnames': getMuiPackageVersion('classnames'),
       '@mui/base': getMuiPackageVersion('base'),
-      '@mui/utils': getMuiPackageVersion('utils'),
-      '@mui/material-next': getMuiPackageVersion('material-next'),
-      '@mui/material-nextjs': getMuiPackageVersion('material-nextjs'),
-      '@mui/joy': getMuiPackageVersion('joy'),
     };
 
     // TODO: consider if this configuration could be injected in a "cleaner" way.
@@ -144,15 +132,6 @@ export default function SandboxDependencies(
   if (demo.codeVariant === CODE_VARIANTS.TS) {
     addTypeDeps(dependencies);
     dependencies.typescript = 'latest';
-  }
-
-  if (!demo.productId && !dependencies['@mui/material']) {
-    // The `index.js` imports StyledEngineProvider from '@mui/material', so we need to make sure we have it as a dependency
-    const name = '@mui/material';
-    const versions = {
-      [name]: getMuiPackageVersion('material'),
-    };
-    dependencies[name] = versions[name] ? versions[name] : 'latest';
   }
 
   const devDependencies = {
