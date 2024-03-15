@@ -31,7 +31,7 @@
     "@mui/docs": "^5.15.11",
     "@mui/icons-material": "5.15.10",
     "@mui/internal-markdown": "^1.0.0",
-    "@mui/internal-scripts": "^1.0.1",
+    "@mui/internal-scripts": "^1.0.2",
     "@mui/joy": "5.0.0-beta.28",
     "@mui/material": "^5.15.10",
     "@mui/material-nextjs": "^5.15.9",
@@ -82,7 +82,7 @@
   "devDependencies": {
     "@babel/plugin-transform-react-constant-elements": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
-    "@mui/internal-scripts": "^1.0.1",
+    "@mui/internal-scripts": "^1.0.2",
     "@mui-internal/docs-utils": "^1.0.2",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@types/autosuggest-highlight": "^3.2.3",

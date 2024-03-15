@@ -103,8 +103,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@mui/internal-scripts':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.2
+        version: 1.0.2
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.0)(@types/react@18.2.65)(react-dom@18.2.0)(react@18.2.0)'
@@ -400,8 +400,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@mui/internal-scripts':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.2
+        version: 1.0.2
       '@mui/joy':
         specifier: 5.0.0-beta.28
         version: 5.0.0-beta.28(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.65)(react-dom@18.2.0)(react@18.2.0)
@@ -639,8 +639,8 @@ importers:
         version: 15.8.1
     devDependencies:
       '@mui/internal-babel-macros':
-        specifier: ^1.0.0
-        version: 1.0.0(@mui/utils@5.15.11)
+        specifier: ^1.0.1
+        version: 1.0.1(@mui/utils@5.15.11)
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.0)(@types/react@18.2.65)(react-dom@18.2.0)(react@18.2.0)'
@@ -3320,8 +3320,8 @@ packages:
       '@types/react': 18.2.65
       react: 18.2.0
 
-  /@mui/internal-babel-macros@1.0.0(@mui/utils@5.15.11):
-    resolution: {integrity: sha512-wh1haAYPE2QsuOcrUOJmlPCnk7L7Ehp9QZ8t8aG8087dBbolfWphzYP47s8wWoJ4y9/DXSXkQnkJTJ+w03+Dtg==}
+  /@mui/internal-babel-macros@1.0.1(@mui/utils@5.15.11):
+    resolution: {integrity: sha512-Ixu0PibDw/i3yumvt0IY8FxmLdJy6lbfVosJ1MJymKdihhnTdOgQhyw+SHcn94ZMwJVF7E9kqPH8YmmZoGOhZA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@mui/utils': ^5.0.0
@@ -3340,8 +3340,8 @@ packages:
       marked: 5.1.2
       prismjs: 1.29.0
 
-  /@mui/internal-scripts@1.0.1:
-    resolution: {integrity: sha512-vUSVgbEDsfEZt4/pvBKoqPZ0iCi/jujhQxoK6zLnzDITzzWf+gyhKqWcN/jNQjlKD0vLc2Xiqpqk3yj9C2RT+A==}
+  /@mui/internal-scripts@1.0.2:
+    resolution: {integrity: sha512-7Lcc/zULlups2+cnz6T5t1bT8iMhLrTjinVLsR6CiXFhBQpnnvn58hAWR54400KhoTPFhloHfT0ROQwWSQNHqQ==}
     dependencies:
       '@babel/core': 7.24.0
       '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.24.0)
