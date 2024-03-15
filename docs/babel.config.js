@@ -1,6 +1,10 @@
 const path = require('path');
 const fse = require('fs-extra');
 
+const alias = {
+  docs: '../node_modules/@mui/monorepo/docs',
+};
+
 const errorCodesPath = path.resolve(__dirname, './public/static/error-codes.json');
 
 const { version: transformRuntimeVersion } = fse.readJSONSync(
@@ -34,6 +38,13 @@ module.exports = {
     'babel-plugin-optimize-clsx',
     // for IE11 support
     '@babel/plugin-transform-object-assign',
+    [
+      'babel-plugin-module-resolver',
+      {
+        alias,
+        transformFunctions: ['require', 'require.context'],
+      },
+    ],
   ],
   ignore: [/@babel[\\|/]runtime/], // Fix a Windows issue.
   env: {
