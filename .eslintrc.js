@@ -433,7 +433,7 @@ module.exports = {
       },
     },
     {
-      files: ['packages/mui-base/src/**/**{.ts,.tsx}'],
+      files: ['packages/mui-base/**/**{.ts,.tsx}'],
       rules: {
         'import/no-default-export': 'error',
         'import/prefer-default-export': 'off',
