@@ -64,6 +64,7 @@ const TextareaAutosize = React.forwardRef(function TextareaAutosize(
 
   const { current: isControlled } = React.useRef(value != null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  const heightRef = React.useRef(0);
   const handleRef = useForkRef(forwardedRef, inputRef);
   const shadowRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -129,10 +130,14 @@ const TextareaAutosize = React.forwardRef(function TextareaAutosize(
     if (isEmpty(textareaStyles)) {
       return;
     }
+    const outerHeightStyle = textareaStyles.outerHeightStyle;
 
-    const input = inputRef.current!;
-    input.style.height = `${textareaStyles.outerHeightStyle}px`;
-    input.style.overflow = textareaStyles.overflowing ? 'hidden' : '';
+    if (heightRef.current !== outerHeightStyle) {
+      heightRef.current = outerHeightStyle;
+      const input = inputRef.current!;
+      input.style.height = `${textareaStyles.outerHeightStyle}px`;
+      input.style.overflow = textareaStyles.overflowing ? 'hidden' : '';
+    }
   }, [calculateTextareaStyles]);
 
   useEnhancedEffect(() => {
