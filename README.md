@@ -1,6 +1,6 @@
 <!-- markdownlint-disable-next-line -->
 
-<h1 align="center">Base UI</h1>
+<h1 align="center">Base UI</h1>
 
 [Base UI](https://mui.com/base-ui/) is a library of unstyled React UI components and hooks. With Base UI, you gain complete control over your app's CSS and accessibility features.
 
@@ -24,8 +24,8 @@
 
 Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full documentation.
 
-**Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
-Learn more about plans for Base UI in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
+**Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
+Learn more about plans for Base UI in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
 
 ## Sponsors
 
@@ -74,7 +74,7 @@ The [changelog](https://github.com/mui/base-ui/releases) reflects what has chang
 
 ## Roadmap
 
-Learn more about future plans and high-priority features and enhancements on the [Base UI roadmap](https://mui.com/base-ui/getting-started/roadmap/).
+Learn more about future plans and high-priority features and enhancements on the [Base UI roadmap](https://mui.com/base-ui/getting-started/roadmap/).
 
 ## License
 
