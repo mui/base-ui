@@ -21,7 +21,7 @@ parameters:
     type: string
     default: ''
 
-defaults: &defaults
+default-job: &default-job
   parameters:
     react-version:
       description: The version of react to be used
@@ -46,6 +46,10 @@ defaults: &defaults
   working_directory: /tmp/material-ui
   docker:
     - image: cimg/node:18.19
+
+default-context: &default-context
+  context:
+    - org-global
 
 # CircleCI has disabled the cache across forks for security reasons.
 # Following their official statement, it was a quick solution, they
@@ -113,7 +117,7 @@ commands:
 
 jobs:
   checkout:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
       - install_js
@@ -135,7 +139,7 @@ jobs:
                       pnpm dedupe --check
                   fi
   test_unit:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
       - install_js
@@ -156,7 +160,7 @@ jobs:
             chmod +x codecov
             ./codecov -t ${CODECOV_TOKEN} -Z -F "$REACT_VERSION-jsdom"
   test_lint:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
       - install_js
@@ -173,7 +177,7 @@ jobs:
           name: Lint Markdown
           command: pnpm markdownlint
   test_static:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
       - install_js
@@ -209,7 +213,7 @@ jobs:
             pnpm docs:link-check
             git add -A && git diff --exit-code --staged
   test_types:
-    <<: *defaults
+    <<: *default-job
     resource_class: 'medium+'
     steps:
       - checkout
@@ -235,7 +239,7 @@ jobs:
             # packages with generated declaration files
             - packages/mui-base/build
   test_types_next:
-    <<: *defaults
+    <<: *default-job
     resource_class: 'medium+'
     steps:
       - checkout
@@ -280,7 +284,7 @@ jobs:
             node scripts/testBuiltTypes.mjs
             exit 0
   test_browser:
-    <<: *defaults
+    <<: *default-job
     resource_class: 'medium+'
     docker:
       - image: mcr.microsoft.com/playwright:v1.42.1-focal
@@ -311,7 +315,7 @@ jobs:
           path: /tmp/_karma_webpack_
           destination: artifact-file
   test_profile:
-    <<: *defaults
+    <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
@@ -338,7 +342,7 @@ jobs:
           path: tmp/react-profiler-report/karma
           destination: react-profiler-report/karma
   test_regressions:
-    <<: *defaults
+    <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
@@ -354,7 +358,7 @@ jobs:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
   test_benchmark:
-    <<: *defaults
+    <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.42.1-focal
         environment:
@@ -374,23 +378,30 @@ workflows:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
-      - checkout
+      - checkout:
+          <<: *default-context
       - test_unit:
+          <<: *default-context
           requires:
             - checkout
       - test_lint:
+          <<: *default-context
           requires:
             - checkout
       - test_static:
+          <<: *default-context
           requires:
             - checkout
       - test_types:
+          <<: *default-context
           requires:
             - checkout
       - test_browser:
+          <<: *default-context
           requires:
             - checkout
       - test_regressions:
+          <<: *default-context
           requires:
             - checkout
 
@@ -398,7 +409,8 @@ workflows:
     when:
       equal: [profile, << pipeline.parameters.workflow >>]
     jobs:
-      - test_profile
+      - test_profile:
+          <<: *default-context
   react-17:
     triggers:
       - schedule:
@@ -409,10 +421,13 @@ workflows:
                 - master
     jobs:
       - test_unit:
+          <<: *default-context
           react-version: ^17.0.0
       - test_browser:
+          <<: *default-context
           react-version: ^17.0.0
       - test_regressions:
+          <<: *default-context
           react-version: ^17.0.0
   react-next:
     triggers:
@@ -424,10 +439,13 @@ workflows:
                 - master
     jobs:
       - test_unit:
+          <<: *default-context
           react-version: next
       - test_browser:
+          <<: *default-context
           react-version: next
       - test_regressions:
+          <<: *default-context
           react-version: next
   typescript-next:
     triggers:
@@ -438,9 +456,11 @@ workflows:
               only:
                 - master
     jobs:
-      - test_types_next
+      - test_types_next:
+          <<: *default-context
   benchmark:
     when:
       equal: [benchmark, << pipeline.parameters.workflow >>]
     jobs:
-      - test_benchmark
+      - test_benchmark:
+          <<: *default-context
