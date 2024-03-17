@@ -687,7 +687,7 @@ importers:
         specifier: ^17.0.1
         version: 17.0.1
       typescript:
-        specifier: ^5.3.3
+        specifier: ^5.4.2
         version: 5.4.2
     publishDirectory: build
 
