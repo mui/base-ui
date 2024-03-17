@@ -130,12 +130,12 @@ const TextareaAutosize = React.forwardRef(function TextareaAutosize(
     if (isEmpty(textareaStyles)) {
       return;
     }
-    const outerHeightStyle = textareaStyles.outerHeightStyle;
 
+    const outerHeightStyle = textareaStyles.outerHeightStyle;
     const input = inputRef.current!;
     if (heightRef.current !== outerHeightStyle) {
       heightRef.current = outerHeightStyle;
-      input.style.height = `${textareaStyles.outerHeightStyle}px`;
+      input.style.height = `${outerHeightStyle}px`;
     }
     input.style.overflow = textareaStyles.overflowing ? 'hidden' : '';
   }, [calculateTextareaStyles]);
