@@ -204,10 +204,5 @@
     ],
     "sourceMap": false,
     "instrument": false
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@mui/docs@5.15.11": "patches/@mui__docs@5.15.11.patch"
-    }
   }
 }

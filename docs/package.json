@@ -28,7 +28,7 @@
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@mui/base": "workspace:*",
-    "@mui/docs": "^5.15.11",
+    "@mui/docs": "https://pkg.csb.dev/mui/material-ui/commit/37466089/@mui/docs",
     "@mui/icons-material": "5.15.10",
     "@mui/internal-markdown": "^1.0.0",
     "@mui/internal-scripts": "^1.0.2",
