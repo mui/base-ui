@@ -110,7 +110,7 @@ importers:
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)'
       '@mui/material':
         specifier: 5.15.10
-        version: 5.15.10(@emotion/react@11.11.4)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
+        version: 5.15.10(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
       '@mui/monorepo':
         specifier: github:mui/material-ui#ad3a9364756881fef41bf01723a886ea1a823b0d
         version: github.com/mui/material-ui/ad3a9364756881fef41bf01723a886ea1a823b0d
@@ -719,7 +719,7 @@ importers:
         version: 5.0.0-alpha.165(@emotion/react@11.11.4)(@mui/material@5.15.10)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
       '@mui/material':
         specifier: 5.15.10
-        version: 5.15.10(@emotion/react@11.11.4)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
+        version: 5.15.10(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
       '@mui/system':
         specifier: 5.15.9
         version: 5.15.9(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react@18.2.0)
@@ -3389,7 +3389,7 @@ packages:
       '@babel/runtime': 7.24.0
       '@emotion/react': 11.11.4(@types/react@18.2.66)(react@18.2.0)
       '@mui/base': 5.0.0-beta.36(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
-      '@mui/material': 5.15.10(@emotion/react@11.11.4)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
+      '@mui/material': 5.15.10(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
       '@mui/system': 5.15.9(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react@18.2.0)
       '@mui/types': 7.2.13(@types/react@18.2.66)
       '@mui/utils': 5.15.11(@types/react@18.2.66)(react@18.2.0)
@@ -3461,41 +3461,6 @@ packages:
       react-is: 18.2.0
       react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
 
-  /@mui/material@5.15.10(@emotion/react@11.11.4)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-YJJGHjwDOucecjDEV5l9ISTCo+l9YeWrho623UajzoHRYxuKUmwrGVYOW4PKwGvCx9SU9oklZnbbi2Clc5XZHw==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@emotion/react': ^11.5.0
-      '@emotion/styled': ^11.3.0
-      '@types/react': ^18.2.66
-      react: ^17.0.0 || ^18.0.0
-      react-dom: ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      '@emotion/react':
-        optional: true
-      '@emotion/styled':
-        optional: true
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.24.0
-      '@emotion/react': 11.11.4(@types/react@18.2.66)(react@18.2.0)
-      '@mui/base': 5.0.0-beta.36(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
-      '@mui/core-downloads-tracker': 5.15.13
-      '@mui/system': 5.15.13(@emotion/react@11.11.4)(@types/react@18.2.66)(react@18.2.0)
-      '@mui/types': 7.2.13(@types/react@18.2.66)
-      '@mui/utils': 5.15.11(@types/react@18.2.66)(react@18.2.0)
-      '@types/react': 18.2.66
-      '@types/react-transition-group': 4.4.10
-      clsx: 2.1.0
-      csstype: 3.1.3
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-is: 18.2.0
-      react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
-    dev: true
-
   /@mui/private-theming@5.15.13(@types/react@18.2.66)(react@18.2.0):
     resolution: {integrity: sha512-j5Z2pRi6talCunIRIzpQERSaHwLd5EPdHMwIKDVCszro1RAzRZl7WmH68IMCgQmJMeglr+FalqNuq048qptGAg==}
     engines: {node: '>=12.0.0'}
@@ -3563,35 +3528,6 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
-
-  /@mui/system@5.15.13(@emotion/react@11.11.4)(@types/react@18.2.66)(react@18.2.0):
-    resolution: {integrity: sha512-eHaX3sniZXNWkxX0lmcLxROhQ5La0HkOuF7zxbSdAoHUOk07gboQYmF6hSJ/VBFx/GLanIw67FMTn88vc8niLg==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@emotion/react': ^11.5.0
-      '@emotion/styled': ^11.3.0
-      '@types/react': ^18.2.66
-      react: ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      '@emotion/react':
-        optional: true
-      '@emotion/styled':
-        optional: true
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.24.0
-      '@emotion/react': 11.11.4(@types/react@18.2.66)(react@18.2.0)
-      '@mui/private-theming': 5.15.13(@types/react@18.2.66)(react@18.2.0)
-      '@mui/styled-engine': 5.15.11(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(react@18.2.0)
-      '@mui/types': 7.2.13(@types/react@18.2.66)
-      '@mui/utils': 5.15.13(@types/react@18.2.66)(react@18.2.0)
-      '@types/react': 18.2.66
-      clsx: 2.1.0
-      csstype: 3.1.3
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: true
 
   /@mui/system@5.15.9(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react@18.2.0):
     resolution: {integrity: sha512-SxkaaZ8jsnIJ77bBXttfG//LUf6nTfOcaOuIgItqfHv60ZCQy/Hu7moaob35kBb+guxVJnoSZ+7vQJrA/E7pKg==}
@@ -4258,7 +4194,7 @@ packages:
       '@octokit/request-error': 3.0.3
       '@octokit/types': 9.3.2
       is-plain-object: 5.0.0
-      node-fetch: 2.6.7
+      node-fetch: 2.7.0
       universal-user-agent: 6.0.1
     transitivePeerDependencies:
       - encoding
@@ -6707,7 +6643,7 @@ packages:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 7.0.1
-      chalk: 5.0.1
+      chalk: 5.3.0
       cli-boxes: 3.0.0
       string-width: 5.1.2
       type-fest: 2.19.0
@@ -9166,9 +9102,9 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       cross-spawn: 7.0.3
-      get-stream: 6.0.0
+      get-stream: 6.0.1
       human-signals: 2.1.0
-      is-stream: 2.0.0
+      is-stream: 2.0.1
       merge-stream: 2.0.0
       npm-run-path: 4.0.1
       onetime: 5.1.2
@@ -11062,7 +10998,7 @@ packages:
     hasBin: true
     dependencies:
       async: 3.2.5
-      chalk: 4.1.0
+      chalk: 4.1.2
       filelist: 1.0.4
       minimatch: 3.1.2
     dev: true
@@ -11071,7 +11007,7 @@ packages:
     resolution: {integrity: sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       diff-sequences: 29.6.3
       jest-get-type: 29.6.3
       pretty-format: 29.7.0
@@ -12775,7 +12711,7 @@ packages:
       array-differ: 3.0.0
       array-union: 2.1.0
       arrify: 2.0.1
-      minimatch: 3.0.5
+      minimatch: 3.1.2
     dev: true
 
   /multipipe@1.0.2:
@@ -13512,7 +13448,7 @@ packages:
       bl: 4.1.0
       chalk: 4.1.2
       cli-cursor: 3.1.0
-      cli-spinners: 2.6.1
+      cli-spinners: 2.9.2
       is-interactive: 1.0.0
       log-symbols: 4.1.0
       strip-ansi: 6.0.1
