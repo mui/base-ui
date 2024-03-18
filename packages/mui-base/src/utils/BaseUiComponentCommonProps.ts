@@ -1,5 +1,16 @@
+/**
+ * Shape of the render prop: a function that takes props to be spread on the element and component's state and returns a React element.
+ *
+ * @template Props Props to be spread on the rendered element.
+ * @template State Component's internal state.
+ */
 export type ComponentRenderFn<Props, State> = (props: Props, state: State) => React.ReactElement;
 
+/**
+ * Props shared by all Base UI components.
+ * Contains `className` (string or callback taking the component's state as an argument) and `render` (function to customize rendering).
+ 
+ */
 export type BaseUiComponentCommonProps<ElementType extends React.ElementType, OwnerState> = Omit<
   React.ComponentPropsWithoutRef<ElementType>,
   'className'
