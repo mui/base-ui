@@ -201,11 +201,11 @@ TablePaginationActions.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  showFirstButton: PropTypes.bool.isRequired,
+  showFirstButton: PropTypes.bool,
   /**
    * @ignore
    */
-  showLastButton: PropTypes.bool.isRequired,
+  showLastButton: PropTypes.bool,
   /**
    * The props used for each slot inside the TablePagination.
    * @default {}
