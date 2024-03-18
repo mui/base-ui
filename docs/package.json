@@ -93,7 +93,7 @@
     "@types/react-dom": "^18.2.22",
     "@types/react-transition-group": "^4.4.10",
     "@types/stylis": "^4.2.5",
-    "chai": "^4.4.1",
+    "chai": "^5.1.0",
     "cross-fetch": "^4.0.0",
     "marked": "^12.0.1",
     "playwright": "^1.42.1",
