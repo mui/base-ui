@@ -156,7 +156,7 @@
     "process": "^0.11.10",
     "raw-loader": "4.0.2",
     "react-docgen": "^5.4.3",
-    "remark": "^13.0.0",
+    "remark": "^15.0.1",
     "rimraf": "^5.0.5",
     "serve": "^14.2.1",
     "stylelint": "^16.2.1",
