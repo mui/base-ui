@@ -21,7 +21,6 @@
   },
   "returnValue": {
     "checked": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "disabled": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getButtonProps": {
       "type": {
         "name": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonSlotProps",
@@ -35,8 +34,7 @@
         "description": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputSlotProps"
       },
       "required": true
-    },
-    "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+    }
   },
   "name": "useSwitch",
   "filename": "/packages/mui-base/src/useSwitch/useSwitch.ts",

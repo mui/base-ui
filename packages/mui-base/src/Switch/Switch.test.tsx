@@ -15,9 +15,10 @@ describe('<Switch />', () => {
   }));
 
   describe('extra props', () => {
-    it('should not override the built-in attributes', () => {
+    it('should override the built-in attributes', () => {
       const { container } = render(<Switch data-state="checked" role="checkbox" />);
-      expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
+      expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'checkbox');
+      expect(container.firstElementChild as HTMLElement).to.have.attribute('data-state', 'checked');
     });
   });
 
@@ -124,6 +125,16 @@ describe('<Switch />', () => {
       });
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
+    });
+  });
+
+  describe('prop: inputRef', () => {
+    it('should be able to access the native input', () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const { container } = render(<Switch inputRef={inputRef} />);
+      const internalInput = container.querySelector('input[type="checkbox"]')!;
+
+      expect(inputRef.current).to.equal(internalInput);
     });
   });
 

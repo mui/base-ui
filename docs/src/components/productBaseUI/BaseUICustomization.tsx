@@ -177,11 +177,11 @@ const StyledSwitchThumb = styled('span')`
 `;
 
 function SwitchFromHook(props: UseSwitchParameters) {
-  const { getInputProps, getButtonProps, checked, disabled } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked } = useSwitch(props);
 
   const stateAttributes = {
     'data-state': checked ? 'checked' : 'unchecked',
-    'data-disabled': disabled || undefined,
+    'data-disabled': props.disabled || undefined,
   };
 
   return (

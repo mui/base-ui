@@ -16,8 +16,6 @@
   },
   "returnValueDescriptions": {
     "checked": { "description": "If <code>true</code>, the component will be checked." },
-    "disabled": { "description": "If <code>true</code>, the component will be disabled." },
-    "getInputProps": { "description": "Resolver for the input slot&#39;s props." },
-    "readOnly": { "description": "If <code>true</code>, the component will be read only." }
+    "getInputProps": { "description": "Resolver for the input slot&#39;s props." }
   }
 }

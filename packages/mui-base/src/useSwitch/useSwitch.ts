@@ -63,12 +63,12 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
     };
 
   const getButtonProps: UseSwitchReturnValue['getButtonProps'] = (otherProps = {}) => ({
-    ...otherProps,
     type: 'button',
     role: 'switch',
     'aria-checked': checked,
     'aria-disabled': disabled,
     'aria-readonly': readOnly,
+    ...otherProps,
     onClick: createHandleClick(otherProps),
   });
 
@@ -88,9 +88,7 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
 
   return {
     checked,
-    disabled: Boolean(disabled),
     getButtonProps,
     getInputProps,
-    readOnly: Boolean(readOnly),
   };
 }

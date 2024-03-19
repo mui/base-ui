@@ -25,6 +25,10 @@ export interface SwitchProps
    */
   disabled?: boolean;
   /**
+   * Ref to the underlying input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
    * Callback fired when the state is changed.
    *
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.

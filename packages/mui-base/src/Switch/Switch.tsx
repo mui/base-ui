@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import refType from '@mui/utils/refType';
 import { useSwitch } from '../useSwitch';
 import { SwitchProps, SwitchOwnerState } from './Switch.types';
 import { resolveClassName } from '../utils/resolveClassName';
@@ -31,15 +32,16 @@ const Switch = React.forwardRef(function Switch(
     checked: checkedProp,
     className: classNameProp,
     defaultChecked,
-    disabled: disabledProp,
+    disabled = false,
+    inputRef,
     onChange,
-    readOnly: readOnlyProp,
+    readOnly = false,
     required = false,
     render = defaultRender,
     ...other
   } = props;
 
-  const { getInputProps, getButtonProps, checked, disabled, readOnly } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked } = useSwitch(props);
 
   const ownerState: SwitchOwnerState = React.useMemo(
     () => ({
@@ -98,9 +100,9 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * @ignore
+   * Ref to the underlying input element.
    */
-  id: PropTypes.string,
+  inputRef: refType,
   /**
    * @ignore
    */
@@ -129,14 +131,6 @@ Switch.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  value: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.number,
-    PropTypes.string,
-  ]),
 } as any;
 
 export { Switch };
