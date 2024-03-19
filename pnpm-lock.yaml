@@ -100,11 +100,11 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4
       '@mui/internal-markdown':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       '@mui/internal-scripts':
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)'
@@ -397,11 +397,11 @@ importers:
         specifier: 5.15.14
         version: 5.15.14(@mui/material@5.15.14)(@types/react@18.2.66)(react@18.2.0)
       '@mui/internal-markdown':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       '@mui/internal-scripts':
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       '@mui/joy':
         specifier: 5.0.0-beta.32
         version: 5.0.0-beta.32(@emotion/react@11.11.4)(@emotion/styled@11.11.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
@@ -3204,12 +3204,6 @@ packages:
       semver: 5.7.2
     dev: true
 
-  /@mui-internal/docs-utils@1.0.2:
-    resolution: {integrity: sha512-Rqj9SVLK8MktX3lc0A/LJbF7/N8tLXxa7i6IpYnEYREx5MG98oHn7CSXQ978T7FLIYb3AObtJb6Ujy8JemcIcQ==}
-    dependencies:
-      rimraf: 5.0.5
-      typescript: 5.4.2
-
   /@mui/base@5.0.0-beta.40(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-I/lGHztkCzvwlXpjD2+SNmvNQvB4227xBXhISPjEaJUXGImOQ9f3D2Yj/T3KasSI/h0MLWy74X0J6clhPmsRbQ==}
     engines: {node: '>=12.0.0'}
@@ -3295,25 +3289,24 @@ packages:
     dependencies:
       rimraf: 5.0.5
       typescript: 5.4.2
-    dev: true
 
-  /@mui/internal-markdown@1.0.0:
-    resolution: {integrity: sha512-jbj1XYQZN5Jqphq9K/Tyt42v/eRPmXEZzAYOHbsvHfFo9XnMC2OKJAsYOwpXGVmZQpvkg1z9vA55gOe6ceTW/w==}
+  /@mui/internal-markdown@1.0.1:
+    resolution: {integrity: sha512-goTCzEbx0yxDbCU9ngHo02f5TBHwngF6RDM2ALqtgUsvNp14/lVU3OFytvpxcwjeSrrbVPEw4MSidYO8FnlUKQ==}
     dependencies:
       '@babel/runtime': 7.24.0
       lodash: 4.17.21
       marked: 5.1.2
       prismjs: 1.29.0
 
-  /@mui/internal-scripts@1.0.2:
-    resolution: {integrity: sha512-7Lcc/zULlups2+cnz6T5t1bT8iMhLrTjinVLsR6CiXFhBQpnnvn58hAWR54400KhoTPFhloHfT0ROQwWSQNHqQ==}
+  /@mui/internal-scripts@1.0.3:
+    resolution: {integrity: sha512-qK67iR7wy5LTVQrHhPAlDt+VDrM+B/CYfEbK9vJ8fHUVnQYQGmfEScLqAzKvidi42z3a9taHhvgto3ecLYLKEQ==}
     dependencies:
       '@babel/core': 7.24.0
       '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.24.0)
       '@babel/plugin-syntax-jsx': 7.23.3(@babel/core@7.24.0)
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.24.0)
       '@babel/types': 7.24.0
-      '@mui-internal/docs-utils': 1.0.2
+      '@mui/internal-docs-utils': 1.0.4
       doctrine: 3.0.0
       lodash: 4.17.21
       typescript: 5.4.2
