@@ -38,57 +38,70 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
     state: 'checked',
   });
 
-  const createHandleInputChange =
-    (otherProps: React.InputHTMLAttributes<HTMLInputElement>) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      // Workaround for https://github.com/facebook/react/issues/9023
-      if (event.nativeEvent.defaultPrevented) {
-        return;
-      }
-
-      setCheckedState(event.target.checked);
-      onChange?.(event);
-      otherProps.onChange?.(event);
-    };
-
-  const createHandleClick =
+  const createHandleButtonClick = React.useCallback(
     (otherProps: React.ButtonHTMLAttributes<HTMLButtonElement>) =>
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      otherProps.onClick?.(event);
-      if (event.defaultPrevented || readOnly) {
-        return;
-      }
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        otherProps.onClick?.(event);
+        if (event.defaultPrevented || readOnly) {
+          return;
+        }
 
-      inputRef.current?.click();
-    };
+        inputRef.current?.click();
+      },
+    [readOnly],
+  );
 
-  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = (otherProps = {}) => ({
-    type: 'button',
-    role: 'switch',
-    'aria-checked': checked,
-    'aria-disabled': disabled,
-    'aria-readonly': readOnly,
-    ...otherProps,
-    onClick: createHandleClick(otherProps),
-  });
+  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = React.useCallback(
+    (otherProps = {}) => ({
+      type: 'button',
+      role: 'switch',
+      'aria-checked': checked,
+      'aria-disabled': disabled,
+      'aria-readonly': readOnly,
+      ...otherProps,
+      onClick: createHandleButtonClick(otherProps),
+    }),
+    [checked, disabled, readOnly, createHandleButtonClick],
+  );
 
-  const getInputProps: UseSwitchReturnValue['getInputProps'] = (otherProps = {}) => ({
-    checked,
-    disabled,
-    name,
-    required,
-    style: visuallyHidden,
-    tabIndex: -1,
-    type: 'checkbox',
-    'aria-hidden': true,
-    ...otherProps,
-    ref: handleInputRef,
-    onChange: createHandleInputChange(otherProps),
-  });
+  const createHandleInputChange = React.useCallback(
+    (otherProps: React.InputHTMLAttributes<HTMLInputElement>) =>
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Workaround for https://github.com/facebook/react/issues/9023
+        if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
 
-  return {
-    checked,
-    getButtonProps,
-    getInputProps,
-  };
+        setCheckedState(event.target.checked);
+        onChange?.(event);
+        otherProps.onChange?.(event);
+      },
+    [onChange, setCheckedState],
+  );
+
+  const getInputProps: UseSwitchReturnValue['getInputProps'] = React.useCallback(
+    (otherProps = {}) => ({
+      checked,
+      disabled,
+      name,
+      required,
+      style: visuallyHidden,
+      tabIndex: -1,
+      type: 'checkbox',
+      'aria-hidden': true,
+      ...otherProps,
+      ref: handleInputRef,
+      onChange: createHandleInputChange(otherProps),
+    }),
+    [checked, disabled, name, required, createHandleInputChange, handleInputRef],
+  );
+
+  return React.useMemo(
+    () => ({
+      checked,
+      getButtonProps,
+      getInputProps,
+    }),
+    [checked, getButtonProps, getInputProps],
+  );
 }
