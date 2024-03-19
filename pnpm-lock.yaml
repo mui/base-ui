@@ -96,9 +96,9 @@ importers:
       '@mnajdova/enzyme-adapter-react-18':
         specifier: ^0.2.0
         version: 0.2.0(enzyme@3.11.0)(react-dom@18.2.0)(react@18.2.0)
-      '@mui-internal/docs-utils':
-        specifier: ^1.0.2
-        version: 1.0.2
+      '@mui/internal-docs-utils':
+        specifier: ^1.0.4
+        version: 1.0.4
       '@mui/internal-markdown':
         specifier: ^1.0.0
         version: 1.0.0
@@ -547,9 +547,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.23.3
         version: 7.23.3(@babel/core@7.24.0)
-      '@mui-internal/docs-utils':
-        specifier: ^1.0.2
-        version: 1.0.2
+      '@mui/internal-docs-utils':
+        specifier: ^1.0.4
+        version: 1.0.4
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.0)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)'
@@ -3288,6 +3288,13 @@ packages:
       '@babel/runtime': 7.24.0
       '@mui/utils': 5.15.14(@types/react@18.2.66)(react@18.2.0)
       babel-plugin-macros: 3.1.0
+    dev: true
+
+  /@mui/internal-docs-utils@1.0.4:
+    resolution: {integrity: sha512-aZ70CqKohMZ/RS3V5Nl3FmBNVMKHNjtXachtkcWnxyQCi9DPuaGCz8l1Q0Iealjax+j08vT5vDO0JwWFImMsnA==}
+    dependencies:
+      rimraf: 5.0.5
+      typescript: 5.4.2
     dev: true
 
   /@mui/internal-markdown@1.0.0:
