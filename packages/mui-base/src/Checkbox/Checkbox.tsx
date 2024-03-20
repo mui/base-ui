@@ -65,6 +65,7 @@ const Checkbox = React.forwardRef(function Checkbox(
   return (
     <CheckboxContext.Provider value={ownerState}>
       {render(getButtonProps(buttonProps), ownerState)}
+      {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
     </CheckboxContext.Provider>
   );
