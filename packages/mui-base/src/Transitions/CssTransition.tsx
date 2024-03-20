@@ -94,12 +94,35 @@ const CssTransition = React.forwardRef(function CssTransition(
   );
 });
 
-CssTransition.propTypes = {
+CssTransition.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
+  /**
+   * @ignore
+   */
   className: PropTypes.string,
+  /**
+   * The name of the CSS class applied to the component when the transition
+   * is requested to enter.
+   */
   enterClassName: PropTypes.string,
+  /**
+   * The name of the CSS class applied to the component when the transition
+   * is requested to exit.
+   */
   exitClassName: PropTypes.string,
-  lastTransitionedPropertyOnEnter: PropTypes.string,
+  /**
+   * The name of the CSS property that is transitioned the longest (has the largest `transition-duration`) on exit.
+   * This is used to determine when the transition has ended.
+   * If not specified, the transition will be considered finished end when the first property is transitioned.
+   * If all properties have the same `transition-duration` (or there is just one transitioned property), this can be omitted.
+   */
   lastTransitionedPropertyOnExit: PropTypes.string,
 } as any;
 
