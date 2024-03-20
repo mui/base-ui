@@ -10,10 +10,12 @@
     "noEmit": true,
     "experimentalDecorators": true,
     "baseUrl": "./",
-    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "noErrorTruncation": false,
     "allowJs": true,
     "paths": {
+      "@mui/base": ["./packages/mui-base/src"],
+      "@mui/base/*": ["./packages/mui-base/src/*"],
       "@mui-internal/api-docs-builder": ["./node_modules/@mui/monorepo/packages/api-docs-builder"],
       "@mui-internal/api-docs-builder/*": [
         "./node_modules/@mui/monorepo/packages/api-docs-builder/*"
