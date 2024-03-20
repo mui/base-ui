@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Slider } from '@mui/base';
+import { Slider } from '@mui/base/Slider';
 
-declare module '@mui/base' {
+declare module '@mui/base/Slider' {
   interface SliderRootSlotPropsOverrides {
     variant?: 'one' | 'two';
   }

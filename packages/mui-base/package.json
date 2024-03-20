@@ -48,6 +48,7 @@
     "prop-types": "^15.8.1"
   },
   "devDependencies": {
+    "@mui/base": "workspace:*",
     "@mui/internal-babel-macros": "^1.0.1",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@testing-library/react": "^14.2.2",
