@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { SwitchThumbProps } from './Switch.types';
 import { SwitchContext } from './SwitchContext';
 import { resolveClassName } from '../utils/resolveClassName';
@@ -12,7 +13,8 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumbProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render = defaultRender, className: classNameProp, ...other } = props;
+  const { render: renderProp, className: classNameProp, ...other } = props;
+  const render = renderProp ?? defaultRender;
 
   const ownerState = React.useContext(SwitchContext);
   if (ownerState === null) {
@@ -31,5 +33,24 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
 
   return render(elementProps, ownerState);
 });
+
+SwitchThumb.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.func,
+} as any;
 
 export { SwitchThumb };

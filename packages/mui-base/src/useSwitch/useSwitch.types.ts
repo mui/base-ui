@@ -82,6 +82,11 @@ export interface UseSwitchReturnValue {
   getInputProps: (
     externalProps?: React.HTMLAttributes<HTMLInputElement>,
   ) => UseSwitchInputSlotProps;
+  /**
+   * Resolver for the button slot's props.
+   * @param externalProps props for the input slot
+   * @returns props that should be spread on the button slot
+   */
   getButtonProps: (
     externalProps?: React.HTMLAttributes<HTMLButtonElement>,
   ) => UseSwitchButtonSlotProps;

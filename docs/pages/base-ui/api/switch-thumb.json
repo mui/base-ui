@@ -1,5 +1,8 @@
 {
-  "props": {},
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "func" } }
+  },
   "name": "SwitchThumb",
   "imports": [
     "import { SwitchThumb } from '@mui/base/Switch';",
