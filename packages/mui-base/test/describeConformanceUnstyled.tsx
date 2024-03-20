@@ -412,6 +412,13 @@ function describeConformance(
   });
 }
 
-const describeConformanceUnstyled = createDescribe('Base UI component API', describeConformance);
+/**
+ * @deprecated describeConformanceUnstyled is used only for legacy (slot-based) Base UI components.
+ * To test the component-per-node components, use `describeConformance` instead.
+ */
+const describeConformanceUnstyled = createDescribe(
+  'Base UI legacy component API',
+  describeConformance,
+);
 
 export { describeConformanceUnstyled };
