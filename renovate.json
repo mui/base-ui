@@ -110,12 +110,27 @@
     {
       "groupName": "@definitelytyped tools",
       "matchPackagePatterns": ["@definitelytyped/*"]
+    },
+    {
+      "groupName": "unist-util-visit - incompatible versions",
+      "matchPackageNames": ["unist-util-visit"],
+      "allowedVersions": "< 3.0.0"
+    },
+    {
+      "groupName": "remark - incompatible versions",
+      "matchPackageNames": ["remark"],
+      "allowedVersions": "< 14.0.0"
+    },
+    {
+      "groupName": "chai - incompatible versions",
+      "matchPackageNames": ["chai"],
+      "allowedVersions": "< 5.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],
   "prConcurrentLimit": 30,
   "prHourlyLimit": 0,
   "rangeStrategy": "bump",
-  "schedule": "on sunday before 6:00am",
+  "schedule": "on sunday before 6:00pm",
   "timezone": "UTC"
 }
