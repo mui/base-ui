@@ -77,12 +77,6 @@ Checkbox.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is focused on mount.
-   *
-   * @default false
-   */
-  autoFocus: PropTypes.bool,
-  /**
    * If `true`, the component is checked.
    *
    * @default undefined

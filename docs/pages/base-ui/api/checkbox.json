@@ -1,6 +1,5 @@
 {
   "props": {
-    "autoFocus": { "type": { "name": "bool" }, "default": "false" },
     "checked": { "type": { "name": "bool" }, "default": "undefined" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultChecked": { "type": { "name": "bool" }, "default": "false" },

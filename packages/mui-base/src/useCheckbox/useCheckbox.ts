@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useControlled } from '../utils/useControlled';
 import type { UseCheckboxParameters, UseCheckboxReturnValue } from './useCheckbox.types';
 import { visuallyHidden } from '../utils/visuallyHidden';
+import { useForkRef } from '../utils/useForkRef';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -17,6 +18,7 @@ import { visuallyHidden } from '../utils/visuallyHidden';
 export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnValue {
   const {
     checked: externalChecked,
+    inputRef: externalInputRef,
     name,
     onChange,
     defaultChecked = false,
@@ -28,6 +30,7 @@ export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnVal
   } = params;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedInputRef = useForkRef(externalInputRef, inputRef);
 
   React.useEffect(() => {
     if (inputRef.current) {
@@ -75,7 +78,7 @@ export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnVal
       'aria-hidden': true,
       ...externalProps,
       style: { ...visuallyHidden, ...externalProps.style },
-      ref: inputRef,
+      ref: mergedInputRef,
       onChange(event) {
         externalProps.onChange?.(event);
         // Workaround for https://github.com/facebook/react/issues/9023
@@ -87,7 +90,7 @@ export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnVal
         onChange?.(event);
       },
     }),
-    [autoFocus, checked, disabled, name, onChange, required, setCheckedState],
+    [autoFocus, checked, disabled, name, onChange, required, setCheckedState, mergedInputRef],
   );
 
   return React.useMemo(
