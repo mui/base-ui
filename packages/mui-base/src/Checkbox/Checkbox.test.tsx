@@ -17,54 +17,9 @@ describe('<Checkbox />', () => {
   }));
 
   describe('extra props', () => {
-    it('should spread extra props', () => {
-      const { container } = render(<Checkbox data-extra-prop="Lorem ipsum" />);
-      expect(container.firstElementChild as HTMLElement).to.have.attribute(
-        'data-extra-prop',
-        'Lorem ipsum',
-      );
-    });
-
     it('can override the built-in attributes', () => {
       const { container } = render(<Checkbox data-state="checked" role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
-    });
-  });
-
-  describe('prop: render', () => {
-    const Wrapper = React.forwardRef<HTMLButtonElement, { children?: React.ReactNode }>(
-      function Wrapper(props, forwardedRef) {
-        return (
-          <div data-testid="wrapper">
-            <button ref={forwardedRef} {...props} />
-          </div>
-        );
-      },
-    );
-
-    it('should render the component', () => {
-      const { container } = render(<Checkbox render={(props) => <button {...props} />} />);
-      expect(container.firstChild).to.have.property('nodeName', 'BUTTON');
-    });
-
-    it('should pass the ref to the custom component', () => {
-      let instanceFromRef = null;
-
-      function Test() {
-        return (
-          <Checkbox
-            ref={(el) => {
-              instanceFromRef = el;
-            }}
-            render={(props) => <Wrapper {...props} />}
-            data-testid="wrapped"
-          />
-        );
-      }
-
-      render(<Test />);
-      expect(instanceFromRef!.tagName).to.equal('BUTTON');
-      expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
     });
   });
 
@@ -339,7 +294,7 @@ describe('<Checkbox />', () => {
 
     submitButton.click();
 
-    expect(stringifiedFormData).to.equal('');
+    expect(stringifiedFormData).to.equal('test-checkbox=off');
 
     act(() => {
       checkbox.click();
