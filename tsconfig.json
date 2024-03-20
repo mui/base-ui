@@ -10,7 +10,7 @@
     "noEmit": true,
     "experimentalDecorators": true,
     "baseUrl": "./",
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "noErrorTruncation": false,
     "allowJs": true,
     "paths": {
