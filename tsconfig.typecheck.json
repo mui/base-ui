@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "docs/tsconfig.json"
+    },
+    {
+      "path": "packages/mui-base/tsconfig.build.json"
+    }
+  ]
+}
