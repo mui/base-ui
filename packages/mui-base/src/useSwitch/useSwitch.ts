@@ -38,19 +38,6 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
     state: 'checked',
   });
 
-  const createHandleButtonClick = React.useCallback(
-    (otherProps: React.ButtonHTMLAttributes<HTMLButtonElement>) =>
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        otherProps.onClick?.(event);
-        if (event.defaultPrevented || readOnly) {
-          return;
-        }
-
-        inputRef.current?.click();
-      },
-    [readOnly],
-  );
-
   const getButtonProps: UseSwitchReturnValue['getButtonProps'] = React.useCallback(
     (otherProps = {}) => ({
       type: 'button',
@@ -59,24 +46,16 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
       'aria-disabled': disabled,
       'aria-readonly': readOnly,
       ...otherProps,
-      onClick: createHandleButtonClick(otherProps),
-    }),
-    [checked, disabled, readOnly, createHandleButtonClick],
-  );
-
-  const createHandleInputChange = React.useCallback(
-    (otherProps: React.InputHTMLAttributes<HTMLInputElement>) =>
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        // Workaround for https://github.com/facebook/react/issues/9023
-        if (event.nativeEvent.defaultPrevented) {
+      onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+        otherProps.onClick?.(event);
+        if (event.defaultPrevented || readOnly) {
           return;
         }
 
-        setCheckedState(event.target.checked);
-        onChange?.(event);
-        otherProps.onChange?.(event);
+        inputRef.current?.click();
       },
-    [onChange, setCheckedState],
+    }),
+    [checked, disabled, readOnly],
   );
 
   const getInputProps: UseSwitchReturnValue['getInputProps'] = React.useCallback(
@@ -91,9 +70,18 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
       'aria-hidden': true,
       ...otherProps,
       ref: handleInputRef,
-      onChange: createHandleInputChange(otherProps),
+      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Workaround for https://github.com/facebook/react/issues/9023
+        if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
+
+        setCheckedState(event.target.checked);
+        onChange?.(event);
+        otherProps.onChange?.(event);
+      },
     }),
-    [checked, disabled, name, required, createHandleInputChange, handleInputRef],
+    [checked, disabled, name, required, handleInputRef, onChange, setCheckedState],
   );
 
   return React.useMemo(
