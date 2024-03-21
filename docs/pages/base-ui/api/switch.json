@@ -5,6 +5,7 @@
     "defaultChecked": { "type": { "name": "bool" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "inputRef": { "type": { "name": "custom", "description": "ref" } },
+    "name": { "type": { "name": "string" } },
     "onChange": {
       "type": { "name": "func" },
       "signature": {

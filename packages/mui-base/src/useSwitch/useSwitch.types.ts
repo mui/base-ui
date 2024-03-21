@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export interface UseSwitchParameters {
   /**
-   * If `true`, the component is checked.
+   * If `true`, the switch is checked.
    */
   checked?: boolean;
   /**
@@ -10,7 +10,9 @@ export interface UseSwitchParameters {
    */
   defaultChecked?: boolean;
   /**
-   * If `true`, the component is disabled.
+   * If `true`, the component is disabled and can't be interacted with.
+   *
+   * @default false
    */
   disabled?: boolean;
   /**
@@ -30,11 +32,16 @@ export interface UseSwitchParameters {
    */
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   /**
-   * If `true`, the component is read only.
+   * If `true`, the component is read-only.
+   * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
+   *
+   * @default false
    */
   readOnly?: boolean;
   /**
-   * If `true`, the `input` element is required.
+   * If `true`, the switch must be checked for the browser validation to pass.
+   *
+   * @default false
    */
   required?: boolean;
 }
@@ -51,6 +58,9 @@ interface UseSwitchInputElementOwnProps {
   onChange: React.ChangeEventHandler<HTMLInputElement>;
 }
 
+/**
+ * Props that are received by the input element of the Switch.
+ */
 export type UseSwitchInputElementProps<TOther = {}> = Omit<
   TOther,
   keyof UseSwitchInputElementOwnProps
@@ -66,6 +76,9 @@ interface UseSwitchButtonElementOwnProps {
   'aria-readonly': React.AriaAttributes['aria-readonly'];
 }
 
+/**
+ * Props that are received by the button element of the Switch.
+ */
 export type UseSwitchButtonElementProps<TOther = {}> = Omit<
   TOther,
   keyof UseSwitchButtonElementOwnProps

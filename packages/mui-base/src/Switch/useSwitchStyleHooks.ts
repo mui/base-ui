@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { SwitchOwnerState } from './Switch.types';
 import { getStyleHookProps } from '../utils/getStyleHookProps';
+
 /**
- *
- * API:
- *
- * - [useSwitchStyleHooks API](https://mui.com/base-ui/api/use-switch-style-hooks/)
+ * @ignore - internal hook.
  */
 export function useSwitchStyleHooks(ownerState: SwitchOwnerState) {
   return React.useMemo(() => {

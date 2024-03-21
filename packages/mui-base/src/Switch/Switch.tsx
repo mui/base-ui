@@ -78,7 +78,7 @@ Switch.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the component is checked.
+   * If `true`, the switch is checked.
    */
   checked: PropTypes.bool,
   /**
@@ -94,7 +94,7 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the component is disabled.
+   * If `true`, the component is disabled and can't be interacted with.
    *
    * @default false
    */
@@ -104,7 +104,7 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   inputRef: refType,
   /**
-   * @ignore
+   * Name of the underlying input element.
    */
   name: PropTypes.string,
   /**
@@ -116,7 +116,8 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   onChange: PropTypes.func,
   /**
-   * If `true`, the component is read only.
+   * If `true`, the component is read-only.
+   * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
    *
    * @default false
    */
@@ -126,7 +127,7 @@ Switch.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.func,
   /**
-   * If `true`, the `input` element is required.
+   * If `true`, the switch must be checked for the browser validation to pass.
    *
    * @default false
    */

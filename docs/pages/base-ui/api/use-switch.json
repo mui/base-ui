@@ -2,7 +2,7 @@
   "parameters": {
     "checked": { "type": { "name": "boolean", "description": "boolean" } },
     "defaultChecked": { "type": { "name": "boolean", "description": "boolean" } },
-    "disabled": { "type": { "name": "boolean", "description": "boolean" } },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "inputRef": {
       "type": {
         "name": "React.Ref&lt;HTMLInputElement&gt;",
@@ -16,8 +16,8 @@
         "description": "React.ChangeEventHandler&lt;HTMLInputElement&gt;"
       }
     },
-    "readOnly": { "type": { "name": "boolean", "description": "boolean" } },
-    "required": { "type": { "name": "boolean", "description": "boolean" } }
+    "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "required": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" }
   },
   "returnValue": {
     "checked": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
