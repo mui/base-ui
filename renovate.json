@@ -55,17 +55,8 @@
       ]
     },
     {
-      "groupName": "MUI Core",
-      "matchPackagePatterns": ["@mui/*"],
-      "excludePackagePatterns": ["@mui/x-*", "@mui/internal-*"]
-    },
-    {
-      "groupName": "MUI X",
-      "matchPackagePatterns": ["@mui/x-*"]
-    },
-    {
-      "groupName": "MUI Infra",
-      "matchPackagePatterns": ["@mui/internal-*"]
+      "groupName": "MUI",
+      "matchPackagePatterns": ["@mui/*"]
     },
     {
       "groupName": "React",
@@ -76,19 +67,14 @@
       "matchPackagePatterns": "@typescript-eslint/*"
     },
     {
-      "groupName": "@types/node",
-      "matchPackageNames": ["@types/node"],
+      "groupName": "Node.js",
+      "matchPackageNames": ["node", "@types/node", "cimg/node"],
       "allowedVersions": "< 19.0.0"
     },
     {
       "groupName": "bundling fixtures",
       "matchPaths": ["test/bundling/fixtures/**/package.json"],
       "schedule": "every 6 months on the first day of the month"
-    },
-    {
-      "groupName": "node",
-      "matchPackageNames": ["node"],
-      "enabled": false
     },
     {
       "groupName": "examples",
@@ -125,6 +111,11 @@
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai"],
       "allowedVersions": "< 5.0.0"
+    },
+    {
+      "groupName": "react-docgen - incompatible versions",
+      "matchPackageNames": ["react-docgen"],
+      "allowedVersions": "< 6.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],
