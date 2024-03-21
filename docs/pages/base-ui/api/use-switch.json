@@ -23,15 +23,15 @@
     "checked": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getButtonProps": {
       "type": {
-        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonSlotProps",
-        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonSlotProps"
+        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonElementProps",
+        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonElementProps"
       },
       "required": true
     },
     "getInputProps": {
       "type": {
-        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputSlotProps",
-        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputSlotProps"
+        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputElementProps",
+        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputElementProps"
       },
       "required": true
     }

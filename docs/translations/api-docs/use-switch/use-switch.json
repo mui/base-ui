@@ -16,7 +16,7 @@
   },
   "returnValueDescriptions": {
     "checked": { "description": "If <code>true</code>, the component will be checked." },
-    "getButtonProps": { "description": "Resolver for the button slot&#39;s props." },
-    "getInputProps": { "description": "Resolver for the input slot&#39;s props." }
+    "getButtonProps": { "description": "Resolver for the button element&#39;s props." },
+    "getInputProps": { "description": "Resolver for the input element&#39;s props." }
   }
 }

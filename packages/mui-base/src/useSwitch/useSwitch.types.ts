@@ -39,7 +39,7 @@ export interface UseSwitchParameters {
   required?: boolean;
 }
 
-interface UseSwitchInputSlotOwnProps {
+interface UseSwitchInputElementOwnProps {
   checked: boolean;
   disabled?: boolean;
   name?: string;
@@ -51,10 +51,13 @@ interface UseSwitchInputSlotOwnProps {
   onChange: React.ChangeEventHandler<HTMLInputElement>;
 }
 
-export type UseSwitchInputSlotProps<TOther = {}> = Omit<TOther, keyof UseSwitchInputSlotOwnProps> &
-  UseSwitchInputSlotOwnProps;
+export type UseSwitchInputElementProps<TOther = {}> = Omit<
+  TOther,
+  keyof UseSwitchInputElementOwnProps
+> &
+  UseSwitchInputElementOwnProps;
 
-interface UseSwitchButtonSlotOwnProps {
+interface UseSwitchButtonElementOwnProps {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   type: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
   role: React.AriaRole;
@@ -63,11 +66,11 @@ interface UseSwitchButtonSlotOwnProps {
   'aria-readonly': React.AriaAttributes['aria-readonly'];
 }
 
-export type UseSwitchButtonSlotProps<TOther = {}> = Omit<
+export type UseSwitchButtonElementProps<TOther = {}> = Omit<
   TOther,
-  keyof UseSwitchButtonSlotOwnProps
+  keyof UseSwitchButtonElementOwnProps
 > &
-  UseSwitchButtonSlotOwnProps;
+  UseSwitchButtonElementOwnProps;
 
 export interface UseSwitchReturnValue {
   /**
@@ -75,19 +78,19 @@ export interface UseSwitchReturnValue {
    */
   checked: boolean;
   /**
-   * Resolver for the input slot's props.
-   * @param externalProps props for the input slot
-   * @returns props that should be spread on the input slot
+   * Resolver for the input element's props.
+   * @param externalProps Additional props for the input element
+   * @returns Props that should be spread on the input element
    */
   getInputProps: (
     externalProps?: React.HTMLAttributes<HTMLInputElement>,
-  ) => UseSwitchInputSlotProps;
+  ) => UseSwitchInputElementProps;
   /**
-   * Resolver for the button slot's props.
-   * @param externalProps props for the input slot
-   * @returns props that should be spread on the button slot
+   * Resolver for the button element's props.
+   * @param externalProps Additional props for the input element
+   * @returns Props that should be spread on the button element
    */
   getButtonProps: (
     externalProps?: React.HTMLAttributes<HTMLButtonElement>,
-  ) => UseSwitchButtonSlotProps;
+  ) => UseSwitchButtonElementProps;
 }
