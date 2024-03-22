@@ -79,4 +79,31 @@ describe('<TabsList />', () => {
       expect(tab3).to.have.attribute('aria-selected', 'false');
     });
   });
+
+  it('can be named via `aria-label`', () => {
+    const { getByRole } = render(
+      <Tabs>
+        <TabsList aria-label="string label">
+          <Tab value={0} />
+        </TabsList>
+      </Tabs>,
+    );
+
+    expect(getByRole('tablist')).toHaveAccessibleName('string label');
+  });
+
+  it('can be named via `aria-labelledby`', () => {
+    const { getByRole } = render(
+      <React.Fragment>
+        <h3 id="label-id">complex name</h3>
+        <Tabs>
+          <TabsList aria-labelledby="label-id">
+            <Tab value={0} />
+          </TabsList>
+        </Tabs>
+      </React.Fragment>,
+    );
+
+    expect(getByRole('tablist')).toHaveAccessibleName('complex name');
+  });
 });
