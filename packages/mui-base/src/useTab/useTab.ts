@@ -9,6 +9,7 @@ import { useListItem } from '../useList';
 import { useButton } from '../useButton';
 import { TabMetadata } from '../useTabs';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
+import { useTabsListContext } from '../TabsList/TabsListContext';
 
 function tabValueGenerator(otherTabValues: Set<string | number>) {
   return otherTabValues.size;
@@ -30,7 +31,8 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
 
-  const { value: selectedValue, selectionFollowsFocus, getTabPanelId } = useTabsContext();
+  const { value: selectedValue, getTabPanelId } = useTabsContext();
+  const { activateOnFocus } = useTabsListContext();
 
   const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
 
@@ -56,7 +58,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
     setFocusVisible,
   } = useButton({
     disabled,
-    focusableWhenDisabled: !selectionFollowsFocus,
+    focusableWhenDisabled: !activateOnFocus,
     type: 'button',
   });
 

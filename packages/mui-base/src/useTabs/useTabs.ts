@@ -30,7 +30,6 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
     onChange,
     orientation = 'horizontal',
     direction = 'ltr',
-    selectionFollowsFocus = false,
   } = parameters;
 
   const [value, setValue] = useControlled({
@@ -78,7 +77,6 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
       onSelected,
       orientation,
       registerTabIdLookup,
-      selectionFollowsFocus,
       value,
       ...compoundComponentContextValue,
     },

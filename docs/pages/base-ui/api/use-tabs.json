@@ -23,7 +23,6 @@
       },
       "default": "'horizontal'"
     },
-    "selectionFollowsFocus": { "type": { "name": "boolean", "description": "boolean" } },
     "value": {
       "type": { "name": "string | number | null", "description": "string | number | null" }
     }

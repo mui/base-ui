@@ -18,7 +18,6 @@ describe('<TabPanel />', () => {
     totalSubitemCount: 1,
     direction: 'ltr',
     orientation: 'horizontal',
-    selectionFollowsFocus: false,
   };
 
   describeConformance(<TabPanel value="1" />, () => ({

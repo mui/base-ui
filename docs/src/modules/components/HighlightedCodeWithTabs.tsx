@@ -119,7 +119,7 @@ export default function HighlightedCodeWithTabs({
 
   const ownerState = { mounted };
   return (
-    <Tabs selectionFollowsFocus value={activeTab} onChange={handleChange}>
+    <Tabs value={activeTab} onChange={handleChange}>
       <TabList>
         {tabs.map(({ tab }) => (
           <Tab ownerState={ownerState} key={tab} value={tab}>

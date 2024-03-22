@@ -24,11 +24,6 @@ export interface UseTabsParameters {
    * Callback invoked when new value is being set.
    */
   onChange?: (event: React.SyntheticEvent | null, value: number | string | null) => void;
-  /**
-   * If `true` the selected tab changes on focus. Otherwise it only
-   * changes on activation.
-   */
-  selectionFollowsFocus?: boolean;
 }
 
 export interface UseTabsReturnValue {

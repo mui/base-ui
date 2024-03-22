@@ -153,8 +153,9 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     () => ({
       ...compoundComponentContextValue,
       ...listContextValue,
+      activateOnFocus,
     }),
-    [compoundComponentContextValue, listContextValue],
+    [compoundComponentContextValue, listContextValue, activateOnFocus],
   );
 
   return {
