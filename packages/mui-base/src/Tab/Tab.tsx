@@ -1,23 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { unstable_useForkRef as useForkRef } from '@mui/utils';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { getTabUtilityClass } from './tabClasses';
-import { TabProps, TabTypeMap, TabRootSlotProps, TabOwnerState } from './Tab.types';
+import { TabProps, TabOwnerState } from './Tab.types';
 import { useTab } from '../useTab';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../utils';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
+import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { resolveClassName } from '../utils/resolveClassName';
+import { useTabStyleHooks } from './useTabStyleHooks';
 
-const useUtilityClasses = (ownerState: TabOwnerState) => {
-  const { selected, disabled } = ownerState;
-
-  const slots = {
-    root: ['root', selected && 'selected', disabled && 'disabled'],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getTabUtilityClass));
-};
 /**
  *
  * Demos:
@@ -28,57 +17,44 @@ const useUtilityClasses = (ownerState: TabOwnerState) => {
  *
  * - [Tab API](https://mui.com/base-ui/react-tabs/components-api/#tab)
  */
-const Tab = React.forwardRef(function Tab<RootComponentType extends React.ElementType>(
-  props: TabProps<RootComponentType>,
+const Tab = React.forwardRef(function Tab(
+  props: TabProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
-    action,
-    children,
+    className: classNameProp,
     disabled = false,
     onChange,
-    onClick,
-    onFocus,
-    slotProps = {},
-    slots = {},
-    value,
+    render: renderProp,
     ...other
   } = props;
 
-  const tabRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement>();
-  const handleRef = useForkRef(tabRef, forwardedRef);
+  const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { active, highlighted, selected, getRootProps } = useTab({
+  const { active, highlighted, selected, getRootProps, rootRef } = useTab({
     ...props,
-    rootRef: handleRef,
-    value,
+    rootRef: forwardedRef,
   });
 
   const ownerState: TabOwnerState = {
-    ...props,
     active,
     disabled,
     highlighted,
     selected,
   };
 
-  const classes = useUtilityClasses(ownerState);
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useTabStyleHooks(ownerState);
 
-  const TabRoot: React.ElementType = slots.root ?? 'button';
-  const tabRootProps: WithOptionalOwnerState<TabRootSlotProps> = useSlotProps({
-    elementType: TabRoot,
-    getSlotProps: getRootProps,
-    externalSlotProps: slotProps.root,
-    externalForwardedProps: other,
-    additionalProps: {
-      ref: forwardedRef,
-    },
-    ownerState,
-    className: classes.root,
-  });
+  const rootProps = {
+    ...styleHooks,
+    ...other,
+    className,
+    ref: rootRef,
+  };
 
-  return <TabRoot {...tabRootProps}>{children}</TabRoot>;
-}) as PolymorphicComponent<TabTypeMap>;
+  return render(getRootProps(rootProps), ownerState);
+});
 
 Tab.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -86,23 +62,15 @@ Tab.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * A ref for imperative actions. It currently only supports `focusVisible()` action.
-   */
-  action: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({
-      current: PropTypes.shape({
-        focusVisible: PropTypes.func.isRequired,
-      }),
-    }),
-  ]),
-  /**
    * @ignore
    */
   children: PropTypes.node,
   /**
-   * If `true`, the component is disabled.
-   * @default false
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
    */
   disabled: PropTypes.bool,
   /**
@@ -110,20 +78,17 @@ Tab.propTypes /* remove-proptypes */ = {
    */
   onChange: PropTypes.func,
   /**
-   * The props used for each slot inside the Tab.
-   * @default {}
+   * @ignore
    */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
+  onClick: PropTypes.func,
   /**
-   * The components used for each slot inside the Tab.
-   * Either a string to use a HTML element or a component.
-   * @default {}
+   * @ignore
    */
-  slots: PropTypes.shape({
-    root: PropTypes.elementType,
-  }),
+  onFocus: PropTypes.func,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.func,
   /**
    * You can provide your own value. Otherwise, it falls back to the child position index.
    */

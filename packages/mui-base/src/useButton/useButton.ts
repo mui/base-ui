@@ -194,17 +194,19 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
   if (rootElementName === 'BUTTON') {
     buttonProps.type = type ?? 'button';
-    if (focusableWhenDisabled) {
-      buttonProps['aria-disabled'] = disabled;
-    } else {
-      buttonProps.disabled = disabled;
+    if (disabled) {
+      if (focusableWhenDisabled) {
+        buttonProps['aria-disabled'] = true;
+      } else {
+        buttonProps.disabled = true;
+      }
     }
-  } else if (rootElementName === 'INPUT') {
+  } else if (disabled && rootElementName === 'INPUT') {
     if (type && ['button', 'submit', 'reset'].includes(type)) {
       if (focusableWhenDisabled) {
-        buttonProps['aria-disabled'] = disabled;
+        buttonProps['aria-disabled'] = true;
       } else {
-        buttonProps.disabled = disabled;
+        buttonProps.disabled = true;
       }
     }
   } else if (rootElementName !== '') {
@@ -213,7 +215,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
       buttonProps.tabIndex = tabIndex ?? 0;
     }
     if (disabled) {
-      buttonProps['aria-disabled'] = disabled as boolean;
+      buttonProps['aria-disabled'] = true;
       buttonProps.tabIndex = focusableWhenDisabled ? tabIndex ?? 0 : -1;
     }
   }
