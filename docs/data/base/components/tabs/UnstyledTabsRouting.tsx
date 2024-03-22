@@ -53,14 +53,20 @@ function MyTabs() {
       <TabsList>
         <Tab
           value="/inbox/:id"
-          render={(props) => <Link {...props} to="/inbox/1" />}
+          render={(props) => <Link {...(props as any)} to="/inbox/1" />}
         >
           Inbox
         </Tab>
-        <Tab value="/drafts" render={(props) => <Link {...props} to="/drafts" />}>
+        <Tab
+          value="/drafts"
+          render={(props) => <Link {...(props as any)} to="/drafts" />}
+        >
           Drafts
         </Tab>
-        <Tab value="/trash" render={(props) => <Link {...props} to="/trash" />}>
+        <Tab
+          value="/trash"
+          render={(props) => <Link {...(props as any)} to="/trash" />}
+        >
           Trash
         </Tab>
       </TabsList>
