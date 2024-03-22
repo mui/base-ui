@@ -3,8 +3,7 @@ import { styled } from '@mui/system';
 import { Tabs } from '@mui/base/Tabs';
 import { TabsList as BaseTabsList } from '@mui/base/TabsList';
 import { TabPanel as BaseTabPanel } from '@mui/base/TabPanel';
-import { buttonClasses } from '@mui/base/Button';
-import { Tab as BaseTab, tabClasses } from '@mui/base/Tab';
+import { Tab as BaseTab } from '@mui/base/Tab';
 
 export default function UnstyledTabsCustomized() {
   return (
@@ -59,12 +58,12 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &.${buttonClasses.disabled} {
+  &[data-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }

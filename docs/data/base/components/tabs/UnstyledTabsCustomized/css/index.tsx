@@ -3,8 +3,7 @@ import { useTheme } from '@mui/system';
 import { Tabs } from '@mui/base/Tabs';
 import { TabsList } from '@mui/base/TabsList';
 import { TabPanel } from '@mui/base/TabPanel';
-import { buttonClasses } from '@mui/base/Button';
-import { Tab, tabClasses } from '@mui/base/Tab';
+import { Tab } from '@mui/base/Tab';
 
 export default function UnstyledTabsCustomized() {
   return (
@@ -100,12 +99,12 @@ function Styles() {
         outline: 3px solid ${cyan[200]};
       }
 
-      .CustomTab.${tabClasses.selected} {
+      .CustomTab[data-selected='true'] {
         background-color: #fff;
         color: ${cyan[600]};
       }
 
-      .CustomTab.${buttonClasses.disabled} {
+      .CustomTab[data-disabled='true'] {
         opacity: 0.5;
         cursor: not-allowed;
       }
