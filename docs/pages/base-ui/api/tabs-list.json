@@ -1,15 +1,9 @@
 {
   "props": {
-    "children": { "type": { "name": "node" } },
-    "slotProps": {
-      "type": { "name": "shape", "description": "{ root?: func<br>&#124;&nbsp;object }" },
-      "default": "{}"
-    },
-    "slots": {
-      "type": { "name": "shape", "description": "{ root?: elementType }" },
-      "default": "{}",
-      "additionalInfo": { "slotsApi": true }
-    }
+    "activateOnFocus": { "type": { "name": "bool" }, "default": "true" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "loop": { "type": { "name": "bool" }, "default": "true" },
+    "render": { "type": { "name": "func" } }
   },
   "name": "TabsList",
   "imports": [
@@ -18,6 +12,7 @@
   ],
   "classes": [],
   "spread": true,
+  "themeDefaultProps": true,
   "muiName": "TabsList",
   "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/TabsList/TabsList.tsx",

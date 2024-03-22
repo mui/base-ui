@@ -24,7 +24,7 @@ import { tabsListReducer } from './tabsListReducer';
  * - [useTabsList API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tabs-list)
  */
 function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue {
-  const { rootRef: externalRef } = parameters;
+  const { rootRef: externalRef, loop, activateOnFocus } = parameters;
 
   const {
     direction = 'ltr',
@@ -32,7 +32,6 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     orientation = 'horizontal',
     value,
     registerTabIdLookup,
-    selectionFollowsFocus,
   } = useTabsContext();
 
   const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
@@ -108,10 +107,10 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     string | number,
     ListState<string | number>,
     ValueChangeAction,
-    { selectionFollowsFocus: boolean }
+    { activateOnFocus: boolean }
   >({
     controlledProps,
-    disabledItemsFocusable: !selectionFollowsFocus,
+    disabledItemsFocusable: !activateOnFocus,
     focusManagement: 'DOM',
     getItemDomElement: getTabElement,
     isItemDisabled,
@@ -119,12 +118,10 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     rootRef: externalRef,
     onChange: handleChange,
     orientation: listOrientation,
-    reducerActionContext: React.useMemo(
-      () => ({ selectionFollowsFocus: selectionFollowsFocus || false }),
-      [selectionFollowsFocus],
-    ),
+    reducerActionContext: React.useMemo(() => ({ activateOnFocus }), [activateOnFocus]),
     selectionMode: 'single',
     stateReducer: tabsListReducer,
+    disableListWrap: !loop,
   });
 
   React.useEffect(() => {

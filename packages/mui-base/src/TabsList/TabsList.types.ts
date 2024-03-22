@@ -1,59 +1,22 @@
-import * as React from 'react';
-import { Simplify } from '@mui/types';
-import { UseTabsListRootSlotProps } from '../useTabsList';
-import { PolymorphicProps, SlotComponentProps } from '../utils';
+import { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
 
-export interface TabsListRootSlotPropsOverrides {}
-
-export interface TabsListOwnProps {
-  /**
-   * The content of the component.
-   */
-  children?: React.ReactNode;
-  className?: string;
-  /**
-   * The props used for each slot inside the TabsList.
-   * @default {}
-   */
-  slotProps?: {
-    root?: SlotComponentProps<'div', TabsListRootSlotPropsOverrides, TabsListOwnerState>;
-  };
-  /**
-   * The components used for each slot inside the TabsList.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slots?: TabsListSlots;
-}
-
-export interface TabsListSlots {
-  /**
-   * The component that renders the root.
-   * @default 'div'
-   */
-  root?: React.ElementType;
-}
-
-export interface TabsListTypeMap<
-  AdditionalProps = {},
-  RootComponentType extends React.ElementType = 'div',
-> {
-  props: TabsListOwnProps & AdditionalProps;
-  defaultComponent: RootComponentType;
-}
-
-export type TabsListProps<
-  RootComponentType extends React.ElementType = TabsListTypeMap['defaultComponent'],
-> = PolymorphicProps<TabsListTypeMap<{}, RootComponentType>, RootComponentType>;
-
-export type TabsListOwnerState = Simplify<
-  TabsListOwnProps & {
-    isRtl: boolean;
-    orientation: 'horizontal' | 'vertical';
-  }
->;
-
-export type TabsListRootSlotProps = UseTabsListRootSlotProps & {
-  className?: string;
-  ownerState: TabsListOwnerState;
+export type TabsListOwnerState = {
+  isRtl: boolean;
+  orientation: 'horizontal' | 'vertical';
 };
+
+export interface TabsListProps extends BaseUiComponentCommonProps<'div', TabsListOwnerState> {
+  /**
+   * If `true`, the tab will be activated whenever it is focused.
+   * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
+   *
+   * @default true
+   */
+  activateOnFocus?: boolean;
+  /**
+   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   *
+   * @default true
+   */
+  loop?: boolean;
+}
