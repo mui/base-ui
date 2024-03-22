@@ -1,20 +1,16 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "children": { "description": "The content of the component." },
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
     "defaultValue": {
       "description": "The default value. Use when the component is not controlled."
     },
     "direction": { "description": "The direction of the text." },
     "onChange": { "description": "Callback invoked when new value is being set." },
     "orientation": { "description": "The component orientation (layout flow direction)." },
-    "selectionFollowsFocus": {
-      "description": "If <code>true</code> the selected tab changes on focus. Otherwise it only changes on activation."
-    },
-    "slotProps": { "description": "The props used for each slot inside the Tabs." },
-    "slots": {
-      "description": "The components used for each slot inside the Tabs. Either a string to use a HTML element or a component."
-    },
+    "render": { "description": "A function to customize rendering of the component." },
     "value": {
       "description": "The value of the currently selected <code>Tab</code>. If you don&#39;t want any selected <code>Tab</code>, you can set this prop to <code>null</code>."
     }

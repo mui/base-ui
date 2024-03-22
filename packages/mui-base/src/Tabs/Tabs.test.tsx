@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, createRenderer, fireEvent, screen, createMount } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Tab } from '@base_ui/react/Tab';
-import { Tabs, tabsClasses as classes, TabsProps } from '@base_ui/react/Tabs';
+import { Tabs, TabsProps } from '@base_ui/react/Tabs';
 import { TabsList } from '@base_ui/react/TabsList';
 import { TabPanel } from '@base_ui/react/TabPanel';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { describeConformance } from '../../test/describeConformance';
 
 describe('<Tabs />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
 
   before(function beforeHook() {
@@ -24,19 +23,10 @@ describe('<Tabs />', () => {
     }
   });
 
-  describeConformanceUnstyled(<Tabs value={0} />, () => ({
-    classes,
+  describeConformance(<Tabs value={0} />, () => ({
     inheritComponent: 'div',
     render,
-    mount,
     refInstanceof: window.HTMLDivElement,
-    testComponentPropWith: 'header',
-    slots: {
-      root: {
-        expectedClassName: classes.root,
-      },
-    },
-    skip: ['componentProp'],
   }));
 
   it('can be named via `aria-label`', () => {

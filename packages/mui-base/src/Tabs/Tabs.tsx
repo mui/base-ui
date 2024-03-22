@@ -1,23 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../utils';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { getTabsUtilityClass } from './tabsClasses';
-import { TabsOwnerState, TabsProps, TabsRootSlotProps, TabsTypeMap } from './Tabs.types';
+import { TabsOwnerState, TabsProps } from './Tabs.types';
 import { useTabs } from '../useTabs';
 import { TabsProvider } from '../useTabs/TabsProvider';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
+import { resolveClassName } from '../utils/resolveClassName';
+import { useTabsStyleHooks } from './useTabsStyleHooks';
 
-const useUtilityClasses = (ownerState: { orientation: 'horizontal' | 'vertical' }) => {
-  const { orientation } = ownerState;
-
-  const slots = {
-    root: ['root', orientation],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getTabsUtilityClass));
-};
+function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
+  return <div {...props} />;
+}
 
 /**
  *
@@ -29,51 +21,36 @@ const useUtilityClasses = (ownerState: { orientation: 'horizontal' | 'vertical' 
  *
  * - [Tabs API](https://mui.com/base-ui/react-tabs/components-api/#tabs)
  */
-const Tabs = React.forwardRef(function Tabs<RootComponentType extends React.ElementType>(
-  props: TabsProps<RootComponentType>,
-  forwardedRef: React.ForwardedRef<Element>,
+const Tabs = React.forwardRef(function Tabs(
+  props: TabsProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    children,
-    value: valueProp,
+    className: classNameProp,
     defaultValue,
-    orientation = 'horizontal',
     direction = 'ltr',
     onChange,
-    selectionFollowsFocus,
-    slotProps = {},
-    slots = {},
+    orientation = 'horizontal',
+    render: renderProp,
+    value: valueProp,
     ...other
   } = props;
 
+  const render = renderProp ?? defaultRender;
+
   const ownerState: TabsOwnerState = {
-    ...props,
     orientation,
     direction,
   };
 
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useTabsStyleHooks(ownerState);
+
   const { contextValue } = useTabs(ownerState);
+  const rootProps = { ...styleHooks, ...other, className, ref: forwardedRef };
 
-  const classes = useUtilityClasses(ownerState);
-
-  const TabsRoot: React.ElementType = slots.root ?? 'div';
-  const tabsRootProps: WithOptionalOwnerState<TabsRootSlotProps> = useSlotProps({
-    elementType: TabsRoot,
-    externalSlotProps: slotProps.root,
-    externalForwardedProps: other,
-    additionalProps: {
-      ref: forwardedRef,
-    },
-    ownerState,
-    className: classes.root,
-  });
-
-  return (
-    <TabsRoot {...tabsRootProps}>
-      <TabsProvider value={contextValue}>{children}</TabsProvider>
-    </TabsRoot>
-  );
-}) as PolymorphicComponent<TabsTypeMap>;
+  return <TabsProvider value={contextValue}>{render(rootProps, ownerState)}</TabsProvider>;
+});
 
 Tabs.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -81,13 +58,13 @@ Tabs.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The content of the component.
+   * @ignore
    */
   children: PropTypes.node,
   /**
-   * @ignore
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className: PropTypes.string,
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The default value. Use when the component is not controlled.
    */
@@ -107,25 +84,9 @@ Tabs.propTypes /* remove-proptypes */ = {
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * If `true` the selected tab changes on focus. Otherwise it only
-   * changes on activation.
+   * A function to customize rendering of the component.
    */
-  selectionFollowsFocus: PropTypes.bool,
-  /**
-   * The props used for each slot inside the Tabs.
-   * @default {}
-   */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-  /**
-   * The components used for each slot inside the Tabs.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slots: PropTypes.shape({
-    root: PropTypes.elementType,
-  }),
+  render: PropTypes.func,
   /**
    * The value of the currently selected `Tab`.
    * If you don't want any selected `Tab`, you can set this prop to `null`.

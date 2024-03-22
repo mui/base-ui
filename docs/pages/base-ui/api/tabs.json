@@ -1,6 +1,6 @@
 {
   "props": {
-    "children": { "type": { "name": "node" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultValue": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } },
     "direction": {
       "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
@@ -11,22 +11,14 @@
       "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
       "default": "'horizontal'"
     },
-    "selectionFollowsFocus": { "type": { "name": "bool" } },
-    "slotProps": {
-      "type": { "name": "shape", "description": "{ root?: func<br>&#124;&nbsp;object }" },
-      "default": "{}"
-    },
-    "slots": {
-      "type": { "name": "shape", "description": "{ root?: elementType }" },
-      "default": "{}",
-      "additionalInfo": { "slotsApi": true }
-    },
+    "render": { "type": { "name": "func" } },
     "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
   },
   "name": "Tabs",
   "imports": ["import { Tabs } from '@mui/base/Tabs';", "import { Tabs } from '@mui/base';"],
   "classes": [],
   "spread": true,
+  "themeDefaultProps": true,
   "muiName": "Tabs",
   "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/Tabs/Tabs.tsx",
