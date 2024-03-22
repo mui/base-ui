@@ -1,15 +1,7 @@
 {
   "props": {
-    "children": { "type": { "name": "node" } },
-    "slotProps": {
-      "type": { "name": "shape", "description": "{ root?: func<br>&#124;&nbsp;object }" },
-      "default": "{}"
-    },
-    "slots": {
-      "type": { "name": "shape", "description": "{ root?: elementType }" },
-      "default": "{}",
-      "additionalInfo": { "slotsApi": true }
-    },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "func" } },
     "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
   },
   "name": "TabPanel",
@@ -19,6 +11,7 @@
   ],
   "classes": [],
   "spread": true,
+  "themeDefaultProps": true,
   "muiName": "TabPanel",
   "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/TabPanel/TabPanel.tsx",
