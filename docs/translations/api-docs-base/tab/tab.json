@@ -1,15 +1,11 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "action": {
-      "description": "A ref for imperative actions. It currently only supports <code>focusVisible()</code> action."
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "disabled": { "description": "If <code>true</code>, the component is disabled." },
     "onChange": { "description": "Callback invoked when new value is being set." },
-    "slotProps": { "description": "The props used for each slot inside the Tab." },
-    "slots": {
-      "description": "The components used for each slot inside the Tab. Either a string to use a HTML element or a component."
-    },
+    "render": { "description": "A function to customize rendering of the component." },
     "value": {
       "description": "You can provide your own value. Otherwise, it falls back to the child position index."
     }
