@@ -3,8 +3,7 @@ import { styled } from '@mui/system';
 import { Tabs } from '@base_ui/react/Tabs';
 import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
 import { TabPanel as BaseTabPanel } from '@base_ui/react/TabPanel';
-import { buttonClasses } from '@base_ui/react/Button';
-import { Tab as BaseTab, tabClasses } from '@base_ui/react/Tab';
+import { Tab as BaseTab } from '@base_ui/react/Tab';
 
 export default function UnstyledTabsIntroduction() {
   return (
@@ -71,12 +70,12 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &.${buttonClasses.disabled} {
+  &[data-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }

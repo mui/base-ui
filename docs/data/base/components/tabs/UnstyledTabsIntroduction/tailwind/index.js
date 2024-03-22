@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { Tabs } from '@base_ui/react/Tabs';
 import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
@@ -48,10 +47,6 @@ const TabsList = React.forwardRef((props, ref) => {
   );
 });
 
-TabsList.propTypes = {
-  className: PropTypes.string,
-};
-
 const Tab = React.forwardRef((props, ref) => {
   return (
     <BaseTab
@@ -85,16 +80,6 @@ const Tab = React.forwardRef((props, ref) => {
   );
 });
 
-Tab.propTypes = {
-  /**
-   * The props used for each slot inside the Tab.
-   * @default {}
-   */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-};
-
 const TabPanel = React.forwardRef((props, ref) => {
   const { className, ...other } = props;
   return (
@@ -108,7 +93,3 @@ const TabPanel = React.forwardRef((props, ref) => {
     />
   );
 });
-
-TabPanel.propTypes = {
-  className: PropTypes.string,
-};

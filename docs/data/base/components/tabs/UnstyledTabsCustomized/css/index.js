@@ -3,8 +3,7 @@ import { useTheme } from '@mui/system';
 import { Tabs } from '@base_ui/react/Tabs';
 import { TabsList } from '@base_ui/react/TabsList';
 import { TabPanel } from '@base_ui/react/TabPanel';
-import { buttonClasses } from '@base_ui/react/Button';
-import { Tab, tabClasses } from '@base_ui/react/Tab';
+import { Tab } from '@base_ui/react/Tab';
 
 export default function UnstyledTabsCustomized() {
   return (
@@ -100,12 +99,12 @@ function Styles() {
         outline: 3px solid ${cyan[200]};
       }
 
-      .CustomTab.${tabClasses.selected} {
+      .CustomTab[data-selected='true'] {
         background-color: #fff;
         color: ${cyan[600]};
       }
 
-      .CustomTab.${buttonClasses.disabled} {
+      .CustomTab[data-disabled='true'] {
         opacity: 0.5;
         cursor: not-allowed;
       }

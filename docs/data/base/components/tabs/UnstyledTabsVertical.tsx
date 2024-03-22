@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Tabs as BaseTabs } from '@base_ui/react/Tabs';
-import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
-import { TabPanel as BaseTabPanel } from '@base_ui/react/TabPanel';
-import { buttonClasses } from '@base_ui/react/Button';
-import { Tab as BaseTab, tabClasses } from '@base_ui/react/Tab';
+import { Tabs as BaseTabs } from '@mui/base/Tabs';
+import { TabsList as BaseTabsList } from '@mui/base/TabsList';
+import { TabPanel as BaseTabPanel } from '@mui/base/TabPanel';
+import { buttonClasses } from '@mui/base/Button';
+import { Tab as BaseTab, tabClasses } from '@mui/base/Tab';
 
 export default function UnstyledTabsVertical() {
   return (
@@ -70,17 +70,17 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${buttonClasses.focusVisible} {
+  &:focus-visible {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &.${tabClasses.disabled} {
+  &[data-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
