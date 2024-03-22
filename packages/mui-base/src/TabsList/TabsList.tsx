@@ -1,28 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../utils';
-import { getTabsListUtilityClass } from './tabsListClasses';
-import {
-  TabsListOwnerState,
-  TabsListProps,
-  TabsListRootSlotProps,
-  TabsListTypeMap,
-} from './TabsList.types';
+import { TabsListOwnerState, TabsListProps } from './TabsList.types';
 import { useTabsList } from '../useTabsList';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { TabsListProvider } from '../useTabsList/TabsListProvider';
-
-const useUtilityClasses = (ownerState: { orientation: 'horizontal' | 'vertical' }) => {
-  const { orientation } = ownerState;
-
-  const slots = {
-    root: ['root', orientation],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getTabsListUtilityClass));
-};
+import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { resolveClassName } from '../utils/resolveClassName';
+import { useTabsListStyleHooks } from './useTabsListStyleHooks';
 
 /**
  *
@@ -34,40 +18,49 @@ const useUtilityClasses = (ownerState: { orientation: 'horizontal' | 'vertical' 
  *
  * - [TabsList API](https://mui.com/base-ui/react-tabs/components-api/#tabs-list)
  */
-const TabsList = React.forwardRef(function TabsList<RootComponentType extends React.ElementType>(
-  props: TabsListProps<RootComponentType>,
-  forwardedRef: React.ForwardedRef<Element>,
+const TabsList = React.forwardRef(function TabsList(
+  props: TabsListProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, slotProps = {}, slots = {}, ...other } = props;
+  const {
+    activateOnFocus = true,
+    className: classNameProp,
+    loop = true,
+    render: renderProp,
+    ...other
+  } = props;
 
+  const render = renderProp ?? defaultRenderFunctions.div;
   const { isRtl, orientation, getRootProps, contextValue } = useTabsList({
     rootRef: forwardedRef,
+    loop,
+    activateOnFocus,
   });
 
-  const ownerState: TabsListOwnerState = {
-    ...props,
-    isRtl,
-    orientation,
+  const ownerState: TabsListOwnerState = React.useMemo(
+    () => ({
+      isRtl,
+      orientation,
+    }),
+    [isRtl, orientation],
+  );
+
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useTabsListStyleHooks(ownerState);
+
+  const rootProps = {
+    ...styleHooks,
+    ...other,
+    className,
+    ref: forwardedRef,
   };
-
-  const classes = useUtilityClasses(ownerState);
-
-  const TabsListRoot: React.ElementType = slots.root ?? 'div';
-  const tabsListRootProps: WithOptionalOwnerState<TabsListRootSlotProps> = useSlotProps({
-    elementType: TabsListRoot,
-    getSlotProps: getRootProps,
-    externalSlotProps: slotProps.root,
-    externalForwardedProps: other,
-    ownerState,
-    className: classes.root,
-  });
 
   return (
     <TabsListProvider value={contextValue}>
-      <TabsListRoot {...tabsListRootProps}>{children}</TabsListRoot>
+      {render(getRootProps(rootProps), ownerState)}
     </TabsListProvider>
   );
-}) as PolymorphicComponent<TabsListTypeMap>;
+});
 
 TabsList.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -75,28 +68,30 @@ TabsList.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The content of the component.
+   * If `true`, the tab will be activated whenever it is focused.
+   * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
+   *
+   * @default true
    */
-  children: PropTypes.node,
+  activateOnFocus: PropTypes.bool,
   /**
    * @ignore
    */
-  className: PropTypes.string,
+  children: PropTypes.node,
   /**
-   * The props used for each slot inside the TabsList.
-   * @default {}
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The components used for each slot inside the TabsList.
-   * Either a string to use a HTML element or a component.
-   * @default {}
+   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   *
+   * @default true
    */
-  slots: PropTypes.shape({
-    root: PropTypes.elementType,
-  }),
+  loop: PropTypes.bool,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.func,
 } as any;
 
 export { TabsList };

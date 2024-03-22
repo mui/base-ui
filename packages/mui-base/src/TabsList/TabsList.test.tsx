@@ -1,16 +1,15 @@
 import * as React from 'react';
-import { act, createMount, createRenderer } from '@mui/internal-test-utils';
+import { act, createRenderer } from '@mui/internal-test-utils';
 import { Tab } from '@base_ui/react/Tab';
 import { Tabs, TabsContext } from '@base_ui/react/Tabs';
-import { TabsList, tabsListClasses } from '@base_ui/react/TabsList';
+import { TabsList } from '@base_ui/react/TabsList';
 import { expect } from 'chai';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { describeConformance } from '../../test/describeConformance';
 
 describe('<TabsList />', () => {
   const { render } = createRenderer();
-  const mount = createMount();
 
-  describeConformanceUnstyled(<TabsList />, () => ({
+  describeConformance(<TabsList />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
@@ -29,32 +28,9 @@ describe('<TabsList />', () => {
 
       return { container, ...other };
     },
-    mount: (node: any) => {
-      const wrapper = mount(
-        <TabsContext.Provider
-          value={{
-            value: '1',
-            onSelected: () => {},
-            registerTabIdLookup() {},
-            getTabId: () => '',
-            getTabPanelId: () => '',
-          }}
-        >
-          {node}
-        </TabsContext.Provider>,
-      );
-      return wrapper.childAt(0);
-    },
     refInstanceof: window.HTMLDivElement,
-    testComponentPropWith: 'div',
-    slots: {
-      root: {
-        expectedClassName: tabsListClasses.root,
-      },
-    },
     skip: [
       'reactTestRenderer', // Need to be wrapped with TabsContext
-      'componentProp',
     ],
   }));
 

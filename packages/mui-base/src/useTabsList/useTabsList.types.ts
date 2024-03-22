@@ -4,6 +4,15 @@ import { ListAction } from '../useList';
 
 export interface UseTabsListParameters {
   /**
+   * If `true`, the tab will be activated whenever it is focused.
+   * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
+   */
+  activateOnFocus: boolean;
+  /**
+   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   */
+  loop: boolean;
+  /**
    * Ref to the root element.
    */
   rootRef: React.Ref<Element>;

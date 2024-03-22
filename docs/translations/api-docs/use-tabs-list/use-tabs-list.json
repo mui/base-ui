@@ -1,6 +1,14 @@
 {
   "hookDescription": "",
-  "parametersDescriptions": { "rootRef": { "description": "Ref to the root element." } },
+  "parametersDescriptions": {
+    "activateOnFocus": {
+      "description": "If <code>true</code>, the tab will be activated whenever it is focused. Otherwise, it has to be activated by clicking or pressing the Enter or Space key."
+    },
+    "loop": {
+      "description": "If <code>true</code>, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
+    },
+    "rootRef": { "description": "Ref to the root element." }
+  },
   "returnValueDescriptions": {
     "contextValue": {
       "description": "The value to be passed to the TabListProvider above all the tabs."
