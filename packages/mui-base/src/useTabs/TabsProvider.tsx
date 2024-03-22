@@ -30,7 +30,6 @@ export function TabsProvider(props: TabsProviderProps) {
     orientation,
     registerItem,
     registerTabIdLookup,
-    selectionFollowsFocus,
     totalSubitemCount,
     value,
     getTabId,
@@ -57,19 +56,9 @@ export function TabsProvider(props: TabsProviderProps) {
       onSelected,
       orientation,
       registerTabIdLookup,
-      selectionFollowsFocus,
       value,
     }),
-    [
-      direction,
-      getTabId,
-      getTabPanelId,
-      onSelected,
-      orientation,
-      registerTabIdLookup,
-      selectionFollowsFocus,
-      value,
-    ],
+    [direction, getTabId, getTabPanelId, onSelected, orientation, registerTabIdLookup, value],
   );
 
   return (

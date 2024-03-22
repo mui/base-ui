@@ -22,11 +22,6 @@ export interface TabsContextValue {
    */
   registerTabIdLookup: (lookupFunction: (id: string | number) => string | undefined) => void;
   /**
-   * If `true` the selected tab changes on focus. Otherwise it only
-   * changes on activation.
-   */
-  selectionFollowsFocus?: boolean;
-  /**
    * Gets the id of the tab with the given value.
    * @param value Value to find the tab for.
    */

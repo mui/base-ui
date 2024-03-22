@@ -85,7 +85,7 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
       }}
     >
       {styling === 'system' && (
-        <Tabs selectionFollowsFocus defaultValue={0}>
+        <Tabs defaultValue={0}>
           <TabsList slots={{ root: StyledTabsList }}>
             <Tab slots={{ root: StyledTab }}>One</Tab>
             <Tab slots={{ root: StyledTab }}>Two</Tab>
@@ -103,7 +103,7 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
         </Tabs>
       )}
       {styling === 'css' && (
-        <Tabs selectionFollowsFocus defaultValue={0}>
+        <Tabs defaultValue={0}>
           <GlobalStyles styles={CSS} />
           <TabsList>
             <Tab>One</Tab>
@@ -116,7 +116,7 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
         </Tabs>
       )}
       {styling === 'tailwindcss' && ( // https://play.tailwindcss.com/8jGjUI7EWe
-        <Tabs selectionFollowsFocus defaultValue={0}>
+        <Tabs defaultValue={0}>
           <TabsList className="mb-[16px] flex min-w-[300px] content-between items-center justify-center rounded-[12px] bg-[--primary] [box-shadow:var(--shadow)]">
             <Tab className={tabStylesTailwind}>One</Tab>
             <Tab className={tabStylesTailwind}>Two</Tab>
@@ -150,7 +150,7 @@ const StyledTabPanel = styled('div')\`${tabPanelStyles}\`;
 
 const StyledTab = styled('button')\`${tabStyles}\`;
 
-<Tabs selectionFollowsFocus defaultValue={0}>
+<Tabs defaultValue={0}>
   <TabsList slots={{ root: StyledTabsList }}>
     <Tab slots={{ root: StyledTab }}>One</Tab>
     <Tab slots={{ root: StyledTab }}>Two</Tab>
@@ -174,7 +174,7 @@ import { TabsList } from '@base_ui/react/TabsList';
 import { TabPanel } from '@base_ui/react/TabPanel';
 import { Tab } from '@base_ui/react/Tab';
 
-<Tabs selectionFollowsFocus defaultValue={0}>
+<Tabs defaultValue={0}>
   <TabsList className="mb-[16px] flex min-w-[300px] content-between
             items-center justify-center rounded-[12px]
             bg-[--palette-primary] [box-shadow:var(--shadow)]">
@@ -231,7 +231,7 @@ import { Tab } from '@base_ui/react/Tab';
 import { styled } from '@mui/system';
 import './styles.css';
 
-<Tabs selectionFollowsFocus defaultValue={0}>
+<Tabs defaultValue={0}>
   <TabsList>
     <Tab>One</Tab>
     <Tab>Two</Tab>
