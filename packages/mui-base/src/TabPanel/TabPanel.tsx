@@ -1,27 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../utils';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { getTabPanelUtilityClass } from './tabPanelClasses';
 import { useTabPanel } from '../useTabPanel/useTabPanel';
-import {
-  TabPanelOwnerState,
-  TabPanelProps,
-  TabPanelRootSlotProps,
-  TabPanelTypeMap,
-} from './TabPanel.types';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
+import { TabPanelOwnerState, TabPanelProps } from './TabPanel.types';
+import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { resolveClassName } from '../utils/resolveClassName';
+import { useTabsStyleHooks } from './useTabPanelStyleHooks';
 
-const useUtilityClasses = (ownerState: { hidden: boolean }) => {
-  const { hidden } = ownerState;
-
-  const slots = {
-    root: ['root', hidden && 'hidden'],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getTabPanelUtilityClass));
-};
 /**
  *
  * Demos:
@@ -32,37 +17,32 @@ const useUtilityClasses = (ownerState: { hidden: boolean }) => {
  *
  * - [TabPanel API](https://mui.com/base-ui/react-tabs/components-api/#tab-panel)
  */
-const TabPanel = React.forwardRef(function TabPanel<RootComponentType extends React.ElementType>(
-  props: TabPanelProps<RootComponentType>,
-  forwardedRef: React.ForwardedRef<Element>,
+const TabPanel = React.forwardRef(function TabPanel(
+  props: TabPanelProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, value, slotProps = {}, slots = {}, ...other } = props;
+  const { children, className: classNameProp, value, render: renderProp, ...other } = props;
+  const render = renderProp ?? defaultRenderFunctions.div;
 
   const { hidden, getRootProps } = useTabPanel(props);
 
   const ownerState: TabPanelOwnerState = {
-    ...props,
     hidden,
   };
 
-  const classes = useUtilityClasses(ownerState);
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useTabsStyleHooks(ownerState);
 
-  const TabPanelRoot: React.ElementType = slots.root ?? 'div';
-  const tabPanelRootProps: WithOptionalOwnerState<TabPanelRootSlotProps> = useSlotProps({
-    elementType: TabPanelRoot,
-    getSlotProps: getRootProps,
-    externalSlotProps: slotProps.root,
-    externalForwardedProps: other,
-    additionalProps: {
-      role: 'tabpanel',
-      ref: forwardedRef,
-    },
-    ownerState,
-    className: classes.root,
-  });
+  const rootProps = {
+    ...styleHooks,
+    ...other,
+    className,
+    ref: forwardedRef,
+    children: hidden ? undefined : children,
+  };
 
-  return <TabPanelRoot {...tabPanelRootProps}>{!hidden && children}</TabPanelRoot>;
-}) as PolymorphicComponent<TabPanelTypeMap>;
+  return render(getRootProps(rootProps), ownerState);
+});
 
 TabPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -70,28 +50,17 @@ TabPanel.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The content of the component.
+   * @ignore
    */
   children: PropTypes.node,
   /**
-   * @ignore
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className: PropTypes.string,
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The props used for each slot inside the TabPanel.
-   * @default {}
+   * A function to customize rendering of the component.
    */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-  /**
-   * The components used for each slot inside the TabPanel.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slots: PropTypes.shape({
-    root: PropTypes.elementType,
-  }),
+  render: PropTypes.func,
   /**
    * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
    * If not provided, it will fall back to the index of the panel.
