@@ -164,7 +164,7 @@
     "stylelint-processor-styled-components": "^1.10.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsx": "^4.7.1",
-    "typescript": "^5.4.2",
+    "typescript": "^5.4.3",
     "unist-util-visit": "^2.0.3",
     "webpack": "^5.90.3",
     "webpack-bundle-analyzer": "^4.10.1",
