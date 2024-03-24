@@ -96,14 +96,14 @@ export interface UseSwitchReturnValue {
    * @returns Props that should be spread on the input element
    */
   getInputProps: (
-    externalProps?: React.HTMLAttributes<HTMLInputElement>,
-  ) => UseSwitchInputElementProps;
+    externalProps?: React.ComponentPropsWithRef<'input'>,
+  ) => React.ComponentPropsWithRef<'input'>;
   /**
    * Resolver for the button element's props.
    * @param externalProps Additional props for the input element
    * @returns Props that should be spread on the button element
    */
   getButtonProps: (
-    externalProps?: React.HTMLAttributes<HTMLButtonElement>,
-  ) => UseSwitchButtonElementProps;
+    externalProps?: React.ComponentPropsWithRef<'button'>,
+  ) => React.ComponentPropsWithRef<'button'>;
 }

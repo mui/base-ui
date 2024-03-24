@@ -23,15 +23,15 @@
     "checked": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getButtonProps": {
       "type": {
-        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonElementProps",
-        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLButtonElement&gt;) =&gt; UseSwitchButtonElementProps"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
       },
       "required": true
     },
     "getInputProps": {
       "type": {
-        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputElementProps",
-        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLInputElement&gt;) =&gt; UseSwitchInputElementProps"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
       },
       "required": true
     }
