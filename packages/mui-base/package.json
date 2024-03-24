@@ -50,7 +50,7 @@
   "devDependencies": {
     "@mui/internal-babel-macros": "^1.0.1",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
-    "@testing-library/react": "^14.2.1",
+    "@testing-library/react": "^14.2.2",
     "@testing-library/user-event": "^14.5.2",
     "@types/chai": "^4.3.12",
     "@types/chai-dom": "^1.11.3",
