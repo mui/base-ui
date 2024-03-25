@@ -72,6 +72,10 @@
       "allowedVersions": "< 19.0.0"
     },
     {
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    {
       "groupName": "bundling fixtures",
       "matchPaths": ["test/bundling/fixtures/**/package.json"],
       "schedule": "every 6 months on the first day of the month"
