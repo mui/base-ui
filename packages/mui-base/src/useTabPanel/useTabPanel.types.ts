@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 export interface UseTabPanelParameters {
   /**
    * The id of the TabPanel.
@@ -17,7 +19,9 @@ interface UseTabPanelRootSlotOwnProps {
   'aria-labelledby'?: string;
   hidden?: boolean;
   id?: string;
-  ref: React.Ref<HTMLElement>;
+  ref: React.RefCallback<HTMLElement> | null;
+  role: React.AriaRole;
+  tabIndex: number;
 }
 
 export type UseTabPanelRootSlotProps<ExternalProps = {}> = ExternalProps &
@@ -36,5 +40,5 @@ export interface UseTabPanelReturnValue {
   getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
     externalProps?: ExternalProps,
   ) => UseTabPanelRootSlotProps<ExternalProps>;
-  rootRef: React.Ref<HTMLElement>;
+  rootRef: React.RefCallback<HTMLElement> | null;
 }

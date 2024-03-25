@@ -24,7 +24,7 @@ const TabPanel = React.forwardRef(function TabPanel(
   const { children, className: classNameProp, value, render: renderProp, ...other } = props;
   const render = renderProp ?? defaultRenderFunctions.div;
 
-  const { hidden, getRootProps } = useTabPanel(props);
+  const { hidden, getRootProps, rootRef } = useTabPanel({ ...props, rootRef: forwardedRef });
 
   const ownerState: TabPanelOwnerState = {
     hidden,
@@ -37,7 +37,7 @@ const TabPanel = React.forwardRef(function TabPanel(
     ...styleHooks,
     ...other,
     className,
-    ref: forwardedRef,
+    ref: rootRef,
     children: hidden ? undefined : children,
   };
 
