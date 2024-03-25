@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import {
-  unstable_useControlled as useControlled,
-  unstable_useForkRef as useForkRef,
-  unstable_useIsFocusVisible as useIsFocusVisible,
-} from '@mui/utils';
+import { useControlled } from '../utils/useControlled';
 import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
+import { useForkRef } from '../utils/useForkRef';
+import { visuallyHidden } from '../utils/visuallyHidden';
 
 /**
  * The basic building block for creating custom switches.
@@ -18,18 +16,20 @@ import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
  *
  * - [useSwitch API](https://mui.com/base-ui/react-switch/hooks-api/#use-switch)
  */
-export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
+export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
   const {
     checked: checkedProp,
     defaultChecked,
     disabled,
-    onBlur,
+    name,
     onChange,
-    onFocus,
-    onFocusVisible,
     readOnly,
     required,
-  } = props;
+    inputRef: externalInputRef,
+  } = params;
+
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const handleInputRef = useForkRef(inputRef, externalInputRef);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -38,92 +38,58 @@ export function useSwitch(props: UseSwitchParameters): UseSwitchReturnValue {
     state: 'checked',
   });
 
-  const createHandleInputChange =
-    (otherProps: React.InputHTMLAttributes<HTMLInputElement>) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      // Workaround for https://github.com/facebook/react/issues/9023
-      if (event.nativeEvent.defaultPrevented) {
-        return;
-      }
+  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = React.useCallback(
+    (otherProps = {}) => ({
+      type: 'button',
+      role: 'switch',
+      'aria-checked': checked,
+      'aria-disabled': disabled,
+      'aria-readonly': readOnly,
+      ...otherProps,
+      onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+        otherProps.onClick?.(event);
+        if (event.defaultPrevented || readOnly) {
+          return;
+        }
 
-      setCheckedState(event.target.checked);
-      onChange?.(event);
-      otherProps.onChange?.(event);
-    };
+        inputRef.current?.click();
+      },
+    }),
+    [checked, disabled, readOnly],
+  );
 
-  const {
-    isFocusVisibleRef,
-    onBlur: handleBlurVisible,
-    onFocus: handleFocusVisible,
-    ref: focusVisibleRef,
-  } = useIsFocusVisible();
+  const getInputProps: UseSwitchReturnValue['getInputProps'] = React.useCallback(
+    (otherProps = {}) => ({
+      checked,
+      disabled,
+      name,
+      required,
+      style: visuallyHidden,
+      tabIndex: -1,
+      type: 'checkbox',
+      'aria-hidden': true,
+      ...otherProps,
+      ref: handleInputRef,
+      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Workaround for https://github.com/facebook/react/issues/9023
+        if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
 
-  const [focusVisible, setFocusVisible] = React.useState(false);
-  if (disabled && focusVisible) {
-    setFocusVisible(false);
-  }
+        setCheckedState(event.target.checked);
+        onChange?.(event);
+        otherProps.onChange?.(event);
+      },
+    }),
+    [checked, disabled, name, required, handleInputRef, onChange, setCheckedState],
+  );
 
-  React.useEffect(() => {
-    isFocusVisibleRef.current = focusVisible;
-  }, [focusVisible, isFocusVisibleRef]);
-
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-  const createHandleFocus =
-    (otherProps: React.InputHTMLAttributes<HTMLInputElement>) =>
-    (event: React.FocusEvent<HTMLInputElement>) => {
-      // Fix for https://github.com/facebook/react/issues/7769
-      if (!inputRef.current) {
-        inputRef.current = event.currentTarget;
-      }
-
-      handleFocusVisible(event);
-      if (isFocusVisibleRef.current === true) {
-        setFocusVisible(true);
-        onFocusVisible?.(event);
-      }
-
-      onFocus?.(event);
-      otherProps.onFocus?.(event);
-    };
-
-  const createHandleBlur =
-    (otherProps: React.InputHTMLAttributes<HTMLInputElement>) =>
-    (event: React.FocusEvent<HTMLInputElement>) => {
-      handleBlurVisible(event);
-
-      if (isFocusVisibleRef.current === false) {
-        setFocusVisible(false);
-      }
-
-      onBlur?.(event);
-      otherProps.onBlur?.(event);
-    };
-
-  const handleInputRef = useForkRef(focusVisibleRef, inputRef);
-
-  const getInputProps: UseSwitchReturnValue['getInputProps'] = (otherProps = {}) => ({
-    checked: checkedProp,
-    defaultChecked,
-    disabled,
-    readOnly,
-    ref: handleInputRef,
-    required,
-    type: 'checkbox',
-    role: 'switch',
-    'aria-checked': checkedProp,
-    ...otherProps,
-    onChange: createHandleInputChange(otherProps),
-    onFocus: createHandleFocus(otherProps),
-    onBlur: createHandleBlur(otherProps),
-  });
-
-  return {
-    checked,
-    disabled: Boolean(disabled),
-    focusVisible,
-    getInputProps,
-    inputRef: handleInputRef,
-    readOnly: Boolean(readOnly),
-  };
+  return React.useMemo(
+    () => ({
+      checked,
+      getButtonProps,
+      getInputProps,
+    }),
+    [checked, getButtonProps, getInputProps],
+  );
 }
