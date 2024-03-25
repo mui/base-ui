@@ -65,7 +65,7 @@ describe('<Tabs />', () => {
 
     it('sets the aria-labelledby attribute on tab panels to the corresponding tab id', () => {
       const { getAllByRole } = render(
-        <Tabs>
+        <Tabs defaultValue="tab-0">
           <TabsList>
             <Tab value="tab-0" />
             <Tab value="tab-1" id="explicit-tab-id-1" />
@@ -90,7 +90,7 @@ describe('<Tabs />', () => {
 
     it('sets the aria-controls attribute on tabs to the corresponding tab panel id', () => {
       const { getAllByRole } = render(
-        <Tabs>
+        <Tabs defaultValue="tab-0">
           <TabsList>
             <Tab value="tab-0" />
             <Tab value="tab-1" id="explicit-tab-id-1" />
@@ -720,7 +720,7 @@ describe('<Tabs />', () => {
 
     it('should allow to focus first tab when there are no active tabs', () => {
       const { getAllByRole } = render(
-        <Tabs>
+        <Tabs defaultValue={0}>
           <TabsList>
             <Tab value={0} />
             <Tab value={1} />

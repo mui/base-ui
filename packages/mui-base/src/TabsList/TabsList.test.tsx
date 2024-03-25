@@ -82,7 +82,7 @@ describe('<TabsList />', () => {
 
   it('can be named via `aria-label`', () => {
     const { getByRole } = render(
-      <Tabs>
+      <Tabs defaultValue={0}>
         <TabsList aria-label="string label">
           <Tab value={0} />
         </TabsList>
@@ -96,7 +96,7 @@ describe('<TabsList />', () => {
     const { getByRole } = render(
       <React.Fragment>
         <h3 id="label-id">complex name</h3>
-        <Tabs>
+        <Tabs defaultValue={0}>
           <TabsList aria-labelledby="label-id">
             <Tab value={0} />
           </TabsList>
