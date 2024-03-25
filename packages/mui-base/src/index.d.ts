@@ -1,6 +1,7 @@
 export * from './utils';
 export * from './Badge';
 export * from './Button';
+export * from './Checkbox';
 export * from './ClickAwayListener';
 export * from './composeClasses';
 export * from './Dropdown';
@@ -32,6 +33,7 @@ export * from './Transitions';
 export * from './useAutocomplete';
 export * from './useBadge';
 export * from './useButton';
+export * from './useCheckbox';
 export * from './useDropdown';
 export * from './useInput';
 export * from './useMenu';

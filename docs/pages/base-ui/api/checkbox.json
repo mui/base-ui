@@ -1,0 +1,34 @@
+{
+  "props": {
+    "checked": { "type": { "name": "bool" }, "default": "undefined" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultChecked": { "type": { "name": "bool" }, "default": "false" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "indeterminate": { "type": { "name": "bool" }, "default": "false" },
+    "name": { "type": { "name": "string" }, "default": "undefined" },
+    "onChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.ChangeEvent<HTMLInputElement>) => void",
+        "describedArgs": ["event"]
+      }
+    },
+    "readOnly": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "func" } },
+    "required": { "type": { "name": "bool" }, "default": "false" }
+  },
+  "name": "Checkbox",
+  "imports": [
+    "import { Checkbox } from '@mui/base/Checkbox';",
+    "import { Checkbox } from '@mui/base';"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "Checkbox",
+  "forwardsRefTo": "HTMLButtonElement",
+  "filename": "/packages/mui-base/src/Checkbox/Checkbox.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-checkbox/\">Checkbox</a></li></ul>",
+  "cssComponent": false
+}
