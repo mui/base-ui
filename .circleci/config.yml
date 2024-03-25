@@ -67,11 +67,16 @@ commands:
         type: boolean
         default: false
         description: 'Set to true if you intend to any browser (for example with playwright).'
+      react-version:
+        description: The version of react to be used
+        type: string
+        default: stable
 
     steps:
       - run:
           name: Resolve React version
           command: |
+            echo 'Using React version: << parameters.react-version >>'
             node scripts/useReactVersion.mjs
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
@@ -98,9 +103,23 @@ commands:
           command: |
             node --version
             pnpm --version
-      - run:
-          name: Install js dependencies
-          command: pnpm install
+      - when:
+          condition:
+            equal: [<< parameters.react-version >>, stable]
+          steps:
+            - run:
+                name: Install JS dependencies
+                command: pnpm install
+      - unless:
+          condition:
+            equal: [<< parameters.react-version >>, stable]
+          steps:
+            - run:
+                name: Install JS dependencies (without frozen lockfile)
+                command: pnpm install --no-frozen-lockfile
+            - run:
+                name: Restore clean working copy
+                command: git restore .
       - when:
           condition: << parameters.browsers >>
           steps:
@@ -120,7 +139,8 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - when:
           # Install can be "dirty" when running with non-default versions of React
           condition:
@@ -142,7 +162,8 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Tests fake browser
           command: pnpm test:coverage:ci
@@ -163,7 +184,8 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Eslint
           command: pnpm eslint:ci
@@ -180,7 +202,8 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: '`pnpm prettier` changes committed?'
           command: pnpm prettier --check
@@ -217,7 +240,8 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Transpile TypeScript demos
           command: pnpm docs:typescript:formatted
@@ -249,7 +273,8 @@ jobs:
             pnpm add typescript@next -d -w
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Tests TypeScript definitions
           command: |
@@ -293,6 +318,7 @@ jobs:
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Tests real browsers
@@ -323,6 +349,7 @@ jobs:
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Tests real browsers
@@ -350,6 +377,7 @@ jobs:
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Run visual regression tests
@@ -366,6 +394,7 @@ jobs:
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run: pnpm benchmark:browser
       - store_artifacts:

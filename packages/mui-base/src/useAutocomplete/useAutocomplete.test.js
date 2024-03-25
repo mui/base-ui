@@ -31,7 +31,12 @@ describe('useAutocomplete', () => {
           {groupedOptions.length > 0 ? (
             <ul {...getListboxProps()}>
               {groupedOptions.map((option, index) => {
-                return <li {...getOptionProps({ option, index })}>{option}</li>;
+                const { key, ...other } = getOptionProps({ option, index });
+                return (
+                  <li key={key} {...other}>
+                    {option}
+                  </li>
+                );
               })}
             </ul>
           ) : null}
@@ -258,7 +263,12 @@ describe('useAutocomplete', () => {
           {groupedOptions.length > 0 ? (
             <ul {...getListboxProps()}>
               {groupedOptions.map((option, index) => {
-                return <li {...getOptionProps({ option, index })}>{option}</li>;
+                const { key, ...other } = getOptionProps({ option, index });
+                return (
+                  <li key={key} {...other}>
+                    {option}
+                  </li>
+                );
               })}
             </ul>
           ) : null}
@@ -267,27 +277,51 @@ describe('useAutocomplete', () => {
     }
 
     const node16ErrorMessage =
-      "Error: Uncaught [TypeError: Cannot read properties of null (reading 'removeAttribute')]";
-    const olderNodeErrorMessage =
-      "Error: Uncaught [TypeError: Cannot read property 'removeAttribute' of null]";
+      "TypeError: Cannot read properties of null (reading 'removeAttribute')";
+    const olderNodeErrorMessage = "TypeError: Cannot read property 'removeAttribute' of null";
 
     const nodeVersion = Number(process.versions.node.split('.')[0]);
     const errorMessage = nodeVersion >= 16 ? node16ErrorMessage : olderNodeErrorMessage;
 
-    const devErrorMessages = [
-      errorMessage,
+    const wrappedErrorMessage = `Error: Uncaught [${errorMessage}]`;
+
+    const react17ErrorMessages = [
+      wrappedErrorMessage,
       'MUI: Unable to find the input element.',
-      errorMessage,
-      // strict effects runs effects twice
-      React.version.startsWith('18') && 'MUI: Unable to find the input element.',
-      React.version.startsWith('18') && errorMessage,
+      wrappedErrorMessage,
       'The above error occurred in the <ul> component',
-      React.version.startsWith('16') && 'The above error occurred in the <ul> component',
+      'The above error occurred in the <Test> component',
+    ];
+
+    const react182ErrorMessages = [
+      wrappedErrorMessage,
+      'MUI: Unable to find the input element.',
+      wrappedErrorMessage,
+      // strict effects runs effects twice
+      'MUI: Unable to find the input element.',
+      wrappedErrorMessage,
+      'The above error occurred in the <ul> component',
       'The above error occurred in the <Test> component',
       // strict effects runs effects twice
-      React.version.startsWith('18') && 'The above error occurred in the <Test> component',
-      React.version.startsWith('16') && 'The above error occurred in the <Test> component',
+      'The above error occurred in the <Test> component',
     ];
+
+    const react183ErrorMessages = [
+      'MUI: Unable to find the input element.',
+      'MUI: Unable to find the input element.',
+      errorMessage,
+      errorMessage,
+      errorMessage,
+    ];
+
+    let devErrorMessages;
+    if (React.version.startsWith('18.3')) {
+      devErrorMessages = react183ErrorMessages;
+    } else if (React.version.startsWith('18')) {
+      devErrorMessages = react182ErrorMessages;
+    } else {
+      devErrorMessages = react17ErrorMessages;
+    }
 
     expect(() => {
       render(
@@ -334,9 +368,8 @@ describe('useAutocomplete', () => {
   });
 
   it('should allow tuples or arrays as value when multiple=false', () => {
+    const defaultValue = ['bar'];
     function Test() {
-      const defaultValue = ['bar'];
-
       const { getClearProps, getInputProps } = useAutocomplete({
         defaultValue,
         disableClearable: false,
