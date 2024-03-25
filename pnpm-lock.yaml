@@ -557,8 +557,8 @@ importers:
         specifier: ^3.2.3
         version: 3.2.3
       '@types/chai':
-        specifier: ^4.3.12
-        version: 4.3.12
+        specifier: ^4.3.14
+        version: 4.3.14
       '@types/node':
         specifier: ^18.19.24
         version: 18.19.24
@@ -651,8 +651,8 @@ importers:
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@9.3.4)
       '@types/chai':
-        specifier: ^4.3.12
-        version: 4.3.12
+        specifier: ^4.3.14
+        version: 4.3.14
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
@@ -733,8 +733,8 @@ importers:
         specifier: ^9.3.4
         version: 9.3.4
       '@types/chai':
-        specifier: ^4.3.12
-        version: 4.3.12
+        specifier: ^4.3.14
+        version: 4.3.14
       '@types/react':
         specifier: ^18.2.66
         version: 18.2.66
@@ -5103,11 +5103,11 @@ packages:
   /@types/chai-dom@1.11.3:
     resolution: {integrity: sha512-EUEZI7uID4ewzxnU7DJXtyvykhQuwe+etJ1wwOiJyQRTH/ifMWKX+ghiXkxCUvNJ6IQDodf0JXhuP6zZcy2qXQ==}
     dependencies:
-      '@types/chai': 4.3.12
+      '@types/chai': 4.3.14
     dev: true
 
-  /@types/chai@4.3.12:
-    resolution: {integrity: sha512-zNKDHG/1yxm8Il6uCCVsm+dRdEsJlFoDu73X17y09bId6UwoYww+vFBsAcRzl8knM1sab3Dp1VRikFQwDOtDDw==}
+  /@types/chai@4.3.14:
+    resolution: {integrity: sha512-Wj71sXE4Q4AkGdG9Tvq1u/fquNz9EdG4LIJMwVVII7ashjD/8cf8fyIfJAjRr6YcsXnSE8cOGQPq1gqeR8z+3w==}
     dev: true
 
   /@types/cheerio@0.22.35:
