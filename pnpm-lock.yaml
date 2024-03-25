@@ -563,8 +563,8 @@ importers:
         specifier: ^18.19.24
         version: 18.19.24
       '@types/prop-types':
-        specifier: ^15.7.11
-        version: 15.7.11
+        specifier: ^15.7.12
+        version: 15.7.12
       '@types/react':
         specifier: ^18.2.66
         version: 18.2.66
@@ -657,8 +657,8 @@ importers:
         specifier: ^1.11.3
         version: 1.11.3
       '@types/prop-types':
-        specifier: ^15.7.11
-        version: 15.7.11
+        specifier: ^15.7.12
+        version: 15.7.12
       '@types/react':
         specifier: ^18.2.66
         version: 18.2.66
@@ -3557,7 +3557,7 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.24.0
-      '@types/prop-types': 15.7.11
+      '@types/prop-types': 15.7.12
       '@types/react': 18.2.66
       prop-types: 15.8.1
       react: 18.2.0
@@ -5285,8 +5285,8 @@ packages:
   /@types/promise.allsettled@1.0.6:
     resolution: {integrity: sha512-wA0UT0HeT2fGHzIFV9kWpYz5mdoyLxKrTgMdZQM++5h6pYAFH73HXcQhefg24nD1yivUFEn5KU+EF4b+CXJ4Wg==}
 
-  /@types/prop-types@15.7.11:
-    resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
+  /@types/prop-types@15.7.12:
+    resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
 
   /@types/qs@6.9.12:
     resolution: {integrity: sha512-bZcOkJ6uWrL0Qb2NAWKa7TBU+mJHPzhx9jjLL1KHF+XpzEcR7EXHvjbHlGtR/IsP1vyPrehuS6XqkmaePy//mg==}
@@ -5326,7 +5326,7 @@ packages:
   /@types/react@18.2.66:
     resolution: {integrity: sha512-OYTmMI4UigXeFMF/j4uv0lBBEbongSgptPrHBxqME44h9+yNov+oL6Z3ocJKo0WyXR84sQUNeyIp9MRfckvZpg==}
     dependencies:
-      '@types/prop-types': 15.7.11
+      '@types/prop-types': 15.7.12
       '@types/scheduler': 0.16.8
       csstype: 3.1.3
 
