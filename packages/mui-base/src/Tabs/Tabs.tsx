@@ -6,10 +6,7 @@ import { useTabs } from '../useTabs';
 import { TabsProvider } from '../useTabs/TabsProvider';
 import { resolveClassName } from '../utils/resolveClassName';
 import { useTabsStyleHooks } from './useTabsStyleHooks';
-
-function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
-  return <div {...props} />;
-}
+import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 
 /**
  *
@@ -32,11 +29,11 @@ const Tabs = React.forwardRef(function Tabs(
     onChange,
     orientation = 'horizontal',
     render: renderProp,
-    value: valueProp,
+    value,
     ...other
   } = props;
 
-  const render = renderProp ?? defaultRender;
+  const render = renderProp ?? defaultRenderFunctions.div;
 
   const ownerState: TabsOwnerState = {
     orientation,
@@ -46,7 +43,14 @@ const Tabs = React.forwardRef(function Tabs(
   const className = resolveClassName(classNameProp, ownerState);
   const styleHooks = useTabsStyleHooks(ownerState);
 
-  const { contextValue } = useTabs(ownerState);
+  const { contextValue } = useTabs({
+    value,
+    defaultValue,
+    onChange,
+    orientation,
+    direction,
+  });
+
   const rootProps = { ...styleHooks, ...other, className, ref: forwardedRef };
 
   return <TabsProvider value={contextValue}>{render(rootProps, ownerState)}</TabsProvider>;

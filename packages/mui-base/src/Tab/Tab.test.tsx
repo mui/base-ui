@@ -16,6 +16,7 @@ describe('<Tab />', () => {
     getItemState() {
       return { disabled: false, highlighted: false, selected: false, focusable: true, index: 0 };
     },
+    activateOnFocus: true,
   };
 
   describeConformance(<Tab value="1" />, () => ({
