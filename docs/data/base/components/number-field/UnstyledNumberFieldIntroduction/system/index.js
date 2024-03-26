@@ -73,6 +73,7 @@ const grey = {
 
 const NumberField = styled(BaseNumberField)`
   font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 1rem;
 `;
 
 const NumberFieldGroup = styled(BaseNumberField.Group)`
@@ -107,7 +108,7 @@ const NumberFieldScrubArea = styled(BaseNumberField.ScrubArea)`
 `;
 
 const NumberFieldVirtualCursor = styled(BaseNumberField.ScrubAreaCursor)`
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.3));
 `;
 
 const NumberFieldInput = styled(BaseNumberField.Input)`
@@ -115,15 +116,15 @@ const NumberFieldInput = styled(BaseNumberField.Input)`
   z-index: 10;
   align-self: stretch;
   padding: 0.25rem 0.5rem;
-  font-size: 1rem;
   line-height: 1.5;
   border: none;
   background-color: #fff;
   color: ${grey[800]};
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgba(0 0 0 / 0.05);
   overflow: hidden;
   max-width: 150px;
-  font: inherit;
+  font-family: inherit;
+  font-size: inherit;
 
   &:focus {
     outline: none;
@@ -150,21 +151,10 @@ const buttonStyles = css`
   padding: 0.5rem 0.75rem;
   flex: 1;
   align-self: stretch;
-  font-family: inherit;
   background-color: ${grey[50]};
   color: ${grey[700]};
   margin: 0;
-  font-family: math;
-
-  &:hover:not([disabled]) {
-    background-color: ${grey[100]};
-    border-color: ${grey[200]};
-    color: ${grey[800]};
-  }
-
-  &:active:not([disabled]) {
-    background-color: ${grey[200]};
-  }
+  font-family: math, sans-serif;
 
   &[disabled] {
     opacity: 0.4;
@@ -176,6 +166,23 @@ const buttonStyles = css`
     color: ${grey[300]};
     border-color: ${grey[700]};
 
+    &[disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &:hover:not([disabled]) {
+    background-color: ${grey[100]};
+    border-color: ${grey[200]};
+    color: ${grey[800]};
+  }
+
+  &:active:not([disabled]) {
+    background-color: ${grey[200]};
+  }
+
+  .dark {
     &:hover:not([disabled]) {
       background-color: ${grey[800]};
       border-color: ${grey[700]};
@@ -184,11 +191,6 @@ const buttonStyles = css`
 
     &:active:not([disabled]) {
       background-color: ${grey[700]};
-    }
-
-    &[disabled] {
-      opacity: 0.4;
-      cursor: not-allowed;
     }
   }
 `;
