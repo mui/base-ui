@@ -7,7 +7,7 @@
   },
   "name": "TabsList",
   "imports": [
-    "import { TabsList } from '@mui/base/TabsList';",
+    "import { TabsList } from '@mui/base/Tabs';",
     "import { TabsList } from '@mui/base';"
   ],
   "classes": [],
@@ -15,7 +15,7 @@
   "themeDefaultProps": true,
   "muiName": "TabsList",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/TabsList/TabsList.tsx",
+  "filename": "/packages/mui-base/src/Tabs/TabsList/TabsList.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false
