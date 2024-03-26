@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { fireEvent } from '@testing-library/react';
 import { NumberField as NumberFieldBase, type NumberFieldProps } from '@mui/base/NumberField';
 import { describeConformance } from '../../test/describeConformance';
@@ -180,6 +180,7 @@ describe('<NumberField />', () => {
   describe('prop: min', () => {
     it('prevents the raw value from going below the `min` prop', () => {
       const fn = spy();
+
       function App() {
         const [value, setValue] = React.useState<number | null>(5);
         return (
@@ -195,14 +196,17 @@ describe('<NumberField />', () => {
       }
 
       render(<App />);
+
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '4' } });
+
       expect(input).to.have.value('4');
       expect(fn.firstCall.args[0]).to.equal(5);
     });
 
     it('allows the value to go above the `min` prop', () => {
       const fn = spy();
+
       function App() {
         const [value, setValue] = React.useState<number | null>(5);
         return (
@@ -218,8 +222,10 @@ describe('<NumberField />', () => {
       }
 
       render(<App />);
+
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '6' } });
+
       expect(input).to.have.value('6');
     });
   });
@@ -227,6 +233,7 @@ describe('<NumberField />', () => {
   describe('prop: max', () => {
     it('prevents the value from going above the `max` prop', () => {
       const fn = spy();
+
       function App() {
         const [value, setValue] = React.useState<number | null>(5);
         return (
@@ -242,14 +249,17 @@ describe('<NumberField />', () => {
       }
 
       render(<App />);
+
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '6' } });
+
       expect(input).to.have.value('6');
       expect(fn.firstCall.args[0]).to.equal(5);
     });
 
     it('allows the value to go below the `max` prop', () => {
       const fn = spy();
+
       function App() {
         const [value, setValue] = React.useState<number | null>(5);
         return (
@@ -265,8 +275,10 @@ describe('<NumberField />', () => {
       }
 
       render(<App />);
+
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '4' } });
+
       expect(input).to.have.value('4');
       expect(fn.firstCall.args[0]).to.equal(4);
     });
@@ -315,7 +327,7 @@ describe('<NumberField />', () => {
     it('should increment the value by the default `largeStep` prop of 10 while holding Shift', () => {
       render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(window, { key: 'Shift', shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('20');
     });
@@ -323,7 +335,7 @@ describe('<NumberField />', () => {
     it('should decrement the value by the default `largeStep` prop of 10 while holding Shift', () => {
       render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(window, { key: 'Shift', shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('0');
     });
@@ -331,7 +343,7 @@ describe('<NumberField />', () => {
     it('should use explicit `largeStep` value if provided while holding Shift', () => {
       render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(window, { key: 'Shift', shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('10');
     });
@@ -355,20 +367,22 @@ describe('<NumberField />', () => {
           }}
         >
           <NumberField name="test-number-field" />
-          <button type="submit">Submit</button>
+          <button type="submit" data-testid="submit">
+            Submit
+          </button>
         </form>,
       );
 
-      const numberField = screen.getByRole('input');
-      const submitButton = screen.getByRole('button');
+      const numberField = screen.getByRole('textbox');
+      const submitButton = screen.getByTestId('submit');
 
-      submitButton.click();
+      act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=');
 
       fireEvent.change(numberField, { target: { value: '5' } });
 
-      submitButton.click();
+      act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
     });
