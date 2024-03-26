@@ -6,7 +6,7 @@
   },
   "name": "TabPanel",
   "imports": [
-    "import { TabPanel } from '@mui/base/TabPanel';",
+    "import { TabPanel } from '@mui/base/Tabs';",
     "import { TabPanel } from '@mui/base';"
   ],
   "classes": [],
@@ -14,7 +14,7 @@
   "themeDefaultProps": true,
   "muiName": "TabPanel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/TabPanel/TabPanel.tsx",
+  "filename": "/packages/mui-base/src/Tabs/TabPanel/TabPanel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false
