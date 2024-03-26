@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
+import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
 
 export type TabOwnerState = {
   active: boolean;

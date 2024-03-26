@@ -2,10 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { Tab } from '@base_ui/react/Tab';
 import { Tabs, TabsProps } from '@base_ui/react/Tabs';
-import { TabsList } from '@base_ui/react/TabsList';
-import { TabPanel } from '@base_ui/react/TabPanel';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<Tabs />', () => {
@@ -34,9 +31,9 @@ describe('<Tabs />', () => {
       const { getAllByRole } = render(
         <Tabs value={0}>
           {null}
-          <TabsList>
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
       expect(getAllByRole('tab')).to.have.lengthOf(1);
@@ -49,10 +46,10 @@ describe('<Tabs />', () => {
     it('puts the selected child in tab order', () => {
       const { getAllByRole, setProps } = render(
         <Tabs value={1}>
-          <TabsList>
-            <Tab value={0} />
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -66,16 +63,16 @@ describe('<Tabs />', () => {
     it('sets the aria-labelledby attribute on tab panels to the corresponding tab id', () => {
       const { getAllByRole } = render(
         <Tabs defaultValue="tab-0">
-          <TabsList>
-            <Tab value="tab-0" />
-            <Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tab />
-            <Tab id="explicit-tab-id-3" />
-          </TabsList>
-          <TabPanel value="tab-1" />
-          <TabPanel value="tab-0" />
-          <TabPanel />
-          <TabPanel />
+          <Tabs.List>
+            <Tabs.Tab value="tab-0" />
+            <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
+            <Tabs.Tab />
+            <Tabs.Tab id="explicit-tab-id-3" />
+          </Tabs.List>
+          <Tabs.Panel value="tab-1" />
+          <Tabs.Panel value="tab-0" />
+          <Tabs.Panel />
+          <Tabs.Panel />
         </Tabs>,
       );
 
@@ -91,16 +88,16 @@ describe('<Tabs />', () => {
     it('sets the aria-controls attribute on tabs to the corresponding tab panel id', () => {
       const { getAllByRole } = render(
         <Tabs defaultValue="tab-0">
-          <TabsList>
-            <Tab value="tab-0" />
-            <Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tab />
-            <Tab id="explicit-tab-id-3" />
-          </TabsList>
-          <TabPanel value="tab-1" />
-          <TabPanel value="tab-0" />
-          <TabPanel />
-          <TabPanel />
+          <Tabs.List>
+            <Tabs.Tab value="tab-0" />
+            <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
+            <Tabs.Tab />
+            <Tabs.Tab id="explicit-tab-id-3" />
+          </Tabs.List>
+          <Tabs.Panel value="tab-1" />
+          <Tabs.Panel value="tab-0" />
+          <Tabs.Panel />
+          <Tabs.Panel />
         </Tabs>,
       );
 
@@ -117,10 +114,10 @@ describe('<Tabs />', () => {
   describe('prop: value', () => {
     const tabs = (
       <Tabs value={1}>
-        <TabsList>
-          <Tab value={0} />
-          <Tab value={1} />
-        </TabsList>
+        <Tabs.List>
+          <Tabs.Tab value={0} />
+          <Tabs.Tab value={1} />
+        </Tabs.List>
       </Tabs>
     );
 
@@ -137,10 +134,10 @@ describe('<Tabs />', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
         <Tabs value={0} onChange={handleChange}>
-          <TabsList>
-            <Tab value={0} />
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -153,10 +150,10 @@ describe('<Tabs />', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
         <Tabs value={0} onChange={handleChange}>
-          <TabsList>
-            <Tab value={0} />
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -168,10 +165,10 @@ describe('<Tabs />', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
         <Tabs value={0} onChange={handleChange}>
-          <TabsList>
-            <Tab value={0} />
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
       const [firstTab] = getAllByRole('tab');
@@ -190,10 +187,10 @@ describe('<Tabs />', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
         <Tabs value={1} onChange={handleChange}>
-          <TabsList activateOnFocus={false}>
-            <Tab value={0} />
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -211,9 +208,9 @@ describe('<Tabs />', () => {
     it('does not add aria-orientation by default', () => {
       render(
         <Tabs value={0}>
-          <TabsList>
+          <Tabs.List>
             <Tabs />
-          </TabsList>
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -223,9 +220,9 @@ describe('<Tabs />', () => {
     it('adds the proper aria-orientation when vertical', () => {
       render(
         <Tabs value={0} orientation="vertical">
-          <TabsList>
+          <Tabs.List>
             <Tabs />
-          </TabsList>
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -255,11 +252,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={0}
                 >
-                  <TabsList activateOnFocus={false}>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List activateOnFocus={false}>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
@@ -286,11 +283,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={1}
                 >
-                  <TabsList activateOnFocus={false}>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List activateOnFocus={false}>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
@@ -319,11 +316,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={0}
                 >
-                  <TabsList>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
@@ -351,11 +348,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={1}
                 >
-                  <TabsList>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
@@ -382,11 +379,11 @@ describe('<Tabs />', () => {
                 orientation={orientation as TabsProps['orientation']}
                 value={2}
               >
-                <TabsList>
-                  <Tab value={0} />
-                  <Tab value={1} disabled />
-                  <Tab value={2} />
-                </TabsList>
+                <Tabs.List>
+                  <Tabs.Tab value={0} />
+                  <Tabs.Tab value={1} disabled />
+                  <Tabs.Tab value={2} />
+                </Tabs.List>
               </Tabs>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
@@ -415,11 +412,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={2}
                 >
-                  <TabsList activateOnFocus={false}>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List activateOnFocus={false}>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
@@ -446,11 +443,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={1}
                 >
-                  <TabsList activateOnFocus={false}>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List activateOnFocus={false}>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
@@ -479,11 +476,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={2}
                 >
-                  <TabsList>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
@@ -511,11 +508,11 @@ describe('<Tabs />', () => {
                   orientation={orientation as TabsProps['orientation']}
                   value={1}
                 >
-                  <TabsList>
-                    <Tab value={0} />
-                    <Tab value={1} />
-                    <Tab value={2} />
-                  </TabsList>
+                  <Tabs.List>
+                    <Tabs.Tab value={0} />
+                    <Tabs.Tab value={1} />
+                    <Tabs.Tab value={2} />
+                  </Tabs.List>
                 </Tabs>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
@@ -542,11 +539,11 @@ describe('<Tabs />', () => {
                 orientation={orientation as TabsProps['orientation']}
                 value={0}
               >
-                <TabsList>
-                  <Tab value={0} />
-                  <Tab value={1} disabled />
-                  <Tab value={2} />
-                </TabsList>
+                <Tabs.List>
+                  <Tabs.Tab value={0} />
+                  <Tabs.Tab value={1} disabled />
+                  <Tabs.Tab value={2} />
+                </Tabs.List>
               </Tabs>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
@@ -571,11 +568,11 @@ describe('<Tabs />', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
-              <TabsList activateOnFocus={false}>
-                <Tab value={0} />
-                <Tab value={1} />
-                <Tab value={2} />
-              </TabsList>
+              <Tabs.List activateOnFocus={false}>
+                <Tabs.Tab value={0} />
+                <Tabs.Tab value={1} />
+                <Tabs.Tab value={2} />
+              </Tabs.List>
             </Tabs>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
@@ -596,11 +593,11 @@ describe('<Tabs />', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
-              <TabsList>
-                <Tab value={0} />
-                <Tab value={1} />
-                <Tab value={2} />
-              </TabsList>
+              <Tabs.List>
+                <Tabs.Tab value={0} />
+                <Tabs.Tab value={1} />
+                <Tabs.Tab value={2} />
+              </Tabs.List>
             </Tabs>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
@@ -621,11 +618,11 @@ describe('<Tabs />', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs onKeyDown={handleKeyDown} value={2}>
-              <TabsList>
-                <Tab value={0} disabled />
-                <Tab value={1} />
-                <Tab value={2} />
-              </TabsList>
+              <Tabs.List>
+                <Tabs.Tab value={0} disabled />
+                <Tabs.Tab value={1} />
+                <Tabs.Tab value={2} />
+              </Tabs.List>
             </Tabs>,
           );
           const [, secondTab, lastTab] = getAllByRole('tab');
@@ -647,11 +644,11 @@ describe('<Tabs />', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
-              <TabsList activateOnFocus={false}>
-                <Tab value={0} />
-                <Tab value={1} />
-                <Tab value={2} />
-              </TabsList>
+              <Tabs.List activateOnFocus={false}>
+                <Tabs.Tab value={0} />
+                <Tabs.Tab value={1} />
+                <Tabs.Tab value={2} />
+              </Tabs.List>
             </Tabs>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
@@ -672,11 +669,11 @@ describe('<Tabs />', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
-              <TabsList>
-                <Tab value={0} />
-                <Tab value={1} />
-                <Tab value={2} />
-              </TabsList>
+              <Tabs.List>
+                <Tabs.Tab value={0} />
+                <Tabs.Tab value={1} />
+                <Tabs.Tab value={2} />
+              </Tabs.List>
             </Tabs>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
@@ -697,11 +694,11 @@ describe('<Tabs />', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs onKeyDown={handleKeyDown} value={0}>
-              <TabsList>
-                <Tab value={0} />
-                <Tab value={1} />
-                <Tab value={2} disabled />
-              </TabsList>
+              <Tabs.List>
+                <Tabs.Tab value={0} />
+                <Tabs.Tab value={1} />
+                <Tabs.Tab value={2} disabled />
+              </Tabs.List>
             </Tabs>,
           );
           const [firstTab, secondTab] = getAllByRole('tab');
@@ -721,10 +718,10 @@ describe('<Tabs />', () => {
     it('should allow to focus first tab when there are no active tabs', () => {
       const { getAllByRole } = render(
         <Tabs defaultValue={0}>
-          <TabsList>
-            <Tab value={0} />
-            <Tab value={1} />
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
         </Tabs>,
       );
 

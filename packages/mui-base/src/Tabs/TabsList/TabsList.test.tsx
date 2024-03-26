@@ -1,15 +1,13 @@
 import * as React from 'react';
-import { act, createRenderer } from '@mui/internal-test-utils';
-import { Tab } from '@base_ui/react/Tab';
-import { Tabs, TabsContext } from '@base_ui/react/Tabs';
-import { TabsList } from '@base_ui/react/TabsList';
 import { expect } from 'chai';
-import { describeConformance } from '../../test/describeConformance';
+import { act, createRenderer } from '@mui/internal-test-utils';
+import { Tabs, TabsContext } from '@base_ui/react/Tabs';
+import { describeConformance } from '../../../test/describeConformance';
 
-describe('<TabsList />', () => {
+describe('<Tabs.List />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<TabsList />, () => ({
+  describeConformance(<Tabs.List />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
@@ -38,11 +36,11 @@ describe('<TabsList />', () => {
     it('sets the aria-selected attribute on the selected tab', () => {
       const { getByText } = render(
         <Tabs defaultValue={1}>
-          <TabsList>
-            <Tab value={1}>Tab 1</Tab>
-            <Tab value={2}>Tab 2</Tab>
-            <Tab value={3}>Tab 3</Tab>
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+            <Tabs.Tab value={3}>Tab 3</Tabs.Tab>
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -83,9 +81,9 @@ describe('<TabsList />', () => {
   it('can be named via `aria-label`', () => {
     const { getByRole } = render(
       <Tabs defaultValue={0}>
-        <TabsList aria-label="string label">
-          <Tab value={0} />
-        </TabsList>
+        <Tabs.List aria-label="string label">
+          <Tabs.Tab value={0} />
+        </Tabs.List>
       </Tabs>,
     );
 
@@ -97,9 +95,9 @@ describe('<TabsList />', () => {
       <React.Fragment>
         <h3 id="label-id">complex name</h3>
         <Tabs defaultValue={0}>
-          <TabsList aria-labelledby="label-id">
-            <Tab value={0} />
-          </TabsList>
+          <Tabs.List aria-labelledby="label-id">
+            <Tabs.Tab value={0} />
+          </Tabs.List>
         </Tabs>
       </React.Fragment>,
     );

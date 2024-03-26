@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Tab } from '@base_ui/react/Tab';
-import { TabsListProvider, TabsListProviderValue } from '../useTabsList';
-import { TabsContext } from '../Tabs';
-import { describeConformance } from '../../test/describeConformance';
+import { Tabs, TabsContext } from '@base_ui/react/Tabs';
+import { TabsListProvider, TabsListProviderValue } from '@base_ui/react/useTabsList';
+import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Tab />', () => {
+describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
 
   const testTabsListContext: TabsListProviderValue = {
@@ -19,7 +18,7 @@ describe('<Tab />', () => {
     activateOnFocus: true,
   };
 
-  describeConformance(<Tab value="1" />, () => ({
+  describeConformance(<Tabs.Tab value="1" />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
