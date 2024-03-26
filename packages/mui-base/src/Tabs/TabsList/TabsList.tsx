@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabsListOwnerState, TabsListProps } from './TabsList.types';
-import { useTabsList } from '../useTabsList';
-import { TabsListProvider } from '../useTabsList/TabsListProvider';
-import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
-import { resolveClassName } from '../utils/resolveClassName';
+import { useTabsList } from '../../useTabsList';
+import { TabsListProvider } from '../../useTabsList/TabsListProvider';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { resolveClassName } from '../../utils/resolveClassName';
 import { useTabsListStyleHooks } from './useTabsListStyleHooks';
 
 /**

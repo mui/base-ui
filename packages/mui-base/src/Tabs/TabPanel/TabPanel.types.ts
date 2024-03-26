@@ -1,4 +1,4 @@
-import { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
+import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
 
 export type TabPanelOwnerState = {
   hidden: boolean;

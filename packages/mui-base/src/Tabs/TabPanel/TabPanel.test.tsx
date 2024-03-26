@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { TabPanel } from '@mui/base/TabPanel';
-import { TabsProvider, TabsProviderValue } from '../useTabs';
-import { describeConformance } from '../../test/describeConformance';
+import { Tabs } from '@mui/base/Tabs';
+import { TabsProvider, TabsProviderValue } from '@mui/base/useTabs';
+import { describeConformance } from '../../../test/describeConformance';
 
-describe('<TabPanel />', () => {
+describe('<Tabs.Panel />', () => {
   const { render } = createRenderer();
 
   const tabsProviderDefaultValue: TabsProviderValue = {
@@ -20,7 +20,7 @@ describe('<TabPanel />', () => {
     orientation: 'horizontal',
   };
 
-  describeConformance(<TabPanel value="1" />, () => ({
+  describeConformance(<Tabs.Panel value="1" />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(

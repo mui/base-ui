@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
-import { useTabsContext } from '../Tabs';
+import { useTabsContext } from '../Tabs/TabsContext';
 import { UseTabParameters, UseTabReturnValue, UseTabRootSlotProps } from './useTab.types';
 import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { useCompoundItem } from '../useCompound';
@@ -9,7 +9,7 @@ import { useListItem } from '../useList';
 import { useButton } from '../useButton';
 import { TabMetadata } from '../useTabs';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
-import { useTabsListContext } from '../TabsList/TabsListContext';
+import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 
 function tabValueGenerator(otherTabValues: Set<string | number>) {
   return otherTabValues.size;
