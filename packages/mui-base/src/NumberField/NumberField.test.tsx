@@ -169,6 +169,14 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('prop: name', () => {
+    it('should set the name attribute on the input', () => {
+      render(<NumberField name="test" />);
+      const input = screen.getByRole('textbox');
+      expect(input).to.have.attribute('name', 'test');
+    });
+  });
+
   describe('prop: min', () => {
     it('prevents the raw value from going below the `min` prop', () => {
       const fn = spy();
@@ -213,6 +221,156 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '6' } });
       expect(input).to.have.value('6');
+    });
+  });
+
+  describe('prop: max', () => {
+    it('prevents the value from going above the `max` prop', () => {
+      const fn = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(5);
+        return (
+          <NumberField
+            value={value}
+            onChange={(v) => {
+              fn(v);
+              setValue(v);
+            }}
+            max={5}
+          />
+        );
+      }
+
+      render(<App />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '6' } });
+      expect(input).to.have.value('6');
+      expect(fn.firstCall.args[0]).to.equal(5);
+    });
+
+    it('allows the value to go below the `max` prop', () => {
+      const fn = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(5);
+        return (
+          <NumberField
+            value={value}
+            onChange={(v) => {
+              fn(v);
+              setValue(v);
+            }}
+            max={5}
+          />
+        );
+      }
+
+      render(<App />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '4' } });
+      expect(input).to.have.value('4');
+      expect(fn.firstCall.args[0]).to.equal(4);
+    });
+  });
+
+  describe('prop: step', () => {
+    it('defaults to 1', () => {
+      render(<NumberField defaultValue={5} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.click(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('6');
+    });
+
+    it('should increment the value by the `step` prop', () => {
+      render(<NumberField defaultValue={4} step={2} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.click(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('6');
+    });
+
+    it('should snap when incrementing to the nearest multiple of the `step` prop', () => {
+      render(<NumberField defaultValue={5} step={2} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '6' } });
+      fireEvent.blur(input);
+      expect(input).to.have.value('6');
+    });
+
+    it('should decrement the value by the `step` prop', () => {
+      render(<NumberField defaultValue={6} step={2} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.click(screen.getByLabelText('Decrease'));
+      expect(input).to.have.value('4');
+    });
+
+    it('should snap when decrementing to the nearest multiple of the `step` prop', () => {
+      render(<NumberField defaultValue={5} step={2} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '4' } });
+      fireEvent.blur(input);
+      expect(input).to.have.value('4');
+    });
+  });
+
+  describe('prop: largeStep', () => {
+    it('should increment the value by the default `largeStep` prop of 10 while holding Shift', () => {
+      render(<NumberField defaultValue={5} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('20');
+    });
+
+    it('should decrement the value by the default `largeStep` prop of 10 while holding Shift', () => {
+      render(<NumberField defaultValue={6} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Decrease'));
+      expect(input).to.have.value('0');
+    });
+
+    it('should use explicit `largeStep` value if provided while holding Shift', () => {
+      render(<NumberField defaultValue={5} largeStep={5} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('10');
+    });
+  });
+
+  describe('form handling', () => {
+    it('should include the input value in the form submission', function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // FormData is not available in JSDOM
+        this.skip();
+      }
+
+      let stringifiedFormData = '';
+
+      render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            stringifiedFormData = new URLSearchParams(formData as any).toString();
+          }}
+        >
+          <NumberField name="test-number-field" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const numberField = screen.getByRole('input');
+      const submitButton = screen.getByRole('button');
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-number-field=');
+
+      fireEvent.change(numberField, { target: { value: '5' } });
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-number-field=5');
     });
   });
 });
