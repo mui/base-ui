@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useControlled } from '../utils/useControlled';
-import type { NumberFieldProps, ScrubAreaHandle } from '../NumberField';
+import type { NumberFieldProps } from '../NumberField';
 import { useLatestRef } from '../utils/useLatestRef';
 import { defineProps } from '../utils/defineProps';
 import type { UseNumberFieldReturnValue } from './useNumberField.types';
 import { ownerDocument, ownerWindow } from '../utils/owner';
 import { useId } from '../utils/useId';
-import { isIOS, isWebKit } from '../utils/detectBrowser';
+import { isIOS } from '../utils/detectBrowser';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { formatNumber } from '../NumberField/utils/format';
 import { toValidatedNumber } from '../NumberField/utils/validate';
@@ -18,17 +18,19 @@ import {
   parseNumber,
 } from '../NumberField/utils/parse';
 import { useForcedRerendering } from '../utils/useForcedRerendering';
+import { useScrub } from './useScrub';
+import {
+  CHANGE_VALUE_TICK_DELAY,
+  DEFAULT_STEP,
+  MAX_POINTER_MOVES_AFTER_TOUCH,
+  SCROLLING_POINTER_MOVE_DISTANCE,
+  START_AUTO_CHANGE_DELAY,
+  TOUCH_TIMEOUT,
+} from './constants';
 
 function handleGlobalContextMenu(event: Event) {
   event.preventDefault();
 }
-
-const CHANGE_VALUE_TICK_DELAY = 60;
-const START_AUTO_CHANGE_DELAY = 400;
-const TOUCH_TIMEOUT = 50;
-const MAX_POINTER_MOVES_AFTER_TOUCH = 3;
-const SCROLLING_POINTER_MOVE_DISTANCE = 8;
-const DEFAULT_STEP = 1;
 
 /**
  *
@@ -83,17 +85,13 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const formatOptionsRef = useLatestRef(format);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
-  const scrubHandleRef = React.useRef<ScrubAreaHandle | null>(null);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
   const intentionalTouchCheckTimeoutRef = React.useRef(-1);
-  const avoidFlickerTimeoutRef = React.useRef(-1);
   const isPressedRef = React.useRef(false);
   const isHoldingShiftRef = React.useRef(false);
   const isHoldingMetaRef = React.useRef(false);
-  const isScrubbingRef = React.useRef(false);
   const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
@@ -117,7 +115,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   // When scrubbing gets clamped, we want to keep the raw value to be able to ensure changing scrub
   // direction only changes the value once the pointer moves past the point at which the value
   // started being clamped.
-  const latestValueRef = useLatestRef(value);
   const rawValueRef = React.useRef(value);
 
   const isMin = value != null && value <= minWithDefault;
@@ -151,7 +148,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   });
 
   const stopAutoChange = useEventCallback(() => {
-    clearTimeout(avoidFlickerTimeoutRef.current);
     clearTimeout(intentionalTouchCheckTimeoutRef.current);
     clearTimeout(startTickTimeoutRef.current);
     clearInterval(tickIntervalRef.current);
@@ -308,58 +304,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     [disabled, readOnly],
   );
 
-  React.useEffect(
-    function registerGlobalScrubbingEventListeners() {
-      if (!inputRef.current || disabled || readOnly) {
-        return undefined;
-      }
-
-      let cumulativeDelta = 0;
-
-      function handleScrubPointerUp(event: PointerEvent) {
-        isScrubbingRef.current = false;
-        clearTimeout(avoidFlickerTimeoutRef.current);
-        rawValueRef.current = latestValueRef.current;
-        scrubHandleRef.current?.onScrubbingChange(false, event);
-        if (!isWebKit()) {
-          ownerDocument(scrubAreaRef.current).exitPointerLock();
-        }
-      }
-
-      function handleScrubPointerMove(event: PointerEvent) {
-        if (!isScrubbingRef.current || !scrubHandleRef.current) {
-          return;
-        }
-
-        // Prevent text selection.
-        event.preventDefault();
-
-        scrubHandleRef.current.onScrub(event);
-        const { direction, pixelSensitivity } = scrubHandleRef.current;
-        const { movementX, movementY } = event;
-
-        cumulativeDelta += Math.abs(direction === 'vertical' ? movementY : movementX);
-
-        if (cumulativeDelta >= pixelSensitivity) {
-          cumulativeDelta = 0;
-          const dValue = direction === 'vertical' ? -movementY : movementX;
-          increment(dValue * (getStepAmount() ?? DEFAULT_STEP));
-        }
-      }
-
-      const win = ownerWindow(inputRef.current);
-
-      win.addEventListener('pointerup', handleScrubPointerUp, true);
-      win.addEventListener('pointermove', handleScrubPointerMove, true);
-
-      return () => {
-        win.removeEventListener('pointerup', handleScrubPointerUp, true);
-        win.removeEventListener('pointermove', handleScrubPointerMove, true);
-      };
-    },
-    [disabled, readOnly, increment, largeStep, step, latestValueRef, getStepAmount],
-  );
-
   // The `onWheel` prop can't be prevented, so we need to use a global event listener.
   React.useEffect(
     function registerElementWheelListener() {
@@ -397,73 +341,12 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     [allowWheelScrub, increment, decrement, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  // Prevent scrolling using touch input when scrubbing.
-  React.useEffect(
-    function registerScrubberTouchPreventListener() {
-      const element = scrubAreaRef.current;
-      if (!element || disabled || readOnly) {
-        return undefined;
-      }
-
-      function handleTouchStart(event: TouchEvent) {
-        if (event.touches.length === 1) {
-          event.preventDefault();
-        }
-      }
-
-      element.addEventListener('touchstart', handleTouchStart);
-
-      return () => {
-        element.removeEventListener('touchstart', handleTouchStart);
-      };
-    },
-    [disabled, readOnly],
-  );
-
   const getGroupProps: UseNumberFieldReturnValue['getGroupProps'] = React.useCallback(
     (externalProps = {}) => ({
       role: 'group',
       ...externalProps,
     }),
     [],
-  );
-
-  const getScrubAreaProps: UseNumberFieldReturnValue['getScrubAreaProps'] = React.useCallback(
-    (externalProps = {}) => ({
-      role: 'presentation',
-      ...externalProps,
-      style: {
-        touchAction: 'none',
-        WebkitUserSelect: 'none',
-        userSelect: 'none',
-        ...externalProps.style,
-      },
-      onPointerDown(event) {
-        externalProps.onPointerDown?.(event);
-        const isMainButton = !event.button || event.button === 0;
-        if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
-          return;
-        }
-
-        if (event.pointerType === 'mouse') {
-          event.preventDefault();
-          inputRef.current?.focus();
-        }
-
-        isScrubbingRef.current = true;
-        scrubHandleRef.current?.onScrubbingChange(true, event.nativeEvent);
-
-        // WebKit causes significant layout shift with the native message, so we can't use it.
-        if (!isWebKit()) {
-          // There can be some frames where there's no cursor at all when requesting the pointer lock.
-          // This is a workaround to avoid flickering.
-          avoidFlickerTimeoutRef.current = window.setTimeout(() => {
-            ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-          }, 20);
-        }
-      },
-    }),
-    [readOnly, disabled],
   );
 
   const getCommonButtonProps = React.useCallback(
@@ -808,27 +691,35 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     ],
   );
 
+  const scrub = useScrub({
+    disabled,
+    readOnly,
+    value,
+    inputRef,
+    rawValueRef,
+    increment,
+    getStepAmount,
+  });
+
   return React.useMemo(
     () => ({
       getGroupProps,
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
-      getScrubAreaProps,
       inputRef,
-      scrubAreaRef,
-      scrubHandleRef,
       inputValue,
       value,
+      ...scrub,
     }),
     [
       getGroupProps,
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
-      getScrubAreaProps,
       inputValue,
       value,
+      scrub,
     ],
   );
 }

@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
   NumberFieldContext.displayName = 'NumberFieldContext';
 }
 
-type Part = 'Group' | 'Input' | 'Increment' | 'Decrement' | 'ScrubArea';
+type Part = 'Group' | 'Input' | 'Increment' | 'Decrement' | 'ScrubArea' | 'ScrubAreaCursor';
 
 export function useNumberFieldContext(part: Part) {
   const context = React.useContext(NumberFieldContext);
