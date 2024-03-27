@@ -1,0 +1,11 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useTextareaStyleHooks",
+  "filename": "/packages/mui-base/src/Textarea/useTextareaStyleHooks.ts",
+  "imports": [
+    "import { useTextareaStyleHooks } from '@mui/base/Textarea';",
+    "import { useTextareaStyleHooks } from '@mui/base';"
+  ],
+  "demos": "<ul></ul>"
+}

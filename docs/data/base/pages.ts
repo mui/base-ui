@@ -33,6 +33,7 @@ const pages: readonly MuiPage[] = [
           { pathname: '/base-ui/react-select', title: 'Select' },
           { pathname: '/base-ui/react-slider', title: 'Slider' },
           { pathname: '/base-ui/react-switch', title: 'Switch' },
+          { pathname: '/base-ui/react-textarea', title: 'Textarea' },
           {
             pathname: '/base-ui/react-toggle-button-group',
             title: 'Toggle Button Group',
@@ -92,7 +93,6 @@ const pages: readonly MuiPage[] = [
           { pathname: '/base-ui/react-popper', title: 'Popper' },
           { pathname: '/base-ui/react-popup', title: 'Popup', unstable: true },
           { pathname: '/base-ui/react-portal', title: 'Portal' },
-          { pathname: '/base-ui/react-textarea-autosize', title: 'Textarea Autosize' },
           { pathname: '/base-ui/react-transitions', title: 'Transitions' },
         ],
       },

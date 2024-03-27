@@ -1,0 +1,21 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "maxRows": { "type": { "name": "number" } },
+    "minRows": { "type": { "name": "number" }, "default": "1" },
+    "render": { "type": { "name": "func" } }
+  },
+  "name": "Textarea",
+  "imports": [
+    "import { Textarea } from '@mui/base/Textarea';",
+    "import { Textarea } from '@mui/base';"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "Textarea",
+  "filename": "/packages/mui-base/src/Textarea/Textarea.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-textarea/\">Textarea</a></li></ul>",
+  "cssComponent": false
+}

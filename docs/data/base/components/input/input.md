@@ -126,12 +126,12 @@ The `multiline` prop transforms the `<input>` field into a `<textarea>` element,
 
 {{"demo": "InputMultiline.js"}}
 
-If you want the `<textarea>` to grow with the content, you can use the [Textarea Autosize](/base-ui/react-textarea-autosize/) component within the input.
+If you want the `<textarea>` to grow with the content, you can use the [Textarea](/base-ui/react-textarea/) component within the input.
 
-When using Textarea Autosize, the height of the `<textarea>` element dynamically matches its content unless you set the `rows` prop.
+When using Textarea, the height of the `<textarea>` element dynamically matches its content unless you set the `rows` prop.
 To set minimum and maximum sizes, add the `minRows` and `maxRows` props.
 
-The following demo shows how to insert a Textarea Autosize component into an Input so that its height grows with the length of the content:
+The following demo shows how to insert a Textarea component into an Input so that its height grows with the length of the content:
 
 {{"demo": "InputMultilineAutosize.js"}}
 
