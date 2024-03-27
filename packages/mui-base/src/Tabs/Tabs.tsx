@@ -43,7 +43,7 @@ const Tabs = React.forwardRef(function Tabs(
   const className = resolveClassName(classNameProp, ownerState);
   const styleHooks = useTabsStyleHooks(ownerState);
 
-  const { contextValue } = useTabs({
+  const { contextValue, getRootProps } = useTabs({
     value,
     defaultValue,
     onChange,
@@ -53,7 +53,9 @@ const Tabs = React.forwardRef(function Tabs(
 
   const rootProps = { ...styleHooks, ...other, className, ref: forwardedRef };
 
-  return <TabsProvider value={contextValue}>{render(rootProps, ownerState)}</TabsProvider>;
+  return (
+    <TabsProvider value={contextValue}>{render(getRootProps(rootProps), ownerState)}</TabsProvider>
+  );
 });
 
 Tabs.propTypes /* remove-proptypes */ = {

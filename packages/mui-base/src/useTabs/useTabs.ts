@@ -69,6 +69,14 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
     tabIdLookup.current = lookupFunction;
   }, []);
 
+  const getRootProps: UseTabsReturnValue['getRootProps'] = React.useCallback(
+    (otherProps = {}) => ({
+      dir: direction,
+      ...otherProps,
+    }),
+    [direction],
+  );
+
   return {
     contextValue: {
       direction,
@@ -80,6 +88,7 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
       value,
       ...compoundComponentContextValue,
     },
+    getRootProps,
   };
 }
 
