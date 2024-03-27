@@ -120,7 +120,7 @@ To prevent the value from going below or above a certain amount, the `min` and `
 
 ### Step
 
-The `step` prop snaps values of the input to ones that are multiples of the given number, which also affects the increment and decrement stepper buttons:
+The `step` prop snaps values of the input to ones that are multiples of the given number, affecting how the stepper buttons change the value:
 
 ```jsx
 <NumberField step={5} min={2}>
@@ -136,8 +136,8 @@ In the above example, the numbers are snapped to multiples of `step` starting fr
 
 The `largeStep` and `smallStep` props can be specified to change the step when a modifier key is held:
 
-- `largeStep` is used when <kbd>shift</kbd> is held, incrementing and snapping to `10`.
-- `smallStep` is used when <kbd>meta</kbd> (<kbd>cmd</kbd> or <kbd>ctrl</kbd>) is held, incrementing and snapping to `0.1`.
+- `largeStep` is used when <kbd>shift</kbd> is held, incrementing and snapping to multiples of `10`.
+- `smallStep` is used when <kbd>meta</kbd> (<kbd>cmd</kbd> or <kbd>ctrl</kbd>) is held, incrementing and snapping to multiples of `0.1`.
 
 ### Format
 
@@ -147,7 +147,7 @@ The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozill
 
 ### Scrubbing
 
-The `ScrubArea` subcomponent lets users scrub the value with their pointer as a faster alternative to the buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer:
+The `ScrubArea` subcomponent lets users scrub the value with their pointer as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer:
 
 {{"demo": "UnstyledNumberFieldScrub.js", "defaultCodeOpen": true}}
 
@@ -159,7 +159,7 @@ The pointer is locked while scrubbing, allowing the user to scrub infinitely wit
     Scrub
   </label>
   <NumberField.ScrubAreaCursor>
-    <span style={{ filter: 'drop-shadow(2px 0 2px rgba(0,0,0,0.3))' }}>
+    <span style={{ filter: 'drop-shadow(2px 0 2px rgb(0 0 0 / 0.3))' }}>
       <svg
         width="26"
         height="14"
@@ -180,13 +180,24 @@ The pointer is locked while scrubbing, allowing the user to scrub infinitely wit
 </NumberField.ScrubArea>
 ```
 
-:::info
-In your CSS, ensure any `label` elements inside the `ScrubArea` specify `cursor: unset`.
-:::
+
+In your CSS, ensure any `label` elements inside the `ScrubArea` specify `cursor: unset`. You can rotate the above macOS-style cursor 90 degrees using a `transform` style.
 
 :::info
 In Safari, the pointer is not locked. However, this doesn't affect the ability to scrub infinitely.
 :::
+
+#### Teleport distance
+
+To teleport the virtual cursor closer to the input rather than the entire viewport, use the `teleportDistance` prop:
+
+```js
+<NumberField.ScrubArea teleportDistance={200}>
+  <NumberField.ScrubAreaCursor />
+</NumberField.ScrubArea>
+```
+
+This specifies in pixels the distance the cursor can travel around the center of the scrub area element before it loops back around.
 
 ## Hook
 

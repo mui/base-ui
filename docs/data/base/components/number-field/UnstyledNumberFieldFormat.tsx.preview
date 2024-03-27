@@ -3,9 +3,9 @@
   defaultValue={10}
   min={0}
 >
-  <NumberField.Group style={{ display: 'flex', gap: 4 }}>
-    <NumberField.Decrement>-</NumberField.Decrement>
-    <NumberField.Input style={{ fontSize: 16 }} />
-    <NumberField.Increment>+</NumberField.Increment>
-  </NumberField.Group>
+  <NumberFieldGroup style={{ display: 'flex', gap: 4 }}>
+    <NumberFieldDecrement>&minus;</NumberFieldDecrement>
+    <NumberFieldInput />
+    <NumberFieldIncrement>+</NumberFieldIncrement>
+  </NumberFieldGroup>
 </NumberField>
