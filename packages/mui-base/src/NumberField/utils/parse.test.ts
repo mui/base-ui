@@ -23,7 +23,11 @@ describe('parse', () => {
       expect(parseNumber('12%')).to.equal(0.12);
     });
 
-    it('parses a number with Arabic numerals', () => {
+    it('parses a number with Arabic numerals', function test() {
+      // Skip in browser as it doesn't support Arabic numerals.
+      if (!/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
       expect(parseNumber('١٬٢٣٤٫٥٦')).to.equal(1234.56);
     });
 
