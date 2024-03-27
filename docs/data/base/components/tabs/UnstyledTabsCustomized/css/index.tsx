@@ -1,34 +1,31 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
 import { Tabs } from '@base_ui/react/Tabs';
-import { TabsList } from '@base_ui/react/TabsList';
-import { TabPanel } from '@base_ui/react/TabPanel';
-import { Tab } from '@base_ui/react/Tab';
 
 export default function UnstyledTabsCustomized() {
   return (
     <React.Fragment>
       <Tabs defaultValue={1}>
-        <TabsList className="CustomTabsList">
-          <Tab className="CustomTab" value={1}>
+        <Tabs.List className="CustomTabsList">
+          <Tabs.Tab className="CustomTab" value={1}>
             One
-          </Tab>
-          <Tab className="CustomTab" value={2}>
+          </Tabs.Tab>
+          <Tabs.Tab className="CustomTab" value={2}>
             Two
-          </Tab>
-          <Tab className="CustomTab" value={3}>
+          </Tabs.Tab>
+          <Tabs.Tab className="CustomTab" value={3}>
             Three
-          </Tab>
-        </TabsList>
-        <TabPanel className="CustomTabPanel" value={1}>
+          </Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel className="CustomTabPanel" value={1}>
           First page
-        </TabPanel>
-        <TabPanel className="CustomTabPanel" value={2}>
+        </Tabs.Panel>
+        <Tabs.Panel className="CustomTabPanel" value={2}>
           Second page
-        </TabPanel>
-        <TabPanel className="CustomTabPanel" value={3}>
+        </Tabs.Panel>
+        <Tabs.Panel className="CustomTabPanel" value={3}>
           Third page
-        </TabPanel>
+        </Tabs.Panel>
       </Tabs>
       <Styles />
     </React.Fragment>

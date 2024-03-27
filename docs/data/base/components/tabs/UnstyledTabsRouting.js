@@ -1,8 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Tabs } from '@base_ui/react/Tabs';
-import { Tab as BaseTab } from '@base_ui/react/Tab';
-import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
 import {
   MemoryRouter,
   Route,
@@ -122,7 +120,7 @@ const RouteDisplay = styled('p')`
   color: ${grey[500]};
 `;
 
-const Tab = styled(BaseTab)`
+const Tab = styled(Tabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: #fff;
   cursor: pointer;
@@ -153,7 +151,7 @@ const Tab = styled(BaseTab)`
   }
 `;
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(Tabs.List)(
   ({ theme }) => `
   min-width: 400px;
   background-color: ${blue[500]};

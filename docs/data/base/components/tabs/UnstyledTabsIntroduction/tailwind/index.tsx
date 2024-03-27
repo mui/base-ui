@@ -1,9 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Tabs } from '@base_ui/react/Tabs';
-import { TabsList as BaseTabsList, TabsListProps } from '@base_ui/react/TabsList';
-import { TabPanel as BaseTabPanel, TabPanelProps } from '@base_ui/react/TabPanel';
-import { Tab as BaseTab, TabProps } from '@base_ui/react/Tab';
+import { TabPanelProps, TabProps, Tabs, TabsListProps } from '@base_ui/react/Tabs';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -31,13 +28,10 @@ export default function UnstyledTabsIntroduction() {
   );
 }
 
-const resolveSlotProps = (fn: any, args: any) =>
-  typeof fn === 'function' ? fn(args) : fn;
-
 const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>((props, ref) => {
   const { className, ...other } = props;
   return (
-    <BaseTabsList
+    <Tabs.List
       ref={ref}
       className={clsx(
         'mb-4 rounded-xl bg-purple-500 flex font-sans items-center justify-center content-between min-w-tabs-list shadow-lg',
@@ -49,34 +43,23 @@ const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>((props, ref) =>
 });
 
 const Tab = React.forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
+  const { className, ...other } = props;
   return (
-    <BaseTab
+    <Tabs.Tab
       ref={ref}
-      {...props}
-      slotProps={{
-        ...props.slotProps,
-        root: (ownerState) => {
-          const resolvedSlotProps = resolveSlotProps(
-            props.slotProps?.root,
-            ownerState,
-          );
-          return {
-            ...resolvedSlotProps,
-            className: clsx(
-              `font-sans ${
-                ownerState.selected
-                  ? 'text-purple-500 bg-white'
-                  : 'text-white bg-transparent focus:text-white hover:bg-purple-400'
-              } ${
-                ownerState.disabled
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'cursor-pointer'
-              } text-sm leading-[1.3] font-semibold w-full py-2.5 px-3 m-1.5 border-0 rounded-md flex justify-center focus:outline-0 focus:shadow-outline-purple-light`,
-              resolvedSlotProps?.className,
-            ),
-          };
-        },
-      }}
+      {...other}
+      className={({ selected, disabled }) =>
+        clsx(
+          `font-sans ${
+            selected
+              ? 'text-purple-500 bg-white'
+              : 'text-white bg-transparent focus:text-white hover:bg-purple-400'
+          } ${
+            disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+          } text-sm leading-[1.3] font-semibold w-full py-2.5 px-3 m-1.5 border-0 rounded-md flex justify-center focus:outline-0 focus:shadow-outline-purple-light`,
+          className,
+        )
+      }
     />
   );
 });
@@ -84,7 +67,7 @@ const Tab = React.forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
 const TabPanel = React.forwardRef<HTMLDivElement, TabPanelProps>((props, ref) => {
   const { className, ...other } = props;
   return (
-    <BaseTabPanel
+    <Tabs.Panel
       ref={ref}
       className={clsx(
         'py-5 px-3 bg-white dark:bg-slate-900 border border-solid border-slate-200 dark:border-slate-700 rounded-xl opacity-60 w-full font-sans text-sm',

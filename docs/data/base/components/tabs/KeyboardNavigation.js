@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import { Tabs } from '@base_ui/react/Tabs';
-import { Tab as BaseTab } from '@base_ui/react/Tab';
-import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
 
 export default function KeyboardNavigation() {
   return (
@@ -54,7 +52,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Tab = styled(BaseTab)`
+const Tab = styled(Tabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
   cursor: pointer;
@@ -89,7 +87,7 @@ const Tab = styled(BaseTab)`
   }
 `;
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(Tabs.List)(
   ({ theme }) => `
   min-width: 400px;
   background-color: ${blue[500]};
