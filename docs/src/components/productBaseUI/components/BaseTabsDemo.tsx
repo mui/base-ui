@@ -51,7 +51,7 @@ const tabStyles = `
     outline-offset: 2px;
   }
 
-  &.base--selected {
+  &[data-selected="true"] {
     background-color: #FFF;
     color: var(--primary);
   }
@@ -96,14 +96,20 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
       {styling === 'css' && (
         <Tabs defaultValue={0}>
           <GlobalStyles styles={CSS} />
-          <Tabs.List>
-            <Tabs.Tab>One</Tabs.Tab>
-            <Tabs.Tab>Two</Tabs.Tab>
-            <Tabs.Tab>Three</Tabs.Tab>
+          <Tabs.List className="base-TabsList-root">
+            <Tabs.Tab className="base-Tab-root">One</Tabs.Tab>
+            <Tabs.Tab className="base-Tab-root">Two</Tabs.Tab>
+            <Tabs.Tab className="base-Tab-root">Three</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel value={0}>First page</Tabs.Panel>
-          <Tabs.Panel value={1}>Second page</Tabs.Panel>
-          <Tabs.Panel value={2}>Third page</Tabs.Panel>
+          <Tabs.Panel className="base-TabPanel-root" value={0}>
+            First page
+          </Tabs.Panel>
+          <Tabs.Panel className="base-TabPanel-root" value={1}>
+            Second page
+          </Tabs.Panel>
+          <Tabs.Panel className="base-TabPanel-root" value={2}>
+            Third page
+          </Tabs.Panel>
         </Tabs>
       )}
       {styling === 'tailwindcss' && ( // https://play.tailwindcss.com/8jGjUI7EWe
