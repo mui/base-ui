@@ -152,7 +152,8 @@ jobs:
             - run:
                 name: Check for duplicated packages
                 command: |
-                  if [[ $(git diff --name-status master | grep pnpm.lock) == "" ]];
+                  # #default-branch-switch
+                  if [[ $(git diff --name-status master | grep -E 'pnpm-workspace\.yaml|pnpm-lock.yaml|package\.json') == "" ]];
                   then
                       echo "No changes to dependencies detected. Skipping..."
                   else
