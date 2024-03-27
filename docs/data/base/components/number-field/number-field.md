@@ -180,7 +180,6 @@ The pointer is locked while scrubbing, allowing the user to scrub infinitely wit
 </NumberField.ScrubArea>
 ```
 
-
 In your CSS, ensure any `label` elements inside the `ScrubArea` specify `cursor: unset`. You can rotate the above macOS-style cursor 90 degrees using a `transform` style.
 
 :::info
