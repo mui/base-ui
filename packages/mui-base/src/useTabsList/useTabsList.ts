@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTabsContext } from '../Tabs';
+import { useTabsContext } from '../Tabs/TabsContext';
 import {
   TabsListActionTypes,
   UseTabsListParameters,
