@@ -160,7 +160,6 @@
     "serve": "^14.2.1",
     "stylelint": "^16.2.1",
     "stylelint-config-standard": "^36.0.0",
-    "stylelint-processor-styled-components": "^1.10.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3",

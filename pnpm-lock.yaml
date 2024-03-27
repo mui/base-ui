@@ -330,9 +330,6 @@ importers:
       stylelint-config-standard:
         specifier: ^36.0.0
         version: 36.0.0(stylelint@16.2.1)
-      stylelint-processor-styled-components:
-        specifier: ^1.10.0
-        version: 1.10.0
       terser-webpack-plugin:
         specifier: ^5.3.10
         version: 5.3.10(webpack@5.90.3)
@@ -13787,10 +13784,6 @@ packages:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
     dev: true
 
-  /picocolors@0.2.1:
-    resolution: {integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==}
-    dev: true
-
   /picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
 
@@ -13979,14 +13972,6 @@ packages:
 
   /postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
-
-  /postcss@7.0.39:
-    resolution: {integrity: sha512-yioayjNbHn6z1/Bywyb2Y4s3yvDAeXGOyxqD+LnVOinq6Mdmd++SW2wUNVzavyyHxd6+DxzWGIuosg6P1Rj8uA==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      picocolors: 0.2.1
-      source-map: 0.6.1
-    dev: true
 
   /postcss@8.4.31:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
@@ -15911,17 +15896,6 @@ packages:
     dependencies:
       stylelint: 16.2.1(typescript@5.4.3)
       stylelint-config-recommended: 14.0.0(stylelint@16.2.1)
-    dev: true
-
-  /stylelint-processor-styled-components@1.10.0:
-    resolution: {integrity: sha512-g4HpN9rm0JD0LoHuIOcd/FIjTZCJ0ErQ+dC3VTxp+dSvnkV+MklKCCmCQEdz5K5WxF4vPuzfVgdbSDuPYGZhoA==}
-    dependencies:
-      '@babel/parser': 7.24.0
-      '@babel/traverse': 7.24.0
-      micromatch: 4.0.5
-      postcss: 7.0.39
-    transitivePeerDependencies:
-      - supports-color
     dev: true
 
   /stylelint@16.2.1(typescript@5.4.3):
