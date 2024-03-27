@@ -1266,6 +1266,10 @@ describe('<Select />', () => {
   });
 
   it('perf: does not rerender options unnecessarily', async () => {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      return;
+    }
+
     const renderOption1Spy = spy();
     const renderOption2Spy = spy();
     const renderOption3Spy = spy();
