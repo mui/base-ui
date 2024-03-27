@@ -82,6 +82,8 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
   const id = useId(idProp);
 
+  const forceRender = useForcedRerendering();
+
   const formatOptionsRef = useLatestRef(format);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -98,14 +100,14 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingRef = React.useRef(false);
 
-  const [value, setValueUnwrapped] = useControlled<number | null>({
+  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
     controlled: externalValue,
     default: defaultValue,
     name: 'NumberField',
     state: 'value',
   });
 
-  const forceRender = useForcedRerendering();
+  const value = valueUnwrapped ?? null;
 
   // We need to hide the input value during SSR to avoid a potential mismatch between the server
   // rendered value and the client rendered value when their locales differ.
@@ -229,7 +231,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       return;
     }
 
-    const nextInputValue = formatNumber(value, formatOptionsRef.current);
+    const nextInputValue = formatNumber(value, undefined, formatOptionsRef.current);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -578,7 +580,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
 
-        const { decimal } = getNumberLocaleDetails(formatOptionsRef.current);
+        const { decimal } = getNumberLocaleDetails(undefined, formatOptionsRef.current);
 
         // Allow the minus key only if there isn't already a plus or minus sign, or if all the text is selected, or if only the minus sign is highlighted.
         if (event.key === '-') {

@@ -1,10 +1,10 @@
-import { getFormatter } from './cache';
+import { getFormatter } from './format';
 
 export const HAN_NUMERALS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 export const ARABIC_NUMERALS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 
-export function getNumberLocaleDetails(options?: Intl.NumberFormatOptions) {
-  const parts = getFormatter(options).formatToParts(1111.1);
+export function getNumberLocaleDetails(locale?: string, options?: Intl.NumberFormatOptions) {
+  const parts = getFormatter(locale, options).formatToParts(1111.1);
   const result: Partial<Record<Intl.NumberFormatPartTypes, string | undefined>> = {};
 
   parts.forEach((part) => {
@@ -15,23 +15,34 @@ export function getNumberLocaleDetails(options?: Intl.NumberFormatOptions) {
 }
 
 export function parseNumber(formattedNumber: string, options?: Intl.NumberFormatOptions) {
-  const { group, decimal, currency, percent, unit, code } = getNumberLocaleDetails(options);
+  const arabicRe = new RegExp(`[${ARABIC_NUMERALS.join('')}]`, 'g');
+  const hanRe = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
+  const percentRe = /%|٪/;
+
+  const isArabic = formattedNumber.match(arabicRe);
+  const isHan = formattedNumber.match(hanRe);
+
+  let locale: string | undefined;
+  if (isArabic) {
+    locale = 'ar';
+  } else if (isHan) {
+    locale = 'zh';
+  }
+
+  const { group, decimal, currency } = getNumberLocaleDetails(locale, options);
 
   const rawNumber = formattedNumber
     .replace(new RegExp(`\\${group}`, 'g'), '')
     .replace(new RegExp(`\\${decimal}`, 'g'), '.')
     .replace(new RegExp(`\\${currency}`, 'g'), '')
-    .replace(new RegExp(`\\${percent}`, 'g'), '')
-    .replace(new RegExp(`\\${unit}`, 'g'), '')
-    .replace(new RegExp(`\\${code}`, 'g'), '')
-    .replace(new RegExp(`[${ARABIC_NUMERALS.join('')}]`, 'g'), (match) =>
-      ARABIC_NUMERALS.indexOf(match).toString(),
-    )
-    .replace(new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g'), (match) =>
-      HAN_NUMERALS.indexOf(match).toString(),
-    );
+    .replace(arabicRe, (match) => ARABIC_NUMERALS.indexOf(match).toString())
+    .replace(hanRe, (match) => HAN_NUMERALS.indexOf(match).toString());
 
-  const num = Number(rawNumber);
+  let num = parseFloat(rawNumber);
+
+  if (percentRe.test(formattedNumber)) {
+    num /= 100;
+  }
 
   if (Number.isNaN(num)) {
     return null;
