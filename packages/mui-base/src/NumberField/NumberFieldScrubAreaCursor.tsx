@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { useForkRef } from '../utils/useForkRef';
 import type { NumberFieldScrubAreaCursorProps } from './NumberField.types';
 import { isWebKit } from '../utils/detectBrowser';
-import { useScrubAreaContext } from './ScrubAreaContext';
 import { resolveClassName } from '../utils/resolveClassName';
+import { useNumberFieldContext } from './NumberFieldContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -28,7 +28,9 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   const { render: renderProp, className, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
-  const { isScrubbing, virtualCursorRef, ownerState, transform } = useScrubAreaContext();
+  const { isScrubbing, virtualCursorRef, ownerState, cursorStyles } =
+    useNumberFieldContext('ScrubAreaCursor');
+
   const mergedRef = useForkRef(forwardedRef, virtualCursorRef);
 
   if (!isScrubbing || isWebKit()) {
@@ -46,7 +48,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
       top: 0,
       left: 0,
       ...otherProps.style,
-      transform: `${transform} ${otherProps.style?.transform || ''}`,
+      transform: `${cursorStyles.transform} ${otherProps.style?.transform || ''}`,
     },
   };
 

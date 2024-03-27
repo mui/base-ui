@@ -143,10 +143,3 @@ export interface NumberFieldScrubAreaProps
 
 export interface NumberFieldScrubAreaCursorProps
   extends BaseUiComponentCommonProps<'span', NumberFieldOwnerState> {}
-
-export interface ScrubAreaHandle {
-  direction: 'vertical' | 'horizontal';
-  pixelSensitivity: number;
-  onScrub: (event: PointerEvent) => void;
-  onScrubbingChange: (isScrubbing: boolean, event: PointerEvent) => void;
-}

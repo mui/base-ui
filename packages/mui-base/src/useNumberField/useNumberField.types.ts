@@ -1,4 +1,4 @@
-import { ScrubAreaHandle } from '../NumberField';
+import type { ScrubHandle } from './useScrub.types';
 
 export interface UseNumberFieldReturnValue {
   getGroupProps: (props?: React.ComponentPropsWithRef<'div'>) => React.ComponentPropsWithRef<'div'>;
@@ -18,5 +18,8 @@ export interface UseNumberFieldReturnValue {
   value: number | null;
   inputRef: React.RefObject<HTMLInputElement>;
   scrubAreaRef: React.RefObject<HTMLSpanElement>;
-  scrubHandleRef: React.RefObject<ScrubAreaHandle | null>;
+  scrubHandleRef: React.RefObject<ScrubHandle | null>;
+  virtualCursorRef: React.RefObject<HTMLSpanElement>;
+  isScrubbing: boolean;
+  cursorStyles: React.CSSProperties;
 }

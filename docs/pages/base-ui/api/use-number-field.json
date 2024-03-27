@@ -1,6 +1,10 @@
 {
   "parameters": {},
   "returnValue": {
+    "cursorStyles": {
+      "type": { "name": "React.CSSProperties", "description": "React.CSSProperties" },
+      "required": true
+    },
     "getDecrementButtonProps": {
       "type": {
         "name": "(props?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
@@ -44,6 +48,7 @@
       "required": true
     },
     "inputValue": { "type": { "name": "string", "description": "string" }, "required": true },
+    "isScrubbing": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "scrubAreaRef": {
       "type": {
         "name": "React.RefObject&lt;HTMLSpanElement&gt;",
@@ -53,13 +58,20 @@
     },
     "scrubHandleRef": {
       "type": {
-        "name": "React.RefObject&lt;ScrubAreaHandle | null&gt;",
-        "description": "React.RefObject&lt;ScrubAreaHandle | null&gt;"
+        "name": "React.RefObject&lt;ScrubHandle | null&gt;",
+        "description": "React.RefObject&lt;ScrubHandle | null&gt;"
       },
       "required": true
     },
     "value": {
       "type": { "name": "number | null", "description": "number | null" },
+      "required": true
+    },
+    "virtualCursorRef": {
+      "type": {
+        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
+        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
+      },
       "required": true
     }
   },
