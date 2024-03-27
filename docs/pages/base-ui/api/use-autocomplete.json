@@ -243,7 +243,7 @@
     }
   },
   "name": "useAutocomplete",
-  "filename": "/packages/mui-base/src/useAutocomplete/useAutocomplete.js",
+  "filename": "/packages/mui-base/src/useAutocomplete/useAutocomplete.ts",
   "imports": [
     "import { useAutocomplete } from '@mui/base/useAutocomplete';",
     "import { useAutocomplete } from '@mui/base';"

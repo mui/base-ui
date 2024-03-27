@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '@mui/internal-test-utils';
-import { EventHandlers } from '@mui/base';
+import { EventHandlers } from '@mui/base/utils';
 import { useSlotProps, UseSlotPropsParameters, UseSlotPropsResult } from './useSlotProps';
 
 const { render } = createRenderer();

@@ -1,5 +1,6 @@
-'use client';
+// @ts-nocheck TODO: remove when all types are annotated and errors fixed.
 /* eslint-disable no-constant-condition */
+'use client';
 import * as React from 'react';
 import {
   unstable_setRef as setRef,
@@ -8,6 +9,12 @@ import {
   unstable_useId as useId,
   usePreviousProps,
 } from '@mui/utils';
+import {
+  CreateFilterOptionsConfig,
+  FilterOptionsState,
+  UseAutocompleteProps,
+  UseAutocompleteReturnValue,
+} from './useAutocomplete.types';
 
 // https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
 // Give up on IE11 support for this feature
@@ -17,7 +24,9 @@ function stripDiacritics(string) {
     : string;
 }
 
-export function createFilterOptions(config = {}) {
+export function createFilterOptions<Value>(
+  config: CreateFilterOptionsConfig<Value> = {},
+): (options: Value[], state: FilterOptionsState<Value>) => Value[] {
   const {
     ignoreAccents = true,
     ignoreCase = true,
@@ -75,7 +84,24 @@ const pageSize = 5;
 const defaultIsActiveElementInListbox = (listboxRef) =>
   listboxRef.current !== null && listboxRef.current.parentElement?.contains(document.activeElement);
 
-export function useAutocomplete(props) {
+/**
+ *
+ * Demos:
+ *
+ * - [Autocomplete](https://mui.com/base-ui/react-autocomplete/#hook)
+ *
+ * API:
+ *
+ * - [useAutocomplete API](https://mui.com/base-ui/react-autocomplete/hooks-api/#use-autocomplete)
+ */
+export function useAutocomplete<
+  Value,
+  Multiple extends boolean | undefined = false,
+  DisableClearable extends boolean | undefined = false,
+  FreeSolo extends boolean | undefined = false,
+>(
+  props: UseAutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>,
+): UseAutocompleteReturnValue<Value, Multiple, DisableClearable, FreeSolo> {
   const {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     unstable_isActiveElementInListbox = defaultIsActiveElementInListbox,

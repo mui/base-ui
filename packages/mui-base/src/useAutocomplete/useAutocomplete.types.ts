@@ -21,10 +21,6 @@ export interface AutocompleteGroupedOption<Value = string> {
   options: Value[];
 }
 
-export function createFilterOptions<Value>(
-  config?: CreateFilterOptionsConfig<Value>,
-): (options: Value[], state: FilterOptionsState<Value>) => Value[];
-
 export type AutocompleteFreeSoloValueMapping<FreeSolo> = FreeSolo extends true ? string : never;
 
 export type AutocompleteValue<Value, Multiple, DisableClearable, FreeSolo> = Multiple extends true
@@ -337,24 +333,6 @@ export type AutocompleteGetTagProps = ({ index }: { index: number }) => {
   tabIndex: -1;
   onDelete: (event: any) => void;
 };
-/**
- *
- * Demos:
- *
- * - [Autocomplete](https://mui.com/base-ui/react-autocomplete/#hook)
- *
- * API:
- *
- * - [useAutocomplete API](https://mui.com/base-ui/react-autocomplete/hooks-api/#use-autocomplete)
- */
-export function useAutocomplete<
-  Value,
-  Multiple extends boolean | undefined = false,
-  DisableClearable extends boolean | undefined = false,
-  FreeSolo extends boolean | undefined = false,
->(
-  props: UseAutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>,
-): UseAutocompleteReturnValue<Value, Multiple, DisableClearable, FreeSolo>;
 
 export interface UseAutocompleteRenderedOption<Value> {
   option: Value;
