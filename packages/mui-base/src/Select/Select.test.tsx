@@ -1265,9 +1265,9 @@ describe('<Select />', () => {
     expect(selectButton).to.have.text('1, 2');
   });
 
-  it('perf: does not rerender options unnecessarily', async () => {
+  it('perf: does not rerender options unnecessarily', async function test() {
     if (/jsdom/.test(window.navigator.userAgent)) {
-      return;
+      this.skip();
     }
 
     const renderOption1Spy = spy();
