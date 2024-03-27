@@ -7,6 +7,8 @@ import { getStyleHookProps } from '../utils/getStyleHookProps';
  */
 export function useTabsStyleHooks(ownerState: TabsOwnerState) {
   return React.useMemo(() => {
-    return getStyleHookProps(ownerState);
+    return getStyleHookProps(ownerState, {
+      direction: () => null,
+    });
   }, [ownerState]);
 }

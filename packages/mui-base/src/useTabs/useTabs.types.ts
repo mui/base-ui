@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { TabsProviderValue } from './TabsProvider';
 
 export interface UseTabsParameters {
@@ -26,9 +27,20 @@ export interface UseTabsParameters {
   onChange?: (event: React.SyntheticEvent | null, value: number | string | null) => void;
 }
 
+interface UseTabsRootElementOwnProps {
+  dir: React.HTMLAttributes<HTMLElement>['dir'];
+}
+
+/**
+ * Props that are received by the root element of the Tabs.
+ */
+export type UseTabsRootElementProps<TOther = {}> = Omit<TOther, keyof UseTabsRootElementOwnProps> &
+  UseTabsRootElementOwnProps;
+
 export interface UseTabsReturnValue {
   /**
    * Returns the values to be passed to the tabs provider.
    */
   contextValue: TabsProviderValue;
+  getRootProps: (externalProps?: React.HTMLAttributes<HTMLDivElement>) => UseTabsRootElementProps;
 }
