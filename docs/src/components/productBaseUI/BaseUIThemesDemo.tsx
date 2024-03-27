@@ -14,9 +14,7 @@ import { Select } from '@mui/base/Select';
 import { Slider, sliderClasses } from '@mui/base/Slider';
 import { Snackbar } from '@mui/base/Snackbar';
 import { SnackbarCloseReason } from '@mui/base/useSnackbar';
-import { Tab } from '@mui/base/Tab';
 import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
 
 // Other packages
 import { css, styled, keyframes } from '@mui/system';
@@ -724,20 +722,20 @@ export default function BaseUIThemesDemo() {
     <Fade in timeout={700}>
       <Panel sx={{ ...heroVariables[design] }}>
         <Tabs value={design} onChange={(event, newValue) => setDesign(newValue as number)}>
-          <TabsList slots={{ root: StyledTabsList }}>
-            <Tab slots={{ root: StyledTab }} value={0}>
+          <Tabs.List render={(props) => <StyledTabsList {...props} />}>
+            <Tabs.Tab render={(props) => <StyledTab {...props} />} value={0}>
               <AutoAwesomeRounded sx={{ fontSize: 15 }} />
               Sleek
-            </Tab>
-            <Tab slots={{ root: StyledTab }} value={1}>
+            </Tabs.Tab>
+            <Tabs.Tab render={(props) => <StyledTab {...props} />} value={1}>
               <RadioRoundedIcon sx={{ fontSize: 15 }} />
               Retro
-            </Tab>
-            <Tab slots={{ root: StyledTab }} value={2}>
+            </Tabs.Tab>
+            <Tabs.Tab render={(props) => <StyledTab {...props} />} value={2}>
               <InterestsRoundedIcon sx={{ fontSize: 15 }} />
               Playful
-            </Tab>
-          </TabsList>
+            </Tabs.Tab>
+          </Tabs.List>
         </Tabs>
         {/* Notification component */}
         <Box

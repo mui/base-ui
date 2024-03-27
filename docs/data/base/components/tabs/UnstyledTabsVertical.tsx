@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import { Tabs as BaseTabs } from '@mui/base/Tabs';
-import { TabsList as BaseTabsList } from '@mui/base/TabsList';
-import { TabPanel as BaseTabPanel } from '@mui/base/TabPanel';
-import { Tab as BaseTab } from '@mui/base/Tab';
 
 export default function UnstyledTabsVertical() {
   return (
@@ -46,7 +43,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Tab = styled(BaseTab)`
+const Tab = styled(BaseTabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
   cursor: pointer;
@@ -85,7 +82,7 @@ const Tab = styled(BaseTab)`
   }
 `;
 
-const TabPanel = styled(BaseTabPanel)`
+const TabPanel = styled(BaseTabs.Panel)`
   width: 100%;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
@@ -97,7 +94,7 @@ const Tabs = styled(BaseTabs)`
   width: 200px;
 `;
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(BaseTabs.List)(
   ({ theme }) => `
   min-width: 80px;
   background-color: ${blue[500]};
