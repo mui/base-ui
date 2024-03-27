@@ -143,13 +143,13 @@ The `largeStep` and `smallStep` props can be specified to change the step when a
 
 The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) to customize the formatting of the input value:
 
-{{"demo": "UnstyledNumberFieldFormat.js", "defaultCodeOpen": true}}
+{{"demo": "UnstyledNumberFieldFormat.js"}}
 
 ### Scrubbing
 
 The `ScrubArea` subcomponent lets users scrub the value with their pointer as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer:
 
-{{"demo": "UnstyledNumberFieldScrub.js", "defaultCodeOpen": true}}
+{{"demo": "UnstyledNumberFieldScrub.js"}}
 
 The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `NumberField.ScrubAreaCursor` subcomponent, which automatically loops around the boundary:
 
