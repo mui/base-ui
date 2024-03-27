@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { Tabs, TabsOwnProps } from '@base_ui/react/Tabs';
-import { TabsList as TabsListBase } from '@base_ui/react/TabsList';
-import { TabPanel as TabPanelBase } from '@base_ui/react/TabPanel';
-import { Tab as TabBase } from '@base_ui/react/Tab';
+import { Tabs, TabsProps } from '@base_ui/react/Tabs';
 import HighlightedCode from './HighlightedCode';
 
-const TabList = styled(TabsListBase)(({ theme }) => ({
+const TabList = styled(Tabs.List)(({ theme }) => ({
   padding: 6,
   display: 'flex',
   border: '1px solid',
@@ -19,7 +16,7 @@ const TabList = styled(TabsListBase)(({ theme }) => ({
   }),
 }));
 
-const TabPanel = styled(TabPanelBase)<{ ownerState: { mounted: boolean } }>(({ ownerState }) => ({
+const TabPanel = styled(Tabs.Panel)<{ ownerState: { mounted: boolean } }>(({ ownerState }) => ({
   '& pre': {
     marginTop: -1,
     borderTopLeftRadius: 0,
@@ -30,7 +27,7 @@ const TabPanel = styled(TabPanelBase)<{ ownerState: { mounted: boolean } }>(({ o
   },
 }));
 
-const Tab = styled(TabBase)<{ ownerState: { mounted: boolean } }>(({ theme, ownerState }) =>
+const Tab = styled(Tabs.Tab)<{ ownerState: { mounted: boolean } }>(({ theme, ownerState }) =>
   theme.unstable_sx({
     p: 0.8,
     border: 'none',
@@ -105,7 +102,7 @@ export default function HighlightedCodeWithTabs({
     setMounted(true);
   }, [availableTabs, storageKey]);
 
-  const handleChange: TabsOwnProps['onChange'] = (event, newValue) => {
+  const handleChange: TabsProps['onChange'] = (event, newValue) => {
     setActiveTab(newValue as string);
     if (storageKey === undefined) {
       return;
