@@ -273,7 +273,7 @@ export function useSlider(parameters: UseSliderParameters): UseSliderReturnValue
   } = useIsFocusVisible();
   const [focusedThumbIndex, setFocusedThumbIndex] = React.useState(-1);
 
-  const sliderRef = React.useRef<HTMLSpanElement>();
+  const sliderRef = React.useRef<HTMLSpanElement>(null);
   const handleFocusRef = useForkRef(focusVisibleRef, sliderRef);
   const handleRef = useForkRef(ref, handleFocusRef);
 
