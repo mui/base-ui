@@ -1,4 +1,4 @@
-import { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
+import type { BaseUIComponentProps } from '../utils/BaseUI.types';
 import { UseSwitchParameters } from '../useSwitch';
 
 export type SwitchOwnerState = {
@@ -10,6 +10,6 @@ export type SwitchOwnerState = {
 
 export interface SwitchProps
   extends UseSwitchParameters,
-    Omit<BaseUiComponentCommonProps<'button', SwitchOwnerState>, 'onChange'> {}
+    Omit<BaseUIComponentProps<'button', SwitchOwnerState>, 'onChange'> {}
 
-export interface SwitchThumbProps extends BaseUiComponentCommonProps<'span', SwitchOwnerState> {}
+export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchOwnerState> {}

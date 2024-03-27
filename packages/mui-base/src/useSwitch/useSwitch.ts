@@ -4,6 +4,7 @@ import { useControlled } from '../utils/useControlled';
 import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
 import { useForkRef } from '../utils/useForkRef';
 import { visuallyHidden } from '../utils/visuallyHidden';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 /**
  * The basic building block for creating custom switches.
@@ -38,49 +39,47 @@ export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
     state: 'checked',
   });
 
-  const getButtonProps: UseSwitchReturnValue['getButtonProps'] = React.useCallback(
-    (otherProps = {}) => ({
-      type: 'button',
-      role: 'switch',
-      'aria-checked': checked,
-      'aria-disabled': disabled,
-      'aria-readonly': readOnly,
-      ...otherProps,
-      onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
-        otherProps.onClick?.(event);
-        if (event.defaultPrevented || readOnly) {
-          return;
-        }
+  const getButtonProps = React.useCallback(
+    (otherProps = {}) =>
+      mergeReactProps<'button'>(otherProps, {
+        type: 'button',
+        role: 'switch',
+        'aria-checked': checked,
+        'aria-disabled': disabled,
+        'aria-readonly': readOnly,
+        onClick(event) {
+          if (event.defaultPrevented || readOnly) {
+            return;
+          }
 
-        inputRef.current?.click();
-      },
-    }),
+          inputRef.current?.click();
+        },
+      }),
     [checked, disabled, readOnly],
   );
 
-  const getInputProps: UseSwitchReturnValue['getInputProps'] = React.useCallback(
-    (otherProps = {}) => ({
-      checked,
-      disabled,
-      name,
-      required,
-      style: visuallyHidden,
-      tabIndex: -1,
-      type: 'checkbox',
-      'aria-hidden': true,
-      ...otherProps,
-      ref: handleInputRef,
-      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-        // Workaround for https://github.com/facebook/react/issues/9023
-        if (event.nativeEvent.defaultPrevented) {
-          return;
-        }
+  const getInputProps = React.useCallback(
+    (otherProps = {}) =>
+      mergeReactProps<'input'>(otherProps, {
+        checked,
+        disabled,
+        name,
+        required,
+        style: visuallyHidden,
+        tabIndex: -1,
+        type: 'checkbox',
+        'aria-hidden': true,
+        ref: handleInputRef,
+        onChange(event) {
+          // Workaround for https://github.com/facebook/react/issues/9023
+          if (event.nativeEvent.defaultPrevented) {
+            return;
+          }
 
-        setCheckedState(event.target.checked);
-        onChange?.(event);
-        otherProps.onChange?.(event);
-      },
-    }),
+          setCheckedState(event.target.checked);
+          onChange?.(event);
+        },
+      }),
     [checked, disabled, name, required, handleInputRef, onChange, setCheckedState],
   );
 
