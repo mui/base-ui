@@ -231,12 +231,15 @@ export function useScrub(params: ScrubParams) {
     [disabled, readOnly],
   );
 
-  return {
-    isScrubbing,
-    cursorStyles,
-    getScrubAreaProps,
-    virtualCursorRef,
-    scrubAreaRef,
-    scrubHandleRef,
-  };
+  return React.useMemo(
+    () => ({
+      isScrubbing,
+      cursorStyles,
+      getScrubAreaProps,
+      virtualCursorRef,
+      scrubAreaRef,
+      scrubHandleRef,
+    }),
+    [isScrubbing, cursorStyles, getScrubAreaProps],
+  );
 }
