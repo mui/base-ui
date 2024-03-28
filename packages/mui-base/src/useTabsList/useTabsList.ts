@@ -12,6 +12,7 @@ import { useCompoundParent } from '../useCompound';
 import { TabMetadata } from '../useTabs/useTabs';
 import { useList, ListState, UseListParameters } from '../useList';
 import { tabsListReducer } from './tabsListReducer';
+import { useForkRef } from '../utils/useForkRef';
 
 /**
  *
@@ -138,6 +139,9 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     }
   }, [dispatch, value]);
 
+  const tabsListRef = React.useRef<HTMLElement | null>(null);
+  const handleRef = useForkRef(mergedRootRef, tabsListRef);
+
   const getRootProps = <ExternalProps extends Record<string, unknown> = {}>(
     externalProps: ExternalProps = {} as ExternalProps,
   ): UseTabsListRootSlotProps<ExternalProps> => {
@@ -146,6 +150,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
       ...getListboxRootProps(externalProps),
       'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
       role: 'tablist',
+      ref: handleRef,
     };
   };
 
@@ -154,8 +159,18 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
       ...compoundComponentContextValue,
       ...listContextValue,
       activateOnFocus,
+      getTabElement,
+      value,
+      tabsListRef,
     }),
-    [compoundComponentContextValue, listContextValue, activateOnFocus],
+    [
+      compoundComponentContextValue,
+      listContextValue,
+      activateOnFocus,
+      getTabElement,
+      value,
+      tabsListRef,
+    ],
   );
 
   return {
@@ -165,7 +180,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     highlightedValue,
     isRtl,
     orientation,
-    rootRef: mergedRootRef,
+    rootRef: handleRef,
     selectedValue: selectedValues[0] ?? null,
   };
 }
