@@ -1,16 +1,20 @@
 import * as React from 'react';
-import { TabsListContext } from '../TabsList/TabsListContext';
+import { useTabsListContext } from '../TabsList/TabsListContext';
+import { useTabsContext } from '../TabsContext';
 
 export function useBubble() {
-  const tabsListContext = React.useContext(TabsListContext);
-  if (tabsListContext === undefined) {
-    throw new Error('Bubble must be used within a TabsList component');
-  }
+  const { tabsListRef, getTabElement } = useTabsListContext();
+  const { orientation, value } = useTabsContext();
 
-  const { value, tabsListRef, getTabElement } = tabsListContext;
-
-  const [previousLeft, setPreviousLeft] = React.useState(0);
+  // The coordinate of the leading edge of the previously selected tab
+  const [previousTabEdge, setPreviousTabEdge] = React.useState(0);
   const [direction, setDirection] = React.useState<1 | -1 | 0>(0);
+
+  React.useEffect(() => {
+    // Whenever orientation changes, reset the state.
+    setDirection(0);
+    setPreviousTabEdge(0);
+  }, [orientation]);
 
   if (value == null || tabsListRef.current == null) {
     return null;
@@ -21,6 +25,8 @@ export function useBubble() {
   if (selectedTabElement == null) {
     return null;
   }
+
+  // TODO: resize observer on TabsList
 
   const {
     left: tabLeft,
@@ -41,12 +47,20 @@ export function useBubble() {
   const top = tabTop - listTop;
   const bottom = listBottom - tabBottom;
 
-  if (left < previousLeft) {
+  if (orientation === 'horizontal') {
+    if (left < previousTabEdge) {
+      setDirection(-1);
+      setPreviousTabEdge(left);
+    } else if (left > previousTabEdge) {
+      setDirection(1);
+      setPreviousTabEdge(left);
+    }
+  } else if (top < previousTabEdge) {
     setDirection(-1);
-    setPreviousLeft(left);
-  } else if (left > previousLeft) {
+    setPreviousTabEdge(top);
+  } else if (top > previousTabEdge) {
     setDirection(1);
-    setPreviousLeft(left);
+    setPreviousTabEdge(top);
   }
 
   return {
@@ -54,6 +68,7 @@ export function useBubble() {
     right,
     top,
     bottom,
-    direction,
+    movementDirection: direction,
+    orientation,
   };
 }
