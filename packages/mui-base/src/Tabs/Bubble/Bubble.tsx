@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { useBubble } from './useBubble';
 import { TabsContext } from '../TabsContext';
-
-interface TabsBubbleProps extends React.HTMLAttributes<HTMLSpanElement> {}
+import { TabsBubbleProps } from './Bubble.types';
 
 export const TabsBubble = React.forwardRef<HTMLSpanElement, TabsBubbleProps>(
   function TabsBubble(props, forwardedRef) {
