@@ -42,16 +42,20 @@ export interface NumberFieldProps
    */
   max?: number;
   /**
-   * The small step value of the input element when incrementing while the meta key is held.
+   * The small step value of the input element when incrementing while the meta key is held. Snaps
+   * to multiples of this value.
    * @default 0.1
    */
   smallStep?: number;
   /**
-   * The step value of the input element when incrementing.
+   * The step value of the input element when incrementing, decrementing, or scrubbing. It will snap
+   * to multiples of this value. When unspecified, decimal values are allowed, but the stepper
+   * buttons will increment or decrement by `1`.
    */
   step?: number;
   /**
-   * The large step value of the input element when incrementing while the shift key is held.
+   * The large step value of the input element when incrementing while the shift key is held. Snaps
+   * to multiples of this value.
    * @default 10
    */
   largeStep?: number;
@@ -124,7 +128,6 @@ export interface NumberFieldScrubAreaProps
   extends BaseUiComponentCommonProps<'span', NumberFieldOwnerState> {
   /**
    * The direction that the scrub area should change the value.
-   *
    * @default 'vertical'
    */
   direction?: 'vertical' | 'horizontal';
@@ -135,8 +138,8 @@ export interface NumberFieldScrubAreaProps
    */
   pixelSensitivity?: number;
   /**
-   * If specified, how much the cursor can move from the scrubbing starting point before the cursor
-   * teleports back to the starting point.
+   * If specified, how much the cursor can move around the center of the scrub area element before
+   * it will loop back around.
    */
   teleportDistance?: number | undefined;
 }

@@ -16,7 +16,7 @@
     "id": { "description": "The id of the input element." },
     "invalid": { "description": "If <code>true</code>, the input element is invalid." },
     "largeStep": {
-      "description": "The large step value of the input element when incrementing while the shift key is held."
+      "description": "The large step value of the input element when incrementing while the shift key is held. Snaps to multiples of this value."
     },
     "max": { "description": "The maximum value of the input element." },
     "min": { "description": "The minimum value of the input element." },
@@ -25,9 +25,11 @@
     "render": { "description": "A function to customize rendering of the component." },
     "required": { "description": "If <code>true</code>, the input element is required." },
     "smallStep": {
-      "description": "The small step value of the input element when incrementing while the meta key is held."
+      "description": "The small step value of the input element when incrementing while the meta key is held. Snaps to multiples of this value."
     },
-    "step": { "description": "The step value of the input element when incrementing." },
+    "step": {
+      "description": "The step value of the input element when incrementing, decrementing, or scrubbing. It will snap to multiples of this value. When unspecified, decimal values are allowed, but the stepper buttons will increment or decrement by <code>1</code>."
+    },
     "value": { "description": "The raw number value of the input element." }
   },
   "classDescriptions": {}

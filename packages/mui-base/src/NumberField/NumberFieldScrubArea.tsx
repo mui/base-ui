@@ -33,7 +33,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, ownerState, isScrubbing } =
+  const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, ownerState } =
     useNumberFieldContext('ScrubArea');
 
   React.useImperativeHandle(scrubHandleRef, () => ({
@@ -47,7 +47,6 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   const scrubAreaProps = getScrubAreaProps({
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
-    ['data-scrubbing' as string]: isScrubbing || undefined,
     ...otherProps,
   });
 
@@ -69,7 +68,6 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The direction that the scrub area should change the value.
-   *
    * @default 'vertical'
    */
   direction: PropTypes.oneOf(['horizontal', 'vertical']),
@@ -84,8 +82,8 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.func,
   /**
-   * If specified, how much the cursor can move from the scrubbing starting point before the cursor
-   * teleports back to the starting point.
+   * If specified, how much the cursor can move around the center of the scrub area element before
+   * it will loop back around.
    */
   teleportDistance: PropTypes.number,
 } as any;

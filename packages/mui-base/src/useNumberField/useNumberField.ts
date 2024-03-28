@@ -150,9 +150,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   });
 
   const stopAutoChange = useEventCallback(() => {
-    clearTimeout(intentionalTouchCheckTimeoutRef.current);
-    clearTimeout(startTickTimeoutRef.current);
-    clearInterval(tickIntervalRef.current);
+    window.clearTimeout(intentionalTouchCheckTimeoutRef.current);
+    window.clearTimeout(startTickTimeoutRef.current);
+    window.clearInterval(tickIntervalRef.current);
     unsubscribeFromGlobalContextMenuRef.current();
     movesAfterTouchRef.current = 0;
   });
@@ -427,13 +427,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         },
         onPointerMove(event) {
           externalProps.onPointerMove?.(event);
-          if (
-            event.defaultPrevented ||
-            readOnly ||
-            disabled ||
-            event.pointerType !== 'touch' ||
-            !isPressedRef.current
-          ) {
+          if (readOnly || disabled || event.pointerType !== 'touch' || !isPressedRef.current) {
             return;
           }
 
@@ -514,11 +508,11 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       name,
       disabled,
       readOnly,
+      inputMode,
       type: 'text',
       autoComplete: 'off',
       autoCorrect: 'off',
       spellCheck: 'false',
-      inputMode,
       'aria-roledescription': 'Number field',
       'aria-invalid': invalid || undefined,
       ...externalProps,
@@ -551,22 +545,23 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         }
 
         allowInputSyncRef.current = false;
-
         const targetValue = event.target.value;
-        setInputValue(event.target.value);
 
-        if (event.isTrusted) {
+        if (targetValue.trim() === '') {
+          setInputValue(targetValue);
+          setValue(null);
           return;
         }
 
-        if (targetValue.trim() === '') {
-          setValue(null);
+        if (event.isTrusted) {
+          setInputValue(targetValue);
           return;
         }
 
         const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
 
         if (parsedValue !== null) {
+          setInputValue(targetValue);
           setValue(parsedValue);
         }
       },
@@ -582,21 +577,21 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         const { decimal } = getNumberLocaleDetails(undefined, formatOptionsRef.current);
 
-        // Allow the minus key only if there isn't already a plus or minus sign, or if all the text is selected, or if only the minus sign is highlighted.
+        const selectionStart = event.currentTarget.selectionStart;
+        const selectionEnd = event.currentTarget.selectionEnd;
+        const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
+
+        // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
+        // is selected, or if only the minus sign is highlighted.
         if (event.key === '-') {
-          const selectionStart = event.currentTarget.selectionStart;
-          const selectionEnd = event.currentTarget.selectionEnd;
-          const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
           const isMinusHighlighted =
             selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
           isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
         }
 
-        // Allow only one decimal separator, or if all the text is selected, or if only the decimal separator is highlighted.
+        // Allow only one decimal separator, or if all the text is selected, or if only the decimal
+        // separator is highlighted.
         if (event.key === decimal) {
-          const selectionStart = event.currentTarget.selectionStart;
-          const selectionEnd = event.currentTarget.selectionEnd;
-          const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
           const decimalIndex = inputValue.indexOf(decimal);
           const isDecimalHighlighted =
             selectionStart === decimalIndex && selectionEnd === decimalIndex + 1;
@@ -659,8 +654,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         if (event.defaultPrevented || readOnly || disabled) {
           return;
         }
-
-        event.preventDefault();
 
         const clipboardData = event.clipboardData || window.Clipboard;
         const pastedData = clipboardData.getData('text/plain');

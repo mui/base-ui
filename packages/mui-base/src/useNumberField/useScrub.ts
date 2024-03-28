@@ -21,7 +21,7 @@ export function useScrub(params: ScrubParams) {
 
   const avoidFlickerTimeoutRef = React.useRef(-1);
   const isScrubbingRef = React.useRef(false);
-  const virtualCursorRef = React.useRef<HTMLSpanElement>(null);
+  const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
   const unsubscribeVisualViewportResizeRef = React.useRef<() => void>(() => {});
@@ -36,7 +36,7 @@ export function useScrub(params: ScrubParams) {
   }, []);
 
   const onScrub = React.useCallback(({ movementX, movementY }: PointerEvent) => {
-    const virtualCursor = virtualCursorRef.current;
+    const virtualCursor = scrubAreaCursorRef.current;
     const scrubAreaEl = scrubAreaRef.current;
     const scrubHandle = scrubHandleRef.current;
 
@@ -80,7 +80,7 @@ export function useScrub(params: ScrubParams) {
         setIsScrubbing(scrubbingValue);
       });
 
-      const virtualCursor = virtualCursorRef.current;
+      const virtualCursor = scrubAreaCursorRef.current;
       if (!virtualCursor || !scrubbingValue) {
         return;
       }
@@ -107,6 +107,7 @@ export function useScrub(params: ScrubParams) {
   const getScrubAreaProps: UseNumberFieldReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) => ({
       role: 'presentation',
+      ['data-scrubbing' as string]: isScrubbing || undefined,
       ...externalProps,
       style: {
         touchAction: 'none',
@@ -134,13 +135,32 @@ export function useScrub(params: ScrubParams) {
           // There can be some frames where there's no cursor at all when requesting the pointer lock.
           // This is a workaround to avoid flickering.
           avoidFlickerTimeoutRef.current = window.setTimeout(() => {
-            ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+            ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
           }, 20);
         }
       },
     }),
-    [readOnly, disabled, onScrubbingChange, inputRef],
+    [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
+
+  const getScrubAreaCursorProps: UseNumberFieldReturnValue['getScrubAreaCursorProps'] =
+    React.useCallback(
+      (externalProps = {}) => ({
+        role: 'presentation',
+        ...externalProps,
+        style: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+          zIndex: 2147483647, // max z-index
+          ...cursorStyles,
+          ...externalProps.style,
+          transform: `${cursorStyles.transform} ${externalProps.style?.transform || ''}`,
+        },
+      }),
+      [cursorStyles],
+    );
 
   React.useEffect(
     function registerGlobalScrubbingEventListeners() {
@@ -159,7 +179,7 @@ export function useScrub(params: ScrubParams) {
         onScrubbingChange(false, event);
 
         if (!isWebKit()) {
-          ownerDocument(scrubAreaRef.current).exitPointerLock();
+          ownerDocument(scrubAreaRef.current).exitPointerLock?.();
         }
       }
 
@@ -176,9 +196,9 @@ export function useScrub(params: ScrubParams) {
         const { direction, pixelSensitivity } = scrubHandleRef.current;
         const { movementX, movementY } = event;
 
-        cumulativeDelta += Math.abs(direction === 'vertical' ? movementY : movementX);
+        cumulativeDelta += direction === 'vertical' ? movementY : movementX;
 
-        if (cumulativeDelta >= pixelSensitivity) {
+        if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
           const dValue = direction === 'vertical' ? -movementY : movementX;
           increment(dValue * (getStepAmount() ?? DEFAULT_STEP));
@@ -234,12 +254,12 @@ export function useScrub(params: ScrubParams) {
   return React.useMemo(
     () => ({
       isScrubbing,
-      cursorStyles,
       getScrubAreaProps,
-      virtualCursorRef,
+      getScrubAreaCursorProps,
+      scrubAreaCursorRef,
       scrubAreaRef,
       scrubHandleRef,
     }),
-    [isScrubbing, cursorStyles, getScrubAreaProps],
+    [isScrubbing, getScrubAreaProps, getScrubAreaCursorProps],
   );
 }

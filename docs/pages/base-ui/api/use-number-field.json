@@ -1,42 +1,45 @@
 {
   "parameters": {},
   "returnValue": {
-    "cursorStyles": {
-      "type": { "name": "React.CSSProperties", "description": "React.CSSProperties" },
-      "required": true
-    },
     "getDecrementButtonProps": {
       "type": {
-        "name": "(props?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
-        "description": "(props?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
       },
       "required": true
     },
     "getGroupProps": {
       "type": {
-        "name": "(props?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
-        "description": "(props?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
       },
       "required": true
     },
     "getIncrementButtonProps": {
       "type": {
-        "name": "(props?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
-        "description": "(props?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
       },
       "required": true
     },
     "getInputProps": {
       "type": {
-        "name": "(props?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
-        "description": "(props?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
+      },
+      "required": true
+    },
+    "getScrubAreaCursorProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
       },
       "required": true
     },
     "getScrubAreaProps": {
       "type": {
-        "name": "(props?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
-        "description": "(props?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
       },
       "required": true
     },
@@ -49,6 +52,13 @@
     },
     "inputValue": { "type": { "name": "string", "description": "string" }, "required": true },
     "isScrubbing": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "scrubAreaCursorRef": {
+      "type": {
+        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
+        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
+      },
+      "required": true
+    },
     "scrubAreaRef": {
       "type": {
         "name": "React.RefObject&lt;HTMLSpanElement&gt;",
@@ -65,13 +75,6 @@
     },
     "value": {
       "type": { "name": "number | null", "description": "number | null" },
-      "required": true
-    },
-    "virtualCursorRef": {
-      "type": {
-        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
-        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
-      },
       "required": true
     }
   },

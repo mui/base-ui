@@ -144,7 +144,8 @@ NumberField.propTypes /* remove-proptypes */ = {
    */
   invalid: PropTypes.bool,
   /**
-   * The large step value of the input element when incrementing while the shift key is held.
+   * The large step value of the input element when incrementing while the shift key is held. Snaps
+   * to multiples of this value.
    * @default 10
    */
   largeStep: PropTypes.number,
@@ -179,12 +180,15 @@ NumberField.propTypes /* remove-proptypes */ = {
    */
   required: PropTypes.bool,
   /**
-   * The small step value of the input element when incrementing while the meta key is held.
+   * The small step value of the input element when incrementing while the meta key is held. Snaps
+   * to multiples of this value.
    * @default 0.1
    */
   smallStep: PropTypes.number,
   /**
-   * The step value of the input element when incrementing.
+   * The step value of the input element when incrementing, decrementing, or scrubbing. It will snap
+   * to multiples of this value. When unspecified, decimal values are allowed, but the stepper
+   * buttons will increment or decrement by `1`.
    */
   step: PropTypes.number,
   /**

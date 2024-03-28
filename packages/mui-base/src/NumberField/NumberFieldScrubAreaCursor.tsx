@@ -28,29 +28,20 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   const { render: renderProp, className, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
-  const { isScrubbing, virtualCursorRef, ownerState, cursorStyles } =
+  const { isScrubbing, scrubAreaCursorRef, ownerState, getScrubAreaCursorProps } =
     useNumberFieldContext('ScrubAreaCursor');
 
-  const mergedRef = useForkRef(forwardedRef, virtualCursorRef);
+  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef);
 
   if (!isScrubbing || isWebKit()) {
     return null;
   }
 
-  const virtualCursorProps: React.ComponentPropsWithRef<'span'> = {
+  const virtualCursorProps = getScrubAreaCursorProps({
     ...otherProps,
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
-    style: {
-      position: 'fixed',
-      pointerEvents: 'none',
-      zIndex: 2147483647,
-      top: 0,
-      left: 0,
-      ...otherProps.style,
-      transform: `${cursorStyles.transform} ${otherProps.style?.transform || ''}`,
-    },
-  };
+  });
 
   return ReactDOM.createPortal(render(virtualCursorProps, ownerState), document.body);
 });
@@ -72,10 +63,6 @@ NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.func,
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
 } as any;
 
 export { NumberFieldScrubAreaCursor };

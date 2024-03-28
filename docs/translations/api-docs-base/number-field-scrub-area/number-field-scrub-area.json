@@ -10,7 +10,7 @@
     },
     "render": { "description": "A function to customize rendering of the component." },
     "teleportDistance": {
-      "description": "If specified, how much the cursor can move from the scrubbing starting point before the cursor teleports back to the starting point."
+      "description": "If specified, how much the cursor can move around the center of the scrub area element before it will loop back around."
     }
   },
   "classDescriptions": {}
