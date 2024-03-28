@@ -21,8 +21,17 @@ export interface TabsListProviderProps {
  */
 export function TabsListProvider(props: TabsListProviderProps) {
   const { value, children } = props;
-  const { dispatch, getItemIndex, getItemState, registerItem, totalSubitemCount, activateOnFocus } =
-    value;
+  const {
+    dispatch,
+    getItemIndex,
+    getItemState,
+    registerItem,
+    totalSubitemCount,
+    activateOnFocus,
+    getTabElement,
+    value: selectedValue,
+    tabsListRef,
+  } = value;
 
   const listContextValue: ListContextValue<string | number> = React.useMemo(
     () => ({
@@ -44,8 +53,8 @@ export function TabsListProvider(props: TabsListProviderProps) {
     );
 
   const tabsListContextValue: TabsListContextValue = React.useMemo(
-    () => ({ activateOnFocus }),
-    [activateOnFocus],
+    () => ({ activateOnFocus, getTabElement, value: selectedValue, tabsListRef }),
+    [activateOnFocus, getTabElement, selectedValue, tabsListRef],
   );
 
   return (

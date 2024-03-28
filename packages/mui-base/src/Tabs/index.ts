@@ -3,6 +3,7 @@ import { Tabs as TabsRoot } from './Tabs';
 import { Tab } from './Tab';
 import { TabsList } from './TabsList';
 import { TabPanel } from './TabPanel';
+import { TabsBubble } from './Bubble';
 
 export * from './TabsContext';
 
@@ -15,4 +16,5 @@ export const Tabs = combineComponentExports(TabsRoot, {
   Tab,
   List: TabsList,
   Panel: TabPanel,
+  Bubble: TabsBubble,
 });
