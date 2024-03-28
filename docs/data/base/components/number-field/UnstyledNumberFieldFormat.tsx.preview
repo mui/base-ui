@@ -1,0 +1,11 @@
+<NumberField
+  format={{ style: 'currency', currency: 'USD' }}
+  defaultValue={10}
+  min={0}
+>
+  <NumberFieldGroup style={{ display: 'flex', gap: 4 }}>
+    <NumberFieldDecrement>&minus;</NumberFieldDecrement>
+    <NumberFieldInput />
+    <NumberFieldIncrement>+</NumberFieldIncrement>
+  </NumberFieldGroup>
+</NumberField>
