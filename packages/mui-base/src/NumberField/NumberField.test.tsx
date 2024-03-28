@@ -349,6 +349,58 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('prop: smallStep', () => {
+    it('should increment the value by the default `smallStep` prop of 0.1 while holding Alt', () => {
+      render(<NumberField defaultValue={5} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { key: 'Alt', metaKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('5.1');
+    });
+
+    it('should decrement the value by the default `smallStep` prop of 0.1 while holding Alt', () => {
+      render(<NumberField defaultValue={6} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { key: 'Alt', metaKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Decrease'));
+      expect(input).to.have.value('5.9');
+    });
+
+    it('should use explicit `smallStep` value if provided while holding Alt', () => {
+      render(<NumberField defaultValue={5} smallStep={0.5} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { key: 'Alt', metaKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('5.5');
+    });
+  });
+
+  describe('prop: format', () => {
+    it('should format the value using the provided options', () => {
+      render(<NumberField defaultValue={1000} format={{ style: 'currency', currency: 'USD' }} />);
+      const input = screen.getByRole('textbox');
+      expect(input).to.have.value('$1,000.00');
+    });
+  });
+
+  describe('prop: allowWheelScrub', () => {
+    it('should allow the user to scrub the input value with the mouse wheel', () => {
+      render(<NumberField defaultValue={5} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      act(() => input.focus());
+      fireEvent.wheel(input, { deltaY: 1 });
+      expect(input).to.have.value('4');
+    });
+
+    it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', () => {
+      render(<NumberField defaultValue={5} allowWheelScrub={false} />);
+      const input = screen.getByRole('textbox');
+      act(() => input.focus());
+      fireEvent.wheel(input, { deltaY: 1 });
+      expect(input).to.have.value('5');
+    });
+  });
+
   describe('form handling', () => {
     it('should include the input value in the form submission', function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {

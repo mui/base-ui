@@ -150,9 +150,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   });
 
   const stopAutoChange = useEventCallback(() => {
-    clearTimeout(intentionalTouchCheckTimeoutRef.current);
-    clearTimeout(startTickTimeoutRef.current);
-    clearInterval(tickIntervalRef.current);
+    window.clearTimeout(intentionalTouchCheckTimeoutRef.current);
+    window.clearTimeout(startTickTimeoutRef.current);
+    window.clearInterval(tickIntervalRef.current);
     unsubscribeFromGlobalContextMenuRef.current();
     movesAfterTouchRef.current = 0;
   });
@@ -514,11 +514,11 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       name,
       disabled,
       readOnly,
+      inputMode,
       type: 'text',
       autoComplete: 'off',
       autoCorrect: 'off',
       spellCheck: 'false',
-      inputMode,
       'aria-roledescription': 'Number field',
       'aria-invalid': invalid || undefined,
       ...externalProps,
@@ -551,22 +551,23 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         }
 
         allowInputSyncRef.current = false;
-
         const targetValue = event.target.value;
-        setInputValue(event.target.value);
 
-        if (event.isTrusted) {
+        if (targetValue.trim() === '') {
+          setInputValue(targetValue);
+          setValue(null);
           return;
         }
 
-        if (targetValue.trim() === '') {
-          setValue(null);
+        if (event.isTrusted) {
+          setInputValue(targetValue);
           return;
         }
 
         const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
 
         if (parsedValue !== null) {
+          setInputValue(targetValue);
           setValue(parsedValue);
         }
       },
@@ -659,8 +660,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         if (event.defaultPrevented || readOnly || disabled) {
           return;
         }
-
-        event.preventDefault();
 
         const clipboardData = event.clipboardData || window.Clipboard;
         const pastedData = clipboardData.getData('text/plain');

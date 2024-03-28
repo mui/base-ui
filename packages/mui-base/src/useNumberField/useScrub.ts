@@ -134,7 +134,7 @@ export function useScrub(params: ScrubParams) {
           // There can be some frames where there's no cursor at all when requesting the pointer lock.
           // This is a workaround to avoid flickering.
           avoidFlickerTimeoutRef.current = window.setTimeout(() => {
-            ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+            ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
           }, 20);
         }
       },
@@ -159,7 +159,7 @@ export function useScrub(params: ScrubParams) {
         onScrubbingChange(false, event);
 
         if (!isWebKit()) {
-          ownerDocument(scrubAreaRef.current).exitPointerLock();
+          ownerDocument(scrubAreaRef.current).exitPointerLock?.();
         }
       }
 
