@@ -484,10 +484,19 @@ describe('<NumberField />', () => {
   });
 
   describe('pasting', () => {
-    it('should allow pasting a valid number', async () => {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      // ClipboardEvent is not available in JSDOM
+      return;
+    }
+
+    it('should allow pasting a valid number', () => {
       render(<NumberField />);
       const input = screen.getByRole('textbox');
-      fireEvent.paste(input, { clipboardData: { getData: () => '123' } });
+
+      const dataTransfer = new DataTransfer();
+      dataTransfer.setData('text/plain', '123');
+
+      fireEvent.paste(input, { clipboardData: dataTransfer });
       fireEvent.change(input, { target: { value: '123' } });
       expect(input).to.have.value('123');
     });
@@ -495,7 +504,11 @@ describe('<NumberField />', () => {
     it('should not allow pasting an invalid number', () => {
       render(<NumberField />);
       const input = screen.getByRole('textbox');
-      fireEvent.paste(input, { clipboardData: { getData: () => 'abc' } });
+
+      const dataTransfer = new DataTransfer();
+      dataTransfer.setData('text/plain', 'abc');
+
+      fireEvent.paste(input, { clipboardData: dataTransfer });
       fireEvent.change(input, { target: { value: 'abc' } });
       expect(input).to.have.value('');
       fireEvent.blur(input);

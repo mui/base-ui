@@ -49,6 +49,13 @@
     },
     "inputValue": { "type": { "name": "string", "description": "string" }, "required": true },
     "isScrubbing": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "scrubAreaCursorRef": {
+      "type": {
+        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
+        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
+      },
+      "required": true
+    },
     "scrubAreaRef": {
       "type": {
         "name": "React.RefObject&lt;HTMLSpanElement&gt;",
@@ -65,13 +72,6 @@
     },
     "value": {
       "type": { "name": "number | null", "description": "number | null" },
-      "required": true
-    },
-    "virtualCursorRef": {
-      "type": {
-        "name": "React.RefObject&lt;HTMLSpanElement&gt;",
-        "description": "React.RefObject&lt;HTMLSpanElement&gt;"
-      },
       "required": true
     }
   },
