@@ -11,6 +11,7 @@ export * from './Tabs.types';
 export * from './Tab/Tab.types';
 export * from './TabsList/TabsList.types';
 export * from './TabPanel/TabPanel.types';
+export * from './Bubble/Bubble.types';
 
 export const Tabs = combineComponentExports(TabsRoot, {
   Tab,
