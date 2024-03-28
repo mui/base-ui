@@ -62,6 +62,14 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('');
     });
+
+    it('should be `null` when the input is empty but not trimmed', () => {
+      const onChange = spy();
+      render(<NumberField value={1} onChange={onChange} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '  ' } });
+      expect(onChange.firstCall.args[0]).to.equal(null);
+    });
   });
 
   describe('prop: onChange', () => {
@@ -324,54 +332,77 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: largeStep', () => {
-    it('should increment the value by the default `largeStep` prop of 10 while holding Shift', () => {
+    it('should increment the value by the default `largeStep` prop of 10 while holding the shift key', () => {
       render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { key: 'Shift', shiftKey: true });
+      fireEvent.keyDown(window, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('20');
     });
 
-    it('should decrement the value by the default `largeStep` prop of 10 while holding Shift', () => {
+    it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', () => {
       render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { key: 'Shift', shiftKey: true });
+      fireEvent.keyDown(window, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('0');
     });
 
-    it('should use explicit `largeStep` value if provided while holding Shift', () => {
+    it('should use explicit `largeStep` value if provided while holding the shift key', () => {
       render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { key: 'Shift', shiftKey: true });
+      fireEvent.keyDown(window, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('10');
+    });
+
+    it('should not use the `largeStep` prop if no longer holding the shift key', () => {
+      render(<NumberField defaultValue={5} largeStep={5} />);
+      const input = screen.getByRole('textbox');
+      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('10');
+      fireEvent.keyUp(window, { shiftKey: true });
+      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      expect(input).to.have.value('15');
     });
   });
 
   describe('prop: smallStep', () => {
-    it('should increment the value by the default `smallStep` prop of 0.1 while holding Alt', () => {
+    it('should increment the value by the default `smallStep` prop of 0.1 while holding the meta key', () => {
       render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { key: 'Alt', metaKey: true });
+      fireEvent.keyDown(window, { metaKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('5.1');
     });
 
-    it('should decrement the value by the default `smallStep` prop of 0.1 while holding Alt', () => {
+    it('should decrement the value by the default `smallStep` prop of 0.1 while holding the meta key', () => {
       render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { key: 'Alt', metaKey: true });
+      fireEvent.keyDown(window, { metaKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('5.9');
     });
 
-    it('should use explicit `smallStep` value if provided while holding Alt', () => {
+    it('should use explicit `smallStep` value if provided while holding the meta key', () => {
       render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { key: 'Alt', metaKey: true });
+      fireEvent.keyDown(window, { metaKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('5.5');
+    });
+
+    it('should not use the `smallStep` prop if no longer holding the meta key', () => {
+      render(<NumberField defaultValue={5} smallStep={0.5} />);
+      const input = screen.getByRole('textbox');
+      const button = screen.getByLabelText('Increase');
+      fireEvent.keyDown(window, { metaKey: true });
+      fireEvent.pointerDown(button);
+      expect(input).to.have.value('5.5');
+      fireEvent.keyUp(window, { metaKey: false });
+      fireEvent.pointerDown(button);
+      expect(input).to.have.value('6.5');
     });
   });
 
@@ -390,6 +421,8 @@ describe('<NumberField />', () => {
       act(() => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('4');
+      fireEvent.wheel(input, { deltaY: -1 });
+      expect(input).to.have.value('5');
     });
 
     it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', () => {
@@ -397,6 +430,8 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       act(() => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
+      expect(input).to.have.value('5');
+      fireEvent.wheel(input, { deltaY: -5 });
       expect(input).to.have.value('5');
     });
   });
@@ -437,6 +472,47 @@ describe('<NumberField />', () => {
       act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
+    });
+  });
+
+  describe('inputMode', () => {
+    it('should set the inputMode to numeric', () => {
+      render(<NumberField />);
+      const input = screen.getByRole('textbox');
+      expect(input).to.have.attribute('inputmode', 'numeric');
+    });
+  });
+
+  describe('pasting', () => {
+    it('should allow pasting a valid number', async () => {
+      render(<NumberField />);
+      const input = screen.getByRole('textbox');
+      fireEvent.paste(input, { clipboardData: { getData: () => '123' } });
+      fireEvent.change(input, { target: { value: '123' } });
+      expect(input).to.have.value('123');
+    });
+
+    it('should not allow pasting an invalid number', () => {
+      render(<NumberField />);
+      const input = screen.getByRole('textbox');
+      fireEvent.paste(input, { clipboardData: { getData: () => 'abc' } });
+      fireEvent.change(input, { target: { value: 'abc' } });
+      expect(input).to.have.value('');
+      fireEvent.blur(input);
+      expect(input).to.have.value('');
+    });
+  });
+
+  it('should allow navigation keys and not prevent their default behavior', () => {
+    render(<NumberField />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '123' } });
+
+    const navigateKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
+    navigateKeys.forEach((key) => {
+      const preventDefaultSpy = spy();
+      fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).to.have.property('callCount', 0);
     });
   });
 });

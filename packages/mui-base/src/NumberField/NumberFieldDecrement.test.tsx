@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { createRenderer, screen } from '@mui/internal-test-utils';
 import { NumberField } from '@mui/base/NumberField';
 import { fireEvent } from '@testing-library/react';
 import { describeConformance } from '../../test/describeConformance';
@@ -50,9 +50,7 @@ describe('<NumberField.Decrement />', () => {
     );
 
     const button = screen.getByRole('button');
-
-    act(() => button.click());
-
+    fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('0');
   });
 
@@ -65,9 +63,7 @@ describe('<NumberField.Decrement />', () => {
     );
 
     const button = screen.getByRole('button');
-
-    act(() => button.click());
-
+    fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('-1');
   });
 
@@ -121,6 +117,114 @@ describe('<NumberField.Decrement />', () => {
 
       expect(input).to.have.value('-1');
     });
+
+    it('should stop decrementing after mouseleave', () => {
+      render(
+        <NumberField defaultValue={0}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button); // onChange x1
+
+      expect(input).to.have.value('-1');
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x2
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
+
+      expect(input).to.have.value('-4');
+
+      fireEvent.mouseLeave(button);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('-4');
+    });
+
+    it('should start decrementing again after mouseleave then mouseenter', () => {
+      render(
+        <NumberField defaultValue={0}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button); // onChange x1
+
+      expect(input).to.have.value('-1');
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x2
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
+
+      expect(input).to.have.value('-4');
+
+      fireEvent.mouseLeave(button);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('-4');
+
+      fireEvent.mouseEnter(button);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x5
+
+      expect(input).to.have.value('-5');
+    });
+
+    it('should not start decrementing again after mouseleave then mouseenter after pointerup', () => {
+      render(
+        <NumberField defaultValue={0}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button); // onChange x1
+
+      expect(input).to.have.value('-1');
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x2
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
+      clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
+
+      expect(input).to.have.value('-4');
+
+      fireEvent.pointerUp(button);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('-4');
+
+      fireEvent.mouseLeave(button);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('-4');
+
+      fireEvent.mouseEnter(button);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('-4');
+    });
   });
 
   it('should not decrement when disabled', () => {
@@ -132,9 +236,7 @@ describe('<NumberField.Decrement />', () => {
     );
 
     const button = screen.getByRole('button');
-
-    act(() => button.click());
-
+    fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('');
   });
 
@@ -147,9 +249,7 @@ describe('<NumberField.Decrement />', () => {
     );
 
     const button = screen.getByRole('button');
-
-    act(() => button.click());
-
+    fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('');
   });
 });

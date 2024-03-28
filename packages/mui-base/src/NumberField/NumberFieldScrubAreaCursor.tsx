@@ -28,10 +28,10 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   const { render: renderProp, className, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
-  const { isScrubbing, virtualCursorRef, ownerState, cursorStyles } =
+  const { isScrubbing, scrubAreaCursorRef, ownerState, cursorStyles } =
     useNumberFieldContext('ScrubAreaCursor');
 
-  const mergedRef = useForkRef(forwardedRef, virtualCursorRef);
+  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef);
 
   if (!isScrubbing || isWebKit()) {
     return null;
@@ -39,6 +39,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 
   const virtualCursorProps: React.ComponentPropsWithRef<'span'> = {
     ...otherProps,
+    role: 'presentation',
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
     style: {

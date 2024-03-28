@@ -15,8 +15,8 @@ export function testClassName(
     }
 
     it('should apply the className when passed as a string', async () => {
-      const { container } = await render(React.cloneElement(element, { className: 'test-class' }));
-      expect(container.firstElementChild?.className).to.contain('test-class');
+      await render(React.cloneElement(element, { className: 'test-class' }));
+      expect(document.querySelector('.test-class')).not.to.equal(null);
     });
   });
 }

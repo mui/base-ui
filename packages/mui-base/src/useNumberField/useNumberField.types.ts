@@ -19,7 +19,7 @@ export interface UseNumberFieldReturnValue {
   inputRef: React.RefObject<HTMLInputElement>;
   scrubAreaRef: React.RefObject<HTMLSpanElement>;
   scrubHandleRef: React.RefObject<ScrubHandle | null>;
-  virtualCursorRef: React.RefObject<HTMLSpanElement>;
+  scrubAreaCursorRef: React.RefObject<HTMLSpanElement>;
   isScrubbing: boolean;
   cursorStyles: React.CSSProperties;
 }

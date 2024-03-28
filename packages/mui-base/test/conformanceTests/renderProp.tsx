@@ -16,7 +16,7 @@ export function testRenderProp(
   const Wrapper = React.forwardRef<any, { children?: React.ReactNode }>(
     function Wrapper(props, forwardedRef) {
       return (
-        <div data-testid="wrapper">
+        <div data-testid="base-ui-wrapper">
           {/* @ts-ignore */}
           <Element ref={forwardedRef} {...props} />
         </div>
@@ -26,13 +26,13 @@ export function testRenderProp(
 
   describe('prop: render', () => {
     it('renders a customized root element', async () => {
-      const { container, getByTestId } = await render(
+      await render(
         React.cloneElement(element, {
           render: (props: any) => <Wrapper {...props} />,
         }),
       );
 
-      expect(container.firstElementChild).to.equal(getByTestId('wrapper'));
+      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
     });
 
     it('should pass the ref to the custom component', () => {

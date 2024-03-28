@@ -21,7 +21,7 @@ export function useScrub(params: ScrubParams) {
 
   const avoidFlickerTimeoutRef = React.useRef(-1);
   const isScrubbingRef = React.useRef(false);
-  const virtualCursorRef = React.useRef<HTMLSpanElement>(null);
+  const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
   const unsubscribeVisualViewportResizeRef = React.useRef<() => void>(() => {});
@@ -36,7 +36,7 @@ export function useScrub(params: ScrubParams) {
   }, []);
 
   const onScrub = React.useCallback(({ movementX, movementY }: PointerEvent) => {
-    const virtualCursor = virtualCursorRef.current;
+    const virtualCursor = scrubAreaCursorRef.current;
     const scrubAreaEl = scrubAreaRef.current;
     const scrubHandle = scrubHandleRef.current;
 
@@ -80,7 +80,7 @@ export function useScrub(params: ScrubParams) {
         setIsScrubbing(scrubbingValue);
       });
 
-      const virtualCursor = virtualCursorRef.current;
+      const virtualCursor = scrubAreaCursorRef.current;
       if (!virtualCursor || !scrubbingValue) {
         return;
       }
@@ -236,7 +236,7 @@ export function useScrub(params: ScrubParams) {
       isScrubbing,
       cursorStyles,
       getScrubAreaProps,
-      virtualCursorRef,
+      scrubAreaCursorRef,
       scrubAreaRef,
       scrubHandleRef,
     }),
