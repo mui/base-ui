@@ -29,7 +29,6 @@ export function TabsListProvider(props: TabsListProviderProps) {
     totalSubitemCount,
     activateOnFocus,
     getTabElement,
-    value: selectedValue,
     tabsListRef,
   } = value;
 
@@ -53,8 +52,8 @@ export function TabsListProvider(props: TabsListProviderProps) {
     );
 
   const tabsListContextValue: TabsListContextValue = React.useMemo(
-    () => ({ activateOnFocus, getTabElement, value: selectedValue, tabsListRef }),
-    [activateOnFocus, getTabElement, selectedValue, tabsListRef],
+    () => ({ activateOnFocus, getTabElement, tabsListRef }),
+    [activateOnFocus, getTabElement, tabsListRef],
   );
 
   return (
