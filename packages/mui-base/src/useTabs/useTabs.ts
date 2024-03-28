@@ -30,7 +30,6 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
     onChange,
     orientation = 'horizontal',
     direction = 'ltr',
-    selectionFollowsFocus = false,
   } = parameters;
 
   const [value, setValue] = useControlled({
@@ -70,6 +69,14 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
     tabIdLookup.current = lookupFunction;
   }, []);
 
+  const getRootProps: UseTabsReturnValue['getRootProps'] = React.useCallback(
+    (otherProps = {}) => ({
+      dir: direction,
+      ...otherProps,
+    }),
+    [direction],
+  );
+
   return {
     contextValue: {
       direction,
@@ -78,10 +85,10 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
       onSelected,
       orientation,
       registerTabIdLookup,
-      selectionFollowsFocus,
       value,
       ...compoundComponentContextValue,
     },
+    getRootProps,
   };
 }
 

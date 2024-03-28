@@ -1,16 +1,13 @@
 import * as React from 'react';
-import { act, createMount, createRenderer } from '@mui/internal-test-utils';
-import { Tab } from '@mui/base/Tab';
-import { Tabs, TabsContext } from '@mui/base/Tabs';
-import { TabsList, tabsListClasses } from '@mui/base/TabsList';
 import { expect } from 'chai';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { act, createRenderer } from '@mui/internal-test-utils';
+import { Tabs, TabsContext } from '@mui/base/Tabs';
+import { describeConformance } from '../../../test/describeConformance';
 
-describe('<TabsList />', () => {
+describe('<Tabs.List />', () => {
   const { render } = createRenderer();
-  const mount = createMount();
 
-  describeConformanceUnstyled(<TabsList />, () => ({
+  describeConformance(<Tabs.List />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
@@ -29,32 +26,9 @@ describe('<TabsList />', () => {
 
       return { container, ...other };
     },
-    mount: (node: any) => {
-      const wrapper = mount(
-        <TabsContext.Provider
-          value={{
-            value: '1',
-            onSelected: () => {},
-            registerTabIdLookup() {},
-            getTabId: () => '',
-            getTabPanelId: () => '',
-          }}
-        >
-          {node}
-        </TabsContext.Provider>,
-      );
-      return wrapper.childAt(0);
-    },
     refInstanceof: window.HTMLDivElement,
-    testComponentPropWith: 'div',
-    slots: {
-      root: {
-        expectedClassName: tabsListClasses.root,
-      },
-    },
     skip: [
       'reactTestRenderer', // Need to be wrapped with TabsContext
-      'componentProp',
     ],
   }));
 
@@ -62,11 +36,11 @@ describe('<TabsList />', () => {
     it('sets the aria-selected attribute on the selected tab', () => {
       const { getByText } = render(
         <Tabs defaultValue={1}>
-          <TabsList>
-            <Tab value={1}>Tab 1</Tab>
-            <Tab value={2}>Tab 2</Tab>
-            <Tab value={3}>Tab 3</Tab>
-          </TabsList>
+          <Tabs.List>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+            <Tabs.Tab value={3}>Tab 3</Tabs.Tab>
+          </Tabs.List>
         </Tabs>,
       );
 
@@ -102,5 +76,32 @@ describe('<TabsList />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'false');
     });
+  });
+
+  it('can be named via `aria-label`', () => {
+    const { getByRole } = render(
+      <Tabs defaultValue={0}>
+        <Tabs.List aria-label="string label">
+          <Tabs.Tab value={0} />
+        </Tabs.List>
+      </Tabs>,
+    );
+
+    expect(getByRole('tablist')).toHaveAccessibleName('string label');
+  });
+
+  it('can be named via `aria-labelledby`', () => {
+    const { getByRole } = render(
+      <React.Fragment>
+        <h3 id="label-id">complex name</h3>
+        <Tabs defaultValue={0}>
+          <Tabs.List aria-labelledby="label-id">
+            <Tabs.Tab value={0} />
+          </Tabs.List>
+        </Tabs>
+      </React.Fragment>,
+    );
+
+    expect(getByRole('tablist')).toHaveAccessibleName('complex name');
   });
 });

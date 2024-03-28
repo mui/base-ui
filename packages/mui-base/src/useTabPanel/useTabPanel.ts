@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
-import { useTabsContext } from '../Tabs';
+import { useTabsContext } from '../Tabs/TabsContext';
 import { useCompoundItem } from '../useCompound';
 import {
   UseTabPanelParameters,
@@ -51,6 +51,8 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
       'aria-labelledby': correspondingTabId ?? undefined,
       hidden,
       id: id ?? undefined,
+      role: 'tabpanel',
+      tabIndex: hidden ? -1 : 0,
       ...externalProps,
       ref: handleRef,
     };

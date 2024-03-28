@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { createMount, createRenderer } from '@mui/internal-test-utils';
-import { TabPanel, tabPanelClasses } from '@mui/base/TabPanel';
-import { TabsProvider, TabsProviderValue } from '../useTabs';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { createRenderer } from '@mui/internal-test-utils';
+import { Tabs } from '@mui/base/Tabs';
+import { TabsProvider, TabsProviderValue } from '@mui/base/useTabs';
+import { describeConformance } from '../../../test/describeConformance';
 
-describe('<TabPanel />', () => {
-  const mount = createMount();
+describe('<Tabs.Panel />', () => {
   const { render } = createRenderer();
 
   const tabsProviderDefaultValue: TabsProviderValue = {
@@ -19,10 +18,9 @@ describe('<TabPanel />', () => {
     totalSubitemCount: 1,
     direction: 'ltr',
     orientation: 'horizontal',
-    selectionFollowsFocus: false,
   };
 
-  describeConformanceUnstyled(<TabPanel value="1" />, () => ({
+  describeConformance(<Tabs.Panel value="1" />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
@@ -31,20 +29,9 @@ describe('<TabPanel />', () => {
 
       return { container, ...other };
     },
-    mount: (node: any) => {
-      const wrapper = mount(<TabsProvider value={tabsProviderDefaultValue}>{node}</TabsProvider>);
-      return wrapper.childAt(0);
-    },
     refInstanceof: window.HTMLDivElement,
-    testComponentPropWith: 'div',
-    slots: {
-      root: {
-        expectedClassName: tabPanelClasses.root,
-      },
-    },
     skip: [
       'reactTestRenderer', // Need to be wrapped with TabsContext
-      'componentProp',
     ],
   }));
 });

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTabsContext } from '../Tabs';
+import { useTabsContext } from '../Tabs/TabsContext';
 import {
   TabsListActionTypes,
   UseTabsListParameters,
@@ -12,6 +12,7 @@ import { useCompoundParent } from '../useCompound';
 import { TabMetadata } from '../useTabs/useTabs';
 import { useList, ListState, UseListParameters } from '../useList';
 import { tabsListReducer } from './tabsListReducer';
+import { useForkRef } from '../utils/useForkRef';
 
 /**
  *
@@ -24,7 +25,7 @@ import { tabsListReducer } from './tabsListReducer';
  * - [useTabsList API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tabs-list)
  */
 function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue {
-  const { rootRef: externalRef } = parameters;
+  const { rootRef: externalRef, loop, activateOnFocus } = parameters;
 
   const {
     direction = 'ltr',
@@ -32,7 +33,6 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     orientation = 'horizontal',
     value,
     registerTabIdLookup,
-    selectionFollowsFocus,
   } = useTabsContext();
 
   const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
@@ -108,10 +108,10 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     string | number,
     ListState<string | number>,
     ValueChangeAction,
-    { selectionFollowsFocus: boolean }
+    { activateOnFocus: boolean }
   >({
     controlledProps,
-    disabledItemsFocusable: !selectionFollowsFocus,
+    disabledItemsFocusable: !activateOnFocus,
     focusManagement: 'DOM',
     getItemDomElement: getTabElement,
     isItemDisabled,
@@ -119,12 +119,10 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     rootRef: externalRef,
     onChange: handleChange,
     orientation: listOrientation,
-    reducerActionContext: React.useMemo(
-      () => ({ selectionFollowsFocus: selectionFollowsFocus || false }),
-      [selectionFollowsFocus],
-    ),
+    reducerActionContext: React.useMemo(() => ({ activateOnFocus }), [activateOnFocus]),
     selectionMode: 'single',
     stateReducer: tabsListReducer,
+    disableListWrap: !loop,
   });
 
   React.useEffect(() => {
@@ -141,6 +139,9 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     }
   }, [dispatch, value]);
 
+  const tabsListRef = React.useRef<HTMLElement | null>(null);
+  const handleRef = useForkRef(mergedRootRef, tabsListRef);
+
   const getRootProps = <ExternalProps extends Record<string, unknown> = {}>(
     externalProps: ExternalProps = {} as ExternalProps,
   ): UseTabsListRootSlotProps<ExternalProps> => {
@@ -149,6 +150,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
       ...getListboxRootProps(externalProps),
       'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
       role: 'tablist',
+      ref: handleRef,
     };
   };
 
@@ -156,8 +158,19 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     () => ({
       ...compoundComponentContextValue,
       ...listContextValue,
+      activateOnFocus,
+      getTabElement,
+      value,
+      tabsListRef,
     }),
-    [compoundComponentContextValue, listContextValue],
+    [
+      compoundComponentContextValue,
+      listContextValue,
+      activateOnFocus,
+      getTabElement,
+      value,
+      tabsListRef,
+    ],
   );
 
   return {
@@ -167,7 +180,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     highlightedValue,
     isRtl,
     orientation,
-    rootRef: mergedRootRef,
+    rootRef: handleRef,
     selectedValue: selectedValues[0] ?? null,
   };
 }

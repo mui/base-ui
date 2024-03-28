@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
-import { useTabsContext } from '../Tabs';
+import { useTabsContext } from '../Tabs/TabsContext';
 import { UseTabParameters, UseTabReturnValue, UseTabRootSlotProps } from './useTab.types';
 import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { useCompoundItem } from '../useCompound';
@@ -9,6 +9,7 @@ import { useListItem } from '../useList';
 import { useButton } from '../useButton';
 import { TabMetadata } from '../useTabs';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
+import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 
 function tabValueGenerator(otherTabValues: Set<string | number>) {
   return otherTabValues.size;
@@ -30,7 +31,8 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
 
-  const { value: selectedValue, selectionFollowsFocus, getTabPanelId } = useTabsContext();
+  const { value: selectedValue, getTabPanelId } = useTabsContext();
+  const { activateOnFocus } = useTabsListContext();
 
   const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
 
@@ -56,7 +58,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
     setFocusVisible,
   } = useButton({
     disabled,
-    focusableWhenDisabled: !selectionFollowsFocus,
+    focusableWhenDisabled: !activateOnFocus,
     type: 'button',
   });
 

@@ -1,10 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import { Tabs } from '@mui/base/Tabs';
-import { TabsList as BaseTabsList } from '@mui/base/TabsList';
-import { TabPanel as BaseTabPanel } from '@mui/base/TabPanel';
-import { buttonClasses } from '@mui/base/Button';
-import { Tab as BaseTab, tabClasses } from '@mui/base/Tab';
 
 export default function UnstyledTabsIntroduction() {
   return (
@@ -47,7 +43,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Tab = styled(BaseTab)`
+const Tab = styled(Tabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: #fff;
   cursor: pointer;
@@ -71,18 +67,18 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &.${buttonClasses.disabled} {
+  &[data-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `;
 
-const TabPanel = styled(BaseTabPanel)(
+const TabPanel = styled(Tabs.Panel)(
   ({ theme }) => `
   width: 100%;
   font-family: 'IBM Plex Sans', sans-serif;
@@ -95,7 +91,7 @@ const TabPanel = styled(BaseTabPanel)(
   `,
 );
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(Tabs.List)(
   ({ theme }) => `
   min-width: 400px;
   background-color: ${blue[500]};

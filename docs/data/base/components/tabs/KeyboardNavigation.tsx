@@ -1,19 +1,12 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { buttonClasses } from '@mui/base/Button';
 import { Tabs } from '@mui/base/Tabs';
-import { Tab as BaseTab, tabClasses } from '@mui/base/Tab';
-import { TabsList as BaseTabsList } from '@mui/base/TabsList';
 
 export default function KeyboardNavigation() {
   return (
     <div>
-      <p>Selection following focus:</p>
-      <Tabs
-        defaultValue={1}
-        aria-label="Tabs where selection follows focus"
-        selectionFollowsFocus
-      >
+      <p>Selection following focus (default behavior):</p>
+      <Tabs defaultValue={1} aria-label="Tabs where selection follows focus">
         <TabsList>
           <Tab value={1}>One</Tab>
           <Tab value={2}>Two</Tab>
@@ -21,9 +14,9 @@ export default function KeyboardNavigation() {
         </TabsList>
       </Tabs>
 
-      <p>Selection independent of focus (default behavior):</p>
+      <p>Selection independent of focus:</p>
       <Tabs defaultValue={1} aria-label="Tabs where selection does not follow focus">
-        <TabsList>
+        <TabsList activateOnFocus={false}>
           <Tab value={1}>One</Tab>
           <Tab value={2}>Two</Tab>
           <Tab value={3}>Three</Tab>
@@ -59,7 +52,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Tab = styled(BaseTab)`
+const Tab = styled(Tabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
   cursor: pointer;
@@ -83,18 +76,18 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &.${buttonClasses.disabled} {
+  &[data-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `;
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(Tabs.List)(
   ({ theme }) => `
   min-width: 400px;
   background-color: ${blue[500]};

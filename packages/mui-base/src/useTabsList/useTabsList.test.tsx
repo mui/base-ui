@@ -12,7 +12,7 @@ describe('useTabsList', () => {
     it('returns props for root slot', () => {
       function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
-        const { getRootProps } = useTabsList({ rootRef });
+        const { getRootProps } = useTabsList({ rootRef, activateOnFocus: true, loop: true });
         return <div {...getRootProps()} />;
       }
 
@@ -35,7 +35,7 @@ describe('useTabsList', () => {
 
       function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
-        const { getRootProps } = useTabsList({ rootRef });
+        const { getRootProps } = useTabsList({ rootRef, activateOnFocus: true, loop: true });
         return <div {...getRootProps({ 'data-testid': 'test-tabslist', onClick: handleClick })} />;
       }
 

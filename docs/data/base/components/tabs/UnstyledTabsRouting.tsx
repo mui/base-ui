@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { Tabs } from '@mui/base/Tabs';
-import { Tab as BaseTab, TabRootSlotProps, tabClasses } from '@mui/base/Tab';
-import { TabsList as BaseTabsList } from '@mui/base/TabsList';
 import {
   MemoryRouter,
   Route,
@@ -51,13 +49,22 @@ function MyTabs() {
   return (
     <Tabs value={currentTab}>
       <TabsList>
-        <Tab value="/inbox/:id" to="/inbox/1" slots={{ root: RouterLink }}>
+        <Tab
+          value="/inbox/:id"
+          render={(props) => <Link {...(props as any)} to="/inbox/1" />}
+        >
           Inbox
         </Tab>
-        <Tab value="/drafts" to="/drafts" slots={{ root: RouterLink }}>
+        <Tab
+          value="/drafts"
+          render={(props) => <Link {...(props as any)} to="/drafts" />}
+        >
           Drafts
         </Tab>
-        <Tab value="/trash" to="/trash" slots={{ root: RouterLink }}>
+        <Tab
+          value="/trash"
+          render={(props) => <Link {...(props as any)} to="/trash" />}
+        >
           Trash
         </Tab>
       </TabsList>
@@ -114,15 +121,7 @@ const RouteDisplay = styled('p')`
   color: ${grey[500]};
 `;
 
-const RouterLink = React.forwardRef(function RouterLink(
-  props: TabRootSlotProps & { to: string },
-  ref: React.Ref<HTMLAnchorElement>,
-) {
-  const { ownerState, ...other } = props;
-  return <Link {...other} ref={ref} />;
-});
-
-const Tab = styled(BaseTab)`
+const Tab = styled(Tabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: #fff;
   cursor: pointer;
@@ -147,13 +146,13 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
 `;
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(Tabs.List)(
   ({ theme }) => `
   min-width: 400px;
   background-color: ${blue[500]};

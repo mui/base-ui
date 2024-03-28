@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { TabsProviderValue } from './TabsProvider';
 
 export interface UseTabsParameters {
@@ -24,16 +25,22 @@ export interface UseTabsParameters {
    * Callback invoked when new value is being set.
    */
   onChange?: (event: React.SyntheticEvent | null, value: number | string | null) => void;
-  /**
-   * If `true` the selected tab changes on focus. Otherwise it only
-   * changes on activation.
-   */
-  selectionFollowsFocus?: boolean;
 }
+
+interface UseTabsRootElementOwnProps {
+  dir: React.HTMLAttributes<HTMLElement>['dir'];
+}
+
+/**
+ * Props that are received by the root element of the Tabs.
+ */
+export type UseTabsRootElementProps<TOther = {}> = Omit<TOther, keyof UseTabsRootElementOwnProps> &
+  UseTabsRootElementOwnProps;
 
 export interface UseTabsReturnValue {
   /**
    * Returns the values to be passed to the tabs provider.
    */
   contextValue: TabsProviderValue;
+  getRootProps: (externalProps?: React.HTMLAttributes<HTMLDivElement>) => UseTabsRootElementProps;
 }

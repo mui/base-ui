@@ -1,5 +1,10 @@
 {
   "parameters": {
+    "activateOnFocus": {
+      "type": { "name": "boolean", "description": "boolean" },
+      "required": true
+    },
+    "loop": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "rootRef": {
       "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" },
       "required": true

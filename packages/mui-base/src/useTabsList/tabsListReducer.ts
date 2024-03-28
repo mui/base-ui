@@ -10,7 +10,7 @@ import { ActionWithContext } from '../utils/useControllableReducer.types';
 import { TabsListActionTypes, ValueChangeAction } from './useTabsList.types';
 
 export type TabsListActionContext = ListActionContext<string | number> & {
-  selectionFollowsFocus: boolean;
+  activateOnFocus: boolean;
 };
 
 export function tabsListReducer(
@@ -27,7 +27,7 @@ export function tabsListReducer(
   const newState = listReducer(state, action);
 
   const {
-    context: { selectionFollowsFocus },
+    context: { activateOnFocus },
   } = action;
 
   if (action.type === ListActionTypes.itemsChange) {
@@ -41,7 +41,7 @@ export function tabsListReducer(
     moveHighlight(null, 'reset', action.context);
   }
 
-  if (selectionFollowsFocus && newState.highlightedValue != null) {
+  if (activateOnFocus && newState.highlightedValue != null) {
     return {
       ...newState,
       selectedValues: [newState.highlightedValue],

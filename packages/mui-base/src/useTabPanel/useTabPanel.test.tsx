@@ -3,8 +3,6 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { Tabs } from '../Tabs';
-import { Tab } from '../Tab';
-import { TabsList } from '../TabsList';
 import { useTabPanel } from './useTabPanel';
 
 describe('useTabPanel', () => {
@@ -12,7 +10,7 @@ describe('useTabPanel', () => {
 
   describe('getRootProps', () => {
     it('returns props for root slot', () => {
-      const rootRef = React.createRef();
+      const rootRef = React.createRef<HTMLDivElement>();
       function TestTabPanel() {
         const { getRootProps } = useTabPanel({ rootRef, id: 'test-tabpanel', value: 0 });
         return <div {...getRootProps()} />;
@@ -21,9 +19,6 @@ describe('useTabPanel', () => {
       function Test() {
         return (
           <Tabs>
-            <TabsList>
-              <Tab value={0}>0</Tab>
-            </TabsList>
             <TestTabPanel />
           </Tabs>
         );
@@ -37,7 +32,7 @@ describe('useTabPanel', () => {
 
     it('forwards external props including event handlers', () => {
       const handleClick = spy();
-      const rootRef = React.createRef();
+      const rootRef = React.createRef<HTMLElement>();
 
       function TestTabPanel() {
         const { getRootProps } = useTabPanel({ rootRef, value: 0 });
@@ -47,9 +42,6 @@ describe('useTabPanel', () => {
       function Test() {
         return (
           <Tabs>
-            <TabsList>
-              <Tab value={0}>0</Tab>
-            </TabsList>
             <TestTabPanel />
           </Tabs>
         );
