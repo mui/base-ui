@@ -108,11 +108,14 @@ const Bubble = styled(BaseTabs.Bubble)`
   background: ${blue[800]};
   border-radius: 8px;
   z-index: 0;
+  box-shadow: 0 0 0 0 ${blue[200]};
+  outline-width: 0;
   transition:
     left calc(0.3s + var(--selection-forwards) * 0.3s) calc(var(--selection-forwards) * 0.1s),
     right calc(0.3s + var(--selection-backwards) * 0.3s) calc(var(--selection-backwards) * 0.1s),
     top 0.3s,
-    bottom 0.3s;
+    bottom 0.3s,
+    box-shadow 0.2s;
 
   &[data-orientation='vertical'] {
     transition:
@@ -121,6 +124,10 @@ const Bubble = styled(BaseTabs.Bubble)`
     left: 0;
     right: 0;
     margin: 0 6px;
+  }
+
+  *:has(:focus-visible) > & {
+    box-shadow: 0 0 0 2px ${blue[200]};
   }
 `;
 
@@ -143,8 +150,7 @@ const Tab = styled(BaseTabs.Tab)`
   z-index: 1;
 
   &:focus-visible {
-    color: #fff;
-    outline: 3px solid ${blue[200]};
+    outline: none;
   }
 
   &[data-disabled='true'] {
