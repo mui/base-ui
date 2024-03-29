@@ -18,6 +18,8 @@ describe('<Tabs.List />', () => {
             registerTabIdLookup() {},
             getTabId: () => '',
             getTabPanelId: () => '',
+            orientation: 'horizontal',
+            direction: 'ltr',
           }}
         >
           {node}

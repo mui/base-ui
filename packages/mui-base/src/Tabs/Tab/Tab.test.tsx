@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Tabs, TabsContext } from '@base_ui/react/Tabs';
+import { Tabs, TabsContext, TabsContextValue } from '@base_ui/react/Tabs';
 import { TabsListProvider, TabsListProviderValue } from '@base_ui/react/useTabsList';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -16,21 +16,27 @@ describe('<Tabs.Tab />', () => {
       return { disabled: false, highlighted: false, selected: false, focusable: true, index: 0 };
     },
     activateOnFocus: true,
+    getTabElement: () => null,
+    tabsListRef: {
+      current: null,
+    },
+  };
+
+  const testTabsContext: TabsContextValue = {
+    value: 0,
+    onSelected() {},
+    registerTabIdLookup() {},
+    getTabId: () => '',
+    getTabPanelId: () => '',
+    orientation: 'horizontal',
+    direction: 'ltr',
   };
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
-        <TabsContext.Provider
-          value={{
-            value: 0,
-            onSelected() {},
-            registerTabIdLookup() {},
-            getTabId: () => '',
-            getTabPanelId: () => '',
-          }}
-        >
+        <TabsContext.Provider value={testTabsContext}>
           <TabsListProvider value={testTabsListContext}>{node}</TabsListProvider>
         </TabsContext.Provider>,
       );
