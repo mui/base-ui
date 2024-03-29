@@ -18,11 +18,21 @@ export default function UnstyledTabsIntroduction() {
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
         </TabsList>
-        <TabPanel value={0}>Code panel</TabPanel>
-        <TabPanel value={1}>Issues panel</TabPanel>
-        <TabPanel value={2}>Pull Requests panel</TabPanel>
-        <TabPanel value={3}>Discussions panel</TabPanel>
-        <TabPanel value={4}>Actions panel</TabPanel>
+        <TabPanel value={0} keepMounted>
+          Code panel
+        </TabPanel>
+        <TabPanel value={1} keepMounted>
+          Issues panel
+        </TabPanel>
+        <TabPanel value={2} keepMounted>
+          Pull Requests panel
+        </TabPanel>
+        <TabPanel value={3} keepMounted>
+          Discussions panel
+        </TabPanel>
+        <TabPanel value={4} keepMounted>
+          Actions panel
+        </TabPanel>
       </Tabs>
 
       <h2>Vertical</h2>

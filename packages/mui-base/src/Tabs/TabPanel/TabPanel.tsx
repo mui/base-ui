@@ -21,7 +21,14 @@ const TabPanel = React.forwardRef(function TabPanel(
   props: TabPanelProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, className: classNameProp, value, render: renderProp, ...other } = props;
+  const {
+    children,
+    className: classNameProp,
+    value,
+    render: renderProp,
+    keepMounted = false,
+    ...other
+  } = props;
   const render = renderProp ?? defaultRenderFunctions.div;
 
   const { hidden, getRootProps, rootRef, orientation, direction } = useTabPanel({
@@ -43,7 +50,7 @@ const TabPanel = React.forwardRef(function TabPanel(
     ...other,
     className,
     ref: rootRef,
-    children: hidden ? undefined : children,
+    children: hidden && !keepMounted ? undefined : children,
   };
 
   return render(getRootProps(rootProps), ownerState);
