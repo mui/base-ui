@@ -10,6 +10,10 @@
     "value": { "type": { "name": "number | string", "description": "number | string" } }
   },
   "returnValue": {
+    "direction": {
+      "type": { "name": "TabsDirection", "description": "TabsDirection" },
+      "required": true
+    },
     "getRootProps": {
       "type": {
         "name": "&lt;ExternalProps extends Record&lt;string, unknown&gt; = {}&gt;(externalProps?: ExternalProps) =&gt; UseTabPanelRootSlotProps&lt;ExternalProps&gt;",
@@ -18,6 +22,10 @@
       "required": true
     },
     "hidden": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "orientation": {
+      "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
+      "required": true
+    },
     "rootRef": {
       "type": {
         "name": "React.RefCallback&lt;HTMLElement&gt; | null",

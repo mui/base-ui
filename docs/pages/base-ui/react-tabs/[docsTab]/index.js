@@ -4,10 +4,12 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs/data/base/components/tabs/tabs.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import TabApiJsonPageContent from '../../api/tab.json';
+import TabBubbleApiJsonPageContent from '../../api/tab-bubble.json';
 import TabPanelApiJsonPageContent from '../../api/tab-panel.json';
 import TabsApiJsonPageContent from '../../api/tabs.json';
 import TabsListApiJsonPageContent from '../../api/tabs-list.json';
 import useTabApiJsonPageContent from '../../api/use-tab.json';
+import useTabBubbleApiJsonPageContent from '../../api/use-tab-bubble.json';
 import useTabPanelApiJsonPageContent from '../../api/use-tab-panel.json';
 import useTabsApiJsonPageContent from '../../api/use-tabs.json';
 import useTabsListApiJsonPageContent from '../../api/use-tabs-list.json';
@@ -32,6 +34,13 @@ export const getStaticProps = () => {
   const TabApiReq = require.context('docs/translations/api-docs-base/tab', false, /tab.*.json$/);
   const TabApiDescriptions = mapApiPageTranslations(TabApiReq);
 
+  const TabBubbleApiReq = require.context(
+    'docs/translations/api-docs-base/tab-bubble',
+    false,
+    /tab-bubble.*.json$/,
+  );
+  const TabBubbleApiDescriptions = mapApiPageTranslations(TabBubbleApiReq);
+
   const TabPanelApiReq = require.context(
     'docs/translations/api-docs-base/tab-panel',
     false,
@@ -55,6 +64,13 @@ export const getStaticProps = () => {
     /use-tab.*.json$/,
   );
   const useTabApiDescriptions = mapApiPageTranslations(useTabApiReq);
+
+  const useTabBubbleApiReq = require.context(
+    'docs/translations/api-docs/use-tab-bubble',
+    false,
+    /use-tab-bubble.*.json$/,
+  );
+  const useTabBubbleApiDescriptions = mapApiPageTranslations(useTabBubbleApiReq);
 
   const useTabPanelApiReq = require.context(
     'docs/translations/api-docs/use-tab-panel',
@@ -81,24 +97,28 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         Tab: TabApiDescriptions,
+        TabBubble: TabBubbleApiDescriptions,
         TabPanel: TabPanelApiDescriptions,
         Tabs: TabsApiDescriptions,
         TabsList: TabsListApiDescriptions,
       },
       componentsApiPageContents: {
         Tab: TabApiJsonPageContent,
+        TabBubble: TabBubbleApiJsonPageContent,
         TabPanel: TabPanelApiJsonPageContent,
         Tabs: TabsApiJsonPageContent,
         TabsList: TabsListApiJsonPageContent,
       },
       hooksApiDescriptions: {
         useTab: useTabApiDescriptions,
+        useTabBubble: useTabBubbleApiDescriptions,
         useTabPanel: useTabPanelApiDescriptions,
         useTabs: useTabsApiDescriptions,
         useTabsList: useTabsListApiDescriptions,
       },
       hooksApiPageContents: {
         useTab: useTabApiJsonPageContent,
+        useTabBubble: useTabBubbleApiJsonPageContent,
         useTabPanel: useTabPanelApiJsonPageContent,
         useTabs: useTabsApiJsonPageContent,
         useTabsList: useTabsListApiJsonPageContent,

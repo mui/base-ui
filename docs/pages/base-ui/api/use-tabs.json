@@ -31,6 +31,13 @@
     "contextValue": {
       "type": { "name": "TabsProviderValue", "description": "TabsProviderValue" },
       "required": true
+    },
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLDivElement&gt;) =&gt; UseTabsRootElementProps",
+        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLDivElement&gt;) =&gt; UseTabsRootElementProps"
+      },
+      "required": true
     }
   },
   "name": "useTabs",

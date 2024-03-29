@@ -15,6 +15,10 @@
       "type": { "name": "TabsListProviderValue", "description": "TabsListProviderValue" },
       "required": true
     },
+    "direction": {
+      "type": { "name": "TabsDirection", "description": "TabsDirection" },
+      "required": true
+    },
     "dispatch": {
       "type": {
         "name": "(action: ListAction&lt;string | number&gt;) =&gt; void",
@@ -33,12 +37,8 @@
       "type": { "name": "string | number | null", "description": "string | number | null" },
       "required": true
     },
-    "isRtl": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "orientation": {
-      "type": {
-        "name": "&#39;horizontal&#39; | &#39;vertical&#39;",
-        "description": "&#39;horizontal&#39; | &#39;vertical&#39;"
-      },
+      "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
       "required": true
     },
     "rootRef": {

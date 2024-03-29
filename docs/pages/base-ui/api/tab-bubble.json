@@ -1,0 +1,17 @@
+{
+  "props": {},
+  "name": "TabBubble",
+  "imports": [
+    "import { TabBubble } from '@mui/base/Tabs';",
+    "import { TabBubble } from '@mui/base';"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TabBubble",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Tabs/TabBubble/TabBubble.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tabs/\">Tabs</a></li></ul>",
+  "cssComponent": false
+}

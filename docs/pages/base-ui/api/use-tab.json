@@ -17,8 +17,6 @@
     "value": { "type": { "name": "number | string", "description": "number | string" } }
   },
   "returnValue": {
-    "active": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "focusVisible": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getRootProps": {
       "type": {
         "name": "&lt;ExternalProps extends Record&lt;string, unknown&gt; = {}&gt;(externalProps?: ExternalProps) =&gt; UseTabRootSlotProps&lt;ExternalProps&gt;",
@@ -26,8 +24,11 @@
       },
       "required": true
     },
-    "highlighted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "index": { "type": { "name": "number", "description": "number" }, "required": true },
+    "orientation": {
+      "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
+      "required": true
+    },
     "rootRef": {
       "type": {
         "name": "React.RefCallback&lt;Element&gt; | null",
@@ -36,13 +37,6 @@
       "required": true
     },
     "selected": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "setFocusVisible": {
-      "type": {
-        "name": "React.Dispatch&lt;React.SetStateAction&lt;boolean&gt;&gt;",
-        "description": "React.Dispatch&lt;React.SetStateAction&lt;boolean&gt;&gt;"
-      },
-      "required": true
-    },
     "totalTabsCount": { "type": { "name": "number", "description": "number" }, "required": true }
   },
   "name": "useTab",

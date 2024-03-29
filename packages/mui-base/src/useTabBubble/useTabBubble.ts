@@ -2,7 +2,16 @@ import * as React from 'react';
 import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 import { useTabsContext } from '../Tabs/TabsContext';
 import { TabSelectionMovementDirection, UseTabBubbleReturnValue } from './useTabBubble.types';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Tabs](https://mui.com/base-ui/react-tabs/#hooks)
+ *
+ * API:
+ *
+ * - [useTabBubble API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab-bubble)
+ */
 export function useTabBubble(): UseTabBubbleReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
   const { orientation, direction, value } = useTabsContext();
