@@ -1,11 +1,25 @@
 import { clamp } from '../../utils/clamp';
+import { getFormatter } from './format';
+
+export function removeFloatingPointErrors(value: number, format?: Intl.NumberFormatOptions) {
+  return parseFloat(getFormatter(undefined, format).format(value));
+}
 
 export function toValidatedNumber(
   value: number | null,
-  step: number | undefined,
-  minWithDefault: number,
-  maxWithDefault: number,
-  minWithZeroDefault: number,
+  {
+    step,
+    minWithDefault,
+    maxWithDefault,
+    minWithZeroDefault,
+    format,
+  }: {
+    step: number | undefined;
+    minWithDefault: number;
+    maxWithDefault: number;
+    minWithZeroDefault: number;
+    format: Intl.NumberFormatOptions | undefined;
+  },
 ) {
   if (value === null) {
     return value;
@@ -18,7 +32,7 @@ export function toValidatedNumber(
     const stepsFromMin = (clampedValue - minWithZeroDefault) / step;
     const roundedSteps = Math.round(stepsFromMin);
     const snappedValue = minWithZeroDefault + roundedSteps * step;
-    return snappedValue;
+    return removeFloatingPointErrors(snappedValue, format);
   }
 
   return clampedValue;

@@ -133,13 +133,13 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   });
 
   const setValue = useEventCallback((unvalidatedValue: number | null) => {
-    const validatedValue = toValidatedNumber(
-      unvalidatedValue,
-      getStepAmount(),
+    const validatedValue = toValidatedNumber(unvalidatedValue, {
+      step: getStepAmount(),
+      format: formatOptionsRef.current,
       minWithDefault,
       maxWithDefault,
       minWithZeroDefault,
-    );
+    });
 
     onChange?.(validatedValue);
     setValueUnwrapped(validatedValue);
