@@ -3,12 +3,15 @@ import { NumberField as BaseNumberField } from '@mui/base/NumberField';
 import { styled, css } from '@mui/system';
 
 export default function UnstyledNumberFieldFormat() {
+  const id = React.useId();
   return (
     <NumberField
+      id={id}
       format={{ style: 'currency', currency: 'USD' }}
       defaultValue={10}
       min={0}
     >
+      <NumberLabel htmlFor={id}>Cost</NumberLabel>
       <NumberFieldGroup style={{ display: 'flex', gap: 4 }}>
         <NumberFieldDecrement>&minus;</NumberFieldDecrement>
         <NumberFieldInput />
@@ -39,6 +42,12 @@ const grey = {
   800: '#303740',
   900: '#1C2025',
 };
+
+const NumberLabel = styled('label')`
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+`;
 
 const NumberField = styled(BaseNumberField)`
   font-family: 'IBM Plex Sans', sans-serif;

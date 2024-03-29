@@ -79,7 +79,7 @@ function App() {
   return (
     <NumberField value={value} onChange={setValue}>
       <NumberField.Group>
-        <NumberField.Decrement>-</NumberField.Decrement>
+        <NumberField.Decrement>&minus;</NumberField.Decrement>
         <NumberField.Input />
         <NumberField.Increment>+</NumberField.Increment>
       </NumberField.Group>
@@ -97,7 +97,7 @@ When the number field is uncontrolled, the `defaultValue` prop sets the initial 
 ```jsx
 <NumberField defaultValue={10}>
   <NumberField.Group>
-    <NumberField.Decrement>-</NumberField.Decrement>
+    <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
@@ -111,7 +111,7 @@ To prevent the value from going below or above a certain amount, the `min` and `
 ```jsx
 <NumberField min={0} max={100}>
   <NumberField.Group>
-    <NumberField.Decrement>-</NumberField.Decrement>
+    <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
@@ -125,7 +125,7 @@ The `step` prop snaps values of the input to ones that are multiples of the give
 ```jsx
 <NumberField step={5} min={2}>
   <NumberField.Group>
-    <NumberField.Decrement>-</NumberField.Decrement>
+    <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
@@ -197,6 +197,12 @@ To teleport the virtual cursor closer to the input rather than the entire viewpo
 ```
 
 This specifies in pixels the distance the cursor can travel around the center of the scrub area element before it loops back around.
+
+#### Wheel scrubbing
+
+To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop:
+
+{{"demo": "UnstyledNumberFieldWheelScrub.js"}}
 
 ## Hook
 

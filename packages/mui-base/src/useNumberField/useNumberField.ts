@@ -323,6 +323,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           return;
         }
 
+        // Prevent the default behavior to avoid scrolling the page.
         event.preventDefault();
 
         const amount = getStepAmount() ?? DEFAULT_STEP;
