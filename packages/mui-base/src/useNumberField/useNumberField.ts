@@ -12,8 +12,9 @@ import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { formatNumber } from '../NumberField/utils/format';
 import { toValidatedNumber } from '../NumberField/utils/validate';
 import {
-  ARABIC_NUMERALS,
-  HAN_NUMERALS,
+  ARABIC_RE,
+  HAN_RE,
+  PERCENTAGES,
   getNumberLocaleDetails,
   parseNumber,
 } from '../NumberField/utils/parse';
@@ -69,9 +70,10 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const formatStyle = format?.style;
 
   const allowedNonNumericKeys = React.useMemo(() => {
-    const value = ['.', ','];
+    const { decimal, group } = getNumberLocaleDetails();
+    const value = Array.from(new Set(['.', ',', decimal, group]));
     if (formatStyle === 'percent') {
-      value.push('%');
+      value.push(...PERCENTAGES);
     }
     if (minWithDefault && minWithDefault <= 0) {
       value.push('-');
@@ -600,11 +602,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
             !inputValue.includes(decimal) || isAllSelected || isDecimalHighlighted;
         }
 
-        const arabicNumeralsRegex = new RegExp(`^[${ARABIC_NUMERALS.join('')}]$`);
-        const hanNumeralsRegex = new RegExp(`^[${HAN_NUMERALS.join('')}]$`);
         const isLatinNumeral = /^[0-9]$/.test(event.key);
-        const isArabicNumeral = arabicNumeralsRegex.test(event.key);
-        const isHanNumeral = hanNumeralsRegex.test(event.key);
+        const isArabicNumeral = ARABIC_RE.test(event.key);
+        const isHanNumeral = HAN_RE.test(event.key);
         const isNavigateKey = [
           'Backspace',
           'Delete',
