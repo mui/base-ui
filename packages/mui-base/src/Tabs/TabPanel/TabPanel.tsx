@@ -24,10 +24,15 @@ const TabPanel = React.forwardRef(function TabPanel(
   const { children, className: classNameProp, value, render: renderProp, ...other } = props;
   const render = renderProp ?? defaultRenderFunctions.div;
 
-  const { hidden, getRootProps, rootRef } = useTabPanel({ ...props, rootRef: forwardedRef });
+  const { hidden, getRootProps, rootRef, orientation, direction } = useTabPanel({
+    ...props,
+    rootRef: forwardedRef,
+  });
 
   const ownerState: TabPanelOwnerState = {
     hidden,
+    orientation,
+    direction,
   };
 
   const className = resolveClassName(classNameProp, ownerState);

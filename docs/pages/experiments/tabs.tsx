@@ -111,6 +111,7 @@ const Bubble = styled(BaseTabs.Bubble)`
   bottom: var(--selected-tab-bottom);
   background: ${blue[800]};
   border-radius: 8px;
+  z-index: 0;
 
   transition:
     left calc(0.3s + var(--selection-forwards) * 0.3s) calc(var(--selection-forwards) * 0.1s),
@@ -143,6 +144,7 @@ const Tab = styled(BaseTabs.Tab)`
   display: flex;
   justify-content: center;
   position: relative;
+  z-index: 1;
 
   &:focus-visible {
     color: #fff;

@@ -1,7 +1,10 @@
-import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import type { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import type { TabsDirection, TabsOrientation } from '../Tabs.types';
 
 export type TabPanelOwnerState = {
   hidden: boolean;
+  orientation: TabsOrientation;
+  direction: TabsDirection;
 };
 
 export interface TabPanelProps extends BaseUiComponentCommonProps<'div', TabPanelOwnerState> {

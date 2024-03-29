@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import { TabsOrientation } from '../Tabs.types';
 
 export type TabOwnerState = {
-  active: boolean;
   disabled: boolean;
-  highlighted: boolean;
   selected: boolean;
+  orientation: TabsOrientation;
 };
 
 export interface TabProps

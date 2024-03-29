@@ -31,7 +31,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
 
-  const { value: selectedValue, getTabPanelId } = useTabsContext();
+  const { value: selectedValue, getTabPanelId, orientation } = useTabsContext();
   const { activateOnFocus } = useTabsListContext();
 
   const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
@@ -42,21 +42,11 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
     totalItemCount: totalTabsCount,
   } = useCompoundItem<string | number, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
 
-  const {
-    getRootProps: getTabProps,
-    highlighted,
-    selected,
-  } = useListItem({
+  const { getRootProps: getTabProps, selected } = useListItem({
     item: value,
   });
 
-  const {
-    getRootProps: getButtonProps,
-    rootRef: buttonRefHandler,
-    active,
-    focusVisible,
-    setFocusVisible,
-  } = useButton({
+  const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: !activateOnFocus,
     type: 'button',
@@ -85,16 +75,13 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   return {
     getRootProps,
-    active,
-    focusVisible,
-    highlighted,
     index,
     rootRef: handleRef,
     // the `selected` state isn't set on the server (it relies on effects to be calculated),
     // so we fall back to checking the `value` prop with the selectedValue from the TabsContext
     selected: selected || value === selectedValue,
-    setFocusVisible,
     totalTabsCount,
+    orientation,
   };
 }
 

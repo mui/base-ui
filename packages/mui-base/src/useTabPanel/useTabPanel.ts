@@ -31,7 +31,7 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
     throw new Error('No TabContext provided');
   }
 
-  const { value: selectedTabValue, getTabId } = context;
+  const { value: selectedTabValue, getTabId, orientation, direction } = context;
 
   const id = useId(idParam);
   const ref = React.useRef<HTMLElement>(null);
@@ -62,6 +62,8 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
     hidden,
     getRootProps,
     rootRef: handleRef,
+    orientation,
+    direction,
   };
 }
 

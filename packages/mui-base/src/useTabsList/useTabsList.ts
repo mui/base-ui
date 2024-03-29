@@ -3,13 +3,13 @@ import * as React from 'react';
 import { useTabsContext } from '../Tabs/TabsContext';
 import {
   TabsListActionTypes,
-  UseTabsListParameters,
-  UseTabsListReturnValue,
-  UseTabsListRootSlotProps,
-  ValueChangeAction,
+  type UseTabsListParameters,
+  type UseTabsListReturnValue,
+  type UseTabsListRootSlotProps,
+  type ValueChangeAction,
 } from './useTabsList.types';
 import { useCompoundParent } from '../useCompound';
-import { TabMetadata } from '../useTabs/useTabs';
+import { type TabMetadata } from '../useTabs/useTabs';
 import { useList, ListState, UseListParameters } from '../useList';
 import { tabsListReducer } from './tabsListReducer';
 import { useForkRef } from '../utils/useForkRef';
@@ -62,13 +62,11 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     [subitems],
   );
 
-  const isRtl = direction === 'rtl';
-
   let listOrientation: UseListParameters<any, any>['orientation'];
   if (orientation === 'vertical') {
     listOrientation = 'vertical';
   } else {
-    listOrientation = isRtl ? 'horizontal-rtl' : 'horizontal-ltr';
+    listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
   }
 
   const handleChange = React.useCallback(
@@ -178,7 +176,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     dispatch,
     getRootProps,
     highlightedValue,
-    isRtl,
+    direction,
     orientation,
     rootRef: handleRef,
     selectedValue: selectedValues[0] ?? null,

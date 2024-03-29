@@ -12,11 +12,11 @@ export interface TabsContextValue {
   /**
    * The component orientation (layout flow direction).
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation: 'horizontal' | 'vertical';
   /**
    * The direction of the tabs.
    */
-  direction?: 'ltr' | 'rtl';
+  direction: 'ltr' | 'rtl';
   /**
    * Registers a function that returns the id of the tab with the given value.
    */

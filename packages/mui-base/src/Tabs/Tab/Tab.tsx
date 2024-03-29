@@ -26,21 +26,21 @@ const Tab = React.forwardRef(function Tab(
     disabled = false,
     onChange,
     render: renderProp,
+    value,
     ...other
   } = props;
 
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { active, highlighted, selected, getRootProps, rootRef } = useTab({
+  const { selected, getRootProps, rootRef, orientation } = useTab({
     ...props,
     rootRef: forwardedRef,
   });
 
   const ownerState: TabOwnerState = {
-    active,
     disabled,
-    highlighted,
     selected,
+    orientation,
   };
 
   const className = resolveClassName(classNameProp, ownerState);

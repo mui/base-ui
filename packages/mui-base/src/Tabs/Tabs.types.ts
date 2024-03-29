@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
 
-type TabsOrientation = 'horizontal' | 'vertical';
+export type TabsOrientation = 'horizontal' | 'vertical';
 
-type TabsDirection = 'ltr' | 'rtl';
+export type TabsDirection = 'ltr' | 'rtl';
 
 export type TabsOwnerState = {
   orientation: TabsOrientation;

@@ -1,8 +1,9 @@
 import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import { TabsDirection, TabsOrientation } from '../Tabs.types';
 
 export type TabsListOwnerState = {
-  isRtl: boolean;
-  orientation: 'horizontal' | 'vertical';
+  direction: TabsDirection;
+  orientation: TabsOrientation;
 };
 
 export interface TabsListProps extends BaseUiComponentCommonProps<'div', TabsListOwnerState> {

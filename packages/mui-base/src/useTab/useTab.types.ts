@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { UseButtonRootSlotProps } from '../useButton';
+import { type TabsOrientation } from '../Tabs';
 
 export interface UseTabParameters {
   /**
@@ -49,22 +50,10 @@ export interface UseTabReturnValue {
     externalProps?: ExternalProps,
   ) => UseTabRootSlotProps<ExternalProps>;
   /**
-   * If `true`, the tab is active (as in `:active` pseudo-class; in other words, pressed).
-   */
-  active: boolean;
-  /**
-   * If `true`, the tab has visible focus.
-   * This is a workaround for browsers that do not support this feature natively.
-   */
-  focusVisible: boolean;
-  /**
-   * If `true`, the tab is highlighted.
-   */
-  highlighted: boolean;
-  /**
    * 0-based index of the tab in the list of tabs.
    */
   index: number;
+  orientation: TabsOrientation;
   /**
    * Ref to the root slot's DOM element.
    */
@@ -73,11 +62,6 @@ export interface UseTabReturnValue {
    * If `true`, the tab is selected.
    */
   selected: boolean;
-  /**
-   * Sets the focus-visible state of the tab.
-   * This is a workaround for browsers that do not support this feature natively.
-   */
-  setFocusVisible: React.Dispatch<React.SetStateAction<boolean>>;
   /**
    * Total number of tabs in the nearest parent TabsList.
    * This can be used to determine if the tab is the last one to style it accordingly.

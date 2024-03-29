@@ -1,6 +1,7 @@
-import * as React from 'react';
-import { TabsListProviderValue } from './TabsListProvider';
-import { ListAction } from '../useList';
+import type * as React from 'react';
+import type { TabsListProviderValue } from './TabsListProvider';
+import type { ListAction } from '../useList';
+import type { TabsDirection, TabsOrientation } from '../Tabs';
 
 export interface UseTabsListParameters {
   /**
@@ -52,11 +53,11 @@ export interface UseTabsListReturnValue {
   /**
    * If `true`, it will indicate that the text's direction in right-to-left.
    */
-  isRtl: boolean;
+  direction: TabsDirection;
   /**
    * The component orientation (layout flow direction).
    */
-  orientation: 'horizontal' | 'vertical';
+  orientation: TabsOrientation;
   rootRef: React.RefCallback<Element> | null;
   /**
    * The value of the currently selected tab.

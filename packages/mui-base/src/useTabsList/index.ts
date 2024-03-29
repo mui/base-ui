@@ -1,4 +1,4 @@
 'use client';
 export { useTabsList } from './useTabsList';
-export * from './useTabsList.types';
+export type * from './useTabsList.types';
 export * from './TabsListProvider';

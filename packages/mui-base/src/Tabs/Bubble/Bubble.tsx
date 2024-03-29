@@ -1,40 +1,33 @@
+'use client';
 import * as React from 'react';
+import { resolveClassName } from '@mui/base/utils/resolveClassName';
 import { useBubble } from './useBubble';
-import { TabsContext } from '../TabsContext';
 import { TabsBubbleProps } from './Bubble.types';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useBubbleStyleHooks } from './useBubbleStyleHooks';
 
 export const TabsBubble = React.forwardRef<HTMLSpanElement, TabsBubbleProps>(
   function TabsBubble(props, forwardedRef) {
-    const tabsContext = React.useContext(TabsContext);
-    if (tabsContext == null) {
-      throw new Error('Bubble must be used within a Tabs component');
-    }
+    const { className: classNameProp, render: renderProp, ...other } = props;
+    const render = renderProp ?? defaultRenderFunctions.span;
 
-    const { orientation } = tabsContext;
+    const { direction, getRootProps, orientation, selectedTabPosition } = useBubble();
+    const ownerState = {
+      selectedTabPosition,
+      orientation,
+      direction,
+    };
 
-    const selectedTabProperties = useBubble();
-    if (!selectedTabProperties) {
-      return null;
-    }
+    const className = resolveClassName(classNameProp, ownerState);
+    const styleHooks = useBubbleStyleHooks(ownerState);
 
-    const { left, right, top, bottom, movementDirection } = selectedTabProperties;
+    const rootProps = {
+      ...styleHooks,
+      ...other,
+      className,
+      ref: forwardedRef,
+    };
 
-    return (
-      <span
-        ref={forwardedRef}
-        style={
-          {
-            '--selected-tab-left': `${left}px`,
-            '--selected-tab-right': `${right}px`,
-            '--selected-tab-top': `${top}px`,
-            '--selected-tab-bottom': `${bottom}px`,
-            '--selection-forwards': movementDirection === 1 ? '1' : '0',
-            '--selection-backwards': movementDirection === -1 ? '1' : '0',
-          } as any
-        }
-        data-orientation={orientation}
-        {...props}
-      />
-    );
+    return render(getRootProps(rootProps), ownerState);
   },
 );

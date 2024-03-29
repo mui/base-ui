@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { TabsDirection, TabsOrientation } from '../Tabs';
 
 export interface UseTabPanelParameters {
   /**
@@ -41,4 +42,6 @@ export interface UseTabPanelReturnValue {
     externalProps?: ExternalProps,
   ) => UseTabPanelRootSlotProps<ExternalProps>;
   rootRef: React.RefCallback<HTMLElement> | null;
+  orientation: TabsOrientation;
+  direction: TabsDirection;
 }

@@ -8,4 +8,7 @@ export const defaultRenderFunctions = {
   div: (props: React.ComponentPropsWithRef<'div'>) => {
     return <div {...props} />;
   },
+  span: (props: React.ComponentPropsWithRef<'span'>) => {
+    return <span {...props} />;
+  },
 };
