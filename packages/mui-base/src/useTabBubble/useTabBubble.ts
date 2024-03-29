@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useTabsListContext } from '../TabsList/TabsListContext';
-import { useTabsContext } from '../TabsContext';
-import { TabSelectionMovementDirection, UseBubbleReturnValue } from './useBubble.types';
+import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
+import { useTabsContext } from '../Tabs/TabsContext';
+import { TabSelectionMovementDirection, UseTabBubbleReturnValue } from './useTabBubble.types';
 
-export function useBubble(): UseBubbleReturnValue {
+export function useTabBubble(): UseTabBubbleReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
   const { orientation, direction, value } = useTabsContext();
 

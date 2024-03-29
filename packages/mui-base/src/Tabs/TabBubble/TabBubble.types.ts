@@ -1,11 +1,11 @@
 import type { BaseUiComponentCommonProps } from '@mui/base/utils/BaseUiComponentCommonProps';
 import type { TabsDirection, TabsOrientation, TabsOwnerState } from '../Tabs.types';
-import type { SelectedTabPosition } from './useBubble.types';
+import type { SelectedTabPosition } from '../../useTabBubble/useTabBubble.types';
 
-export type TabsBubbleOwnerState = TabsOwnerState & {
+export type TabBubbleOwnerState = TabsOwnerState & {
   selectedTabPosition: SelectedTabPosition | null;
   orientation: TabsOrientation;
   direction: TabsDirection;
 };
 
-export interface TabsBubbleProps extends BaseUiComponentCommonProps<'span', TabsBubbleOwnerState> {}
+export interface TabBubbleProps extends BaseUiComponentCommonProps<'span', TabBubbleOwnerState> {}

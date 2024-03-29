@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import { resolveClassName } from '@mui/base/utils/resolveClassName';
-import { useBubble } from './useBubble';
-import { TabsBubbleProps } from './Bubble.types';
+import { useTabBubble } from '../../useTabBubble/useTabBubble';
+import { TabBubbleProps } from './TabBubble.types';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBubbleStyleHooks } from './useBubbleStyleHooks';
+import { useTabBubbleStyleHooks } from '../../useTabBubble/useTabBubbleStyleHooks';
 
-export const TabsBubble = React.forwardRef<HTMLSpanElement, TabsBubbleProps>(
-  function TabsBubble(props, forwardedRef) {
+export const TabBubble = React.forwardRef<HTMLSpanElement, TabBubbleProps>(
+  function TabBubble(props, forwardedRef) {
     const { className: classNameProp, render: renderProp, ...other } = props;
     const render = renderProp ?? defaultRenderFunctions.span;
 
-    const { direction, getRootProps, orientation, selectedTabPosition } = useBubble();
+    const { direction, getRootProps, orientation, selectedTabPosition } = useTabBubble();
     const ownerState = {
       selectedTabPosition,
       orientation,
@@ -19,7 +19,7 @@ export const TabsBubble = React.forwardRef<HTMLSpanElement, TabsBubbleProps>(
     };
 
     const className = resolveClassName(classNameProp, ownerState);
-    const styleHooks = useBubbleStyleHooks(ownerState);
+    const styleHooks = useTabBubbleStyleHooks(ownerState);
 
     const rootProps = {
       ...styleHooks,

@@ -1,8 +1,8 @@
 ---
 productId: base-ui
 title: React Tabs components
-components: Tabs, Tab, TabPanel, TabsList
-hooks: useTab, useTabPanel, useTabs, useTabsList
+components: Tabs, Tab, TabPanel, TabsList, TabsBubble
+hooks: useTab, useTabPanel, useTabs, useTabsList, useBubble
 githubLabel: 'component: tabs'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 ---
