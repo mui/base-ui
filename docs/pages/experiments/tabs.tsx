@@ -79,9 +79,7 @@ const Tabs = styled(BaseTabs)`
 
   &[data-orientation='vertical'] {
     flex-direction: row;
-    align-items: center;
     justify-content: center;
-    align-content: space-between;
     align-items: stretch;
   }
 `;
@@ -91,10 +89,10 @@ const TabsList = styled(BaseTabs.List)(
     background-color: ${blue[500]};
     border-radius: 12px;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    justify-content: center;
-    align-content: space-between;
-    box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
+    justify-content: space-evenly;
+    box-shadow: 0 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
     position: relative;
 
     &[data-orientation='vertical'] {
@@ -105,14 +103,11 @@ const TabsList = styled(BaseTabs.List)(
 
 const Bubble = styled(BaseTabs.Bubble)`
   position: absolute;
-  left: var(--selected-tab-left);
-  right: var(--selected-tab-right);
-  top: var(--selected-tab-top);
-  bottom: var(--selected-tab-bottom);
+  inset: var(--selected-tab-top) var(--selected-tab-right) var(--selected-tab-bottom)
+    var(--selected-tab-left);
   background: ${blue[800]};
   border-radius: 8px;
   z-index: 0;
-
   transition:
     left calc(0.3s + var(--selection-forwards) * 0.3s) calc(var(--selection-forwards) * 0.1s),
     right calc(0.3s + var(--selection-backwards) * 0.3s) calc(var(--selection-backwards) * 0.1s),
@@ -137,6 +132,7 @@ const Tab = styled(BaseTabs.Tab)`
   font-weight: 600;
   background-color: transparent;
   white-space: nowrap;
+  flex: 1 1 auto;
   padding: 10px 12px;
   margin: 6px;
   border: none;
