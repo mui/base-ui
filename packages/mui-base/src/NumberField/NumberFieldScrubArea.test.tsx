@@ -13,12 +13,6 @@ function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   });
 }
 
-const pointerDownEvent = new PointerEvent('pointerdown', {
-  bubbles: true,
-  clientX: 100,
-  clientY: 100,
-});
-
 const testContext = {
   getScrubAreaProps: (externalProps) => externalProps,
   ownerState: {
@@ -56,6 +50,12 @@ describe('<NumberField.ScrubArea />', () => {
   if (/jsdom/.test(window.navigator.userAgent)) {
     return;
   }
+
+  const pointerDownEvent = new PointerEvent('pointerdown', {
+    bubbles: true,
+    clientX: 100,
+    clientY: 100,
+  });
 
   it('should increment or decrement the value when scrubbing with the pointer', async () => {
     render(
