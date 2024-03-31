@@ -35,7 +35,6 @@ const NumberField = React.forwardRef(function NumberField(
     disabled = false,
     invalid = false,
     readOnly = false,
-    autoFocus,
     name,
     value,
     onChange,
