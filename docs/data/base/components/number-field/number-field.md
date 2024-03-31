@@ -154,7 +154,7 @@ The `ScrubArea` subcomponent lets users scrub the value with their pointer as a 
 The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `NumberField.ScrubAreaCursor` subcomponent, which automatically loops around the boundary:
 
 ```jsx
-<NumberField.ScrubArea direction="horizontal" style={{ cursor: 'ns-resize' }}>
+<NumberField.ScrubArea direction="horizontal" style={{ cursor: 'ew-resize' }}>
   <label htmlFor={id} style={{ cursor: 'unset' }}>
     Scrub
   </label>

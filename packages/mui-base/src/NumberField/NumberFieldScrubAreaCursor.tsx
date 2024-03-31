@@ -13,6 +13,8 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
 
 /**
  *
+ * The scrub area cursor element.
+ *
  * Demos:
  *
  * - [NumberField](https://mui.com/base-ui/react-number-field/)

@@ -10,6 +10,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'input'>) {
 }
 
 /**
+ * The input element for the number field.
  *
  * Demos:
  *
@@ -34,6 +35,9 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ref: mergedInputRef,
     className: resolveClassName(className, ownerState),
     value: inputValue,
+    // If the server's locale does not match the client's locale, the formatting may not match,
+    // causing a hydration mismatch.
+    suppressHydrationWarning: true,
     ...otherProps,
   });
 

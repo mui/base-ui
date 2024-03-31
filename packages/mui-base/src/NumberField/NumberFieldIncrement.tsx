@@ -9,6 +9,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
 }
 
 /**
+ * The increment stepper button.
  *
  * Demos:
  *

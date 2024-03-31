@@ -6,25 +6,29 @@ export interface NumberFieldOwnerState {
    */
   value: number | null;
   /**
+   * The string value of the input element.
+   */
+  inputValue: string;
+  /**
    * If `true`, the input element is required.
-   * @default false
    */
   required: boolean;
   /**
    * If `true`, the input element is disabled.
-   * @default false
    */
   disabled: boolean;
   /**
    * If `true`, the input element is invalid.
-   * @default false
    */
   invalid: boolean;
   /**
    * If `true`, the input element is read only.
-   * @default false
    */
   readOnly: boolean;
+  /**
+   * If `true`, the value is being scrubbed.
+   */
+  scrubbing: boolean;
 }
 
 export interface NumberFieldProps

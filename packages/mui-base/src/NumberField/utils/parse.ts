@@ -2,9 +2,10 @@ import { getFormatter } from './format';
 
 export const HAN_NUMERALS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 export const ARABIC_NUMERALS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+export const PERCENTAGES = ['%', '٪'];
+
 export const ARABIC_RE = new RegExp(`[${ARABIC_NUMERALS.join('')}]`, 'g');
 export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
-export const PERCENTAGES = ['%', '٪'];
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 
 export function getNumberLocaleDetails(locale?: string, options?: Intl.NumberFormatOptions) {

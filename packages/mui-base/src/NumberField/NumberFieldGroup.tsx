@@ -9,6 +9,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
 }
 
 /**
+ * Groups interactive `NumberField` components together.
  *
  * Demos:
  *

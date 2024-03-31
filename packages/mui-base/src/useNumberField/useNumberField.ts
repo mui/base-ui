@@ -75,7 +75,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     if (formatStyle === 'percent') {
       value.push(...PERCENTAGES);
     }
-    if (minWithDefault && minWithDefault <= 0) {
+    if (minWithDefault < 0) {
       value.push('-');
     }
     // Consider adding more allowed keys, such as for currencies.
@@ -111,9 +111,11 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
   const value = valueUnwrapped ?? null;
 
-  // We need to hide the input value during SSR to avoid a potential mismatch between the server
-  // rendered value and the client rendered value when their locales differ.
-  const [inputValue, setInputValue] = React.useState('');
+  // During SSR, the value is formatted on the server, whose locale may differ from the client's
+  // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
+  // rendering an empty input field and then updating it with the formatted value, as the user
+  // can still see the value prior to hydration, even if it's not formatted correctly.
+  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, undefined, format));
   const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
 
   // When scrubbing gets clamped, we want to keep the raw value to be able to ensure changing scrub
@@ -145,9 +147,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
     onChange?.(validatedValue);
     setValueUnwrapped(validatedValue);
-    // We need to force a re-render because while the value may be unchanged, we still need to
-    // update the formatted input value via the `useEnhancedEffect` since it acts as a single source
-    // of truth to sync the input value.
+    // We need to force a re-render, because while the value may be unchanged, the formatting may
+    // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
+    // truth to sync the input value.
     forceRender();
   });
 
@@ -253,7 +255,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       if (minWithDefault >= 0) {
         // iOS numeric software keyboard doesn't have a decimal key for "numeric" input mode, but
         // this is better than the "text" input if possible to use.
-        computedInputMode = 'decimal' as const;
+        computedInputMode = 'decimal';
       }
 
       setInputMode(computedInputMode);
@@ -266,7 +268,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   }, [stopAutoChange]);
 
   React.useEffect(
-    function registerGlobalShiftKeyListeners() {
+    function registerGlobalStepModifierKeyListeners() {
       if (disabled || readOnly || !inputRef.current) {
         return undefined;
       }
@@ -290,7 +292,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       }
 
       function handleWindowBlur() {
+        // A keyup event may not be dispatched when the window loses focus.
         isHoldingShiftRef.current = false;
+        isHoldingMetaRef.current = false;
       }
 
       const win = ownerWindow(inputRef.current);
@@ -535,7 +539,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
 
-        // If the input value is invalid, set it to the last valid value.
         if (parsedValue !== null) {
           setValue(parsedValue);
         }
@@ -586,7 +589,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
         // is selected, or if only the minus sign is highlighted.
-        if (event.key === '-') {
+        if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
           const isMinusHighlighted =
             selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
           isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
@@ -656,6 +659,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           return;
         }
 
+        // Prevent `onChange` from being called.
+        event.preventDefault();
+
         const clipboardData = event.clipboardData || window.Clipboard;
         const pastedData = clipboardData.getData('text/plain');
         const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
@@ -663,6 +669,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         if (parsedValue !== null) {
           allowInputSyncRef.current = false;
           setValue(parsedValue);
+          setInputValue(pastedData);
         }
       },
     }),

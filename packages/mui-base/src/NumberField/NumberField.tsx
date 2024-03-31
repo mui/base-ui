@@ -55,8 +55,18 @@ const NumberField = React.forwardRef(function NumberField(
       readOnly,
       required,
       value: numberField.value,
+      inputValue: numberField.inputValue,
+      scrubbing: numberField.isScrubbing,
     }),
-    [disabled, invalid, readOnly, required, numberField.value],
+    [
+      disabled,
+      invalid,
+      readOnly,
+      required,
+      numberField.value,
+      numberField.inputValue,
+      numberField.isScrubbing,
+    ],
   );
 
   const contextValue = React.useMemo(
@@ -67,7 +77,7 @@ const NumberField = React.forwardRef(function NumberField(
     [numberField, ownerState],
   );
 
-  const rootDivProps = {
+  const rootProps = {
     ref: forwardedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
@@ -75,7 +85,7 @@ const NumberField = React.forwardRef(function NumberField(
 
   return (
     <NumberFieldContext.Provider value={contextValue}>
-      {render(rootDivProps, ownerState)}
+      {render(rootProps, ownerState)}
     </NumberFieldContext.Provider>
   );
 });

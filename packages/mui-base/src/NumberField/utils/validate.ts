@@ -1,8 +1,14 @@
 import { clamp } from '../../utils/clamp';
 import { getFormatter } from './format';
 
-export function removeFloatingPointErrors(value: number, format?: Intl.NumberFormatOptions) {
-  return parseFloat(getFormatter(undefined, format).format(value));
+export function removeFloatingPointErrors(value: number, format: Intl.NumberFormatOptions = {}) {
+  return parseFloat(
+    getFormatter(undefined, {
+      maximumFractionDigits: format.maximumFractionDigits,
+      minimumFractionDigits: format.minimumFractionDigits,
+      useGrouping: false,
+    }).format(value),
+  );
 }
 
 export function toValidatedNumber(

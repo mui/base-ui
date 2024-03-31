@@ -18,8 +18,18 @@ describe('validate', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1)).to.equal(0.3);
     });
 
-    it('returns 0.3 for 0.2 + 0.1 with format', () => {
+    it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).to.equal(0.3);
+    });
+
+    it('returns 1000 for 1000, ignoring grouping', () => {
+      expect(removeFloatingPointErrors(1000)).to.equal(1000);
+    });
+
+    it('ignores formatting style', () => {
+      expect(removeFloatingPointErrors(1000, { style: 'currency', currency: 'USD' })).to.equal(
+        1000,
+      );
     });
   });
 
