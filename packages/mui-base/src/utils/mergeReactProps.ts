@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { BaseUIEvent, BaseUIProps } from './BaseUI.types';
+import type { BaseUIEvent, WithBaseUIEvent } from './BaseUI.types';
 
 /**
  * Merges two sets of React props such that their event handlers are called in sequence (the user's
@@ -12,9 +12,9 @@ import type { BaseUIEvent, BaseUIProps } from './BaseUI.types';
  * @returns the merged props.
  */
 export function mergeReactProps<T extends React.ElementType>(
-  externalProps: BaseUIProps<React.ComponentPropsWithRef<T>>,
+  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
   internalProps: React.ComponentPropsWithRef<T>,
-): BaseUIProps<React.ComponentPropsWithRef<T>> {
+): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   return Object.entries(externalProps).reduce(
     (acc, [key, value]) => {
       if (/^on[A-Z]/.test(key) && typeof value === 'function') {

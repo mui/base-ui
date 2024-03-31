@@ -10,7 +10,10 @@ type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
     ? undefined
     : T;
 
-export type BaseUIProps<T> = {
+/**
+ * Adds a `preventBaseUIHandler` method to all event handlers.
+ */
+export type WithBaseUIEvent<T> = {
   [K in keyof T]: WithPreventBaseUIHandler<T[K]>;
 };
 
@@ -27,7 +30,7 @@ export type ComponentRenderFn<Props, State> = (props: Props, state: State) => Re
  * Contains `className` (string or callback taking the component's state as an argument) and `render` (function to customize rendering).
  */
 export type BaseUIComponentProps<ElementType extends React.ElementType, OwnerState> = Omit<
-  BaseUIProps<React.ComponentPropsWithoutRef<ElementType>>,
+  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
   'className'
 > & {
   /**
