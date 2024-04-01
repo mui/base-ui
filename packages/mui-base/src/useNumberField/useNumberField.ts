@@ -118,11 +118,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const [inputValue, setInputValue] = React.useState(() => formatNumber(value, undefined, format));
   const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
 
-  // When scrubbing gets clamped, we want to keep the raw value to be able to ensure changing scrub
-  // direction only changes the value once the pointer moves past the point at which the value
-  // started being clamped.
-  const rawValueRef = React.useRef(value);
-
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;
 
@@ -153,28 +148,21 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     forceRender();
   });
 
+  const incrementValue = useEventCallback(
+    (amount: number, dir: 1 | -1, currentValue?: number | null) => {
+      const prevValue = currentValue == null ? value : currentValue;
+      const nextValue =
+        typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
+      setValue(nextValue);
+    },
+  );
+
   const stopAutoChange = useEventCallback(() => {
     window.clearTimeout(intentionalTouchCheckTimeoutRef.current);
     window.clearTimeout(startTickTimeoutRef.current);
     window.clearInterval(tickIntervalRef.current);
     unsubscribeFromGlobalContextMenuRef.current();
     movesAfterTouchRef.current = 0;
-  });
-
-  const changeValue = useEventCallback((amount: number, dir: 1 | -1) => {
-    const rawValue = rawValueRef.current;
-    const nextValue =
-      typeof rawValue === 'number' ? rawValue + amount * dir : Math.max(0, min ?? 0);
-    rawValueRef.current = nextValue;
-    setValue(nextValue);
-  });
-
-  const increment = useEventCallback((amount: number) => {
-    changeValue(amount, 1);
-  });
-
-  const decrement = useEventCallback((amount: number) => {
-    changeValue(amount, -1);
   });
 
   const startAutoChange = useEventCallback((isIncrement: boolean) => {
@@ -204,11 +192,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
     function tick() {
       const amount = getStepAmount() ?? DEFAULT_STEP;
-      if (isIncrement) {
-        increment(amount);
-      } else {
-        decrement(amount);
-      }
+      incrementValue(amount, isIncrement ? 1 : -1);
     }
 
     tick();
@@ -334,11 +318,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         const amount = getStepAmount() ?? DEFAULT_STEP;
 
-        if (event.deltaY > 0) {
-          decrement(amount);
-        } else {
-          increment(amount);
-        }
+        incrementValue(amount, event.deltaY > 0 ? -1 : 1);
       }
 
       element.addEventListener('wheel', handleWheel);
@@ -347,7 +327,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         element.removeEventListener('wheel', handleWheel);
       };
     },
-    [allowWheelScrub, increment, decrement, disabled, readOnly, largeStep, step, getStepAmount],
+    [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
   const getGroupProps: UseNumberFieldReturnValue['getGroupProps'] = React.useCallback(
@@ -397,11 +377,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
-          if (isIncrement) {
-            increment(amount);
-          } else {
-            decrement(amount);
-          }
+          incrementValue(amount, isIncrement ? 1 : -1);
         },
         onPointerDown(event) {
           externalProps.onPointerDown?.(event);
@@ -487,8 +463,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       isMax,
       isMin,
       id,
-      increment,
-      decrement,
+      incrementValue,
       startAutoChange,
       stopAutoChange,
       getStepAmount,
@@ -634,9 +609,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         // We need to commit the number at this point if the input hasn't been blurred.
         const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-        if (parsedValue !== null) {
-          rawValueRef.current = parsedValue;
-        }
 
         const amount = getStepAmount() ?? DEFAULT_STEP;
 
@@ -644,9 +616,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         event.preventDefault();
 
         if (event.key === 'ArrowUp') {
-          increment(amount);
+          incrementValue(amount, 1, parsedValue);
         } else if (event.key === 'ArrowDown') {
-          decrement(amount);
+          incrementValue(amount, -1, parsedValue);
         } else if (event.key === 'Home' && min != null) {
           setValue(min);
         } else if (event.key === 'End' && max != null) {
@@ -689,8 +661,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       getStepAmount,
       min,
       max,
-      increment,
-      decrement,
+      incrementValue,
     ],
   );
 
@@ -699,8 +670,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     readOnly,
     value,
     inputRef,
-    rawValueRef,
-    increment,
+    incrementValue,
     getStepAmount,
   });
 

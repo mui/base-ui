@@ -12,7 +12,7 @@ import { getViewportRect, subscribeToVisualViewportResize } from './utils';
  * @ignore - internal hook.
  */
 export function useScrub(params: ScrubParams) {
-  const { disabled, readOnly, value, inputRef, rawValueRef, increment, getStepAmount } = params;
+  const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;
 
   const latestValueRef = useLatestRef(value);
 
@@ -174,7 +174,6 @@ export function useScrub(params: ScrubParams) {
         clearTimeout(avoidFlickerTimeoutRef.current);
 
         isScrubbingRef.current = false;
-        rawValueRef.current = latestValueRef.current;
 
         onScrubbingChange(false, event);
 
@@ -201,7 +200,7 @@ export function useScrub(params: ScrubParams) {
         if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
           const dValue = direction === 'vertical' ? -movementY : movementX;
-          increment(dValue * (getStepAmount() ?? DEFAULT_STEP));
+          incrementValue(dValue * (getStepAmount() ?? DEFAULT_STEP), 1);
         }
       }
 
@@ -218,11 +217,10 @@ export function useScrub(params: ScrubParams) {
     [
       disabled,
       readOnly,
-      increment,
+      incrementValue,
       latestValueRef,
       getStepAmount,
       inputRef,
-      rawValueRef,
       onScrubbingChange,
       onScrub,
     ],
