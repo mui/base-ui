@@ -24,7 +24,7 @@ overrides:
   '@definitelytyped/utils': ^0.1.5
   '@types/node': ^18.19.26
   '@types/react': ^18.2.73
-  '@types/react-dom': 18.2.22
+  '@types/react-dom': 18.2.23
 
 patchedDependencies:
   '@mui/docs@5.15.14':
@@ -566,8 +566,8 @@ importers:
         specifier: ^18.2.73
         version: 18.2.73
       '@types/react-dom':
-        specifier: 18.2.22
-        version: 18.2.22
+        specifier: 18.2.23
+        version: 18.2.23
       '@types/react-transition-group':
         specifier: ^4.4.10
         version: 4.4.10
@@ -660,8 +660,8 @@ importers:
         specifier: ^18.2.73
         version: 18.2.73
       '@types/react-dom':
-        specifier: 18.2.22
-        version: 18.2.22
+        specifier: 18.2.23
+        version: 18.2.23
       '@types/sinon':
         specifier: ^17.0.3
         version: 17.0.3
@@ -5029,7 +5029,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.0
       '@testing-library/dom': 9.3.4
-      '@types/react-dom': 18.2.22
+      '@types/react-dom': 18.2.23
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -5291,8 +5291,8 @@ packages:
   /@types/range-parser@1.2.7:
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
 
-  /@types/react-dom@18.2.22:
-    resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
+  /@types/react-dom@18.2.23:
+    resolution: {integrity: sha512-ZQ71wgGOTmDYpnav2knkjr3qXdAFu0vsk8Ci5w3pGAIdj7/kKAyn+VsQDhXsmzzzepAiI9leWMmubXz690AI/A==}
     dependencies:
       '@types/react': 18.2.73
     dev: true

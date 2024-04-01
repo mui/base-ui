@@ -90,7 +90,7 @@
     "@types/node": "^18.19.26",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.2.73",
-    "@types/react-dom": "^18.2.22",
+    "@types/react-dom": "^18.2.23",
     "@types/react-transition-group": "^4.4.10",
     "@types/stylis": "^4.2.5",
     "chai": "^4.4.1",
