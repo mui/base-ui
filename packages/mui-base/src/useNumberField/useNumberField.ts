@@ -69,19 +69,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
-  const allowedNonNumericKeys = React.useMemo(() => {
-    const { decimal, group } = getNumberLocaleDetails();
-    const value = Array.from(new Set(['.', ',', decimal, group]));
-    if (formatStyle === 'percent') {
-      value.push(...PERCENTAGES);
-    }
-    if (minWithDefault < 0) {
-      value.push('-');
-    }
-    // Consider adding more allowed keys, such as for currencies.
-    return value;
-  }, [minWithDefault, formatStyle]);
-
   const id = useId(idProp);
 
   const forceRender = useForcedRerendering();
@@ -115,11 +102,29 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, undefined, format));
+  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, [], format));
   const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
 
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;
+
+  const getAllowedNonNumericKeys = useEventCallback(() => {
+    const { decimal, group, currency } = getNumberLocaleDetails([], format);
+
+    const keys = Array.from(new Set(['.', ',', decimal, group]));
+
+    if (formatStyle === 'percent') {
+      keys.push(...PERCENTAGES);
+    }
+    if (formatStyle === 'currency' && currency) {
+      keys.push(currency);
+    }
+    if (minWithDefault < 0) {
+      keys.push('-');
+    }
+
+    return keys;
+  });
 
   const getStepAmount = useEventCallback(() => {
     if (isHoldingMetaRef.current) {
@@ -219,7 +224,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       return;
     }
 
-    const nextInputValue = formatNumber(value, undefined, formatOptionsRef.current);
+    const nextInputValue = formatNumber(value, [], formatOptionsRef.current);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -554,9 +559,11 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
         allowInputSyncRef.current = true;
 
+        const allowedNonNumericKeys = getAllowedNonNumericKeys();
+
         let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
 
-        const { decimal } = getNumberLocaleDetails(undefined, formatOptionsRef.current);
+        const { decimal, currency } = getNumberLocaleDetails([], formatOptionsRef.current);
 
         const selectionStart = event.currentTarget.selectionStart;
         const selectionEnd = event.currentTarget.selectionEnd;
@@ -578,6 +585,14 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
             selectionStart === decimalIndex && selectionEnd === decimalIndex + 1;
           isAllowedNonNumericKey =
             !inputValue.includes(decimal) || isAllSelected || isDecimalHighlighted;
+        }
+
+        if (event.key === currency) {
+          const currencyIndex = inputValue.indexOf(currency);
+          const isCurrencyHighlighted =
+            selectionStart === currencyIndex && selectionEnd === currencyIndex + 1;
+          isAllowedNonNumericKey =
+            !inputValue.includes(currency) || isAllSelected || isCurrencyHighlighted;
         }
 
         const isLatinNumeral = /^[0-9]$/.test(event.key);
@@ -657,7 +672,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
       inputValue,
       formatOptionsRef,
       setValue,
-      allowedNonNumericKeys,
+      getAllowedNonNumericKeys,
       getStepAmount,
       min,
       max,

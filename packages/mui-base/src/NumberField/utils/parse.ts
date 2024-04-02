@@ -8,7 +8,10 @@ export const ARABIC_RE = new RegExp(`[${ARABIC_NUMERALS.join('')}]`, 'g');
 export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 
-export function getNumberLocaleDetails(locale?: string, options?: Intl.NumberFormatOptions) {
+export function getNumberLocaleDetails(
+  locale?: string | string[],
+  options?: Intl.NumberFormatOptions,
+) {
   const parts = getFormatter(locale, options).formatToParts(1111.1);
   const result: Partial<Record<Intl.NumberFormatPartTypes, string | undefined>> = {};
 
