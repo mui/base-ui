@@ -29,10 +29,6 @@ import {
   TOUCH_TIMEOUT,
 } from './constants';
 
-function handleGlobalContextMenu(event: Event) {
-  event.preventDefault();
-}
-
 /**
  *
  * Demos:
@@ -179,11 +175,15 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
     const win = ownerWindow(inputRef.current);
 
+    function handleContextMenu(event: Event) {
+      event.preventDefault();
+    }
+
     // A global context menu is necessary to prevent the context menu from appearing when the touch
     // is slightly outside of the element's hit area.
-    win.addEventListener('contextmenu', handleGlobalContextMenu);
+    win.addEventListener('contextmenu', handleContextMenu);
     unsubscribeFromGlobalContextMenuRef.current = () => {
-      win.removeEventListener('contextmenu', handleGlobalContextMenu);
+      win.removeEventListener('contextmenu', handleContextMenu);
     };
 
     win.addEventListener(
