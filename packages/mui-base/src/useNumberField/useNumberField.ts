@@ -30,6 +30,7 @@ import {
 } from './constants';
 
 /**
+ * The basic building block for creating custom number fields.
  *
  * Demos:
  *
