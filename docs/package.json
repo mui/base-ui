@@ -18,10 +18,10 @@
     "link-check": "node ./scripts/reportBrokenLinks.js"
   },
   "dependencies": {
-    "@babel/core": "^7.24.0",
-    "@babel/plugin-transform-object-assign": "^7.23.3",
-    "@babel/runtime": "^7.24.0",
-    "@babel/runtime-corejs2": "^7.24.0",
+    "@babel/core": "^7.24.3",
+    "@babel/plugin-transform-object-assign": "^7.24.1",
+    "@babel/runtime": "^7.24.1",
+    "@babel/runtime-corejs2": "^7.24.1",
     "@docsearch/react": "^3.6.0",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
@@ -80,8 +80,8 @@
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-constant-elements": "^7.23.3",
-    "@babel/preset-typescript": "^7.23.3",
+    "@babel/plugin-transform-react-constant-elements": "^7.24.1",
+    "@babel/preset-typescript": "^7.24.1",
     "@mui/internal-docs-utils": "^1.0.4",
     "@mui/internal-scripts": "^1.0.3",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
