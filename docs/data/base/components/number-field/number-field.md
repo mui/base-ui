@@ -139,6 +139,16 @@ The `largeStep` and `smallStep` props can be specified to change the step when a
 - `largeStep` is used when <kbd>shift</kbd> is held, incrementing and snapping to multiples of `10`.
 - `smallStep` is used when <kbd>meta</kbd> (<kbd>cmd</kbd> or <kbd>ctrl</kbd>) is held, incrementing and snapping to multiples of `0.1`.
 
+```jsx
+<NumberField step={5} largeStep={50} smallStep={0.5}>
+  <NumberField.Group>
+    <NumberField.Decrement>&minus;</NumberField.Decrement>
+    <NumberField.Input />
+    <NumberField.Increment>+</NumberField.Increment>
+  </NumberField.Group>
+</NumberField>
+```
+
 ### Format
 
 The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) to customize the formatting of the input value:

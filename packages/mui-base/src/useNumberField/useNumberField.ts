@@ -370,10 +370,11 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           isTouchingRef.current = false;
         },
         onClick(event) {
+          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
           externalProps.onClick?.(event);
           if (
             event.defaultPrevented ||
-            readOnly ||
+            isDisabled ||
             // If it's not a keyboard/virtual click, ignore.
             event.detail !== 0
           ) {
@@ -387,7 +388,9 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         onPointerDown(event) {
           externalProps.onPointerDown?.(event);
           const isMainButton = !event.button || event.button === 0;
-          if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+          const isDisabled = disabled || (isIncrement ? isMax : isMin);
+
+          if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
             return;
           }
 
@@ -415,7 +418,8 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         },
         onPointerMove(event) {
           externalProps.onPointerMove?.(event);
-          if (readOnly || disabled || event.pointerType !== 'touch' || !isPressedRef.current) {
+          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+          if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
             return;
           }
 
@@ -433,10 +437,10 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         },
         onMouseEnter(event) {
           externalProps.onMouseEnter?.(event);
+          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
           if (
             event.defaultPrevented ||
-            readOnly ||
-            disabled ||
+            isDisabled ||
             !isPressedRef.current ||
             isTouchingRef.current
           ) {
