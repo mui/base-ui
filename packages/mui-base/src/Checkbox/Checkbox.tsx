@@ -36,7 +36,7 @@ const Checkbox = React.forwardRef(function Checkbox(
     checked: checkedProp,
     render: renderProp,
     className,
-    ...domProps
+    ...otherProps
   } = props;
   const render = renderProp ?? defaultRender;
 
@@ -59,7 +59,7 @@ const Checkbox = React.forwardRef(function Checkbox(
     className: resolveClassName(className, ownerState),
     ref: forwardedRef,
     ...styleHooks,
-    ...domProps,
+    ...otherProps,
   };
 
   return (

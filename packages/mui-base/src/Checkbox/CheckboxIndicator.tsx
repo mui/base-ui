@@ -10,6 +10,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
 }
 
 /**
+ * The indicator part of the Checkbox.
  *
  * Demos:
  *
@@ -23,7 +24,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render: renderProp, className, keepMounted = false, ...domProps } = props;
+  const { render: renderProp, className, keepMounted = false, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
   const ownerState = React.useContext(CheckboxContext);
@@ -41,7 +42,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     className: resolveClassName(className, ownerState),
     ref: forwardedRef,
     ...styleHooks,
-    ...domProps,
+    ...otherProps,
   };
 
   return render(elementProps, ownerState);
