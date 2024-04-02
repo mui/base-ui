@@ -1,4 +1,4 @@
-import type { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
+import type { BaseUIComponentProps } from '../utils/BaseUI.types';
 
 export interface NumberFieldOwnerState {
   /**
@@ -32,7 +32,7 @@ export interface NumberFieldOwnerState {
 }
 
 export interface NumberFieldProps
-  extends Omit<BaseUiComponentCommonProps<'div', NumberFieldOwnerState>, 'onChange'> {
+  extends Omit<BaseUIComponentProps<'div', NumberFieldOwnerState>, 'onChange'> {
   /**
    * The id of the input element.
    */
@@ -116,20 +116,19 @@ export interface NumberFieldProps
   onChange?: (value: number | null) => void;
 }
 
-export interface NumberFieldGroupProps
-  extends BaseUiComponentCommonProps<'div', NumberFieldOwnerState> {}
+export interface NumberFieldGroupProps extends BaseUIComponentProps<'div', NumberFieldOwnerState> {}
 
 export interface NumberFieldInputProps
-  extends BaseUiComponentCommonProps<'input', NumberFieldOwnerState> {}
+  extends BaseUIComponentProps<'input', NumberFieldOwnerState> {}
 
 export interface NumberFieldIncrementProps
-  extends BaseUiComponentCommonProps<'button', NumberFieldOwnerState> {}
+  extends BaseUIComponentProps<'button', NumberFieldOwnerState> {}
 
 export interface NumberFieldDecrementProps
-  extends BaseUiComponentCommonProps<'button', NumberFieldOwnerState> {}
+  extends BaseUIComponentProps<'button', NumberFieldOwnerState> {}
 
 export interface NumberFieldScrubAreaProps
-  extends BaseUiComponentCommonProps<'span', NumberFieldOwnerState> {
+  extends BaseUIComponentProps<'span', NumberFieldOwnerState> {
   /**
    * The direction that the scrub area should change the value.
    * @default 'vertical'
@@ -149,4 +148,4 @@ export interface NumberFieldScrubAreaProps
 }
 
 export interface NumberFieldScrubAreaCursorProps
-  extends BaseUiComponentCommonProps<'span', NumberFieldOwnerState> {}
+  extends BaseUIComponentProps<'span', NumberFieldOwnerState> {}

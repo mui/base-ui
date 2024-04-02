@@ -7,6 +7,7 @@ import { isWebKit } from '../utils/detectBrowser';
 import { DEFAULT_STEP } from './constants';
 import { ScrubHandle, ScrubParams } from './useScrub.types';
 import { getViewportRect, subscribeToVisualViewportResize } from './utils';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 /**
  * @ignore - internal hook.
@@ -107,41 +108,39 @@ export function useScrub(params: ScrubParams) {
   );
 
   const getScrubAreaProps: UseNumberFieldReturnValue['getScrubAreaProps'] = React.useCallback(
-    (externalProps = {}) => ({
-      role: 'presentation',
-      ['data-scrubbing' as string]: isScrubbing || undefined,
-      ...externalProps,
-      style: {
-        touchAction: 'none',
-        WebkitUserSelect: 'none',
-        userSelect: 'none',
-        ...externalProps.style,
-      },
-      onPointerDown(event) {
-        externalProps.onPointerDown?.(event);
-        const isMainButton = !event.button || event.button === 0;
-        if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
-          return;
-        }
+    (externalProps = {}) =>
+      mergeReactProps<'span'>(externalProps, {
+        role: 'presentation',
+        ['data-scrubbing' as string]: isScrubbing || undefined,
+        style: {
+          touchAction: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        },
+        onPointerDown(event) {
+          const isMainButton = !event.button || event.button === 0;
+          if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+            return;
+          }
 
-        if (event.pointerType === 'mouse') {
-          event.preventDefault();
-          inputRef.current?.focus();
-        }
+          if (event.pointerType === 'mouse') {
+            event.preventDefault();
+            inputRef.current?.focus();
+          }
 
-        isScrubbingRef.current = true;
-        onScrubbingChange(true, event.nativeEvent);
+          isScrubbingRef.current = true;
+          onScrubbingChange(true, event.nativeEvent);
 
-        // WebKit causes significant layout shift with the native message, so we can't use it.
-        if (!isWebKit()) {
-          // There can be some frames where there's no cursor at all when requesting the pointer lock.
-          // This is a workaround to avoid flickering.
-          avoidFlickerTimeoutRef.current = window.setTimeout(() => {
-            ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
-          }, 20);
-        }
-      },
-    }),
+          // WebKit causes significant layout shift with the native message, so we can't use it.
+          if (!isWebKit()) {
+            // There can be some frames where there's no cursor at all when requesting the pointer lock.
+            // This is a workaround to avoid flickering.
+            avoidFlickerTimeoutRef.current = window.setTimeout(() => {
+              ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
+            }, 20);
+          }
+        },
+      }),
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
@@ -149,14 +148,12 @@ export function useScrub(params: ScrubParams) {
     React.useCallback(
       (externalProps = {}) => ({
         role: 'presentation',
-        ...externalProps,
         style: {
           position: 'fixed',
           top: 0,
           left: 0,
           pointerEvents: 'none',
           zIndex: 2147483647, // max z-index
-          ...cursorStyles,
           ...externalProps.style,
           transform: `${cursorStyles.transform} ${externalProps.style?.transform || ''}`,
         },

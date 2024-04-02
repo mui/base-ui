@@ -3,7 +3,6 @@ import { useEventCallback } from '../utils/useEventCallback';
 import { useControlled } from '../utils/useControlled';
 import type { NumberFieldProps } from '../NumberField';
 import { useLatestRef } from '../utils/useLatestRef';
-import { defineProps } from '../utils/defineProps';
 import type { UseNumberFieldReturnValue } from './useNumberField.types';
 import { ownerDocument, ownerWindow } from '../utils/owner';
 import { useId } from '../utils/useId';
@@ -28,6 +27,7 @@ import {
   START_AUTO_CHANGE_DELAY,
   TOUCH_TIMEOUT,
 } from './constants';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 /**
  * The basic building block for creating custom number fields.
@@ -337,16 +337,16 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   );
 
   const getGroupProps: UseNumberFieldReturnValue['getGroupProps'] = React.useCallback(
-    (externalProps = {}) => ({
-      role: 'group',
-      ...externalProps,
-    }),
+    (externalProps = {}) =>
+      mergeReactProps(externalProps, {
+        role: 'group',
+      }),
     [],
   );
 
   const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps: React.ComponentPropsWithRef<'button'> = {}) =>
-      defineProps<'button'>({
+    (isIncrement: boolean, externalProps = {}) =>
+      mergeReactProps<'button'>(externalProps, {
         disabled: disabled || (isIncrement ? isMax : isMin),
         type: 'button',
         'aria-readonly': readOnly || undefined,
@@ -356,23 +356,18 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         // to change the value. On the other hand, `aria-hidden` is not applied because touch screen
         // readers should be able to use the buttons.
         tabIndex: -1,
-        ...externalProps,
         style: {
           WebkitUserSelect: 'none',
           userSelect: 'none',
-          ...externalProps.style,
         },
-        onTouchStart(event) {
-          externalProps.onTouchStart?.(event);
+        onTouchStart() {
           isTouchingRef.current = true;
         },
-        onTouchEnd(event) {
-          externalProps.onTouchEnd?.(event);
+        onTouchEnd() {
           isTouchingRef.current = false;
         },
         onClick(event) {
           const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-          externalProps.onClick?.(event);
           if (
             event.defaultPrevented ||
             isDisabled ||
@@ -387,10 +382,8 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           incrementValue(amount, isIncrement ? 1 : -1);
         },
         onPointerDown(event) {
-          externalProps.onPointerDown?.(event);
           const isMainButton = !event.button || event.button === 0;
           const isDisabled = disabled || (isIncrement ? isMax : isMin);
-
           if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
             return;
           }
@@ -418,7 +411,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           }
         },
         onPointerMove(event) {
-          externalProps.onPointerMove?.(event);
           const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
           if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
             return;
@@ -437,7 +429,6 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           }
         },
         onMouseEnter(event) {
-          externalProps.onMouseEnter?.(event);
           const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
           if (
             event.defaultPrevented ||
@@ -450,16 +441,14 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
           startAutoChange(isIncrement);
         },
-        onMouseLeave(event) {
-          externalProps.onMouseLeave?.(event);
+        onMouseLeave() {
           if (isTouchingRef.current) {
             return;
           }
 
           stopAutoChange();
         },
-        onMouseUp(event) {
-          externalProps.onMouseUp?.(event);
+        onMouseUp() {
           if (isTouchingRef.current) {
             return;
           }
@@ -493,178 +482,175 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
     );
 
   const getInputProps: UseNumberFieldReturnValue['getInputProps'] = React.useCallback(
-    (externalProps = {}) => ({
-      id,
-      required,
-      autoFocus,
-      name,
-      disabled,
-      readOnly,
-      inputMode,
-      type: 'text',
-      autoComplete: 'off',
-      autoCorrect: 'off',
-      spellCheck: 'false',
-      'aria-roledescription': 'Number field',
-      'aria-invalid': invalid || undefined,
-      ...externalProps,
-      ref: inputRef,
-      onBlur(event) {
-        externalProps.onBlur?.(event);
-        if (event.defaultPrevented || readOnly || disabled) {
-          return;
-        }
+    (externalProps = {}) =>
+      mergeReactProps<'input'>(externalProps, {
+        id,
+        required,
+        autoFocus,
+        name,
+        disabled,
+        readOnly,
+        inputMode,
+        ref: inputRef,
+        type: 'text',
+        autoComplete: 'off',
+        autoCorrect: 'off',
+        spellCheck: 'false',
+        'aria-roledescription': 'Number field',
+        'aria-invalid': invalid || undefined,
+        onBlur(event) {
+          if (event.defaultPrevented || readOnly || disabled) {
+            return;
+          }
 
-        allowInputSyncRef.current = true;
+          allowInputSyncRef.current = true;
 
-        if (inputValue.trim() === '') {
-          setValue(null);
-          return;
-        }
+          if (inputValue.trim() === '') {
+            setValue(null);
+            return;
+          }
 
-        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
 
-        if (parsedValue !== null) {
-          setValue(parsedValue);
-        }
-      },
-      onChange(event) {
-        externalProps.onChange?.(event);
-        // Workaround for https://github.com/facebook/react/issues/9023
-        if (event.nativeEvent.defaultPrevented) {
-          return;
-        }
+          if (parsedValue !== null) {
+            setValue(parsedValue);
+          }
+        },
+        onChange(event) {
+          // Workaround for https://github.com/facebook/react/issues/9023
+          if (event.nativeEvent.defaultPrevented) {
+            return;
+          }
 
-        allowInputSyncRef.current = false;
-        const targetValue = event.target.value;
-
-        if (targetValue.trim() === '') {
-          setInputValue(targetValue);
-          setValue(null);
-          return;
-        }
-
-        if (event.isTrusted) {
-          setInputValue(targetValue);
-          return;
-        }
-
-        const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
-
-        if (parsedValue !== null) {
-          setInputValue(targetValue);
-          setValue(parsedValue);
-        }
-      },
-      onKeyDown(event) {
-        externalProps.onKeyDown?.(event);
-        if (event.defaultPrevented || readOnly || disabled) {
-          return;
-        }
-
-        allowInputSyncRef.current = true;
-
-        const allowedNonNumericKeys = getAllowedNonNumericKeys();
-
-        let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
-
-        const { decimal, currency } = getNumberLocaleDetails([], formatOptionsRef.current);
-
-        const selectionStart = event.currentTarget.selectionStart;
-        const selectionEnd = event.currentTarget.selectionEnd;
-        const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
-
-        // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
-        // is selected, or if only the minus sign is highlighted.
-        if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
-          const isMinusHighlighted =
-            selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-          isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
-        }
-
-        // Allow only one decimal separator, or if all the text is selected, or if only the decimal
-        // separator is highlighted.
-        if (event.key === decimal) {
-          const decimalIndex = inputValue.indexOf(decimal);
-          const isDecimalHighlighted =
-            selectionStart === decimalIndex && selectionEnd === decimalIndex + 1;
-          isAllowedNonNumericKey =
-            !inputValue.includes(decimal) || isAllSelected || isDecimalHighlighted;
-        }
-
-        if (event.key === currency) {
-          const currencyIndex = inputValue.indexOf(currency);
-          const isCurrencyHighlighted =
-            selectionStart === currencyIndex && selectionEnd === currencyIndex + 1;
-          isAllowedNonNumericKey =
-            !inputValue.includes(currency) || isAllSelected || isCurrencyHighlighted;
-        }
-
-        const isLatinNumeral = /^[0-9]$/.test(event.key);
-        const isArabicNumeral = ARABIC_RE.test(event.key);
-        const isHanNumeral = HAN_RE.test(event.key);
-        const isNavigateKey = [
-          'Backspace',
-          'Delete',
-          'ArrowLeft',
-          'ArrowRight',
-          'Tab',
-          'Enter',
-        ].includes(event.key);
-
-        if (
-          // Allow composition events (e.g., pinyin)
-          event.nativeEvent.isComposing ||
-          event.altKey ||
-          event.ctrlKey ||
-          event.metaKey ||
-          isAllowedNonNumericKey ||
-          isLatinNumeral ||
-          isArabicNumeral ||
-          isHanNumeral ||
-          isNavigateKey
-        ) {
-          return;
-        }
-
-        // We need to commit the number at this point if the input hasn't been blurred.
-        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-
-        const amount = getStepAmount() ?? DEFAULT_STEP;
-
-        // Prevent insertion of text or caret from moving.
-        event.preventDefault();
-
-        if (event.key === 'ArrowUp') {
-          incrementValue(amount, 1, parsedValue);
-        } else if (event.key === 'ArrowDown') {
-          incrementValue(amount, -1, parsedValue);
-        } else if (event.key === 'Home' && min != null) {
-          setValue(min);
-        } else if (event.key === 'End' && max != null) {
-          setValue(max);
-        }
-      },
-      onPaste(event) {
-        externalProps.onPaste?.(event);
-        if (event.defaultPrevented || readOnly || disabled) {
-          return;
-        }
-
-        // Prevent `onChange` from being called.
-        event.preventDefault();
-
-        const clipboardData = event.clipboardData || window.Clipboard;
-        const pastedData = clipboardData.getData('text/plain');
-        const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
-
-        if (parsedValue !== null) {
           allowInputSyncRef.current = false;
-          setValue(parsedValue);
-          setInputValue(pastedData);
-        }
-      },
-    }),
+          const targetValue = event.target.value;
+
+          if (targetValue.trim() === '') {
+            setInputValue(targetValue);
+            setValue(null);
+            return;
+          }
+
+          if (event.isTrusted) {
+            setInputValue(targetValue);
+            return;
+          }
+
+          const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
+
+          if (parsedValue !== null) {
+            setInputValue(targetValue);
+            setValue(parsedValue);
+          }
+        },
+        onKeyDown(event) {
+          if (event.defaultPrevented || readOnly || disabled) {
+            return;
+          }
+
+          allowInputSyncRef.current = true;
+
+          const allowedNonNumericKeys = getAllowedNonNumericKeys();
+
+          let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
+
+          const { decimal, currency } = getNumberLocaleDetails([], formatOptionsRef.current);
+
+          const selectionStart = event.currentTarget.selectionStart;
+          const selectionEnd = event.currentTarget.selectionEnd;
+          const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
+
+          // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
+          // is selected, or if only the minus sign is highlighted.
+          if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
+            const isMinusHighlighted =
+              selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
+            isAllowedNonNumericKey =
+              !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
+          }
+
+          // Allow only one decimal separator, or if all the text is selected, or if only the decimal
+          // separator is highlighted.
+          if (event.key === decimal) {
+            const decimalIndex = inputValue.indexOf(decimal);
+            const isDecimalHighlighted =
+              selectionStart === decimalIndex && selectionEnd === decimalIndex + 1;
+            isAllowedNonNumericKey =
+              !inputValue.includes(decimal) || isAllSelected || isDecimalHighlighted;
+          }
+
+          if (event.key === currency) {
+            const currencyIndex = inputValue.indexOf(currency);
+            const isCurrencyHighlighted =
+              selectionStart === currencyIndex && selectionEnd === currencyIndex + 1;
+            isAllowedNonNumericKey =
+              !inputValue.includes(currency) || isAllSelected || isCurrencyHighlighted;
+          }
+
+          const isLatinNumeral = /^[0-9]$/.test(event.key);
+          const isArabicNumeral = ARABIC_RE.test(event.key);
+          const isHanNumeral = HAN_RE.test(event.key);
+          const isNavigateKey = [
+            'Backspace',
+            'Delete',
+            'ArrowLeft',
+            'ArrowRight',
+            'Tab',
+            'Enter',
+          ].includes(event.key);
+
+          if (
+            // Allow composition events (e.g., pinyin)
+            event.nativeEvent.isComposing ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            isAllowedNonNumericKey ||
+            isLatinNumeral ||
+            isArabicNumeral ||
+            isHanNumeral ||
+            isNavigateKey
+          ) {
+            return;
+          }
+
+          // We need to commit the number at this point if the input hasn't been blurred.
+          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+
+          const amount = getStepAmount() ?? DEFAULT_STEP;
+
+          // Prevent insertion of text or caret from moving.
+          event.preventDefault();
+
+          if (event.key === 'ArrowUp') {
+            incrementValue(amount, 1, parsedValue);
+          } else if (event.key === 'ArrowDown') {
+            incrementValue(amount, -1, parsedValue);
+          } else if (event.key === 'Home' && min != null) {
+            setValue(min);
+          } else if (event.key === 'End' && max != null) {
+            setValue(max);
+          }
+        },
+        onPaste(event) {
+          if (event.defaultPrevented || readOnly || disabled) {
+            return;
+          }
+
+          // Prevent `onChange` from being called.
+          event.preventDefault();
+
+          const clipboardData = event.clipboardData || window.Clipboard;
+          const pastedData = clipboardData.getData('text/plain');
+          const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
+
+          if (parsedValue !== null) {
+            allowInputSyncRef.current = false;
+            setValue(parsedValue);
+            setInputValue(pastedData);
+          }
+        },
+      }),
     [
       id,
       required,
