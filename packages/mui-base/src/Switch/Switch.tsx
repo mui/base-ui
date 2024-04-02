@@ -3,14 +3,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import refType from '@mui/utils/refType';
 import { useSwitch } from '../useSwitch';
-import { SwitchProps, SwitchOwnerState } from './Switch.types';
+import type { SwitchProps, SwitchOwnerState } from './Switch.types';
 import { resolveClassName } from '../utils/resolveClassName';
 import { SwitchContext } from './SwitchContext';
 import { useSwitchStyleHooks } from './useSwitchStyleHooks';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
-  // eslint-disable-next-line react/button-has-type
-  return <button {...props} />;
+  return <button type="button" {...props} />;
 }
 
 /**
@@ -37,9 +36,10 @@ const Switch = React.forwardRef(function Switch(
     onChange,
     readOnly = false,
     required = false,
-    render = defaultRender,
+    render: renderProp,
     ...other
   } = props;
+  const render = renderProp ?? defaultRender;
 
   const { getInputProps, getButtonProps, checked } = useSwitch(props);
 
