@@ -1,5 +1,5 @@
-import type { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
-import { UseCheckboxParameters } from '../useCheckbox';
+import type { BaseUIComponentProps } from '../utils/BaseUI.types';
+import type { UseCheckboxParameters } from '../useCheckbox';
 
 export type CheckboxOwnerState = {
   checked: boolean;
@@ -11,13 +11,11 @@ export type CheckboxOwnerState = {
 
 export interface CheckboxProps
   extends UseCheckboxParameters,
-    Omit<BaseUiComponentCommonProps<'button', CheckboxOwnerState>, 'onChange'> {}
+    Omit<BaseUIComponentProps<'button', CheckboxOwnerState>, 'onChange'> {}
 
-export interface CheckboxIndicatorProps
-  extends BaseUiComponentCommonProps<'span', CheckboxOwnerState> {
+export interface CheckboxIndicatorProps extends BaseUIComponentProps<'span', CheckboxOwnerState> {
   /**
    * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
-   *
    * @default false
    */
   keepMounted?: boolean;
