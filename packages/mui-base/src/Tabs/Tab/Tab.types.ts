@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 import { TabsOrientation } from '../Tabs.types';
 
 export type TabOwnerState = {
@@ -8,8 +8,7 @@ export type TabOwnerState = {
   orientation: TabsOrientation;
 };
 
-export interface TabProps
-  extends Omit<BaseUiComponentCommonProps<'button', TabOwnerState>, 'onChange'> {
+export interface TabProps extends Omit<BaseUIComponentProps<'button', TabOwnerState>, 'onChange'> {
   /**
    * You can provide your own value. Otherwise, it falls back to the child position index.
    */

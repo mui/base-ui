@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseUiComponentCommonProps } from '../utils/BaseUiComponentCommonProps';
+import { BaseUIComponentProps } from '../utils/BaseUI.types';
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 
@@ -11,7 +11,7 @@ export type TabsOwnerState = {
 };
 
 export interface TabsProps
-  extends Omit<BaseUiComponentCommonProps<'div', TabsOwnerState>, 'defaultValue' | 'onChange'> {
+  extends Omit<BaseUIComponentProps<'div', TabsOwnerState>, 'defaultValue' | 'onChange'> {
   /**
    * The value of the currently selected `Tab`.
    * If you don't want any selected `Tab`, you can set this prop to `null`.

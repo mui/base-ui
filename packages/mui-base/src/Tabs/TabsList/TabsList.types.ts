@@ -1,4 +1,4 @@
-import { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 import { TabsDirection, TabsOrientation } from '../Tabs.types';
 
 export type TabsListOwnerState = {
@@ -6,7 +6,7 @@ export type TabsListOwnerState = {
   orientation: TabsOrientation;
 };
 
-export interface TabsListProps extends BaseUiComponentCommonProps<'div', TabsListOwnerState> {
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsListOwnerState> {
   /**
    * If `true`, the tab will be activated whenever it is focused.
    * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.

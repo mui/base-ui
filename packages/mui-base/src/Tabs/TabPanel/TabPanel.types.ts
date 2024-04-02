@@ -1,4 +1,4 @@
-import type { BaseUiComponentCommonProps } from '../../utils/BaseUiComponentCommonProps';
+import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
 import type { TabsDirection, TabsOrientation } from '../Tabs.types';
 
 export type TabPanelOwnerState = {
@@ -7,7 +7,7 @@ export type TabPanelOwnerState = {
   direction: TabsDirection;
 };
 
-export interface TabPanelProps extends BaseUiComponentCommonProps<'div', TabPanelOwnerState> {
+export interface TabPanelProps extends BaseUIComponentProps<'div', TabPanelOwnerState> {
   /**
    * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
    * If not provided, it will fall back to the index of the panel.
