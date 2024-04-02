@@ -84,10 +84,6 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   );
 
   const controlledProps = React.useMemo(() => {
-    if (value === undefined) {
-      return {};
-    }
-
     return value != null ? { selectedValues: [value] } : { selectedValues: [] };
   }, [value]);
 
