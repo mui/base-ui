@@ -1,1 +1,5 @@
-{ "hookDescription": "", "parametersDescriptions": {}, "returnValueDescriptions": {} }
+{
+  "hookDescription": "The basic building block for creating custom number fields.",
+  "parametersDescriptions": {},
+  "returnValueDescriptions": {}
+}
