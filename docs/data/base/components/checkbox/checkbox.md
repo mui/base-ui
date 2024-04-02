@@ -111,3 +111,12 @@ You may not need to use hooks unless you find that you're limited by the customi
 ## Accessibility
 
 Ensure the checkbox has an accessible name via a `label` element.
+
+```jsx
+<Checkbox id="my-checkbox">
+  <Checkbox.Indicator />
+</Checkbox>
+<label htmlFor="my-checkbox">
+  My label
+</label>
+```
