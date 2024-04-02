@@ -32,6 +32,7 @@ export function useScrub(params: ScrubParams) {
   React.useEffect(() => {
     return () => {
       clearTimeout(avoidFlickerTimeoutRef.current);
+      unsubscribeVisualViewportResizeRef.current();
     };
   }, []);
 
@@ -82,6 +83,7 @@ export function useScrub(params: ScrubParams) {
 
       const virtualCursor = scrubAreaCursorRef.current;
       if (!virtualCursor || !scrubbingValue) {
+        unsubscribeVisualViewportResizeRef.current();
         return;
       }
 
