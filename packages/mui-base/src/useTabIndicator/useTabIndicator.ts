@@ -4,6 +4,7 @@ import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 import { useTabsContext } from '../Tabs/TabsContext';
 import { TabSelectionMovementDirection, UseTabIndicatorReturnValue } from './useTabIndicator.types';
 import { mergeReactProps } from '../utils/mergeReactProps';
+
 /**
  *
  * Demos:
@@ -17,11 +18,28 @@ import { mergeReactProps } from '../utils/mergeReactProps';
 export function useTabIndicator(): UseTabIndicatorReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
   const { orientation, direction, value } = useTabsContext();
+  const [, forceUpdate] = React.useState({});
 
-  // The coordinate of the leading edge of the previously selected tab
+  // The coordinate of the leading edge of the previously active tab
   const [previousTabEdge, setPreviousTabEdge] = React.useState(0);
   const [movementDirection, setMovementDirection] =
     React.useState<TabSelectionMovementDirection>(0);
+
+  React.useEffect(() => {
+    if (value != null && tabsListRef.current != null) {
+      const resizeObserver = new ResizeObserver(() => {
+        forceUpdate({});
+      });
+
+      resizeObserver.observe(tabsListRef.current);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+
+    return undefined;
+  }, [value, tabsListRef]);
 
   React.useEffect(() => {
     // Whenever orientation changes, reset the state.

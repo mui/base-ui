@@ -6,7 +6,7 @@ export default function UnstyledTabsIntroduction() {
   const [v, sv] = React.useState<string | number | null>(0);
 
   return (
-    <div style={{ margin: '30px auto', maxWidth: '800px', display: 'block' }}>
+    <div style={{ margin: '30px auto', maxWidth: '1800px', display: 'block' }}>
       <h1>Tabs</h1>
       <h2>Horizontal</h2>
       <Tabs value={v} onChange={(e, val) => sv(val)}>
