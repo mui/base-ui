@@ -64,7 +64,10 @@ module.exports = [
     title: 'SwitchThumb',
   },
   { pathname: '/base-ui/react-tabs/components-api/#tab', title: 'Tab' },
-  { pathname: '/base-ui/react-tabs/components-api/#tab-bubble', title: 'TabBubble' },
+  {
+    pathname: '/base-ui/react-tabs/components-api/#tab-indicator',
+    title: 'TabIndicator',
+  },
   { pathname: '/base-ui/react-tabs/components-api/#tab-panel', title: 'TabPanel' },
   {
     pathname: '/base-ui/react-table-pagination/components-api/#table-pagination',
@@ -121,8 +124,8 @@ module.exports = [
   { pathname: '/base-ui/react-switch/hooks-api/#use-switch', title: 'useSwitch' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab', title: 'useTab' },
   {
-    pathname: '/base-ui/react-tabs/hooks-api/#use-tab-bubble',
-    title: 'useTabBubble',
+    pathname: '/base-ui/react-tabs/hooks-api/#use-tab-indicator',
+    title: 'useTabIndicator',
   },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab-panel', title: 'useTabPanel' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs', title: 'useTabs' },

@@ -1,0 +1,11 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useTabIndicator",
+  "filename": "/packages/mui-base/src/useTabIndicator/useTabIndicator.ts",
+  "imports": [
+    "import { useTabIndicator } from '@mui/base/useTabIndicator';",
+    "import { useTabIndicator } from '@mui/base';"
+  ],
+  "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
+}

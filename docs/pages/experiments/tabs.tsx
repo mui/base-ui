@@ -11,7 +11,7 @@ export default function UnstyledTabsIntroduction() {
       <h2>Horizontal</h2>
       <Tabs value={v} onChange={(e, val) => sv(val)}>
         <TabsList>
-          <Bubble />
+          <Indicator />
           <Tab value={0}>Code</Tab>
           <Tab value={1}>Issues</Tab>
           <Tab value={2}>Pull Requests</Tab>
@@ -38,7 +38,7 @@ export default function UnstyledTabsIntroduction() {
       <h2>Vertical</h2>
       <Tabs value={v} onChange={(e, val) => sv(val)} orientation="vertical">
         <TabsList>
-          <Bubble />
+          <Indicator />
           <Tab value={0}>Code</Tab>
           <Tab value={1}>Issues</Tab>
           <Tab value={2}>Pull Requests</Tab>
@@ -111,26 +111,30 @@ const TabsList = styled(BaseTabs.List)(
   `,
 );
 
-const Bubble = styled(BaseTabs.Bubble)`
+const Indicator = styled(BaseTabs.Indicator)`
   position: absolute;
-  inset: var(--selected-tab-top) var(--selected-tab-right) var(--selected-tab-bottom)
-    var(--selected-tab-left);
+  inset: var(--active-tab-top) var(--active-tab-right) var(--active-tab-bottom)
+    var(--active-tab-left);
   background: ${blue[800]};
   border-radius: 8px;
   z-index: 0;
   box-shadow: 0 0 0 0 ${blue[200]};
   outline-width: 0;
   transition:
-    left calc(0.3s + var(--selection-forwards) * 0.3s) calc(var(--selection-forwards) * 0.1s),
-    right calc(0.3s + var(--selection-backwards) * 0.3s) calc(var(--selection-backwards) * 0.1s),
+    left calc(0.3s + var(--active-tab-movement-forwards) * 0.3s)
+      calc(var(--active-tab-movement-forwards) * 0.1s),
+    right calc(0.3s + var(--active-tab-movement-backwards) * 0.3s)
+      calc(var(--active-tab-movement-backwards) * 0.1s),
     top 0.3s,
     bottom 0.3s,
     box-shadow 0.2s;
 
   &[data-orientation='vertical'] {
     transition:
-      top calc(0.3s + var(--selection-forwards) * 0.3s) calc(var(--selection-forwards) * 0.1s),
-      bottom calc(0.3s + var(--selection-backwards) * 0.3s) calc(var(--selection-backwards) * 0.1s);
+      top calc(0.3s + var(--active-tab-movement-forwards) * 0.3s)
+        calc(var(--active-tab-movement-forwards) * 0.1s),
+      bottom calc(0.3s + var(--active-tab-movement-backwards) * 0.3s)
+        calc(var(--active-tab-movement-backwards) * 0.1s);
     left: 0;
     right: 0;
     margin: 0 6px;

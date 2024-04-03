@@ -19,8 +19,8 @@
   "returnValue": {
     "getRootProps": {
       "type": {
-        "name": "&lt;ExternalProps extends Record&lt;string, unknown&gt; = {}&gt;(externalProps?: ExternalProps) =&gt; UseTabRootSlotProps&lt;ExternalProps&gt;",
-        "description": "&lt;ExternalProps extends Record&lt;string, unknown&gt; = {}&gt;(externalProps?: ExternalProps) =&gt; UseTabRootSlotProps&lt;ExternalProps&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
       },
       "required": true
     },

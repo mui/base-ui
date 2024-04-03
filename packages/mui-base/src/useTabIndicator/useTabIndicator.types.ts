@@ -3,7 +3,7 @@ import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
 
 export type TabSelectionMovementDirection = 1 | -1 | 0;
 
-export interface SelectedTabPosition {
+export interface ActiveTabPosition {
   left: number;
   right: number;
   top: number;
@@ -11,11 +11,11 @@ export interface SelectedTabPosition {
   movementDirection: TabSelectionMovementDirection;
 }
 
-export type UseTabBubbleReturnValue = {
+export type UseTabIndicatorReturnValue = {
   getRootProps: (
     otherProps?: React.ComponentPropsWithoutRef<'span'>,
   ) => React.ComponentPropsWithRef<'span'>;
   orientation: TabsOrientation;
   direction: TabsDirection;
-  selectedTabPosition: SelectedTabPosition | null;
+  activeTabPosition: ActiveTabPosition | null;
 };

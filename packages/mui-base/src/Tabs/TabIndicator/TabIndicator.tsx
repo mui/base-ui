@@ -1,17 +1,22 @@
 'use client';
 import * as React from 'react';
-import { resolveClassName } from '@mui/base/utils/resolveClassName';
-import { useTabBubble } from '../../useTabBubble/useTabBubble';
-import { TabBubbleProps } from './TabBubble.types';
+import { useTabIndicator } from '../../useTabIndicator/useTabIndicator';
+import { TabIndicatorProps } from './TabIndicator.types';
+import { resolveClassName } from '../../utils/resolveClassName';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useTabBubbleStyleHooks } from '../../useTabBubble/useTabBubbleStyleHooks';
+import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
 
-export const TabBubble = React.forwardRef<HTMLSpanElement, TabBubbleProps>(
-  function TabBubble(props, forwardedRef) {
+export const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
+  function TabIndicator(props, forwardedRef) {
     const { className: classNameProp, render: renderProp, ...other } = props;
     const render = renderProp ?? defaultRenderFunctions.span;
 
-    const { direction, getRootProps, orientation, selectedTabPosition } = useTabBubble();
+    const {
+      direction,
+      getRootProps,
+      orientation,
+      activeTabPosition: selectedTabPosition,
+    } = useTabIndicator();
     const ownerState = {
       selectedTabPosition,
       orientation,
@@ -19,7 +24,7 @@ export const TabBubble = React.forwardRef<HTMLSpanElement, TabBubbleProps>(
     };
 
     const className = resolveClassName(classNameProp, ownerState);
-    const styleHooks = useTabBubbleStyleHooks(ownerState);
+    const styleHooks = useTabIndicatorStyleHooks(ownerState);
 
     const rootProps = {
       ...styleHooks,

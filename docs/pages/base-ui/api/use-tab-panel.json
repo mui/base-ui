@@ -16,8 +16,8 @@
     },
     "getRootProps": {
       "type": {
-        "name": "&lt;ExternalProps extends Record&lt;string, unknown&gt; = {}&gt;(externalProps?: ExternalProps) =&gt; UseTabPanelRootSlotProps&lt;ExternalProps&gt;",
-        "description": "&lt;ExternalProps extends Record&lt;string, unknown&gt; = {}&gt;(externalProps?: ExternalProps) =&gt; UseTabPanelRootSlotProps&lt;ExternalProps&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
       },
       "required": true
     },

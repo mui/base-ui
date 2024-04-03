@@ -4,12 +4,12 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs/data/base/components/tabs/tabs.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import TabApiJsonPageContent from '../../api/tab.json';
-import TabBubbleApiJsonPageContent from '../../api/tab-bubble.json';
+import TabIndicatorApiJsonPageContent from '../../api/tab-indicator.json';
 import TabPanelApiJsonPageContent from '../../api/tab-panel.json';
 import TabsApiJsonPageContent from '../../api/tabs.json';
 import TabsListApiJsonPageContent from '../../api/tabs-list.json';
 import useTabApiJsonPageContent from '../../api/use-tab.json';
-import useTabBubbleApiJsonPageContent from '../../api/use-tab-bubble.json';
+import useTabIndicatorApiJsonPageContent from '../../api/use-tab-indicator.json';
 import useTabPanelApiJsonPageContent from '../../api/use-tab-panel.json';
 import useTabsApiJsonPageContent from '../../api/use-tabs.json';
 import useTabsListApiJsonPageContent from '../../api/use-tabs-list.json';
@@ -34,12 +34,12 @@ export const getStaticProps = () => {
   const TabApiReq = require.context('docs/translations/api-docs-base/tab', false, /tab.*.json$/);
   const TabApiDescriptions = mapApiPageTranslations(TabApiReq);
 
-  const TabBubbleApiReq = require.context(
-    'docs/translations/api-docs-base/tab-bubble',
+  const TabIndicatorApiReq = require.context(
+    'docs/translations/api-docs-base/tab-indicator',
     false,
-    /tab-bubble.*.json$/,
+    /tab-indicator.*.json$/,
   );
-  const TabBubbleApiDescriptions = mapApiPageTranslations(TabBubbleApiReq);
+  const TabIndicatorApiDescriptions = mapApiPageTranslations(TabIndicatorApiReq);
 
   const TabPanelApiReq = require.context(
     'docs/translations/api-docs-base/tab-panel',
@@ -65,12 +65,12 @@ export const getStaticProps = () => {
   );
   const useTabApiDescriptions = mapApiPageTranslations(useTabApiReq);
 
-  const useTabBubbleApiReq = require.context(
-    'docs/translations/api-docs/use-tab-bubble',
+  const useTabIndicatorApiReq = require.context(
+    'docs/translations/api-docs/use-tab-indicator',
     false,
-    /use-tab-bubble.*.json$/,
+    /use-tab-indicator.*.json$/,
   );
-  const useTabBubbleApiDescriptions = mapApiPageTranslations(useTabBubbleApiReq);
+  const useTabIndicatorApiDescriptions = mapApiPageTranslations(useTabIndicatorApiReq);
 
   const useTabPanelApiReq = require.context(
     'docs/translations/api-docs/use-tab-panel',
@@ -97,28 +97,28 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         Tab: TabApiDescriptions,
-        TabBubble: TabBubbleApiDescriptions,
+        TabIndicator: TabIndicatorApiDescriptions,
         TabPanel: TabPanelApiDescriptions,
         Tabs: TabsApiDescriptions,
         TabsList: TabsListApiDescriptions,
       },
       componentsApiPageContents: {
         Tab: TabApiJsonPageContent,
-        TabBubble: TabBubbleApiJsonPageContent,
+        TabIndicator: TabIndicatorApiJsonPageContent,
         TabPanel: TabPanelApiJsonPageContent,
         Tabs: TabsApiJsonPageContent,
         TabsList: TabsListApiJsonPageContent,
       },
       hooksApiDescriptions: {
         useTab: useTabApiDescriptions,
-        useTabBubble: useTabBubbleApiDescriptions,
+        useTabIndicator: useTabIndicatorApiDescriptions,
         useTabPanel: useTabPanelApiDescriptions,
         useTabs: useTabsApiDescriptions,
         useTabsList: useTabsListApiDescriptions,
       },
       hooksApiPageContents: {
         useTab: useTabApiJsonPageContent,
-        useTabBubble: useTabBubbleApiJsonPageContent,
+        useTabIndicator: useTabIndicatorApiJsonPageContent,
         useTabPanel: useTabPanelApiJsonPageContent,
         useTabs: useTabsApiJsonPageContent,
         useTabsList: useTabsListApiJsonPageContent,

@@ -34,8 +34,8 @@
     },
     "getRootProps": {
       "type": {
-        "name": "(externalProps?: React.HTMLAttributes&lt;HTMLDivElement&gt;) =&gt; UseTabsRootElementProps",
-        "description": "(externalProps?: React.HTMLAttributes&lt;HTMLDivElement&gt;) =&gt; UseTabsRootElementProps"
+        "name": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
       },
       "required": true
     }

@@ -4,7 +4,7 @@ import { Tabs, TabsContext, TabsContextValue } from '@mui/base/Tabs';
 import { TabsListProvider, TabsListProviderValue } from '@mui/base/useTabsList';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Tabs.Bubble />', () => {
+describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
 
   const testTabsListContext: TabsListProviderValue = {
@@ -32,7 +32,7 @@ describe('<Tabs.Bubble />', () => {
     direction: 'ltr',
   };
 
-  describeConformance(<Tabs.Bubble />, () => ({
+  describeConformance(<Tabs.Indicator />, () => ({
     inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(

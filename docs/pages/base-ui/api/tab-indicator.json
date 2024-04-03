@@ -1,16 +1,16 @@
 {
   "props": {},
-  "name": "TabBubble",
+  "name": "TabIndicator",
   "imports": [
-    "import { TabBubble } from '@mui/base/Tabs';",
-    "import { TabBubble } from '@mui/base';"
+    "import { TabIndicator } from '@mui/base/Tabs';",
+    "import { TabIndicator } from '@mui/base';"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "TabBubble",
+  "muiName": "TabIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Tabs/TabBubble/TabBubble.tsx",
+  "filename": "/packages/mui-base/src/Tabs/TabIndicator/TabIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

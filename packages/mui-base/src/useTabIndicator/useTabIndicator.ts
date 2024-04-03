@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 import { useTabsContext } from '../Tabs/TabsContext';
-import { TabSelectionMovementDirection, UseTabBubbleReturnValue } from './useTabBubble.types';
+import { TabSelectionMovementDirection, UseTabIndicatorReturnValue } from './useTabIndicator.types';
+import { mergeReactProps } from '../utils/mergeReactProps';
 /**
  *
  * Demos:
@@ -11,9 +12,9 @@ import { TabSelectionMovementDirection, UseTabBubbleReturnValue } from './useTab
  *
  * API:
  *
- * - [useTabBubble API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab-bubble)
+ * - [useTabIndicator API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab-indicator)
  */
-export function useTabBubble(): UseTabBubbleReturnValue {
+export function useTabIndicator(): UseTabIndicatorReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
   const { orientation, direction, value } = useTabsContext();
 
@@ -79,7 +80,7 @@ export function useTabBubble(): UseTabBubbleReturnValue {
     }
   }
 
-  const selectedTabPosition = React.useMemo(
+  const activeTabPosition = React.useMemo(
     () =>
       isTabSelected
         ? {
@@ -99,29 +100,28 @@ export function useTabBubble(): UseTabBubbleReturnValue {
     }
 
     return {
-      '--selected-tab-left': `${left}px`,
-      '--selected-tab-right': `${right}px`,
-      '--selected-tab-top': `${top}px`,
-      '--selected-tab-bottom': `${bottom}px`,
-      '--selection-forwards': movementDirection === 1 ? '1' : '0',
-      '--selection-backwards': movementDirection === -1 ? '1' : '0',
+      '--active-tab-left': `${left}px`,
+      '--active-tab-right': `${right}px`,
+      '--active-tab-top': `${top}px`,
+      '--active-tab-bottom': `${bottom}px`,
+      '--active-tab-movement-forwards': movementDirection === 1 ? '1' : '0',
+      '--active-tab-movement-backwards': movementDirection === -1 ? '1' : '0',
     } as React.CSSProperties;
   }, [left, right, top, bottom, movementDirection, isTabSelected]);
 
   const getRootProps = React.useCallback(
-    (otherProps = {}) => {
-      return {
+    (externalProps = {}) => {
+      return mergeReactProps<'span'>(externalProps, {
         role: 'presentation',
         style,
-        ...otherProps,
-      };
+      });
     },
     [style],
   );
 
   return {
     getRootProps,
-    selectedTabPosition,
+    activeTabPosition,
     orientation,
     direction,
   };
