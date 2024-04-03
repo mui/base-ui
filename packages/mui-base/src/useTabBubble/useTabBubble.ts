@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 import { useTabsContext } from '../Tabs/TabsContext';
