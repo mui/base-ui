@@ -1,0 +1,66 @@
+{
+  "hookDescription": "The basic building block for creating custom tooltips.",
+  "parametersDescriptions": {
+    "alignment": {
+      "description": "The alignment of the tooltip element to the anchor element along its cross axis."
+    },
+    "alignmentOffset": {
+      "description": "The offset of the tooltip element along its alignment axis."
+    },
+    "anchor": { "description": "The anchor element of the tooltip." },
+    "arrowPadding": {
+      "description": "Determines the padding between the arrow and the tooltip content. Useful when the tooltip has rounded corners via <code>border-radius</code>."
+    },
+    "closeDelay": {
+      "description": "The delay in milliseconds before the tooltip closes after the anchor element is unhovered."
+    },
+    "collisionBoundary": {
+      "description": "The boundary that the tooltip element should be constrained to."
+    },
+    "collisionPadding": { "description": "The padding of the collision boundary." },
+    "delay": {
+      "description": "The delay in milliseconds before the tooltip opens after the anchor element is hovered."
+    },
+    "delayType": { "description": "The type of open delay." },
+    "followCursorAxis": {
+      "description": "Determines which axis the tooltip should follow the cursor on."
+    },
+    "hideWhenDetached": {
+      "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
+    },
+    "hoverable": { "description": "If <code>true</code>, the tooltip content will be hoverable." },
+    "keepMounted": {
+      "description": "If <code>true</code>, the tooltip will be mounted, including CSS transitions or animations."
+    },
+    "onOpenChange": {
+      "description": "Callback fired when the tooltip is requested to be opened or closed."
+    },
+    "open": { "description": "If <code>true</code>, the tooltip will be open." },
+    "side": {
+      "description": "The side of the anchor element that the tooltip element should align to."
+    },
+    "sideOffset": { "description": "The gap between the anchor element and the tooltip element." },
+    "sticky": {
+      "description": "If <code>true</code>, allow the tooltip to remain in stuck view while the anchor element is scrolled out of view."
+    }
+  },
+  "returnValueDescriptions": {
+    "alignment": { "description": "The rendered alignment of the tooltip element." },
+    "arrowRef": { "description": "The ref of the arrow element." },
+    "floatingContext": { "description": "The Floating UI context of the tooltip element." },
+    "getAnchorProps": { "description": "Props to spread on the anchor element." },
+    "getContentProps": { "description": "Props to spread on the tooltip element." },
+    "instantType": {
+      "description": "Determines if the tooltip is in an instant phase, and what type."
+    },
+    "mounted": {
+      "description": "Whether the tooltip is mounted, including CSS transitions or animations."
+    },
+    "setAnchorEl": { "description": "Sets the anchor element." },
+    "setContentEl": { "description": "Sets the tooltip element." },
+    "side": { "description": "The rendered side of the tooltip element." },
+    "status": {
+      "description": "The status of the tooltip element when considering CSS transitions or animations."
+    }
+  }
+}

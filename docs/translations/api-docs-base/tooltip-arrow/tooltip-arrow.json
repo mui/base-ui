@@ -1,0 +1,17 @@
+{
+  "componentDescription": "The tooltip arrow caret element.",
+  "propDescriptions": {
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "hideWhenUncentered": {
+      "description": "If <code>true</code>, the arrow will be hidden when it can&#39;t point to the center of the anchor element."
+    },
+    "render": { "description": "A function to customize rendering of the component." },
+    "staticOffset": {
+      "description": "Forces a static offset over dynamic positioning under a certain condition."
+    },
+    "tipRadius": { "description": "The corner radius (rounding) of the arrow tip." }
+  },
+  "classDescriptions": {}
+}

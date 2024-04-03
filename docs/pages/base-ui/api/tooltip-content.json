@@ -1,0 +1,57 @@
+{
+  "props": {
+    "alignment": {
+      "type": {
+        "name": "enum",
+        "description": "'center'<br>&#124;&nbsp;'end'<br>&#124;&nbsp;'start'"
+      },
+      "default": "'center'"
+    },
+    "alignmentOffset": { "type": { "name": "number" }, "default": "0" },
+    "anchor": { "type": { "name": "any" } },
+    "arrowPadding": { "type": { "name": "number" }, "default": "3" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "collisionBoundary": { "type": { "name": "any" }, "default": "'clippingAncestors'" },
+    "collisionPadding": {
+      "type": {
+        "name": "union",
+        "description": "number<br>&#124;&nbsp;{ bottom?: number, left?: number, right?: number, top?: number }"
+      },
+      "default": "5"
+    },
+    "container": { "type": { "name": "any" }, "default": "document.body" },
+    "followCursorAxis": {
+      "type": {
+        "name": "enum",
+        "description": "'both'<br>&#124;&nbsp;'none'<br>&#124;&nbsp;'x'<br>&#124;&nbsp;'y'"
+      },
+      "default": "'none'"
+    },
+    "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
+    "hoverable": { "type": { "name": "bool" }, "default": "true" },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "side": {
+      "type": {
+        "name": "enum",
+        "description": "'bottom'<br>&#124;&nbsp;'left'<br>&#124;&nbsp;'right'<br>&#124;&nbsp;'top'"
+      },
+      "default": "'top'"
+    },
+    "sideOffset": { "type": { "name": "number" }, "default": "0" },
+    "sticky": { "type": { "name": "bool" }, "default": "false" }
+  },
+  "name": "TooltipContent",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipContent = Tooltip.Content;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TooltipContent",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Tooltip/TooltipContent.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

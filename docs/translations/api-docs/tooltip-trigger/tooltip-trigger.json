@@ -1,0 +1,5 @@
+{
+  "componentDescription": "Provides props for its child element to trigger the tooltip, anchoring it to the child element.",
+  "propDescriptions": {},
+  "classDescriptions": {}
+}

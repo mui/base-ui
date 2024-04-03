@@ -1,0 +1,18 @@
+{
+  "hookDescription": "Manages the open state for a tooltip.",
+  "parametersDescriptions": {
+    "defaultOpen": {
+      "description": "If <code>true</code>, the tooltip will be open by default. Use when uncontrolled."
+    },
+    "onOpenChange": {
+      "description": "Callback fired when the tooltip is requested to be opened or closed."
+    },
+    "open": {
+      "description": "If <code>true</code>, the tooltip will be open. Use when controlled."
+    }
+  },
+  "returnValueDescriptions": {
+    "open": { "description": "If <code>true</code>, the tooltip is open." },
+    "setOpen": { "description": "Sets the open state of the tooltip." }
+  }
+}

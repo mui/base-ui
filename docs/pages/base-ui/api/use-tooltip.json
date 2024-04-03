@@ -1,0 +1,130 @@
+{
+  "parameters": {
+    "onOpenChange": {
+      "type": {
+        "name": "(isOpen: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void",
+        "description": "(isOpen: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void"
+      },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "alignment": {
+      "type": {
+        "name": "&#39;start&#39; | &#39;end&#39; | &#39;center&#39;",
+        "description": "&#39;start&#39; | &#39;end&#39; | &#39;center&#39;"
+      },
+      "default": "'center'"
+    },
+    "alignmentOffset": { "type": { "name": "number", "description": "number" }, "default": "0" },
+    "anchor": {
+      "type": {
+        "name": "Element | null | VirtualElement | React.MutableRefObject&lt;Element | null&gt; | (() =&gt; Element | VirtualElement | null)",
+        "description": "Element | null | VirtualElement | React.MutableRefObject&lt;Element | null&gt; | (() =&gt; Element | VirtualElement | null)"
+      }
+    },
+    "arrowPadding": { "type": { "name": "number", "description": "number" }, "default": "3" },
+    "closeDelay": { "type": { "name": "number", "description": "number" }, "default": "0" },
+    "collisionBoundary": {
+      "type": { "name": "Boundary", "description": "Boundary" },
+      "default": "'clippingAncestors'"
+    },
+    "collisionPadding": { "type": { "name": "Padding", "description": "Padding" }, "default": "5" },
+    "delay": { "type": { "name": "number", "description": "number" }, "default": "0" },
+    "delayType": {
+      "type": {
+        "name": "&#39;rest&#39; | &#39;hover&#39;",
+        "description": "&#39;rest&#39; | &#39;hover&#39;"
+      }
+    },
+    "followCursorAxis": {
+      "type": {
+        "name": "&#39;none&#39; | &#39;both&#39; | &#39;x&#39; | &#39;y&#39;",
+        "description": "&#39;none&#39; | &#39;both&#39; | &#39;x&#39; | &#39;y&#39;"
+      },
+      "default": "'none'"
+    },
+    "hideWhenDetached": {
+      "type": { "name": "boolean", "description": "boolean" },
+      "default": "false"
+    },
+    "hoverable": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
+    "keepMounted": { "type": { "name": "boolean", "description": "boolean" } },
+    "side": {
+      "type": {
+        "name": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;",
+        "description": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;"
+      },
+      "default": "'top'"
+    },
+    "sideOffset": { "type": { "name": "number", "description": "number" }, "default": "0" },
+    "sticky": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" }
+  },
+  "returnValue": {
+    "alignment": {
+      "type": {
+        "name": "&#39;start&#39; | &#39;end&#39; | &#39;center&#39;",
+        "description": "&#39;start&#39; | &#39;end&#39; | &#39;center&#39;"
+      },
+      "required": true
+    },
+    "arrowRef": {
+      "type": {
+        "name": "React.MutableRefObject&lt;Element | null&gt;",
+        "description": "React.MutableRefObject&lt;Element | null&gt;"
+      },
+      "required": true
+    },
+    "floatingContext": {
+      "type": { "name": "FloatingContext", "description": "FloatingContext" },
+      "required": true
+    },
+    "getAnchorProps": {
+      "type": {
+        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
+        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
+      },
+      "required": true
+    },
+    "getContentProps": {
+      "type": {
+        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
+        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
+      },
+      "required": true
+    },
+    "instantType": {
+      "type": {
+        "name": "&#39;delay&#39; | &#39;dismiss&#39; | &#39;focus&#39; | undefined",
+        "description": "&#39;delay&#39; | &#39;dismiss&#39; | &#39;focus&#39; | undefined"
+      },
+      "required": true
+    },
+    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "setAnchorEl": {
+      "type": {
+        "name": "(value: HTMLElement | null) =&gt; void",
+        "description": "(value: HTMLElement | null) =&gt; void"
+      },
+      "required": true
+    },
+    "setContentEl": {
+      "type": {
+        "name": "(value: HTMLElement | null) =&gt; void",
+        "description": "(value: HTMLElement | null) =&gt; void"
+      },
+      "required": true
+    },
+    "side": {
+      "type": {
+        "name": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;",
+        "description": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;"
+      },
+      "required": true
+    },
+    "status": { "type": { "name": "Status", "description": "Status" }, "required": true }
+  },
+  "name": "useTooltip",
+  "filename": "/packages/mui-base/src/useTooltip/useTooltip.ts",
+  "imports": ["import { useTooltip } from '@base_ui/react/useTooltip';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/#hooks\">Tooltip</a></li></ul>"
+}

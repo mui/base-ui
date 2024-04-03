@@ -1,0 +1,14 @@
+<Tooltip.Group closeDelay={200}>
+  <Tooltip.Root>
+    <Tooltip.Trigger>
+      <AnchorButton>Anchor A</AnchorButton>
+    </Tooltip.Trigger>
+    <TooltipContent sideOffset={5}>Tooltip A</TooltipContent>
+  </Tooltip.Root>
+  <Tooltip.Root>
+    <Tooltip.Trigger>
+      <AnchorButton>Anchor B</AnchorButton>
+    </Tooltip.Trigger>
+    <TooltipContent sideOffset={5}>Tooltip B</TooltipContent>
+  </Tooltip.Root>
+</Tooltip.Group>

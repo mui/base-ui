@@ -1,0 +1,26 @@
+{
+  "parameters": {
+    "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
+    "onOpenChange": {
+      "type": {
+        "name": "(isOpen: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void",
+        "description": "(isOpen: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void"
+      }
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" } }
+  },
+  "returnValue": {
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "setOpen": {
+      "type": {
+        "name": "(value: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void",
+        "description": "(value: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void"
+      },
+      "required": true
+    }
+  },
+  "name": "useTooltipOpenState",
+  "filename": "/packages/mui-base/src/useTooltip/useTooltipOpenState.ts",
+  "imports": ["import { useTooltipOpenState } from '@base_ui/react/useTooltip';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/#hooks\">Tooltip</a></li></ul>"
+}

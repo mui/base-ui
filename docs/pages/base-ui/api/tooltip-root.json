@@ -1,0 +1,25 @@
+{
+  "props": {
+    "closeDelay": { "type": { "name": "number" }, "default": "0" },
+    "defaultOpen": { "type": { "name": "bool" } },
+    "delay": { "type": { "name": "number" }, "default": "200" },
+    "delayType": {
+      "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
+      "default": "'rest'"
+    },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } }
+  },
+  "name": "TooltipRoot",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipRoot = Tooltip.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "TooltipRoot",
+  "filename": "/packages/mui-base/src/Tooltip/TooltipRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

@@ -1,0 +1,17 @@
+{
+  "props": {
+    "closeDelay": { "type": { "name": "number" }, "default": "0" },
+    "delay": { "type": { "name": "number" }, "default": "0" },
+    "timeout": { "type": { "name": "number" }, "default": "400" }
+  },
+  "name": "TooltipGroup",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipGroup = Tooltip.Group;"
+  ],
+  "classes": [],
+  "muiName": "TooltipGroup",
+  "filename": "/packages/mui-base/src/Tooltip/TooltipGroup.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

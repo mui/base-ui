@@ -108,6 +108,26 @@ module.exports = [
     title: 'TextareaAutosize',
   },
   {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-arrow',
+    title: 'TooltipArrow',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-content',
+    title: 'TooltipContent',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-group',
+    title: 'TooltipGroup',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-root',
+    title: 'TooltipRoot',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-trigger',
+    title: 'TooltipTrigger',
+  },
+  {
     pathname: '/base-ui/react-autocomplete/hooks-api/#use-autocomplete',
     title: 'useAutocomplete',
   },
@@ -161,6 +181,11 @@ module.exports = [
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab-panel', title: 'useTabPanel' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-list', title: 'useTabsList' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-root', title: 'useTabsRoot' },
+  { pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip', title: 'useTooltip' },
+  {
+    pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-open-state',
+    title: 'useTooltipOpenState',
+  },
   {
     pathname: '/base-ui/react-transitions/hooks-api/#use-transition-state-manager',
     title: 'useTransitionStateManager',

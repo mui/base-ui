@@ -1,0 +1,15 @@
+{
+  "props": {},
+  "name": "TooltipTrigger",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipTrigger = Tooltip.Trigger;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "TooltipTrigger",
+  "filename": "/packages/mui-base/src/Tooltip/TooltipTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

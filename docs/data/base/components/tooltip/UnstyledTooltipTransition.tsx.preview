@@ -1,0 +1,6 @@
+<Tooltip.Root>
+  <Tooltip.Trigger>
+    <AnchorButton>Anchor</AnchorButton>
+  </Tooltip.Trigger>
+  <TooltipContent sideOffset={5}>Tooltip</TooltipContent>
+</Tooltip.Root>
