@@ -588,7 +588,7 @@ describe('<Tabs />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('when `activateOnFocus = true`, moves focus to the first tab without activating it', () => {
+        it('when `activateOnFocus = true`, moves focus to the first tab while activating it', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
@@ -664,7 +664,7 @@ describe('<Tabs />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('when `activateOnFocus = true`, moves focus to the last tab without activating it', () => {
+        it('when `activateOnFocus = true`, moves focus to the last tab while activating it', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(

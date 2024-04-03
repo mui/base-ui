@@ -52,7 +52,6 @@ const TabsList = React.forwardRef(function TabsList(
     ...styleHooks,
     ...other,
     className,
-    ref: forwardedRef,
   };
 
   return (

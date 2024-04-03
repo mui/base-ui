@@ -5,7 +5,6 @@ import {
   TabsListActionTypes,
   type UseTabsListParameters,
   type UseTabsListReturnValue,
-  type UseTabsListRootSlotProps,
   type ValueChangeAction,
 } from './useTabsList.types';
 import { useCompoundParent } from '../useCompound';
@@ -13,6 +12,7 @@ import { type TabMetadata } from '../useTabs/useTabs';
 import { useList, ListState, UseListParameters } from '../useList';
 import { tabsListReducer } from './tabsListReducer';
 import { useForkRef } from '../utils/useForkRef';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 /**
  *
@@ -136,16 +136,20 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   const tabsListRef = React.useRef<HTMLElement | null>(null);
   const handleRef = useForkRef(mergedRootRef, tabsListRef);
 
-  const getRootProps = <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ): UseTabsListRootSlotProps<ExternalProps> => {
-    return {
-      ...externalProps,
-      ...getListboxRootProps(externalProps),
-      'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
-      role: 'tablist',
-      ref: handleRef,
-    };
+  const getRootProps = (
+    externalProps: React.ComponentPropsWithoutRef<'div'> = {},
+  ): React.ComponentPropsWithRef<'div'> => {
+    return mergeReactProps(
+      externalProps,
+      mergeReactProps(
+        {
+          'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+          role: 'tablist',
+          ref: handleRef,
+        },
+        getListboxRootProps(),
+      ),
+    );
   };
 
   const contextValue = React.useMemo(
