@@ -5,7 +5,7 @@ export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
 type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
   ? E extends React.SyntheticEvent<Element, Event>
     ? (event: BaseUIEvent<E>) => ReturnType<T>
-    : never
+    : T
   : T extends undefined
     ? undefined
     : T;

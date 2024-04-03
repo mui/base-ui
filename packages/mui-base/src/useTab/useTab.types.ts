@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { UseButtonRootSlotProps } from '../useButton';
 import { type TabsOrientation } from '../Tabs';
 
 export interface UseTabParameters {
@@ -32,23 +31,15 @@ export interface UseTabParameters {
   rootRef?: React.Ref<Element>;
 }
 
-export type UseTabRootSlotProps<ExternalProps = {}> = UseButtonRootSlotProps<ExternalProps> & {
-  'aria-controls': React.AriaAttributes['aria-controls'];
-  'aria-selected': React.AriaAttributes['aria-selected'];
-  id: string | undefined;
-  ref: React.RefCallback<Element> | null;
-  role: React.AriaRole;
-};
-
 export interface UseTabReturnValue {
   /**
    * Resolver for the root slot's props.
    * @param externalProps props for the root slot
    * @returns props that should be spread on the root slot
    */
-  getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps?: ExternalProps,
-  ) => UseTabRootSlotProps<ExternalProps>;
+  getRootProps: (
+    externalProps?: React.ComponentPropsWithoutRef<'button'>,
+  ) => React.ComponentPropsWithRef<'button'>;
   /**
    * 0-based index of the tab in the list of tabs.
    */

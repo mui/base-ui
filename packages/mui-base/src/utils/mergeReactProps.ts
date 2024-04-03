@@ -12,7 +12,7 @@ import type { BaseUIEvent, WithBaseUIEvent } from './BaseUI.types';
  * @returns the merged props.
  */
 export function mergeReactProps<T extends React.ElementType>(
-  externalProps: WithBaseUIEvent<React.ComponentPropsWithoutRef<T>>,
+  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
   internalProps: React.ComponentPropsWithRef<T>,
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   return Object.entries(externalProps).reduce(

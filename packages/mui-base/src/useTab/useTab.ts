@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
 import { useTabsContext } from '../Tabs/TabsContext';
-import { UseTabParameters, UseTabReturnValue, UseTabRootSlotProps } from './useTab.types';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
+import { UseTabParameters, UseTabReturnValue } from './useTab.types';
 import { useCompoundItem } from '../useCompound';
 import { useListItem } from '../useList';
 import { useButton } from '../useButton';
 import { TabMetadata } from '../useTabs';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 function tabValueGenerator(otherTabValues: Set<string | number>) {
   return otherTabValues.size;
@@ -42,7 +42,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
     totalItemCount: totalTabsCount,
   } = useCompoundItem<string | number, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
 
-  const { getRootProps: getTabProps, selected } = useListItem({
+  const { getRootProps: getListItemProps, selected } = useListItem({
     item: value,
   });
 
@@ -56,22 +56,26 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   const tabPanelId = value !== undefined ? getTabPanelId(value) : undefined;
 
-  const getRootProps = <ExternalProps extends Record<string, unknown>>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ): UseTabRootSlotProps<ExternalProps> => {
-    const externalEventHandlers = extractEventHandlers(externalProps);
-    const getCombinedRootProps = combineHooksSlotProps(getTabProps, getButtonProps);
+  const getRootProps = React.useCallback(
+    (externalProps = {}) => {
+      const getCombinedRootProps = combineHooksSlotProps(getListItemProps, getButtonProps);
 
-    return {
-      ...externalProps,
-      ...getCombinedRootProps(externalEventHandlers),
-      role: 'tab',
-      'aria-controls': tabPanelId,
-      'aria-selected': selected,
-      id,
-      ref: handleRef,
-    };
-  };
+      return mergeReactProps<'button'>(
+        externalProps,
+        mergeReactProps<'button'>(
+          {
+            role: 'tab',
+            'aria-controls': tabPanelId,
+            'aria-selected': selected,
+            id,
+            ref: handleRef,
+          },
+          getCombinedRootProps(),
+        ),
+      );
+    },
+    [getButtonProps, getListItemProps, handleRef, id, selected, tabPanelId],
+  );
 
   return {
     getRootProps,

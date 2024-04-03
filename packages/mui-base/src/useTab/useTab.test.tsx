@@ -13,7 +13,7 @@ describe('useTab', () => {
       function TestTab() {
         const rootRef = React.createRef<HTMLDivElement>();
         const { getRootProps } = useTab({ rootRef });
-        return <div {...getRootProps()} />;
+        return <button {...getRootProps()} />;
       }
 
       function Test() {
@@ -38,7 +38,14 @@ describe('useTab', () => {
       function TestTab() {
         const rootRef = React.createRef<HTMLDivElement>();
         const { getRootProps } = useTab({ rootRef });
-        return <div {...getRootProps({ 'data-testid': 'test-tab', onClick: handleClick })} />;
+        return (
+          <button
+            {...getRootProps({
+              'data-testid': 'test-tab',
+              onClick: handleClick,
+            } as React.ComponentPropsWithoutRef<'button'>)}
+          />
+        );
       }
 
       function Test() {
