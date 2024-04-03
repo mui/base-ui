@@ -3,11 +3,8 @@ import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
 import { useTabsContext } from '../Tabs/TabsContext';
 import { useCompoundItem } from '../useCompound';
-import {
-  UseTabPanelParameters,
-  UseTabPanelReturnValue,
-  UseTabPanelRootSlotProps,
-} from './useTabPanel.types';
+import { UseTabPanelParameters, UseTabPanelReturnValue } from './useTabPanel.types';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 function tabPanelValueGenerator(otherTabPanelValues: Set<string | number>) {
   return otherTabPanelValues.size;
@@ -25,13 +22,7 @@ function tabPanelValueGenerator(otherTabPanelValues: Set<string | number>) {
  */
 function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue {
   const { value: valueParam, id: idParam, rootRef: externalRef } = parameters;
-
-  const context = useTabsContext();
-  if (context === null) {
-    throw new Error('No TabContext provided');
-  }
-
-  const { value: selectedTabValue, getTabId, orientation, direction } = context;
+  const { value: selectedTabValue, getTabId, orientation, direction } = useTabsContext();
 
   const id = useId(idParam);
   const ref = React.useRef<HTMLElement>(null);
@@ -44,19 +35,21 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
 
   const correspondingTabId = value !== undefined ? getTabId(value) : undefined;
 
-  const getRootProps = <ExternalProps extends Record<string, any> = {}>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ): UseTabPanelRootSlotProps<ExternalProps> => {
-    return {
-      'aria-labelledby': correspondingTabId ?? undefined,
-      hidden,
-      id: id ?? undefined,
-      role: 'tabpanel',
-      tabIndex: hidden ? -1 : 0,
-      ...externalProps,
-      ref: handleRef,
-    };
-  };
+  const getRootProps = React.useCallback(
+    (
+      externalProps: React.ComponentPropsWithoutRef<'div'> = {},
+    ): React.ComponentPropsWithRef<'div'> => {
+      return mergeReactProps(externalProps, {
+        'aria-labelledby': correspondingTabId ?? undefined,
+        hidden,
+        id: id ?? undefined,
+        role: 'tabpanel',
+        tabIndex: hidden ? -1 : 0,
+        ref: handleRef,
+      });
+    },
+    [correspondingTabId, handleRef, hidden, id],
+  );
 
   return {
     hidden,

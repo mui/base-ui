@@ -16,18 +16,6 @@ export interface UseTabPanelParameters {
   value?: number | string;
 }
 
-interface UseTabPanelRootSlotOwnProps {
-  'aria-labelledby'?: string;
-  hidden?: boolean;
-  id?: string;
-  ref: React.RefCallback<HTMLElement> | null;
-  role: React.AriaRole;
-  tabIndex: number;
-}
-
-export type UseTabPanelRootSlotProps<ExternalProps = {}> = ExternalProps &
-  UseTabPanelRootSlotOwnProps;
-
 export interface UseTabPanelReturnValue {
   /**
    * If `true`, it indicates that the tab panel will be hidden.
@@ -38,9 +26,9 @@ export interface UseTabPanelReturnValue {
    * @param externalProps additional props for the root slot
    * @returns props that should be spread on the root slot
    */
-  getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps?: ExternalProps,
-  ) => UseTabPanelRootSlotProps<ExternalProps>;
+  getRootProps: (
+    externalProps?: React.ComponentPropsWithoutRef<'div'>,
+  ) => React.ComponentPropsWithRef<'div'>;
   rootRef: React.RefCallback<HTMLElement> | null;
   orientation: TabsOrientation;
   direction: TabsDirection;

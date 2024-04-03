@@ -36,7 +36,14 @@ describe('useTabPanel', () => {
 
       function TestTabPanel() {
         const { getRootProps } = useTabPanel({ rootRef, value: 0 });
-        return <div {...getRootProps({ 'data-testid': 'test-tabpanel', onClick: handleClick })} />;
+        return (
+          <div
+            {...getRootProps({
+              'data-testid': 'test-tabpanel',
+              onClick: handleClick,
+            } as React.ComponentPropsWithoutRef<'div'>)}
+          />
+        );
       }
 
       function Test() {
