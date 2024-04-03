@@ -4,6 +4,7 @@ import { unstable_useControlled as useControlled } from '@mui/utils';
 import { UseTabsParameters, UseTabsReturnValue } from './useTabs.types';
 import { useCompoundParent } from '../useCompound';
 import { TabPanelMetadata } from './TabsProvider';
+import { mergeReactProps } from '../utils/mergeReactProps';
 
 export interface TabMetadata {
   disabled: boolean;
@@ -70,10 +71,10 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
   }, []);
 
   const getRootProps: UseTabsReturnValue['getRootProps'] = React.useCallback(
-    (otherProps = {}) => ({
-      dir: direction,
-      ...otherProps,
-    }),
+    (otherProps = {}) =>
+      mergeReactProps<'div'>(otherProps, {
+        dir: direction,
+      }),
     [direction],
   );
 
