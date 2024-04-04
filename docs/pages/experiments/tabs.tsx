@@ -11,12 +11,12 @@ export default function UnstyledTabsIntroduction() {
       <h2>Horizontal</h2>
       <Tabs value={v} onChange={(e, val) => sv(val)}>
         <TabsList>
-          <Indicator />
           <Tab value={0}>Code</Tab>
           <Tab value={1}>Issues</Tab>
           <Tab value={2}>Pull Requests</Tab>
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
+          <Indicator />
         </TabsList>
         <TabPanel value={0} keepMounted>
           Code panel
@@ -38,12 +38,12 @@ export default function UnstyledTabsIntroduction() {
       <h2>Vertical</h2>
       <Tabs value={v} onChange={(e, val) => sv(val)} orientation="vertical">
         <TabsList>
-          <Indicator />
           <Tab value={0}>Code</Tab>
           <Tab value={1}>Issues</Tab>
           <Tab value={2}>Pull Requests</Tab>
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
+          <Indicator />
         </TabsList>
         <TabPanel value={0}>Code panel</TabPanel>
         <TabPanel value={1}>Issues panel</TabPanel>
