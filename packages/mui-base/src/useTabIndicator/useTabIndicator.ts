@@ -26,7 +26,7 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     React.useState<TabSelectionMovementDirection>(0);
 
   React.useEffect(() => {
-    if (value != null && tabsListRef.current != null) {
+    if (value != null && tabsListRef.current != null && typeof ResizeObserver !== 'undefined') {
       const resizeObserver = new ResizeObserver(() => {
         forceUpdate({});
       });

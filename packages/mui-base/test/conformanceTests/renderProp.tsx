@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
 import { throwMissingPropError } from './utils';
+import { randomStringValue } from '@mui/internal-test-utils';
 
 export function testRenderProp(
   element: React.ReactElement,
@@ -18,7 +19,7 @@ export function testRenderProp(
       return (
         <div data-testid="base-ui-wrapper">
           {/* @ts-ignore */}
-          <Element ref={forwardedRef} {...props} />
+          <Element ref={forwardedRef} {...props} data-testid="wrapped" />
         </div>
       );
     },
@@ -26,13 +27,16 @@ export function testRenderProp(
 
   describe('prop: render', () => {
     it('renders a customized root element', async () => {
-      await render(
+      const testValue = randomStringValue();
+      const { queryByTestId } = await render(
         React.cloneElement(element, {
-          render: (props: any) => <Wrapper {...props} />,
+          render: (props: {}) => <Wrapper {...props} data-test-value={testValue} />,
         }),
       );
 
-      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
+      expect(queryByTestId('wrapper')).not.to.equal(null);
+      expect(queryByTestId('wrapped')).not.to.equal(null);
+      expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
     });
 
     it('should pass the ref to the custom component', () => {
