@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { randomStringValue } from '@mui/internal-test-utils';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
 import { throwMissingPropError } from './utils';
-import { randomStringValue } from '@mui/internal-test-utils';
 
 export function testRenderProp(
   element: React.ReactElement,
