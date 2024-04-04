@@ -110,8 +110,9 @@ export const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>
         {render(getRootProps(rootProps), ownerState)}
         {!isMounted && (
           <script
+            // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: prehydrationScript }}
-            suppressHydrationWarning={true}
+            suppressHydrationWarning
           />
         )}
       </React.Fragment>

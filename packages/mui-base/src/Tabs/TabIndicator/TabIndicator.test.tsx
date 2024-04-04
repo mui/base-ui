@@ -1,8 +1,8 @@
 import * as React from 'react';
+import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
 import { Tabs } from '@mui/base/Tabs';
 import { describeConformance } from '../../../test/describeConformance';
-import { expect } from 'chai';
 
 async function waitForNextEventCycle() {
   return new Promise<void>((resolve) => {
@@ -12,7 +12,7 @@ async function waitForNextEventCycle() {
   });
 }
 
-describe.only('<Tabs.Indicator />', () => {
+describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.Indicator />, () => ({
@@ -37,6 +37,12 @@ describe.only('<Tabs.Indicator />', () => {
   }));
 
   describe('rendering', () => {
+    before(function suite() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+    });
+
     it('should not render when no tab is selected', () => {
       const { queryByTestId } = render(
         <Tabs value={null}>
@@ -165,10 +171,10 @@ describe.only('<Tabs.Indicator />', () => {
         </Tabs>,
       );
 
-      let bubble = getByTestId('bubble');
-      let tabs = getAllByRole('tab');
-      let activeTab = tabs[0];
-      let tabList = getByRole('tablist');
+      const bubble = getByTestId('bubble');
+      const tabs = getAllByRole('tab');
+      const activeTab = tabs[0];
+      const tabList = getByRole('tablist');
 
       assertBubblePositionVariables(bubble, tabList, activeTab);
 
