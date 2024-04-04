@@ -369,38 +369,38 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: smallStep', () => {
-    it('should increment the value by the default `smallStep` prop of 0.1 while holding the meta key', () => {
+    it('should increment the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
       render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { metaKey: true });
+      fireEvent.keyDown(window, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('5.1');
     });
 
-    it('should decrement the value by the default `smallStep` prop of 0.1 while holding the meta key', () => {
+    it('should decrement the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
       render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { metaKey: true });
+      fireEvent.keyDown(window, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('5.9');
     });
 
-    it('should use explicit `smallStep` value if provided while holding the meta key', () => {
+    it('should use explicit `smallStep` value if provided while holding the alt key', () => {
       render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { metaKey: true });
+      fireEvent.keyDown(window, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('5.5');
     });
 
-    it('should not use the `smallStep` prop if no longer holding the meta key', () => {
+    it('should not use the `smallStep` prop if no longer holding the alt key', () => {
       render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
       const button = screen.getByLabelText('Increase');
-      fireEvent.keyDown(window, { metaKey: true });
+      fireEvent.keyDown(window, { altKey: true });
       fireEvent.pointerDown(button);
       expect(input).to.have.value('5.5');
-      fireEvent.keyUp(window, { metaKey: false });
+      fireEvent.keyUp(window, { altKey: false });
       fireEvent.pointerDown(button);
       expect(input).to.have.value('6.5');
     });

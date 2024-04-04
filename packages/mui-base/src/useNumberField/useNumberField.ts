@@ -267,7 +267,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         if (event.shiftKey) {
           isHoldingShiftRef.current = true;
         }
-        if (event.metaKey) {
+        if (event.altKey) {
           isHoldingMetaRef.current = true;
         }
       }
@@ -276,7 +276,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         if (!event.shiftKey) {
           isHoldingShiftRef.current = false;
         }
-        if (!event.metaKey) {
+        if (!event.altKey) {
           isHoldingMetaRef.current = false;
         }
       }
