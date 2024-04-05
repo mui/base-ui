@@ -19,19 +19,17 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 
 Tabs are implemented using a collection of related components:
 
-- `<Tab />` - the tab element itself. Clicking on a tab displays its corresponding panel.
-- `<TabsList />` - the container that houses the tabs. Responsible for handling focus and keyboard navigation between tabs.
-- `<TabPanel />` - the card that hosts the content associated with a tab.
 - `<Tabs />` - the top-level component that wraps the Tabs List and Tab Panel components so that tabs and their panels can communicate with one another.
+- `<Tabs.Tab />` - the tab element itself. Clicking on a tab displays its corresponding panel.
+- `<Tabs.List />` - the container that houses the tabs. Responsible for handling focus and keyboard navigation between tabs.
+- `<Tabs.Panel />` - the card that hosts the content associated with a tab.
+- `<Tabs.Indicator />` - an optional active tab indicator.
 
 {{"demo": "UnstyledTabsIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
 ## Components
 
 ```jsx
-import { Tab } from '@base_ui/react/Tab';
-import { TabsList } from '@base_ui/react/TabsList';
-import { TabPanel } from '@base_ui/react/TabPanel';
 import { Tabs } from '@base_ui/react/Tabs';
 ```
 
@@ -48,37 +46,15 @@ The next demo shows how to apply custom styles to a set of tabs:
 
 {{"demo": "UnstyledTabsCustomized"}}
 
-### Anatomy
-
-The Tab components are each composed of a root slot with no interior slots:
-
-```html
-<div class="Tabs-root">
-  <div class="TabsList-root">
-    <button class="Tab-root">First tab</button>
-    <button class="Tab-root">Second tab</button>
-    <button class="Tab-root">Third tab</button>
-  </div>
-  <div class="TabPanel-root">First panel</div>
-  <div class="TabPanel-root">Second panel</div>
-  <div class="TabPanel-root">Third panel</div>
-</div>
-```
-
 ### Custom structure
 
-Use the `slots` prop to override the root or any other interior slot:
+Use the `render` prop to override the rendered element in any of the tab-related components:
 
 ```jsx
-<Tab slots={{ root: 'span' }} />
+<Tabs.Tab render={(props) => <MyCustomTab {...props} />} />
 ```
 
 If you provide a non-interactive element such as a `<span>`, the Tab components will automatically add the necessary accessibility attributes.
-
-:::info
-The `slots` prop is available on all non-utility Base components.
-See [Overriding component structure](/base-ui/guides/overriding-component-structure/) for full details.
-:::
 
 ## Customization
 
@@ -90,56 +66,45 @@ When vertical, you must set `orientation="vertical"` on the `<Tabs />` component
 
 {{"demo": "UnstyledTabsVertical.js"}}
 
-### Usage with TypeScript
-
-In TypeScript, you can specify the custom component type used in the `slots.root` as a generic parameter of the unstyled component.
-This way, you can safely provide the custom root's props directly on the component:
-
-```tsx
-<Tab<typeof CustomComponent> slots={{ root: CustomComponent }} customProp />
-```
-
-The same applies for props specific to custom primitive elements:
-
-```tsx
-<Tab<'button'> slots={{ root: 'button' }} onClick={() => {}} />
-```
-
 ### Third-party routing library
 
 A common use case for tabs is to implement client-side navigation that doesn't require an HTTP round-trip to the server.
 
-The Tab component provides the `slots` prop to handle this, as shown below:
-
 {{"demo": "UnstyledTabsRouting.js"}}
 
-## Accessibility
+## Keyboard navigation
 
-(WAI-ARIA: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
+By default, when using keyboard navigation, the Tab components open via **automatic activation**—that is, the next panel is displayed automatically when it's focused.
 
-The following steps are necessary to make the Tab component suite accessible to assistive technology:
+Alternatively, you can set the panels not to be displayed automatically when their corresponding tabs are in focus. This behavior is known as **manual activation**.
 
-1. Label `<Tabs />` with `aria-label` or `aria-labelledby`.
-2. Connect each `<Tab />` to its corresponding `<TabPanel />` by setting the correct `id`, `aria-controls` and `aria-labelledby`.
-
-The demos below illustrate the proper use of ARIA labels.
-
-### Keyboard navigation
-
-By default, when using keyboard navigation, the Tab components open via **manual activation**—that is, the next panel is displayed only after the user activates the tab with either <kbd class="key">Space</kbd>, <kbd class="key">Enter</kbd>, or a mouse click.
-
-This is the preferable behavior for tabs in most cases, according to [the WAI-ARIA authoring practices](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
-
-Alternatively, you can set the panels to be displayed automatically when their corresponding tabs are in focus—this behavior of the selection following the focus is known as **automatic activation**.
-
-To enable automatic activation, pass the `selectionFollowsFocus` prop to the `<Tabs />` component:
+To enable manual activation, set the `activateOnFocus` prop to `false` on the `<Tabs.List />` component:
 
 ```jsx
-/* Tabs where selection follows focus */
-<Tabs selectionFollowsFocus />
+/* Tabs where selection does not follow focus */
+<Tabs.List activateOnFocus={false} />
 ```
 
 The following demo pair illustrates the difference between manual and automatic activation.
 Move the focus to a tab in either demo and navigate with the arrow keys to observe the difference:
 
 {{"demo": "KeyboardNavigation.js"}}
+
+
+## Accessibility
+
+(WAI-ARIA: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
+
+To make the Tab component suite accessible to assistive technology, label the `<Tabs.List />` element with `aria-label` or `aria-labelledby`.
+
+```jsx
+<Tabs>
+  <Tabs.List aria-label="Seasons">
+    <Tabs.Tab>Spring</Tabs.Tab>
+    <Tabs.Tab>Summer</Tabs.Tab>
+    <Tabs.Tab>Fall</Tabs.Tab>
+    <Tabs.Tab>Winter</Tabs.Tab>
+  </Tabs.List>
+</Tabs>
+```
+
