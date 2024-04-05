@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Tabs } from '@mui/base/Tabs';
+import { Tabs } from '@base_ui/react/Tabs';
 import { describeConformance } from '../../../test/describeConformance';
 
 async function waitForNextEventCycle() {

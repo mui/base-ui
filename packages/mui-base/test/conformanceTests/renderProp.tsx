@@ -34,7 +34,7 @@ export function testRenderProp(
         }),
       );
 
-      expect(queryByTestId('wrapper')).not.to.equal(null);
+      expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
       expect(queryByTestId('wrapped')).not.to.equal(null);
       expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
     });
