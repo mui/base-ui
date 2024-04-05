@@ -8,7 +8,6 @@ import { useListItem } from '../useList';
 import { useButton } from '../useButton';
 import { TabMetadata } from '../useTabs';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
-import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
 function tabValueGenerator(otherTabValues: Set<string | number>) {
@@ -32,7 +31,6 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const id = useId(idParam);
 
   const { value: selectedValue, getTabPanelId, orientation } = useTabsContext();
-  const { activateOnFocus } = useTabsListContext();
 
   const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
 
@@ -48,7 +46,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
-    focusableWhenDisabled: !activateOnFocus,
+    focusableWhenDisabled: true,
     type: 'button',
   });
 
