@@ -90,7 +90,6 @@ Move the focus to a tab in either demo and navigate with the arrow keys to obser
 
 {{"demo": "KeyboardNavigation.js"}}
 
-
 ## Accessibility
 
 (WAI-ARIA: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
@@ -107,4 +106,3 @@ To make the Tab component suite accessible to assistive technology, label the `<
   </Tabs.List>
 </Tabs>
 ```
-
