@@ -33,7 +33,7 @@ The `NumberField` component is composed of a root component and a group componen
 
 {{"demo": "AnatomyDemo.js", "hideToolbar": true, "defaultCodeOpen": false, "bg": "outlined"}}
 
-```jsx
+<!-- ```jsx
 <NumberField>
   <NumberField.ScrubArea>
     <label />
@@ -45,7 +45,7 @@ The `NumberField` component is composed of a root component and a group componen
     <NumberField.Increment />
   </NumberField.Group>
 </NumberField>
-```
+``` -->
 
 ### Custom structure
 

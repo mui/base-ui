@@ -15,79 +15,79 @@ export default function AnatomyDemo() {
   const AnatomyConfig = [
     {
       label: 'NumberField',
-      labelPosition: { top: '-200%', left: '50%' },
+      // labelPosition: { top: '-200%', left: '50%' },
       ContainerPosition: {
-        top: '0%',
-        left: '0%',
-        width: '100%',
-        height: '100%',
+        top: '30%',
+        left: '15%',
+        width: '70%',
+        height: '45%',
       },
     },
     {
       label: 'NumberField.ScrubArea',
-      labelPosition: { top: '-140%', left: '50%' },
-      ContainerPosition: { top: '0%', left: '0%', width: '60px', height: '22px' },
+      // labelPosition: { top: '-140%', left: '50%' },
+      ContainerPosition: { top: '36%', left: '20%', width: '75px', height: '22px' },
     },
     {
-      label: 'label and NumberField.ScrubAreaCursor',
-      labelPosition: { top: '-80%', left: '50%' },
-      ContainerPosition: { top: '0%', left: '0%', width: '60px', height: '22px' },
+      label: 'NumberField.ScrubAreaCursor',
+      // labelPosition: { top: '-80%', left: '50%' },
+      ContainerPosition: { top: '36%', left: '20%', width: '75px', height: '22px' },
     },
     {
       label: 'NumberField.Group',
-      labelPosition: { top: '200%', left: '50%' },
-      ContainerPosition: { top: '44%', left: '0%', width: '100%', height: '36px' },
+      // labelPosition: { top: '200%', left: '50%' },
+      ContainerPosition: { top: '48%', left: '21%', width: '220px', height: '36px' },
     },
     {
       label: 'NumberField.Decrement',
-      labelPosition: { top: '50%', left: '-50%' },
-      ContainerPosition: { top: '44%', left: '0%', width: '36px', height: '36px' },
+      // labelPosition: { top: '50%', left: '-50%' },
+      ContainerPosition: { top: '48%', left: '21%', width: '37px', height: '36px' },
     },
     {
       label: 'NumberField.Input',
-      labelPosition: { top: '130%', left: '50%' },
-      ContainerPosition: { top: '44%', left: '16%', width: '150px', height: '36px' },
+      // labelPosition: { top: '130%', left: '50%' },
+      ContainerPosition: { top: '48%', left: '30%', width: '155px', height: '36px' },
     },
     {
       label: 'NumberField.Increment',
-      labelPosition: { top: '50%', left: '150%' },
-      ContainerPosition: { top: '44%', left: '84%', width: '36px', height: '36px' },
+      // labelPosition: { top: '50%', left: '150%' },
+      ContainerPosition: { top: '48%', left: '69%', width: '37px', height: '36px' },
     },
   ];
 
   return (
-    <div
-      className={isDarkMode ? 'dark' : ''}
-      style={{ paddingTop: 140, paddingBottom: 100 }}
-    >
-      <AnatomyOverlay>
-        <UnstyledNumberFieldIntroduction />
-
+    <AnatomyOverlay className={isDarkMode ? 'dark' : ''}>
+      <LabelContainer>
         {AnatomyConfig.map((config, index) => (
-          <React.Fragment key={index}>
-            <Label
-              style={{
-                top: config.labelPosition.top,
-                left: config.labelPosition.left,
-              }}
-              onMouseEnter={() => setHoveredContainer(index)}
-              onMouseLeave={() => setHoveredContainer(null)}
-            >
-              {config.label}
-            </Label>
-            <AnatomyContainer
-              style={{
-                opacity: hoveredContainer === index ? 1 : 0,
-                width: config.ContainerPosition.width,
-                height: config.ContainerPosition.height,
-                top: config.ContainerPosition.top,
-                left: config.ContainerPosition.left,
-              }}
-            />
-          </React.Fragment>
+          <Label
+            key={index}
+            // style={{
+            //   top: config.labelPosition.top,
+            //   left: config.labelPosition.left,
+            // }}
+            onMouseEnter={() => setHoveredContainer(index)}
+            onMouseLeave={() => setHoveredContainer(null)}
+          >
+            {config.label}
+          </Label>
         ))}
-      </AnatomyOverlay>
-    </div>
+      </LabelContainer>
+      <DemoContainer>
+        {AnatomyConfig.map((config, index) => (
+          <AnatomyContainer
+            key={index}
+            style={{
+              opacity: hoveredContainer === index ? 1 : 0,
+              width: config.ContainerPosition.width,
+              height: config.ContainerPosition.height,
+              top: config.ContainerPosition.top,
+              left: config.ContainerPosition.left,
+            }}
+          />
+        ))}
+        <UnstyledNumberFieldIntroduction />
+      </DemoContainer>
+    </AnatomyOverlay>
   );
 }
 
@@ -118,35 +118,59 @@ const blue = {
 };
 
 const AnatomyOverlay = styled('div')`
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  display: flex;
+  // align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+`;
+
+const LabelContainer = styled('div')`
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8px;
 `;
 
 const Label = styled('span')`
-  position: absolute;
-  opacity: 0.5;
+  // position: absolute;
+  width: fit-content;
+  opacity: 0.8;
   padding: 2px 8px;
-  font-size: 14px;
-  transform: translateX(-50%);
-  white-space: nowrap;
+  font-size: 0.75rem;
+  font-family: monospace;
+  // transform: translateX(-50%);
+  // white-space: nowrap;
   border-radius: 0.5rem;
+  color: ${grey[900]};
   background-color: ${grey[50]};
   border: 1px solid ${grey[300]};
   cursor: default;
   transition-property: opacity, border-color, box-shadow;
   transition-duration: 100ms;
+
   &:hover {
     opacity: 1;
     border-color: ${blue[200]};
-    box-shadow: 0 0 8px 1px hsla(210, 100%, 90%, 0.5);
+    // box-shadow: 0 0 8px 1px hsla(210, 100%, 90%, 0.5);
   }
+
   .dark & {
+    color: ${grey[400]};
     background-color: ${grey[900]};
     border: 1px solid;
     border-color: ${grey[800]};
+
     &:hover {
+      border-style: dashed;
       opacity: 1;
-      border-color: ${blue[700]};
-      box-shadow: 0 0 8px 1px hsla(210, 100%, 23%, 0.3);
+      color: ${blue[100]};
+      border-color: ${blue[400]};
+      background-color: hsla(210, 80%, 40%, 0.4);
+      // box-shadow: 0 0 8px 1px hsla(210, 100%, 23%, 0.3);
     }
   }
 `;
@@ -160,7 +184,27 @@ const AnatomyContainer = styled('div')`
   outline: 1px dashed;
   outline-color: ${blue[400]};
   outline-offset: 0.2rem;
+
   .dark & {
-    outline-color: ${blue[600]};
+    outline-color: ${blue[400]};
+    background-color: hsla(210, 80%, 40%, 0.2);
+  }
+`;
+
+const DemoContainer = styled('div')`
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  max-width: 384px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed;
+  border-color: ${grey[400]};
+  border-radius: 6px;
+
+  .dark & {
+    border-color: ${grey[800]};
   }
 `;

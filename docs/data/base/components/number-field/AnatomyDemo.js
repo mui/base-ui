@@ -151,7 +151,7 @@ const Label = styled('span')`
 const AnatomyContainer = styled('div')`
   z-index: 90;
   opacity: 0;
-  position: absolute;
+  // position: absolute;
   background-color: 'transparent';
   border-radius: 0.2rem;
   outline: 1px dashed;
