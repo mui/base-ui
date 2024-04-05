@@ -31,15 +31,18 @@ import { NumberField } from '@mui/base/NumberField';
 
 The `NumberField` component is composed of a root component and a group component which contains an input, and optionally, an increment button, decrement button, and a scrub area with a virtual cursor:
 
-```tsx
+{{"demo": "AnatomyDemo.js", "hideToolbar": true, "defaultCodeOpen": false, "bg": "outlined"}}
+
+```jsx
 <NumberField>
+  <NumberField.ScrubArea>
+    <label />
+    <NumberField.ScrubAreaCursor />
+  </NumberField.ScrubArea>
   <NumberField.Group>
     <NumberField.Decrement />
     <NumberField.Input />
     <NumberField.Increment />
-    <NumberField.ScrubArea>
-      <NumberField.ScrubAreaCursor />
-    </NumberField.ScrubArea>
   </NumberField.Group>
 </NumberField>
 ```
