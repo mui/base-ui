@@ -15,7 +15,7 @@ export default function AnatomyDemo() {
   const AnatomyConfig = [
     {
       label: 'NumberField',
-      // labelPosition: { top: '-200%', left: '50%' },
+      identAmount: '0px',
       ContainerPosition: {
         top: '30%',
         left: '15%',
@@ -25,32 +25,32 @@ export default function AnatomyDemo() {
     },
     {
       label: 'NumberField.ScrubArea',
-      // labelPosition: { top: '-140%', left: '50%' },
+      identAmount: '16px',
       ContainerPosition: { top: '36%', left: '20%', width: '75px', height: '22px' },
     },
     {
       label: 'NumberField.ScrubAreaCursor',
-      // labelPosition: { top: '-80%', left: '50%' },
+      identAmount: '32px',
       ContainerPosition: { top: '36%', left: '20%', width: '75px', height: '22px' },
     },
     {
       label: 'NumberField.Group',
-      // labelPosition: { top: '200%', left: '50%' },
+      identAmount: '16px',
       ContainerPosition: { top: '48%', left: '21%', width: '220px', height: '36px' },
     },
     {
       label: 'NumberField.Decrement',
-      // labelPosition: { top: '50%', left: '-50%' },
+      identAmount: '32px',
       ContainerPosition: { top: '48%', left: '21%', width: '37px', height: '36px' },
     },
     {
       label: 'NumberField.Input',
-      // labelPosition: { top: '130%', left: '50%' },
+      identAmount: '32px',
       ContainerPosition: { top: '48%', left: '30%', width: '155px', height: '36px' },
     },
     {
       label: 'NumberField.Increment',
-      // labelPosition: { top: '50%', left: '150%' },
+      identAmount: '32px',
       ContainerPosition: { top: '48%', left: '69%', width: '37px', height: '36px' },
     },
   ];
@@ -61,10 +61,9 @@ export default function AnatomyDemo() {
         {AnatomyConfig.map((config, index) => (
           <Label
             key={index}
-            // style={{
-            //   top: config.labelPosition.top,
-            //   left: config.labelPosition.left,
-            // }}
+            style={{
+              marginLeft: config.identAmount,
+            }}
             onMouseEnter={() => setHoveredContainer(index)}
             onMouseLeave={() => setHoveredContainer(null)}
           >
