@@ -121,8 +121,8 @@ importers:
         specifier: ^14.1.4
         version: 14.1.4
       '@octokit/rest':
-        specifier: ^20.0.2
-        version: 20.0.2
+        specifier: ^20.1.0
+        version: 20.1.0
       '@playwright/test':
         specifier: 1.42.1
         version: 1.42.1
@@ -4197,8 +4197,8 @@ packages:
       - encoding
     dev: true
 
-  /@octokit/rest@20.0.2:
-    resolution: {integrity: sha512-Ux8NDgEraQ/DMAU1PlAohyfBBXDwhnX2j33Z1nJNziqAfHi70PuxkFYIcIt8aIAxtRE7KVuKp8lSR8pA0J5iOQ==}
+  /@octokit/rest@20.1.0:
+    resolution: {integrity: sha512-STVO3itHQLrp80lvcYB2UIKoeil5Ctsgd2s1AM+du3HqZIR35ZH7WE9HLwUOLXH0myA0y3AGNPo8gZtcgIbw0g==}
     engines: {node: '>= 18'}
     dependencies:
       '@octokit/core': 5.1.0
