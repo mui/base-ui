@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
   Unstable_NumberInput as BaseNumberInput,
   NumberInputProps,
-} from '@mui/base/Unstable_NumberInput';
+} from '@base_ui/react/Unstable_NumberInput';
 import { styled } from '@mui/system';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';

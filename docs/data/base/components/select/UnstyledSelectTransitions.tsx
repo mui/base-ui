@@ -5,12 +5,12 @@ import {
   SelectListboxSlotProps,
   SelectProps,
   SelectRootSlotProps,
-} from '@mui/base/Select';
-import { Option as BaseOption, optionClasses } from '@mui/base/Option';
+} from '@base_ui/react/Select';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
-import { CssTransition } from '@mui/base/Transitions';
-import { PopupContext } from '@mui/base/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/Unstable_Popup';
 
 export default function UnstyledSelectTransitions() {
   return (

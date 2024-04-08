@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select as BaseSelect, selectClasses } from '@mui/base/Select';
-import { Option as BaseOption, optionClasses } from '@mui/base/Option';
-import { Dropdown } from '@mui/base/Dropdown';
-import { Menu } from '@mui/base/Menu';
-import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
+import { Select as BaseSelect, selectClasses } from '@base_ui/react/Select';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
+import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
 import { styled, alpha } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 

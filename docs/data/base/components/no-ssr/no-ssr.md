@@ -27,7 +27,7 @@ This component can be useful in a variety of situations:
 ## Component
 
 ```jsx
-import { NoSsr } from '@mui/base/NoSsr';
+import { NoSsr } from '@base_ui/react/NoSsr';
 ```
 
 At its core, the No-SSR component's purpose is to defer rendering from the server to the client, as shown in the following demo:

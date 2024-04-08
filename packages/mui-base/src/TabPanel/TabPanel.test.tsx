@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
-import { TabPanel, tabPanelClasses } from '@mui/base/TabPanel';
+import { TabPanel, tabPanelClasses } from '@base_ui/react/TabPanel';
 import { TabsProvider, TabsProviderValue } from '../useTabs';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 

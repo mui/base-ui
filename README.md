@@ -7,8 +7,8 @@
 <div align="center">
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mui/base-ui/blob/HEAD/LICENSE)
-[![npm latest package](https://img.shields.io/npm/v/@mui/base/latest.svg)](https://www.npmjs.com/package/@mui/base)
-[![npm downloads](https://img.shields.io/npm/dm/@mui/base.svg)](https://www.npmjs.com/package/@mui/base)
+[![npm latest package](https://img.shields.io/npm/v/@base_ui/react/latest.svg)](https://www.npmjs.com/package/@base_ui/react)
+[![npm downloads](https://img.shields.io/npm/dm/@base_ui/react.svg)](https://www.npmjs.com/package/@base_ui/react)
 [![CircleCI](https://circleci.com/gh/mui/base-ui/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/mui/base-ui?branch=master)
 [![Coverage status](https://img.shields.io/codecov/c/github/mui/base-ui/master.svg)](https://codecov.io/gh/mui/base-ui/branch/master)
 [![Follow on X](https://img.shields.io/twitter/follow/MUI_hq.svg?label=follow+MUI)](https://twitter.com/MUI_hq)

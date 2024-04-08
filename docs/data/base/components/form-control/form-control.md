@@ -23,7 +23,7 @@ For instance, you may want to show an additional element asking the user to ente
 ## Component
 
 ```jsx
-import { FormControl } from '@mui/base/FormControl';
+import { FormControl } from '@base_ui/react/FormControl';
 ```
 
 Form Control wraps around the elements of a form that need access to the state of an `<input>`.
@@ -59,7 +59,7 @@ The same applies for props specific to custom primitive elements:
 ## Hook
 
 ```jsx
-import { useFormControlContext } from '@mui/base/FormControl';
+import { useFormControlContext } from '@base_ui/react/FormControl';
 ```
 
 The `useFormControlContext` hook reads the context provided by Form Control.

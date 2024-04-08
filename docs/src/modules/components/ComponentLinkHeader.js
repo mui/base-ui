@@ -34,7 +34,7 @@ const Root = styled('ul')({
 const defaultPackageNames = {
   'material-ui': '@mui/material',
   'joy-ui': '@mui/joy',
-  'base-ui': '@mui/base',
+  'base-ui': '@base_ui/react',
   system: '@mui/system',
 };
 

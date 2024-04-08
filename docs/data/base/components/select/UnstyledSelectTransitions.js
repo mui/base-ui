@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select as BaseSelect, selectClasses } from '@mui/base/Select';
-import { Option as BaseOption, optionClasses } from '@mui/base/Option';
+import { Select as BaseSelect, selectClasses } from '@base_ui/react/Select';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
-import { CssTransition } from '@mui/base/Transitions';
-import { PopupContext } from '@mui/base/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/Unstable_Popup';
 
 export default function UnstyledSelectTransitions() {
   return (
@@ -142,13 +142,13 @@ const Listbox = styled('ul')(
   box-shadow: 0px 2px 4px ${
     theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
   };
-  
+
   .closed & {
     opacity: 0;
     transform: scale(0.95, 0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;
   }
-  
+
   .open & {
     opacity: 1;
     transform: scale(1, 1);
@@ -216,7 +216,7 @@ const Option = styled(BaseOption)(
   &:focus-visible {
     outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
   }
-  
+
   &.${optionClasses.highlighted}.${optionClasses.selected} {
     background-color: ${theme.palette.mode === 'dark' ? blue[900] : blue[100]};
     color: ${theme.palette.mode === 'dark' ? blue[100] : blue[900]};

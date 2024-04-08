@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, createRenderer } from '@mui/internal-test-utils';
-import { useSnackbar, UseSnackbarParameters } from '@mui/base/useSnackbar';
+import { useSnackbar, UseSnackbarParameters } from '@base_ui/react/useSnackbar';
 
 describe('useSnackbar', () => {
   const { render } = createRenderer();

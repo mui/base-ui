@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Input as BaseInput } from '@mui/base/Input';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { Input as BaseInput } from '@base_ui/react/Input';
+import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';
 import { styled } from '@mui/system';
 
 const Input = React.forwardRef(function CustomInput(props, ref) {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled, alpha, Box } from '@mui/system';
-import { Slider as BaseSlider, sliderClasses } from '@mui/base/Slider';
+import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
 
 export default function RangeSlider() {
   const [value, setValue] = React.useState<number[]>([20, 37]);

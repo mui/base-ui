@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expectType } from '@mui/types';
-import { Popper, PopperRootSlotProps } from '@mui/base/Popper';
+import { Popper, PopperRootSlotProps } from '@base_ui/react/Popper';
 
 function Root(props: PopperRootSlotProps) {
   const { ownerState, ...other } = props;

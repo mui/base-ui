@@ -24,7 +24,7 @@ The Button component replaces the native HTML `<button>` element, and offers exp
 ## Component
 
 ```jsx
-import { Button } from '@mui/base/Button';
+import { Button } from '@base_ui/react/Button';
 ```
 
 The Button behaves similar to the native HTML `<button>`, so it wraps around the text that will be displayed on its surface.
@@ -85,7 +85,7 @@ The same applies for props specific to custom primitive elements:
 ## Hook
 
 ```js
-import { useButton } from '@mui/base/useButton';
+import { useButton } from '@base_ui/react/useButton';
 ```
 
 The `useButton` hook lets you apply the functionality of a Button to a fully custom component.

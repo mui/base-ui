@@ -6,9 +6,9 @@ import {
   SelectProps,
   SelectOwnerState,
   SelectRootSlotProps,
-} from '@mui/base/Select';
-import { Option, OptionProps, OptionOwnerState } from '@mui/base/Option';
-import { Slider as BaseSlider, SliderProps, SliderOwnerState } from '@mui/base/Slider';
+} from '@base_ui/react/Select';
+import { Option, OptionProps, OptionOwnerState } from '@base_ui/react/Option';
+import { Slider as BaseSlider, SliderProps, SliderOwnerState } from '@base_ui/react/Slider';
 
 const SelectButton = React.forwardRef(function SelectButton<
   TValue extends {},

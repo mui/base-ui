@@ -93,7 +93,7 @@ export default function SandboxDependencies(
       'react-dom': 'latest',
       '@emotion/react': 'latest',
       '@emotion/styled': 'latest',
-      '@mui/base': getMuiPackageVersion('base'),
+      '@base_ui/react': getMuiPackageVersion('base'),
     };
 
     // TODO: consider if this configuration could be injected in a "cleaner" way.

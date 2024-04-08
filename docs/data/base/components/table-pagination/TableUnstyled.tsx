@@ -3,7 +3,7 @@ import { styled } from '@mui/system';
 import {
   TablePagination,
   tablePaginationClasses as classes,
-} from '@mui/base/TablePagination';
+} from '@base_ui/react/TablePagination';
 
 export default function TableUnstyled() {
   const [page, setPage] = React.useState(0);

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Unstable_NumberInput as BaseNumberInput } from '@mui/base/Unstable_NumberInput';
+import { Unstable_NumberInput as BaseNumberInput } from '@base_ui/react/Unstable_NumberInput';
 import clsx from 'clsx';
 
 export default function NumberInputIntroduction() {

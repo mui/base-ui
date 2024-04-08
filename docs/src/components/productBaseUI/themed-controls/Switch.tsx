@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Switch as BaseSwitch, SwitchProps } from '@mui/base/Switch';
+import { Switch as BaseSwitch, SwitchProps } from '@base_ui/react/Switch';
 import { css, styled } from '@mui/system';
 
 const StyledSwitch = styled(BaseSwitch)(css`

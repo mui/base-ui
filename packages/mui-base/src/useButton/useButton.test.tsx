@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createRenderer, fireEvent } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { useButton } from '@mui/base/useButton';
+import { useButton } from '@base_ui/react/useButton';
 
 describe('useButton', () => {
   const { render } = createRenderer();

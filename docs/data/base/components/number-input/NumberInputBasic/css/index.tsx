@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
   Unstable_NumberInput as BaseNumberInput,
   numberInputClasses,
-} from '@mui/base/Unstable_NumberInput';
+} from '@base_ui/react/Unstable_NumberInput';
 import { useTheme } from '@mui/system';
 
 export default function NumberInputBasic() {

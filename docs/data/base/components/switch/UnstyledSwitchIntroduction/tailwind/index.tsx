@@ -3,7 +3,7 @@ import {
   Switch as BaseSwitch,
   SwitchOwnerState,
   SwitchProps,
-} from '@mui/base/Switch';
+} from '@base_ui/react/Switch';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

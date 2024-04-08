@@ -9,7 +9,7 @@ import {
   NumberInputOwnerState,
   NumberInputIncrementButtonSlotProps,
   NumberInputDecrementButtonSlotProps,
-} from '@mui/base/Unstable_NumberInput';
+} from '@base_ui/react/Unstable_NumberInput';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 // TODO v6: initialize @testing-library/user-event using userEvent.setup() instead of directly calling methods e.g. userEvent.click() for all related tests in this file

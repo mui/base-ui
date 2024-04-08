@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Dropdown } from '@mui/base/Dropdown';
-import { Menu } from '@mui/base/Menu';
-import { MenuButton } from '@mui/base/MenuButton';
-import { MenuItem } from '@mui/base/MenuItem';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { MenuItem } from '@base_ui/react/MenuItem';
 import { styled, GlobalStyles } from '@mui/system';
 import Person from '@mui/icons-material/Person';
 
@@ -208,10 +208,10 @@ BaseMenuDemo.getCode = (styling?: 'system' | 'tailwindcss' | 'css') => {
   if (styling === 'system') {
     return `import * as React from 'react';
 import styled from '@mui/system/styled';
-import { Dropdown } from '@mui/base/Dropdown';
-import { MenuButton } from '@mui/base/MenuButton';
-import { Menu } from '@mui/base/Menu';
-import { MenuItem } from '@mui/base/MenuItem';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuItem } from '@base_ui/react/MenuItem';
 
 const StyledMenuButton = styled('button')\`${buttonStyles}\`;
 const StyledListbox = styled('ul')\`${listboxStyles}\`;
@@ -236,10 +236,10 @@ function Demo() {
 `;
   }
   if (styling === 'css') {
-    return `import { Dropdown } from '@mui/base/Dropdown';
-import { MenuButton } from '@mui/base/MenuButton';
-import { Menu } from '@mui/base/Menu';
-import { MenuItem } from '@mui/base/MenuItem';
+    return `import { Dropdown } from '@base_ui/react/Dropdown';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuItem } from '@base_ui/react/MenuItem';
 import './styles.css';
 
 function Demo() {
@@ -264,10 +264,10 @@ ${CSS}
 `;
   }
   if (styling === 'tailwindcss') {
-    return `import { Dropdown } from '@mui/base/Dropdown';
-import { MenuButton } from '@mui/base/MenuButton';
-import { Menu } from '@mui/base/Menu';
-import { MenuItem } from '@mui/base/MenuItem';
+    return `import { Dropdown } from '@base_ui/react/Dropdown';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuItem } from '@base_ui/react/MenuItem';
 
 function Demo() {
   return (

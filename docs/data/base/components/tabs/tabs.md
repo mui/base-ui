@@ -29,10 +29,10 @@ Tabs are implemented using a collection of related components:
 ## Components
 
 ```jsx
-import { Tab } from '@mui/base/Tab';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tabs } from '@mui/base/Tabs';
+import { Tab } from '@base_ui/react/Tab';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tabs } from '@base_ui/react/Tabs';
 ```
 
 By default, Tab components and their corresponding panels are **zero-indexed** (that is the first tab has a `value` of `0`, then `1`, `2`, etc.).

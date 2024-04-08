@@ -9,7 +9,7 @@ module.exports = {
   resolve: {
     modules: [__dirname, 'node_modules'],
     alias: {
-      '@mui/base': path.resolve(__dirname, './packages/mui-base/src'),
+      '@base_ui/react': path.resolve(__dirname, './packages/mui-base/src'),
       docs: path.resolve(__dirname, './docs'),
       '@mui-internal/api-docs-builder': path.resolve(
         __dirname,

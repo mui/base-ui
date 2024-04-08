@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox as BaseCheckbox } from '@mui/base/Checkbox';
+import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 

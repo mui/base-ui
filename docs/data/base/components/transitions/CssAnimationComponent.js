@@ -1,9 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system';
-import { Unstable_Popup as BasePopup } from '@mui/base/Unstable_Popup';
-import { Button as BaseButton } from '@mui/base/Button';
-import { CssAnimation } from '@mui/base/Transitions';
+import { Unstable_Popup as BasePopup } from '@base_ui/react/Unstable_Popup';
+import { Button as BaseButton } from '@base_ui/react/Button';
+import { CssAnimation } from '@base_ui/react/Transitions';
 
 const styles = `
   @keyframes open-animation {

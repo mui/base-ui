@@ -6,7 +6,7 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   unstable_useNumberInput as useNumberInput,
   UseNumberInputParameters,
-} from '@mui/base/unstable_useNumberInput';
+} from '@base_ui/react/unstable_useNumberInput';
 
 // TODO v6: initialize @testing-library/user-event using userEvent.setup() instead of directly calling methods e.g. userEvent.click() for all related tests in this file
 // currently the setup() method uses the ClipboardEvent constructor which is incompatible with our lowest supported version of iOS Safari (12.2) https://github.com/mui/material-ui/blob/master/.browserslistrc#L44

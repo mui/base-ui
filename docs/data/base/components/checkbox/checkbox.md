@@ -24,7 +24,7 @@ The Checkbox component provides users with a checkbox for toggling a checked sta
 ## Component
 
 ```jsx
-import { Checkbox } from '@mui/base/Checkbox';
+import { Checkbox } from '@base_ui/react/Checkbox';
 ```
 
 ### Anatomy
@@ -95,7 +95,7 @@ It's a **visual-only** state, so it can still have its internal `checked` state 
 ## Hook
 
 ```js
-import { useCheckbox } from '@mui/base/useCheckbox';
+import { useCheckbox } from '@base_ui/react/useCheckbox';
 ```
 
 The `useCheckbox` hook lets you apply the functionality of a Checkbox to a fully custom component.

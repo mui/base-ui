@@ -1,12 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown } from '@mui/base/Dropdown';
-import { Menu } from '@mui/base/Menu';
-import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
+import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
 import { styled } from '@mui/system';
-import { CssTransition } from '@mui/base/Transitions';
-import { PopupContext } from '@mui/base/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem) => {
@@ -77,7 +77,7 @@ const Listbox = styled('ul')(
     transform: scale(0.95, 0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;
   }
-  
+
   .open & {
     opacity: 1;
     transform: scale(1, 1);

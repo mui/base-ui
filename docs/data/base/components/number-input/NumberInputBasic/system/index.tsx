@@ -3,7 +3,7 @@ import {
   Unstable_NumberInput as BaseNumberInput,
   NumberInputProps,
   numberInputClasses,
-} from '@mui/base/Unstable_NumberInput';
+} from '@base_ui/react/Unstable_NumberInput';
 import { styled } from '@mui/system';
 
 const NumberInput = React.forwardRef(function CustomNumberInput(

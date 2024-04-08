@@ -2,8 +2,8 @@ import * as React from 'react';
 import { Transition } from 'react-transition-group';
 import { styled } from '@mui/system';
 import CloseIcon from '@mui/icons-material/Close';
-import { Snackbar } from '@mui/base/Snackbar';
-import { SnackbarCloseReason } from '@mui/base/useSnackbar';
+import { Snackbar } from '@base_ui/react/Snackbar';
+import { SnackbarCloseReason } from '@base_ui/react/useSnackbar';
 
 export default function TransitionComponentSnackbar() {
   const [open, setOpen] = React.useState(false);

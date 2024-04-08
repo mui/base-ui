@@ -3,7 +3,7 @@ import {
   Checkbox as BaseCheckbox,
   type CheckboxIndicatorProps,
   type CheckboxProps,
-} from '@mui/base/Checkbox';
+} from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 

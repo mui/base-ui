@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Switch as BaseSwitch } from '@mui/base/Switch';
+import { Switch as BaseSwitch } from '@base_ui/react/Switch';
 
 export default function UnstyledSwitchIntroduction() {
   return (

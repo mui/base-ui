@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Switch as BaseSwitch } from '@mui/base/Switch';
-import { useSwitch, UseSwitchParameters } from '@mui/base/useSwitch';
+import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import { useSwitch, UseSwitchParameters } from '@base_ui/react/useSwitch';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -17,8 +17,8 @@ import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 
 const code = `
-import { Switch as BaseSwitch } from '@mui/base/Switch';
-import { useSwitch } from '@mui/base/useSwitch';
+import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import { useSwitch } from '@base_ui/react/useSwitch';
 import { styled } from '@mui/system';
 
 const StyledSwitchRoot = styled('button')(\`

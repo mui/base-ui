@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FormControl, useFormControlContext } from '@mui/base/FormControl';
+import { FormControl, useFormControlContext } from '@base_ui/react/FormControl';
 
 export default function UseFormControl() {
   return (
