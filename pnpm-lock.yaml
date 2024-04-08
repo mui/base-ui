@@ -602,7 +602,7 @@ importers:
   packages/eslint-plugin-material-ui:
     devDependencies:
       '@types/eslint':
-        specifier: ^8.56.6
+        specifier: ^8.56.7
         version: 8.56.7
       '@typescript-eslint/experimental-utils':
         specifier: ^5.62.0
