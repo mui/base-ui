@@ -103,16 +103,16 @@ function Styles() {
         background: ${isDarkMode ? grey[800] : grey[100]};
         border-color: ${isDarkMode ? grey[600] : grey[300]};
       }
-
+    
       .CustomSwitchIntroduction:focus-visible {
         box-shadow: 0 0 0 3px ${isDarkMode ? cyan[700] : cyan[200]};
       }
-
+    
       .CustomSwitchIntroduction[data-state="checked"] {
         border: none;
         background: ${cyan[500]};
       }
-
+    
       .CustomSwitchIntroduction[data-state="checked"]:not([data-disabled]):hover {
         background: ${cyan[700]};
       }

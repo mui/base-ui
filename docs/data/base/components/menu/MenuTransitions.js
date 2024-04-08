@@ -77,7 +77,7 @@ const Listbox = styled('ul')(
     transform: scale(0.95, 0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;
   }
-
+  
   .open & {
     opacity: 1;
     transform: scale(1, 1);
