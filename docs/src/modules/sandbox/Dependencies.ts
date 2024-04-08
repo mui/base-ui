@@ -15,7 +15,7 @@ function addTypeDeps(deps: Record<string, string>): void {
   const packagesWithDTPackage = Object.keys(deps)
     .filter((name) => packagesWithBundledTypes.indexOf(name) === -1)
     // All the MUI packages come with bundled types
-    .filter((name) => name.indexOf('@mui/') !== 0);
+    .filter((name) => name.indexOf('@mui/') !== 0 && name.indexOf('@base_ui/') !== 0);
 
   packagesWithDTPackage.forEach((name) => {
     let resolvedName = name;
@@ -52,7 +52,9 @@ export default function SandboxDependencies(
       return 'latest';
     }
     const shortSha = commitRef.slice(0, 8);
-    return `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@mui/${packageName}`;
+    return packageName === 'base-ui'
+      ? `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base_ui/react`
+      : `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@mui/${packageName}`;
   }
 
   function extractDependencies(raw: string) {
@@ -93,7 +95,7 @@ export default function SandboxDependencies(
       'react-dom': 'latest',
       '@emotion/react': 'latest',
       '@emotion/styled': 'latest',
-      '@base_ui/react': getMuiPackageVersion('base'),
+      '@base_ui/react': getMuiPackageVersion('base-ui'),
     };
 
     // TODO: consider if this configuration could be injected in a "cleaner" way.
