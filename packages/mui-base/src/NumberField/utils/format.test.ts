@@ -8,7 +8,7 @@ const getOptions = (): Intl.NumberFormatOptions => ({
   maximumFractionDigits: 2,
 });
 
-describe('format', () => {
+describe('NumberField format', () => {
   describe('getFormatter', () => {
     it('caches the formatter based on options', () => {
       const formatter1 = getFormatter(undefined, getOptions());

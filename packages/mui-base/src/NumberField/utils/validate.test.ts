@@ -12,7 +12,7 @@ const defaultOptions = {
   format: undefined,
 };
 
-describe('validate', () => {
+describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {
     it('returns 0.3 for 0.2 + 0.1', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1)).to.equal(0.3);

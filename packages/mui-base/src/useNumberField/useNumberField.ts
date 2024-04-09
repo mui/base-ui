@@ -79,7 +79,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const intentionalTouchCheckTimeoutRef = React.useRef(-1);
   const isPressedRef = React.useRef(false);
   const isHoldingShiftRef = React.useRef(false);
-  const isHoldingMetaRef = React.useRef(false);
+  const isHoldingAltRef = React.useRef(false);
   const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
@@ -124,7 +124,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   });
 
   const getStepAmount = useEventCallback(() => {
-    if (isHoldingMetaRef.current) {
+    if (isHoldingAltRef.current) {
       return smallStep;
     }
     if (isHoldingShiftRef.current) {
@@ -268,7 +268,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           isHoldingShiftRef.current = true;
         }
         if (event.altKey) {
-          isHoldingMetaRef.current = true;
+          isHoldingAltRef.current = true;
         }
       }
 
@@ -277,14 +277,14 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           isHoldingShiftRef.current = false;
         }
         if (!event.altKey) {
-          isHoldingMetaRef.current = false;
+          isHoldingAltRef.current = false;
         }
       }
 
       function handleWindowBlur() {
         // A keyup event may not be dispatched when the window loses focus.
         isHoldingShiftRef.current = false;
-        isHoldingMetaRef.current = false;
+        isHoldingAltRef.current = false;
       }
 
       const win = ownerWindow(inputRef.current);
