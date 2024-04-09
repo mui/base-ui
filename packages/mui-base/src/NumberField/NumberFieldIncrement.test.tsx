@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { fireEvent } from '@testing-library/react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@mui/base/NumberField';
+import { NumberField } from '@base_ui/react/NumberField';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../useNumberField/constants';
