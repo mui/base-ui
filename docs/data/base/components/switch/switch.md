@@ -24,7 +24,7 @@ The Switch component provides users with a switch for toggling between two mutua
 ## Component
 
 ```jsx
-import { Switch } from '@mui/base/Switch';
+import { Switch } from '@base_ui/react/Switch';
 ```
 
 ### Anatomy
@@ -50,7 +50,7 @@ Use the `render` prop to override the root or thumb component:
 ## Hook
 
 ```js
-import { useSwitch } from '@mui/base/useSwitch';
+import { useSwitch } from '@base_ui/react/useSwitch';
 ```
 
 The `useSwitch` hook lets you apply the functionality of a Switch to a fully custom component.

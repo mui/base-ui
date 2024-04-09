@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Checkbox } from '@mui/base/Checkbox';
+import { Checkbox } from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 

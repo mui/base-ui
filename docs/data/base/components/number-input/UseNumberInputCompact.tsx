@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
   unstable_useNumberInput as useNumberInput,
   UseNumberInputParameters,
-} from '@mui/base/unstable_useNumberInput';
+} from '@base_ui/react/unstable_useNumberInput';
 import { styled } from '@mui/system';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropUpRoundedIcon from '@mui/icons-material/ArrowDropUpRounded';

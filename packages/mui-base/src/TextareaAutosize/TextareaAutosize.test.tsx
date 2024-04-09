@@ -9,7 +9,7 @@ import {
   createRenderer,
   fireEvent,
 } from '@mui/internal-test-utils';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 function getStyleValue(value: string) {

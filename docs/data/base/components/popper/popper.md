@@ -32,7 +32,7 @@ Once the [Popup](/base-ui/react-popup/) is stable, we will deprecate and, later,
 ## Component
 
 ```jsx
-import { Popper } from '@mui/base/Popper';
+import { Popper } from '@base_ui/react/Popper';
 ```
 
 By default, the Popper is mounted to the DOM when its `open` prop is set to `true`, and removed from the DOM when `open` is `false`.

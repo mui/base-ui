@@ -7,7 +7,7 @@ import {
   TablePagination,
   tablePaginationClasses as classes,
   LabelDisplayedRowsArgs,
-} from '@mui/base/TablePagination';
+} from '@base_ui/react/TablePagination';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 interface WithClassName {

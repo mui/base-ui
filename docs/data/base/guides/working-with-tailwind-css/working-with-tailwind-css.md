@@ -29,10 +29,10 @@ All credits go to the Tailwind Labs team for designing this component, found on 
 
 We'll use [`create-react-app` with TypeScript](https://create-react-app.dev/docs/adding-typescript/#installation) for this guide.
 After you have created the project, follow the instructions given on the [Tailwind CSS installation page](https://tailwindcss.com/docs/guides/create-react-app) in order to configure `tailwind`.
-Next, install `@mui/base` in the project:
+Next, install `@base_ui/react` in the project:
 
 ```bash
-npm install @mui/base
+npm install @base_ui/react
 ```
 
 ## Adding the player markup
@@ -255,7 +255,7 @@ import {
   Slider as BaseSlider,
   SliderThumbSlotProps,
   SliderProps,
-} from '@mui/base/Slider';
+} from '@base_ui/react/Slider';
 
 const Slider = React.forwardRef(function Slider(
   props: SliderProps,
@@ -338,7 +338,7 @@ To do this, it's not enough to just use classes for the thumb—we need also to 
 +++ b/src/Slider.tsx
 @@ -1,6 +1,17 @@
  import * as React from 'react';
- import { Slider as BaseSlider, SliderThumbSlotProps, SliderProps } from '@mui/base/Slider';
+ import { Slider as BaseSlider, SliderThumbSlotProps, SliderProps } from '@base_ui/react/Slider';
 
 +const Thumb = React.forwardRef(function Thumb(
 +  props: SliderThumbSlotProps,
@@ -405,7 +405,7 @@ import {
   Button as BaseButton,
   ButtonOwnerState,
   ButtonProps,
-} from '@mui/base/Button';
+} from '@base_ui/react/Button';
 
 const Button = React.forwardRef(function Button(
   props: ButtonProps,

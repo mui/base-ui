@@ -32,7 +32,7 @@ See [Why the GOV.UK Design System team changed the input type for numbers](https
 ## Component
 
 ```jsx
-import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
+import { Unstable_NumberInput as NumberInput } from '@base_ui/react/Unstable_NumberInput';
 ```
 
 The following demo shows how to create a Number Input component, apply some styling, and write the latest value to a state variable using the `onChange` prop:
@@ -94,7 +94,7 @@ The following code snippet:
 ## Hook
 
 ```js
-import { unstable_useNumberInput as useNumberInput } from '@mui/base/unstable_useNumberInput';
+import { unstable_useNumberInput as useNumberInput } from '@base_ui/react/unstable_useNumberInput';
 ```
 
 The `useNumberInput` hook lets you apply the functionality of a Number Input to a fully custom component.

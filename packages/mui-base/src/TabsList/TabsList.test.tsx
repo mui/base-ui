@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { act, createMount, createRenderer } from '@mui/internal-test-utils';
-import { Tab } from '@mui/base/Tab';
-import { Tabs, TabsContext } from '@mui/base/Tabs';
-import { TabsList, tabsListClasses } from '@mui/base/TabsList';
+import { Tab } from '@base_ui/react/Tab';
+import { Tabs, TabsContext } from '@base_ui/react/Tabs';
+import { TabsList, tabsListClasses } from '@base_ui/react/TabsList';
 import { expect } from 'chai';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 

@@ -10,11 +10,11 @@ import {
   RenderOptions,
   flushMicrotasks,
 } from '@mui/internal-test-utils';
-import { Menu, menuClasses } from '@mui/base/Menu';
-import { MenuItem, MenuItemRootSlotProps } from '@mui/base/MenuItem';
-import { DropdownContext, DropdownContextValue } from '@mui/base/useDropdown';
-import { Popper } from '@mui/base/Popper';
-import { MenuProvider, useMenu } from '@mui/base/useMenu';
+import { Menu, menuClasses } from '@base_ui/react/Menu';
+import { MenuItem, MenuItemRootSlotProps } from '@base_ui/react/MenuItem';
+import { DropdownContext, DropdownContextValue } from '@base_ui/react/useDropdown';
+import { Popper } from '@base_ui/react/Popper';
+import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 const testContext: DropdownContextValue = {

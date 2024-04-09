@@ -26,7 +26,7 @@ The Badge component creates a badge that is applied to its child element.
 ## Component
 
 ```jsx
-import { Badge } from '@mui/base/Badge';
+import { Badge } from '@base_ui/react/Badge';
 ```
 
 The Badge wraps around the UI element that it's attached to.
@@ -80,7 +80,7 @@ The same applies for props specific to custom primitive elements:
 ## Hook
 
 ```jsx
-import { useBadge } from '@mui/base/useBadge';
+import { useBadge } from '@base_ui/react/useBadge';
 ```
 
 The `useBadge` hook lets you apply the functionality of a Badge to a fully custom component.

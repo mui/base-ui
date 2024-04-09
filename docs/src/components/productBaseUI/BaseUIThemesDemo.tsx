@@ -2,21 +2,21 @@ import * as React from 'react';
 import clsx from 'clsx';
 
 // Base UI imports
-import { Badge, badgeClasses } from '@mui/base/Badge';
-import { Input, InputProps } from '@mui/base/Input';
-import { Dropdown } from '@mui/base/Dropdown';
-import { Menu } from '@mui/base/Menu';
-import { MenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { MenuButton } from '@mui/base/MenuButton';
-import { Modal, modalClasses } from '@mui/base/Modal';
-import { Option } from '@mui/base/Option';
-import { Select } from '@mui/base/Select';
-import { Slider, sliderClasses } from '@mui/base/Slider';
-import { Snackbar } from '@mui/base/Snackbar';
-import { SnackbarCloseReason } from '@mui/base/useSnackbar';
-import { Tab } from '@mui/base/Tab';
-import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
+import { Badge, badgeClasses } from '@base_ui/react/Badge';
+import { Input, InputProps } from '@base_ui/react/Input';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { Modal, modalClasses } from '@base_ui/react/Modal';
+import { Option } from '@base_ui/react/Option';
+import { Select } from '@base_ui/react/Select';
+import { Slider, sliderClasses } from '@base_ui/react/Slider';
+import { Snackbar } from '@base_ui/react/Snackbar';
+import { SnackbarCloseReason } from '@base_ui/react/useSnackbar';
+import { Tab } from '@base_ui/react/Tab';
+import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
 
 // Other packages
 import { css, styled, keyframes } from '@mui/system';

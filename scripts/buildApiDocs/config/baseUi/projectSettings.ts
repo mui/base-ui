@@ -5,7 +5,7 @@ import findApiPages from '@mui-internal/api-docs-builder/utils/findApiPages';
 import {
   unstable_generateUtilityClass as generateUtilityClass,
   unstable_isGlobalState as isGlobalState,
-} from '@mui/base';
+} from '@base_ui/react';
 import { getBaseUiComponentInfo } from './getBaseUiComponentInfo';
 import { getBaseUiHookInfo } from './getBaseUiHookInfo';
 import { generateBaseUIApiPages } from './generateBaseUiApiPages';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
-import { Option, optionClasses } from '@mui/base/Option';
+import { Option, optionClasses } from '@base_ui/react/Option';
 import { SelectProvider } from '../useSelect/SelectProvider';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 

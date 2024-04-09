@@ -46,7 +46,7 @@ export default function BaseUIEnd() {
             primaryUrl={ROUTES.baseDocs}
             secondaryLabel="Learn Base UI"
             secondaryUrl={ROUTES.baseQuickstart}
-            altInstallation="npm install @mui/base"
+            altInstallation="npm install @base_ui/react"
           />
         </Grid>
         <Grid xs={12} sm={6}>

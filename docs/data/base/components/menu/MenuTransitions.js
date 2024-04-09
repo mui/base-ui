@@ -1,12 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown } from '@mui/base/Dropdown';
-import { Menu } from '@mui/base/Menu';
-import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
+import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
 import { styled } from '@mui/system';
-import { CssTransition } from '@mui/base/Transitions';
-import { PopupContext } from '@mui/base/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/Unstable_Popup';
 
 export default function MenuTransitions() {
   const createHandleMenuClick = (menuItem) => {

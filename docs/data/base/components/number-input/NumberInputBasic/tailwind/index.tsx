@@ -3,7 +3,7 @@ import {
   Unstable_NumberInput as BaseNumberInput,
   NumberInputProps,
   NumberInputOwnerState,
-} from '@mui/base/Unstable_NumberInput';
+} from '@base_ui/react/Unstable_NumberInput';
 import clsx from 'clsx';
 
 export default function NumberInputBasic() {

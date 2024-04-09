@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@mui/base/Checkbox';
+import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
 import Check from '@mui/icons-material/Check';
 
 export default function UnstyledSwitchIntroduction() {

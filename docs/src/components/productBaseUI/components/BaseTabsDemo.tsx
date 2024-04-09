@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tab } from '@mui/base/Tab';
+import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tab } from '@base_ui/react/Tab';
 import { styled, GlobalStyles } from '@mui/system';
 
 const tabListStyles = `
@@ -138,10 +138,10 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
 }
 BaseTabsDemo.getCode = (styling: 'system' | 'tailwindcss' | 'css') => {
   if (styling === 'system') {
-    return `import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tab } from '@mui/base/Tab';
+    return `import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tab } from '@base_ui/react/Tab';
 import { styled } from '@mui/system';
 
 const StyledTabsList = styled('div')\`${tabListStyles}\`;
@@ -169,10 +169,10 @@ const StyledTab = styled('button')\`${tabStyles}\`;
 `;
   }
   if (styling === 'tailwindcss') {
-    return `import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tab } from '@mui/base/Tab';
+    return `import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tab } from '@base_ui/react/Tab';
 
 <Tabs selectionFollowsFocus defaultValue={0}>
   <TabsList className="mb-[16px] flex min-w-[300px] content-between
@@ -224,10 +224,10 @@ import { Tab } from '@mui/base/Tab';
 </Tabs>`;
   }
   if (styling === 'css') {
-    return `import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tab } from '@mui/base/Tab';
+    return `import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tab } from '@base_ui/react/Tab';
 import { styled } from '@mui/system';
 import './styles.css';
 

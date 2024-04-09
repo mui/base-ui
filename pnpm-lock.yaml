@@ -369,6 +369,9 @@ importers:
       '@babel/runtime-corejs2':
         specifier: ^7.24.4
         version: 7.24.4
+      '@base_ui/react':
+        specifier: workspace:*
+        version: link:../packages/mui-base/build
       '@docsearch/react':
         specifier: ^3.6.0
         version: 3.6.0(@algolia/client-search@4.23.2)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)(search-insights@2.13.0)
@@ -384,9 +387,6 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.5
         version: 11.11.5(@emotion/react@11.11.4)(@types/react@18.2.74)(react@18.2.0)
-      '@mui/base':
-        specifier: workspace:*
-        version: link:../packages/mui-base/build
       '@mui/docs':
         specifier: 5.15.14
         version: 5.15.14(patch_hash=tdgtbeaihmqmsakuhf7hdsiw3u)(@mui/material@5.15.15)(@types/react@18.2.74)(next@14.1.4)(react-dom@18.2.0)(react@18.2.0)
@@ -693,15 +693,15 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.4
         version: 7.24.4
+      '@base_ui/react':
+        specifier: workspace:*
+        version: link:../packages/mui-base/build
       '@emotion/cache':
         specifier: ^11.11.0
         version: 11.11.0
       '@emotion/react':
         specifier: ^11.11.4
         version: 11.11.4(@types/react@18.2.74)(react@18.2.0)
-      '@mui/base':
-        specifier: workspace:*
-        version: link:../packages/mui-base/build
       '@mui/icons-material':
         specifier: 5.15.15
         version: 5.15.15(@mui/material@5.15.15)(@types/react@18.2.74)(react@18.2.0)
