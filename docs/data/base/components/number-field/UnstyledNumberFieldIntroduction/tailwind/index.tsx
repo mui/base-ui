@@ -7,7 +7,7 @@ import {
   NumberFieldInputProps,
   NumberFieldProps,
   NumberFieldScrubAreaProps,
-} from '@mui/base/NumberField';
+} from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {

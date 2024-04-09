@@ -5,7 +5,7 @@
   },
   "name": "NumberFieldInput",
   "imports": [
-    "import { NumberFieldInput } from '@mui/base/NumberField';",
+    "import { NumberFieldInput } from '@base_ui/react/NumberField';",
     "import { NumberFieldInput } from '@mui/base';"
   ],
   "classes": [],

@@ -24,7 +24,7 @@ A number field is a UI element that accepts numeric values from the user. `Numbe
 ## Component
 
 ```jsx
-import { NumberField } from '@mui/base/NumberField';
+import { NumberField } from '@base_ui/react/NumberField';
 ```
 
 ### Anatomy

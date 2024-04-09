@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NumberField } from '@mui/base/NumberField';
+import { NumberField } from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
