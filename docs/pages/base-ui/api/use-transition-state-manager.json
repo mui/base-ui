@@ -1,6 +1,12 @@
 {
   "parameters": {},
-  "returnValue": {},
+  "returnValue": {
+    "onExited": {
+      "type": { "name": "() =&gt; void", "description": "() =&gt; void" },
+      "required": true
+    },
+    "requestedEnter": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+  },
   "name": "useTransitionStateManager",
   "filename": "/packages/mui-base/src/useTransition/useTransitionStateManager.ts",
   "imports": [

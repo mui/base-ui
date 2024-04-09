@@ -1,5 +1,10 @@
 {
   "hookDescription": "Allows an element to be transitioned in and out.\nThe transition is triggerred by a `TransitionContext` placed above in the component tree.",
   "parametersDescriptions": {},
-  "returnValueDescriptions": {}
+  "returnValueDescriptions": {
+    "onExited": { "description": "Callback to be called when the element has completely exited." },
+    "requestedEnter": {
+      "description": "<code>true</code>, if the current element should be visible."
+    }
+  }
 }
