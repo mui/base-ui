@@ -42,7 +42,10 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "Input",
-  "imports": ["import { Input } from '@mui/base/Input';", "import { Input } from '@mui/base';"],
+  "imports": [
+    "import { Input } from '@base_ui/react/Input';",
+    "import { Input } from '@base_ui/react';"
+  ],
   "classes": [],
   "spread": true,
   "muiName": "Input",

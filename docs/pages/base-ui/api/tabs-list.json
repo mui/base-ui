@@ -13,8 +13,8 @@
   },
   "name": "TabsList",
   "imports": [
-    "import { TabsList } from '@mui/base/TabsList';",
-    "import { TabsList } from '@mui/base';"
+    "import { TabsList } from '@base_ui/react/TabsList';",
+    "import { TabsList } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

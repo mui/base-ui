@@ -19,8 +19,8 @@
   },
   "name": "Checkbox",
   "imports": [
-    "import { Checkbox } from '@mui/base/Checkbox';",
-    "import { Checkbox } from '@mui/base';"
+    "import { Checkbox } from '@base_ui/react/Checkbox';",
+    "import { Checkbox } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

@@ -14,8 +14,8 @@
   },
   "name": "TabPanel",
   "imports": [
-    "import { TabPanel } from '@mui/base/TabPanel';",
-    "import { TabPanel } from '@mui/base';"
+    "import { TabPanel } from '@base_ui/react/TabPanel';",
+    "import { TabPanel } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

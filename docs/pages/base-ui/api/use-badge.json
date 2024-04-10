@@ -20,8 +20,8 @@
   "name": "useBadge",
   "filename": "/packages/mui-base/src/useBadge/useBadge.ts",
   "imports": [
-    "import { useBadge } from '@mui/base/useBadge';",
-    "import { useBadge } from '@mui/base';"
+    "import { useBadge } from '@base_ui/react/useBadge';",
+    "import { useBadge } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-badge/#hook\">Badge</a></li></ul>"
 }

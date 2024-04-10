@@ -245,8 +245,8 @@
   "name": "useAutocomplete",
   "filename": "/packages/mui-base/src/useAutocomplete/useAutocomplete.ts",
   "imports": [
-    "import { useAutocomplete } from '@mui/base/useAutocomplete';",
-    "import { useAutocomplete } from '@mui/base';"
+    "import { useAutocomplete } from '@base_ui/react/useAutocomplete';",
+    "import { useAutocomplete } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-autocomplete/#hook\">Autocomplete</a></li></ul>"
 }

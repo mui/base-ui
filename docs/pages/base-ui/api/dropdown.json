@@ -6,8 +6,8 @@
   },
   "name": "Dropdown",
   "imports": [
-    "import { Dropdown } from '@mui/base/Dropdown';",
-    "import { Dropdown } from '@mui/base';"
+    "import { Dropdown } from '@base_ui/react/Dropdown';",
+    "import { Dropdown } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": false,

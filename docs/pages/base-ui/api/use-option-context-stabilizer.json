@@ -4,8 +4,8 @@
   "name": "useOptionContextStabilizer",
   "filename": "/packages/mui-base/src/useOption/useOptionContextStabilizer.ts",
   "imports": [
-    "import { useOptionContextStabilizer } from '@mui/base/useOption';",
-    "import { useOptionContextStabilizer } from '@mui/base';"
+    "import { useOptionContextStabilizer } from '@base_ui/react/useOption';",
+    "import { useOptionContextStabilizer } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-select/#hooks\">Select</a></li></ul>"
 }

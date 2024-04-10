@@ -18,7 +18,10 @@
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "Switch",
-  "imports": ["import { Switch } from '@mui/base/Switch';", "import { Switch } from '@mui/base';"],
+  "imports": [
+    "import { Switch } from '@base_ui/react/Switch';",
+    "import { Switch } from '@base_ui/react';"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

@@ -40,7 +40,10 @@
     }
   },
   "name": "Modal",
-  "imports": ["import { Modal } from '@mui/base/Modal';", "import { Modal } from '@mui/base';"],
+  "imports": [
+    "import { Modal } from '@base_ui/react/Modal';",
+    "import { Modal } from '@base_ui/react';"
+  ],
   "classes": [],
   "spread": true,
   "muiName": "Modal",

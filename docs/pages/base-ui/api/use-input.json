@@ -71,8 +71,8 @@
   "name": "useInput",
   "filename": "/packages/mui-base/src/useInput/useInput.ts",
   "imports": [
-    "import { useInput } from '@mui/base/useInput';",
-    "import { useInput } from '@mui/base';"
+    "import { useInput } from '@base_ui/react/useInput';",
+    "import { useInput } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-input/#hook\">Input</a></li></ul>"
 }

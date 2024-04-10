@@ -7,8 +7,8 @@
   },
   "name": "CssAnimation",
   "imports": [
-    "import { CssAnimation } from '@mui/base/Transitions';",
-    "import { CssAnimation } from '@mui/base';"
+    "import { CssAnimation } from '@base_ui/react/Transitions';",
+    "import { CssAnimation } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

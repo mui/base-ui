@@ -51,8 +51,8 @@
   "name": "useTabsList",
   "filename": "/packages/mui-base/src/useTabsList/useTabsList.ts",
   "imports": [
-    "import { useTabsList } from '@mui/base/useTabsList';",
-    "import { useTabsList } from '@mui/base';"
+    "import { useTabsList } from '@base_ui/react/useTabsList';",
+    "import { useTabsList } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
 }

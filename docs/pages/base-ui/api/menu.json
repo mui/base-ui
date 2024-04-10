@@ -22,7 +22,10 @@
     }
   },
   "name": "Menu",
-  "imports": ["import { Menu } from '@mui/base/Menu';", "import { Menu } from '@mui/base';"],
+  "imports": [
+    "import { Menu } from '@base_ui/react/Menu';",
+    "import { Menu } from '@base_ui/react';"
+  ],
   "classes": [],
   "spread": true,
   "muiName": "Menu",

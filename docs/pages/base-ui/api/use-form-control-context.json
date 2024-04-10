@@ -26,8 +26,8 @@
   "name": "useFormControlContext",
   "filename": "/packages/mui-base/src/FormControl/useFormControlContext.ts",
   "imports": [
-    "import { useFormControlContext } from '@mui/base/FormControl';",
-    "import { useFormControlContext } from '@mui/base';"
+    "import { useFormControlContext } from '@base_ui/react/FormControl';",
+    "import { useFormControlContext } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-form-control/#hook\">Form Control</a></li></ul>"
 }

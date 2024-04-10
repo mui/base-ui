@@ -33,8 +33,8 @@
   "name": "useMenuButton",
   "filename": "/packages/mui-base/src/useMenuButton/useMenuButton.ts",
   "imports": [
-    "import { useMenuButton } from '@mui/base/useMenuButton';",
-    "import { useMenuButton } from '@mui/base';"
+    "import { useMenuButton } from '@base_ui/react/useMenuButton';",
+    "import { useMenuButton } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-menu/#hooks\">Menu</a></li></ul>"
 }

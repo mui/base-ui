@@ -33,8 +33,8 @@
   "name": "useOption",
   "filename": "/packages/mui-base/src/useOption/useOption.ts",
   "imports": [
-    "import { useOption } from '@mui/base/useOption';",
-    "import { useOption } from '@mui/base';"
+    "import { useOption } from '@base_ui/react/useOption';",
+    "import { useOption } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-select/#hooks\">Select</a></li></ul>"
 }

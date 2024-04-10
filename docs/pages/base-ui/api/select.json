@@ -35,7 +35,10 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "Select",
-  "imports": ["import { Select } from '@mui/base/Select';", "import { Select } from '@mui/base';"],
+  "imports": [
+    "import { Select } from '@base_ui/react/Select';",
+    "import { Select } from '@base_ui/react';"
+  ],
   "classes": [],
   "spread": true,
   "muiName": "Select",

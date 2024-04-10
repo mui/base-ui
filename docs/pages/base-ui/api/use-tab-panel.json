@@ -29,8 +29,8 @@
   "name": "useTabPanel",
   "filename": "/packages/mui-base/src/useTabPanel/useTabPanel.ts",
   "imports": [
-    "import { useTabPanel } from '@mui/base/useTabPanel';",
-    "import { useTabPanel } from '@mui/base';"
+    "import { useTabPanel } from '@base_ui/react/useTabPanel';",
+    "import { useTabPanel } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
 }

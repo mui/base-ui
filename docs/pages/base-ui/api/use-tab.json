@@ -47,6 +47,9 @@
   },
   "name": "useTab",
   "filename": "/packages/mui-base/src/useTab/useTab.ts",
-  "imports": ["import { useTab } from '@mui/base/useTab';", "import { useTab } from '@mui/base';"],
+  "imports": [
+    "import { useTab } from '@base_ui/react/useTab';",
+    "import { useTab } from '@base_ui/react';"
+  ],
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
 }

@@ -19,8 +19,8 @@
   },
   "name": "FormControl",
   "imports": [
-    "import { FormControl } from '@mui/base/FormControl';",
-    "import { FormControl } from '@mui/base';"
+    "import { FormControl } from '@base_ui/react/FormControl';",
+    "import { FormControl } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

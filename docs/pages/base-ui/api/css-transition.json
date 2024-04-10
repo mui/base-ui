@@ -6,8 +6,8 @@
   },
   "name": "CssTransition",
   "imports": [
-    "import { CssTransition } from '@mui/base/Transitions';",
-    "import { CssTransition } from '@mui/base';"
+    "import { CssTransition } from '@base_ui/react/Transitions';",
+    "import { CssTransition } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

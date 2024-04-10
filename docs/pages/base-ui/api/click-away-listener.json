@@ -20,8 +20,8 @@
   },
   "name": "ClickAwayListener",
   "imports": [
-    "import { ClickAwayListener } from '@mui/base/ClickAwayListener';",
-    "import { ClickAwayListener } from '@mui/base';"
+    "import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';",
+    "import { ClickAwayListener } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": false,

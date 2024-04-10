@@ -94,8 +94,8 @@
   "name": "useModal",
   "filename": "/packages/mui-base/src/unstable_useModal/useModal.ts",
   "imports": [
-    "import { unstable_useModal as useModal } from '@mui/base/unstable_useModal';",
-    "import { unstable_useModal as useModal } from '@mui/base';"
+    "import { useModal } from '@base_ui/react/unstable_useModal';",
+    "import { useModal } from '@base_ui/react';"
   ],
   "demos": "<ul><li><a href=\"/base-ui/react-modal/#hook\">Modal</a></li></ul>"
 }
