@@ -19,6 +19,15 @@ export function getNumberLocaleDetails(
     result[part.type] = part.value;
   });
 
+  // The formatting options may result in not returning a decimal.
+  getFormatter(locale)
+    .formatToParts(0.1)
+    .forEach((part) => {
+      if (part.type === 'decimal') {
+        result[part.type] = part.value;
+      }
+    });
+
   return result;
 }
 
@@ -33,16 +42,25 @@ export function parseNumber(formattedNumber: string, options?: Intl.NumberFormat
     locale = 'zh';
   }
 
-  const { group, decimal, currency } = getNumberLocaleDetails(locale, options);
+  const { group, decimal, currency, unit } = getNumberLocaleDetails(locale, options);
 
-  const rawNumber = formattedNumber
-    .replace(new RegExp(`\\${group}`, 'g'), '')
-    .replace(new RegExp(`\\${decimal}`, 'g'), '.')
-    .replace(new RegExp(`\\${currency}`, 'g'), '')
-    .replace(ARABIC_RE, (match) => ARABIC_NUMERALS.indexOf(match).toString())
-    .replace(HAN_RE, (match) => HAN_NUMERALS.indexOf(match).toString());
+  const regexesToReplace = [
+    { regex: group ? new RegExp(`\\${group}`, 'g') : null, replacement: '' },
+    { regex: decimal ? new RegExp(`\\${decimal}`, 'g') : null, replacement: '.' },
+    { regex: currency ? new RegExp(`\\${currency}`, 'g') : null, replacement: '' },
+    { regex: unit ? new RegExp(`\\${unit}`, 'g') : null, replacement: '' },
+    { regex: ARABIC_RE, replacement: (match: string) => ARABIC_NUMERALS.indexOf(match).toString() },
+    { regex: HAN_RE, replacement: (match: string) => HAN_NUMERALS.indexOf(match).toString() },
+  ];
 
-  let num = parseFloat(rawNumber);
+  const unformattedNumber = regexesToReplace.reduce((acc, { regex, replacement }) => {
+    if (!regex) {
+      return acc;
+    }
+    return acc.replace(regex, replacement as string);
+  }, formattedNumber);
+
+  let num = parseFloat(unformattedNumber);
 
   if (PERCENT_RE.test(formattedNumber)) {
     num /= 100;

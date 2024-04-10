@@ -568,7 +568,10 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
 
           let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
 
-          const { decimal, currency } = getNumberLocaleDetails([], formatOptionsRef.current);
+          const { decimal, currency, percentSign } = getNumberLocaleDetails(
+            [],
+            formatOptionsRef.current,
+          );
 
           const selectionStart = event.currentTarget.selectionStart;
           const selectionEnd = event.currentTarget.selectionEnd;
@@ -583,23 +586,16 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
               !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
           }
 
-          // Allow only one decimal separator, or if all the text is selected, or if only the decimal
-          // separator is highlighted.
-          if (event.key === decimal) {
-            const decimalIndex = inputValue.indexOf(decimal);
-            const isDecimalHighlighted =
-              selectionStart === decimalIndex && selectionEnd === decimalIndex + 1;
-            isAllowedNonNumericKey =
-              !inputValue.includes(decimal) || isAllSelected || isDecimalHighlighted;
-          }
-
-          if (event.key === currency) {
-            const currencyIndex = inputValue.indexOf(currency);
-            const isCurrencyHighlighted =
-              selectionStart === currencyIndex && selectionEnd === currencyIndex + 1;
-            isAllowedNonNumericKey =
-              !inputValue.includes(currency) || isAllSelected || isCurrencyHighlighted;
-          }
+          // Only allow one of each symbol.
+          [decimal, currency, percentSign].forEach((symbol) => {
+            if (event.key === symbol) {
+              const symbolIndex = inputValue.indexOf(symbol);
+              const isSymbolHighlighted =
+                selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
+              isAllowedNonNumericKey =
+                !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
+            }
+          });
 
           const isLatinNumeral = /^[0-9]$/.test(event.key);
           const isArabicNumeral = ARABIC_RE.test(event.key);
