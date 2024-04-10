@@ -84,7 +84,8 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
-  const isTouchingRef = React.useRef(false);
+  const isTouchingButtonRef = React.useRef(false);
+  const hasTouchedInputRef = React.useRef(false);
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
     controlled: externalValue,
@@ -361,10 +362,10 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           userSelect: 'none',
         },
         onTouchStart() {
-          isTouchingRef.current = true;
+          isTouchingButtonRef.current = true;
         },
         onTouchEnd() {
-          isTouchingRef.current = false;
+          isTouchingButtonRef.current = false;
         },
         onClick(event) {
           const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
@@ -434,7 +435,7 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
             event.defaultPrevented ||
             isDisabled ||
             !isPressedRef.current ||
-            isTouchingRef.current
+            isTouchingButtonRef.current
           ) {
             return;
           }
@@ -442,14 +443,14 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
           startAutoChange(isIncrement);
         },
         onMouseLeave() {
-          if (isTouchingRef.current) {
+          if (isTouchingButtonRef.current) {
             return;
           }
 
           stopAutoChange();
         },
         onMouseUp() {
-          if (isTouchingRef.current) {
+          if (isTouchingButtonRef.current) {
             return;
           }
 
@@ -498,6 +499,19 @@ export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnVa
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
+        onFocus(event) {
+          if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
+            return;
+          }
+
+          hasTouchedInputRef.current = true;
+
+          // Browsers set selection at the start of the input field by default. We want to set it at
+          // the end for the first focus.
+          const target = event.currentTarget;
+          const length = target.value.length;
+          target.setSelectionRange(length, length);
+        },
         onBlur(event) {
           if (event.defaultPrevented || readOnly || disabled) {
             return;

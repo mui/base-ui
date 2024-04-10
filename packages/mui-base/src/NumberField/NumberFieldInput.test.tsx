@@ -17,7 +17,7 @@ const testContext = {
   },
 } as NumberFieldContextValue;
 
-describe('<NumberField.Group />', () => {
+describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.Input />, () => ({
