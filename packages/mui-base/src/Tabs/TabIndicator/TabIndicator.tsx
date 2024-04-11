@@ -7,7 +7,7 @@ import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
 import { useTabsContext } from '../TabsContext';
 
-export const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
+const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
   function TabIndicator(props, forwardedRef) {
     const { className: classNameProp, render: renderProp, ...other } = props;
     const render = renderProp ?? defaultRenderFunctions.span;
@@ -119,3 +119,5 @@ export const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>
     );
   },
 );
+
+export { TabIndicator };
