@@ -112,8 +112,8 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@emotion/react@11.11.4)(@emotion/styled@11.11.5)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#api-docs-gen-hook-settings
-        version: github.com/michaldudak/material-ui/f5f770ee468a50fa425bfa23f9d7b8df7d834e26
+        specifier: github:mui/material-ui#802a586a96222e4bc1fb458d599c9913d08bd3cc
+        version: github.com/mui/material-ui/802a586a96222e4bc1fb458d599c9913d08bd3cc
       '@mui/utils':
         specifier: 5.15.14
         version: 5.15.14(@types/react@18.2.74)(react@18.2.0)
@@ -409,8 +409,8 @@ importers:
         specifier: 5.15.11
         version: 5.15.11(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.15)(@types/react@18.2.74)(next@14.1.4)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#73c88b6c3f71287a4a1f0b1b5d7d37ab268dca49
-        version: github.com/mui/material-ui/73c88b6c3f71287a4a1f0b1b5d7d37ab268dca49
+        specifier: github:mui/material-ui#802a586a96222e4bc1fb458d599c9913d08bd3cc
+        version: github.com/mui/material-ui/802a586a96222e4bc1fb458d599c9913d08bd3cc
       '@mui/styles':
         specifier: 5.15.15
         version: 5.15.15(@types/react@18.2.74)(react@18.2.0)
@@ -17503,8 +17503,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  github.com/michaldudak/material-ui/f5f770ee468a50fa425bfa23f9d7b8df7d834e26:
-    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/f5f770ee468a50fa425bfa23f9d7b8df7d834e26}
+  github.com/mui/material-ui/802a586a96222e4bc1fb458d599c9913d08bd3cc:
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/802a586a96222e4bc1fb458d599c9913d08bd3cc}
     name: '@mui/monorepo'
     version: 6.0.0-alpha.2
     requiresBuild: true
@@ -17520,23 +17520,3 @@ packages:
       - encoding
       - supports-color
       - utf-8-validate
-    dev: true
-
-  github.com/mui/material-ui/73c88b6c3f71287a4a1f0b1b5d7d37ab268dca49:
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/73c88b6c3f71287a4a1f0b1b5d7d37ab268dca49}
-    name: '@mui/monorepo'
-    version: 6.0.0-alpha.1
-    requiresBuild: true
-    dependencies:
-      '@googleapis/sheets': 5.0.5
-      '@netlify/functions': 2.6.0
-      '@slack/bolt': 3.17.1
-      execa: 8.0.1
-      google-auth-library: 9.7.0
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - encoding
-      - supports-color
-      - utf-8-validate
-    dev: false

@@ -11,8 +11,8 @@
   },
   "name": "NumberFieldScrubArea",
   "imports": [
-    "import { NumberFieldScrubArea } from '@mui/base/NumberField';",
-    "import { NumberFieldScrubArea } from '@mui/base';"
+    "import { NumberField } from '@base_ui/react/NumberField';\nconst ScrubArea = NumberField.ScrubArea;",
+    "import { NumberField } from '@base_ui/react';\nconst ScrubArea = NumberField.ScrubArea;"
   ],
   "classes": [],
   "spread": true,

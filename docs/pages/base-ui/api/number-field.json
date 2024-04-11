@@ -26,8 +26,8 @@
   },
   "name": "NumberField",
   "imports": [
-    "import { NumberField } from '@mui/base/NumberField';",
-    "import { NumberField } from '@mui/base';"
+    "import { NumberField } from '@base_ui/react/NumberField';",
+    "import { NumberField } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

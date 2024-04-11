@@ -5,8 +5,8 @@
   },
   "name": "NumberFieldDecrement",
   "imports": [
-    "import { NumberFieldDecrement } from '@mui/base/NumberField';",
-    "import { NumberFieldDecrement } from '@mui/base';"
+    "import { NumberField } from '@base_ui/react/NumberField';\nconst Decrement = NumberField.Decrement;",
+    "import { NumberField } from '@base_ui/react';\nconst Decrement = NumberField.Decrement;"
   ],
   "classes": [],
   "spread": true,
