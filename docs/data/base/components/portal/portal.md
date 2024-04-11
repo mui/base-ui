@@ -23,7 +23,7 @@ The Portal component is used internally by the [Modal](/base-ui/react-modal/) an
 ## Component
 
 ```jsx
-import { Portal } from '@mui/base/Portal';
+import { Portal } from '@base_ui/react/Portal';
 ```
 
 Normally, children of a component are rendered within that component's DOM tree.

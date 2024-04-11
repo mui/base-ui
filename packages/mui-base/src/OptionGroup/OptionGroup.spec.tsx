@@ -5,7 +5,7 @@ import {
   OptionGroupLabelSlotProps,
   OptionGroupListSlotProps,
   OptionGroupRootSlotProps,
-} from '@mui/base/OptionGroup';
+} from '@base_ui/react/OptionGroup';
 
 const Root = React.forwardRef(function Root(
   props: OptionGroupRootSlotProps,

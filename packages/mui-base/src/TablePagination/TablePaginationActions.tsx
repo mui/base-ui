@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../utils';
 import {
   TablePaginationActionsButtonSlotProps,
@@ -146,6 +147,7 @@ const TablePaginationActions = React.forwardRef(function TablePaginationActions<
           {direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
         </FirstButton>
       )}
+
       <BackButton {...backButtonProps}>
         {direction === 'rtl' ? <NextPageIcon /> : <BackPageIcon />}
       </BackButton>
@@ -160,5 +162,77 @@ const TablePaginationActions = React.forwardRef(function TablePaginationActions<
     </Root>
   );
 }) as PolymorphicComponent<TablePaginationActionsTypeMap>;
+
+TablePaginationActions.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  count: PropTypes.number.isRequired,
+  /**
+   * Direction of the text.
+   * @default 'ltr'
+   */
+  direction: PropTypes.oneOf(['ltr', 'rtl']),
+  /**
+   * Accepts a function which returns a string value that provides a user-friendly name for the current page.
+   * This is important for screen reader users.
+   *
+   * For localization purposes, you can use the provided [translations](/material-ui/guides/localization/).
+   * @param {string} type The link or button type to format ('first' | 'last' | 'next' | 'previous').
+   * @returns {string}
+   */
+  getItemAriaLabel: PropTypes.func.isRequired,
+  /**
+   * @ignore
+   */
+  onPageChange: PropTypes.func.isRequired,
+  /**
+   * @ignore
+   */
+  page: PropTypes.number.isRequired,
+  /**
+   * @ignore
+   */
+  rowsPerPage: PropTypes.number.isRequired,
+  /**
+   * @ignore
+   */
+  showFirstButton: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  showLastButton: PropTypes.bool,
+  /**
+   * The props used for each slot inside the TablePagination.
+   * @default {}
+   */
+  slotProps: PropTypes.shape({
+    backButton: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+    firstButton: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+    lastButton: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+    nextButton: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  }),
+  /**
+   * The components used for each slot inside the TablePagination.
+   * Either a string to use a HTML element or a component.
+   * @default {}
+   */
+  slots: PropTypes.shape({
+    backButton: PropTypes.elementType,
+    backPageIcon: PropTypes.elementType,
+    firstButton: PropTypes.elementType,
+    firstPageIcon: PropTypes.elementType,
+    lastButton: PropTypes.elementType,
+    lastPageIcon: PropTypes.elementType,
+    nextButton: PropTypes.elementType,
+    nextPageIcon: PropTypes.elementType,
+    root: PropTypes.elementType,
+  }),
+} as any;
 
 export { TablePaginationActions };

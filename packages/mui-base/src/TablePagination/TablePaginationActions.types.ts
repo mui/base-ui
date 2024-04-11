@@ -63,8 +63,8 @@ export interface TablePaginationActionsOwnProps {
   onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, page: number) => void;
   page: number;
   rowsPerPage: number;
-  showFirstButton: boolean;
-  showLastButton: boolean;
+  showFirstButton?: boolean;
+  showLastButton?: boolean;
 }
 
 export interface TablePaginationActionsSlots {

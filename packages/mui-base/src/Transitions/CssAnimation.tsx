@@ -83,12 +83,38 @@ function CssAnimation(props: CssAnimationProps) {
   );
 }
 
-CssAnimation.propTypes = {
+CssAnimation.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
+  /**
+   * @ignore
+   */
   className: PropTypes.string,
+  /**
+   * The name of the CSS animation (the `animation-name` CSS property) applied to the component when
+   * the transition is requested to enter.
+   */
   enterAnimationName: PropTypes.string,
+  /**
+   * The name of the CSS class applied to the component when the transition
+   * is requested to enter.
+   */
   enterClassName: PropTypes.string,
+  /**
+   * The name of the CSS animation (the `animation-name` CSS property) applied to the component when
+   * the transition is requested to exit.
+   */
   exitAnimationName: PropTypes.string,
+  /**
+   * The name of the CSS class applied to the component when the transition
+   * is requested to exit.
+   */
   exitClassName: PropTypes.string,
 } as any;
 

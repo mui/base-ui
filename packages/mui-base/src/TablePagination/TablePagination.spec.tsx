@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expectType } from '@mui/types';
-import { TablePagination } from '@mui/base/TablePagination';
+import { TablePagination } from '@base_ui/react/TablePagination';
 import {
   TablePaginationActionsSlotProps,
   TablePaginationDisplayedRowsSlotProps,

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { buttonClasses } from '@mui/base/Button';
-import { Tabs } from '@mui/base/Tabs';
-import { Tab as BaseTab, tabClasses } from '@mui/base/Tab';
-import { TabsList as BaseTabsList } from '@mui/base/TabsList';
+import { buttonClasses } from '@base_ui/react/Button';
+import { Tabs } from '@base_ui/react/Tabs';
+import { Tab as BaseTab, tabClasses } from '@base_ui/react/Tab';
+import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
 
 export default function KeyboardNavigation() {
   return (

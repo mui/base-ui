@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button } from '@mui/base/Button';
+import { Button } from '@base_ui/react/Button';
 import { useTheme } from '@mui/system';
 import Stack from '@mui/material/Stack';
 

@@ -19,7 +19,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Select from '@mui/material/Select';
-import { SliderUnstyled } from '@mui/base/SliderUnstyled';
+import { Switch } from '@base_ui/react/Switch';
 import FooBar, { Qux } from '@foo-bar/bip';
 const styles = theme => ({
   container: {
@@ -41,7 +41,7 @@ const styles = theme => ({
       '@emotion/styled': 'latest',
       '@foo-bar/bip': 'latest',
       '@mui/material': 'latest',
-      '@mui/base': 'latest',
+      '@base_ui/react': 'latest',
       'prop-types': 'latest',
     });
   });
@@ -147,7 +147,7 @@ import 'exceljs';
       '@emotion/styled': 'latest',
       '@foo-bar/bip': 'latest',
       '@mui/material': 'latest',
-      '@mui/base': 'latest',
+      '@base_ui/react': 'latest',
       '@types/foo-bar__bip': 'latest',
       '@types/prop-types': 'latest',
       '@types/react-dom': 'latest',
@@ -222,7 +222,7 @@ import lab from '@mui/lab';
   it('can use codesandbox deploys if a commit is given', () => {
     const source = `
 import * as Material from '@mui/material';
-import * as Base from '@mui/base';
+import * as Base from '@base_ui/react';
 import * as IconsMaterial from '@mui/icons-material';
 import * as Lab from '@mui/lab';
 import * as Styles from '@mui/styles';
@@ -249,7 +249,7 @@ import * as Utils from '@mui/utils';
       '@mui/styles': 'latest',
       '@mui/system': 'latest',
       '@mui/utils': 'latest',
-      '@mui/base': 'https://pkg.csb.dev/mui/base-ui/commit/2d0e8b4d/@mui/base',
+      '@base_ui/react': 'https://pkg.csb.dev/mui/base-ui/commit/2d0e8b4d/@base_ui/react',
     });
   });
 

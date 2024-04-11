@@ -27,8 +27,8 @@ It also includes the Option component for creating the options in the list, and 
 ## Components
 
 ```jsx
-import { Select } from '@mui/base/Select';
-import { Option } from '@mui/base/Option';
+import { Select } from '@base_ui/react/Select';
+import { Option } from '@base_ui/react/Option';
 ```
 
 The following demo shows how to create and style a Select component with several Options:
@@ -112,7 +112,7 @@ You can change this behavior with the help of the `getSerializedValue` prop.
 ### Grouping options
 
 ```jsx
-import { OptionGroup } from '@mui/base/OptionGroup';
+import { OptionGroup } from '@base_ui/react/OptionGroup';
 ```
 
 Options can be grouped, similarly to how the native `<select>` element works.
@@ -191,7 +191,7 @@ The same applies for props specific to custom primitive elements:
 ## Hooks
 
 ```js
-import { useSelect } from '@mui/base/useSelect';
+import { useSelect } from '@base_ui/react/useSelect';
 ```
 
 The `useSelect` hook lets you apply the functionality of a Select to a fully custom component.
@@ -242,7 +242,7 @@ The `useOptionContextStabilizer` hook ensures that the context value changes onl
 
 :::info
 The following features can be used with both components and hooks.
-For the sake of simplicity, demos and code snippets primarily feature components.
+For the sake of simplicity, demos, and code snippets primarily feature components.
 :::
 
 ### Selected value appearance

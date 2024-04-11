@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Select } from '@mui/base';
+import { Select } from '@base_ui/react/Select';
 
-declare module '@mui/base' {
+declare module '@base_ui/react/Select' {
   interface SelectRootSlotPropsOverrides {
     variant?: 'one' | 'two';
   }

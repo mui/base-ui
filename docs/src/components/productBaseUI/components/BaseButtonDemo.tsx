@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Button } from '@mui/base/Button';
+import { Button } from '@base_ui/react/Button';
 import { styled, GlobalStyles } from '@mui/system';
 
 const buttonStyles = `
@@ -91,7 +91,7 @@ export default function BaseButtonDemo({
 }
 BaseButtonDemo.getCode = (styling?: 'system' | 'tailwindcss' | 'css') => {
   if (styling === 'system') {
-    return `import { Button } from '@mui/base/Button';
+    return `import { Button } from '@base_ui/react/Button';
 import { styled } from '@mui/system';
 
 const StyledButton = styled('button')\`${buttonStyles}\`;
@@ -101,7 +101,7 @@ const StyledButton = styled('button')\`${buttonStyles}\`;
 `;
   }
   if (styling === 'css') {
-    return `import { Button } from '@mui/base/Button';
+    return `import { Button } from '@base_ui/react/Button';
 import './styles.css';
 
 <Button>Button</Button>
@@ -112,7 +112,7 @@ import './styles.css';
 `;
   }
   if (styling === 'tailwindcss') {
-    return `import { Button } from '@mui/base/Button';
+    return `import { Button } from '@base_ui/react/Button';
 
 <Button
   className="cursor-pointer select-none rounded-[8px] 

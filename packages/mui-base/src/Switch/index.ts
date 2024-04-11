@@ -1,5 +1,10 @@
 'use client';
-export { Switch } from './Switch';
+import { combineComponentExports } from '../utils/combineComponentExports';
+import { Switch as SwitchRoot } from './Switch';
+import { SwitchThumb } from './SwitchThumb';
+
 export * from './Switch.types';
 
-export * from './switchClasses';
+export const Switch = combineComponentExports(SwitchRoot, {
+  Thumb: SwitchThumb,
+});

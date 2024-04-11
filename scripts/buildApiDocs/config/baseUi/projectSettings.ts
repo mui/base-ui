@@ -5,7 +5,7 @@ import findApiPages from '@mui-internal/api-docs-builder/utils/findApiPages';
 import {
   unstable_generateUtilityClass as generateUtilityClass,
   unstable_isGlobalState as isGlobalState,
-} from '@mui/base';
+} from '@base_ui/react';
 import { getBaseUiComponentInfo } from './getBaseUiComponentInfo';
 import { getBaseUiHookInfo } from './getBaseUiHookInfo';
 import { generateBaseUIApiPages } from './generateBaseUiApiPages';
@@ -19,7 +19,7 @@ export const projectSettings: ProjectSettings = {
     {
       name: 'base',
       rootPath: path.join(process.cwd(), 'packages/mui-base'),
-      entryPointPath: 'src/index.d.ts',
+      entryPointPath: 'src/index.ts',
     },
   ],
   getApiPages: () => findApiPages('docs/pages/base-ui/api'),

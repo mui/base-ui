@@ -29,13 +29,13 @@ Tabs are implemented using a collection of related components:
 ## Components
 
 ```jsx
-import { Tab } from '@mui/base/Tab';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tabs } from '@mui/base/Tabs';
+import { Tab } from '@base_ui/react/Tab';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tabs } from '@base_ui/react/Tabs';
 ```
 
-By default, Tab components and their corresponding panels are **zero-indexed** (i.e. the first tab has a `value` of `0`, then `1`, `2`, etc.).
+By default, Tab components and their corresponding panels are **zero-indexed** (that is the first tab has a `value` of `0`, then `1`, `2`, etc.).
 Clicking on a given Tab opens the panel with the same `value`, which corresponds to the order in which each component is nested within its container.
 
 Though not required, you can add the `value` prop to the Tab and Tab Panel to take control over how these components are associated with one another.

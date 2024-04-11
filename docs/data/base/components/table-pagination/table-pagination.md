@@ -26,7 +26,7 @@ It controls two properties of its parent table:
 ## Component
 
 ```jsx
-import { TablePagination } from '@mui/base/TablePagination';
+import { TablePagination } from '@base_ui/react/TablePagination';
 ```
 
 Table Pagination renders its internal elements in a `<td>` tag by default so it can be inserted into a table's `<tr>`.

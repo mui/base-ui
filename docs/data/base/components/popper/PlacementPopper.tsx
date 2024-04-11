@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Popper, PopperPlacementType } from '@mui/base/Popper';
+import { Popper, PopperPlacementType } from '@base_ui/react/Popper';
 
 function Radio({ value, ...props }: JSX.IntrinsicElements['input']) {
   return (

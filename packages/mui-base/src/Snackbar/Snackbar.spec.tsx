@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Snackbar, SnackbarProps, SnackbarRootSlotProps } from '@mui/base/Snackbar';
+import { Snackbar, SnackbarProps, SnackbarRootSlotProps } from '@base_ui/react/Snackbar';
 
 const Root = React.forwardRef(
   (props: SnackbarRootSlotProps, ref: React.ForwardedRef<HTMLDivElement>) => {

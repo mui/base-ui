@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
-import { TabPanel } from '@mui/base/TabPanel';
-import { Tab } from '@mui/base/Tab';
+import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
+import { TabPanel } from '@base_ui/react/TabPanel';
+import { Tab } from '@base_ui/react/Tab';
 
 export default function UnstyledTabsBasic() {
   return (

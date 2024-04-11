@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input as BaseInput } from '@mui/base/Input';
+import { Input as BaseInput } from '@base_ui/react/Input';
 import { Box, styled } from '@mui/system';
 
 function OTP({

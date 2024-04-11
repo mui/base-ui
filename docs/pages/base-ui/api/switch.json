@@ -1,9 +1,11 @@
 {
   "props": {
     "checked": { "type": { "name": "bool" } },
-    "className": { "type": { "name": "string" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultChecked": { "type": { "name": "bool" } },
-    "disabled": { "type": { "name": "bool" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "inputRef": { "type": { "name": "custom", "description": "ref" } },
+    "name": { "type": { "name": "string" } },
     "onChange": {
       "type": { "name": "func" },
       "signature": {
@@ -11,30 +13,17 @@
         "describedArgs": ["event"]
       }
     },
-    "readOnly": { "type": { "name": "bool" } },
-    "required": { "type": { "name": "bool" } },
-    "slotProps": {
-      "type": {
-        "name": "shape",
-        "description": "{ input?: func<br>&#124;&nbsp;object, root?: func<br>&#124;&nbsp;object, thumb?: func<br>&#124;&nbsp;object, track?: func<br>&#124;&nbsp;object }"
-      },
-      "default": "{}"
-    },
-    "slots": {
-      "type": {
-        "name": "shape",
-        "description": "{ input?: elementType, root?: elementType, thumb?: elementType, track?: elementType<br>&#124;&nbsp;null }"
-      },
-      "default": "{}",
-      "additionalInfo": { "slotsApi": true }
-    }
+    "readOnly": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "func" } },
+    "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "Switch",
   "imports": ["import { Switch } from '@mui/base/Switch';", "import { Switch } from '@mui/base';"],
   "classes": [],
   "spread": true,
+  "themeDefaultProps": true,
   "muiName": "Switch",
-  "forwardsRefTo": "HTMLSpanElement",
+  "forwardsRefTo": "HTMLButtonElement",
   "filename": "/packages/mui-base/src/Switch/Switch.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-switch/\">Switch</a></li></ul>",

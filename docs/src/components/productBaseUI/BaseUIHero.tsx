@@ -84,7 +84,7 @@ export default function BaseUIHero() {
             primaryUrl={ROUTES.baseDocs}
             secondaryLabel="Learn Base UI"
             secondaryUrl={ROUTES.baseQuickstart}
-            altInstallation="npm install @mui/base"
+            altInstallation="npm install @base_ui/react"
           />
         </Box>
       }

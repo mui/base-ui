@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import clsx from 'clsx';
-import { Switch as SwitchUnstyled } from '@mui/base/Switch';
-import { useSwitch, UseSwitchParameters } from '@mui/base/useSwitch';
+import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import { useSwitch, UseSwitchParameters } from '@base_ui/react/useSwitch';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -18,120 +17,19 @@ import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 
 const code = `
-import clsx from 'clsx';
+import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import { useSwitch } from '@base_ui/react/useSwitch';
 import { styled } from '@mui/system';
-import { SwitchUnstyled } from '@mui/base/Switch';
-import { useSwitch } from '@mui/base/useSwitch';
 
-const StyledSwitchRoot = styled('span')(\`
+const StyledSwitchRoot = styled('button')(\`
   font-size: 0;
   position: relative;
-  display: inline-block;
+  display: inline-flex;
   width: 40px;
   height: 24px;
   margin: 10px;
-  cursor: pointer;
-  border-radius: 16px;
-  background: #A0AAB4;
-
-  &.Mui-disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  &.Mui-checked {
-    background: #007FFF;
-    & .MuiSwitch-thumb {
-      left: 20px;
-    }
-  }
-
-  &.Mui-focusVisible {
-    outline: 2px solid #007FFF;
-    outline-offset: 2px;
-  }
-\`);
-
-const StyledSwitchInput = styled('input')\`
-  cursor: inherit;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  z-index: 1;
-  margin: 0;
-\`;
-
-const StyledSwitchThumb = styled('span')\`
-  display: block;
-  width: 16px;
-  height: 16px;
-  top: 4px;
-  left: 4px;
-  border-radius: 16px;
-  background-color: #FFF;
-  position: relative;
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 120ms;
-
-  &.Mui-checked {
-    left: 20px;
-  }
-\`;
-
-function SwitchFromHook(props) {
-  const {
-    getInputProps,
-    checked,
-    disabled,
-    focusVisible,
-  } = useSwitch(props);
-
-  const stateClasses = {
-    'Mui-checked': checked,
-    'Mui-disabled': disabled,
-    'Mui-focusVisible': focusVisible,
-  };
-
-  return (
-    <StyledSwitchRoot className={clsx(stateClasses)}>
-      <StyledSwitchThumb className={clsx(stateClasses)} />
-      <StyledSwitchInput {...getInputProps()} aria-label="Demo switch" />
-    </StyledSwitchRoot>
-  );
-}
-
-function App() {
-  return (
-    <SwitchUnstyled
-      slots={{
-        root: StyledSwitchRoot,
-        input: StyledSwitchInput,
-        thumb: StyledSwitchThumb,
-      }}
-      slotProps={{
-        input: { 'aria-label': 'Demo switch' },
-      }}
-    />
-    <SwitchFromHook />
-  )
-}
-`;
-
-const startLine = [6, 89, 64];
-const endLine = [26, 93, 84];
-const scrollTo = [0, 1400, 1140];
-
-const StyledSwitchRoot = styled('span')(`
-  font-size: 0;
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 24px;
-  margin: 10px;
+  padding: 0;
+  border: none;
   cursor: pointer;
   border-radius: 16px;
   background: #B0B8C4;
@@ -141,22 +39,113 @@ const StyledSwitchRoot = styled('span')(`
     background: #9DA8B7;
   }
 
-  &.Mui-disabled {
+  &[data-disabled] {
     opacity: 0.4;
     cursor: not-allowed;
   }
 
-  &.Mui-checked {
+  &[data-state="checked"] {
     background: #007FFF;
     :hover {
       background: #0072E5;
     }
-    & .MuiSwitch-thumb {
-      left: 20px;
+  }
+
+  &:focus-visible {
+    outline: 4px solid rgba(0, 127, 255, 0.4);
+  }
+
+  :where([data-mui-color-scheme='dark']) & {
+    background: #6B7A90;
+  
+    :hover {
+      background: #434D5B;
+    }
+  }
+\`);
+
+const StyledSwitchThumb = styled('span')\`
+  display: block;
+  width: 16px;
+  height: 16px;
+  top: 4px;
+  left: 4px;
+  border-radius: 16px;
+  background-color: #fff;
+  position: relative;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+
+  &[data-state='checked'] {
+    left: 20px;
+  }
+\`;
+
+function SwitchFromHook(props) {
+  const { getInputProps, getButtonProps, checked, disabled } = useSwitch(props);
+
+  const stateAttributes = {
+    'data-state': checked ? 'checked' : 'unchecked',
+    'data-disabled': disabled || undefined,
+  };
+
+  return (
+    <StyledSwitchRoot aria-label="Demo switch" {...getButtonProps()} {...stateAttributes}>
+      <StyledSwitchThumb {...stateAttributes} />
+      <input {...getInputProps()} />
+    </StyledSwitchRoot>
+  );
+}
+
+function App() {
+  return (
+    <BaseSwitch
+      aria-label="Demo switch"
+      render={(props) => <StyledSwitchRoot {...props} />}
+    >
+      <BaseSwitch render={(props) => <StyledSwitchThumb {...props} />} />
+    </BaseSwitch>
+    <SwitchFromHook />
+  )
+}
+`;
+
+const startLine = [4, 85, 65];
+const endLine = [45, 87, 79];
+const scrollTo = [0, 1400, 1140];
+
+const StyledSwitchRoot = styled('button')(`
+  font-size: 0;
+  position: relative;
+  display: inline-flex;
+  width: 40px;
+  height: 24px;
+  margin: 10px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 16px;
+  background: #B0B8C4;
+  transition: all ease 120ms;
+
+  :hover {
+    background: #9DA8B7;
+  }
+
+  &[data-disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &[data-state="checked"] {
+    background: #007FFF;
+    :hover {
+      background: #0072E5;
     }
   }
 
-  &.Mui-focusVisible {
+  &:focus-visible {
     outline: 4px solid rgba(0, 127, 255, 0.4);
   }
 
@@ -168,18 +157,6 @@ const StyledSwitchRoot = styled('span')(`
     }
   }
 `);
-
-const StyledSwitchInput = styled('input')`
-  cursor: inherit;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  z-index: 1;
-  margin: 0;
-`;
 
 const StyledSwitchThumb = styled('span')`
   display: block;
@@ -194,24 +171,23 @@ const StyledSwitchThumb = styled('span')`
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 
-  &.Mui-checked {
+  &[data-state='checked'] {
     left: 20px;
   }
 `;
 
 function SwitchFromHook(props: UseSwitchParameters) {
-  const { getInputProps, checked, disabled, focusVisible } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked } = useSwitch(props);
 
-  const stateClasses = {
-    'Mui-checked': checked,
-    'Mui-disabled': disabled,
-    'Mui-focusVisible': focusVisible,
+  const stateAttributes = {
+    'data-state': checked ? 'checked' : 'unchecked',
+    'data-disabled': props.disabled || undefined,
   };
 
   return (
-    <StyledSwitchRoot className={clsx(stateClasses)}>
-      <StyledSwitchThumb className={clsx(stateClasses)} />
-      <StyledSwitchInput {...getInputProps()} aria-label="Demo switch" />
+    <StyledSwitchRoot aria-label="Demo switch" {...getButtonProps()} {...stateAttributes}>
+      <StyledSwitchThumb {...stateAttributes} />
+      <input {...getInputProps()} />
     </StyledSwitchRoot>
   );
 }
@@ -256,7 +232,7 @@ export default function BaseUICustomization() {
               <Item
                 icon={<SvgTwinkle />}
                 title="Overriding subcomponent slots"
-                description="Default DOM structure doesn't suit your needs? Replace any node with the element you prefer using the `slots` prop."
+                description="Default DOM structure doesn't suit your needs? Replace any node with the element you prefer using the `render` prop."
               />
             </Highlighter>
             <Highlighter disableBorder {...getSelectedProps(2)} onClick={() => setIndex(2)}>
@@ -286,16 +262,12 @@ export default function BaseUICustomization() {
                 }),
               })}
             >
-              <SwitchUnstyled
-                slots={{
-                  root: StyledSwitchRoot,
-                  input: StyledSwitchInput,
-                  thumb: StyledSwitchThumb,
-                }}
-                slotProps={{
-                  input: { 'aria-label': 'Demo switch' },
-                }}
-              />
+              <BaseSwitch
+                aria-label="Demo switch"
+                render={(props) => <StyledSwitchRoot {...props} />}
+              >
+                <BaseSwitch render={(props) => <StyledSwitchThumb {...props} />} />
+              </BaseSwitch>
               <SwitchFromHook defaultChecked />
             </Frame.Demo>
             <Frame.Info

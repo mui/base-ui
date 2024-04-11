@@ -7,13 +7,13 @@ import {
   MuiRenderResult,
   RenderOptions,
 } from '@mui/internal-test-utils';
-import { Dropdown } from '@mui/base/Dropdown';
-import { DropdownContext } from '@mui/base/useDropdown';
-import { MenuButton } from '@mui/base/MenuButton';
-import { MenuItem } from '@mui/base/MenuItem';
-import { Menu } from '@mui/base/Menu';
-import { MenuProvider, useMenu } from '@mui/base/useMenu';
-import { Unstable_Popup as Popup } from '@mui/base/Unstable_Popup';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { DropdownContext } from '@base_ui/react/useDropdown';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { MenuItem } from '@base_ui/react/MenuItem';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
+import { Unstable_Popup as Popup } from '@base_ui/react/Unstable_Popup';
 
 describe('<Dropdown />', () => {
   const { render: internalRender } = createRenderer();

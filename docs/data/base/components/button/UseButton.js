@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled } from '@mui/system';
 import Stack from '@mui/material/Stack';
-import { useButton } from '@mui/base/useButton';
+import { useButton } from '@base_ui/react/useButton';
 
 const CustomButton = React.forwardRef(function CustomButton(props, ref) {
   const { children, disabled } = props;

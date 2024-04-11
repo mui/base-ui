@@ -6,11 +6,7 @@ import glob from 'fast-glob';
 import * as _ from 'lodash';
 import * as yargs from 'yargs';
 import * as ts from 'typescript';
-import {
-  fixBabelGeneratorIssues,
-  fixLineEndings,
-  getUnstyledFilename,
-} from '@mui-internal/docs-utils';
+import { fixBabelGeneratorIssues, fixLineEndings } from '@mui/internal-docs-utils';
 import {
   getPropTypesFromFile,
   injectPropTypesInFile,
@@ -22,114 +18,6 @@ import {
 } from '@mui-internal/api-docs-builder/utils/createTypeScriptProject';
 
 import CORE_TYPESCRIPT_PROJECTS from './coreTypeScriptProjects';
-
-const useExternalPropsFromInputBase = [
-  'autoComplete',
-  'autoFocus',
-  'color',
-  'defaultValue',
-  'disabled',
-  'endAdornment',
-  'error',
-  'id',
-  'inputProps',
-  'inputRef',
-  'margin',
-  'maxRows',
-  'minRows',
-  'name',
-  'onChange',
-  'placeholder',
-  'readOnly',
-  'required',
-  'rows',
-  'startAdornment',
-  'value',
-];
-
-/**
- * A map of components and their props that should be documented
- * but are not used directly in their implementation.
- *
- * TODO: In the future we want to remove them from the API docs in favor
- * of dynamically loading them. At that point this list should be removed.
- * TODO: typecheck values
- */
-const useExternalDocumentation: Record<string, '*' | readonly string[]> = {
-  Button: ['disableRipple'],
-  Box: ['component', 'sx'],
-  // `classes` is always external since it is applied from a HOC
-  // In DialogContentText we pass it through
-  // Therefore it's considered "unused" in the actual component but we still want to document it.
-  DialogContentText: ['classes'],
-  FilledInput: useExternalPropsFromInputBase,
-  IconButton: ['disableRipple'],
-  Input: useExternalPropsFromInputBase,
-  MenuItem: ['dense'],
-  OutlinedInput: useExternalPropsFromInputBase,
-  Radio: ['disableRipple', 'id', 'inputProps', 'inputRef', 'required'],
-  Checkbox: ['defaultChecked'],
-  Container: ['component'],
-  Stack: ['component'],
-  Switch: [
-    'checked',
-    'defaultChecked',
-    'disabled',
-    'disableRipple',
-    'edge',
-    'id',
-    'inputProps',
-    'inputRef',
-    'onChange',
-    'required',
-    'value',
-  ],
-  SwipeableDrawer: [
-    'anchor',
-    'hideBackdrop',
-    'ModalProps',
-    'PaperProps',
-    'transitionDuration',
-    'variant',
-  ],
-  Tab: ['disableRipple'],
-  TextField: ['margin'],
-  ToggleButton: ['disableRipple'],
-};
-const transitionCallbacks = [
-  'onEnter',
-  'onEntered',
-  'onEntering',
-  'onExit',
-  'onExiting',
-  'onExited',
-];
-/**
- * These are components that use props implemented by external components.
- * Those props have their own JSDoc which we don't want to emit in our docs
- * but do want them to have JSDoc in IntelliSense
- * TODO: In the future we want to ignore external docs on the initial load anyway
- * since they will be fetched dynamically.
- */
-const ignoreExternalDocumentation: Record<string, readonly string[]> = {
-  Button: ['focusVisibleClassName', 'type'],
-  Collapse: transitionCallbacks,
-  CardActionArea: ['focusVisibleClassName'],
-  AccordionSummary: ['onFocusVisible'],
-  Dialog: ['BackdropProps'],
-  Drawer: ['BackdropProps'],
-  Fab: ['focusVisibleClassName'],
-  Fade: transitionCallbacks,
-  Grow: transitionCallbacks,
-  ListItem: ['focusVisibleClassName'],
-  InputBase: ['aria-describedby'],
-  Menu: ['PaperProps'],
-  MenuItem: ['disabled'],
-  Slide: transitionCallbacks,
-  SwipeableDrawer: ['anchor', 'hideBackdrop', 'ModalProps', 'PaperProps', 'variant'],
-  TextField: ['hiddenLabel'],
-  Zoom: transitionCallbacks,
-};
 
 function sortBreakpointsLiteralByViewportAscending(a: ts.LiteralType, b: ts.LiteralType) {
   // default breakpoints ordered by their size ascending
@@ -162,25 +50,10 @@ const getSortLiteralUnions: InjectPropTypesInFileOptions['getSortLiteralUnions']
   return undefined;
 };
 
-async function generateProptypes(
-  project: TypeScriptProject,
-  sourceFile: string,
-  tsFile: string,
-): Promise<void> {
+async function generateProptypes(project: TypeScriptProject, sourceFile: string): Promise<void> {
   const components = getPropTypesFromFile({
-    filePath: tsFile,
+    filePath: sourceFile,
     project,
-    shouldResolveObject: ({ name }) => {
-      if (
-        name.toLowerCase().endsWith('classes') ||
-        name === 'theme' ||
-        name === 'ownerState' ||
-        (name.endsWith('Props') && name !== 'componentsProps' && name !== 'slotProps')
-      ) {
-        return false;
-      }
-      return undefined;
-    },
     checkDeclarations: true,
   });
 
@@ -188,26 +61,9 @@ async function generateProptypes(
     return;
   }
 
-  // exclude internal slot components, e.g. ButtonRoot
-  const cleanComponents = components.filter((component) => {
-    if (component.propsFilename?.endsWith('.tsx')) {
-      // only check for .tsx
-      const match = component.propsFilename.match(/.*\/([A-Z][a-zA-Z]+)\.tsx/);
-      if (match) {
-        return component.name === match[1];
-      }
-    }
-    return true;
-  });
-
-  cleanComponents.forEach((component) => {
+  components.forEach((component) => {
     component.types.forEach((prop) => {
-      if (
-        !prop.jsDoc ||
-        (project.name !== 'base' &&
-          ignoreExternalDocumentation[component.name] &&
-          ignoreExternalDocumentation[component.name].includes(prop.name))
-      ) {
+      if (!prop.jsDoc) {
         prop.jsDoc = '@ignore';
       }
     });
@@ -215,20 +71,13 @@ async function generateProptypes(
 
   const sourceContent = await fse.readFile(sourceFile, 'utf8');
   const isTsFile = /(\.(ts|tsx))/.test(sourceFile);
-  // If the component inherits the props from some unstyled components
-  // we don't want to add those propTypes again in the Material UI/Joy UI propTypes
-  const unstyledFile = getUnstyledFilename(tsFile, true);
-  const unstyledPropsFile = unstyledFile.replace('.d.ts', '.types.ts');
+  const propsFile = sourceFile.replace(/(\.d\.ts|\.tsx|\.ts)/g, '.types.ts');
 
-  // TODO remove, should only have .types.ts
-  const propsFile = tsFile.replace(/(\.d\.ts|\.tsx|\.ts)/g, 'Props.ts');
-  const propsFileAlternative = tsFile.replace(/(\.d\.ts|\.tsx|\.ts)/g, '.types.ts');
-  const generatedForTypeScriptFile = sourceFile === tsFile;
   const result = injectPropTypesInFile({
     components,
     target: sourceContent,
     options: {
-      disablePropTypesTypeChecking: generatedForTypeScriptFile,
+      disablePropTypesTypeChecking: true,
       babelOptions: {
         filename: sourceFile,
       },
@@ -267,31 +116,20 @@ async function generateProptypes(
 
         return generated;
       },
-      shouldInclude: ({ component, prop }) => {
+      shouldInclude: ({ prop }) => {
         if (prop.name === 'children') {
           return true;
         }
         let shouldDocument;
-        const { name: componentName } = component;
 
         prop.filenames.forEach((filename) => {
-          const isExternal = filename !== tsFile;
-          const implementedByUnstyledVariant =
-            filename === unstyledFile || filename === unstyledPropsFile;
-          const implementedBySelfPropsFile =
-            filename === propsFile || filename === propsFileAlternative;
-          if (!isExternal || implementedByUnstyledVariant || implementedBySelfPropsFile) {
+          const isExternal = filename !== sourceFile;
+
+          const implementedBySelfPropsFile = filename === propsFile;
+          if (!isExternal || implementedBySelfPropsFile) {
             shouldDocument = true;
           }
         });
-
-        if (
-          useExternalDocumentation[componentName] &&
-          (useExternalDocumentation[componentName] === '*' ||
-            useExternalDocumentation[componentName].includes(prop.name))
-        ) {
-          shouldDocument = true;
-        }
 
         return shouldDocument;
       },
@@ -329,14 +167,7 @@ async function run(argv: HandlerArgv) {
   // Matches files where the folder and file both start with uppercase letters
   // Example: AppBar/AppBar.d.ts
   const allFiles = await Promise.all(
-    [
-      path.resolve(__dirname, '../packages/mui-system/src'),
-      path.resolve(__dirname, '../packages/mui-base/src'),
-      path.resolve(__dirname, '../packages/mui-material/src'),
-      path.resolve(__dirname, '../packages/mui-lab/src'),
-      path.resolve(__dirname, '../packages/mui-material-next/src'),
-      path.resolve(__dirname, '../packages/mui-joy/src'),
-    ].map((folderPath) =>
+    [path.resolve(__dirname, '../packages/mui-base/src')].map((folderPath) =>
       glob('+([A-Z])*/+([A-Z])*.*@(d.ts|ts|tsx)', {
         absolute: true,
         cwd: folderPath,
@@ -346,31 +177,21 @@ async function run(argv: HandlerArgv) {
 
   const files = _.flatten(allFiles)
     .filter((filePath) => {
-      // Filter out files where the directory name and filename doesn't match
-      // Example: Modal/ModalManager.d.ts
-      let folderName = path.basename(path.dirname(filePath));
-      const fileName = path.basename(filePath).replace(/(\.d\.ts|\.tsx|\.ts)/g, '');
-
-      // An exception is if the folder name starts with Unstable_/unstable_
-      // Example: Unstable_Grid2/Grid2.tsx
-      if (/(u|U)nstable_/g.test(folderName)) {
-        folderName = folderName.slice(9);
-      }
-
-      return fileName === folderName;
+      return !(
+        filePath.includes('.test.') ||
+        filePath.includes('.spec.') ||
+        filePath.includes('.types.')
+      );
     })
     .filter((filePath) => filePattern.test(filePath));
 
-  const promises = files.map<Promise<void>>(async (tsFile) => {
-    const sourceFile = tsFile.includes('.d.ts') ? tsFile.replace('.d.ts', '.js') : tsFile;
+  const promises = files.map<Promise<void>>(async (sourceFile) => {
     try {
-      const projectName = tsFile.match(
-        /packages\/mui-([a-zA-Z-]+)\/src/,
-      )![1] as CoreTypeScriptProjects;
+      const projectName = sourceFile.match(/packages\/mui-([a-zA-Z-]+)\/src/)![1];
       const project = buildProject(projectName);
-      await generateProptypes(project, sourceFile, tsFile);
+      await generateProptypes(project, sourceFile);
     } catch (error: any) {
-      error.message = `${tsFile}: ${error.message}`;
+      error.message = `${sourceFile}: ${error.message}`;
       throw error;
     }
   });

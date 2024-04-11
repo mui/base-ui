@@ -6,7 +6,7 @@
 import { expect } from 'chai';
 import * as MaterialUI from './index';
 
-describe('@mui/base', () => {
+describe('@base_ui/react', () => {
   it('should have exports', () => {
     expect(typeof MaterialUI).to.equal('object');
   });

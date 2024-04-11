@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { DropdownContext, DropdownContextValue } from '@mui/base/useDropdown';
+import { DropdownContext, DropdownContextValue } from '@base_ui/react/useDropdown';
 import { useMenuButton } from './useMenuButton';
 
 const testContext: DropdownContextValue = {

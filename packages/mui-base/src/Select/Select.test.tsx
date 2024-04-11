@@ -12,10 +12,10 @@ import {
   flushMicrotasks,
 } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
-import { Select, SelectListboxSlotProps, selectClasses } from '@mui/base/Select';
-import { SelectOption } from '@mui/base/useOption';
-import { Option, OptionProps, OptionRootSlotProps, optionClasses } from '@mui/base/Option';
-import { OptionGroup } from '@mui/base/OptionGroup';
+import { Select, SelectListboxSlotProps, selectClasses } from '@base_ui/react/Select';
+import { SelectOption } from '@base_ui/react/useOption';
+import { Option, OptionProps, OptionRootSlotProps, optionClasses } from '@base_ui/react/Option';
+import { OptionGroup } from '@base_ui/react/OptionGroup';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 // TODO v6: initialize @testing-library/user-event using userEvent.setup() instead of directly calling methods e.g. userEvent.click() for all related tests in this file
@@ -1265,7 +1265,11 @@ describe('<Select />', () => {
     expect(selectButton).to.have.text('1, 2');
   });
 
-  it('perf: does not rerender options unnecessarily', async () => {
+  it('perf: does not rerender options unnecessarily', async function test() {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      this.skip();
+    }
+
     const renderOption1Spy = spy();
     const renderOption2Spy = spy();
     const renderOption3Spy = spy();

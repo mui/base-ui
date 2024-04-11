@@ -1,78 +1,279 @@
 import * as React from 'react';
-import { createMount, createRenderer } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Switch, SwitchOwnerState, switchClasses } from '@mui/base/Switch';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { spy } from 'sinon';
+import { createRenderer, act } from '@mui/internal-test-utils';
+import { Switch } from '@base_ui/react/Switch';
+import { describeConformance } from '../../test/describeConformance';
 
 describe('<Switch />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
 
-  describeConformanceUnstyled(<Switch />, () => ({
-    inheritComponent: 'span',
+  describeConformance(<Switch />, () => ({
+    inheritComponent: 'button',
+    refInstanceof: window.HTMLButtonElement,
     render,
-    mount,
-    refInstanceof: window.HTMLSpanElement,
-    testComponentPropWith: 'span',
-    slots: {
-      root: {
-        expectedClassName: switchClasses.root,
-      },
-      thumb: {
-        expectedClassName: switchClasses.thumb,
-      },
-      input: {
-        testWithElement: 'input',
-        expectedClassName: switchClasses.input,
-      },
-      track: {
-        expectedClassName: switchClasses.track,
-        isOptional: true,
-      },
-    },
-    skip: ['componentProp'],
   }));
 
-  describe('componentState', () => {
-    it('passes the ownerState prop to all the slots', () => {
-      interface CustomSlotProps {
-        ownerState: SwitchOwnerState;
-        children?: React.ReactNode;
+  describe('interaction', () => {
+    it('should change its state when clicked', () => {
+      const { getByRole } = render(<Switch />);
+      const switchElement = getByRole('switch');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      act(() => {
+        switchElement.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+
+    it('should update its state when changed from outside', () => {
+      function Test() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setChecked((c) => !c)}>Toggle</button>
+            <Switch checked={checked} />;
+          </div>
+        );
       }
 
-      const CustomSlot = React.forwardRef(
-        ({ ownerState: sp, children }: CustomSlotProps, ref: React.Ref<any>) => {
-          return (
-            <div
-              ref={ref}
-              data-checked={sp.checked}
-              data-disabled={sp.disabled}
-              data-readonly={sp.readOnly}
-              data-focusvisible={sp.focusVisible}
-              data-testid="custom"
-            >
-              {children}
-            </div>
-          );
-        },
+      const { getByRole, getByText } = render(<Test />);
+      const switchElement = getByRole('switch');
+      const button = getByText('Toggle');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      act(() => {
+        button.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+
+      act(() => {
+        button.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+    });
+
+    it('should update its state if the underlying input is toggled', () => {
+      const { getByRole, container } = render(<Switch />);
+      const switchElement = getByRole('switch');
+      const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
+
+      act(() => {
+        internalInput.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+  });
+
+  describe('extra props', () => {
+    it('should override the built-in attributes', () => {
+      const { container } = render(<Switch data-state="checked" role="checkbox" />);
+      expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'checkbox');
+      expect(container.firstElementChild as HTMLElement).to.have.attribute('data-state', 'checked');
+    });
+  });
+
+  describe('prop: onChange', () => {
+    it('should call onChange when clicked', () => {
+      const handleChange = spy();
+      const { getByRole, container } = render(<Switch onChange={handleChange} />);
+      const switchElement = getByRole('switch');
+      const internalInput = container.querySelector('input[type="checkbox"]')!;
+
+      act(() => {
+        switchElement.click();
+      });
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0].target).to.equal(internalInput);
+    });
+  });
+
+  describe('prop: onClick', () => {
+    it('should call onClick when clicked', () => {
+      const handleClick = spy();
+      const { getByRole } = render(<Switch onClick={handleClick} />);
+      const switchElement = getByRole('switch');
+
+      act(() => {
+        switchElement.click();
+      });
+
+      expect(handleClick.callCount).to.equal(1);
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('should have the `aria-disabled` attribute', () => {
+      const { getByRole } = render(<Switch disabled />);
+      expect(getByRole('switch')).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should not have the aria attribute when `disabled` is not set', () => {
+      const { getByRole } = render(<Switch />);
+      expect(getByRole('switch')).not.to.have.attribute('aria-disabled');
+    });
+
+    it('should not change its state when clicked', () => {
+      const { getByRole } = render(<Switch disabled />);
+      const switchElement = getByRole('switch');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      act(() => {
+        switchElement.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+    });
+  });
+
+  describe('prop: readOnly', () => {
+    it('should have the `aria-readonly` attribute', () => {
+      const { getByRole } = render(<Switch readOnly />);
+      expect(getByRole('switch')).to.have.attribute('aria-readonly', 'true');
+    });
+
+    it('should not have the aria attribute when `readOnly` is not set', () => {
+      const { getByRole } = render(<Switch />);
+      expect(getByRole('switch')).not.to.have.attribute('aria-readonly');
+    });
+
+    it('should not change its state when clicked', () => {
+      const { getByRole } = render(<Switch readOnly />);
+      const switchElement = getByRole('switch');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      act(() => {
+        switchElement.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+    });
+  });
+
+  describe('prop: inputRef', () => {
+    it('should be able to access the native input', () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const { container } = render(<Switch inputRef={inputRef} />);
+      const internalInput = container.querySelector('input[type="checkbox"]')!;
+
+      expect(inputRef.current).to.equal(internalInput);
+    });
+  });
+
+  describe('form handling', () => {
+    it('should toggle the switch when a parent label is clicked', () => {
+      const { getByTestId, getByRole } = render(
+        <label data-testid="label">
+          <Switch />
+          Toggle
+        </label>,
       );
 
-      const slots = {
-        root: CustomSlot,
-        input: CustomSlot,
-        thumb: CustomSlot,
-      };
+      const switchElement = getByRole('switch');
+      const label = getByTestId('label');
 
-      const { getAllByTestId } = render(<Switch defaultChecked disabled slots={slots} />);
-      const renderedComponents = getAllByTestId('custom');
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      expect(renderedComponents.length).to.equal(3);
-      for (let i = 0; i < renderedComponents.length; i += 1) {
-        expect(renderedComponents[i]).to.have.attribute('data-checked', 'true');
-        expect(renderedComponents[i]).to.have.attribute('data-disabled', 'true');
-        expect(renderedComponents[i]).to.have.attribute('data-readonly', 'false');
-        expect(renderedComponents[i]).to.have.attribute('data-focusvisible', 'false');
-      }
+      act(() => {
+        label.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
+
+    it('should toggle the switch when a linked label is clicked', () => {
+      const { getByTestId, getByRole } = render(
+        <div>
+          <label htmlFor="test-switch" data-testid="label">
+            Toggle
+          </label>
+          <Switch id="test-switch" />
+        </div>,
+      );
+
+      const switchElement = getByRole('switch');
+      const label = getByTestId('label');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      act(() => {
+        label.click();
+      });
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+
+    it('should include the switch value in the form submission', function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // FormData is not available in JSDOM
+        this.skip();
+      }
+
+      let stringifiedFormData = '';
+
+      const { getByRole } = render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            stringifiedFormData = new URLSearchParams(formData as any).toString();
+          }}
+        >
+          <Switch name="test-switch" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const switchElement = getByRole('switch');
+      const submitButton = getByRole('button')!;
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-switch=off');
+
+      act(() => {
+        switchElement.click();
+      });
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-switch=on');
+    });
+  });
+
+  it('should place the style hooks on the root and the thumb', () => {
+    const { getByRole } = render(
+      <Switch defaultChecked disabled readOnly required>
+        <Switch.Thumb />
+      </Switch>,
+    );
+
+    const switchElement = getByRole('switch');
+    const thumb = switchElement.querySelector('span');
+
+    expect(switchElement).to.have.attribute('data-state', 'checked');
+    expect(switchElement).to.have.attribute('data-disabled', 'true');
+    expect(switchElement).to.have.attribute('data-readonly', 'true');
+    expect(switchElement).to.have.attribute('data-required', 'true');
+
+    expect(thumb).to.have.attribute('data-state', 'checked');
+    expect(thumb).to.have.attribute('data-disabled', 'true');
+    expect(thumb).to.have.attribute('data-readonly', 'true');
+    expect(thumb).to.have.attribute('data-required', 'true');
+  });
+
+  it('should set the name attribute on the input', () => {
+    const { container } = render(<Switch name="switch-name" />);
+    const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
+
+    expect(internalInput).to.have.attribute('name', 'switch-name');
   });
 });

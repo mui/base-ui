@@ -27,7 +27,7 @@ This component can be useful in a variety of situations:
 ## Component
 
 ```jsx
-import { NoSsr } from '@mui/base/NoSsr';
+import { NoSsr } from '@base_ui/react/NoSsr';
 ```
 
 At its core, the No-SSR component's purpose is to defer rendering from the server to the client, as shown in the following demo:
@@ -38,7 +38,7 @@ At its core, the No-SSR component's purpose is to defer rendering from the serve
 
 ### Delay client-side rendering
 
-You can also use No-SSR to delay the rendering of specific components on the client side—for example, to let the rest of the application load before an especially complex or data-heavy component.
+You can also use No-SSR to delay the rendering of specific components on the client-side—for example, to let the rest of the application load before an especially complex or data-heavy component.
 
 The following demo shows how to use the `defer` prop to prioritize rendering the rest of the app outside of what is nested within No-SSR:
 

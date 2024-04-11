@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
-import { MenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { MenuProvider } from '@mui/base/useMenu';
+import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import { MenuProvider } from '@base_ui/react/useMenu';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 const dummyGetItemState = () => ({

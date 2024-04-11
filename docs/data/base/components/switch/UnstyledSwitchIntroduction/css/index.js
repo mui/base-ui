@@ -1,48 +1,38 @@
 import * as React from 'react';
-import { Switch, switchClasses } from '@mui/base/Switch';
+import { Switch } from '@base_ui/react/Switch';
 import { useTheme } from '@mui/system';
 
 export default function UnstyledSwitchIntroduction() {
-  const label = { 'aria-label': 'Demo switch' };
-
   return (
     <div>
       <Switch
-        slotProps={{
-          root: { className: 'CustomSwitchIntroduction' },
-          input: { ...label, className: 'CustomSwitchIntroduction-input' },
-          thumb: { className: 'CustomSwitchIntroduction-thumb' },
-          track: { className: 'CustomSwitchIntroduction-track' },
-        }}
+        className="CustomSwitchIntroduction"
+        aria-label="Basic switch, on by default"
         defaultChecked
-      />
+      >
+        <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
+      </Switch>
       <Switch
-        slotProps={{
-          root: { className: 'CustomSwitchIntroduction' },
-          input: { ...label, className: 'CustomSwitchIntroduction-input' },
-          thumb: { className: 'CustomSwitchIntroduction-thumb' },
-          track: { className: 'CustomSwitchIntroduction-track' },
-        }}
-      />
+        className="CustomSwitchIntroduction"
+        aria-label="Basic switch, off by default"
+      >
+        <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
+      </Switch>
       <Switch
-        slotProps={{
-          root: { className: 'CustomSwitchIntroduction' },
-          input: { ...label, className: 'CustomSwitchIntroduction-input' },
-          thumb: { className: 'CustomSwitchIntroduction-thumb' },
-          track: { className: 'CustomSwitchIntroduction-track' },
-        }}
+        className="CustomSwitchIntroduction"
+        aria-label="Disabled switch, on by default"
         defaultChecked
         disabled
-      />
+      >
+        <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
+      </Switch>
       <Switch
-        slotProps={{
-          root: { className: 'CustomSwitchIntroduction' },
-          input: { ...label, className: 'CustomSwitchIntroduction-input' },
-          thumb: { className: 'CustomSwitchIntroduction-thumb' },
-          track: { className: 'CustomSwitchIntroduction-track' },
-        }}
+        className="CustomSwitchIntroduction"
+        aria-label="Disabled switch, off by default"
         disabled
-      />
+      >
+        <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
+      </Switch>
       <Styles />
     </div>
   );
@@ -87,39 +77,46 @@ function Styles() {
     <style>
       {`
       .CustomSwitchIntroduction {
-        box-sizing: border-box;
-        font-size: 0;
-        position: relative;
-        display: inline-block;
         width: 38px;
         height: 24px;
         margin: 10px;
-        cursor: pointer;
-      }
-
-      .CustomSwitchIntroduction.${switchClasses.disabled} {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-
-      .CustomSwitchIntroduction-track {
+        padding: 0;
         box-sizing: border-box;
         background: ${isDarkMode ? grey[900] : grey[50]};
         border: 1px solid ${isDarkMode ? grey[800] : grey[200]};
         border-radius: 24px;
-        display: block;
-        height: 100%;
-        width: 100%;
-        position: absolute;
+        display: inline-block;
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 120ms;
         box-shadow: inset 0px 1px 1px ${
           isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.05)'
         };
       }
 
-      .CustomSwitchIntroduction:hover .CustomSwitchIntroduction-track {
+      .CustomSwitchIntroduction[data-disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .CustomSwitchIntroduction:hover:not([data-disabled]) {
         background: ${isDarkMode ? grey[800] : grey[100]};
         border-color: ${isDarkMode ? grey[600] : grey[300]};
       }
+    
+      .CustomSwitchIntroduction:focus-visible {
+        box-shadow: 0 0 0 3px ${isDarkMode ? cyan[700] : cyan[200]};
+      }
+    
+      .CustomSwitchIntroduction[data-state="checked"] {
+        border: none;
+        background: ${cyan[500]};
+      }
+    
+      .CustomSwitchIntroduction[data-state="checked"]:not([data-disabled]):hover {
+        background: ${cyan[700]};
+      }
+
 
       .CustomSwitchIntroduction-thumb {
         box-sizing: border-box;
@@ -127,7 +124,6 @@ function Styles() {
         display: block;
         width: 16px;
         height: 16px;
-        top: 4px;
         left: 4px;
         border-radius: 16px;
         background-color: #FFF;
@@ -135,41 +131,16 @@ function Styles() {
         transition-property: all;
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         transition-duration: 120ms;
+        box-shadow: 0px 1px 2px ${
+          isDarkMode ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.1)'
+        };
       }
 
-      .CustomSwitchIntroduction.${
-        switchClasses.focusVisible
-      } .CustomSwitchIntroduction-track {
-        box-shadow: 0 0 0 3px ${isDarkMode ? cyan[400] : cyan[200]};
-      }
-
-      .CustomSwitchIntroduction.${
-        switchClasses.checked
-      } .CustomSwitchIntroduction-thumb {
+      .CustomSwitchIntroduction-thumb[data-state="checked"] {
         left: 18px;
         background-color: #fff;
         box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
       }
-
-      .CustomSwitchIntroduction.${
-        switchClasses.checked
-      } .CustomSwitchIntroduction-track {
-        border: none;
-        background: ${cyan[500]};
-      }
-
-      .CustomSwitchIntroduction-input {
-        cursor: inherit;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        z-index: 1;
-        margin: 0;
-      }
-
     `}
     </style>
   );

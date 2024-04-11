@@ -2,22 +2,21 @@ import * as React from 'react';
 import clsx from 'clsx';
 
 // Base UI imports
-import { Badge, badgeClasses } from '@mui/base/Badge';
-import { Input, InputProps } from '@mui/base/Input';
-import { Dropdown } from '@mui/base/Dropdown';
-import { Menu } from '@mui/base/Menu';
-import { MenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { MenuButton } from '@mui/base/MenuButton';
-import { Modal, modalClasses } from '@mui/base/Modal';
-import { Option } from '@mui/base/Option';
-import { Select } from '@mui/base/Select';
-import { Slider, sliderClasses } from '@mui/base/Slider';
-import { Snackbar } from '@mui/base/Snackbar';
-import { SnackbarCloseReason } from '@mui/base/useSnackbar';
-import { Switch, switchClasses } from '@mui/base/Switch';
-import { Tab } from '@mui/base/Tab';
-import { Tabs } from '@mui/base/Tabs';
-import { TabsList } from '@mui/base/TabsList';
+import { Badge, badgeClasses } from '@base_ui/react/Badge';
+import { Input, InputProps } from '@base_ui/react/Input';
+import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/Menu';
+import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import { MenuButton } from '@base_ui/react/MenuButton';
+import { Modal, modalClasses } from '@base_ui/react/Modal';
+import { Option } from '@base_ui/react/Option';
+import { Select } from '@base_ui/react/Select';
+import { Slider, sliderClasses } from '@base_ui/react/Slider';
+import { Snackbar } from '@base_ui/react/Snackbar';
+import { SnackbarCloseReason } from '@base_ui/react/useSnackbar';
+import { Tab } from '@base_ui/react/Tab';
+import { Tabs } from '@base_ui/react/Tabs';
+import { TabsList } from '@base_ui/react/TabsList';
 
 // Other packages
 import { css, styled, keyframes } from '@mui/system';
@@ -44,6 +43,9 @@ import RadioRoundedIcon from '@mui/icons-material/RadioRounded';
 import ROUTES from 'docs/src/route';
 import { Link } from '@mui/docs/Link';
 import heroVariables from 'docs/src/components/productBaseUI/heroVariables';
+
+// DS imports
+import Switch from './themed-controls/Switch';
 
 const Panel = styled('div')({
   width: 340,
@@ -428,87 +430,6 @@ const StyledSlider = styled(Slider)(`
     }
   }
 `);
-
-const StyledSwitch = styled('span')(`
-  font-size: 0;
-  position: relative;
-  display: inline-block;
-  width: 34px;
-  height: 20px;
-  cursor: pointer;
-
-
-  &.${switchClasses.disabled} {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  & .${switchClasses.track} {
-    background: var(--Switch-background, var(--muidocs-palette-grey-300));
-    border-radius: max(2px, var(--border-radius) * 4);
-    display: block;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    transition: background-color ease 100ms;
-
-  }
-  
-  :hover {
-    .${switchClasses.track} {
-      background: var(--Switch-hoverBackground, var(--muidocs-palette-grey-400));
-    }
-  }
-
-  & .${switchClasses.thumb} {
-    display: block;
-    width: 14px;
-    height: 14px;
-    top: 3px;
-    left: 3px;
-    border-radius: max(2px, var(--border-radius));
-    background-color: #fff;
-    position: relative;
-    transition-property: left;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 120ms;
-  }
-
-  &.${switchClasses.focusVisible} {
-    border-radius: max(2px, var(--border-radius) * 4);
-    outline: 3px solid var(--muidocs-palette-primary-300);
-  }
-
-  &.${switchClasses.checked} {
-    .${switchClasses.thumb} {
-      left: 17px;
-      top: 3px;
-      background-color: #fff;
-    }
-
-    .${switchClasses.track} {
-      background: var(--muidocs-palette-primary-500);
-    }
-
-    :hover {
-      .${switchClasses.track} {
-        background: var(--muidocs-palette-primary-700);
-      } 
-    }
-  }
-
-  & .${switchClasses.input} {
-    cursor: inherit;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    z-index: 1;
-    margin: 0;
-  }
-  `);
 
 const Backdrop = React.forwardRef<HTMLDivElement, { open?: boolean; className: string }>(
   (props, ref) => {
@@ -972,26 +893,11 @@ export default function BaseUIThemesDemo() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <StyledSwitchLabel id="make-it-your-own">Make it your own</StyledSwitchLabel>
-            <Switch
-              slots={{
-                root: StyledSwitch,
-              }}
-              slotProps={{
-                input: { 'aria-labelledby': 'make-it-your-own' },
-              }}
-              defaultChecked
-            />
+            <Switch aria-labelledby="make-it-your-own" defaultChecked />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <StyledSwitchLabel id="use-every-component">Use every component</StyledSwitchLabel>
-            <Switch
-              slots={{
-                root: StyledSwitch,
-              }}
-              slotProps={{
-                input: { 'aria-labelledby': 'use-every-component' },
-              }}
-            />
+            <Switch aria-labelledby="use-every-component" />
           </Box>
         </Box>
         {/* Modal and Snackbar component */}
