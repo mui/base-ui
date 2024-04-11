@@ -2,7 +2,7 @@
 productId: base-ui
 title: React NumberField component and hook
 githubLabel: 'component: number-field'
-components: NumberField, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement, NumberFieldScrubArea, NumberFieldScrubAreaCursor
+components: NumberFieldRoot, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement, NumberFieldScrubArea, NumberFieldScrubAreaCursor
 hooks: useNumberField
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
 ---
@@ -24,7 +24,7 @@ A number field is a UI element that accepts numeric values from the user. `Numbe
 ## Component
 
 ```jsx
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 ```
 
 ### Anatomy
@@ -32,7 +32,7 @@ import { NumberField } from '@base_ui/react/NumberField';
 The `NumberField` component is composed of a root component and a group component which contains an input, and optionally, an increment button, decrement button, and a scrub area with a virtual cursor:
 
 ```tsx
-<NumberField>
+<NumberField.Root>
   <NumberField.Group>
     <NumberField.Decrement />
     <NumberField.Input />
@@ -41,7 +41,7 @@ The `NumberField` component is composed of a root component and a group componen
       <NumberField.ScrubAreaCursor />
     </NumberField.ScrubArea>
   </NumberField.Group>
-</NumberField>
+</NumberField.Root>
 ```
 
 ### Custom structure
@@ -49,9 +49,9 @@ The `NumberField` component is composed of a root component and a group componen
 Use the `render` prop to override the rendered elements with your own components:
 
 ```jsx
-<NumberField render={(props) => <MyNumberField {...props} />}>
+<NumberField.Root render={(props) => <MyNumberField {...props} />}>
   {/* Subcomponents */}
-</NumberField>
+</NumberField.Root>
 ```
 
 All subcomponents accept the `render` prop.
@@ -77,13 +77,13 @@ The `value` prop holds the number value, and `onChange` is called when it update
 function App() {
   const [value, setValue] = useState(0);
   return (
-    <NumberField value={value} onChange={setValue}>
+    <NumberField.Root value={value} onChange={setValue}>
       <NumberField.Group>
         <NumberField.Decrement>&minus;</NumberField.Decrement>
         <NumberField.Input />
         <NumberField.Increment>+</NumberField.Increment>
       </NumberField.Group>
-    </NumberField>
+    </NumberField.Root>
   );
 }
 ```
@@ -95,13 +95,13 @@ This is the controlled way of handling the number field.
 When the number field is uncontrolled, the `defaultValue` prop sets the initial value of the input:
 
 ```jsx
-<NumberField defaultValue={10}>
+<NumberField.Root defaultValue={10}>
   <NumberField.Group>
     <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
-</NumberField>
+</NumberField.Root>
 ```
 
 ### Min and max values
@@ -109,13 +109,13 @@ When the number field is uncontrolled, the `defaultValue` prop sets the initial 
 To prevent the value from going below or above a certain amount, the `min` and `max` props can be used:
 
 ```jsx
-<NumberField min={0} max={100}>
+<NumberField.Root min={0} max={100}>
   <NumberField.Group>
     <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
-</NumberField>
+</NumberField.Root>
 ```
 
 ### Step
@@ -123,13 +123,13 @@ To prevent the value from going below or above a certain amount, the `min` and `
 The `step` prop snaps values of the input to ones that are multiples of the given number, affecting how the stepper buttons change the value:
 
 ```jsx
-<NumberField step={5} min={2}>
+<NumberField.Root step={5} min={2}>
   <NumberField.Group>
     <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
-</NumberField>
+</NumberField.Root>
 ```
 
 In the above example, the numbers are snapped to multiples of `step` starting from the `min` value: `2`, `7`, `12`, `17` and so on.
@@ -140,13 +140,13 @@ The `largeStep` and `smallStep` props can be specified to change the step when a
 - `smallStep` is used when <kbd>alt</kbd> is held, incrementing and snapping to multiples of `0.1`.
 
 ```jsx
-<NumberField step={5} largeStep={50} smallStep={0.5}>
+<NumberField.Root step={5} largeStep={50} smallStep={0.5}>
   <NumberField.Group>
     <NumberField.Decrement>&minus;</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Group>
-</NumberField>
+</NumberField.Root>
 ```
 
 ### Format

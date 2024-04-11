@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
+import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import HorizontalRule from '@mui/icons-material/HorizontalRule';
 
 export default function UnstyledCheckboxIndeterminate() {
@@ -30,7 +30,7 @@ const grey = {
   100: '#E5EAF2',
 };
 
-const Checkbox = styled(BaseCheckbox)(
+const Checkbox = styled(BaseCheckbox.Root)(
   ({ theme }) => `
     width: 24px;
     height: 24px;

@@ -2,15 +2,15 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act } from '@mui/internal-test-utils';
-import { Checkbox } from '.';
+import * as Checkbox from '@base_ui/react/Checkbox';
 import { describeConformance } from '../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
-describe('<Checkbox />', () => {
+describe('<Checkbox.Root />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Checkbox />, () => ({
+  describeConformance(<Checkbox.Root />, () => ({
     inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render,
@@ -18,13 +18,13 @@ describe('<Checkbox />', () => {
 
   describe('extra props', () => {
     it('can override the built-in attributes', () => {
-      const { container } = render(<Checkbox data-state="checked" role="switch" />);
+      const { container } = render(<Checkbox.Root data-state="checked" role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
 
   it('should change its state when clicked', () => {
-    const { getAllByRole, container } = render(<Checkbox />);
+    const { getAllByRole, container } = render(<Checkbox.Root />);
     const [checkbox] = getAllByRole('checkbox');
     const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
@@ -52,7 +52,7 @@ describe('<Checkbox />', () => {
       return (
         <div>
           <button onClick={() => setChecked((c) => !c)}>Toggle</button>
-          <Checkbox checked={checked} />;
+          <Checkbox.Root checked={checked} />;
         </div>
       );
     }
@@ -77,7 +77,7 @@ describe('<Checkbox />', () => {
 
   it('should call onChange when clicked', () => {
     const handleChange = spy();
-    const { getAllByRole, container } = render(<Checkbox onChange={handleChange} />);
+    const { getAllByRole, container } = render(<Checkbox.Root onChange={handleChange} />);
     const [checkbox] = getAllByRole('checkbox');
     const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
@@ -91,17 +91,17 @@ describe('<Checkbox />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', () => {
-      const { getAllByRole } = render(<Checkbox disabled />);
+      const { getAllByRole } = render(<Checkbox.Root disabled />);
       expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not have the aria attribute when `disabled` is not set', () => {
-      const { getAllByRole } = render(<Checkbox />);
+      const { getAllByRole } = render(<Checkbox.Root />);
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-disabled');
     });
 
     it('should not change its state when clicked', () => {
-      const { getAllByRole } = render(<Checkbox disabled />);
+      const { getAllByRole } = render(<Checkbox.Root disabled />);
       const [checkbox] = getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
@@ -116,17 +116,17 @@ describe('<Checkbox />', () => {
 
   describe('prop: readOnly', () => {
     it('should have the `aria-readonly` attribute', () => {
-      const { getAllByRole } = render(<Checkbox readOnly />);
+      const { getAllByRole } = render(<Checkbox.Root readOnly />);
       expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-readonly', 'true');
     });
 
     it('should not have the aria attribute when `readOnly` is not set', () => {
-      const { getAllByRole } = render(<Checkbox />);
+      const { getAllByRole } = render(<Checkbox.Root />);
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-readonly');
     });
 
     it('should not change its state when clicked', () => {
-      const { getAllByRole } = render(<Checkbox readOnly />);
+      const { getAllByRole } = render(<Checkbox.Root readOnly />);
       const [checkbox] = getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
@@ -141,12 +141,12 @@ describe('<Checkbox />', () => {
 
   describe('prop: indeterminate', () => {
     it('should set the `aria-checked` attribute as "mixed"', () => {
-      const { getAllByRole } = render(<Checkbox indeterminate />);
+      const { getAllByRole } = render(<Checkbox.Root indeterminate />);
       expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
     });
 
     it('should not change its state when clicked', () => {
-      const { getAllByRole } = render(<Checkbox indeterminate />);
+      const { getAllByRole } = render(<Checkbox.Root indeterminate />);
       const [checkbox] = getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'mixed');
@@ -159,23 +159,23 @@ describe('<Checkbox />', () => {
     });
 
     it('should not set the `data-indeterminate` attribute', () => {
-      const { getAllByRole } = render(<Checkbox indeterminate />);
+      const { getAllByRole } = render(<Checkbox.Root indeterminate />);
       expect(getAllByRole('checkbox')[0]).to.not.have.attribute('data-indeterminate', 'true');
     });
 
     it('should not have the aria attribute when `indeterminate` is not set', () => {
-      const { getAllByRole } = render(<Checkbox />);
+      const { getAllByRole } = render(<Checkbox.Root />);
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-checked', 'mixed');
     });
 
     it('should not be overridden by `checked` prop', () => {
-      const { getAllByRole } = render(<Checkbox indeterminate checked />);
+      const { getAllByRole } = render(<Checkbox.Root indeterminate checked />);
       expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
     });
   });
 
   it('should update its state if the underlying input is toggled', () => {
-    const { getAllByRole, container } = render(<Checkbox />);
+    const { getAllByRole, container } = render(<Checkbox.Root />);
     const [checkbox] = getAllByRole('checkbox');
     const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
@@ -188,9 +188,9 @@ describe('<Checkbox />', () => {
 
   it('should place the style hooks on the root and the indicator', () => {
     const { getAllByRole } = render(
-      <Checkbox defaultChecked disabled readOnly required>
+      <Checkbox.Root defaultChecked disabled readOnly required>
         <Checkbox.Indicator />
-      </Checkbox>,
+      </Checkbox.Root>,
     );
 
     const [checkbox] = getAllByRole('checkbox');
@@ -208,7 +208,7 @@ describe('<Checkbox />', () => {
   });
 
   it('should set the name attribute on the input', () => {
-    const { container } = render(<Checkbox name="checkbox-name" />);
+    const { container } = render(<Checkbox.Root name="checkbox-name" />);
     const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
     expect(input).to.have.attribute('name', 'checkbox-name');
@@ -223,7 +223,7 @@ describe('<Checkbox />', () => {
 
       const { getByTestId, getAllByRole } = render(
         <label data-testid="label">
-          <Checkbox />
+          <Checkbox.Root />
           Toggle
         </label>,
       );
@@ -251,7 +251,7 @@ describe('<Checkbox />', () => {
           <label htmlFor="test-checkbox" data-testid="label">
             Toggle
           </label>
-          <Checkbox id="test-checkbox" />
+          <Checkbox.Root id="test-checkbox" />
         </div>,
       );
 
@@ -284,7 +284,7 @@ describe('<Checkbox />', () => {
           stringifiedFormData = new URLSearchParams(formData as any).toString();
         }}
       >
-        <Checkbox name="test-checkbox" />
+        <Checkbox.Root name="test-checkbox" />
         <button type="submit">Submit</button>
       </form>,
     );

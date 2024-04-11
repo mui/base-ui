@@ -1,9 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useForkRef } from '../utils/useForkRef';
 import { useNumberFieldContext } from './NumberFieldContext';
-import type { NumberFieldInputProps } from './NumberField.types';
+import type { InputProps } from './NumberField.types';
 import { resolveClassName } from '../utils/resolveClassName';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'input'>) {
   return <input {...props} />;
@@ -21,7 +22,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'input'>) {
  * - [NumberFieldInput API](https://mui.com/base-ui/react-number-field/components-api/#number-field-input)
  */
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
-  props: NumberFieldInputProps,
+  props: InputProps,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
@@ -29,7 +30,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const { getInputProps, inputRef, inputValue, ownerState } = useNumberFieldContext('Input');
 
-  const mergedInputRef = useForkRef(forwardedRef, inputRef);
+  const mergedInputRef = useRenderPropForkRef(render, forwardedRef, inputRef);
 
   const inputProps = getInputProps({
     ref: mergedInputRef,
@@ -41,7 +42,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ...otherProps,
   });
 
-  return render(inputProps, ownerState);
+  return evaluateRenderProp(render, inputProps, ownerState);
 });
 
 NumberFieldInput.propTypes /* remove-proptypes */ = {
@@ -60,7 +61,7 @@ NumberFieldInput.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { NumberFieldInput };

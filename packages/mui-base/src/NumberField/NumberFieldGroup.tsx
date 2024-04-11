@@ -1,8 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useNumberFieldContext } from './NumberFieldContext';
-import type { NumberFieldGroupProps } from './NumberField.types';
+import type { GroupProps } from './NumberField.types';
 import { resolveClassName } from '../utils/resolveClassName';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -20,7 +22,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  * - [NumberFieldGroup API](https://mui.com/base-ui/react-number-field/components-api/#number-field-group)
  */
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
-  props: NumberFieldGroupProps,
+  props: GroupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
@@ -28,13 +30,15 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 
   const { getGroupProps, ownerState } = useNumberFieldContext('Group');
 
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+
   const groupProps = getGroupProps({
-    ref: forwardedRef,
+    ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
   });
 
-  return render(groupProps, ownerState);
+  return evaluateRenderProp(render, groupProps, ownerState);
 });
 
 NumberFieldGroup.propTypes /* remove-proptypes */ = {
@@ -53,7 +57,7 @@ NumberFieldGroup.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { NumberFieldGroup };

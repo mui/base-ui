@@ -1,11 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { useForkRef } from '../utils/useForkRef';
-import type { NumberFieldScrubAreaCursorProps } from './NumberField.types';
+import type { ScrubAreaCursorProps } from './NumberField.types';
 import { isWebKit } from '../utils/detectBrowser';
 import { resolveClassName } from '../utils/resolveClassName';
 import { useNumberFieldContext } from './NumberFieldContext';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -24,7 +25,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [NumberFieldScrubAreaCursor API](https://mui.com/base-ui/react-number-field/components-api/#number-field-scrub-area-cursor)
  */
 const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
-  props: NumberFieldScrubAreaCursorProps,
+  props: ScrubAreaCursorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
@@ -33,7 +34,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   const { isScrubbing, scrubAreaCursorRef, ownerState, getScrubAreaCursorProps } =
     useNumberFieldContext('ScrubAreaCursor');
 
-  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef);
+  const mergedRef = useRenderPropForkRef(render, forwardedRef, scrubAreaCursorRef);
 
   if (!isScrubbing || isWebKit()) {
     return null;
@@ -45,7 +46,10 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
     className: resolveClassName(className, ownerState),
   });
 
-  return ReactDOM.createPortal(render(virtualCursorProps, ownerState), document.body);
+  return ReactDOM.createPortal(
+    evaluateRenderProp(render, virtualCursorProps, ownerState),
+    document.body,
+  );
 });
 
 NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
@@ -64,7 +68,7 @@ NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { NumberFieldScrubAreaCursor };

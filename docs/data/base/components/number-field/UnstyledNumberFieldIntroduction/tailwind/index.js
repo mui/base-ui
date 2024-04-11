@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
+import * as BaseNumberField from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes) {
@@ -58,7 +58,7 @@ export default function NumberFieldIntroduction() {
 }
 
 const NumberField = React.forwardRef(function NumberField(props, ref) {
-  return <BaseNumberField {...props} ref={ref} />;
+  return <BaseNumberField.Root {...props} ref={ref} />;
 });
 
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(props, ref) {

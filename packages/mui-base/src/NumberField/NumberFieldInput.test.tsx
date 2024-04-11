@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { fireEvent } from '@testing-library/react';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
@@ -33,18 +33,18 @@ describe('<NumberField.Input />', () => {
 
   it('has textbox role', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByRole('textbox')).not.to.equal(null);
   });
 
   it('should not allow non-numeric characters on change', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -54,9 +54,9 @@ describe('<NumberField.Input />', () => {
 
   it('should not allow non-numeric characters on keydown', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -66,9 +66,9 @@ describe('<NumberField.Input />', () => {
 
   it('should allow numeric characters on change', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -78,9 +78,9 @@ describe('<NumberField.Input />', () => {
 
   it('should increment on keydown ArrowUp', () => {
     render(
-      <NumberField defaultValue={0}>
+      <NumberField.Root defaultValue={0}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -90,9 +90,9 @@ describe('<NumberField.Input />', () => {
 
   it('should decrement on keydown ArrowDown', () => {
     render(
-      <NumberField defaultValue={0}>
+      <NumberField.Root defaultValue={0}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -102,9 +102,9 @@ describe('<NumberField.Input />', () => {
 
   it('should increment to min on keydown Home', () => {
     render(
-      <NumberField min={-10} max={10}>
+      <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -114,9 +114,9 @@ describe('<NumberField.Input />', () => {
 
   it('should decrement to max on keydown End', () => {
     render(
-      <NumberField min={-10} max={10}>
+      <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -126,9 +126,9 @@ describe('<NumberField.Input />', () => {
 
   it('commits formatted value only on blur', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -140,9 +140,9 @@ describe('<NumberField.Input />', () => {
 
   it('should commit validated number on blur (min)', () => {
     render(
-      <NumberField min={0}>
+      <NumberField.Root min={0}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -154,9 +154,9 @@ describe('<NumberField.Input />', () => {
 
   it('should commit validated number on blur (max)', () => {
     render(
-      <NumberField max={0}>
+      <NumberField.Root max={0}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -168,9 +168,9 @@ describe('<NumberField.Input />', () => {
 
   it('should commit validated number on blur (step)', () => {
     render(
-      <NumberField step={0.5}>
+      <NumberField.Root step={0.5}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());
@@ -182,9 +182,9 @@ describe('<NumberField.Input />', () => {
 
   it('should commit validated number on blur (step and min)', () => {
     render(
-      <NumberField min={2} step={2}>
+      <NumberField.Root min={2} step={2}>
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     act(() => input.focus());

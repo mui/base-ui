@@ -1,9 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldContext } from './NumberFieldContext';
-import type { NumberFieldOwnerState, NumberFieldProps } from './NumberField.types';
+import type { OwnerState, RootProps } from './NumberField.types';
 import { resolveClassName } from '../utils/resolveClassName';
 import { useNumberField } from '../useNumberField/useNumberField';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -20,8 +22,8 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  *
  * - [NumberField API](https://mui.com/base-ui/react-number-field/components-api/#number-field)
  */
-const NumberField = React.forwardRef(function NumberField(
-  props: NumberFieldProps,
+const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
+  props: RootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -31,14 +33,17 @@ const NumberField = React.forwardRef(function NumberField(
     smallStep,
     step,
     largeStep,
+    autoFocus,
     required = false,
     disabled = false,
     invalid = false,
     readOnly = false,
     name,
+    defaultValue,
     value,
     onChange,
     allowWheelScrub,
+    format,
     render: renderProp,
     className,
     ...otherProps
@@ -47,7 +52,7 @@ const NumberField = React.forwardRef(function NumberField(
 
   const numberField = useNumberField(props);
 
-  const ownerState: NumberFieldOwnerState = React.useMemo(
+  const ownerState: OwnerState = React.useMemo(
     () => ({
       disabled,
       invalid,
@@ -76,20 +81,22 @@ const NumberField = React.forwardRef(function NumberField(
     [numberField, ownerState],
   );
 
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+
   const rootProps = {
-    ref: forwardedRef,
+    ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
   };
 
   return (
     <NumberFieldContext.Provider value={contextValue}>
-      {render(rootProps, ownerState)}
+      {evaluateRenderProp(render, rootProps, ownerState)}
     </NumberFieldContext.Provider>
   );
 });
 
-NumberField.propTypes /* remove-proptypes */ = {
+NumberFieldRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -153,7 +160,7 @@ NumberField.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * If `true`, the input element is required.
    * @default false
@@ -177,4 +184,4 @@ NumberField.propTypes /* remove-proptypes */ = {
   value: PropTypes.number,
 } as any;
 
-export { NumberField };
+export { NumberFieldRoot };

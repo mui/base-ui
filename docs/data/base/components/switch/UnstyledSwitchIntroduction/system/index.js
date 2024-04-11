@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import * as BaseSwitch from '@base_ui/react/Switch';
 
 export default function UnstyledSwitchIntroduction() {
   return (
@@ -39,7 +39,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Switch = styled(BaseSwitch)(
+const Switch = styled(BaseSwitch.Root)(
   ({ theme }) => `
   width: 38px;
   height: 24px;

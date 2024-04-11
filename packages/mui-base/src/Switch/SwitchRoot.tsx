@@ -1,85 +1,87 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { CheckboxOwnerState, CheckboxProps } from './Checkbox.types';
+import refType from '@mui/utils/refType';
+import { useSwitch } from '../useSwitch';
+import type { RootProps, OwnerState } from './Switch.types';
 import { resolveClassName } from '../utils/resolveClassName';
-import { CheckboxContext } from './CheckboxContext';
-import { useCheckbox } from '../useCheckbox';
-import { useCheckboxStyleHooks } from './utils';
+import { SwitchContext } from './SwitchContext';
+import { useSwitchStyleHooks } from './useSwitchStyleHooks';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
 }
 
 /**
- * The foundation for building custom-styled checkboxes.
+ * The foundation for building custom-styled switches.
  *
  * Demos:
  *
- * - [Checkbox](https://mui.com/base-ui/react-checkbox/)
+ * - [Switch](https://mui.com/base-ui/react-switch/)
  *
  * API:
  *
- * - [Checkbox API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox)
+ * - [Switch API](https://mui.com/base-ui/react-switch/components-api/#switch)
  */
-const Checkbox = React.forwardRef(function Checkbox(
-  props: CheckboxProps,
+const SwitchRoot = React.forwardRef(function SwitchRoot(
+  props: RootProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
-    name,
-    onChange,
+    checked: checkedProp,
+    className: classNameProp,
     defaultChecked,
     disabled = false,
+    inputRef,
+    onChange,
     readOnly = false,
-    indeterminate = false,
     required = false,
-    checked: checkedProp,
     render: renderProp,
-    className,
-    ...otherProps
+    ...other
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { checked, getInputProps, getButtonProps } = useCheckbox(props);
+  const { getInputProps, getButtonProps, checked } = useSwitch(props);
 
-  const ownerState: CheckboxOwnerState = React.useMemo(
+  const ownerState: OwnerState = React.useMemo(
     () => ({
       checked,
       disabled,
       readOnly,
       required,
-      indeterminate,
     }),
-    [checked, disabled, readOnly, required, indeterminate],
+    [checked, disabled, readOnly, required],
   );
 
-  const styleHooks = useCheckboxStyleHooks(ownerState);
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useSwitchStyleHooks(ownerState);
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const buttonProps = {
-    className: resolveClassName(className, ownerState),
-    ref: forwardedRef,
+    className,
+    ref: mergedRef,
     ...styleHooks,
-    ...otherProps,
+    ...other,
   };
 
   return (
-    <CheckboxContext.Provider value={ownerState}>
-      {render(getButtonProps(buttonProps), ownerState)}
+    <SwitchContext.Provider value={ownerState}>
+      {evaluateRenderProp(render, getButtonProps(buttonProps), ownerState)}
       {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
-    </CheckboxContext.Provider>
+    </SwitchContext.Provider>
   );
 });
 
-Checkbox.propTypes /* remove-proptypes */ = {
+SwitchRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the component is checked.
-   *
-   * @default undefined
+   * If `true`, the switch is checked.
    */
   checked: PropTypes.bool,
   /**
@@ -92,26 +94,20 @@ Checkbox.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The default checked state. Use when the component is not controlled.
-   *
-   * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the component is disabled.
+   * If `true`, the component is disabled and can't be interacted with.
    *
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, the checkbox will be indeterminate.
-   *
-   * @default false
+   * Ref to the underlying input element.
    */
-  indeterminate: PropTypes.bool,
+  inputRef: refType,
   /**
    * Name of the underlying input element.
-   *
-   * @default undefined
    */
   name: PropTypes.string,
   /**
@@ -123,7 +119,8 @@ Checkbox.propTypes /* remove-proptypes */ = {
    */
   onChange: PropTypes.func,
   /**
-   * If `true`, the component is read only.
+   * If `true`, the component is read-only.
+   * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
    *
    * @default false
    */
@@ -131,13 +128,13 @@ Checkbox.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the `input` element is required.
+   * If `true`, the switch must be checked for the browser validation to pass.
    *
    * @default false
    */
   required: PropTypes.bool,
 } as any;
 
-export { Checkbox };
+export { SwitchRoot };

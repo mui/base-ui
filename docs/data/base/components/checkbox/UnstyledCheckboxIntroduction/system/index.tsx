@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
+import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import Check from '@mui/icons-material/Check';
 
 export default function UnstyledSwitchIntroduction() {
@@ -44,7 +44,7 @@ const blue = {
   800: '#004C99',
 };
 
-const Checkbox = styled(BaseCheckbox)(
+const Checkbox = styled(BaseCheckbox.Root)(
   ({ theme }) => `
     width: 24px;
     height: 24px;

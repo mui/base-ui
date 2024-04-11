@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { expect } from 'chai';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
@@ -33,9 +33,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
 
   it('has presentation role', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.ScrubArea />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByRole('presentation')).not.to.equal(null);
   });

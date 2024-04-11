@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
+import * as BaseNumberField from '@base_ui/react/NumberField';
 import { styled } from '@mui/system';
 
 export default function UnstyledNumberFieldWheelScrub() {
@@ -42,7 +42,7 @@ const NumberLabel = styled('label')`
   font-weight: bold;
 `;
 
-const NumberField = styled(BaseNumberField)`
+const NumberField = styled(BaseNumberField.Root)`
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 1rem;
 `;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import * as BaseSwitch from '@base_ui/react/Switch';
 import { useSwitch, UseSwitchParameters } from '@base_ui/react/useSwitch';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -17,7 +17,7 @@ import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 
 const code = `
-import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import * as Switch from '@base_ui/react/Switch';
 import { useSwitch } from '@base_ui/react/useSwitch';
 import { styled } from '@mui/system';
 
@@ -100,12 +100,12 @@ function SwitchFromHook(props) {
 
 function App() {
   return (
-    <BaseSwitch
+    <BaseSwitch.Root
       aria-label="Demo switch"
       render={(props) => <StyledSwitchRoot {...props} />}
     >
-      <BaseSwitch render={(props) => <StyledSwitchThumb {...props} />} />
-    </BaseSwitch>
+      <BaseSwitch.Thumb render={(props) => <StyledSwitchThumb {...props} />} />
+    </BaseSwitch.Root>
     <SwitchFromHook />
   )
 }
@@ -262,12 +262,12 @@ export default function BaseUICustomization() {
                 }),
               })}
             >
-              <BaseSwitch
+              <BaseSwitch.Root
                 aria-label="Demo switch"
                 render={(props) => <StyledSwitchRoot {...props} />}
               >
-                <BaseSwitch render={(props) => <StyledSwitchThumb {...props} />} />
-              </BaseSwitch>
+                <BaseSwitch.Thumb render={(props) => <StyledSwitchThumb {...props} />} />
+              </BaseSwitch.Root>
               <SwitchFromHook defaultChecked />
             </Frame.Demo>
             <Frame.Info

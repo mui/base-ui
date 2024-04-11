@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Switch as BaseSwitch, SwitchProps } from '@base_ui/react/Switch';
+import * as BaseSwitch from '@base_ui/react/Switch';
 import { css, styled } from '@mui/system';
 
-const StyledSwitch = styled(BaseSwitch)(css`
+const StyledSwitch = styled(BaseSwitch.Root)(css`
   font-size: 0;
   position: relative;
   display: inline-block;
@@ -57,7 +57,7 @@ const StyledSwitchThumb = styled(BaseSwitch.Thumb)(css`
 `);
 
 const Switch = React.forwardRef(function Switch(
-  props: SwitchProps,
+  props: BaseSwitch.RootProps,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (

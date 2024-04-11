@@ -1,13 +1,5 @@
 import * as React from 'react';
-import {
-  NumberField as BaseNumberField,
-  NumberFieldDecrementProps,
-  NumberFieldGroupProps,
-  NumberFieldIncrementProps,
-  NumberFieldInputProps,
-  NumberFieldProps,
-  NumberFieldScrubAreaProps,
-} from '@base_ui/react/NumberField';
+import * as BaseNumberField from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {
@@ -65,14 +57,14 @@ export default function NumberFieldIntroduction() {
 }
 
 const NumberField = React.forwardRef(function NumberField(
-  props: NumberFieldProps,
+  props: BaseNumberField.RootProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
-  return <BaseNumberField {...props} ref={ref} />;
+  return <BaseNumberField.Root {...props} ref={ref} />;
 });
 
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
-  props: NumberFieldGroupProps,
+  props: BaseNumberField.GroupProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -95,7 +87,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 });
 
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: NumberFieldScrubAreaProps,
+  props: BaseNumberField.ScrubAreaProps,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -115,7 +107,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
 });
 
 const NumberFieldVirtualCursor = React.forwardRef(function NumberFieldVirtualCursor(
-  props: NumberFieldScrubAreaProps,
+  props: BaseNumberField.ScrubAreaCursorProps,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -135,7 +127,7 @@ const NumberFieldVirtualCursor = React.forwardRef(function NumberFieldVirtualCur
 });
 
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
-  props: NumberFieldInputProps,
+  props: BaseNumberField.InputProps,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   return (
@@ -178,7 +170,7 @@ const buttonStyles = classNames(
 );
 
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
-  props: NumberFieldDecrementProps,
+  props: BaseNumberField.DecrementProps,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
@@ -200,7 +192,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
 });
 
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: NumberFieldIncrementProps,
+  props: BaseNumberField.IncrementProps,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
