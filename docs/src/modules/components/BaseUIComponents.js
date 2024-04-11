@@ -27,6 +27,12 @@ function components() {
     //   href: '/base-ui/react-button/',
     // },
     {
+      title: 'Checkbox',
+      srcLight: '/static/base-ui/react-components/checkbox-light.png',
+      srcDark: '/static/base-ui/react-components/checkbox-dark.png',
+      href: '/base-ui/react-checkbox/',
+    },
+    {
       title: 'Click-Away Listener',
       srcLight: '/static/base-ui/react-components/click-away-light.png',
       srcDark: '/static/base-ui/react-components/click-away-dark.png',
@@ -68,12 +74,12 @@ function components() {
       srcDark: '/static/base-ui/react-components/no-ssr-dark.png',
       href: '/base-ui/react-no-ssr/',
     },
-    // {
-    //   title: 'Number Input',
-    //   srcLight: '/static/base-ui/react-components/number-input-light.png',
-    //   srcDark: '/static/base-ui/react-components/number-input-dark.png',
-    //   href: '/base-ui/react-number-input/',
-    // },
+    {
+      title: 'Number Field',
+      srcLight: '/static/base-ui/react-components/number-field-light.png',
+      srcDark: '/static/base-ui/react-components/number-field-dark.png',
+      href: '/base-ui/react-number-field/',
+    },
     // {
     //   title: 'Popper',
     //   srcLight: '/static/base-ui/react-components/popper-light.png',
@@ -150,8 +156,7 @@ export default function BaseUIComponents() {
               borderRadius: 1,
               borderColor: 'divider',
               ...theme.applyDarkStyles({
-                backgroundColor: `${alpha(theme.palette.primaryDark[700], 0.3)}`,
-                borderColor: 'divider',
+                backgroundColor: `${alpha(theme.palette.primaryDark[700], 0.2)}`,
               }),
             })}
           >
@@ -168,7 +173,6 @@ export default function BaseUIComponents() {
                 ...theme.applyDarkStyles({
                   content: `url(${component.srcDark})`,
                   background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
-                  borderColor: 'divider',
                 }),
               })}
             />

@@ -1,12 +1,6 @@
 {
   "parameters": {},
-  "returnValue": {
-    "contextValue": {
-      "type": { "name": "TransitionContextValue", "description": "TransitionContextValue" },
-      "required": true
-    },
-    "hasExited": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
-  },
+  "returnValue": {},
   "name": "useTransitionTrigger",
   "filename": "/packages/mui-base/src/useTransition/useTransitionTrigger.ts",
   "imports": [

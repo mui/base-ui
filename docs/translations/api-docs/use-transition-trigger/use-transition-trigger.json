@@ -1,12 +1,5 @@
 {
   "hookDescription": "Allows child elements to be transitioned in and out.",
   "parametersDescriptions": {},
-  "returnValueDescriptions": {
-    "contextValue": {
-      "description": "The value of a <code>TransitionContext</code> to be placed around children that will be transitioned."
-    },
-    "hasExited": {
-      "description": "<code>true</code>, if the transitioned element has exited completely (or not entered yet)."
-    }
-  }
+  "returnValueDescriptions": {}
 }
