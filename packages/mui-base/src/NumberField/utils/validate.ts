@@ -3,7 +3,7 @@ import { getFormatter } from './format';
 
 export function removeFloatingPointErrors(value: number, format: Intl.NumberFormatOptions = {}) {
   return parseFloat(
-    getFormatter(undefined, {
+    getFormatter('en-US', {
       maximumFractionDigits: format.maximumFractionDigits,
       minimumFractionDigits: format.minimumFractionDigits,
       useGrouping: false,

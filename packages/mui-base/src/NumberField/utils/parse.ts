@@ -32,13 +32,10 @@ export function getNumberLocaleDetails(
 }
 
 export function parseNumber(formattedNumber: string, options?: Intl.NumberFormatOptions) {
-  const isArabic = formattedNumber.match(ARABIC_RE);
-  const isHan = formattedNumber.match(HAN_RE);
-
   let locale: string | undefined;
-  if (isArabic) {
+  if (ARABIC_RE.test(formattedNumber)) {
     locale = 'ar';
-  } else if (isHan) {
+  } else if (HAN_RE.test(formattedNumber)) {
     locale = 'zh';
   }
 
