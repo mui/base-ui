@@ -32,18 +32,18 @@ function components() {
       srcDark: '/static/base-ui/react-components/checkbox-dark.png',
       href: '/base-ui/react-checkbox/',
     },
-    {
-      title: 'Click-Away Listener',
-      srcLight: '/static/base-ui/react-components/click-away-light.png',
-      srcDark: '/static/base-ui/react-components/click-away-dark.png',
-      href: '/base-ui/react-click-away-listener/',
-    },
-    {
-      title: 'Focus Trap',
-      srcLight: '/static/base-ui/react-components/focus-trap-light.png',
-      srcDark: '/static/base-ui/react-components/focus-trap-dark.png',
-      href: '/base-ui/react-focus-trap/',
-    },
+    // {
+    //   title: 'Click-Away Listener',
+    //   srcLight: '/static/base-ui/react-components/click-away-light.png',
+    //   srcDark: '/static/base-ui/react-components/click-away-dark.png',
+    //   href: '/base-ui/react-click-away-listener/',
+    // },
+    // {
+    //   title: 'Focus Trap',
+    //   srcLight: '/static/base-ui/react-components/focus-trap-light.png',
+    //   srcDark: '/static/base-ui/react-components/focus-trap-dark.png',
+    //   href: '/base-ui/react-focus-trap/',
+    // },
     // {
     //   title: 'Form Control',
     //   srcLight: '/static/base-ui/react-components/form-control-light.png',
@@ -68,12 +68,12 @@ function components() {
     //   srcDark: '/static/base-ui/react-components/modal-dark.png',
     //   href: '/base-ui/react-modal/',
     // },
-    {
-      title: 'No-SSR',
-      srcLight: '/static/base-ui/react-components/no-ssr-light.png',
-      srcDark: '/static/base-ui/react-components/no-ssr-dark.png',
-      href: '/base-ui/react-no-ssr/',
-    },
+    // {
+    //   title: 'No-SSR',
+    //   srcLight: '/static/base-ui/react-components/no-ssr-light.png',
+    //   srcDark: '/static/base-ui/react-components/no-ssr-dark.png',
+    //   href: '/base-ui/react-no-ssr/',
+    // },
     {
       title: 'Number Field',
       srcLight: '/static/base-ui/react-components/number-field-light.png',
@@ -86,12 +86,12 @@ function components() {
     //   srcDark: '/static/base-ui/react-components/popper-dark.png',
     //   href: '/base-ui/react-popper/',
     // },
-    {
-      title: 'Portal',
-      srcLight: '/static/base-ui/react-components/portal-light.png',
-      srcDark: '/static/base-ui/react-components/portal-dark.png',
-      href: '/base-ui/react-portal/',
-    },
+    // {
+    //   title: 'Portal',
+    //   srcLight: '/static/base-ui/react-components/portal-light.png',
+    //   srcDark: '/static/base-ui/react-components/portal-dark.png',
+    //   href: '/base-ui/react-portal/',
+    // },
     // {
     //   title: 'Select',
     //   srcLight: '/static/base-ui/react-components/select-light.png',
