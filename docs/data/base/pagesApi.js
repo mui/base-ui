@@ -41,8 +41,33 @@ module.exports = [
   { pathname: '/base-ui/react-modal/components-api/#modal', title: 'Modal' },
   { pathname: '/base-ui/react-no-ssr/components-api/#no-ssr', title: 'NoSsr' },
   {
-    pathname: '/base-ui/react-number-input/components-api/#number-input',
-    title: 'NumberInput',
+    pathname: '/base-ui/react-number-field/components-api/#number-field',
+    title: 'NumberField',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-decrement',
+    title: 'NumberFieldDecrement',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-group',
+    title: 'NumberFieldGroup',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-increment',
+    title: 'NumberFieldIncrement',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-input',
+    title: 'NumberFieldInput',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-scrub-area',
+    title: 'NumberFieldScrubArea',
+  },
+  {
+    pathname:
+      '/base-ui/react-number-field/components-api/#number-field-scrub-area-cursor',
+    title: 'NumberFieldScrubAreaCursor',
   },
   { pathname: '/base-ui/react-select/components-api/#option', title: 'Option' },
   {
@@ -103,8 +128,8 @@ module.exports = [
   },
   { pathname: '/base-ui/react-modal/hooks-api/#use-modal', title: 'useModal' },
   {
-    pathname: '/base-ui/react-number-input/hooks-api/#use-number-input',
-    title: 'useNumberInput',
+    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field',
+    title: 'useNumberField',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-option', title: 'useOption' },
   {
