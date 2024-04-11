@@ -13,4 +13,3 @@ This is an initial release of Base UI as the @base_ui/react package.
 - [Switch] Implement the component-per-node API (#135) @michaldudak
 - [core] Rename package to @base_ui/react (#287) @michaldudak
 - [core] Exclude legacy components from the package (#288) @michaldudak
-
