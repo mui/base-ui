@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { Tabs } from '@base_ui/react/Tabs';
 import { useTheme } from '@mui/system';
@@ -42,6 +43,13 @@ const TabsList = React.forwardRef((props, ref) => {
   );
 });
 
+TabsList.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const Tab = React.forwardRef((props, ref) => {
   const { className, ...other } = props;
   return (
@@ -64,6 +72,13 @@ const Tab = React.forwardRef((props, ref) => {
   );
 });
 
+Tab.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const TabPanel = React.forwardRef((props, ref) => {
   const { className, ...other } = props;
   return (
@@ -77,3 +92,10 @@ const TabPanel = React.forwardRef((props, ref) => {
     />
   );
 });
+
+TabPanel.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
