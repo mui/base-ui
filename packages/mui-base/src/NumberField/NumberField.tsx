@@ -114,7 +114,7 @@ NumberField.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * @ignore
+   * The id of the input element.
    */
   id: PropTypes.string,
   /**
@@ -141,7 +141,8 @@ NumberField.propTypes /* remove-proptypes */ = {
    */
   name: PropTypes.string,
   /**
-   * @param value the raw number value of the input element.
+   * Callback fired when the number value changes.
+   * @param {number | null} value The new value.
    */
   onChange: PropTypes.func,
   /**

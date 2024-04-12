@@ -8,6 +8,7 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "disabled": { "description": "If <code>true</code>, the input element is disabled." },
+    "id": { "description": "The id of the input element." },
     "invalid": { "description": "If <code>true</code>, the input element is invalid." },
     "largeStep": {
       "description": "The large step value of the input element when incrementing while the shift key is held. Snaps to multiples of this value."
@@ -15,6 +16,10 @@
     "max": { "description": "The maximum value of the input element." },
     "min": { "description": "The minimum value of the input element." },
     "name": { "description": "The name of the input element." },
+    "onChange": {
+      "description": "Callback fired when the number value changes.",
+      "typeDescriptions": { "value": "The new value." }
+    },
     "readOnly": { "description": "If <code>true</code>, the input element is read only." },
     "render": { "description": "A function to customize rendering of the component." },
     "required": { "description": "If <code>true</code>, the input element is required." },

@@ -1,7 +1,7 @@
 import type { UseNumberFieldParameters } from '../useNumberField';
 import type { BaseUIComponentProps } from '../utils/BaseUI.types';
 
-export interface NumberFieldOwnerState {
+export type NumberFieldOwnerState = {
   /**
    * The raw number value of the input element.
    */
@@ -30,11 +30,11 @@ export interface NumberFieldOwnerState {
    * If `true`, the value is being scrubbed.
    */
   scrubbing: boolean;
-}
+};
 
 export interface NumberFieldProps
-  extends Omit<BaseUIComponentProps<'div', NumberFieldOwnerState>, 'onChange' | 'defaultValue'>,
-    UseNumberFieldParameters {}
+  extends UseNumberFieldParameters,
+    Omit<BaseUIComponentProps<'div', NumberFieldOwnerState>, 'onChange' | 'defaultValue'> {}
 
 export interface NumberFieldGroupProps extends BaseUIComponentProps<'div', NumberFieldOwnerState> {}
 

@@ -79,7 +79,8 @@ export interface UseNumberFieldParameters {
    */
   format?: Intl.NumberFormatOptions;
   /**
-   * @param value the raw number value of the input element.
+   * Callback fired when the number value changes.
+   * @param {number | null} value The new value.
    */
   onChange?: (value: number | null) => void;
 }
