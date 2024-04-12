@@ -51,6 +51,8 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
   let right = 0;
   let top = 0;
   let bottom = 0;
+  let width = 0;
+  let height = 0;
 
   let isTabSelected = false;
 
@@ -79,6 +81,8 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
       right = listRight - tabRight;
       top = tabTop - listTop;
       bottom = listBottom - tabBottom;
+      width = tabRight - tabLeft;
+      height = tabBottom - tabTop;
 
       if (orientation === 'horizontal') {
         if (left < previousTabEdge) {
@@ -122,10 +126,12 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
       '--active-tab-right': `${right}px`,
       '--active-tab-top': `${top}px`,
       '--active-tab-bottom': `${bottom}px`,
+      '--active-tab-width': `${width}px`,
+      '--active-tab-height': `${height}px`,
       '--active-tab-movement-forwards': movementDirection === 1 ? '1' : '0',
       '--active-tab-movement-backwards': movementDirection === -1 ? '1' : '0',
     } as React.CSSProperties;
-  }, [left, right, top, bottom, movementDirection, isTabSelected]);
+  }, [left, right, top, bottom, width, height, movementDirection, isTabSelected]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
