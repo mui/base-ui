@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "func" } }
+  },
+  "name": "NumberFieldInput",
+  "imports": [
+    "import { NumberFieldInput } from '@mui/base/NumberField';",
+    "import { NumberFieldInput } from '@mui/base';"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "NumberFieldInput",
+  "forwardsRefTo": "HTMLInputElement",
+  "filename": "/packages/mui-base/src/NumberField/NumberFieldInput.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-number-field/\">Number Field</a></li></ul>",
+  "cssComponent": false
+}
