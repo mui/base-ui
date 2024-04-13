@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
-import { useTabsContext } from '../Tabs/TabsContext';
+import { useTabsContext } from '../useTabs/TabsContext';
 import { UseTabParameters, UseTabReturnValue } from './useTab.types';
 import { useCompoundItem } from '../useCompound';
 import { useListItem } from '../useList';

@@ -5,7 +5,7 @@ import { TabsList } from './TabsList';
 import { TabPanel } from './TabPanel';
 import { TabIndicator } from './TabIndicator';
 
-export * from './TabsContext';
+export * from '../useTabs/TabsContext';
 
 export * from './Tabs.types';
 export * from './Tab/Tab.types';

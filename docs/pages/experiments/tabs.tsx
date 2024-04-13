@@ -120,24 +120,41 @@ const Indicator = styled(BaseTabs.Indicator)`
   z-index: 0;
   box-shadow: 0 0 0 0 ${blue[200]};
   outline-width: 0;
-  transition:
-    left calc(0.3s + var(--active-tab-movement-forwards) * 0.3s)
-      calc(var(--active-tab-movement-forwards) * 0.1s),
-    right calc(0.3s + var(--active-tab-movement-backwards) * 0.3s)
-      calc(var(--active-tab-movement-backwards) * 0.1s),
-    top 0.3s,
-    bottom 0.3s,
-    box-shadow 0.2s;
 
-  &[data-orientation='vertical'] {
+  &[data-movement-direction='next'] {
     transition:
-      top calc(0.3s + var(--active-tab-movement-forwards) * 0.3s)
-        calc(var(--active-tab-movement-forwards) * 0.1s),
-      bottom calc(0.3s + var(--active-tab-movement-backwards) * 0.3s)
-        calc(var(--active-tab-movement-backwards) * 0.1s);
-    left: 0;
-    right: 0;
-    margin: 0 6px;
+      left 0.6s 0.1s,
+      right 0.3s,
+      top 0.3s,
+      bottom 0.3s,
+      box-shadow 0.2s;
+
+    &[data-orientation='vertical'] {
+      transition:
+        top 0.6s 0.1s,
+        bottom 0.3s;
+      left: 0;
+      right: 0;
+      margin: 0 6px;
+    }
+  }
+
+  &[data-movement-direction='previous'] {
+    transition:
+      left 0.3s,
+      right 0.6s 0.1s,
+      top 0.3s,
+      bottom 0.3s,
+      box-shadow 0.2s;
+
+    &[data-orientation='vertical'] {
+      transition:
+        top 0.3s,
+        bottom 0.6s 0.1s;
+      left: 0;
+      right: 0;
+      margin: 0 6px;
+    }
   }
 
   *:has(:focus-visible) > & {

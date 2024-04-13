@@ -5,7 +5,7 @@ import { TabIndicatorProps } from './TabIndicator.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
-import { useTabsContext } from '../TabsContext';
+import { useTabsContext } from '../../useTabs/TabsContext';
 
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
   function TabIndicator(props, forwardedRef) {
@@ -24,12 +24,14 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
       getRootProps,
       orientation,
       activeTabPosition: selectedTabPosition,
+      movementDirection,
     } = useTabIndicator();
 
     const ownerState = {
       selectedTabPosition,
       orientation,
       direction,
+      movementDirection,
     };
 
     const className = resolveClassName(classNameProp, ownerState);
@@ -95,13 +97,15 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
         const right = listRight - tabRight;
         const top = tabTop - listTop;
         const bottom = listBottom - tabBottom;
+        width = tabRight - tabLeft;
+        height = tabBottom - tabTop;
 
         tabIndicator.style.setProperty('--active-tab-left', \`\${left}px\`);
         tabIndicator.style.setProperty('--active-tab-right', \`\${right}px\`);
         tabIndicator.style.setProperty('--active-tab-top', \`\${top}px\`);
         tabIndicator.style.setProperty('--active-tab-bottom', \`\${bottom}px\`);
-        tabIndicator.style.setProperty('--active-tab-movement-forwards', '0');
-        tabIndicator.style.setProperty('--active-tab-movement-backwards', '0');
+        tabIndicator.style.setProperty('--active-tab-width', \`\${width}px\`);
+        tabIndicator.style.setProperty('--active-tab-height', \`\${height}px\`);
       })();
     `;
 

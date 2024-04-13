@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TabsContext, TabsContextValue } from '../Tabs/TabsContext';
+import { TabsContext, TabsContextValue } from './TabsContext';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../useCompound';
 
 export type TabPanelMetadata = {

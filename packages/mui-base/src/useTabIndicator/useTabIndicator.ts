@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useTabsListContext } from '../Tabs/TabsList/TabsListContext';
-import { useTabsContext } from '../Tabs/TabsContext';
+import { useTabsListContext } from '../useTabsList/TabsListContext';
+import { useTabsContext } from '../useTabs/TabsContext';
 import { TabSelectionMovementDirection, UseTabIndicatorReturnValue } from './useTabIndicator.types';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
@@ -128,10 +128,8 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
       '--active-tab-bottom': `${bottom}px`,
       '--active-tab-width': `${width}px`,
       '--active-tab-height': `${height}px`,
-      '--active-tab-movement-forwards': movementDirection === 1 ? '1' : '0',
-      '--active-tab-movement-backwards': movementDirection === -1 ? '1' : '0',
     } as React.CSSProperties;
-  }, [left, right, top, bottom, width, height, movementDirection, isTabSelected]);
+  }, [left, right, top, bottom, width, height, isTabSelected]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -148,5 +146,6 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     activeTabPosition,
     orientation,
     direction,
+    movementDirection,
   };
 }

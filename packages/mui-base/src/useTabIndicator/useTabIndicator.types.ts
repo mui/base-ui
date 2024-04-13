@@ -15,7 +15,8 @@ export type UseTabIndicatorReturnValue = {
   getRootProps: (
     otherProps?: React.ComponentPropsWithoutRef<'span'>,
   ) => React.ComponentPropsWithRef<'span'>;
-  orientation: TabsOrientation;
-  direction: TabsDirection;
   activeTabPosition: ActiveTabPosition | null;
+  direction: TabsDirection;
+  movementDirection: TabSelectionMovementDirection;
+  orientation: TabsOrientation;
 };
