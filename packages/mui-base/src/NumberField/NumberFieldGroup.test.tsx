@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
 
@@ -32,9 +32,9 @@ describe('<NumberField.Group />', () => {
 
   it('has role prop', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Group />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByRole('group')).not.to.equal(null);
   });

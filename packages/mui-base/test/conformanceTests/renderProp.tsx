@@ -25,10 +25,20 @@ export function testRenderProp(
   );
 
   describe('prop: render', () => {
-    it('renders a customized root element', async () => {
+    it('renders a customized root element with a function', async () => {
       await render(
         React.cloneElement(element, {
           render: (props: any) => <Wrapper {...props} />,
+        }),
+      );
+
+      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
+    });
+
+    it('renders a customized root element with an element', async () => {
+      await render(
+        React.cloneElement(element, {
+          render: <Wrapper />,
         }),
       );
 
@@ -51,6 +61,33 @@ export function testRenderProp(
       render(<Test />);
       expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
       expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
+    });
+
+    it('should merge the rendering element ref with the custom component ref', () => {
+      let refA = null;
+      let refB = null;
+
+      function Test() {
+        return React.cloneElement(element, {
+          ref: (el: HTMLElement | null) => {
+            refA = el;
+          },
+          render: (
+            <Wrapper
+              ref={(el: HTMLElement | null) => {
+                refB = el;
+              }}
+            />
+          ),
+          'data-testid': 'wrapped',
+        });
+      }
+
+      render(<Test />);
+      expect(refA!.tagName).to.equal(Element.toUpperCase());
+      expect(refA!).to.have.attribute('data-testid', 'wrapped');
+      expect(refB!.tagName).to.equal(Element.toUpperCase());
+      expect(refB!).to.have.attribute('data-testid', 'wrapped');
     });
   });
 }

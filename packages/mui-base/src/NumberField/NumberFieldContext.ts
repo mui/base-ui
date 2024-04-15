@@ -1,9 +1,9 @@
 import * as React from 'react';
 import type { UseNumberFieldReturnValue } from '../useNumberField/useNumberField.types';
-import { NumberFieldOwnerState } from './NumberField.types';
+import { OwnerState } from './NumberField.types';
 
 export type NumberFieldContextValue = UseNumberFieldReturnValue & {
-  ownerState: NumberFieldOwnerState;
+  ownerState: OwnerState;
 };
 
 export const NumberFieldContext = React.createContext<NumberFieldContextValue | null>(null);

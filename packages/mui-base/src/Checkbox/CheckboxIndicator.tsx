@@ -1,9 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { CheckboxIndicatorProps } from './Checkbox.types';
+import type { IndicatorProps } from './Checkbox.types';
 import { CheckboxContext } from './CheckboxContext';
 import { resolveClassName } from '../utils/resolveClassName';
 import { useCheckboxStyleHooks } from './utils';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -21,7 +23,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [CheckboxIndicator API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-indicator)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
-  props: CheckboxIndicatorProps,
+  props: IndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className, keepMounted = false, ...otherProps } = props;
@@ -33,6 +35,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   }
 
   const styleHooks = useCheckboxStyleHooks(ownerState);
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   if (!keepMounted && !ownerState.checked && !ownerState.indeterminate) {
     return null;
@@ -40,12 +43,12 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const elementProps = {
     className: resolveClassName(className, ownerState),
-    ref: forwardedRef,
+    ref: mergedRef,
     ...styleHooks,
     ...otherProps,
   };
 
-  return render(elementProps, ownerState);
+  return evaluateRenderProp(render, elementProps, ownerState);
 });
 
 CheckboxIndicator.propTypes /* remove-proptypes */ = {
@@ -69,7 +72,7 @@ CheckboxIndicator.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { CheckboxIndicator };

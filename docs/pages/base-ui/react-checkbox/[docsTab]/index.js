@@ -3,8 +3,8 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs/data/base/components/checkbox/checkbox.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
-import CheckboxApiJsonPageContent from '../../api/checkbox.json';
 import CheckboxIndicatorApiJsonPageContent from '../../api/checkbox-indicator.json';
+import CheckboxRootApiJsonPageContent from '../../api/checkbox-root.json';
 import useCheckboxApiJsonPageContent from '../../api/use-checkbox.json';
 
 export default function Page(props) {
@@ -24,19 +24,19 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const CheckboxApiReq = require.context(
-    'docs/translations/api-docs-base/checkbox',
-    false,
-    /checkbox.*.json$/,
-  );
-  const CheckboxApiDescriptions = mapApiPageTranslations(CheckboxApiReq);
-
   const CheckboxIndicatorApiReq = require.context(
     'docs/translations/api-docs-base/checkbox-indicator',
     false,
     /checkbox-indicator.*.json$/,
   );
   const CheckboxIndicatorApiDescriptions = mapApiPageTranslations(CheckboxIndicatorApiReq);
+
+  const CheckboxRootApiReq = require.context(
+    'docs/translations/api-docs-base/checkbox-root',
+    false,
+    /checkbox-root.*.json$/,
+  );
+  const CheckboxRootApiDescriptions = mapApiPageTranslations(CheckboxRootApiReq);
 
   const useCheckboxApiReq = require.context(
     'docs/translations/api-docs/use-checkbox',
@@ -48,12 +48,12 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
-        Checkbox: CheckboxApiDescriptions,
         CheckboxIndicator: CheckboxIndicatorApiDescriptions,
+        CheckboxRoot: CheckboxRootApiDescriptions,
       },
       componentsApiPageContents: {
-        Checkbox: CheckboxApiJsonPageContent,
         CheckboxIndicator: CheckboxIndicatorApiJsonPageContent,
+        CheckboxRoot: CheckboxRootApiJsonPageContent,
       },
       hooksApiDescriptions: { useCheckbox: useCheckboxApiDescriptions },
       hooksApiPageContents: { useCheckbox: useCheckboxApiJsonPageContent },

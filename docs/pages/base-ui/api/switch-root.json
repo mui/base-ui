@@ -1,11 +1,11 @@
 {
   "props": {
-    "checked": { "type": { "name": "bool" }, "default": "undefined" },
+    "checked": { "type": { "name": "bool" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultChecked": { "type": { "name": "bool" }, "default": "false" },
+    "defaultChecked": { "type": { "name": "bool" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "indeterminate": { "type": { "name": "bool" }, "default": "false" },
-    "name": { "type": { "name": "string" }, "default": "undefined" },
+    "inputRef": { "type": { "name": "custom", "description": "ref" } },
+    "name": { "type": { "name": "string" } },
     "onChange": {
       "type": { "name": "func" },
       "signature": {
@@ -14,21 +14,21 @@
       }
     },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
-    "render": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
-  "name": "Checkbox",
+  "name": "SwitchRoot",
   "imports": [
-    "import { Checkbox } from '@mui/base/Checkbox';",
-    "import { Checkbox } from '@mui/base';"
+    "import { SwitchRoot } from '@mui/base/Switch';",
+    "import { SwitchRoot } from '@mui/base';"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "Checkbox",
+  "muiName": "SwitchRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Checkbox/Checkbox.tsx",
+  "filename": "/packages/mui-base/src/Switch/SwitchRoot.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/base-ui/react-checkbox/\">Checkbox</a></li></ul>",
+  "demos": "<ul><li><a href=\"/base-ui/react-switch/\">Switch</a></li></ul>",
   "cssComponent": false
 }
