@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
+import * as Checkbox from '@base_ui/react/Checkbox';
 import { describeConformance } from '../../test/describeConformance';
-import { Checkbox } from '.';
 import { CheckboxContext } from './CheckboxContext';
 
 const testContext = {
@@ -29,9 +29,9 @@ describe('<Checkbox.Indicator />', () => {
 
   it('should not render indicator by default', () => {
     const { container } = render(
-      <Checkbox>
+      <Checkbox.Root>
         <Checkbox.Indicator />
-      </Checkbox>,
+      </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
     expect(indicator).to.equal(null);
@@ -39,9 +39,9 @@ describe('<Checkbox.Indicator />', () => {
 
   it('should render indicator when checked', () => {
     const { container } = render(
-      <Checkbox checked>
+      <Checkbox.Root checked>
         <Checkbox.Indicator />
-      </Checkbox>,
+      </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
     expect(indicator).not.to.equal(null);
@@ -49,9 +49,9 @@ describe('<Checkbox.Indicator />', () => {
 
   it('should spread extra props', () => {
     const { container } = render(
-      <Checkbox defaultChecked>
+      <Checkbox.Root defaultChecked>
         <Checkbox.Indicator data-extra-prop="Lorem ipsum" />
-      </Checkbox>,
+      </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
     expect(indicator).to.have.attribute('data-extra-prop', 'Lorem ipsum');
@@ -60,9 +60,9 @@ describe('<Checkbox.Indicator />', () => {
   describe('keepMounted prop', () => {
     it('should keep indicator mounted when unchecked', () => {
       const { container } = render(
-        <Checkbox>
+        <Checkbox.Root>
           <Checkbox.Indicator keepMounted />
-        </Checkbox>,
+        </Checkbox.Root>,
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
@@ -70,9 +70,9 @@ describe('<Checkbox.Indicator />', () => {
 
     it('should keep indicator mounted when checked', () => {
       const { container } = render(
-        <Checkbox checked>
+        <Checkbox.Root checked>
           <Checkbox.Indicator keepMounted />
-        </Checkbox>,
+        </Checkbox.Root>,
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
@@ -80,9 +80,9 @@ describe('<Checkbox.Indicator />', () => {
 
     it('should keep indicator mounted when indeterminate', () => {
       const { container } = render(
-        <Checkbox indeterminate>
+        <Checkbox.Root indeterminate>
           <Checkbox.Indicator keepMounted />
-        </Checkbox>,
+        </Checkbox.Root>,
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);

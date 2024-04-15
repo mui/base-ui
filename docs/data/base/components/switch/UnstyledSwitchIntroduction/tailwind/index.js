@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import * as BaseSwitch from '@base_ui/react/Switch';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -41,7 +41,7 @@ const Switch = React.forwardRef(function Switch(
     ${checked ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800'}
     ${classNameProp}`;
 
-  return <BaseSwitch {...props} ref={ref} className={className} />;
+  return <BaseSwitch.Root {...props} ref={ref} className={className} />;
 });
 
 const Thumb = React.forwardRef(function Thumb(

@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Checkbox component and hook
-components: Checkbox, CheckboxIndicator
+components: CheckboxRoot, CheckboxIndicator
 hooks: useCheckbox
 githubLabel: 'component: checkbox'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
@@ -24,7 +24,7 @@ The Checkbox component provides users with a checkbox for toggling a checked sta
 ## Component
 
 ```jsx
-import { Checkbox } from '@base_ui/react/Checkbox';
+import * as Checkbox from '@base_ui/react/Checkbox';
 ```
 
 ### Anatomy
@@ -32,29 +32,29 @@ import { Checkbox } from '@base_ui/react/Checkbox';
 The `Checkbox` component is composed of a root component and an indicator child component:
 
 ```tsx
-<Checkbox>
+<Checkbox.Root>
   <Checkbox.Indicator />
-</Checkbox>
+</Checkbox.Root>
 ```
 
 The indicator can contain children, such as an icon:
 
 ```tsx
-<Checkbox>
+<Checkbox.Root>
   <Checkbox.Indicator>
     <MyCheckIcon />
   </Checkbox.Indicator>
-</Checkbox>
+</Checkbox.Root>
 ```
 
 The indicator conditionally unmounts its children when the checkbox is unchecked. For CSS animations, you can use the `keepMounted` prop to transition `visibility` and `opacity` for example:
 
 ```tsx
-<Checkbox>
+<Checkbox.Root>
   <Checkbox.Indicator keepMounted>
     <MyCheckIcon />
   </Checkbox.Indicator>
-</Checkbox>
+</Checkbox.Root>
 ```
 
 ### Custom structure
@@ -62,9 +62,9 @@ The indicator conditionally unmounts its children when the checkbox is unchecked
 Use the `render` prop to override the rendered checkbox or indicator element with your own components:
 
 ```jsx
-<Checkbox render={(props) => <MyCheckbox {...props} />}>
+<Checkbox.Root render={(props) => <MyCheckbox {...props} />}>
   <Checkbox.Indicator render={(props) => <MyCheckboxIndicator {...props} />} />
-</Checkbox>
+</Checkbox.Root>
 ```
 
 To ensure behavior works as expected:
@@ -113,9 +113,9 @@ You may not need to use hooks unless you find that you're limited by the customi
 Ensure the checkbox has an accessible name via a `label` element.
 
 ```jsx
-<Checkbox id="my-checkbox">
+<Checkbox.Root id="my-checkbox">
   <Checkbox.Indicator />
-</Checkbox>
+</Checkbox.Root>
 <label htmlFor="my-checkbox">
   My label
 </label>

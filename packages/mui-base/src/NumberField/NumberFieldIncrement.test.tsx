@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { fireEvent } from '@testing-library/react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../useNumberField/constants';
@@ -34,19 +34,19 @@ describe('<NumberField.Increment />', () => {
 
   it('has increase label', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Increment />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByLabelText('Increase')).not.to.equal(null);
   });
 
   it('increments starting from 0 click', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Increment />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -56,10 +56,10 @@ describe('<NumberField.Increment />', () => {
 
   it('increments to 1 starting from defaultValue=0 click', () => {
     render(
-      <NumberField defaultValue={0}>
+      <NumberField.Root defaultValue={0}>
         <NumberField.Increment />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -72,10 +72,10 @@ describe('<NumberField.Increment />', () => {
 
     it('increments continuously when holding pointerdown', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -102,10 +102,10 @@ describe('<NumberField.Increment />', () => {
 
     it('does not increment twice with pointerdown and click', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -120,10 +120,10 @@ describe('<NumberField.Increment />', () => {
 
     it('should stop incrementing after mouseleave', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -150,10 +150,10 @@ describe('<NumberField.Increment />', () => {
 
     it('should start incrementing again after mouseleave then mouseenter', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -186,10 +186,10 @@ describe('<NumberField.Increment />', () => {
 
     it('should not start incrementing again after mouseleave then mouseenter after pointerup', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -229,10 +229,10 @@ describe('<NumberField.Increment />', () => {
 
   it('should not increment when disabled', () => {
     render(
-      <NumberField disabled>
+      <NumberField.Root disabled>
         <NumberField.Increment />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -242,10 +242,10 @@ describe('<NumberField.Increment />', () => {
 
   it('should not increment when readOnly', () => {
     render(
-      <NumberField readOnly>
+      <NumberField.Root readOnly>
         <NumberField.Increment />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');

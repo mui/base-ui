@@ -1,9 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useForkRef } from '../utils/useForkRef';
 import { useNumberFieldContext } from './NumberFieldContext';
-import type { NumberFieldScrubAreaProps } from './NumberField.types';
+import type { ScrubAreaProps } from './NumberField.types';
 import { resolveClassName } from '../utils/resolveClassName';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -22,7 +23,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [NumberFieldScrubArea API](https://mui.com/base-ui/react-number-field/components-api/#number-field-scrub-area)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: NumberFieldScrubAreaProps,
+  props: ScrubAreaProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
@@ -44,7 +45,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
     teleportDistance,
   }));
 
-  const mergedRef = useForkRef(scrubAreaRef, forwardedRef);
+  const mergedRef = useRenderPropForkRef(render, scrubAreaRef, forwardedRef);
 
   const scrubAreaProps = getScrubAreaProps({
     ref: mergedRef,
@@ -52,7 +53,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
     ...otherProps,
   });
 
-  return render(scrubAreaProps, ownerState);
+  return evaluateRenderProp(render, scrubAreaProps, ownerState);
 });
 
 NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
@@ -82,7 +83,7 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * If specified, how much the cursor can move around the center of the scrub area element before
    * it will loop back around.

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -14,7 +14,7 @@ export default function UnstyledNumberFieldIntroduction() {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <NumberField
+      <NumberField.Root
         id={id}
         className="NumberField"
         aria-label="Basic number field, default value"
@@ -52,7 +52,7 @@ export default function UnstyledNumberFieldIntroduction() {
             +
           </NumberField.Increment>
         </NumberField.Group>
-      </NumberField>
+      </NumberField.Root>
       <Styles />
     </div>
   );

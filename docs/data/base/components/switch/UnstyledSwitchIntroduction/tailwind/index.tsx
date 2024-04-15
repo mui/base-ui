@@ -1,9 +1,5 @@
 import * as React from 'react';
-import {
-  Switch as BaseSwitch,
-  SwitchOwnerState,
-  SwitchProps,
-} from '@base_ui/react/Switch';
+import * as BaseSwitch from '@base_ui/react/Switch';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -33,26 +29,25 @@ export default function UnstyledSwitchIntroduction() {
   );
 }
 
-const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(function Switch(
-  { className: classNameProp = '', ...props },
-  ref,
-) {
-  const className = ({ checked }: SwitchOwnerState) =>
-    `group relative inline-block w-[38px] h-[24px] m-2.5 p-0 transition rounded-full
+const Switch = React.forwardRef<HTMLButtonElement, BaseSwitch.RootProps>(
+  function Switch({ className: classNameProp = '', ...props }, ref) {
+    const className = ({ checked }: BaseSwitch.OwnerState) =>
+      `group relative inline-block w-[38px] h-[24px] m-2.5 p-0 transition rounded-full
     border border-solid outline-none border-slate-300 dark:border-gray-700
     focus-visible:shadow-outline-switch
     cursor-pointer data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40
     ${checked ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800'}
     ${classNameProp}`;
 
-  return <BaseSwitch {...props} ref={ref} className={className} />;
-});
+    return <BaseSwitch.Root {...props} ref={ref} className={className} />;
+  },
+);
 
 const Thumb = React.forwardRef<
   HTMLSpanElement,
   React.HTMLAttributes<HTMLSpanElement>
 >(function Thumb({ className: classNameProp = '', ...props }, ref) {
-  const className = ({ checked }: SwitchOwnerState) =>
+  const className = ({ checked }: BaseSwitch.OwnerState) =>
     `block w-4 h-4 rounded-2xl border border-solid outline-none border-slate-300 dark:border-gray-700 transition
   shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:shadow-[0_1px_2px_rgb(0_0_0_/_0.25)]
   relative transition-all

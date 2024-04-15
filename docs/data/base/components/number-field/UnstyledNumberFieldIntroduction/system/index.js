@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
+import * as BaseNumberField from '@base_ui/react/NumberField';
 import { css, styled, useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -71,7 +71,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const NumberField = styled(BaseNumberField)`
+const NumberField = styled(BaseNumberField.Root)`
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 1rem;
 `;

@@ -1,16 +1,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { SwitchThumbProps } from './Switch.types';
+import { ThumbProps } from './Switch.types';
 import { SwitchContext } from './SwitchContext';
 import { resolveClassName } from '../utils/resolveClassName';
 import { useSwitchStyleHooks } from './useSwitchStyleHooks';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
 }
 
 const SwitchThumb = React.forwardRef(function SwitchThumb(
-  props: SwitchThumbProps,
+  props: ThumbProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className: classNameProp, ...other } = props;
@@ -23,15 +25,16 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
 
   const className = resolveClassName(classNameProp, ownerState);
   const styleHooks = useSwitchStyleHooks(ownerState);
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const elementProps = {
     className,
-    ref: forwardedRef,
+    ref: mergedRef,
     ...styleHooks,
     ...other,
   };
 
-  return render(elementProps, ownerState);
+  return evaluateRenderProp(render, elementProps, ownerState);
 });
 
 SwitchThumb.propTypes /* remove-proptypes */ = {
@@ -50,7 +53,7 @@ SwitchThumb.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { SwitchThumb };

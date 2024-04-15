@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { fireEvent } from '@testing-library/react';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
@@ -34,19 +34,19 @@ describe('<NumberField.Decrement />', () => {
 
   it('has decrease label', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Decrement />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByLabelText('Decrease')).not.to.equal(null);
   });
 
   it('decrements starting from 0 click', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.Decrement />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -56,10 +56,10 @@ describe('<NumberField.Decrement />', () => {
 
   it('decrements to -1 starting from defaultValue=0 click', () => {
     render(
-      <NumberField defaultValue={0}>
+      <NumberField.Root defaultValue={0}>
         <NumberField.Decrement />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -72,10 +72,10 @@ describe('<NumberField.Decrement />', () => {
 
     it('decrements continuously when holding pointerdown', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Decrement />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -102,10 +102,10 @@ describe('<NumberField.Decrement />', () => {
 
     it('does not decrement twice with pointerdown and click', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Decrement />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -120,10 +120,10 @@ describe('<NumberField.Decrement />', () => {
 
     it('should stop decrementing after mouseleave', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Decrement />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -150,10 +150,10 @@ describe('<NumberField.Decrement />', () => {
 
     it('should start decrementing again after mouseleave then mouseenter', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Decrement />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -186,10 +186,10 @@ describe('<NumberField.Decrement />', () => {
 
     it('should not start decrementing again after mouseleave then mouseenter after pointerup', () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Decrement />
           <NumberField.Input />
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -229,10 +229,10 @@ describe('<NumberField.Decrement />', () => {
 
   it('should not decrement when disabled', () => {
     render(
-      <NumberField disabled>
+      <NumberField.Root disabled>
         <NumberField.Decrement />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -242,10 +242,10 @@ describe('<NumberField.Decrement />', () => {
 
   it('should not decrement when readOnly', () => {
     render(
-      <NumberField readOnly>
+      <NumberField.Root readOnly>
         <NumberField.Decrement />
         <NumberField.Input />
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
