@@ -5,6 +5,7 @@
 _Apr 15, 2024_
 
 This is an initial release of Base UI as the @base_ui/react package.
+It features the Checkbox, Number Field, and Switch as the first components to be rewritten with a fresh new API. 🚀
 
 ### `@base_ui/react@1.0.0-alpha.0`
 
