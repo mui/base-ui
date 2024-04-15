@@ -137,8 +137,8 @@ export function useScrub(params: ScrubParams) {
             // This is a workaround to avoid flickering.
             avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
               try {
-                // Avoid non-deterministic errors in testing environments. Using the ownerDocument
-                // causes the error:
+                // Avoid non-deterministic errors in testing environments. This error sometimes
+                // appears:
                 // "The root document of this element is not valid for pointer lock."
                 // We need to await it even though it doesn't appear to return a promise in the
                 // types in order for the `catch` to work.
