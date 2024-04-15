@@ -2,7 +2,7 @@
 
 ## v1.0.0-alpha.0
 
-_Apr 12, 2024_
+_Apr 15, 2024_
 
 This is an initial release of Base UI as the @base_ui/react package.
 
