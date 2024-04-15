@@ -20,7 +20,6 @@ export function useScrub(params: ScrubParams) {
   const scrubHandleRef = React.useRef<ScrubHandle>(null);
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
-  const avoidFlickerTimeoutRef = React.useRef(-1);
   const isScrubbingRef = React.useRef(false);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
@@ -28,12 +27,6 @@ export function useScrub(params: ScrubParams) {
 
   const [isScrubbing, setIsScrubbing] = React.useState(false);
   const [cursorTransform, setCursorTransform] = React.useState('');
-
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(avoidFlickerTimeoutRef.current);
-    };
-  }, []);
 
   React.useEffect(() => {
     if (!isScrubbing || !scrubAreaCursorRef.current) {
@@ -133,11 +126,7 @@ export function useScrub(params: ScrubParams) {
 
           // WebKit causes significant layout shift with the native message, so we can't use it.
           if (!isWebKit()) {
-            // There can be some frames where there's no cursor at all when requesting the pointer lock.
-            // This is a workaround to avoid flickering.
-            avoidFlickerTimeoutRef.current = window.setTimeout(() => {
-              ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
-            }, 20);
+            ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
           }
         },
       }),
@@ -178,8 +167,6 @@ export function useScrub(params: ScrubParams) {
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        clearTimeout(avoidFlickerTimeoutRef.current);
-
         isScrubbingRef.current = false;
 
         onScrubbingChange(false, event);
