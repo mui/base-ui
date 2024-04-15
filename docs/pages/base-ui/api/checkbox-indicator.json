@@ -2,12 +2,11 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
-    "render": { "type": { "name": "func" } }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "CheckboxIndicator",
   "imports": [
-    "import { CheckboxIndicator } from '@mui/base/Checkbox';",
-    "import { CheckboxIndicator } from '@mui/base';"
+    "import * as Checkbox from '@base_ui/react/Checkbox';\nconst CheckboxIndicator = Checkbox.Indicator;"
   ],
   "classes": [],
   "spread": true,

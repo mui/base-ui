@@ -3,11 +3,11 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs/data/base/components/number-field/number-field.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
-import NumberFieldApiJsonPageContent from '../../api/number-field.json';
 import NumberFieldDecrementApiJsonPageContent from '../../api/number-field-decrement.json';
 import NumberFieldGroupApiJsonPageContent from '../../api/number-field-group.json';
 import NumberFieldIncrementApiJsonPageContent from '../../api/number-field-increment.json';
 import NumberFieldInputApiJsonPageContent from '../../api/number-field-input.json';
+import NumberFieldRootApiJsonPageContent from '../../api/number-field-root.json';
 import NumberFieldScrubAreaApiJsonPageContent from '../../api/number-field-scrub-area.json';
 import NumberFieldScrubAreaCursorApiJsonPageContent from '../../api/number-field-scrub-area-cursor.json';
 import useNumberFieldApiJsonPageContent from '../../api/use-number-field.json';
@@ -29,13 +29,6 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const NumberFieldApiReq = require.context(
-    'docs/translations/api-docs-base/number-field',
-    false,
-    /number-field.*.json$/,
-  );
-  const NumberFieldApiDescriptions = mapApiPageTranslations(NumberFieldApiReq);
-
   const NumberFieldDecrementApiReq = require.context(
     'docs/translations/api-docs-base/number-field-decrement',
     false,
@@ -64,6 +57,13 @@ export const getStaticProps = () => {
   );
   const NumberFieldInputApiDescriptions = mapApiPageTranslations(NumberFieldInputApiReq);
 
+  const NumberFieldRootApiReq = require.context(
+    'docs/translations/api-docs-base/number-field-root',
+    false,
+    /number-field-root.*.json$/,
+  );
+  const NumberFieldRootApiDescriptions = mapApiPageTranslations(NumberFieldRootApiReq);
+
   const NumberFieldScrubAreaApiReq = require.context(
     'docs/translations/api-docs-base/number-field-scrub-area',
     false,
@@ -90,20 +90,20 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
-        NumberField: NumberFieldApiDescriptions,
         NumberFieldDecrement: NumberFieldDecrementApiDescriptions,
         NumberFieldGroup: NumberFieldGroupApiDescriptions,
         NumberFieldIncrement: NumberFieldIncrementApiDescriptions,
         NumberFieldInput: NumberFieldInputApiDescriptions,
+        NumberFieldRoot: NumberFieldRootApiDescriptions,
         NumberFieldScrubArea: NumberFieldScrubAreaApiDescriptions,
         NumberFieldScrubAreaCursor: NumberFieldScrubAreaCursorApiDescriptions,
       },
       componentsApiPageContents: {
-        NumberField: NumberFieldApiJsonPageContent,
         NumberFieldDecrement: NumberFieldDecrementApiJsonPageContent,
         NumberFieldGroup: NumberFieldGroupApiJsonPageContent,
         NumberFieldIncrement: NumberFieldIncrementApiJsonPageContent,
         NumberFieldInput: NumberFieldInputApiJsonPageContent,
+        NumberFieldRoot: NumberFieldRootApiJsonPageContent,
         NumberFieldScrubArea: NumberFieldScrubAreaApiJsonPageContent,
         NumberFieldScrubAreaCursor: NumberFieldScrubAreaCursorApiJsonPageContent,
       },

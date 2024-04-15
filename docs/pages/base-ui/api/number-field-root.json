@@ -17,24 +17,27 @@
     "max": { "type": { "name": "number" } },
     "min": { "type": { "name": "number" } },
     "name": { "type": { "name": "string" } },
+    "onChange": {
+      "type": { "name": "func" },
+      "signature": { "type": "function(value: number | null) => void", "describedArgs": ["value"] }
+    },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
-    "render": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" },
     "smallStep": { "type": { "name": "number" }, "default": "0.1" },
     "step": { "type": { "name": "number" } },
     "value": { "type": { "name": "number" } }
   },
-  "name": "NumberField",
+  "name": "NumberFieldRoot",
   "imports": [
-    "import { NumberField } from '@mui/base/NumberField';",
-    "import { NumberField } from '@mui/base';"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldRoot = NumberField.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "NumberField",
+  "muiName": "NumberFieldRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/NumberField/NumberField.tsx",
+  "filename": "/packages/mui-base/src/NumberField/NumberFieldRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

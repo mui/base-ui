@@ -5,10 +5,7 @@
     "open": { "type": { "name": "bool" } }
   },
   "name": "Dropdown",
-  "imports": [
-    "import { Dropdown } from '@mui/base/Dropdown';",
-    "import { Dropdown } from '@mui/base';"
-  ],
+  "imports": ["import { Dropdown } from '@base_ui/react/Dropdown';"],
   "classes": [],
   "spread": false,
   "themeDefaultProps": null,

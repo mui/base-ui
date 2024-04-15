@@ -5,10 +5,7 @@
     "lastTransitionedPropertyOnExit": { "type": { "name": "string" } }
   },
   "name": "CssTransition",
-  "imports": [
-    "import { CssTransition } from '@mui/base/Transitions';",
-    "import { CssTransition } from '@mui/base';"
-  ],
+  "imports": ["import { CssTransition } from '@base_ui/react/Transitions';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,

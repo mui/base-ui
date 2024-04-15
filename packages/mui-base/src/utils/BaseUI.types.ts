@@ -40,5 +40,7 @@ export type BaseUIComponentProps<ElementType extends React.ElementType, OwnerSta
   /**
    * A function to customize rendering of the component.
    */
-  render?: ComponentRenderFn<React.ComponentPropsWithRef<ElementType>, OwnerState>;
+  render?:
+    | ComponentRenderFn<React.ComponentPropsWithRef<ElementType>, OwnerState>
+    | React.ReactElement<ElementType>;
 };

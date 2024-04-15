@@ -10,6 +10,7 @@ import { getBaseUiComponentInfo } from './getBaseUiComponentInfo';
 import { getBaseUiHookInfo } from './getBaseUiHookInfo';
 import { generateBaseUIApiPages } from './generateBaseUiApiPages';
 import { generateApiLinks } from './generateApiLinks';
+import { getComponentImports } from './getComponentImports';
 
 export const projectSettings: ProjectSettings = {
   output: {
@@ -24,7 +25,9 @@ export const projectSettings: ProjectSettings = {
   ],
   getApiPages: () => findApiPages('docs/pages/base-ui/api'),
   getComponentInfo: getBaseUiComponentInfo,
+  getComponentImports,
   getHookInfo: getBaseUiHookInfo,
+  getHookImports: getComponentImports,
   translationLanguages: LANGUAGES,
   skipComponent: () => false,
   onCompleted: async () => {

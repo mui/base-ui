@@ -1,9 +1,5 @@
 import * as React from 'react';
-import {
-  Checkbox as BaseCheckbox,
-  type CheckboxIndicatorProps,
-  type CheckboxProps,
-} from '@base_ui/react/Checkbox';
+import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 
@@ -42,10 +38,10 @@ export default function UnstyledCheckboxIntroduction() {
   );
 }
 
-const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
+const Checkbox = React.forwardRef<HTMLButtonElement, BaseCheckbox.RootProps>(
   function Checkbox(props, ref) {
     return (
-      <BaseCheckbox
+      <BaseCheckbox.Root
         {...props}
         ref={ref}
         className={(state) =>
@@ -67,7 +63,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
   },
 );
 
-const Indicator = React.forwardRef<HTMLSpanElement, CheckboxIndicatorProps>(
+const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.IndicatorProps>(
   function Indicator(props, ref) {
     return (
       <BaseCheckbox.Indicator

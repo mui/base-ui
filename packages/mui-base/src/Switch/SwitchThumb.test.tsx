@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Switch } from '@base_ui/react/Switch';
+import * as Switch from '@base_ui/react/Switch';
 import { describeConformance } from '../../test/describeConformance';
 import { SwitchContext } from './SwitchContext';
 

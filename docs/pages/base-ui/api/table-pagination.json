@@ -54,10 +54,7 @@
     }
   },
   "name": "TablePagination",
-  "imports": [
-    "import { TablePagination } from '@mui/base/TablePagination';",
-    "import { TablePagination } from '@mui/base';"
-  ],
+  "imports": ["import { TablePagination } from '@base_ui/react/TablePagination';"],
   "classes": [],
   "spread": true,
   "muiName": "TablePagination",

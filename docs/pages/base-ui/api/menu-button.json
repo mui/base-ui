@@ -15,10 +15,7 @@
     }
   },
   "name": "MenuButton",
-  "imports": [
-    "import { MenuButton } from '@mui/base/MenuButton';",
-    "import { MenuButton } from '@mui/base';"
-  ],
+  "imports": ["import { MenuButton } from '@base_ui/react/MenuButton';"],
   "classes": [],
   "spread": true,
   "muiName": "MenuButton",

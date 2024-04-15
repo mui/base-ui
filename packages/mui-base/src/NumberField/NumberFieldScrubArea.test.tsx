@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
 
@@ -40,9 +40,9 @@ describe('<NumberField.ScrubArea />', () => {
 
   it('has presentation role', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.ScrubArea />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByRole('presentation')).not.to.equal(null);
   });
@@ -59,12 +59,12 @@ describe('<NumberField.ScrubArea />', () => {
 
   it('should increment or decrement the value when scrubbing with the pointer', async () => {
     render(
-      <NumberField defaultValue={0}>
+      <NumberField.Root defaultValue={0}>
         <NumberField.Input />
         <NumberField.ScrubArea data-testid="scrub-area">
           <NumberField.ScrubAreaCursor />
         </NumberField.ScrubArea>
-      </NumberField>,
+      </NumberField.Root>,
     );
 
     const scrubArea = screen.getByTestId('scrub-area');
@@ -89,12 +89,12 @@ describe('<NumberField.ScrubArea />', () => {
   describe('prop: pixelSensitivity', () => {
     it('should only increment if the pointer movement was greater than or equal to the value', async () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Input />
           <NumberField.ScrubArea data-testid="scrub-area" pixelSensitivity={5}>
             <NumberField.ScrubAreaCursor />
           </NumberField.ScrubArea>
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const scrubArea = screen.getByTestId('scrub-area');
@@ -141,12 +141,12 @@ describe('<NumberField.ScrubArea />', () => {
   describe('prop: direction', () => {
     it('should only scrub if the pointer moved in the given direction', async () => {
       render(
-        <NumberField defaultValue={0}>
+        <NumberField.Root defaultValue={0}>
           <NumberField.Input />
           <NumberField.ScrubArea data-testid="scrub-area" direction="horizontal">
             <NumberField.ScrubAreaCursor />
           </NumberField.ScrubArea>
-        </NumberField>,
+        </NumberField.Root>,
       );
 
       const scrubArea = screen.getByTestId('scrub-area');

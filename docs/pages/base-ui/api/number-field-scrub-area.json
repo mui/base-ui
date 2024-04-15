@@ -6,13 +6,12 @@
       "default": "'vertical'"
     },
     "pixelSensitivity": { "type": { "name": "number" }, "default": "2" },
-    "render": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "teleportDistance": { "type": { "name": "number" } }
   },
   "name": "NumberFieldScrubArea",
   "imports": [
-    "import { NumberFieldScrubArea } from '@mui/base/NumberField';",
-    "import { NumberFieldScrubArea } from '@mui/base';"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldScrubArea = NumberField.ScrubArea;"
   ],
   "classes": [],
   "spread": true,

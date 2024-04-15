@@ -1,38 +1,38 @@
 import * as React from 'react';
-import { Switch } from '@base_ui/react/Switch';
+import * as Switch from '@base_ui/react/Switch';
 import { useTheme } from '@mui/system';
 
 export default function UnstyledSwitchIntroduction() {
   return (
     <div>
-      <Switch
+      <Switch.Root
         className="CustomSwitchIntroduction"
         aria-label="Basic switch, on by default"
         defaultChecked
       >
         <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
-      </Switch>
-      <Switch
+      </Switch.Root>
+      <Switch.Root
         className="CustomSwitchIntroduction"
         aria-label="Basic switch, off by default"
       >
         <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
-      </Switch>
-      <Switch
+      </Switch.Root>
+      <Switch.Root
         className="CustomSwitchIntroduction"
         aria-label="Disabled switch, on by default"
         defaultChecked
         disabled
       >
         <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
-      </Switch>
-      <Switch
+      </Switch.Root>
+      <Switch.Root
         className="CustomSwitchIntroduction"
         aria-label="Disabled switch, off by default"
         disabled
       >
         <Switch.Thumb className="CustomSwitchIntroduction-thumb" />
-      </Switch>
+      </Switch.Root>
       <Styles />
     </div>
   );

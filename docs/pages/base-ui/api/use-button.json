@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useButton",
   "filename": "/packages/mui-base/src/useButton/useButton.ts",
-  "imports": [
-    "import { useButton } from '@mui/base/useButton';",
-    "import { useButton } from '@mui/base';"
-  ],
+  "imports": ["import { useButton } from '@base_ui/react/useButton';"],
   "demos": "<ul><li><a href=\"/base-ui/react-button/#hook\">Button</a></li></ul>"
 }
