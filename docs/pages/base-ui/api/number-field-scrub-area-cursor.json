@@ -5,8 +5,8 @@
   },
   "name": "NumberFieldScrubAreaCursor",
   "imports": [
-    "import { NumberField } from '@base_ui/react/NumberField';\nconst ScrubAreaCursor = NumberField.ScrubAreaCursor;",
-    "import { NumberField } from '@base_ui/react';\nconst ScrubAreaCursor = NumberField.ScrubAreaCursor;"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldScrubAreaCursor = NumberField.ScrubAreaCursor;",
+    "import { NumberFieldScrubAreaCursor } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

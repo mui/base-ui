@@ -5,8 +5,8 @@
   },
   "name": "SwitchThumb",
   "imports": [
-    "import { Switch } from '@base_ui/react/Switch';\nconst Thumb = Switch.Thumb;",
-    "import { Switch } from '@base_ui/react';\nconst Thumb = Switch.Thumb;"
+    "import * as Switch from '@base_ui/react/Switch';\nconst SwitchThumb = Switch.Thumb;",
+    "import { SwitchThumb } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

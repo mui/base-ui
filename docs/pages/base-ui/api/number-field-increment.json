@@ -5,8 +5,8 @@
   },
   "name": "NumberFieldIncrement",
   "imports": [
-    "import { NumberField } from '@base_ui/react/NumberField';\nconst Increment = NumberField.Increment;",
-    "import { NumberField } from '@base_ui/react';\nconst Increment = NumberField.Increment;"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldIncrement = NumberField.Increment;",
+    "import { NumberFieldIncrement } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,

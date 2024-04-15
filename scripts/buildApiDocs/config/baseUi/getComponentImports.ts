@@ -25,8 +25,8 @@ export function getComponentImports(name: string, filename: string) {
     // cases like Switch/SwitchTrack.tsx
     const childName = name.slice(componentDirectory.length);
     return [
-      `import { ${componentDirectory} } from '@base_ui/react/${componentDirectory}';\nconst ${childName} = ${componentDirectory}.${childName};`,
-      `import { ${componentDirectory} } from '@base_ui/react';\nconst ${childName} = ${componentDirectory}.${childName};`,
+      `import * as ${componentDirectory} from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${childName};`,
+      `import { ${name} } from '@base_ui/react';`,
     ];
   }
 

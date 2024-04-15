@@ -30,8 +30,8 @@
   },
   "name": "NumberFieldRoot",
   "imports": [
-    "import { NumberField } from '@base_ui/react/NumberField';\nconst Root = NumberField.Root;",
-    "import { NumberField } from '@base_ui/react';\nconst Root = NumberField.Root;"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldRoot = NumberField.Root;",
+    "import { NumberFieldRoot } from '@base_ui/react';"
   ],
   "classes": [],
   "spread": true,
