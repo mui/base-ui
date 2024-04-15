@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useControlled } from '../utils/useControlled';
-import type { NumberFieldProps } from '../NumberField';
 import { useLatestRef } from '../utils/useLatestRef';
-import type { UseNumberFieldReturnValue } from './useNumberField.types';
+import type { UseNumberFieldParameters, UseNumberFieldReturnValue } from './useNumberField.types';
 import { ownerDocument, ownerWindow } from '../utils/owner';
 import { useId } from '../utils/useId';
 import { isIOS } from '../utils/detectBrowser';
@@ -40,7 +39,7 @@ import { mergeReactProps } from '../utils/mergeReactProps';
  *
  * - [useNumberField API](https://mui.com/base-ui/react-number-field/hooks-api/#use-number-field)
  */
-export function useNumberField(params: NumberFieldProps): UseNumberFieldReturnValue {
+export function useNumberField(params: UseNumberFieldParameters): UseNumberFieldReturnValue {
   const {
     id: idProp,
     name,
