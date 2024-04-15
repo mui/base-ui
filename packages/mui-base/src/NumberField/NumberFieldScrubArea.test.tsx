@@ -53,6 +53,7 @@ describe('<NumberField.ScrubArea />', () => {
     return;
   }
 
+  // `PointerEvent` isn't defined in JSDOM. This needs to be located beneath the return above.
   const pointerDownEvent = new PointerEvent('pointerdown', {
     bubbles: true,
     clientX: 100,
