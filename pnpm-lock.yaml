@@ -637,8 +637,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.4)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)'
       '@testing-library/react':
-        specifier: ^14.2.2
-        version: 14.2.2(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.3.1
+        version: 14.3.1(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@9.3.4)
@@ -5224,8 +5224,8 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@testing-library/react@14.2.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-SOUuM2ysCvjUWBXTNfQ/ztmnKDmqaiPV3SvoIuyxMUca45rbSWWAT/qB8CUs/JQ/ux/8JFs9DNdFQ3f6jH3crA==}
+  /@testing-library/react@14.3.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-H99XjUhWQw0lTgyMN05W3xQG1Nh4lq574D8keFf1dDoNTJgp66VbJozRaczoF+wsiaPJNt/TcnfpLGufGxSrZQ==}
     engines: {node: '>=14'}
     peerDependencies:
       react: ^18.0.0
@@ -17474,7 +17474,7 @@ packages:
       '@emotion/react': 11.11.4(@types/react@18.2.78)(react@18.2.0)
       '@mnajdova/enzyme-adapter-react-18': 0.2.0(enzyme@3.11.0)(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/dom': 9.3.4
-      '@testing-library/react': 14.2.2(react-dom@18.2.0)(react@18.2.0)
+      '@testing-library/react': 14.3.1(react-dom@18.2.0)(react@18.2.0)
       chai: 4.4.1
       chai-dom: 1.12.0(chai@4.4.1)
       dom-accessibility-api: 0.6.3
