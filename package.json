@@ -89,7 +89,7 @@
     "@mui/material": "5.15.15",
     "@mui/monorepo": "github:mui/material-ui#73c88b6c3f71287a4a1f0b1b5d7d37ab268dca49",
     "@mui/utils": "5.15.14",
-    "@next/eslint-plugin-next": "^14.1.4",
+    "@next/eslint-plugin-next": "^14.2.1",
     "@octokit/rest": "^20.1.0",
     "@playwright/test": "1.43.1",
     "@types/enzyme": "^3.10.18",
