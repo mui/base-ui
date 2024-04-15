@@ -20,7 +20,7 @@
     }
   },
   "name": "Button",
-  "imports": ["import { Button } from '@mui/base/Button';", "import { Button } from '@mui/base';"],
+  "imports": ["import { Button } from '@base_ui/react/Button';"],
   "classes": [],
   "spread": true,
   "muiName": "Button",

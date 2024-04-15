@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useMenuItem",
   "filename": "/packages/mui-base/src/useMenuItem/useMenuItem.ts",
-  "imports": [
-    "import { useMenuItem } from '@mui/base/useMenuItem';",
-    "import { useMenuItem } from '@mui/base';"
-  ],
+  "imports": ["import { useMenuItem } from '@base_ui/react/useMenuItem';"],
   "demos": "<ul><li><a href=\"/base-ui/react-menu/#hooks\">Menu</a></li></ul>"
 }

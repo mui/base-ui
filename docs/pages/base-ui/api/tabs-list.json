@@ -12,10 +12,7 @@
     }
   },
   "name": "TabsList",
-  "imports": [
-    "import { TabsList } from '@mui/base/TabsList';",
-    "import { TabsList } from '@mui/base';"
-  ],
+  "imports": ["import { TabsList } from '@base_ui/react/TabsList';"],
   "classes": [],
   "spread": true,
   "muiName": "TabsList",

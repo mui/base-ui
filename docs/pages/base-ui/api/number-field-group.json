@@ -5,8 +5,7 @@
   },
   "name": "NumberFieldGroup",
   "imports": [
-    "import { NumberFieldGroup } from '@mui/base/NumberField';",
-    "import { NumberFieldGroup } from '@mui/base';"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldGroup = NumberField.Group;"
   ],
   "classes": [],
   "spread": true,

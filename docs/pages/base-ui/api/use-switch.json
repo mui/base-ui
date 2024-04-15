@@ -38,9 +38,6 @@
   },
   "name": "useSwitch",
   "filename": "/packages/mui-base/src/useSwitch/useSwitch.ts",
-  "imports": [
-    "import { useSwitch } from '@mui/base/useSwitch';",
-    "import { useSwitch } from '@mui/base';"
-  ],
+  "imports": ["import { useSwitch } from '@base_ui/react/useSwitch';"],
   "demos": "<ul><li><a href=\"/base-ui/react-switch/#hook\">Switch</a></li></ul>"
 }

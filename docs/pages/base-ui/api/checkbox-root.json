@@ -19,8 +19,7 @@
   },
   "name": "CheckboxRoot",
   "imports": [
-    "import { CheckboxRoot } from '@mui/base/Checkbox';",
-    "import { CheckboxRoot } from '@mui/base';"
+    "import * as Checkbox from '@base_ui/react/Checkbox';\nconst CheckboxRoot = Checkbox.Root;"
   ],
   "classes": [],
   "spread": true,
