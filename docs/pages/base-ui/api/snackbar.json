@@ -26,10 +26,7 @@
     }
   },
   "name": "Snackbar",
-  "imports": [
-    "import { Snackbar } from '@base_ui/react/Snackbar';",
-    "import { Snackbar } from '@base_ui/react';"
-  ],
+  "imports": ["import { Snackbar } from '@base_ui/react/Snackbar';"],
   "classes": [],
   "spread": true,
   "muiName": "Snackbar",

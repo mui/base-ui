@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useSnackbar",
   "filename": "/packages/mui-base/src/useSnackbar/useSnackbar.ts",
-  "imports": [
-    "import { useSnackbar } from '@base_ui/react/useSnackbar';",
-    "import { useSnackbar } from '@base_ui/react';"
-  ],
+  "imports": ["import { useSnackbar } from '@base_ui/react/useSnackbar';"],
   "demos": "<ul><li><a href=\"/base-ui/react-snackbar/#hook\">Snackbar</a></li></ul>"
 }

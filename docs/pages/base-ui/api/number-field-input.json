@@ -5,8 +5,7 @@
   },
   "name": "NumberFieldInput",
   "imports": [
-    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldInput = NumberField.Input;",
-    "import { NumberFieldInput } from '@base_ui/react';"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldInput = NumberField.Input;"
   ],
   "classes": [],
   "spread": true,

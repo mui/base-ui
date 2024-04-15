@@ -5,10 +5,7 @@
     "fallback": { "type": { "name": "node" }, "default": "null" }
   },
   "name": "NoSsr",
-  "imports": [
-    "import { NoSsr } from '@base_ui/react/NoSsr';",
-    "import { NoSsr } from '@base_ui/react';"
-  ],
+  "imports": ["import { NoSsr } from '@base_ui/react/NoSsr';"],
   "classes": [],
   "spread": false,
   "themeDefaultProps": null,

@@ -15,10 +15,7 @@ export function getComponentImports(name: string, filename: string) {
 
   const componentDirectory = directories[3];
   if (componentDirectory === name) {
-    return [
-      `import { ${name} } from '@base_ui/react/${name}';`,
-      `import { ${name} } from '@base_ui/react';`,
-    ];
+    return [`import { ${name} } from '@base_ui/react/${name}';`];
   }
 
   if (name.startsWith(componentDirectory) && !name.startsWith('use')) {
@@ -26,12 +23,8 @@ export function getComponentImports(name: string, filename: string) {
     const childName = name.slice(componentDirectory.length);
     return [
       `import * as ${componentDirectory} from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${childName};`,
-      `import { ${name} } from '@base_ui/react';`,
     ];
   }
 
-  return [
-    `import { ${name} } from '@base_ui/react/${componentDirectory}';`,
-    `import { ${name} } from '@base_ui/react';`,
-  ];
+  return [`import { ${name} } from '@base_ui/react/${componentDirectory}';`];
 }

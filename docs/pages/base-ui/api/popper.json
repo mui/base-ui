@@ -48,10 +48,7 @@
     "transition": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "Popper",
-  "imports": [
-    "import { Popper } from '@base_ui/react/Popper';",
-    "import { Popper } from '@base_ui/react';"
-  ],
+  "imports": ["import { Popper } from '@base_ui/react/Popper';"],
   "classes": [],
   "spread": true,
   "muiName": "Popper",

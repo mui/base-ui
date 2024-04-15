@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useSelect",
   "filename": "/packages/mui-base/src/useSelect/useSelect.ts",
-  "imports": [
-    "import { useSelect } from '@base_ui/react/useSelect';",
-    "import { useSelect } from '@base_ui/react';"
-  ],
+  "imports": ["import { useSelect } from '@base_ui/react/useSelect';"],
   "demos": "<ul><li><a href=\"/base-ui/react-select/#hooks\">Select</a></li></ul>"
 }

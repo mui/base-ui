@@ -19,10 +19,7 @@
     }
   },
   "name": "ClickAwayListener",
-  "imports": [
-    "import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';",
-    "import { ClickAwayListener } from '@base_ui/react';"
-  ],
+  "imports": ["import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';"],
   "classes": [],
   "spread": false,
   "themeDefaultProps": null,

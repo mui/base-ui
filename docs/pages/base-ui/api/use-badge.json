@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useBadge",
   "filename": "/packages/mui-base/src/useBadge/useBadge.ts",
-  "imports": [
-    "import { useBadge } from '@base_ui/react/useBadge';",
-    "import { useBadge } from '@base_ui/react';"
-  ],
+  "imports": ["import { useBadge } from '@base_ui/react/useBadge';"],
   "demos": "<ul><li><a href=\"/base-ui/react-badge/#hook\">Badge</a></li></ul>"
 }

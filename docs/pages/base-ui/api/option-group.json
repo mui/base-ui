@@ -19,10 +19,7 @@
     }
   },
   "name": "OptionGroup",
-  "imports": [
-    "import { OptionGroup } from '@base_ui/react/OptionGroup';",
-    "import { OptionGroup } from '@base_ui/react';"
-  ],
+  "imports": ["import { OptionGroup } from '@base_ui/react/OptionGroup';"],
   "classes": [],
   "spread": true,
   "muiName": "OptionGroup",

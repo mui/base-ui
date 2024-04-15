@@ -19,10 +19,7 @@
     }
   },
   "name": "Badge",
-  "imports": [
-    "import { Badge } from '@base_ui/react/Badge';",
-    "import { Badge } from '@base_ui/react';"
-  ],
+  "imports": ["import { Badge } from '@base_ui/react/Badge';"],
   "classes": [],
   "spread": true,
   "muiName": "Badge",

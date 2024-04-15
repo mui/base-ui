@@ -7,10 +7,7 @@
     }
   },
   "name": "TextareaAutosize",
-  "imports": [
-    "import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';",
-    "import { TextareaAutosize } from '@base_ui/react';"
-  ],
+  "imports": ["import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';"],
   "classes": [],
   "spread": false,
   "muiName": "TextareaAutosize",

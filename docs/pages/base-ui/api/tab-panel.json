@@ -13,10 +13,7 @@
     "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
   },
   "name": "TabPanel",
-  "imports": [
-    "import { TabPanel } from '@base_ui/react/TabPanel';",
-    "import { TabPanel } from '@base_ui/react';"
-  ],
+  "imports": ["import { TabPanel } from '@base_ui/react/TabPanel';"],
   "classes": [],
   "spread": true,
   "muiName": "TabPanel",

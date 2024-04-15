@@ -45,10 +45,7 @@
     }
   },
   "name": "Popup",
-  "imports": [
-    "import { Popup } from '@base_ui/react/Unstable_Popup';",
-    "import { Popup } from '@base_ui/react';"
-  ],
+  "imports": ["import { Popup } from '@base_ui/react/Unstable_Popup';"],
   "classes": [],
   "spread": true,
   "muiName": "Popup",

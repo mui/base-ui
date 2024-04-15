@@ -24,10 +24,7 @@
     "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
   },
   "name": "Tabs",
-  "imports": [
-    "import { Tabs } from '@base_ui/react/Tabs';",
-    "import { Tabs } from '@base_ui/react';"
-  ],
+  "imports": ["import { Tabs } from '@base_ui/react/Tabs';"],
   "classes": [],
   "spread": true,
   "muiName": "Tabs",

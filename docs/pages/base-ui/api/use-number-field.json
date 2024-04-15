@@ -108,9 +108,6 @@
   },
   "name": "useNumberField",
   "filename": "/packages/mui-base/src/useNumberField/useNumberField.ts",
-  "imports": [
-    "import { useNumberField } from '@base_ui/react/useNumberField';",
-    "import { useNumberField } from '@base_ui/react';"
-  ],
+  "imports": ["import { useNumberField } from '@base_ui/react/useNumberField';"],
   "demos": "<ul><li><a href=\"/base-ui/react-number-field/#hook\">Number Field</a></li></ul>"
 }

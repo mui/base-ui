@@ -6,8 +6,7 @@
   },
   "name": "CheckboxIndicator",
   "imports": [
-    "import * as Checkbox from '@base_ui/react/Checkbox';\nconst CheckboxIndicator = Checkbox.Indicator;",
-    "import { CheckboxIndicator } from '@base_ui/react';"
+    "import * as Checkbox from '@base_ui/react/Checkbox';\nconst CheckboxIndicator = Checkbox.Indicator;"
   ],
   "classes": [],
   "spread": true,

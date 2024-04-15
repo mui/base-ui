@@ -14,10 +14,7 @@
     }
   },
   "name": "Option",
-  "imports": [
-    "import { Option } from '@base_ui/react/Option';",
-    "import { Option } from '@base_ui/react';"
-  ],
+  "imports": ["import { Option } from '@base_ui/react/Option';"],
   "classes": [],
   "spread": true,
   "muiName": "Option",
