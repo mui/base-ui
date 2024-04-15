@@ -20,11 +20,11 @@ function execDry(command, options) {
 }
 
 /**
- * Find the remote pointing to mui/material-ui.
+ * Find the remote pointing to mui/base-ui.
  *
  * Conventionally this should be named `upstream` but some collaborators might've used a different naming scheme.
  */
-async function findMuiOrgRemote() {
+async function findRemote() {
   const { stdout } = await execActual(['git', 'remote', '-v'].join(' '));
   const remoteLines = stdout.trim().split(/\r?\n/);
 
@@ -34,13 +34,10 @@ async function findMuiOrgRemote() {
       return { name, url, method };
     })
     .find((remote) => {
-      // test: https://regex101.com/r/fBVJUX/1
       // matching:
-      // - https://github.com/mui/material-ui
-      // - git@github.com:mui/material-ui.git
-      // but not:
-      // - git@github.com:mui/material-ui-docs.git
-      return /mui\/material-ui(\.git)?$/.test(remote.url) && remote.method === '(push)';
+      // - https://github.com/mui/base-ui
+      // - git@github.com:mui/base-ui.git
+      return /mui\/base-ui(\.git)?$/.test(remote.url) && remote.method === '(push)';
     });
 }
 
@@ -59,27 +56,27 @@ async function main(argv) {
   // eslint-disable-next-line no-console -- verbose logging
   console.log(`Created tag '${tag}'. To remove enter 'git tag -d ${tag}'`);
 
-  const muiOrgRemote = await findMuiOrgRemote();
-  if (muiOrgRemote === undefined) {
+  const upstreamRepo = await findRemote();
+  if (upstreamRepo === undefined) {
     throw new TypeError(
-      'Unable to find the upstream remote. It should be a remote pointing to "mui/material-ui". ' +
-        'Did you forget to add it via `git remote add upstream git@github.com:mui/material-ui.git`? ' +
+      'Unable to find the upstream remote. It should be a remote pointing to "mui/base-ui". ' +
+        'Did you forget to add it via `git remote add upstream git@github.com:mui/base-ui.git`? ' +
         'If you think this is a bug please include `git remote -v` in your report.',
     );
   }
 
-  await exec(['git', 'push', muiOrgRemote.name, tag].join(' '));
+  await exec(['git', 'push', upstreamRepo.name, tag].join(' '));
 
   // eslint-disable-next-line no-console -- verbose logging
   console.log(
-    `Pushed tag '${tag}' to . This should not be reversed. In case of emergency enter 'git push --delete ${muiOrgRemote.name} ${tag}' to remove.`,
+    `Pushed tag '${tag}' to . This should not be reversed. In case of emergency enter 'git push --delete ${upstreamRepo.name} ${tag}' to remove.`,
   );
 }
 
 yargs(process.argv.slice(2))
   .command({
     command: '$0',
-    description: 'Tags the current release and pushes these changes to mui/material-ui.',
+    description: 'Tags the current release and pushes these changes to mui/base-ui.',
     builder: (command) => {
       return command.option('dryRun', {
         default: false,
