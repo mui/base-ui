@@ -1,5 +1,10 @@
 {
-  "props": {},
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
+  },
   "name": "TabPanel",
   "imports": ["import { TabPanel } from '@base_ui/react/Tabs';"],
   "classes": [],

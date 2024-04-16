@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useTabIndicator } from '../../useTabIndicator/useTabIndicator';
 import { TabIndicatorProps } from './TabIndicator.types';
 import { resolveClassName } from '../../utils/resolveClassName';
@@ -126,5 +127,24 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
     );
   },
 );
+
+TabIndicator.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+} as any;
 
 export { TabIndicator };
