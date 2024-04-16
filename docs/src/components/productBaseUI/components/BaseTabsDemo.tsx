@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import { styled, GlobalStyles } from '@mui/system';
 
 const tabListStyles = `
@@ -82,7 +82,7 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
       }}
     >
       {styling === 'system' && (
-        <Tabs defaultValue={0}>
+        <Tabs.Root defaultValue={0}>
           <TabsList>
             <Tab>One</Tab>
             <Tab>Two</Tab>
@@ -91,10 +91,10 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
           <TabPanel value={0}>First page</TabPanel>
           <TabPanel value={1}>Second page</TabPanel>
           <TabPanel value={2}>Third page</TabPanel>
-        </Tabs>
+        </Tabs.Root>
       )}
       {styling === 'css' && (
-        <Tabs defaultValue={0}>
+        <Tabs.Root defaultValue={0}>
           <GlobalStyles styles={CSS} />
           <Tabs.List className="base-TabsList-root">
             <Tabs.Tab className="base-Tab-root">One</Tabs.Tab>
@@ -110,10 +110,10 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
           <Tabs.Panel className="base-TabPanel-root" value={2}>
             Third page
           </Tabs.Panel>
-        </Tabs>
+        </Tabs.Root>
       )}
       {styling === 'tailwindcss' && ( // https://play.tailwindcss.com/8jGjUI7EWe
-        <Tabs defaultValue={0}>
+        <Tabs.Root defaultValue={0}>
           <Tabs.List className="mb-[16px] flex min-w-[300px] content-between items-center justify-center rounded-[12px] bg-[--primary] [box-shadow:var(--shadow)]">
             <Tabs.Tab className={tabStylesTailwind}>One</Tabs.Tab>
             <Tabs.Tab className={tabStylesTailwind}>Two</Tabs.Tab>
@@ -128,7 +128,7 @@ export default function BaseTabsDemo({ styling }: { styling: 'system' | 'tailwin
           <Tabs.Panel className={tabPanelStylesTailwind} value={2}>
             Third page
           </Tabs.Panel>
-        </Tabs>
+        </Tabs.Root>
       )}
     </Box>
   );
@@ -144,7 +144,7 @@ const StyledTabPanel = styled(Tabs.Panel)\`${tabPanelStyles}\`;
 
 const StyledTab = styled(Tabs.Tab)\`${tabStyles}\`;
 
-<Tabs defaultValue={0}>
+<Tabs.Root defaultValue={0}>
   <TabsList>
     <Tab>One</Tab>
     <Tab>Two</Tab>
@@ -159,13 +159,13 @@ const StyledTab = styled(Tabs.Tab)\`${tabStyles}\`;
   <TabPanel value={2}>
     Third page
   </TabPanel>
-</Tabs>
+</Tabs.Root>
 `;
   }
   if (styling === 'tailwindcss') {
     return `import { Tabs } from '@base_ui/react/Tabs';
 
-<Tabs defaultValue={0}>
+<Tabs.Root defaultValue={0}>
   <Tabs.List className="mb-[16px] flex min-w-[300px] content-between items-center justify-center rounded-[12px] bg-[--primary] [box-shadow:var(--shadow)]">
     <Tabs.Tab className={${tabStylesTailwind}}>One</Tabs.Tab>
     <Tabs.Tab className={${tabStylesTailwind}}>Two</Tabs.Tab>
@@ -180,14 +180,14 @@ const StyledTab = styled(Tabs.Tab)\`${tabStyles}\`;
   <Tabs.Panel className={${tabPanelStylesTailwind}} value={2}>
     Third page
   </Tabs.Panel>
-</Tabs>`;
+</Tabs.Root>`;
   }
   if (styling === 'css') {
     return `import { Tabs } from '@base_ui/react/Tabs';
 import { styled } from '@mui/system';
 import './styles.css';
 
-<Tabs defaultValue={0}>
+<Tabs.Root defaultValue={0}>
   <Tabs.List>
     <Tabs.Tab>One</Tabs.Tab>
     <Tabs.Tab>Two</Tabs.Tab>
@@ -196,7 +196,7 @@ import './styles.css';
   <Tabs.Panel value={0}>First page</Tabs.Panel>
   <Tabs.Panel value={1}>Second page</Tabs.Panel>
   <Tabs.Panel value={2}>Third page</Tabs.Panel>
-</Tabs>
+</Tabs.Root>
 
 /* styles.css */
 ${CSS}

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsBasic() {
   return (
-    <Tabs defaultValue={1}>
+    <Tabs.Root defaultValue={1}>
       <Tabs.List>
         <Tabs.Tab value={1}>One</Tabs.Tab>
         <Tabs.Tab value={2}>Two</Tabs.Tab>
@@ -12,6 +12,6 @@ export default function UnstyledTabsBasic() {
       <Tabs.Panel value={1}>First page</Tabs.Panel>
       <Tabs.Panel value={2}>Second page</Tabs.Panel>
       <Tabs.Panel value={3}>Third page</Tabs.Panel>
-    </Tabs>
+    </Tabs.Root>
   );
 }

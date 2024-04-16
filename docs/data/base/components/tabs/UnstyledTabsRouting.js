@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import {
   MemoryRouter,
   Route,
@@ -52,7 +52,7 @@ function MyTabs() {
   const currentTab = routeMatch?.pattern?.path;
 
   return (
-    <Tabs value={currentTab}>
+    <Tabs.Root value={currentTab}>
       <TabsList>
         <Tab
           value="/inbox/:id"
@@ -67,7 +67,7 @@ function MyTabs() {
           Trash
         </Tab>
       </TabsList>
-    </Tabs>
+    </Tabs.Root>
   );
 }
 

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { TabProps, Tabs, TabsListProps } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsCustomized() {
   return (
-    <Tabs defaultValue={1}>
+    <Tabs.Root defaultValue={1}>
       <TabsList>
         <Tab value={1}>One</Tab>
         <Tab value={2}>Two</Tab>
@@ -18,12 +18,12 @@ export default function UnstyledTabsCustomized() {
       <Tabs.Panel className="w-full font-sans text-sm" value={3}>
         Third page
       </Tabs.Panel>
-    </Tabs>
+    </Tabs.Root>
   );
 }
 
 const TabsList = React.forwardRef(function TabsList(
-  props: TabsListProps,
+  props: Tabs.ListProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -36,7 +36,7 @@ const TabsList = React.forwardRef(function TabsList(
 });
 
 const Tab = React.forwardRef(function Tab(
-  props: TabProps,
+  props: Tabs.TabProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (

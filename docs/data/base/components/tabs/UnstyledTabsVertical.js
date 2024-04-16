@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Tabs as BaseTabs } from '@base_ui/react/Tabs';
+import * as BaseTabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsVertical() {
   return (
@@ -88,7 +88,7 @@ const TabPanel = styled(BaseTabs.Panel)`
   font-size: 0.875rem;
 `;
 
-const Tabs = styled(BaseTabs)`
+const Tabs = styled(BaseTabs.Root)`
   display: flex;
   gap: 16px;
   width: 200px;

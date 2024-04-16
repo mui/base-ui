@@ -1,27 +1,30 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function KeyboardNavigation() {
   return (
     <div>
       <p>Selection following focus (default behavior):</p>
-      <Tabs defaultValue={1} aria-label="Tabs where selection follows focus">
+      <Tabs.Root defaultValue={1} aria-label="Tabs where selection follows focus">
         <TabsList>
           <Tab value={1}>One</Tab>
           <Tab value={2}>Two</Tab>
           <Tab value={3}>Three</Tab>
         </TabsList>
-      </Tabs>
+      </Tabs.Root>
 
       <p>Selection independent of focus:</p>
-      <Tabs defaultValue={1} aria-label="Tabs where selection does not follow focus">
+      <Tabs.Root
+        defaultValue={1}
+        aria-label="Tabs where selection does not follow focus"
+      >
         <TabsList activateOnFocus={false}>
           <Tab value={1}>One</Tab>
           <Tab value={2}>Two</Tab>
           <Tab value={3}>Three</Tab>
         </TabsList>
-      </Tabs>
+      </Tabs.Root>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsCustomized() {
   return (
-    <Tabs defaultValue={1}>
+    <Tabs.Root defaultValue={1}>
       <TabsList>
         <Tab value={1}>One</Tab>
         <Tab value={2}>Two</Tab>
@@ -18,7 +18,7 @@ export default function UnstyledTabsCustomized() {
       <Tabs.Panel className="w-full font-sans text-sm" value={3}>
         Third page
       </Tabs.Panel>
-    </Tabs>
+    </Tabs.Root>
   );
 }
 

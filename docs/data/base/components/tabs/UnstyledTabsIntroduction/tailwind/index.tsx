@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { TabPanelProps, TabProps, Tabs, TabsListProps } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -14,7 +14,7 @@ export default function UnstyledTabsIntroduction() {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <Tabs defaultValue={0}>
+      <Tabs.Root defaultValue={0}>
         <TabsList>
           <Tab value={0}>My account</Tab>
           <Tab value={1}>Profile</Tab>
@@ -23,12 +23,12 @@ export default function UnstyledTabsIntroduction() {
         <TabPanel value={0}>My account page</TabPanel>
         <TabPanel value={1}>Profile page</TabPanel>
         <TabPanel value={2}>Language page</TabPanel>
-      </Tabs>
+      </Tabs.Root>
     </div>
   );
 }
 
-const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>((props, ref) => {
+const TabsList = React.forwardRef<HTMLDivElement, Tabs.ListProps>((props, ref) => {
   const { className, ...other } = props;
   return (
     <Tabs.List
@@ -42,7 +42,7 @@ const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>((props, ref) =>
   );
 });
 
-const Tab = React.forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
+const Tab = React.forwardRef<HTMLButtonElement, Tabs.TabProps>((props, ref) => {
   const { className, ...other } = props;
   return (
     <Tabs.Tab
@@ -64,7 +64,7 @@ const Tab = React.forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
   );
 });
 
-const TabPanel = React.forwardRef<HTMLDivElement, TabPanelProps>((props, ref) => {
+const TabPanel = React.forwardRef<HTMLDivElement, Tabs.PanelProps>((props, ref) => {
   const { className, ...other } = props;
   return (
     <Tabs.Panel

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { Tabs, TabsProps } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import HighlightedCode from './HighlightedCode';
 
 const TabList = styled(Tabs.List)(({ theme }) => ({
@@ -102,7 +102,7 @@ export default function HighlightedCodeWithTabs({
     setMounted(true);
   }, [availableTabs, storageKey]);
 
-  const handleChange: TabsProps['onChange'] = (event, newValue) => {
+  const handleChange: Tabs.RootProps['onChange'] = (event, newValue) => {
     setActiveTab(newValue as string);
     if (storageKey === undefined) {
       return;
@@ -116,7 +116,7 @@ export default function HighlightedCodeWithTabs({
 
   const ownerState = { mounted };
   return (
-    <Tabs value={activeTab} onChange={handleChange}>
+    <Tabs.Root value={activeTab} onChange={handleChange}>
       <TabList>
         {tabs.map(({ tab }) => (
           <Tab ownerState={ownerState} key={tab} value={tab}>
@@ -133,6 +133,6 @@ export default function HighlightedCodeWithTabs({
           />
         </TabPanel>
       ))}
-    </Tabs>
+    </Tabs.Root>
   );
 }

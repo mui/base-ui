@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsIntroduction() {
   return (
-    <Tabs defaultValue={0}>
+    <Tabs.Root defaultValue={0}>
       <TabsList>
         <Tab value={0}>My account</Tab>
         <Tab value={1}>Profile</Tab>
@@ -13,7 +13,7 @@ export default function UnstyledTabsIntroduction() {
       <TabPanel value={0}>My account page</TabPanel>
       <TabPanel value={1}>Profile page</TabPanel>
       <TabPanel value={2}>Language page</TabPanel>
-    </Tabs>
+    </Tabs.Root>
   );
 }
 

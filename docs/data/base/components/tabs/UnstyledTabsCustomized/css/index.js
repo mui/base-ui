@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsCustomized() {
   return (
     <React.Fragment>
-      <Tabs defaultValue={1}>
+      <Tabs.Root defaultValue={1}>
         <Tabs.List className="CustomTabsList">
           <Tabs.Tab className="CustomTab" value={1}>
             One
@@ -26,7 +26,7 @@ export default function UnstyledTabsCustomized() {
         <Tabs.Panel className="CustomTabPanel" value={3}>
           Third page
         </Tabs.Panel>
-      </Tabs>
+      </Tabs.Root>
       <Styles />
     </React.Fragment>
   );

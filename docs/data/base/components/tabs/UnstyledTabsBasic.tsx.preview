@@ -1,4 +1,4 @@
-<Tabs defaultValue={1}>
+<Tabs.Root defaultValue={1}>
   <Tabs.List>
     <Tabs.Tab value={1}>One</Tabs.Tab>
     <Tabs.Tab value={2}>Two</Tabs.Tab>
@@ -7,4 +7,4 @@
   <Tabs.Panel value={1}>First page</Tabs.Panel>
   <Tabs.Panel value={2}>Second page</Tabs.Panel>
   <Tabs.Panel value={3}>Third page</Tabs.Panel>
-</Tabs>
+</Tabs.Root>

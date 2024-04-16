@@ -1,4 +1,4 @@
-<Tabs defaultValue={1}>
+<Tabs.Root defaultValue={1}>
   <TabsList>
     <Tab value={1}>One</Tab>
     <Tab value={2}>Two</Tab>
@@ -13,4 +13,4 @@
   <Tabs.Panel className="w-full font-sans text-sm" value={3}>
     Third page
   </Tabs.Panel>
-</Tabs>
+</Tabs.Root>

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsIntroduction() {
   return (
     <React.Fragment>
-      <Tabs defaultValue={0}>
+      <Tabs.Root defaultValue={0}>
         <Tabs.List className="CustomTabsListIntroduction">
           <Tabs.Tab className="CustomTabIntroduction" value={0}>
             My account
@@ -26,7 +26,7 @@ export default function UnstyledTabsIntroduction() {
         <Tabs.Panel className="CustomTabPanelIntroduction" value={2}>
           Language page
         </Tabs.Panel>
-      </Tabs>
+      </Tabs.Root>
       <Styles />
     </React.Fragment>
   );

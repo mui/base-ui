@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { css, styled } from '@mui/system';
-import { Tabs as BaseTabs } from '@base_ui/react/Tabs';
+import * as BaseTabs from '@base_ui/react/Tabs';
 import HoverObserverRoot from './HoverObserver/Root';
 import HoverObserverContainer from './HoverObserver/Container';
 import HoverObserverIndicator from './HoverObserver/Indicator';
@@ -71,7 +71,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Tabs = styled(BaseTabs)`
+const Tabs = styled(BaseTabs.Root)`
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
