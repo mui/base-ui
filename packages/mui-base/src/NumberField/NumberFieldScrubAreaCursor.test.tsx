@@ -4,6 +4,7 @@ import * as NumberField from '@base_ui/react/NumberField';
 import { expect } from 'chai';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
+import { isWebKit } from '../utils/detectBrowser';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,
@@ -19,6 +20,11 @@ const testContext = {
 
 describe('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
+
+  // This component doesn't render on WebKit.
+  if (isWebKit()) {
+    return;
+  }
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
     inheritComponent: 'span',
