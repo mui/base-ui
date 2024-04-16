@@ -83,7 +83,7 @@ describe('<Select />', () => {
       const markup = (
         <Select defaultValue="1">
           <Option value="1">
-            <img src="one.png" alt="One" /> One
+            <img src="/fake.png" alt="One" /> One
           </Option>
         </Select>
       );
@@ -98,7 +98,7 @@ describe('<Select />', () => {
       const markup = (
         <Select defaultValue="1">
           <Option value="1" label="One">
-            <img src="one.png" alt="One" />
+            <img src="/fake.png" alt="One" />
           </Option>
         </Select>
       );

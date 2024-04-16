@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Tabs, TabsContext, TabsContextValue } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import { TabsListProvider, TabsListProviderValue } from '@base_ui/react/useTabsList';
+import { TabsContext, TabsContextValue } from '@base_ui/react/useTabs/TabsContext';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Tabs.Tab />', () => {

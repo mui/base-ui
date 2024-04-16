@@ -1,8 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { NumberFieldDecrementProps } from './NumberField.types';
+import type { DecrementProps } from './NumberField.types';
 import { useNumberFieldContext } from './NumberFieldContext';
 import { resolveClassName } from '../utils/resolveClassName';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
@@ -20,7 +22,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  * - [NumberFieldDecrement API](https://mui.com/base-ui/react-number-field/components-api/#number-field-decrement)
  */
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
-  props: NumberFieldDecrementProps,
+  props: DecrementProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
@@ -28,13 +30,15 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
 
   const { getDecrementButtonProps, ownerState } = useNumberFieldContext('Decrement');
 
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+
   const buttonProps = getDecrementButtonProps({
-    ref: forwardedRef,
+    ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
   });
 
-  return render(buttonProps, ownerState);
+  return evaluateRenderProp(render, buttonProps, ownerState);
 });
 
 NumberFieldDecrement.propTypes /* remove-proptypes */ = {
@@ -53,7 +57,7 @@ NumberFieldDecrement.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { NumberFieldDecrement };

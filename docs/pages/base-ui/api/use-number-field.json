@@ -1,5 +1,33 @@
 {
-  "parameters": {},
+  "parameters": {
+    "allowWheelScrub": {
+      "type": { "name": "boolean", "description": "boolean" },
+      "default": "false"
+    },
+    "autoFocus": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "defaultValue": { "type": { "name": "number", "description": "number" } },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "format": {
+      "type": { "name": "Intl.NumberFormatOptions", "description": "Intl.NumberFormatOptions" }
+    },
+    "id": { "type": { "name": "string", "description": "string" } },
+    "invalid": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "largeStep": { "type": { "name": "number", "description": "number" }, "default": "10" },
+    "max": { "type": { "name": "number", "description": "number" } },
+    "min": { "type": { "name": "number", "description": "number" } },
+    "name": { "type": { "name": "string", "description": "string" } },
+    "onChange": {
+      "type": {
+        "name": "(value: number | null) =&gt; void",
+        "description": "(value: number | null) =&gt; void"
+      }
+    },
+    "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "required": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "smallStep": { "type": { "name": "number", "description": "number" }, "default": "0.1" },
+    "step": { "type": { "name": "number", "description": "number" } },
+    "value": { "type": { "name": "number | null", "description": "number | null" } }
+  },
   "returnValue": {
     "getDecrementButtonProps": {
       "type": {
@@ -80,9 +108,6 @@
   },
   "name": "useNumberField",
   "filename": "/packages/mui-base/src/useNumberField/useNumberField.ts",
-  "imports": [
-    "import { useNumberField } from '@mui/base/useNumberField';",
-    "import { useNumberField } from '@mui/base';"
-  ],
+  "imports": ["import { useNumberField } from '@base_ui/react/useNumberField';"],
   "demos": "<ul><li><a href=\"/base-ui/react-number-field/#hook\">Number Field</a></li></ul>"
 }

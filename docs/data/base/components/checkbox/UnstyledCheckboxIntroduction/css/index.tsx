@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Checkbox } from '@base_ui/react/Checkbox';
+import * as Checkbox from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 
 export default function UnstyledCheckboxIntroduction() {
   return (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Checkbox
+      <Checkbox.Root
         className="Checkbox"
         aria-label="Basic checkbox, on by default"
         defaultChecked
@@ -14,13 +14,16 @@ export default function UnstyledCheckboxIntroduction() {
         <Checkbox.Indicator className="Checkbox-indicator">
           <Check className="Checkbox-icon" />
         </Checkbox.Indicator>
-      </Checkbox>
-      <Checkbox className="Checkbox" aria-label="Basic checkbox, off by default">
+      </Checkbox.Root>
+      <Checkbox.Root
+        className="Checkbox"
+        aria-label="Basic checkbox, off by default"
+      >
         <Checkbox.Indicator className="Checkbox-indicator">
           <Check className="Checkbox-icon" />
         </Checkbox.Indicator>
-      </Checkbox>
-      <Checkbox
+      </Checkbox.Root>
+      <Checkbox.Root
         className="Checkbox"
         aria-label="Disabled checkbox, on by default"
         defaultChecked
@@ -29,8 +32,8 @@ export default function UnstyledCheckboxIntroduction() {
         <Checkbox.Indicator className="Checkbox-indicator">
           <Check className="Checkbox-icon" />
         </Checkbox.Indicator>
-      </Checkbox>
-      <Checkbox
+      </Checkbox.Root>
+      <Checkbox.Root
         className="Checkbox"
         aria-label="Disabled checkbox, off by default"
         disabled
@@ -38,7 +41,7 @@ export default function UnstyledCheckboxIntroduction() {
         <Checkbox.Indicator className="Checkbox-indicator">
           <Check className="Checkbox-icon" />
         </Checkbox.Indicator>
-      </Checkbox>
+      </Checkbox.Root>
       <Styles />
     </div>
   );

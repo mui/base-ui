@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import { TabsProvider, TabsProviderValue } from '@base_ui/react/useTabs';
 import { describeConformance } from '../../../test/describeConformance';
 

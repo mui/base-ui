@@ -14,20 +14,19 @@
       }
     },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
-    "render": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
-  "name": "Checkbox",
+  "name": "CheckboxRoot",
   "imports": [
-    "import { Checkbox } from '@mui/base/Checkbox';",
-    "import { Checkbox } from '@mui/base';"
+    "import * as Checkbox from '@base_ui/react/Checkbox';\nconst CheckboxRoot = Checkbox.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "Checkbox",
+  "muiName": "CheckboxRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Checkbox/Checkbox.tsx",
+  "filename": "/packages/mui-base/src/Checkbox/CheckboxRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-checkbox/\">Checkbox</a></li></ul>",
   "cssComponent": false

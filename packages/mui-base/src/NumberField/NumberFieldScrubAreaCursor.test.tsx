@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base_ui/react/NumberField';
+import * as NumberField from '@base_ui/react/NumberField';
 import { expect } from 'chai';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
+import { isWebKit } from '../utils/detectBrowser';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,
@@ -20,6 +21,11 @@ const testContext = {
 describe('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
 
+  // This component doesn't render on WebKit.
+  if (isWebKit()) {
+    return;
+  }
+
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
     inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
@@ -33,9 +39,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
 
   it('has presentation role', () => {
     render(
-      <NumberField>
+      <NumberField.Root>
         <NumberField.ScrubArea />
-      </NumberField>,
+      </NumberField.Root>,
     );
     expect(screen.queryByRole('presentation')).not.to.equal(null);
   });

@@ -1,11 +1,11 @@
 import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import type { TabsDirection, TabsOrientation, TabsOwnerState } from '../Tabs.types';
+import type { TabsDirection, TabsOrientation, TabsRootOwnerState } from '../Tabs.types';
 import type {
   ActiveTabPosition,
   TabSelectionMovementDirection,
 } from '../../useTabIndicator/useTabIndicator.types';
 
-export type TabIndicatorOwnerState = TabsOwnerState & {
+export type TabIndicatorOwnerState = TabsRootOwnerState & {
   selectedTabPosition: ActiveTabPosition | null;
   orientation: TabsOrientation;
   direction: TabsDirection;

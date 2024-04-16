@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer } from '@mui/internal-test-utils';
-import { Tabs, TabsContext } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
+import { TabsContext } from '@base_ui/react/useTabs';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Tabs.List />', () => {
@@ -37,13 +38,13 @@ describe('<Tabs.List />', () => {
   describe('accessibility attributes', () => {
     it('sets the aria-selected attribute on the selected tab', () => {
       const { getByText } = render(
-        <Tabs defaultValue={1}>
+        <Tabs.Root defaultValue={1}>
           <Tabs.List>
             <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
             <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
             <Tabs.Tab value={3}>Tab 3</Tabs.Tab>
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       const tab1 = getByText('Tab 1');
@@ -82,11 +83,11 @@ describe('<Tabs.List />', () => {
 
   it('can be named via `aria-label`', () => {
     const { getByRole } = render(
-      <Tabs defaultValue={0}>
+      <Tabs.Root defaultValue={0}>
         <Tabs.List aria-label="string label">
           <Tabs.Tab value={0} />
         </Tabs.List>
-      </Tabs>,
+      </Tabs.Root>,
     );
 
     expect(getByRole('tablist')).toHaveAccessibleName('string label');
@@ -96,11 +97,11 @@ describe('<Tabs.List />', () => {
     const { getByRole } = render(
       <React.Fragment>
         <h3 id="label-id">complex name</h3>
-        <Tabs defaultValue={0}>
+        <Tabs.Root defaultValue={0}>
           <Tabs.List aria-labelledby="label-id">
             <Tabs.Tab value={0} />
           </Tabs.List>
-        </Tabs>
+        </Tabs.Root>
       </React.Fragment>,
     );
 

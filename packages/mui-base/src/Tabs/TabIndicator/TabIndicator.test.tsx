@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Tabs } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import { describeConformance } from '../../../test/describeConformance';
 
 async function waitForNextEventCycle() {
@@ -19,12 +19,12 @@ describe('<Tabs.Indicator />', () => {
     inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
-        <Tabs defaultValue={1}>
+        <Tabs.Root defaultValue={1}>
           <Tabs.List>
             <Tabs.Tab value={1} />
             {node}
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       return { container, ...other };
@@ -45,11 +45,11 @@ describe('<Tabs.Indicator />', () => {
 
     it('should not render when no tab is selected', () => {
       const { queryByTestId } = render(
-        <Tabs value={null}>
+        <Tabs.Root value={null}>
           <Tabs.List>
             <Tabs.Indicator data-testid="bubble" />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       expect(queryByTestId('bubble')).to.equal(null);
@@ -98,14 +98,14 @@ describe('<Tabs.Indicator />', () => {
 
     it('should set CSS variables corresponding to the active tab', () => {
       const { getByTestId, getByRole, getAllByRole } = render(
-        <Tabs value={2}>
+        <Tabs.Root value={2}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
             <Tabs.Tab value={2}>Two</Tabs.Tab>
             <Tabs.Tab value={3}>Three</Tabs.Tab>
             <Tabs.Indicator data-testid="bubble" />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       const bubble = getByTestId('bubble');
@@ -118,14 +118,14 @@ describe('<Tabs.Indicator />', () => {
 
     it('should update the position and movement variables when the active tab changes', () => {
       const { getByTestId, getByRole, getAllByRole, setProps } = render(
-        <Tabs value={2}>
+        <Tabs.Root value={2}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
             <Tabs.Tab value={2}>Two</Tabs.Tab>
             <Tabs.Tab value={3}>Three</Tabs.Tab>
             <Tabs.Indicator data-testid="bubble" />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       setProps({ value: 3 });
@@ -158,7 +158,7 @@ describe('<Tabs.Indicator />', () => {
 
     it('should update the position variables when the tab list is resized', async () => {
       const { getByTestId, getByRole, getAllByRole, setProps } = render(
-        <Tabs value={1} style={{ width: '400px' }}>
+        <Tabs.Root value={1} style={{ width: '400px' }}>
           <Tabs.List style={{ display: 'flex' }}>
             <Tabs.Tab value={1} style={{ flex: '1 1 auto' }}>
               One
@@ -168,7 +168,7 @@ describe('<Tabs.Indicator />', () => {
             </Tabs.Tab>
             <Tabs.Indicator data-testid="bubble" />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       const bubble = getByTestId('bubble');

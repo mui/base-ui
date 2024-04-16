@@ -1,12 +1,7 @@
 {
-  "props": {
-    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "onChange": { "type": { "name": "func" } },
-    "render": { "type": { "name": "func" } },
-    "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
-  },
+  "props": {},
   "name": "Tab",
-  "imports": ["import { Tab } from '@mui/base/Tabs';", "import { Tab } from '@mui/base';"],
+  "imports": ["import { Tab } from '@base_ui/react/Tabs';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

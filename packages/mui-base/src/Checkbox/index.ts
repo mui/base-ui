@@ -1,10 +1,5 @@
 'use client';
-import { Checkbox as CheckboxRoot } from './Checkbox';
-import { CheckboxIndicator } from './CheckboxIndicator';
-import { combineComponentExports } from '../utils/combineComponentExports';
+export { CheckboxRoot as Root } from './CheckboxRoot';
+export { CheckboxIndicator as Indicator } from './CheckboxIndicator';
 
 export * from './Checkbox.types';
-
-export const Checkbox = combineComponentExports(CheckboxRoot, {
-  Indicator: CheckboxIndicator,
-});

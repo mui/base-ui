@@ -33,6 +33,6 @@ export interface UseTabsReturnValue {
    */
   contextValue: TabsProviderValue;
   getRootProps: (
-    externalProps?: React.ComponentPropsWithoutRef<'div'>,
+    externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
 }

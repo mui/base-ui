@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useDropdown",
   "filename": "/packages/mui-base/src/useDropdown/useDropdown.ts",
-  "imports": [
-    "import { useDropdown } from '@mui/base/useDropdown';",
-    "import { useDropdown } from '@mui/base';"
-  ],
+  "imports": ["import { useDropdown } from '@base_ui/react/useDropdown';"],
   "demos": "<ul><li><a href=\"/base-ui/react-menu/#hooks\">Menu</a></li></ul>"
 }

@@ -15,10 +15,7 @@
     }
   },
   "name": "FocusTrap",
-  "imports": [
-    "import { FocusTrap } from '@mui/base/FocusTrap';",
-    "import { FocusTrap } from '@mui/base';"
-  ],
+  "imports": ["import { FocusTrap } from '@base_ui/react/FocusTrap';"],
   "classes": [],
   "spread": false,
   "themeDefaultProps": null,

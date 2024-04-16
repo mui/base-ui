@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
+import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 
@@ -41,7 +41,7 @@ export default function UnstyledCheckboxIntroduction() {
 
 const Checkbox = React.forwardRef(function Checkbox(props, ref) {
   return (
-    <BaseCheckbox
+    <BaseCheckbox.Root
       {...props}
       ref={ref}
       className={(state) =>

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { TabsOwnerState } from './Tabs.types';
+import { TabsRootOwnerState } from './Tabs.types';
 import { getStyleHookProps } from '../utils/getStyleHookProps';
 
 /**
  * @ignore - internal hook.
  */
-export function useTabsStyleHooks(ownerState: TabsOwnerState) {
+export function useTabsStyleHooks(ownerState: TabsRootOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       direction: () => null,

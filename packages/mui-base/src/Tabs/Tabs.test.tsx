@@ -2,10 +2,10 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { Tabs, TabsProps } from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs';
 import { describeConformance } from '../../test/describeConformance';
 
-describe('<Tabs />', () => {
+describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
 
   before(function beforeHook() {
@@ -20,7 +20,7 @@ describe('<Tabs />', () => {
     }
   });
 
-  describeConformance(<Tabs value={0} />, () => ({
+  describeConformance(<Tabs.Root value={0} />, () => ({
     inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
@@ -29,28 +29,28 @@ describe('<Tabs />', () => {
   describe('prop: children', () => {
     it('should accept a null child', () => {
       const { getAllByRole } = render(
-        <Tabs value={0}>
+        <Tabs.Root value={0}>
           {null}
           <Tabs.List>
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
       expect(getAllByRole('tab')).to.have.lengthOf(1);
     });
 
     it('should support empty children', () => {
-      render(<Tabs value={1} />);
+      render(<Tabs.Root value={1} />);
     });
 
     it('puts the selected child in tab order', () => {
       const { getAllByRole, setProps } = render(
-        <Tabs value={1}>
+        <Tabs.Root value={1}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       expect(getAllByRole('tab').map((tab) => tab.tabIndex)).to.have.ordered.members([-1, 0]);
@@ -62,7 +62,7 @@ describe('<Tabs />', () => {
 
     it('sets the aria-labelledby attribute on tab panels to the corresponding tab id', () => {
       const { getAllByRole } = render(
-        <Tabs defaultValue="tab-0">
+        <Tabs.Root defaultValue="tab-0">
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
@@ -73,7 +73,7 @@ describe('<Tabs />', () => {
           <Tabs.Panel value="tab-0" />
           <Tabs.Panel />
           <Tabs.Panel />
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       const tabs = getAllByRole('tab');
@@ -87,7 +87,7 @@ describe('<Tabs />', () => {
 
     it('sets the aria-controls attribute on tabs to the corresponding tab panel id', () => {
       const { getAllByRole } = render(
-        <Tabs defaultValue="tab-0">
+        <Tabs.Root defaultValue="tab-0">
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
@@ -98,7 +98,7 @@ describe('<Tabs />', () => {
           <Tabs.Panel value="tab-0" />
           <Tabs.Panel />
           <Tabs.Panel />
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       const tabs = getAllByRole('tab');
@@ -113,12 +113,12 @@ describe('<Tabs />', () => {
 
   describe('prop: value', () => {
     const tabs = (
-      <Tabs value={1}>
+      <Tabs.Root value={1}>
         <Tabs.List>
           <Tabs.Tab value={0} />
           <Tabs.Tab value={1} />
         </Tabs.List>
-      </Tabs>
+      </Tabs.Root>
     );
 
     it('should pass selected prop to children', () => {
@@ -133,12 +133,12 @@ describe('<Tabs />', () => {
     it('should call onChange when clicking', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs value={0} onChange={handleChange}>
+        <Tabs.Root value={0} onChange={handleChange}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       fireEvent.click(getAllByRole('tab')[1]);
@@ -149,12 +149,12 @@ describe('<Tabs />', () => {
     it('should not call onChange when already selected', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs value={0} onChange={handleChange}>
+        <Tabs.Root value={0} onChange={handleChange}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       fireEvent.click(getAllByRole('tab')[0]);
@@ -164,12 +164,12 @@ describe('<Tabs />', () => {
     it('should call onChange if an unselected tab gets focused', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs value={0} onChange={handleChange}>
+        <Tabs.Root value={0} onChange={handleChange}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
       const [firstTab] = getAllByRole('tab');
 
@@ -186,12 +186,12 @@ describe('<Tabs />', () => {
     it('when `activateOnFocus = false` should not call onChange if an unselected tab gets focused', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs value={1} onChange={handleChange}>
+        <Tabs.Root value={1} onChange={handleChange}>
           <Tabs.List activateOnFocus={false}>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       const [firstTab] = getAllByRole('tab');
@@ -207,11 +207,11 @@ describe('<Tabs />', () => {
   describe('prop: orientation', () => {
     it('does not add aria-orientation by default', () => {
       render(
-        <Tabs value={0}>
+        <Tabs.Root value={0}>
           <Tabs.List>
-            <Tabs />
+            <Tabs.Root />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       expect(screen.getByRole('tablist')).not.to.have.attribute('aria-orientation');
@@ -219,11 +219,11 @@ describe('<Tabs />', () => {
 
     it('adds the proper aria-orientation when vertical', () => {
       render(
-        <Tabs value={0} orientation="vertical">
+        <Tabs.Root value={0} orientation="vertical">
           <Tabs.List>
-            <Tabs />
+            <Tabs.Root />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       expect(screen.getByRole('tablist')).to.have.attribute('aria-orientation', 'vertical');
@@ -245,11 +245,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={0}
                 >
                   <Tabs.List activateOnFocus={false}>
@@ -257,7 +257,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
               act(() => {
@@ -276,11 +276,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
                 >
                   <Tabs.List activateOnFocus={false}>
@@ -288,7 +288,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
               act(() => {
@@ -309,11 +309,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={0}
                 >
                   <Tabs.List>
@@ -321,7 +321,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
               act(() => {
@@ -341,11 +341,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
                 >
                   <Tabs.List>
@@ -353,7 +353,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
               act(() => {
@@ -373,10 +373,10 @@ describe('<Tabs />', () => {
           it('skips over disabled tabs', () => {
             const handleKeyDown = spy();
             const { getAllByRole } = render(
-              <Tabs
-                direction={direction as TabsProps['direction']}
+              <Tabs.Root
+                direction={direction as Tabs.RootProps['direction']}
                 onKeyDown={handleKeyDown}
-                orientation={orientation as TabsProps['orientation']}
+                orientation={orientation as Tabs.RootProps['orientation']}
                 value={2}
               >
                 <Tabs.List>
@@ -384,7 +384,7 @@ describe('<Tabs />', () => {
                   <Tabs.Tab value={1} disabled />
                   <Tabs.Tab value={2} />
                 </Tabs.List>
-              </Tabs>,
+              </Tabs.Root>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
             act(() => {
@@ -405,11 +405,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={2}
                 >
                   <Tabs.List activateOnFocus={false}>
@@ -417,7 +417,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
               act(() => {
@@ -436,11 +436,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
                 >
                   <Tabs.List activateOnFocus={false}>
@@ -448,7 +448,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
               act(() => {
@@ -469,11 +469,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={2}
                 >
                   <Tabs.List>
@@ -481,7 +481,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
               act(() => {
@@ -501,11 +501,11 @@ describe('<Tabs />', () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
-                <Tabs
-                  direction={direction as TabsProps['direction']}
+                <Tabs.Root
+                  direction={direction as Tabs.RootProps['direction']}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  orientation={orientation as TabsProps['orientation']}
+                  orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
                 >
                   <Tabs.List>
@@ -513,7 +513,7 @@ describe('<Tabs />', () => {
                     <Tabs.Tab value={1} />
                     <Tabs.Tab value={2} />
                   </Tabs.List>
-                </Tabs>,
+                </Tabs.Root>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
               act(() => {
@@ -533,10 +533,10 @@ describe('<Tabs />', () => {
           it('skips over disabled tabs', () => {
             const handleKeyDown = spy();
             const { getAllByRole } = render(
-              <Tabs
-                direction={direction as TabsProps['direction']}
+              <Tabs.Root
+                direction={direction as Tabs.RootProps['direction']}
                 onKeyDown={handleKeyDown}
-                orientation={orientation as TabsProps['orientation']}
+                orientation={orientation as Tabs.RootProps['orientation']}
                 value={0}
               >
                 <Tabs.List>
@@ -544,7 +544,7 @@ describe('<Tabs />', () => {
                   <Tabs.Tab value={1} disabled />
                   <Tabs.Tab value={2} />
                 </Tabs.List>
-              </Tabs>,
+              </Tabs.Root>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
             act(() => {
@@ -567,13 +567,13 @@ describe('<Tabs />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
               <Tabs.List activateOnFocus={false}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
               </Tabs.List>
-            </Tabs>,
+            </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
           act(() => {
@@ -592,13 +592,13 @@ describe('<Tabs />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
               </Tabs.List>
-            </Tabs>,
+            </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
           act(() => {
@@ -617,13 +617,13 @@ describe('<Tabs />', () => {
         it('moves focus to first non-disabled tab', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onKeyDown={handleKeyDown} value={2}>
               <Tabs.List>
                 <Tabs.Tab value={0} disabled />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
               </Tabs.List>
-            </Tabs>,
+            </Tabs.Root>,
           );
           const [, secondTab, lastTab] = getAllByRole('tab');
           act(() => {
@@ -643,13 +643,13 @@ describe('<Tabs />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
               <Tabs.List activateOnFocus={false}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
               </Tabs.List>
-            </Tabs>,
+            </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
           act(() => {
@@ -668,13 +668,13 @@ describe('<Tabs />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
               </Tabs.List>
-            </Tabs>,
+            </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
           act(() => {
@@ -693,13 +693,13 @@ describe('<Tabs />', () => {
         it('moves focus to first non-disabled tab', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onKeyDown={handleKeyDown} value={0}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} disabled />
               </Tabs.List>
-            </Tabs>,
+            </Tabs.Root>,
           );
           const [firstTab, secondTab] = getAllByRole('tab');
           act(() => {
@@ -717,12 +717,12 @@ describe('<Tabs />', () => {
 
     it('should allow to focus first tab when there are no active tabs', () => {
       const { getAllByRole } = render(
-        <Tabs defaultValue={0}>
+        <Tabs.Root defaultValue={0}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
-        </Tabs>,
+        </Tabs.Root>,
       );
 
       expect(getAllByRole('tab').map((tab) => tab.getAttribute('tabIndex'))).to.deep.equal([

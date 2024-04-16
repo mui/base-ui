@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { Tabs } from '../Tabs';
+import * as Tabs from '../Tabs';
 import { useTabPanel } from './useTabPanel';
 
 describe('useTabPanel', () => {
@@ -18,9 +18,9 @@ describe('useTabPanel', () => {
 
       function Test() {
         return (
-          <Tabs>
+          <Tabs.Root>
             <TestTabPanel />
-          </Tabs>
+          </Tabs.Root>
         );
       }
 
@@ -48,9 +48,9 @@ describe('useTabPanel', () => {
 
       function Test() {
         return (
-          <Tabs>
+          <Tabs.Root>
             <TestTabPanel />
-          </Tabs>
+          </Tabs.Root>
         );
       }
 

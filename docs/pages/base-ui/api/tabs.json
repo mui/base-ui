@@ -11,11 +11,11 @@
       "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
       "default": "'horizontal'"
     },
-    "render": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
   },
   "name": "Tabs",
-  "imports": ["import { Tabs } from '@mui/base/Tabs';", "import { Tabs } from '@mui/base';"],
+  "imports": ["import { Tabs } from '@base_ui/react/Tabs';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

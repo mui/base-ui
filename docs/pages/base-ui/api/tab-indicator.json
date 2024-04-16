@@ -1,10 +1,7 @@
 {
   "props": {},
   "name": "TabIndicator",
-  "imports": [
-    "import { TabIndicator } from '@mui/base/Tabs';",
-    "import { TabIndicator } from '@mui/base';"
-  ],
+  "imports": ["import { TabIndicator } from '@base_ui/react/Tabs';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Switch component and hook
-components: Switch, SwitchThumb
+components: SwitchRoot, SwitchThumb
 hooks: useSwitch
 githubLabel: 'component: switch'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
@@ -24,7 +24,7 @@ The Switch component provides users with a switch for toggling between two mutua
 ## Component
 
 ```jsx
-import { Switch } from '@base_ui/react/Switch';
+import * as Switch from '@base_ui/react/Switch';
 ```
 
 ### Anatomy
@@ -32,9 +32,9 @@ import { Switch } from '@base_ui/react/Switch';
 The Switch component is composed of a root that houses one interior slot—a thumb:
 
 ```tsx
-<Switch>
+<Switch.Root>
   <Switch.Thumb />
-</Switch>
+</Switch.Root>
 ```
 
 ### Custom structure
@@ -42,9 +42,9 @@ The Switch component is composed of a root that houses one interior slot—a thu
 Use the `render` prop to override the root or thumb component:
 
 ```jsx
-<Switch render={(props) => <MyFancySwitchRoot {...props} />}>
+<Switch.Root render={(props) => <MyFancySwitchRoot {...props} />}>
   <Switch.Thumb render={(props) => <MyFancySwitchThumb {...props} />} />
-</Switch>
+</Switch.Root>
 ```
 
 ## Hook

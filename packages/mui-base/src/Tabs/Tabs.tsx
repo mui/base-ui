@@ -1,12 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TabsOwnerState, TabsProps } from './Tabs.types';
+import { TabsRootOwnerState, TabsRootProps } from './Tabs.types';
 import { useTabs } from '../useTabs';
 import { TabsProvider } from '../useTabs/TabsProvider';
 import { resolveClassName } from '../utils/resolveClassName';
 import { useTabsStyleHooks } from './useTabsStyleHooks';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { evaluateRenderProp } from '../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 
 /**
  *
@@ -18,8 +20,8 @@ import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
  *
  * - [Tabs API](https://mui.com/base-ui/react-tabs/components-api/#tabs)
  */
-const Tabs = React.forwardRef(function Tabs(
-  props: TabsProps,
+const TabsRoot = React.forwardRef(function TabsRoot(
+  props: TabsRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -35,13 +37,10 @@ const Tabs = React.forwardRef(function Tabs(
 
   const render = renderProp ?? defaultRenderFunctions.div;
 
-  const ownerState: TabsOwnerState = {
+  const ownerState: TabsRootOwnerState = {
     orientation,
     direction,
   };
-
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useTabsStyleHooks(ownerState);
 
   const { contextValue, getRootProps } = useTabs({
     value,
@@ -51,14 +50,20 @@ const Tabs = React.forwardRef(function Tabs(
     direction,
   });
 
-  const rootProps = { ...styleHooks, ...other, className, ref: forwardedRef };
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useTabsStyleHooks(ownerState);
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+
+  const rootProps = getRootProps({ ...styleHooks, ...other, className, ref: mergedRef });
 
   return (
-    <TabsProvider value={contextValue}>{render(getRootProps(rootProps), ownerState)}</TabsProvider>
+    <TabsProvider value={contextValue}>
+      {evaluateRenderProp(render, rootProps, ownerState)}
+    </TabsProvider>
   );
 });
 
-Tabs.propTypes /* remove-proptypes */ = {
+TabsRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -92,7 +97,7 @@ Tabs.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.func,
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The value of the currently selected `Tab`.
    * If you don't want any selected `Tab`, you can set this prop to `null`.
@@ -100,4 +105,4 @@ Tabs.propTypes /* remove-proptypes */ = {
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
 
-export { Tabs };
+export { TabsRoot as Tabs };

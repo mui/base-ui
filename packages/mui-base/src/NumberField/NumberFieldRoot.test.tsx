@@ -3,28 +3,28 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { fireEvent } from '@testing-library/react';
-import { NumberField as NumberFieldBase, type NumberFieldProps } from '@base_ui/react/NumberField';
+import * as NumberFieldBase from '@base_ui/react/NumberField';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<NumberFieldBase />, () => ({
+  describeConformance(<NumberFieldBase.Root />, () => ({
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));
 
-  function NumberField(props: NumberFieldProps) {
+  function NumberField(props: NumberFieldBase.RootProps) {
     return (
-      <NumberFieldBase {...props}>
+      <NumberFieldBase.Root {...props}>
         <NumberFieldBase.Group>
           <NumberFieldBase.Input />
           <NumberFieldBase.Increment />
           <NumberFieldBase.Decrement />
           <NumberFieldBase.ScrubArea />
         </NumberFieldBase.Group>
-      </NumberFieldBase>
+      </NumberFieldBase.Root>
     );
   }
 

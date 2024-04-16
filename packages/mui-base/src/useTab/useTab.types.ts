@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type TabsOrientation } from '../Tabs';
+import { type TabsOrientation } from '../Tabs/Tabs.types';
 
 export interface UseTabParameters {
   /**
@@ -38,7 +38,7 @@ export interface UseTabReturnValue {
    * @returns props that should be spread on the root slot
    */
   getRootProps: (
-    externalProps?: React.ComponentPropsWithoutRef<'button'>,
+    externalProps?: React.ComponentPropsWithRef<'button'>,
   ) => React.ComponentPropsWithRef<'button'>;
   /**
    * 0-based index of the tab in the list of tabs.

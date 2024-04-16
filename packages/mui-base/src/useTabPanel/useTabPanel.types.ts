@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { TabsDirection, TabsOrientation } from '../Tabs';
+import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
 
 export interface UseTabPanelParameters {
   /**
@@ -27,7 +27,7 @@ export interface UseTabPanelReturnValue {
    * @returns props that should be spread on the root slot
    */
   getRootProps: (
-    externalProps?: React.ComponentPropsWithoutRef<'div'>,
+    externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
   rootRef: React.RefCallback<HTMLElement> | null;
   orientation: TabsOrientation;

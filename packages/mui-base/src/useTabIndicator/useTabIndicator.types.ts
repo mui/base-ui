@@ -13,7 +13,7 @@ export interface ActiveTabPosition {
 
 export type UseTabIndicatorReturnValue = {
   getRootProps: (
-    otherProps?: React.ComponentPropsWithoutRef<'span'>,
+    otherProps?: React.ComponentPropsWithRef<'span'>,
   ) => React.ComponentPropsWithRef<'span'>;
   activeTabPosition: ActiveTabPosition | null;
   direction: TabsDirection;

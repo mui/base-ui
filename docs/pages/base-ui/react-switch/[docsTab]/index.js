@@ -3,7 +3,7 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs/data/base/components/switch/switch.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
-import SwitchApiJsonPageContent from '../../api/switch.json';
+import SwitchRootApiJsonPageContent from '../../api/switch-root.json';
 import SwitchThumbApiJsonPageContent from '../../api/switch-thumb.json';
 import useSwitchApiJsonPageContent from '../../api/use-switch.json';
 
@@ -24,12 +24,12 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const SwitchApiReq = require.context(
-    'docs/translations/api-docs-base/switch',
+  const SwitchRootApiReq = require.context(
+    'docs/translations/api-docs-base/switch-root',
     false,
-    /switch.*.json$/,
+    /switch-root.*.json$/,
   );
-  const SwitchApiDescriptions = mapApiPageTranslations(SwitchApiReq);
+  const SwitchRootApiDescriptions = mapApiPageTranslations(SwitchRootApiReq);
 
   const SwitchThumbApiReq = require.context(
     'docs/translations/api-docs-base/switch-thumb',
@@ -48,11 +48,11 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
-        Switch: SwitchApiDescriptions,
+        SwitchRoot: SwitchRootApiDescriptions,
         SwitchThumb: SwitchThumbApiDescriptions,
       },
       componentsApiPageContents: {
-        Switch: SwitchApiJsonPageContent,
+        SwitchRoot: SwitchRootApiJsonPageContent,
         SwitchThumb: SwitchThumbApiJsonPageContent,
       },
       hooksApiDescriptions: { useSwitch: useSwitchApiDescriptions },

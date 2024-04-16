@@ -1,14 +1,7 @@
 {
-  "props": {
-    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "func" } },
-    "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
-  },
+  "props": {},
   "name": "TabPanel",
-  "imports": [
-    "import { TabPanel } from '@mui/base/Tabs';",
-    "import { TabPanel } from '@mui/base';"
-  ],
+  "imports": ["import { TabPanel } from '@base_ui/react/Tabs';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { Tabs } from '../Tabs';
+import * as Tabs from '../Tabs';
 import { useTab } from './useTab';
 
 describe('useTab', () => {
@@ -18,11 +18,11 @@ describe('useTab', () => {
 
       function Test() {
         return (
-          <Tabs defaultValue={1}>
+          <Tabs.Root defaultValue={1}>
             <Tabs.List>
               <TestTab />
             </Tabs.List>
-          </Tabs>
+          </Tabs.Root>
         );
       }
 
@@ -50,11 +50,11 @@ describe('useTab', () => {
 
       function Test() {
         return (
-          <Tabs defaultValue={1}>
+          <Tabs.Root defaultValue={1}>
             <Tabs.List>
               <TestTab />
             </Tabs.List>
-          </Tabs>
+          </Tabs.Root>
         );
       }
 

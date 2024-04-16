@@ -34,17 +34,14 @@
     },
     "getRootProps": {
       "type": {
-        "name": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
-        "description": "(externalProps?: React.ComponentPropsWithoutRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
       },
       "required": true
     }
   },
   "name": "useTabs",
   "filename": "/packages/mui-base/src/useTabs/useTabs.ts",
-  "imports": [
-    "import { useTabs } from '@mui/base/useTabs';",
-    "import { useTabs } from '@mui/base';"
-  ],
+  "imports": ["import { useTabs } from '@base_ui/react/useTabs';"],
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
 }

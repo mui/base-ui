@@ -1,12 +1,11 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "func" } }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "NumberFieldScrubAreaCursor",
   "imports": [
-    "import { NumberFieldScrubAreaCursor } from '@mui/base/NumberField';",
-    "import { NumberFieldScrubAreaCursor } from '@mui/base';"
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldScrubAreaCursor = NumberField.ScrubAreaCursor;"
   ],
   "classes": [],
   "spread": true,

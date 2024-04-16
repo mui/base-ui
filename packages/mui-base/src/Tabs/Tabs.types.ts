@@ -5,13 +5,13 @@ export type TabsOrientation = 'horizontal' | 'vertical';
 
 export type TabsDirection = 'ltr' | 'rtl';
 
-export type TabsOwnerState = {
+export type TabsRootOwnerState = {
   orientation: TabsOrientation;
   direction: TabsDirection;
 };
 
-export interface TabsProps
-  extends Omit<BaseUIComponentProps<'div', TabsOwnerState>, 'defaultValue' | 'onChange'> {
+export interface TabsRootProps
+  extends Omit<BaseUIComponentProps<'div', TabsRootOwnerState>, 'defaultValue' | 'onChange'> {
   /**
    * The value of the currently selected `Tab`.
    * If you don't want any selected `Tab`, you can set this prop to `null`.

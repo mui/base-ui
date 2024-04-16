@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import type { TabsListProviderValue } from './TabsListProvider';
 import type { ListAction } from '../useList';
-import type { TabsDirection, TabsOrientation } from '../Tabs';
+import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
 
 export interface UseTabsListParameters {
   /**
@@ -35,7 +35,7 @@ export interface UseTabsListReturnValue {
    * @returns props that should be spread on the root slot
    */
   getRootProps: (
-    externalProps?: React.ComponentPropsWithoutRef<'div'>,
+    externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
   /**
    * The value of the currently highlighted tab.

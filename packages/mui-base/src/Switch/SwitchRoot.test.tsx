@@ -2,13 +2,13 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act } from '@mui/internal-test-utils';
-import { Switch } from '@base_ui/react/Switch';
+import * as Switch from '@base_ui/react/Switch';
 import { describeConformance } from '../../test/describeConformance';
 
-describe('<Switch />', () => {
+describe('<Switch.Root />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Switch />, () => ({
+  describeConformance(<Switch.Root />, () => ({
     inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render,
@@ -16,7 +16,7 @@ describe('<Switch />', () => {
 
   describe('interaction', () => {
     it('should change its state when clicked', () => {
-      const { getByRole } = render(<Switch />);
+      const { getByRole } = render(<Switch.Root />);
       const switchElement = getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
@@ -34,7 +34,7 @@ describe('<Switch />', () => {
         return (
           <div>
             <button onClick={() => setChecked((c) => !c)}>Toggle</button>
-            <Switch checked={checked} />;
+            <Switch.Root checked={checked} />;
           </div>
         );
       }
@@ -58,7 +58,7 @@ describe('<Switch />', () => {
     });
 
     it('should update its state if the underlying input is toggled', () => {
-      const { getByRole, container } = render(<Switch />);
+      const { getByRole, container } = render(<Switch.Root />);
       const switchElement = getByRole('switch');
       const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
@@ -72,7 +72,7 @@ describe('<Switch />', () => {
 
   describe('extra props', () => {
     it('should override the built-in attributes', () => {
-      const { container } = render(<Switch data-state="checked" role="checkbox" />);
+      const { container } = render(<Switch.Root data-state="checked" role="checkbox" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'checkbox');
       expect(container.firstElementChild as HTMLElement).to.have.attribute('data-state', 'checked');
     });
@@ -81,7 +81,7 @@ describe('<Switch />', () => {
   describe('prop: onChange', () => {
     it('should call onChange when clicked', () => {
       const handleChange = spy();
-      const { getByRole, container } = render(<Switch onChange={handleChange} />);
+      const { getByRole, container } = render(<Switch.Root onChange={handleChange} />);
       const switchElement = getByRole('switch');
       const internalInput = container.querySelector('input[type="checkbox"]')!;
 
@@ -97,7 +97,7 @@ describe('<Switch />', () => {
   describe('prop: onClick', () => {
     it('should call onClick when clicked', () => {
       const handleClick = spy();
-      const { getByRole } = render(<Switch onClick={handleClick} />);
+      const { getByRole } = render(<Switch.Root onClick={handleClick} />);
       const switchElement = getByRole('switch');
 
       act(() => {
@@ -110,17 +110,17 @@ describe('<Switch />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', () => {
-      const { getByRole } = render(<Switch disabled />);
+      const { getByRole } = render(<Switch.Root disabled />);
       expect(getByRole('switch')).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not have the aria attribute when `disabled` is not set', () => {
-      const { getByRole } = render(<Switch />);
+      const { getByRole } = render(<Switch.Root />);
       expect(getByRole('switch')).not.to.have.attribute('aria-disabled');
     });
 
     it('should not change its state when clicked', () => {
-      const { getByRole } = render(<Switch disabled />);
+      const { getByRole } = render(<Switch.Root disabled />);
       const switchElement = getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
@@ -135,17 +135,17 @@ describe('<Switch />', () => {
 
   describe('prop: readOnly', () => {
     it('should have the `aria-readonly` attribute', () => {
-      const { getByRole } = render(<Switch readOnly />);
+      const { getByRole } = render(<Switch.Root readOnly />);
       expect(getByRole('switch')).to.have.attribute('aria-readonly', 'true');
     });
 
     it('should not have the aria attribute when `readOnly` is not set', () => {
-      const { getByRole } = render(<Switch />);
+      const { getByRole } = render(<Switch.Root />);
       expect(getByRole('switch')).not.to.have.attribute('aria-readonly');
     });
 
     it('should not change its state when clicked', () => {
-      const { getByRole } = render(<Switch readOnly />);
+      const { getByRole } = render(<Switch.Root readOnly />);
       const switchElement = getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
@@ -161,7 +161,7 @@ describe('<Switch />', () => {
   describe('prop: inputRef', () => {
     it('should be able to access the native input', () => {
       const inputRef = React.createRef<HTMLInputElement>();
-      const { container } = render(<Switch inputRef={inputRef} />);
+      const { container } = render(<Switch.Root inputRef={inputRef} />);
       const internalInput = container.querySelector('input[type="checkbox"]')!;
 
       expect(inputRef.current).to.equal(internalInput);
@@ -172,7 +172,7 @@ describe('<Switch />', () => {
     it('should toggle the switch when a parent label is clicked', () => {
       const { getByTestId, getByRole } = render(
         <label data-testid="label">
-          <Switch />
+          <Switch.Root />
           Toggle
         </label>,
       );
@@ -195,7 +195,7 @@ describe('<Switch />', () => {
           <label htmlFor="test-switch" data-testid="label">
             Toggle
           </label>
-          <Switch id="test-switch" />
+          <Switch.Root id="test-switch" />
         </div>,
       );
 
@@ -227,7 +227,7 @@ describe('<Switch />', () => {
             stringifiedFormData = new URLSearchParams(formData as any).toString();
           }}
         >
-          <Switch name="test-switch" />
+          <Switch.Root name="test-switch" />
           <button type="submit">Submit</button>
         </form>,
       );
@@ -251,9 +251,9 @@ describe('<Switch />', () => {
 
   it('should place the style hooks on the root and the thumb', () => {
     const { getByRole } = render(
-      <Switch defaultChecked disabled readOnly required>
+      <Switch.Root defaultChecked disabled readOnly required>
         <Switch.Thumb />
-      </Switch>,
+      </Switch.Root>,
     );
 
     const switchElement = getByRole('switch');
@@ -271,7 +271,7 @@ describe('<Switch />', () => {
   });
 
   it('should set the name attribute on the input', () => {
-    const { container } = render(<Switch name="switch-name" />);
+    const { container } = render(<Switch.Root name="switch-name" />);
     const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
     expect(internalInput).to.have.attribute('name', 'switch-name');

@@ -4,8 +4,10 @@ import { useTabIndicator } from '../../useTabIndicator/useTabIndicator';
 import { TabIndicatorProps } from './TabIndicator.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
 import { useTabsContext } from '../../useTabs/TabsContext';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
   function TabIndicator(props, forwardedRef) {
@@ -36,19 +38,20 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
 
     const className = resolveClassName(classNameProp, ownerState);
     const styleHooks = useTabIndicatorStyleHooks(ownerState);
+    const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
     if (activeTabValue == null) {
       return null;
     }
 
-    const rootProps = {
+    const rootProps = getRootProps({
       ...styleHooks,
       ...other,
       className,
-      ref: forwardedRef,
+      ref: mergedRef,
       'data-instance-id': isMounted ? undefined : instanceId,
       suppressHydrationWarning: true,
-    };
+    } as React.ComponentPropsWithRef<'span'>);
 
     // This script is used to set the initial position of the indicator before hydration happens.
     // This is necessary to render the indicator in the right place right after the SSR-generated content is downloaded and not wait for React to kick in.
@@ -111,7 +114,7 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
 
     return (
       <React.Fragment>
-        {render(getRootProps(rootProps), ownerState)}
+        {evaluateRenderProp(render, rootProps, ownerState)}
         {!isMounted && (
           <script
             // eslint-disable-next-line react/no-danger
