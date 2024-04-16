@@ -135,8 +135,17 @@ export function useScrub(params: ScrubParams) {
           if (!isWebKit()) {
             // There can be some frames where there's no cursor at all when requesting the pointer lock.
             // This is a workaround to avoid flickering.
-            avoidFlickerTimeoutRef.current = window.setTimeout(() => {
-              ownerDocument(scrubAreaRef.current).body.requestPointerLock?.();
+            avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
+              try {
+                // Avoid non-deterministic errors in testing environments. This error sometimes
+                // appears:
+                // "The root document of this element is not valid for pointer lock."
+                // We need to await it even though it doesn't appear to return a promise in the
+                // types in order for the `catch` to work.
+                await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+              } catch (e) {
+                //
+              }
             }, 20);
           }
         },
@@ -185,7 +194,12 @@ export function useScrub(params: ScrubParams) {
         onScrubbingChange(false, event);
 
         if (!isWebKit()) {
-          ownerDocument(scrubAreaRef.current).exitPointerLock?.();
+          try {
+            // Avoid errors in testing environments.
+            ownerDocument(scrubAreaRef.current).exitPointerLock();
+          } catch (e) {
+            //
+          }
         }
       }
 

@@ -4,6 +4,7 @@ import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { describeConformance } from '../../test/describeConformance';
 import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
+import { isWebKit } from '../utils/detectBrowser';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {
@@ -47,10 +48,12 @@ describe('<NumberField.ScrubArea />', () => {
     expect(screen.queryByRole('presentation')).not.to.equal(null);
   });
 
-  if (/jsdom/.test(window.navigator.userAgent)) {
+  // Only run the following tests in Chromium/Firefox.
+  if (/jsdom/.test(window.navigator.userAgent) || isWebKit()) {
     return;
   }
 
+  // `PointerEvent` isn't defined in JSDOM. This needs to be located beneath the return above.
   const pointerDownEvent = new PointerEvent('pointerdown', {
     bubbles: true,
     clientX: 100,
@@ -70,9 +73,7 @@ describe('<NumberField.ScrubArea />', () => {
     const scrubArea = screen.getByTestId('scrub-area');
     const input = screen.getByRole('textbox');
 
-    scrubArea.dispatchEvent(
-      new PointerEvent('pointerdown', { bubbles: true, clientX: 100, clientY: 100 }),
-    );
+    scrubArea.dispatchEvent(pointerDownEvent);
     scrubArea.dispatchEvent(createPointerMoveEvent({ movementY: 10 }));
 
     await waitFor(() => expect(input).to.have.value('-10'));
