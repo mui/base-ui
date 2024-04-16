@@ -157,9 +157,10 @@ To use Next.js with Base UI and styled-components or other CSS-in-JS solutions,
 
 ## Customization
 
-### Using callbacks for slot props
+### Using callbacks for render props
 
-A common customization method in Base UI is to pass a callback to slots in `slotProps` in order to apply dynamic props. For example, you might want to change the background color by applying a different class when a Button is disabled:
+A common customization method in Base UI is to pass a callback to the `render` or `className` props in order to apply dynamic values.
+For example, you might want to change the background color by applying a different class when a Button is disabled:
 
 ```tsx
 // page.tsx
@@ -169,25 +170,15 @@ export default function Page() {
     <React.Fragment>
       {/* Next.js won't render this button without 'use-client'*/}
       <Button
-        slotProps={{
-          root: (ownerState: ButtonOwnerState) => ({
-            className: ownerState.disabled ? 'bg-gray-400' : 'bg-blue-400',
-          }),
-        }}
+        className={(ownerState: ButtonOwnerState) =>
+          ownerState.disabled ? 'bg-gray-400' : 'bg-blue-400'
+        }
       >
         Submit
       </Button>
 
       {/* Next.js can render this */}
-      <Button
-        slotProps={{
-          root: {
-            className: 'bg-gray-400',
-          },
-        }}
-      >
-        Return
-      </Button>
+      <Button className="bg-gray-400">Return</Button>
     </React.Fragment>
   );
 }
