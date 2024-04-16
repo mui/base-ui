@@ -7,7 +7,7 @@ const CI = Boolean(process.env.CI);
 // Their CI run will be a branch based run not PR run and therefore won't have a CIRCLE_PR_NUMBER
 const isPR = Boolean(process.env.CIRCLE_PULL_REQUEST);
 
-let build = `material-ui local ${new Date().toISOString()}`;
+let build = `Base UI local ${new Date().toISOString()}`;
 
 if (process.env.CIRCLECI) {
   const buildPrefix =
@@ -43,10 +43,13 @@ const AVERAGE_KARMA_BUILD = 1 / 6;
 const MAX_CIRCLE_CI_CONCURRENCY = 83;
 
 // Karma configuration
-module.exports = function setKarmaConfig(config) {
+module.exports = async function setKarmaConfig(config) {
+  const { default: isWsl } = await import('is-wsl');
+
   const baseConfig = {
     basePath: '../',
-    browsers: ['chromeHeadless', 'FirefoxHeadless'],
+    // Firefox has issues on WSL
+    browsers: isWsl ? ['chromeHeadless'] : ['chromeHeadless', 'FirefoxHeadless'],
     browserDisconnectTimeout: 3 * 60 * 1000, // default 2000
     browserDisconnectTolerance: 1, // default 0
     browserNoActivityTimeout: 3 * 60 * 1000, // default 30000
