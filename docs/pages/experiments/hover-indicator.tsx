@@ -203,6 +203,5 @@ const StyledHoverIndicator = styled(HoverObserverIndicator)`
   border-radius: 10px;
   z-index: 0;
   pointer-events: none;
-
   transition: inset 0.1s;
 `;
