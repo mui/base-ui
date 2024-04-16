@@ -5,6 +5,10 @@ import { useTabsContext } from '../useTabs/TabsContext';
 import { TabSelectionMovementDirection, UseTabIndicatorReturnValue } from './useTabIndicator.types';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
+function round(value: number) {
+  return Math.round(value * 100) * 0.01;
+}
+
 /**
  *
  * Demos:
@@ -106,10 +110,10 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     () =>
       isTabSelected
         ? {
-            left,
-            right,
-            top,
-            bottom,
+            left: round(left),
+            right: round(right),
+            top: round(top),
+            bottom: round(bottom),
             movementDirection,
           }
         : null,
