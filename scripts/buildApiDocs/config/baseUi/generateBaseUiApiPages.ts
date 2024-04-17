@@ -27,11 +27,11 @@ export async function generateBaseUIApiPages() {
 
         const tokens = markdown.pathname.split('/');
         const name = tokens[tokens.length - 1];
-        const importStatement = `docs/data${markdown.pathname}/${name}.md`;
+        const importStatement = `docs-base/data${markdown.pathname}/${name}.md`;
         const demosSource = `
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import * as pageProps from '${importStatement}?@mui/markdown';
 
 export default function Page(props) {
@@ -116,8 +116,8 @@ Page.getLayout = (page) => {
 
         const tabsApiSource = `
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import * as pageProps from '${importStatement}?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 ${apiTabImportStatements}
