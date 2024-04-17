@@ -9,7 +9,7 @@ import Paper from '@mui/material/Paper';
 import { unstable_debounce as debounce } from '@mui/utils';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
-import IconImage from 'docs-base/src/components/icon/IconImage';
+import IconImage from 'docs/src/components/icon/IconImage';
 import ROUTES from 'docs-base/src/route';
 import { Link } from '@mui/docs/Link';
 import MuiProductSelector from 'docs-base/src/modules/components/MuiProductSelector';

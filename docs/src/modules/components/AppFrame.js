@@ -16,7 +16,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import NProgressBar from '@mui/docs/NProgressBar';
 import { debounce } from '@mui/material/utils';
 import NextLink from 'next/link';
-import SvgHamburgerMenu from 'docs-base/src/icons/SvgHamburgerMenu';
+import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import AppNavDrawer from 'docs-base/src/modules/components/AppNavDrawer';
 import AppSettingsDrawer from 'docs-base/src/modules/components/AppSettingsDrawer';
 import Notifications from 'docs-base/src/modules/components/Notifications';
@@ -24,7 +24,7 @@ import MarkdownLinks from 'docs-base/src/modules/components/MarkdownLinks';
 import SkipLink from 'docs-base/src/modules/components/SkipLink';
 import PageContext from 'docs/src/modules/components/PageContext';
 import { useTranslate } from '@mui/docs/i18n';
-import SvgMuiLogomark from 'docs-base/src/icons/SvgMuiLogomark';
+import SvgMuiLogomark from 'docs/src/icons/SvgMuiLogomark';
 import AppFrameBanner from 'docs/src/components/banner/AppFrameBanner';
 
 const nProgressStart = debounce(() => {

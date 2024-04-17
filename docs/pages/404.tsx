@@ -5,7 +5,7 @@ import BrandingCssVarsProvider from 'docs-base/src/BrandingCssVarsProvider';
 import AppHeader from 'docs-base/src/layouts/AppHeader';
 import AppFooter from 'docs-base/src/layouts/AppFooter';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
-import NotFoundHero from 'docs-base/src/components/NotFoundHero';
+import NotFoundHero from 'docs/src/components/NotFoundHero';
 
 export default function Custom404() {
   return (

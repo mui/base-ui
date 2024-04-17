@@ -11,12 +11,12 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
 import { alpha } from '@mui/material/styles';
-import SvgMuiLogotype from 'docs-base/src/icons/SvgMuiLogotype';
+import SvgMuiLogotype from 'docs/src/icons/SvgMuiLogotype';
 import EmailSubscribe from 'docs/src/components/footer/EmailSubscribe';
 import ROUTES from 'docs-base/src/route';
-import DiscordIcon from 'docs-base/src/icons/DiscordIcon';
+import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import { Link } from '@mui/docs/Link';
-import SvgStackOverflow from 'docs-base/src/icons/SvgStackOverflow';
+import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
 
 interface AppFooterProps {
   stackOverflowUrl?: string;

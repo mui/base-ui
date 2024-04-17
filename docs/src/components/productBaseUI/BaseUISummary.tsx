@@ -6,8 +6,8 @@ import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
 import AccessibilityNewRounded from '@mui/icons-material/AccessibilityNewRounded';
 import PhishingRoundedIcon from '@mui/icons-material/PhishingRounded';
 import Section from 'docs-base/src/layouts/Section';
-import SectionHeadline from 'docs-base/src/components/typography/SectionHeadline';
-import GradientText from 'docs-base/src/components/typography/GradientText';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import GradientText from 'docs/src/components/typography/GradientText';
 import InfoCard from 'docs/src/components/action/InfoCard';
 
 const content = [

@@ -4,7 +4,7 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
-import IconImage from 'docs-base/src/components/icon/IconImage';
+import IconImage from 'docs/src/components/icon/IconImage';
 import ROUTES from 'docs-base/src/route';
 import { Link } from '@mui/docs/Link';
 import PageContext from 'docs/src/modules/components/PageContext';

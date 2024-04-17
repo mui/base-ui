@@ -7,7 +7,7 @@ import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import SvgMuiLogomark from 'docs-base/src/icons/SvgMuiLogomark';
+import SvgMuiLogomark from 'docs/src/icons/SvgMuiLogomark';
 import HeaderNavBar from 'docs-base/src/components/header/HeaderNavBar';
 import HeaderNavDropdown from 'docs-base/src/components/header/HeaderNavDropdown';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';

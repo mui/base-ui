@@ -7,7 +7,7 @@ import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
-import SvgHamburgerMenu from 'docs-base/src/icons/SvgHamburgerMenu';
+import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@mui/docs/Link';
 import ROUTES from 'docs-base/src/route';
 
