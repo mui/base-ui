@@ -20,7 +20,7 @@ import ROUTES from 'docs-base/src/route';
 
 // switcher icons
 
-import HighlightedCode from 'docs-base/src/modules/components/HighlightedCode';
+import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs-base/src/components/markdown/MarkdownElement';
 import BaseButtonDemo from './components/BaseButtonDemo';
 import BaseMenuDemo from './components/BaseMenuDemo';

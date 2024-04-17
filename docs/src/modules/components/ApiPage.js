@@ -4,16 +4,16 @@ import PropTypes from 'prop-types';
 import { exactProp } from '@mui/utils';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import AdGuest from 'docs-base/src/modules/components/AdGuest';
+import AdGuest from 'docs/src/modules/components/AdGuest';
 import Alert from '@mui/material/Alert';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import { alpha } from '@mui/material/styles';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
-import HighlightedCode from 'docs-base/src/modules/components/HighlightedCode';
+import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs-base/src/modules/components/MarkdownElement';
 import AppLayoutDocs from 'docs-base/src/modules/components/AppLayoutDocs';
-import Ad from 'docs-base/src/modules/components/Ad';
-import BrandingProvider from 'docs-base/src/BrandingProvider';
+import Ad from 'docs/src/modules/components/Ad';
+import BrandingProvider from 'docs/src/BrandingProvider';
 import PropertiesSection, {
   getPropsToC,
 } from 'docs-base/src/modules/components/ApiPage/sections/PropertiesSection';

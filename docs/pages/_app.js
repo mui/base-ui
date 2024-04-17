@@ -14,7 +14,7 @@ import { ThemeProvider } from 'docs/src/modules/components/ThemeContext';
 import { CodeVariantProvider } from 'docs-base/src/modules/utils/codeVariant';
 import { CodeStylingProvider } from 'docs-base/src/modules/utils/codeStylingSolution';
 import DocsStyledEngineProvider from 'docs-base/src/modules/utils/StyledEngineProvider';
-import createEmotionCache from 'docs-base/src/createEmotionCache';
+import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs-base/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs-base/src/modules/utils/getProductInfoFromUrl';

@@ -1,4 +1,4 @@
-import type { MuiPage } from 'docs-base/src/MuiPage';
+import type { MuiPage } from 'docs/src/MuiPage';
 
 const pages: readonly MuiPage[] = [
   {

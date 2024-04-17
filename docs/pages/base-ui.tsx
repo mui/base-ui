@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Divider from '@mui/material/Divider';
 import Head from 'docs-base/src/modules/components/Head';
-import BrandingCssVarsProvider from 'docs-base/src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import AppHeader from 'docs-base/src/layouts/AppHeader';
 import AppFooter from 'docs-base/src/layouts/AppFooter';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';

@@ -4,7 +4,7 @@ import { Tabs, TabsOwnProps } from '@base_ui/react/Tabs';
 import { TabsList as TabsListBase } from '@base_ui/react/TabsList';
 import { TabPanel as TabPanelBase } from '@base_ui/react/TabPanel';
 import { Tab as TabBase } from '@base_ui/react/Tab';
-import HighlightedCode from './HighlightedCode';
+import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 
 const TabList = styled(TabsListBase)(({ theme }) => ({
   padding: 6,

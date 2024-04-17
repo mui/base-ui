@@ -12,11 +12,11 @@ import RichMarkdownElement from 'docs-base/src/modules/components/RichMarkdownEl
 import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
 import AppLayoutDocs from 'docs-base/src/modules/components/AppLayoutDocs';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
-import BrandingProvider from 'docs-base/src/BrandingProvider';
-import Ad from 'docs-base/src/modules/components/Ad';
+import BrandingProvider from 'docs/src/BrandingProvider';
+import Ad from 'docs/src/modules/components/Ad';
 import { HEIGHT as AppFrameHeight } from 'docs-base/src/modules/components/AppFrame';
 import { HEIGHT as TabsHeight } from 'docs-base/src/modules/components/ComponentPageTabs';
-import AdGuest from 'docs-base/src/modules/components/AdGuest';
+import AdGuest from 'docs/src/modules/components/AdGuest';
 import { getPropsToC } from 'docs-base/src/modules/components/ApiPage/sections/PropertiesSection';
 import { getClassesToC } from 'docs-base/src/modules/components/ApiPage/sections/ClassesSection';
 

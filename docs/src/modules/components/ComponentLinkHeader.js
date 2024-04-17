@@ -4,12 +4,12 @@ import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import ChatRounded from '@mui/icons-material/ChatRounded';
 import { styled } from '@mui/material/styles';
-import SketchIcon from 'docs-base/src/modules/components/SketchIcon';
-import FigmaIcon from 'docs-base/src/modules/components/FigmaIcon';
-import AdobeXDIcon from 'docs-base/src/modules/components/AdobeXDIcon';
-import BundleSizeIcon from 'docs-base/src/modules/components/BundleSizeIcon';
-import W3CIcon from 'docs-base/src/modules/components/W3CIcon';
-import MaterialDesignIcon from 'docs-base/src/modules/components/MaterialDesignIcon';
+import SketchIcon from 'docs/src/modules/components/SketchIcon';
+import FigmaIcon from 'docs/src/modules/components/FigmaIcon';
+import AdobeXDIcon from 'docs/src/modules/components/AdobeXDIcon';
+import BundleSizeIcon from 'docs/src/modules/components/BundleSizeIcon';
+import W3CIcon from 'docs/src/modules/components/W3CIcon';
+import MaterialDesignIcon from 'docs/src/modules/components/MaterialDesignIcon';
 import { useTranslate } from '@mui/docs/i18n';
 
 const Root = styled('ul')({
