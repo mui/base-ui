@@ -15,12 +15,12 @@ import Box from '@mui/material/Box';
 import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/utils';
 import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import DoneRounded from '@mui/icons-material/DoneRounded';
-import SvgMuiLogomark from 'docs/src/icons/SvgMuiLogomark';
-import AppNavDrawerItem from 'docs/src/modules/components/AppNavDrawerItem';
-import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
+import SvgMuiLogomark from 'docs-base/src/icons/SvgMuiLogomark';
+import AppNavDrawerItem from 'docs-base/src/modules/components/AppNavDrawerItem';
+import { pageToTitleI18n } from 'docs-base/src/modules/utils/helpers';
 import PageContext from 'docs/src/modules/components/PageContext';
 import { useTranslate } from '@mui/docs/i18n';
-import MuiProductSelector from 'docs/src/modules/components/MuiProductSelector';
+import MuiProductSelector from 'docs-base/src/modules/components/MuiProductSelector';
 
 // TODO: Collapse should expose an API to customize the duration based on the height.
 function transitionTheme(theme) {

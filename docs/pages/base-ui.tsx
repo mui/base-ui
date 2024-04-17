@@ -1,15 +1,15 @@
 import * as React from 'react';
 import Divider from '@mui/material/Divider';
-import Head from 'docs/src/modules/components/Head';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-import AppHeader from 'docs/src/layouts/AppHeader';
-import AppFooter from 'docs/src/layouts/AppFooter';
-import AppHeaderBanner from 'docs-shared/src/components/banner/AppHeaderBanner';
-import BaseUIHero from 'docs/src/components/productBaseUI/BaseUIHero';
-import BaseUISummary from 'docs/src/components/productBaseUI/BaseUISummary';
-import BaseUICustomization from 'docs/src/components/productBaseUI/BaseUICustomization';
-import BaseUIEnd from 'docs/src/components/productBaseUI/BaseUIEnd';
-import BaseUITestimonial from 'docs/src/components/productBaseUI/BaseUITestimonial';
+import Head from 'docs-base/src/modules/components/Head';
+import BrandingCssVarsProvider from 'docs-base/src/BrandingCssVarsProvider';
+import AppHeader from 'docs-base/src/layouts/AppHeader';
+import AppFooter from 'docs-base/src/layouts/AppFooter';
+import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import BaseUIHero from 'docs-base/src/components/productBaseUI/BaseUIHero';
+import BaseUISummary from 'docs-base/src/components/productBaseUI/BaseUISummary';
+import BaseUICustomization from 'docs-base/src/components/productBaseUI/BaseUICustomization';
+import BaseUIEnd from 'docs-base/src/components/productBaseUI/BaseUIEnd';
+import BaseUITestimonial from 'docs-base/src/components/productBaseUI/BaseUITestimonial';
 
 export default function BaseUI() {
   return (

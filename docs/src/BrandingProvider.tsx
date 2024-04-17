@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ThemeProvider, useTheme } from '@mui/material/styles';
-import { brandingDarkTheme, brandingLightTheme } from 'docs/src/modules/brandingTheme';
+import { brandingDarkTheme, brandingLightTheme } from 'docs-base/src/modules/brandingTheme';
 
 interface BrandingProviderProps {
   children: React.ReactNode;

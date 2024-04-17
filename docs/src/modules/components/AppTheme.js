@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Head from 'docs/src/modules/components/Head';
+import Head from 'docs-base/src/modules/components/Head';
 
 export default function AppTheme(props) {
   const { children } = props;

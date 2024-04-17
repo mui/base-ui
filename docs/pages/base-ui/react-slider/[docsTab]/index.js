@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/slider/slider.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/slider/slider.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import SliderApiJsonPageContent from '../../api/slider.json';
 import useSliderApiJsonPageContent from '../../api/use-slider.json';
 
@@ -24,14 +24,14 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const SliderApiReq = require.context(
-    'docs/translations/api-docs-base/slider',
+    'docs-base/translations/api-docs-base/slider',
     false,
     /slider.*.json$/,
   );
   const SliderApiDescriptions = mapApiPageTranslations(SliderApiReq);
 
   const useSliderApiReq = require.context(
-    'docs/translations/api-docs/use-slider',
+    'docs-base/translations/api-docs/use-slider',
     false,
     /use-slider.*.json$/,
   );

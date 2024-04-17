@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/badge/badge.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/badge/badge.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import BadgeApiJsonPageContent from '../../api/badge.json';
 import useBadgeApiJsonPageContent from '../../api/use-badge.json';
 
@@ -24,14 +24,14 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const BadgeApiReq = require.context(
-    'docs/translations/api-docs-base/badge',
+    'docs-base/translations/api-docs-base/badge',
     false,
     /badge.*.json$/,
   );
   const BadgeApiDescriptions = mapApiPageTranslations(BadgeApiReq);
 
   const useBadgeApiReq = require.context(
-    'docs/translations/api-docs/use-badge',
+    'docs-base/translations/api-docs/use-badge',
     false,
     /use-badge.*.json$/,
   );

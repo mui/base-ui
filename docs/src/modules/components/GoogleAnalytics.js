@@ -2,10 +2,10 @@ import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
-import { useNoSsrCodeVariant } from 'docs/src/modules/utils/codeVariant';
-import { useNoSsrCodeStyling } from 'docs/src/modules/utils/codeStylingSolution';
+import { useNoSsrCodeVariant } from 'docs-base/src/modules/utils/codeVariant';
+import { useNoSsrCodeStyling } from 'docs-base/src/modules/utils/codeStylingSolution';
 import { useUserLanguage } from '@mui/docs/i18n';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
 
 // So we can write code like:
 //

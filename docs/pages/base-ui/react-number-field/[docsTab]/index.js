@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/number-field/number-field.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/number-field/number-field.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import NumberFieldDecrementApiJsonPageContent from '../../api/number-field-decrement.json';
 import NumberFieldGroupApiJsonPageContent from '../../api/number-field-group.json';
 import NumberFieldIncrementApiJsonPageContent from '../../api/number-field-increment.json';
@@ -30,49 +30,49 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const NumberFieldDecrementApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-decrement',
+    'docs-base/translations/api-docs-base/number-field-decrement',
     false,
     /number-field-decrement.*.json$/,
   );
   const NumberFieldDecrementApiDescriptions = mapApiPageTranslations(NumberFieldDecrementApiReq);
 
   const NumberFieldGroupApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-group',
+    'docs-base/translations/api-docs-base/number-field-group',
     false,
     /number-field-group.*.json$/,
   );
   const NumberFieldGroupApiDescriptions = mapApiPageTranslations(NumberFieldGroupApiReq);
 
   const NumberFieldIncrementApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-increment',
+    'docs-base/translations/api-docs-base/number-field-increment',
     false,
     /number-field-increment.*.json$/,
   );
   const NumberFieldIncrementApiDescriptions = mapApiPageTranslations(NumberFieldIncrementApiReq);
 
   const NumberFieldInputApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-input',
+    'docs-base/translations/api-docs-base/number-field-input',
     false,
     /number-field-input.*.json$/,
   );
   const NumberFieldInputApiDescriptions = mapApiPageTranslations(NumberFieldInputApiReq);
 
   const NumberFieldRootApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-root',
+    'docs-base/translations/api-docs-base/number-field-root',
     false,
     /number-field-root.*.json$/,
   );
   const NumberFieldRootApiDescriptions = mapApiPageTranslations(NumberFieldRootApiReq);
 
   const NumberFieldScrubAreaApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-scrub-area',
+    'docs-base/translations/api-docs-base/number-field-scrub-area',
     false,
     /number-field-scrub-area.*.json$/,
   );
   const NumberFieldScrubAreaApiDescriptions = mapApiPageTranslations(NumberFieldScrubAreaApiReq);
 
   const NumberFieldScrubAreaCursorApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-scrub-area-cursor',
+    'docs-base/translations/api-docs-base/number-field-scrub-area-cursor',
     false,
     /number-field-scrub-area-cursor.*.json$/,
   );
@@ -81,7 +81,7 @@ export const getStaticProps = () => {
   );
 
   const useNumberFieldApiReq = require.context(
-    'docs/translations/api-docs/use-number-field',
+    'docs-base/translations/api-docs/use-number-field',
     false,
     /use-number-field.*.json$/,
   );

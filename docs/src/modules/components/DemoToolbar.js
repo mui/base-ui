@@ -21,11 +21,11 @@ import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import ResetFocusIcon from '@mui/icons-material/CenterFocusWeak';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import { useRouter } from 'next/router';
-import { CODE_VARIANTS, CODE_STYLING } from 'docs/src/modules/constants';
-import { useSetCodeVariant } from 'docs/src/modules/utils/codeVariant';
-import { useSetCodeStyling, useCodeStyling } from 'docs/src/modules/utils/codeStylingSolution';
+import { CODE_VARIANTS, CODE_STYLING } from 'docs-base/src/modules/constants';
+import { useSetCodeVariant } from 'docs-base/src/modules/utils/codeVariant';
+import { useSetCodeStyling, useCodeStyling } from 'docs-base/src/modules/utils/codeStylingSolution';
 import { useTranslate } from '@mui/docs/i18n';
-import stylingSolutionMapping from 'docs/src/modules/utils/stylingSolutionMapping';
+import stylingSolutionMapping from 'docs-base/src/modules/utils/stylingSolutionMapping';
 import codeSandbox from '../sandbox/CodeSandbox';
 import stackBlitz from '../sandbox/StackBlitz';
 

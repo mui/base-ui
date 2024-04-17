@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
-import AdCarbon from 'docs/src/modules/components/AdCarbon';
-import AdInHouse from 'docs/src/modules/components/AdInHouse';
-import { AdContext, adShape } from 'docs/src/modules/components/AdManager';
+import AdCarbon from 'docs-base/src/modules/components/AdCarbon';
+import AdInHouse from 'docs-base/src/modules/components/AdInHouse';
+import { AdContext, adShape } from 'docs-base/src/modules/components/AdManager';
 import { useTranslate } from '@mui/docs/i18n';
 
 function PleaseDisableAdblock(props) {

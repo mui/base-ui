@@ -5,12 +5,12 @@ import kebabCase from 'lodash/kebabCase';
 import { useRouter } from 'next/router';
 import { exactProp } from '@mui/utils';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import PropertiesSection from 'docs/src/modules/components/ApiPage/sections/PropertiesSection';
-import ClassesSection from 'docs/src/modules/components/ApiPage/sections/ClassesSection';
-import SlotsSection from 'docs/src/modules/components/ApiPage/sections/SlotsSection';
-import { DEFAULT_API_LAYOUT_STORAGE_KEYS } from 'docs/src/modules/components/ApiPage/sections/ToggleDisplayOption';
+import HighlightedCode from 'docs-base/src/modules/components/HighlightedCode';
+import MarkdownElement from 'docs-base/src/modules/components/MarkdownElement';
+import PropertiesSection from 'docs-base/src/modules/components/ApiPage/sections/PropertiesSection';
+import ClassesSection from 'docs-base/src/modules/components/ApiPage/sections/ClassesSection';
+import SlotsSection from 'docs-base/src/modules/components/ApiPage/sections/SlotsSection';
+import { DEFAULT_API_LAYOUT_STORAGE_KEYS } from 'docs-base/src/modules/components/ApiPage/sections/ToggleDisplayOption';
 
 function getTranslatedHeader(t, header, text) {
   const translations = {

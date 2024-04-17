@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Router from 'next/router';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
 
 export function samePageLinkNavigation(event) {
   if (

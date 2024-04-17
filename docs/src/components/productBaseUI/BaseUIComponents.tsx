@@ -9,19 +9,19 @@ import TabUnselectedRoundedIcon from '@mui/icons-material/TabUnselectedRounded';
 import InputRoundedIcon from '@mui/icons-material/InputRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
-import GradientText from 'docs/src/components/typography/GradientText';
-import Item, { Group } from 'docs-shared/src/components/action/Item';
-import Highlighter from 'docs-shared/src/components/action/Highlighter';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import More from 'docs-shared/src/components/action/More';
-import Frame from 'docs-shared/src/components/action/Frame';
-import ROUTES from 'docs/src/route';
+import GradientText from 'docs-base/src/components/typography/GradientText';
+import Item, { Group } from 'docs/src/components/action/Item';
+import Highlighter from 'docs/src/components/action/Highlighter';
+import Section from 'docs-base/src/layouts/Section';
+import SectionHeadline from 'docs-base/src/components/typography/SectionHeadline';
+import More from 'docs/src/components/action/More';
+import Frame from 'docs/src/components/action/Frame';
+import ROUTES from 'docs-base/src/route';
 
 // switcher icons
 
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import HighlightedCode from 'docs-base/src/modules/components/HighlightedCode';
+import MarkdownElement from 'docs-base/src/components/markdown/MarkdownElement';
 import BaseButtonDemo from './components/BaseButtonDemo';
 import BaseMenuDemo from './components/BaseMenuDemo';
 import BaseInputDemo from './components/BaseInputDemo';

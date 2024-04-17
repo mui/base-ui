@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import AdDisplay from 'docs/src/modules/components/AdDisplay';
+import AdDisplay from 'docs-base/src/modules/components/AdDisplay';
 
 export default function AdInHouse(props) {
   const { ad } = props;

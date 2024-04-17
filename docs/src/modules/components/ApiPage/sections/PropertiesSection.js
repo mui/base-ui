@@ -5,9 +5,11 @@ import Box from '@mui/material/Box';
 import { useTranslate } from '@mui/docs/i18n';
 import ToggleDisplayOption, {
   useApiPageOption,
-} from 'docs/src/modules/components/ApiPage/sections/ToggleDisplayOption';
-import PropertiesList, { getHash } from 'docs/src/modules/components/ApiPage/list/PropertiesList';
-import PropertiesTable from 'docs/src/modules/components/ApiPage/table/PropertiesTable';
+} from 'docs-base/src/modules/components/ApiPage/sections/ToggleDisplayOption';
+import PropertiesList, {
+  getHash,
+} from 'docs-base/src/modules/components/ApiPage/list/PropertiesList';
+import PropertiesTable from 'docs-base/src/modules/components/ApiPage/table/PropertiesTable';
 
 export function getPropsToC({
   componentName,

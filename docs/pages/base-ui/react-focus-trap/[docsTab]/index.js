@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/focus-trap/focus-trap.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/focus-trap/focus-trap.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import FocusTrapApiJsonPageContent from '../../api/focus-trap.json';
 
 export default function Page(props) {
@@ -23,7 +23,7 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const FocusTrapApiReq = require.context(
-    'docs/translations/api-docs-base/focus-trap',
+    'docs-base/translations/api-docs-base/focus-trap',
     false,
     /focus-trap.*.json$/,
   );

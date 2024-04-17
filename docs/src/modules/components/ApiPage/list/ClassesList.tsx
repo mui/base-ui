@@ -6,12 +6,12 @@ import { ComponentClassDefinition } from '@mui/internal-docs-utils';
 import { useTranslate } from '@mui/docs/i18n';
 import ExpandableApiItem, {
   ApiItemContaier,
-} from 'docs/src/modules/components/ApiPage/list/ExpandableApiItem';
+} from 'docs-base/src/modules/components/ApiPage/list/ExpandableApiItem';
 import {
   brandingLightTheme as lightTheme,
   brandingDarkTheme as darkTheme,
-} from 'docs/src/modules/brandingTheme';
-import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';
+} from 'docs-base/src/modules/brandingTheme';
+import ApiWarning from 'docs-base/src/modules/components/ApiPage/ApiWarning';
 
 const StyledApiItem = styled(ExpandableApiItem)(
   ({ theme }) => ({

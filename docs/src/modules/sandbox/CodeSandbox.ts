@@ -1,10 +1,10 @@
 // @ts-ignore
 import LZString from 'lz-string';
-import addHiddenInput from 'docs/src/modules/utils/addHiddenInput';
-import SandboxDependencies from 'docs/src/modules/sandbox/Dependencies';
-import * as CRA from 'docs/src/modules/sandbox/CreateReactApp';
-import getFileExtension from 'docs/src/modules/sandbox/FileExtension';
-import { DemoData, CodeVariant, CodeStyling } from 'docs/src/modules/sandbox/types';
+import addHiddenInput from 'docs-base/src/modules/utils/addHiddenInput';
+import SandboxDependencies from 'docs-base/src/modules/sandbox/Dependencies';
+import * as CRA from 'docs-base/src/modules/sandbox/CreateReactApp';
+import getFileExtension from 'docs-base/src/modules/sandbox/FileExtension';
+import { DemoData, CodeVariant, CodeStyling } from 'docs-base/src/modules/sandbox/types';
 
 function compress(object: any) {
   return LZString.compressToBase64(JSON.stringify(object))

@@ -1,4 +1,4 @@
-import type { MuiProductId } from 'docs/src/modules/utils/getProductInfoFromUrl';
+import type { MuiProductId } from 'docs-base/src/modules/utils/getProductInfoFromUrl';
 
 export type CodeStyling = 'Tailwind' | 'MUI System';
 export type CodeVariant = 'TS' | 'JS';

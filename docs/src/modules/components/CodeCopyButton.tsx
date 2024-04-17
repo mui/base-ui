@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import LibraryAddCheckRoundedIcon from '@mui/icons-material/LibraryAddCheckRounded';
-import useClipboardCopy from 'docs/src/modules/utils/useClipboardCopy';
+import useClipboardCopy from 'docs-base/src/modules/utils/useClipboardCopy';
 
 interface CodeCopyButtonProps {
   code: string;

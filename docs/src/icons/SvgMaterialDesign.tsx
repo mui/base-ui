@@ -1,5 +1,5 @@
 import * as React from 'react';
-import RootSvg, { RootSvgProps } from 'docs/src/icons/RootSvg';
+import RootSvg, { RootSvgProps } from 'docs-base/src/icons/RootSvg';
 
 function SvgMaterialDesign(props: RootSvgProps) {
   return (

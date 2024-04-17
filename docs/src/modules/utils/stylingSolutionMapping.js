@@ -1,4 +1,4 @@
-import { CODE_STYLING } from 'docs/src/modules/constants';
+import { CODE_STYLING } from 'docs-base/src/modules/constants';
 
 const stylingSolutionMapping = {
   [CODE_STYLING.TAILWIND]: 'tailwind',

@@ -40,9 +40,9 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import InterestsRoundedIcon from '@mui/icons-material/InterestsRounded';
 import RadioRoundedIcon from '@mui/icons-material/RadioRounded';
 
-import ROUTES from 'docs/src/route';
+import ROUTES from 'docs-base/src/route';
 import { Link } from '@mui/docs/Link';
-import heroVariables from 'docs/src/components/productBaseUI/heroVariables';
+import heroVariables from 'docs-base/src/components/productBaseUI/heroVariables';
 
 // DS imports
 import Switch from './themed-controls/Switch';

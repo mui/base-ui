@@ -5,9 +5,9 @@ import { ServerStyleSheet } from 'styled-components';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { getInitColorSchemeScript as getMuiInitColorSchemeScript } from '@mui/material/styles';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
-import createEmotionCache from 'docs/src/createEmotionCache';
-import { getMetaThemeColor } from 'docs/src/modules/brandingTheme';
+import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
+import createEmotionCache from 'docs-base/src/createEmotionCache';
+import { getMetaThemeColor } from 'docs-base/src/modules/brandingTheme';
 
 const PRODUCTION_GA =
   process.env.DEPLOY_ENV === 'production' || process.env.DEPLOY_ENV === 'staging';

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/portal/portal.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/portal/portal.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import PortalApiJsonPageContent from '../../api/portal.json';
 
 export default function Page(props) {
@@ -23,7 +23,7 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const PortalApiReq = require.context(
-    'docs/translations/api-docs-base/portal',
+    'docs-base/translations/api-docs-base/portal',
     false,
     /portal.*.json$/,
   );

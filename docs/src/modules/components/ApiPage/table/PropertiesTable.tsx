@@ -5,10 +5,10 @@ import { useTranslate } from '@mui/docs/i18n';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from 'docs/src/modules/brandingTheme';
-import { Properties, getHash } from 'docs/src/modules/components/ApiPage/list/PropertiesList';
-import StyledTableContainer from 'docs/src/modules/components/ApiPage/table/StyledTableContainer';
-import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';
+} from 'docs-base/src/modules/brandingTheme';
+import { Properties, getHash } from 'docs-base/src/modules/components/ApiPage/list/PropertiesList';
+import StyledTableContainer from 'docs-base/src/modules/components/ApiPage/table/StyledTableContainer';
+import ApiWarning from 'docs-base/src/modules/components/ApiPage/ApiWarning';
 
 const StyledTable = styled('table')(
   ({ theme }) => ({

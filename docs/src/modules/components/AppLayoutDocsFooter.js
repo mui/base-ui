@@ -25,14 +25,14 @@ import XIcon from '@mui/icons-material/X';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
-import DiscordIcon from 'docs/src/icons/DiscordIcon';
+import DiscordIcon from 'docs-base/src/icons/DiscordIcon';
 // Other imports
 import { Link } from '@mui/docs/Link';
 import PageContext from 'docs/src/modules/components/PageContext';
-import EditPage from 'docs/src/modules/components/EditPage';
-import SvgMuiLogotype from 'docs/src/icons/SvgMuiLogotype';
+import EditPage from 'docs-base/src/modules/components/EditPage';
+import SvgMuiLogotype from 'docs-base/src/icons/SvgMuiLogotype';
 import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
-import { getCookie, pageToTitleI18n } from 'docs/src/modules/utils/helpers';
+import { getCookie, pageToTitleI18n } from 'docs-base/src/modules/utils/helpers';
 
 const FooterLink = styled(Typography)(({ theme }) => {
   return {

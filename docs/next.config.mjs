@@ -57,8 +57,8 @@ export default withDocsInfra({
         ...config.resolve,
         alias: {
           ...config.resolve.alias,
-          docs: path.resolve(currentDirectory, '../docs'),
-          'docs-shared': path.resolve(currentDirectory, '../node_modules/@mui/monorepo/docs'),
+          'docs-base': path.resolve(currentDirectory, '../docs'),
+          docs: path.resolve(currentDirectory, '../node_modules/@mui/monorepo/docs'),
         },
       },
       module: {

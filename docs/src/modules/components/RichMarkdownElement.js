@@ -1,9 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
-import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import HighlightedCodeWithTabs from 'docs/src/modules/components/HighlightedCodeWithTabs';
-import Demo from 'docs/src/modules/components/Demo';
+import MarkdownElement from 'docs-base/src/modules/components/MarkdownElement';
+import HighlightedCodeWithTabs from 'docs-base/src/modules/components/HighlightedCodeWithTabs';
+import Demo from 'docs-base/src/modules/components/Demo';
 
 function noComponent(moduleID) {
   return function NoComponent() {

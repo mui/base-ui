@@ -4,20 +4,20 @@ import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
 import { exactProp } from '@mui/utils';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
-import Head from 'docs/src/modules/components/Head';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import AppContainer from 'docs/src/modules/components/AppContainer';
-import AppTableOfContents from 'docs/src/modules/components/AppTableOfContents';
-import AdManager from 'docs/src/modules/components/AdManager';
-import AppLayoutDocsFooter from 'docs/src/modules/components/AppLayoutDocsFooter';
-import BackToTop from 'docs/src/modules/components/BackToTop';
+import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
+import Head from 'docs-base/src/modules/components/Head';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import AppContainer from 'docs-base/src/modules/components/AppContainer';
+import AppTableOfContents from 'docs-base/src/modules/components/AppTableOfContents';
+import AdManager from 'docs-base/src/modules/components/AdManager';
+import AppLayoutDocsFooter from 'docs-base/src/modules/components/AppLayoutDocsFooter';
+import BackToTop from 'docs-base/src/modules/components/BackToTop';
 import {
   AD_MARGIN_TOP,
   AD_HEIGHT,
   AD_HEIGHT_MOBILE,
   AD_MARGIN_BOTTOM,
-} from 'docs/src/modules/components/Ad';
+} from 'docs-base/src/modules/components/Ad';
 
 const TOC_WIDTH = 242;
 

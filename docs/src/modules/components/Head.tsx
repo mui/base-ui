@@ -1,9 +1,9 @@
 import * as React from 'react';
 import NextHead from 'next/head';
 import { useRouter } from 'next/router';
-import { LANGUAGES_SSR } from 'docs/config';
+import { LANGUAGES_SSR } from 'docs-base/config';
 import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
 
 // #major-version-switch
 const HOST = 'https://mui.com';

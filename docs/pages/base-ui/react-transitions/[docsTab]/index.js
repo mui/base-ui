@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/transitions/transitions.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/transitions/transitions.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import CssAnimationApiJsonPageContent from '../../api/css-animation.json';
 import CssTransitionApiJsonPageContent from '../../api/css-transition.json';
 import useTransitionStateManagerApiJsonPageContent from '../../api/use-transition-state-manager.json';
@@ -26,21 +26,21 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const CssAnimationApiReq = require.context(
-    'docs/translations/api-docs-base/css-animation',
+    'docs-base/translations/api-docs-base/css-animation',
     false,
     /css-animation.*.json$/,
   );
   const CssAnimationApiDescriptions = mapApiPageTranslations(CssAnimationApiReq);
 
   const CssTransitionApiReq = require.context(
-    'docs/translations/api-docs-base/css-transition',
+    'docs-base/translations/api-docs-base/css-transition',
     false,
     /css-transition.*.json$/,
   );
   const CssTransitionApiDescriptions = mapApiPageTranslations(CssTransitionApiReq);
 
   const useTransitionStateManagerApiReq = require.context(
-    'docs/translations/api-docs/use-transition-state-manager',
+    'docs-base/translations/api-docs/use-transition-state-manager',
     false,
     /use-transition-state-manager.*.json$/,
   );
@@ -49,7 +49,7 @@ export const getStaticProps = () => {
   );
 
   const useTransitionTriggerApiReq = require.context(
-    'docs/translations/api-docs/use-transition-trigger',
+    'docs-base/translations/api-docs/use-transition-trigger',
     false,
     /use-transition-trigger.*.json$/,
   );

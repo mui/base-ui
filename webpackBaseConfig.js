@@ -10,12 +10,12 @@ module.exports = {
     modules: [__dirname, 'node_modules'],
     alias: {
       '@base_ui/react': path.resolve(__dirname, './packages/mui-base/src'),
-      docs: path.resolve(__dirname, './docs'),
       '@mui-internal/api-docs-builder': path.resolve(
         __dirname,
         './node_modules/@mui/monorepo/packages/api-docs-builder',
       ),
-      'docs-shared': path.resolve(__dirname, './node_modules/@mui/monorepo/docs'),
+      docs: path.resolve(__dirname, './node_modules/@mui/monorepo/docs'),
+      'docs-base': path.resolve(__dirname, './docs'),
     },
     extensions: ['.js', '.ts', '.tsx', '.d.ts'],
   },

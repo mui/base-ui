@@ -2,11 +2,11 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import HeroContainer from 'docs/src/layouts/HeroContainer';
-import IconImage from 'docs/src/components/icon/IconImage';
-import GradientText from 'docs/src/components/typography/GradientText';
-import ROUTES from 'docs/src/route';
-import GetStartedButtons from 'docs/src/components/productBaseUI/components/GetStartedButtons';
+import HeroContainer from 'docs-base/src/layouts/HeroContainer';
+import IconImage from 'docs-base/src/components/icon/IconImage';
+import GradientText from 'docs-base/src/components/typography/GradientText';
+import ROUTES from 'docs-base/src/route';
+import GetStartedButtons from 'docs-base/src/components/productBaseUI/components/GetStartedButtons';
 import { Link } from '@mui/docs/Link';
 
 const BaseUIThemesDemo = dynamic(() => import('./BaseUIThemesDemo'), {

@@ -6,9 +6,9 @@ import Box from '@mui/material/Box';
 import ToggleDisplayOption, {
   ApiDisplayOptions,
   useApiPageOption,
-} from 'docs/src/modules/components/ApiPage/sections/ToggleDisplayOption';
-import ClassesList, { getHash } from 'docs/src/modules/components/ApiPage/list/ClassesList';
-import ClassesTable from 'docs/src/modules/components/ApiPage/table/ClassesTable';
+} from 'docs-base/src/modules/components/ApiPage/sections/ToggleDisplayOption';
+import ClassesList, { getHash } from 'docs-base/src/modules/components/ApiPage/list/ClassesList';
+import ClassesTable from 'docs-base/src/modules/components/ApiPage/table/ClassesTable';
 
 export type GetCssToCParams = {
   componentName: string;

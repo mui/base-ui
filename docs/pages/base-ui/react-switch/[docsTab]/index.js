@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/switch/switch.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/switch/switch.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import SwitchRootApiJsonPageContent from '../../api/switch-root.json';
 import SwitchThumbApiJsonPageContent from '../../api/switch-thumb.json';
 import useSwitchApiJsonPageContent from '../../api/use-switch.json';
@@ -25,21 +25,21 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const SwitchRootApiReq = require.context(
-    'docs/translations/api-docs-base/switch-root',
+    'docs-base/translations/api-docs-base/switch-root',
     false,
     /switch-root.*.json$/,
   );
   const SwitchRootApiDescriptions = mapApiPageTranslations(SwitchRootApiReq);
 
   const SwitchThumbApiReq = require.context(
-    'docs/translations/api-docs-base/switch-thumb',
+    'docs-base/translations/api-docs-base/switch-thumb',
     false,
     /switch-thumb.*.json$/,
   );
   const SwitchThumbApiDescriptions = mapApiPageTranslations(SwitchThumbApiReq);
 
   const useSwitchApiReq = require.context(
-    'docs/translations/api-docs/use-switch',
+    'docs-base/translations/api-docs/use-switch',
     false,
     /use-switch.*.json$/,
   );

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/table-pagination/table-pagination.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/table-pagination/table-pagination.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import TablePaginationApiJsonPageContent from '../../api/table-pagination.json';
 
 export default function Page(props) {
@@ -23,7 +23,7 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const TablePaginationApiReq = require.context(
-    'docs/translations/api-docs-base/table-pagination',
+    'docs-base/translations/api-docs-base/table-pagination',
     false,
     /table-pagination.*.json$/,
   );

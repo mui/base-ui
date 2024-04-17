@@ -5,16 +5,16 @@ import { useSwitch, UseSwitchParameters } from '@base_ui/react/useSwitch';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import SvgTwinkle from 'docs/src/icons/SvgTwinkle';
-import Section from 'docs/src/layouts/Section';
-import Highlighter from 'docs-shared/src/components/action/Highlighter';
-import Item, { Group } from 'docs-shared/src/components/action/Item';
-import GradientText from 'docs/src/components/typography/GradientText';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import FlashCode from 'docs-shared/src/components/animation/FlashCode';
-import Frame from 'docs-shared/src/components/action/Frame';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import SvgTwinkle from 'docs-base/src/icons/SvgTwinkle';
+import Section from 'docs-base/src/layouts/Section';
+import Highlighter from 'docs/src/components/action/Highlighter';
+import Item, { Group } from 'docs/src/components/action/Item';
+import GradientText from 'docs-base/src/components/typography/GradientText';
+import SectionHeadline from 'docs-base/src/components/typography/SectionHeadline';
+import FlashCode from 'docs/src/components/animation/FlashCode';
+import Frame from 'docs/src/components/action/Frame';
+import HighlightedCode from 'docs-base/src/modules/components/HighlightedCode';
+import MarkdownElement from 'docs-base/src/components/markdown/MarkdownElement';
 
 const code = `
 import * as Switch from '@base_ui/react/Switch';

@@ -6,11 +6,11 @@ import { useTranslate } from '@mui/docs/i18n';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from 'docs/src/modules/brandingTheme';
+} from 'docs-base/src/modules/brandingTheme';
 import ExpandableApiItem, {
   ApiItemContaier,
-} from 'docs/src/modules/components/ApiPage/list/ExpandableApiItem';
-import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';
+} from 'docs-base/src/modules/components/ApiPage/list/ExpandableApiItem';
+import ApiWarning from 'docs-base/src/modules/components/ApiPage/ApiWarning';
 
 const StyledApiItem = styled(ExpandableApiItem)(
   ({ theme }) => ({

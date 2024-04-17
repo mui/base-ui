@@ -5,11 +5,11 @@ import { styled, alpha } from '@mui/material/styles';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from 'docs/src/modules/brandingTheme';
-import { getHash } from 'docs/src/modules/components/ApiPage/list/ClassesList';
-import StyledTableContainer from 'docs/src/modules/components/ApiPage/table/StyledTableContainer';
+} from 'docs-base/src/modules/brandingTheme';
+import { getHash } from 'docs-base/src/modules/components/ApiPage/list/ClassesList';
+import StyledTableContainer from 'docs-base/src/modules/components/ApiPage/table/StyledTableContainer';
 import { useTranslate } from '@mui/docs/i18n';
-import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';
+import ApiWarning from 'docs-base/src/modules/components/ApiPage/ApiWarning';
 
 const StyledTable = styled('table')(
   ({ theme }) => ({

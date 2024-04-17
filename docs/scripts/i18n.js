@@ -1,8 +1,8 @@
 // @ts-check
 import path from 'path';
 import fse from 'fs-extra';
-import { pageToTitle } from 'docs/src/modules/utils/helpers';
-import basePages from 'docs/data/base/pages';
+import { pageToTitle } from 'docs-base/src/modules/utils/helpers';
+import basePages from 'docs-base/data/base/pages';
 
 const EXCLUDES = ['/api', '/blog', '/x/react-'];
 

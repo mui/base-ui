@@ -1,4 +1,4 @@
-import { DemoData } from 'docs/src/modules/sandbox/types';
+import { DemoData } from 'docs-base/src/modules/sandbox/types';
 
 export const getHtml = ({
   title,

@@ -7,10 +7,10 @@ import Typography from '@mui/material/Typography';
 import NoSsr from '@mui/material/NoSsr';
 import { Link } from '@mui/docs/Link';
 import { useTranslate } from '@mui/docs/i18n';
-import { samePageLinkNavigation } from 'docs/src/modules/components/MarkdownLinks';
-import TableOfContentsBanner from 'docs-shared/src/components/banner/TableOfContentsBanner';
-import featureToggle from 'docs/src/featureToggle';
-import DiamondSponsors from 'docs/src/modules/components/DiamondSponsors';
+import { samePageLinkNavigation } from 'docs-base/src/modules/components/MarkdownLinks';
+import TableOfContentsBanner from 'docs/src/components/banner/TableOfContentsBanner';
+import featureToggle from 'docs-base/src/featureToggle';
+import DiamondSponsors from 'docs-base/src/modules/components/DiamondSponsors';
 
 const Nav = styled('nav')(({ theme }) => ({
   top: 'var(--MuiDocs-header-height)',

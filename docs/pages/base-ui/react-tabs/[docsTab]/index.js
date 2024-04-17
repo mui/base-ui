@@ -1,8 +1,8 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/tabs/tabs.md?@mui/markdown';
-import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import * as pageProps from 'docs-base/data/base/components/tabs/tabs.md?@mui/markdown';
+import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
 import TabApiJsonPageContent from '../../api/tab.json';
 import TabPanelApiJsonPageContent from '../../api/tab-panel.json';
 import TabsApiJsonPageContent from '../../api/tabs.json';
@@ -29,49 +29,57 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const TabApiReq = require.context('docs/translations/api-docs-base/tab', false, /tab.*.json$/);
+  const TabApiReq = require.context(
+    'docs-base/translations/api-docs-base/tab',
+    false,
+    /tab.*.json$/,
+  );
   const TabApiDescriptions = mapApiPageTranslations(TabApiReq);
 
   const TabPanelApiReq = require.context(
-    'docs/translations/api-docs-base/tab-panel',
+    'docs-base/translations/api-docs-base/tab-panel',
     false,
     /tab-panel.*.json$/,
   );
   const TabPanelApiDescriptions = mapApiPageTranslations(TabPanelApiReq);
 
-  const TabsApiReq = require.context('docs/translations/api-docs-base/tabs', false, /tabs.*.json$/);
+  const TabsApiReq = require.context(
+    'docs-base/translations/api-docs-base/tabs',
+    false,
+    /tabs.*.json$/,
+  );
   const TabsApiDescriptions = mapApiPageTranslations(TabsApiReq);
 
   const TabsListApiReq = require.context(
-    'docs/translations/api-docs-base/tabs-list',
+    'docs-base/translations/api-docs-base/tabs-list',
     false,
     /tabs-list.*.json$/,
   );
   const TabsListApiDescriptions = mapApiPageTranslations(TabsListApiReq);
 
   const useTabApiReq = require.context(
-    'docs/translations/api-docs/use-tab',
+    'docs-base/translations/api-docs/use-tab',
     false,
     /use-tab.*.json$/,
   );
   const useTabApiDescriptions = mapApiPageTranslations(useTabApiReq);
 
   const useTabPanelApiReq = require.context(
-    'docs/translations/api-docs/use-tab-panel',
+    'docs-base/translations/api-docs/use-tab-panel',
     false,
     /use-tab-panel.*.json$/,
   );
   const useTabPanelApiDescriptions = mapApiPageTranslations(useTabPanelApiReq);
 
   const useTabsApiReq = require.context(
-    'docs/translations/api-docs/use-tabs',
+    'docs-base/translations/api-docs/use-tabs',
     false,
     /use-tabs.*.json$/,
   );
   const useTabsApiDescriptions = mapApiPageTranslations(useTabsApiReq);
 
   const useTabsListApiReq = require.context(
-    'docs/translations/api-docs/use-tabs-list',
+    'docs-base/translations/api-docs/use-tabs-list',
     false,
     /use-tabs-list.*.json$/,
   );

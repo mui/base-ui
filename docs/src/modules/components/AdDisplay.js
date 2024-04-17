@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
-import { adShape } from 'docs/src/modules/components/AdManager';
-import { adStylesObject } from 'docs/src/modules/components/ad.styles';
+import { adShape } from 'docs-base/src/modules/components/AdManager';
+import { adStylesObject } from 'docs-base/src/modules/components/ad.styles';
 
 const Root = styled('span', { shouldForwardProp: (prop) => prop !== 'shape' })(({
   theme,

@@ -2,9 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import prism from '@mui/internal-markdown/prism';
 import { NoSsr } from '@base_ui/react/NoSsr';
-import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import CodeCopyButton from 'docs/src/modules/components/CodeCopyButton';
-import { useCodeCopy } from 'docs/src/modules/utils/CodeCopy';
+import MarkdownElement from 'docs-base/src/modules/components/MarkdownElement';
+import CodeCopyButton from 'docs-base/src/modules/components/CodeCopyButton';
+import { useCodeCopy } from 'docs-base/src/modules/utils/CodeCopy';
 
 const HighlightedCode = React.forwardRef(function HighlightedCode(props, ref) {
   const {

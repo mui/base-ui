@@ -13,7 +13,7 @@ import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
 import MuiList from '@mui/material/List';
 import MuiListItem from '@mui/material/ListItem';
 import MuiDivider from '@mui/material/Divider';
-import { getCookie } from 'docs/src/modules/utils/helpers';
+import { getCookie } from 'docs-base/src/modules/utils/helpers';
 import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
 
 async function fetchNotifications() {
