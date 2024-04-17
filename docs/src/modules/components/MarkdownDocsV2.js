@@ -5,10 +5,10 @@ import kebabCase from 'lodash/kebabCase';
 import { useTheme } from '@mui/system';
 import { exactProp } from '@mui/utils';
 import { CssVarsProvider as JoyCssVarsProvider, useColorScheme } from '@mui/joy/styles';
-import ComponentsApiContent from 'docs-base/src/modules/components/ComponentsApiContent';
-import HooksApiContent from 'docs-base/src/modules/components/HooksApiContent';
+import ComponentsApiContent from 'docs/src/modules/components/ComponentsApiContent';
+import HooksApiContent from 'docs/src/modules/components/HooksApiContent';
 import { getTranslatedHeader as getComponentTranslatedHeader } from 'docs-base/src/modules/components/ApiPage';
-import RichMarkdownElement from 'docs-base/src/modules/components/RichMarkdownElement';
+import RichMarkdownElement from 'docs/src/modules/components/RichMarkdownElement';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import AppLayoutDocs from 'docs-base/src/modules/components/AppLayoutDocs';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
@@ -17,8 +17,8 @@ import Ad from 'docs/src/modules/components/Ad';
 import { HEIGHT as AppFrameHeight } from 'docs-base/src/modules/components/AppFrame';
 import { HEIGHT as TabsHeight } from 'docs-base/src/modules/components/ComponentPageTabs';
 import AdGuest from 'docs/src/modules/components/AdGuest';
-import { getPropsToC } from 'docs-base/src/modules/components/ApiPage/sections/PropertiesSection';
-import { getClassesToC } from 'docs-base/src/modules/components/ApiPage/sections/ClassesSection';
+import { getPropsToC } from 'docs/src/modules/components/ApiPage/sections/PropertiesSection';
+import { getClassesToC } from 'docs/src/modules/components/ApiPage/sections/ClassesSection';
 
 function JoyModeObserver({ mode }) {
   const { setMode } = useColorScheme();

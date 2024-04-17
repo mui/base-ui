@@ -10,18 +10,18 @@ import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import { alpha } from '@mui/material/styles';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs-base/src/modules/components/MarkdownElement';
+import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
 import AppLayoutDocs from 'docs-base/src/modules/components/AppLayoutDocs';
 import Ad from 'docs/src/modules/components/Ad';
 import BrandingProvider from 'docs/src/BrandingProvider';
 import PropertiesSection, {
   getPropsToC,
-} from 'docs-base/src/modules/components/ApiPage/sections/PropertiesSection';
+} from 'docs/src/modules/components/ApiPage/sections/PropertiesSection';
 import ClassesSection, {
   getClassesToC,
-} from 'docs-base/src/modules/components/ApiPage/sections/ClassesSection';
-import SlotsSection from 'docs-base/src/modules/components/ApiPage/sections/SlotsSection';
-import { DEFAULT_API_LAYOUT_STORAGE_KEYS } from 'docs-base/src/modules/components/ApiPage/sections/ToggleDisplayOption';
+} from 'docs/src/modules/components/ApiPage/sections/ClassesSection';
+import SlotsSection from 'docs/src/modules/components/ApiPage/sections/SlotsSection';
+import { DEFAULT_API_LAYOUT_STORAGE_KEYS } from 'docs/src/modules/components/ApiPage/sections/ToggleDisplayOption';
 
 export function getTranslatedHeader(t, header) {
   const translations = {

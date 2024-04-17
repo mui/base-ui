@@ -10,7 +10,7 @@ import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import AppContainer from 'docs/src/modules/components/AppContainer';
 import AppTableOfContents from 'docs/src/modules/components/AppTableOfContents';
 import AdManager from 'docs/src/modules/components/AdManager';
-import AppLayoutDocsFooter from 'docs-base/src/modules/components/AppLayoutDocsFooter';
+import AppLayoutDocsFooter from 'docs/src/modules/components/AppLayoutDocsFooter';
 import BackToTop from 'docs/src/modules/components/BackToTop';
 import {
   AD_MARGIN_TOP,
