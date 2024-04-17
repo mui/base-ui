@@ -2,9 +2,9 @@
 import LZString from 'lz-string';
 import addHiddenInput from 'docs/src/modules/utils/addHiddenInput';
 import SandboxDependencies from 'docs-base/src/modules/sandbox/Dependencies';
-import * as CRA from 'docs-base/src/modules/sandbox/CreateReactApp';
-import getFileExtension from 'docs-base/src/modules/sandbox/FileExtension';
-import { DemoData, CodeVariant, CodeStyling } from 'docs-base/src/modules/sandbox/types';
+import * as CRA from 'docs/src/modules/sandbox/CreateReactApp';
+import getFileExtension from 'docs/src/modules/sandbox/FileExtension';
+import { DemoData, CodeVariant, CodeStyling } from 'docs/src/modules/sandbox/types';
 
 function compress(object: any) {
   return LZString.compressToBase64(JSON.stringify(object))
@@ -146,7 +146,6 @@ ReactDOM.createRoot(document.querySelector("#root")${type}).render(
     {
       codeVariant: templateData.codeVariant,
       raw: Object.entries(templateData.files).reduce((prev, curr) => `${prev}\n${curr}`, ''),
-      productId: 'joy-ui',
     },
     {
       commitRef: process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined,

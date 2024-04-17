@@ -1,5 +1,4 @@
 import { CODE_VARIANTS } from 'docs-base/src/modules/constants';
-import type { MuiProductId } from 'docs/src/modules/utils/getProductInfoFromUrl';
 
 const packagesWithBundledTypes = ['date-fns', '@emotion/react', '@emotion/styled', 'dayjs'];
 
@@ -32,7 +31,6 @@ function addTypeDeps(deps: Record<string, string>): void {
 export default function SandboxDependencies(
   demo: {
     raw: string;
-    productId?: MuiProductId;
     codeVariant: keyof typeof CODE_VARIANTS;
   },
   options?: { commitRef?: string },
