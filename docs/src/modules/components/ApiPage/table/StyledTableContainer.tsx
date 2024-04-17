@@ -1,5 +1,5 @@
 import { styled, alpha } from '@mui/material/styles';
-import { brandingDarkTheme as darkTheme } from 'docs-base/src/modules/brandingTheme';
+import { brandingDarkTheme as darkTheme } from 'docs/src/modules/brandingTheme';
 
 const StyledTableContainer = styled('div')(
   ({ theme }) => ({

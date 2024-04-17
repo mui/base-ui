@@ -4,7 +4,7 @@ import { styled, alpha } from '@mui/material/styles';
 import {
   brandingLightTheme as lightTheme,
   brandingDarkTheme as darkTheme,
-} from 'docs-base/src/modules/brandingTheme';
+} from 'docs/src/modules/brandingTheme';
 import { useTranslate } from '@mui/docs/i18n';
 import ExpandableApiItem, {
   ApiItemContaier,

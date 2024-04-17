@@ -21,7 +21,7 @@ import ROUTES from 'docs-base/src/route';
 // switcher icons
 
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs-base/src/components/markdown/MarkdownElement';
+import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import BaseButtonDemo from './components/BaseButtonDemo';
 import BaseMenuDemo from './components/BaseMenuDemo';
 import BaseInputDemo from './components/BaseInputDemo';

@@ -6,7 +6,7 @@ import { useTranslate } from '@mui/docs/i18n';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from 'docs-base/src/modules/brandingTheme';
+} from 'docs/src/modules/brandingTheme';
 import ExpandableApiItem, {
   ApiItemContaier,
 } from 'docs-base/src/modules/components/ApiPage/list/ExpandableApiItem';

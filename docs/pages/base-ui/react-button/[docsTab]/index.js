@@ -2,7 +2,7 @@ import * as React from 'react';
 import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/button/button.md?@mui/markdown';
-import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
+import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import ButtonApiJsonPageContent from '../../api/button.json';
 import useButtonApiJsonPageContent from '../../api/use-button.json';
 

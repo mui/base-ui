@@ -2,7 +2,7 @@ import * as React from 'react';
 import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/number-field/number-field.md?@mui/markdown';
-import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
+import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import NumberFieldDecrementApiJsonPageContent from '../../api/number-field-decrement.json';
 import NumberFieldGroupApiJsonPageContent from '../../api/number-field-group.json';
 import NumberFieldIncrementApiJsonPageContent from '../../api/number-field-increment.json';

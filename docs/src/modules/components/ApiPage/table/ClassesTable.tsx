@@ -5,7 +5,7 @@ import { styled, alpha } from '@mui/material/styles';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from 'docs-base/src/modules/brandingTheme';
+} from 'docs/src/modules/brandingTheme';
 import { getHash } from 'docs-base/src/modules/components/ApiPage/list/ClassesList';
 import StyledTableContainer from 'docs-base/src/modules/components/ApiPage/table/StyledTableContainer';
 import { useTranslate } from '@mui/docs/i18n';

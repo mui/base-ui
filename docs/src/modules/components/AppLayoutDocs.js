@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
 import { exactProp } from '@mui/utils';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
+import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import Head from 'docs-base/src/modules/components/Head';
 import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import AppContainer from 'docs/src/modules/components/AppContainer';

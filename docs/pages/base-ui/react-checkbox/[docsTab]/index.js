@@ -2,7 +2,7 @@ import * as React from 'react';
 import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/checkbox/checkbox.md?@mui/markdown';
-import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
+import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import CheckboxIndicatorApiJsonPageContent from '../../api/checkbox-indicator.json';
 import CheckboxRootApiJsonPageContent from '../../api/checkbox-root.json';
 import useCheckboxApiJsonPageContent from '../../api/use-checkbox.json';

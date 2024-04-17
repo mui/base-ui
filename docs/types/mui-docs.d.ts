@@ -37,6 +37,7 @@ declare module '@mui/docs/i18n' {
       context: (path: string, useSubdirectories: boolean, regex: RegExp) => RequireContext;
     }
   }
+
   interface RequireContext {
     (req: string): string;
     keys: () => string[];

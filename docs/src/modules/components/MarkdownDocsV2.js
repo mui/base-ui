@@ -9,7 +9,7 @@ import ComponentsApiContent from 'docs-base/src/modules/components/ComponentsApi
 import HooksApiContent from 'docs-base/src/modules/components/HooksApiContent';
 import { getTranslatedHeader as getComponentTranslatedHeader } from 'docs-base/src/modules/components/ApiPage';
 import RichMarkdownElement from 'docs-base/src/modules/components/RichMarkdownElement';
-import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
+import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import AppLayoutDocs from 'docs-base/src/modules/components/AppLayoutDocs';
 import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
 import BrandingProvider from 'docs/src/BrandingProvider';

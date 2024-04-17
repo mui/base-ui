@@ -7,7 +7,7 @@ import { Divider, IconButton, SxProps } from '@mui/material';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from 'docs-base/src/modules/brandingTheme';
+} from 'docs/src/modules/brandingTheme';
 
 type DescriptionType = 'props' | 'classes' | 'CSS' | 'slots';
 

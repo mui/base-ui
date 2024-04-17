@@ -2,7 +2,7 @@ import * as React from 'react';
 import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs-base/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/textarea-autosize/textarea-autosize.md?@mui/markdown';
-import mapApiPageTranslations from 'docs-base/src/modules/utils/mapApiPageTranslations';
+import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import TextareaAutosizeApiJsonPageContent from '../../api/textarea-autosize.json';
 
 export default function Page(props) {

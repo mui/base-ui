@@ -6,7 +6,7 @@ import { createRequire } from 'module';
 // @ts-expect-error This expected error should be gone once we update the monorepo
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
-import { findPages } from './src/modules/utils/find.mjs';
+import { findPages } from 'docs/src/modules/utils/find.mjs';
 import {
   LANGUAGES,
   LANGUAGES_SSR,

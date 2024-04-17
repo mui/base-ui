@@ -1,4 +1,4 @@
-import addHiddenInput from 'docs-base/src/modules/utils/addHiddenInput';
+import addHiddenInput from 'docs/src/modules/utils/addHiddenInput';
 import { CODE_VARIANTS } from 'docs-base/src/modules/constants';
 import SandboxDependencies from 'docs-base/src/modules/sandbox/Dependencies';
 import * as CRA from 'docs-base/src/modules/sandbox/CreateReactApp';

@@ -10,20 +10,20 @@ import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import NoSsr from '@mui/material/NoSsr';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import DemoSandbox from 'docs-base/src/modules/components/DemoSandbox';
-import ReactRunner from 'docs-base/src/modules/components/ReactRunner';
+import DemoSandbox from 'docs/src/modules/components/DemoSandbox';
+import ReactRunner from 'docs/src/modules/components/ReactRunner';
 import DemoEditor from 'docs-base/src/modules/components/DemoEditor';
-import DemoEditorError from 'docs-base/src/modules/components/DemoEditorError';
+import DemoEditorError from 'docs/src/modules/components/DemoEditorError';
 import { AdCarbonInline } from 'docs/src/modules/components/AdCarbon';
-import { pathnameToLanguage } from 'docs-base/src/modules/utils/helpers';
-import { useCodeVariant } from 'docs-base/src/modules/utils/codeVariant';
-import { useCodeStyling } from 'docs-base/src/modules/utils/codeStylingSolution';
+import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import { useCodeVariant } from 'docs/src/modules/utils/codeVariant';
+import { useCodeStyling } from 'docs/src/modules/utils/codeStylingSolution';
 import { CODE_VARIANTS, CODE_STYLING } from 'docs-base/src/modules/constants';
 import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
-import stylingSolutionMapping from 'docs-base/src/modules/utils/stylingSolutionMapping';
+import stylingSolutionMapping from 'docs/src/modules/utils/stylingSolutionMapping';
 import BrandingProvider from 'docs/src/BrandingProvider';
-import DemoToolbarRoot from 'docs-base/src/modules/components/DemoToolbarRoot';
-import { blue, blueDark, grey } from 'docs-base/src/modules/brandingTheme';
+import DemoToolbarRoot from 'docs/src/modules/components/DemoToolbarRoot';
+import { blue, blueDark, grey } from 'docs/src/modules/brandingTheme';
 
 /**
  * Removes leading spaces (indentation) present in the `.tsx` previews
