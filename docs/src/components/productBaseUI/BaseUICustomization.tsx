@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import SvgTwinkle from 'docs/src/icons/SvgTwinkle';
-import Section from 'docs-base/src/layouts/Section';
+import Section from 'docs/src/layouts/Section';
 import Highlighter from 'docs/src/components/action/Highlighter';
 import Item, { Group } from 'docs/src/components/action/Item';
 import GradientText from 'docs/src/components/typography/GradientText';

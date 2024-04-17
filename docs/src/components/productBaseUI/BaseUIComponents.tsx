@@ -12,7 +12,7 @@ import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
 import GradientText from 'docs/src/components/typography/GradientText';
 import Item, { Group } from 'docs/src/components/action/Item';
 import Highlighter from 'docs/src/components/action/Highlighter';
-import Section from 'docs-base/src/layouts/Section';
+import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import More from 'docs/src/components/action/More';
 import Frame from 'docs/src/components/action/Frame';

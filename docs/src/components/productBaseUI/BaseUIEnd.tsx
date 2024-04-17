@@ -8,7 +8,7 @@ import CompareIcon from '@mui/icons-material/Compare';
 import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
 import { GlowingIconContainer } from 'docs/src/components/action/InfoCard';
 import GetStartedButtons from 'docs-base/src/components/productBaseUI/components/GetStartedButtons';
-import Section from 'docs-base/src/layouts/Section';
+import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import GradientText from 'docs/src/components/typography/GradientText';
 import ROUTES from 'docs-base/src/route';
