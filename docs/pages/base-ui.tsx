@@ -4,7 +4,7 @@ import Head from 'docs/src/modules/components/Head';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
-import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import AppHeaderBanner from 'docs-shared/src/components/banner/AppHeaderBanner';
 import BaseUIHero from 'docs/src/components/productBaseUI/BaseUIHero';
 import BaseUISummary from 'docs/src/components/productBaseUI/BaseUISummary';
 import BaseUICustomization from 'docs/src/components/productBaseUI/BaseUICustomization';

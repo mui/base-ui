@@ -6,7 +6,7 @@ import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRou
 import ContentCopyRounded from '@mui/icons-material/ContentCopyRounded';
 import CheckRounded from '@mui/icons-material/CheckRounded';
 import { Link } from '@mui/docs/Link';
-import NpmCopyButton from 'docs/src/components/action/NpmCopyButton';
+import NpmCopyButton from 'docs-shared/src/components/action/NpmCopyButton';
 
 interface GetStartedButtonsProps extends BoxProps {
   primaryLabel?: string;

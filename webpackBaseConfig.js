@@ -15,6 +15,7 @@ module.exports = {
         __dirname,
         './node_modules/@mui/monorepo/packages/api-docs-builder',
       ),
+      'docs-shared': path.resolve(__dirname, './node_modules/@mui/monorepo/docs'),
     },
     extensions: ['.js', '.ts', '.tsx', '.d.ts'],
   },

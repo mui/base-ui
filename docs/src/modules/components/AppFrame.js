@@ -25,7 +25,7 @@ import SkipLink from 'docs/src/modules/components/SkipLink';
 import PageContext from 'docs/src/modules/components/PageContext';
 import { useTranslate } from '@mui/docs/i18n';
 import SvgMuiLogomark from 'docs/src/icons/SvgMuiLogomark';
-import AppFrameBanner from 'docs/src/components/banner/AppFrameBanner';
+import AppFrameBanner from 'docs-shared/src/components/banner/AppFrameBanner';
 
 const nProgressStart = debounce(() => {
   NProgress.start();

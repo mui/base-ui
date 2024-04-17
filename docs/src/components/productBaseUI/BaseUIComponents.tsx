@@ -10,12 +10,12 @@ import InputRoundedIcon from '@mui/icons-material/InputRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
 import GradientText from 'docs/src/components/typography/GradientText';
-import Item, { Group } from 'docs/src/components/action/Item';
-import Highlighter from 'docs/src/components/action/Highlighter';
+import Item, { Group } from 'docs-shared/src/components/action/Item';
+import Highlighter from 'docs-shared/src/components/action/Highlighter';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import More from 'docs/src/components/action/More';
-import Frame from 'docs/src/components/action/Frame';
+import More from 'docs-shared/src/components/action/More';
+import Frame from 'docs-shared/src/components/action/Frame';
 import ROUTES from 'docs/src/route';
 
 // switcher icons
