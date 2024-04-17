@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const TablePaginationApiReq = require.context(
-    'docs-base/translations/api-docs-base/table-pagination',
+    'docs-base/translations/api-docs/table-pagination',
     false,
-    /table-pagination.*.json$/,
+    /\.\/table-pagination.*.json$/,
   );
   const TablePaginationApiDescriptions = mapApiPageTranslations(TablePaginationApiReq);
 

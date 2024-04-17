@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const InputApiReq = require.context(
-    'docs-base/translations/api-docs-base/input',
+    'docs-base/translations/api-docs/input',
     false,
-    /input.*.json$/,
+    /\.\/input.*.json$/,
   );
   const InputApiDescriptions = mapApiPageTranslations(InputApiReq);
 
   const useInputApiReq = require.context(
     'docs-base/translations/api-docs/use-input',
     false,
-    /use-input.*.json$/,
+    /\.\/use-input.*.json$/,
   );
   const useInputApiDescriptions = mapApiPageTranslations(useInputApiReq);
 

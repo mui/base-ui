@@ -31,65 +31,65 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const DropdownApiReq = require.context(
-    'docs-base/translations/api-docs-base/dropdown',
+    'docs-base/translations/api-docs/dropdown',
     false,
-    /dropdown.*.json$/,
+    /\.\/dropdown.*.json$/,
   );
   const DropdownApiDescriptions = mapApiPageTranslations(DropdownApiReq);
 
   const MenuApiReq = require.context(
-    'docs-base/translations/api-docs-base/menu',
+    'docs-base/translations/api-docs/menu',
     false,
-    /menu.*.json$/,
+    /\.\/menu.*.json$/,
   );
   const MenuApiDescriptions = mapApiPageTranslations(MenuApiReq);
 
   const MenuButtonApiReq = require.context(
-    'docs-base/translations/api-docs-base/menu-button',
+    'docs-base/translations/api-docs/menu-button',
     false,
-    /menu-button.*.json$/,
+    /\.\/menu-button.*.json$/,
   );
   const MenuButtonApiDescriptions = mapApiPageTranslations(MenuButtonApiReq);
 
   const MenuItemApiReq = require.context(
-    'docs-base/translations/api-docs-base/menu-item',
+    'docs-base/translations/api-docs/menu-item',
     false,
-    /menu-item.*.json$/,
+    /\.\/menu-item.*.json$/,
   );
   const MenuItemApiDescriptions = mapApiPageTranslations(MenuItemApiReq);
 
   const useDropdownApiReq = require.context(
     'docs-base/translations/api-docs/use-dropdown',
     false,
-    /use-dropdown.*.json$/,
+    /\.\/use-dropdown.*.json$/,
   );
   const useDropdownApiDescriptions = mapApiPageTranslations(useDropdownApiReq);
 
   const useMenuApiReq = require.context(
     'docs-base/translations/api-docs/use-menu',
     false,
-    /use-menu.*.json$/,
+    /\.\/use-menu.*.json$/,
   );
   const useMenuApiDescriptions = mapApiPageTranslations(useMenuApiReq);
 
   const useMenuButtonApiReq = require.context(
     'docs-base/translations/api-docs/use-menu-button',
     false,
-    /use-menu-button.*.json$/,
+    /\.\/use-menu-button.*.json$/,
   );
   const useMenuButtonApiDescriptions = mapApiPageTranslations(useMenuButtonApiReq);
 
   const useMenuItemApiReq = require.context(
     'docs-base/translations/api-docs/use-menu-item',
     false,
-    /use-menu-item.*.json$/,
+    /\.\/use-menu-item.*.json$/,
   );
   const useMenuItemApiDescriptions = mapApiPageTranslations(useMenuItemApiReq);
 
   const useMenuItemContextStabilizerApiReq = require.context(
     'docs-base/translations/api-docs/use-menu-item-context-stabilizer',
     false,
-    /use-menu-item-context-stabilizer.*.json$/,
+    /\.\/use-menu-item-context-stabilizer.*.json$/,
   );
   const useMenuItemContextStabilizerApiDescriptions = mapApiPageTranslations(
     useMenuItemContextStabilizerApiReq,

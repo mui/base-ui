@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const ModalApiReq = require.context(
-    'docs-base/translations/api-docs-base/modal',
+    'docs-base/translations/api-docs/modal',
     false,
-    /modal.*.json$/,
+    /\.\/modal.*.json$/,
   );
   const ModalApiDescriptions = mapApiPageTranslations(ModalApiReq);
 
   const useModalApiReq = require.context(
     'docs-base/translations/api-docs/use-modal',
     false,
-    /use-modal.*.json$/,
+    /\.\/use-modal.*.json$/,
   );
   const useModalApiDescriptions = mapApiPageTranslations(useModalApiReq);
 

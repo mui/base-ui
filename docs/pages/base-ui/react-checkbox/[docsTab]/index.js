@@ -25,23 +25,23 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const CheckboxIndicatorApiReq = require.context(
-    'docs-base/translations/api-docs-base/checkbox-indicator',
+    'docs-base/translations/api-docs/checkbox-indicator',
     false,
-    /checkbox-indicator.*.json$/,
+    /\.\/checkbox-indicator.*.json$/,
   );
   const CheckboxIndicatorApiDescriptions = mapApiPageTranslations(CheckboxIndicatorApiReq);
 
   const CheckboxRootApiReq = require.context(
-    'docs-base/translations/api-docs-base/checkbox-root',
+    'docs-base/translations/api-docs/checkbox-root',
     false,
-    /checkbox-root.*.json$/,
+    /\.\/checkbox-root.*.json$/,
   );
   const CheckboxRootApiDescriptions = mapApiPageTranslations(CheckboxRootApiReq);
 
   const useCheckboxApiReq = require.context(
     'docs-base/translations/api-docs/use-checkbox',
     false,
-    /use-checkbox.*.json$/,
+    /\.\/use-checkbox.*.json$/,
   );
   const useCheckboxApiDescriptions = mapApiPageTranslations(useCheckboxApiReq);
 

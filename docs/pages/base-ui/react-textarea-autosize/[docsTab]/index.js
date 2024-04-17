@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const TextareaAutosizeApiReq = require.context(
-    'docs-base/translations/api-docs-base/textarea-autosize',
+    'docs-base/translations/api-docs/textarea-autosize',
     false,
-    /textarea-autosize.*.json$/,
+    /\.\/textarea-autosize.*.json$/,
   );
   const TextareaAutosizeApiDescriptions = mapApiPageTranslations(TextareaAutosizeApiReq);
 

@@ -28,37 +28,37 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const OptionApiReq = require.context(
-    'docs-base/translations/api-docs-base/option',
+    'docs-base/translations/api-docs/option',
     false,
-    /option.*.json$/,
+    /\.\/option.*.json$/,
   );
   const OptionApiDescriptions = mapApiPageTranslations(OptionApiReq);
 
   const OptionGroupApiReq = require.context(
-    'docs-base/translations/api-docs-base/option-group',
+    'docs-base/translations/api-docs/option-group',
     false,
-    /option-group.*.json$/,
+    /\.\/option-group.*.json$/,
   );
   const OptionGroupApiDescriptions = mapApiPageTranslations(OptionGroupApiReq);
 
   const SelectApiReq = require.context(
-    'docs-base/translations/api-docs-base/select',
+    'docs-base/translations/api-docs/select',
     false,
-    /select.*.json$/,
+    /\.\/select.*.json$/,
   );
   const SelectApiDescriptions = mapApiPageTranslations(SelectApiReq);
 
   const useOptionApiReq = require.context(
     'docs-base/translations/api-docs/use-option',
     false,
-    /use-option.*.json$/,
+    /\.\/use-option.*.json$/,
   );
   const useOptionApiDescriptions = mapApiPageTranslations(useOptionApiReq);
 
   const useOptionContextStabilizerApiReq = require.context(
     'docs-base/translations/api-docs/use-option-context-stabilizer',
     false,
-    /use-option-context-stabilizer.*.json$/,
+    /\.\/use-option-context-stabilizer.*.json$/,
   );
   const useOptionContextStabilizerApiDescriptions = mapApiPageTranslations(
     useOptionContextStabilizerApiReq,
@@ -67,7 +67,7 @@ export const getStaticProps = () => {
   const useSelectApiReq = require.context(
     'docs-base/translations/api-docs/use-select',
     false,
-    /use-select.*.json$/,
+    /\.\/use-select.*.json$/,
   );
   const useSelectApiDescriptions = mapApiPageTranslations(useSelectApiReq);
 

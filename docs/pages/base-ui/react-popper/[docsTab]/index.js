@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const PopperApiReq = require.context(
-    'docs-base/translations/api-docs-base/popper',
+    'docs-base/translations/api-docs/popper',
     false,
-    /popper.*.json$/,
+    /\.\/popper.*.json$/,
   );
   const PopperApiDescriptions = mapApiPageTranslations(PopperApiReq);
 

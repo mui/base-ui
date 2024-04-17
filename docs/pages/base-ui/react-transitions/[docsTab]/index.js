@@ -26,23 +26,23 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const CssAnimationApiReq = require.context(
-    'docs-base/translations/api-docs-base/css-animation',
+    'docs-base/translations/api-docs/css-animation',
     false,
-    /css-animation.*.json$/,
+    /\.\/css-animation.*.json$/,
   );
   const CssAnimationApiDescriptions = mapApiPageTranslations(CssAnimationApiReq);
 
   const CssTransitionApiReq = require.context(
-    'docs-base/translations/api-docs-base/css-transition',
+    'docs-base/translations/api-docs/css-transition',
     false,
-    /css-transition.*.json$/,
+    /\.\/css-transition.*.json$/,
   );
   const CssTransitionApiDescriptions = mapApiPageTranslations(CssTransitionApiReq);
 
   const useTransitionStateManagerApiReq = require.context(
     'docs-base/translations/api-docs/use-transition-state-manager',
     false,
-    /use-transition-state-manager.*.json$/,
+    /\.\/use-transition-state-manager.*.json$/,
   );
   const useTransitionStateManagerApiDescriptions = mapApiPageTranslations(
     useTransitionStateManagerApiReq,
@@ -51,7 +51,7 @@ export const getStaticProps = () => {
   const useTransitionTriggerApiReq = require.context(
     'docs-base/translations/api-docs/use-transition-trigger',
     false,
-    /use-transition-trigger.*.json$/,
+    /\.\/use-transition-trigger.*.json$/,
   );
   const useTransitionTriggerApiDescriptions = mapApiPageTranslations(useTransitionTriggerApiReq);
 

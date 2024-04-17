@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const ButtonApiReq = require.context(
-    'docs-base/translations/api-docs-base/button',
+    'docs-base/translations/api-docs/button',
     false,
-    /button.*.json$/,
+    /\.\/button.*.json$/,
   );
   const ButtonApiDescriptions = mapApiPageTranslations(ButtonApiReq);
 
   const useButtonApiReq = require.context(
     'docs-base/translations/api-docs/use-button',
     false,
-    /use-button.*.json$/,
+    /\.\/use-button.*.json$/,
   );
   const useButtonApiDescriptions = mapApiPageTranslations(useButtonApiReq);
 

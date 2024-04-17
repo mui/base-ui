@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const SnackbarApiReq = require.context(
-    'docs-base/translations/api-docs-base/snackbar',
+    'docs-base/translations/api-docs/snackbar',
     false,
-    /snackbar.*.json$/,
+    /\.\/snackbar.*.json$/,
   );
   const SnackbarApiDescriptions = mapApiPageTranslations(SnackbarApiReq);
 
   const useSnackbarApiReq = require.context(
     'docs-base/translations/api-docs/use-snackbar',
     false,
-    /use-snackbar.*.json$/,
+    /\.\/use-snackbar.*.json$/,
   );
   const useSnackbarApiDescriptions = mapApiPageTranslations(useSnackbarApiReq);
 

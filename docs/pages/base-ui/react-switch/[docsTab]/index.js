@@ -25,23 +25,23 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const SwitchRootApiReq = require.context(
-    'docs-base/translations/api-docs-base/switch-root',
+    'docs-base/translations/api-docs/switch-root',
     false,
-    /switch-root.*.json$/,
+    /\.\/switch-root.*.json$/,
   );
   const SwitchRootApiDescriptions = mapApiPageTranslations(SwitchRootApiReq);
 
   const SwitchThumbApiReq = require.context(
-    'docs-base/translations/api-docs-base/switch-thumb',
+    'docs-base/translations/api-docs/switch-thumb',
     false,
-    /switch-thumb.*.json$/,
+    /\.\/switch-thumb.*.json$/,
   );
   const SwitchThumbApiDescriptions = mapApiPageTranslations(SwitchThumbApiReq);
 
   const useSwitchApiReq = require.context(
     'docs-base/translations/api-docs/use-switch',
     false,
-    /use-switch.*.json$/,
+    /\.\/use-switch.*.json$/,
   );
   const useSwitchApiDescriptions = mapApiPageTranslations(useSwitchApiReq);
 

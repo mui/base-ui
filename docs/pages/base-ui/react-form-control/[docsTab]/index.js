@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const FormControlApiReq = require.context(
-    'docs-base/translations/api-docs-base/form-control',
+    'docs-base/translations/api-docs/form-control',
     false,
-    /form-control.*.json$/,
+    /\.\/form-control.*.json$/,
   );
   const FormControlApiDescriptions = mapApiPageTranslations(FormControlApiReq);
 
   const useFormControlContextApiReq = require.context(
     'docs-base/translations/api-docs/use-form-control-context',
     false,
-    /use-form-control-context.*.json$/,
+    /\.\/use-form-control-context.*.json$/,
   );
   const useFormControlContextApiDescriptions = mapApiPageTranslations(useFormControlContextApiReq);
 

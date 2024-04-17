@@ -71,9 +71,9 @@ Page.getLayout = (page) => {
             apiTabImportStatements += `import ${component}ApiJsonPageContent from '../../api/${componentNameKebabCase}.json';`;
             staticProps += `
           const ${component}ApiReq = require.context(
-            'docs-base/translations/api-docs-base/${componentNameKebabCase}',
+            'docs-base/translations/api-docs/${componentNameKebabCase}',
             false,
-            /${componentNameKebabCase}.*.json$/,
+            /\\.\\/${componentNameKebabCase}.*.json$/,
           );
           const ${component}ApiDescriptions = mapApiPageTranslations(${component}ApiReq);
           `;
@@ -90,7 +90,7 @@ Page.getLayout = (page) => {
           const ${hook}ApiReq = require.context(
             'docs-base/translations/api-docs/${hookNameKebabCase}',
             false,
-            /${hookNameKebabCase}.*.json$/,
+            /\\.\\/${hookNameKebabCase}.*.json$/,
           );
           const ${hook}ApiDescriptions = mapApiPageTranslations(${hook}ApiReq);
           `;

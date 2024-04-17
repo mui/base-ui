@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const SliderApiReq = require.context(
-    'docs-base/translations/api-docs-base/slider',
+    'docs-base/translations/api-docs/slider',
     false,
-    /slider.*.json$/,
+    /\.\/slider.*.json$/,
   );
   const SliderApiDescriptions = mapApiPageTranslations(SliderApiReq);
 
   const useSliderApiReq = require.context(
     'docs-base/translations/api-docs/use-slider',
     false,
-    /use-slider.*.json$/,
+    /\.\/use-slider.*.json$/,
   );
   const useSliderApiDescriptions = mapApiPageTranslations(useSliderApiReq);
 

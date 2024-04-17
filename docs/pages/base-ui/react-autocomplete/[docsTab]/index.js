@@ -25,7 +25,7 @@ export const getStaticProps = () => {
   const useAutocompleteApiReq = require.context(
     'docs-base/translations/api-docs/use-autocomplete',
     false,
-    /use-autocomplete.*.json$/,
+    /\.\/use-autocomplete.*.json$/,
   );
   const useAutocompleteApiDescriptions = mapApiPageTranslations(useAutocompleteApiReq);
 

@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const NoSsrApiReq = require.context(
-    'docs-base/translations/api-docs-base/no-ssr',
+    'docs-base/translations/api-docs/no-ssr',
     false,
-    /no-ssr.*.json$/,
+    /\.\/no-ssr.*.json$/,
   );
   const NoSsrApiDescriptions = mapApiPageTranslations(NoSsrApiReq);
 

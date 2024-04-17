@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const BadgeApiReq = require.context(
-    'docs-base/translations/api-docs-base/badge',
+    'docs-base/translations/api-docs/badge',
     false,
-    /badge.*.json$/,
+    /\.\/badge.*.json$/,
   );
   const BadgeApiDescriptions = mapApiPageTranslations(BadgeApiReq);
 
   const useBadgeApiReq = require.context(
     'docs-base/translations/api-docs/use-badge',
     false,
-    /use-badge.*.json$/,
+    /\.\/use-badge.*.json$/,
   );
   const useBadgeApiDescriptions = mapApiPageTranslations(useBadgeApiReq);
 

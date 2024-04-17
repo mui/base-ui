@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const PopupApiReq = require.context(
-    'docs-base/translations/api-docs-base/popup',
+    'docs-base/translations/api-docs/popup',
     false,
-    /popup.*.json$/,
+    /\.\/popup.*.json$/,
   );
   const PopupApiDescriptions = mapApiPageTranslations(PopupApiReq);
 

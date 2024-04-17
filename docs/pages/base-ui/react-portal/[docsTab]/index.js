@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const PortalApiReq = require.context(
-    'docs-base/translations/api-docs-base/portal',
+    'docs-base/translations/api-docs/portal',
     false,
-    /portal.*.json$/,
+    /\.\/portal.*.json$/,
   );
   const PortalApiDescriptions = mapApiPageTranslations(PortalApiReq);
 
