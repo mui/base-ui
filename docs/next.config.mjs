@@ -3,10 +3,10 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import { createRequire } from 'module';
-// @ts-expect-error This expected error should be gone once we update the monorepo
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
-import { findPages } from 'docs/src/modules/utils/find.mjs';
+// eslint-disable-next-line no-restricted-imports
+import { findPages } from '@mui/monorepo/docs/src/modules/utils/find.mjs';
 import {
   LANGUAGES,
   LANGUAGES_SSR,

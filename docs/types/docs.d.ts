@@ -27,3 +27,6 @@ declare module 'docs/src/modules/components/HighlightedCode' {
 }
 
 declare module 'docs/*';
+
+declare module '@mui/monorepo/docs/src/modules/utils/find.mjs';
+declare module '@mui/monorepo/docs/nextConfigDocsInfra.js';
