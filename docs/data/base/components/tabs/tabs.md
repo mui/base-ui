@@ -70,7 +70,10 @@ To help with styling, the following CSS variables are set on the Indicator's ren
 - `--active-tab-height`: height of the selected tab's bounding box.
 
 Additionally, the Indicator has a `data-movement-direction` attribute representing the relation of the selected tab to the previously selected one.
-It can be set to `previous` or `next` (or doesn't exist at all after first mount).
+Its value is one of the following:
+- `previous` - the active tab is to the left of the previously active tab (or above, in case of vertical tabs)
+- `next` - the active tab is to the right of the previously active tab (or below, in case of vertical tabs)
+- `none` - there is no previously selected tab
 
 Check out the following examples to see how an Indicator can be styled:
 
@@ -79,14 +82,14 @@ Check out the following examples to see how an Indicator can be styled:
 ### Server rendering
 
 As the rendering of the Indicator depends on React effects, it cannot be done on the server.
-This means that if you're using server-side rendering (SSR), the initially rendered content will not contain the indicator.
+This means that if you're using server-side rendering (SSR), the initially rendered content will not contain the Indicator.
 It will appear after React hydrates the components.
 
 If you want to minimize the time the Indicator is not visible, you can set the `renderBeforeHydration` prop to `true`.
 This will make the component include an inline script that sets the CSS variables as soon as it's rendered by the browser.
 
 ```tsx
-<Tabs.Indicator renderBeforeHydration={true} />
+<Tabs.Indicator renderBeforeHydration />
 ```
 
 It is disabled by default, as the script contributes to the size of the payload sent by the server.
