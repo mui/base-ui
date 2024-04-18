@@ -12,7 +12,12 @@ import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
   function TabIndicator(props, forwardedRef) {
-    const { className: classNameProp, render: renderProp, ...other } = props;
+    const {
+      className: classNameProp,
+      render: renderProp,
+      renderBeforeHydration = false,
+      ...other
+    } = props;
     const render = renderProp ?? defaultRenderFunctions.span;
     const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
     const [isMounted, setIsMounted] = React.useState(false);
@@ -50,7 +55,7 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
       ...other,
       className,
       ref: mergedRef,
-      'data-instance-id': isMounted ? undefined : instanceId,
+      'data-instance-id': !(isMounted && renderBeforeHydration) ? instanceId : undefined,
       suppressHydrationWarning: true,
     } as React.ComponentPropsWithRef<'span'>);
 
@@ -116,7 +121,7 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
     return (
       <React.Fragment>
         {evaluateRenderProp(render, rootProps, ownerState)}
-        {!isMounted && (
+        {!isMounted && renderBeforeHydration && (
           <script
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: prehydrationScript }}
@@ -145,6 +150,13 @@ TabIndicator.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * If `true`, the indicator will include code to render itself before React hydrates.
+   * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
+   *
+   * @default false
+   */
+  renderBeforeHydration: PropTypes.bool,
 } as any;
 
 export { TabIndicator };

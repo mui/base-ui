@@ -1,7 +1,8 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "renderBeforeHydration": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "TabIndicator",
   "imports": ["import { TabIndicator } from '@base_ui/react/Tabs';"],

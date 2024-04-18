@@ -76,6 +76,21 @@ Check out the following examples to see how an Indicator can be styled:
 
 {{"demo": "Indicator.js"}}
 
+### Server rendering
+
+As the rendering of the Indicator depends on React effects, it cannot be done on the server.
+This means that if you're using server-side rendering (SSR), the initially rendered content will not contain the indicator.
+It will appear after React hydrates the components.
+
+If you want to minimize the time the Indicator is not visible, you can set the `renderBeforeHydration` prop to `true`.
+This will make the component include an inline script that sets the CSS variables as soon as it's rendered by the browser.
+
+```tsx
+<Tabs.Indicator renderBeforeHydration={true} />
+```
+
+It is disabled by default, as the script contributes to the size of the payload sent by the server.
+ 
 ## Customization
 
 ### Vertical
