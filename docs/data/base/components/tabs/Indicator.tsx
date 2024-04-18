@@ -124,13 +124,11 @@ const UnderlineTabIndicator = styled(BaseTabs.Indicator)`
   right: calc(var(--active-tab-right) + 4px);
   bottom: calc(var(--active-tab-bottom) + 2px);
   height: 4px;
-
   background: ${blue[800]};
   border-radius: 8px;
   z-index: 0;
   box-shadow: 0 0 0 0 ${blue[200]};
   outline-width: 0;
-
   transition:
     left 0.3s,
     right 0.3s,

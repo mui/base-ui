@@ -12,6 +12,10 @@ async function waitForNextEventCycle() {
   });
 }
 
+function round(value: number) {
+  return Math.round(value * 100) * 0.01;
+}
+
 describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
 
@@ -74,10 +78,10 @@ describe('<Tabs.Indicator />', () => {
         bottom: tabBottom,
       } = activeTab.getBoundingClientRect();
 
-      const relativeLeft = tabLeft - listLeft;
-      const relativeRight = listRight - tabRight;
-      const relativeTop = tabTop - listTop;
-      const relativeBottom = listBottom - tabBottom;
+      const relativeLeft = round(tabLeft - listLeft);
+      const relativeRight = round(listRight - tabRight);
+      const relativeTop = round(tabTop - listTop);
+      const relativeBottom = round(listBottom - tabBottom);
 
       expect(window.getComputedStyle(bubble).getPropertyValue('--active-tab-left')).to.equal(
         `${relativeLeft}px`,
