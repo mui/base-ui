@@ -71,6 +71,7 @@ To help with styling, the following CSS variables are set on the Indicator's ren
 
 Additionally, the Indicator has a `data-movement-direction` attribute representing the relation of the selected tab to the previously selected one.
 Its value is one of the following:
+
 - `previous` - the active tab is to the left of the previously active tab (or above, in case of vertical tabs)
 - `next` - the active tab is to the right of the previously active tab (or below, in case of vertical tabs)
 - `none` - there is no previously selected tab
@@ -93,7 +94,7 @@ This will make the component include an inline script that sets the CSS variable
 ```
 
 It is disabled by default, as the script contributes to the size of the payload sent by the server.
- 
+
 ## Customization
 
 ### Vertical
