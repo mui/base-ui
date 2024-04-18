@@ -121,6 +121,10 @@ const Indicator = styled(BaseTabs.Indicator)`
   box-shadow: 0 0 0 0 ${blue[200]};
   outline-width: 0;
 
+  &[data-orientation='vertical'] {
+    inset: var(--active-tab-top) 6px var(--active-tab-bottom) 6px;
+  }
+
   &[data-movement-direction='next'] {
     transition:
       left 0.6s 0.1s,
