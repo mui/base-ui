@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Chip from '@mui/material/Chip';
-import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
+import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
@@ -76,7 +76,7 @@ const PRODUCTS = [
     href: ROUTES.productDesignKits,
   },
   {
-    name: 'MUI Toolpad',
+    name: 'Toolpad',
     description: 'Low-code admin builder.',
     href: ROUTES.productToolpad,
     chip: 'Beta',
@@ -110,9 +110,9 @@ const DOCS = [
     href: ROUTES.xIntro,
   },
   {
-    name: 'MUI Toolpad',
-    description: 'Low-code admin builder.',
-    href: ROUTES.toolpadDocs,
+    name: 'Toolpad',
+    description: 'Low-code admin builder',
+    href: ROUTES.toolpadStudioDocs,
     chip: 'Beta',
   },
 ];

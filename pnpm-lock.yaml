@@ -92,14 +92,14 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(enzyme@3.11.0)(react-dom@18.2.0)(react@18.2.0)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.6
+        version: 1.0.6
       '@mui/internal-markdown':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@mui/internal-scripts':
         specifier: ^1.0.3
         version: 1.0.3
+      '@mui/internal-scripts':
+        specifier: ^1.0.6
+        version: 1.0.6
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.4)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)'
@@ -107,8 +107,8 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@emotion/react@11.11.4)(@emotion/styled@11.11.5)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#1e59ca30e9eb8c2a9af2e799edd527f3900247ab
-        version: github.com/mui/material-ui/1e59ca30e9eb8c2a9af2e799edd527f3900247ab
+        specifier: github:mui/material-ui#v6.0.0-alpha.3
+        version: github.com/mui/material-ui/fe467728f6236409d096b432b6d20ac304f6de96
       '@mui/utils':
         specifier: 5.15.14
         version: 5.15.14(@types/react@18.2.78)(react@18.2.0)
@@ -382,6 +382,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.5
         version: 11.11.5(@emotion/react@11.11.4)(@types/react@18.2.78)(react@18.2.0)
+      '@mui/base':
+        specifier: 5.0.0-beta.40
+        version: 5.0.0-beta.40(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)
       '@mui/docs':
         specifier: 6.0.0-alpha.2
         version: 6.0.0-alpha.2(@mui/base@5.0.0-beta.40)(@mui/icons-material@5.15.15)(@mui/material@5.15.15)(@mui/system@5.15.15)(@types/react@18.2.78)(next@14.2.1)(react@18.2.0)
@@ -389,11 +392,11 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@mui/material@5.15.15)(@types/react@18.2.78)(react@18.2.0)
       '@mui/internal-markdown':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@mui/internal-scripts':
         specifier: ^1.0.3
         version: 1.0.3
+      '@mui/internal-scripts':
+        specifier: ^1.0.6
+        version: 1.0.6
       '@mui/joy':
         specifier: 5.0.0-beta.32
         version: 5.0.0-beta.32(@emotion/react@11.11.4)(@emotion/styled@11.11.5)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)
@@ -404,8 +407,8 @@ importers:
         specifier: 5.15.11
         version: 5.15.11(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.15)(@types/react@18.2.78)(next@14.2.1)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#1e59ca30e9eb8c2a9af2e799edd527f3900247ab
-        version: github.com/mui/material-ui/1e59ca30e9eb8c2a9af2e799edd527f3900247ab
+        specifier: github:mui/material-ui#v6.0.0-alpha.3
+        version: github.com/mui/material-ui/fe467728f6236409d096b432b6d20ac304f6de96
       '@mui/styles':
         specifier: 5.15.15
         version: 5.15.15(@types/react@18.2.78)(react@18.2.0)
@@ -540,8 +543,8 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.4)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.6
+        version: 1.0.6
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils
         version: '@pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils(@babel/core@7.24.4)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)'
@@ -3493,29 +3496,29 @@ packages:
       babel-plugin-macros: 3.1.0
     dev: true
 
-  /@mui/internal-docs-utils@1.0.4:
-    resolution: {integrity: sha512-aZ70CqKohMZ/RS3V5Nl3FmBNVMKHNjtXachtkcWnxyQCi9DPuaGCz8l1Q0Iealjax+j08vT5vDO0JwWFImMsnA==}
+  /@mui/internal-docs-utils@1.0.6:
+    resolution: {integrity: sha512-/XZsdEPulG2bkTTZAkQ7/jECzwdRLUs3HB9TgFmQixBCMblYpNHMTRVGJe9UrDHEAlJmBXFf0stiqboOJBM8sw==}
     dependencies:
       rimraf: 5.0.5
       typescript: 5.4.5
 
-  /@mui/internal-markdown@1.0.1:
-    resolution: {integrity: sha512-goTCzEbx0yxDbCU9ngHo02f5TBHwngF6RDM2ALqtgUsvNp14/lVU3OFytvpxcwjeSrrbVPEw4MSidYO8FnlUKQ==}
+  /@mui/internal-markdown@1.0.3:
+    resolution: {integrity: sha512-b+8T8S1raSuaOXaNyKiChyw1Lb/nEY1ITGsw6oygVLacsN6mZ7EB5cmvEbHA4EQiNwqCn7BgI9OoBTTr0GdZtg==}
     dependencies:
       '@babel/runtime': 7.24.4
       lodash: 4.17.21
       marked: 5.1.2
       prismjs: 1.29.0
 
-  /@mui/internal-scripts@1.0.3:
-    resolution: {integrity: sha512-qK67iR7wy5LTVQrHhPAlDt+VDrM+B/CYfEbK9vJ8fHUVnQYQGmfEScLqAzKvidi42z3a9taHhvgto3ecLYLKEQ==}
+  /@mui/internal-scripts@1.0.6:
+    resolution: {integrity: sha512-Walp2Uw1Ho/LTX2mFWZjpcXesUAMsDfndCCoDbOfYaUMVlwFw9N8GzgYgdTNfxy0/kMYR5ExkAoW3ON9VPpvsw==}
     dependencies:
       '@babel/core': 7.24.4
       '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.24.4)
       '@babel/plugin-syntax-jsx': 7.24.1(@babel/core@7.24.4)
       '@babel/plugin-syntax-typescript': 7.24.1(@babel/core@7.24.4)
       '@babel/types': 7.24.0
-      '@mui/internal-docs-utils': 1.0.4
+      '@mui/internal-docs-utils': 1.0.6
       doctrine: 3.0.0
       lodash: 4.17.21
       typescript: 5.4.5
@@ -17556,10 +17559,10 @@ packages:
       - utf-8-validate
     dev: true
 
-  github.com/mui/material-ui/1e59ca30e9eb8c2a9af2e799edd527f3900247ab:
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/1e59ca30e9eb8c2a9af2e799edd527f3900247ab}
+  github.com/mui/material-ui/fe467728f6236409d096b432b6d20ac304f6de96:
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/fe467728f6236409d096b432b6d20ac304f6de96}
     name: '@mui/monorepo'
-    version: 6.0.0-alpha.2
+    version: 6.0.0-alpha.3
     requiresBuild: true
     dependencies:
       '@googleapis/sheets': 5.0.5
