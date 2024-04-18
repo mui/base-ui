@@ -2,30 +2,18 @@ import * as React from 'react';
 import { css, styled } from '@mui/system';
 import * as BaseTabs from '@base_ui/react/Tabs';
 
-export default function Indicator() {
+export default function IndicatorBubble() {
   return (
-    <div style={{ margin: '30px auto', maxWidth: '1800px', display: 'block' }}>
-      <Tabs>
-        <TabsList>
-          <Tab>Code</Tab>
-          <Tab>Issues</Tab>
-          <Tab>Pull Requests</Tab>
-          <Tab>Discussions</Tab>
-          <Tab>Actions</Tab>
-          <BubbleTabIndicator />
-        </TabsList>
-      </Tabs>
-      <Tabs>
-        <TabsList>
-          <Tab>Code</Tab>
-          <Tab>Issues</Tab>
-          <Tab>Pull Requests</Tab>
-          <Tab>Discussions</Tab>
-          <Tab>Actions</Tab>
-          <UnderlineTabIndicator />
-        </TabsList>
-      </Tabs>
-    </div>
+    <Tabs>
+      <TabsList>
+        <Tab>Code</Tab>
+        <Tab>Issues</Tab>
+        <Tab>Pull Requests</Tab>
+        <Tab>Discussions</Tab>
+        <Tab>Actions</Tab>
+        <Indicator />
+      </TabsList>
+    </Tabs>
   );
 }
 
@@ -85,7 +73,7 @@ const TabsList = styled(BaseTabs.List)(
   `,
 );
 
-const BubbleTabIndicator = styled(BaseTabs.Indicator)`
+const Indicator = styled(BaseTabs.Indicator)`
   position: absolute;
   inset: var(--active-tab-top) var(--active-tab-right) var(--active-tab-bottom)
     var(--active-tab-left);
@@ -112,27 +100,6 @@ const BubbleTabIndicator = styled(BaseTabs.Indicator)`
       bottom 0.3s,
       box-shadow 0.2s;
   }
-
-  *:has(:focus-visible) > & {
-    box-shadow: 0 0 0 2px ${blue[200]};
-  }
-`;
-
-const UnderlineTabIndicator = styled(BaseTabs.Indicator)`
-  position: absolute;
-  left: calc(var(--active-tab-left) + 4px);
-  right: calc(var(--active-tab-right) + 4px);
-  bottom: calc(var(--active-tab-bottom) + 2px);
-  height: 4px;
-  background: ${blue[800]};
-  border-radius: 8px;
-  z-index: 0;
-  box-shadow: 0 0 0 0 ${blue[200]};
-  outline-width: 0;
-  transition:
-    left 0.3s,
-    right 0.3s,
-    box-shadow 0.2s;
 
   *:has(:focus-visible) > & {
     box-shadow: 0 0 0 2px ${blue[200]};

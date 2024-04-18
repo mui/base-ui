@@ -9,65 +9,104 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 
 # Tabs
 
-<p class="description">Tabs are UI elements for organizing and navigating between groups of related content.</p>
+<p class="description">Tabs organize groups of related content and allow the user to navigate between them.</p>
 
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
-## Introduction
+{{"demo": "UnstyledTabsIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+
+## Installation
+
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
+```
+
+```bash yarn
+yarn add @base_ui/react
+```
+
+```bash pnpm
+pnpm add @base_ui/react
+```
+
+</codeblock>
+
+Once you have the package installed, import the component.
+
+```ts
+import * as Tabs from '@base_ui/react/Tabs';
+```
+
+## Anatomy
 
 Tabs are implemented using a collection of related components:
 
-- `<Tabs />` - the top-level component that wraps the Tabs List and Tab Panel components so that tabs and their panels can communicate with one another.
-- `<Tabs.Tab />` - the tab element itself. Clicking on a tab displays its corresponding panel.
-- `<Tabs.List />` - the container that houses the tabs. Responsible for handling focus and keyboard navigation between tabs.
-- `<Tabs.Panel />` - the card that hosts the content associated with a tab.
-- `<Tabs.Indicator />` - an optional active tab indicator.
+- `<Tabs.Root />` is top-level component that wraps the Tabs List and Tab Panel components so that tabs and their panels can communicate with one another.
+- `<Tabs.Tab />` is the tab element itself. Clicking on a tab displays its corresponding panel.
+- `<Tabs.List />` is the container that houses the tabs. Responsible for handling focus and keyboard navigation between tabs.
+- `<Tabs.Panel />` is the card that hosts the content associated with a tab.
+- `<Tabs.Indicator />` is an optional active tab indicator.
 
-{{"demo": "UnstyledTabsIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
-
-## Components
-
-```jsx
-import { Tabs } from '@base_ui/react/Tabs';
+```tsx
+<Tabs.Root>
+  <Tabs.List>
+    <Tabs.Tab>One</Tabs.Tab>
+    <Tabs.Tab>Two</Tabs.Tab>
+    <Tabs.Indicator />
+  </Tabs.List>
+  <Tabs.Panel>First page</Tabs.Panel>
+  <Tabs.Panel>Second page</Tabs.Panel>
+</Tabs.Root>
 ```
 
-By default, Tab components and their corresponding panels are **zero-indexed** (that is the first tab has a `value` of `0`, then `1`, `2`, etc.).
-Clicking on a given Tab opens the panel with the same `value`, which corresponds to the order in which each component is nested within its container.
+## Specifying values
+
+By default, Tab components and their corresponding panels are **zero-indexed**.
+The first tab has a `value` of `0`, the second tab has a `value` of `1`, and so on.
+Activating a tab opens the panel with the same `value`, which corresponds to the order in which each component is nested within its container.
 
 Though not required, you can add the `value` prop to the Tab and Tab Panel to take control over how these components are associated with one another.
 
-The following demo omits the `value` prop from the Tab components, and also defines `0` as the `defaultValue` for the Tabs component, which sets the first Tab and Panel as the defaults:
+```tsx
+<Tabs.Root defaultValue={1}>
+  <Tabs.List>
+    <Tabs.Tab value={1}>One</Tabs.Tab>
+    <Tabs.Tab value={2}>Two</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value={1}>First page</Tabs.Panel>
+  <Tabs.Panel value={2}>Second page</Tabs.Panel>
+</Tabs.Root>
+```
 
-{{"demo": "UnstyledTabsBasic.js"}}
+## Composing a custom React component
 
-The next demo shows how to apply custom styles to a set of tabs:
-
-{{"demo": "UnstyledTabsCustomized"}}
-
-### Custom structure
-
-Use the `render` prop to override the rendered element in any of the tab-related components:
+Use the `render` prop to override the rendered elemen.:
 
 ```jsx
+<Tabs.Tab render={<MyCustomTab />} />
+// or
 <Tabs.Tab render={(props) => <MyCustomTab {...props} />} />
 ```
 
 If you provide a non-interactive element such as a `<span>`, the Tab components will automatically add the necessary accessibility attributes.
 
-## Floating selection indicator
+## Indicator
 
-The TabIndicator component can be used to implement an selection indicator with animated position (transitioning from one selected tab to another).
+Though it’s optional, the `Tabs.Indicator` component can be added to implement a visual indicator for the active tab.
+To help with styling—in particular animating its position—some CSS variables are provided.
 
-To help with styling, the following CSS variables are set on the Indicator's rendered element:
-
-- `--active-tab-top`: distance in pixels between the top of the currently selected tab and the top of TabPanel's bounding box.
-- `--active-tab-bottom`: distance in pixels between the bottom of the currently selected tab and the bottom of TabPanel's bounding box.
-- `--active-tab-left`: distance in pixels between the left-hand side of the currently selected tab and the left-hand side of TabPanel's bounding box.
-- `--active-tab-right`: distance in pixels between the right-hand side of the currently selected tab and the right-hand side of TabPanel's bounding box.
-- `--active-tab-width`: width of the selected tab's bounding box.
-- `--active-tab-height`: height of the selected tab's bounding box.
+- `--active-tab-top` is the distance in `px` between the top of the active tab and the top of `Tabs.Panel`'s bounding box.
+- `--active-tab-bottom` is the distance in `px` between the bottom of the active tab and the bottom of `Tabs.Panel`'s bounding box.
+- `--active-tab-left` is the distance in `px` between the left-hand edge of the active tab and the left-hand edge of `Tabs.Panel`'s bounding box.
+- `--active-tab-right` is the distance in `px` between the right-hand edge of the active tab and the right-hand edge of `Tabs.Panel`'s bounding box.
+- `--active-tab-width` is the width in `px` of the active tab's bounding box.
+- `--active-tab-height` is the height in `px` of the active tab's bounding box.
 
 Additionally, the Indicator has a `data-movement-direction` attribute representing the relation of the selected tab to the previously selected one.
 Its value is one of the following:
@@ -76,9 +115,14 @@ Its value is one of the following:
 - `next` - the active tab is to the right of the previously active tab (or below, in case of vertical tabs)
 - `none` - there is no previously selected tab
 
-Check out the following examples to see how an Indicator can be styled:
+This example uses the CSS variables and data attributes described above to create an "elastic" movement effect.
 
-{{"demo": "Indicator.js"}}
+{{"demo": "IndicatorBubble.js", "defaultCodeOpen": false}}
+
+The next example shows a differently shaped indicator with a simpler movement.
+As the transition is independent of direction, the `data-movement-direction` attribute is not used for styling.
+
+{{"demo": "IndicatorUnderline.js", "defaultCodeOpen": false }}
 
 ### Server rendering
 
@@ -95,47 +139,34 @@ This will make the component include an inline script that sets the CSS variable
 
 It is disabled by default, as the script contributes to the size of the payload sent by the server.
 
-## Customization
+## Orientation
 
-### Vertical
+To arrange tabs vertically, set `orientation="vertical"` on the `<Tabs />` component.
+Now the user can navigate with the up and down arrow keys, rather than the default left-to-right behavior for horizontal tabs.
 
-Tab components can be arranged vertically as well as horizontally.
+## Links
 
-When vertical, you must set `orientation="vertical"` on the `<Tabs />` component so the user can navigate with the up and down arrow keys (rather than the default left-to-right behavior for horizontal tabs).
-
-{{"demo": "UnstyledTabsVertical.js"}}
-
-### Third-party routing library
-
+Tabs can be rendered as links to routes in your application.
 A common use case for tabs is to implement client-side navigation that doesn't require an HTTP round-trip to the server.
 
-{{"demo": "UnstyledTabsRouting.js"}}
+{{"demo": "UnstyledTabsRouting.js", "defaultCodeOpen": false}}
 
 ## Keyboard navigation
 
-By default, when using keyboard navigation, the Tab components open via **automatic activation**—that is, the next panel is displayed automatically when it's focused.
+By default, when using keyboard navigation, tabs are activated automatically when they recieve focus.
+Alternatively, you can set `activateOnFocus={false}` on `<Tabs.List>` so tabs are not activated automatically when they receive focus.
 
-Alternatively, you can set the panels not to be displayed automatically when their corresponding tabs are in focus. This behavior is known as **manual activation**.
-
-To enable manual activation, set the `activateOnFocus` prop to `false` on the `<Tabs.List />` component:
-
-```jsx
-/* Tabs where selection does not follow focus */
+```tsx
 <Tabs.List activateOnFocus={false} />
 ```
 
-The following demo pair illustrates the difference between manual and automatic activation.
-Move the focus to a tab in either demo and navigate with the arrow keys to observe the difference:
-
-{{"demo": "KeyboardNavigation.js"}}
-
 ## Accessibility
 
-(WAI-ARIA: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
+Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
-To make the Tab component suite accessible to assistive technology, label the `<Tabs.List />` element with `aria-label` or `aria-labelledby`.
+To make the Tabs component suite accessible to assistive technology, label the `<Tabs.List />` element with `aria-label`.
 
-```jsx
+```tsx
 <Tabs>
   <Tabs.List aria-label="Seasons">
     <Tabs.Tab>Spring</Tabs.Tab>
