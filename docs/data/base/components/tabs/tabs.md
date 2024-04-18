@@ -9,7 +9,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 
 # Tabs
 
-<p class="description">Tabs organize groups of related content and allow the user to navigate between them.</p>
+<p class="description">Tabs organize groups of related content and allow users to navigate between them.</p>
 
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
@@ -47,7 +47,7 @@ import * as Tabs from '@base_ui/react/Tabs';
 
 Tabs are implemented using a collection of related components:
 
-- `<Tabs.Root />` is top-level component that wraps the Tabs List and Tab Panel components so that tabs and their panels can communicate with one another.
+- `<Tabs.Root />` is a top-level component that wraps the Tabs List and Tab Panel components so that tabs and their panels can communicate with one another.
 - `<Tabs.Tab />` is the tab element itself. Clicking on a tab displays its corresponding panel.
 - `<Tabs.List />` is the container that houses the tabs. Responsible for handling focus and keyboard navigation between tabs.
 - `<Tabs.Panel />` is the card that hosts the content associated with a tab.
@@ -69,9 +69,9 @@ Tabs are implemented using a collection of related components:
 
 By default, Tab components and their corresponding panels are **zero-indexed**.
 The first tab has a `value` of `0`, the second tab has a `value` of `1`, and so on.
-Activating a tab opens the panel with the same `value`, which corresponds to the order in which each component is nested within its container.
+Activating a tab opens the panel with the same `value`, corresponding to the order in which each component is nested within its container.
 
-Though not required, you can add the `value` prop to the Tab and Tab Panel to take control over how these components are associated with one another.
+Though not required, you can add the `value` prop to the Tab and Tab Panel to control how these components are associated.
 
 ```tsx
 <Tabs.Root defaultValue={1}>
@@ -86,7 +86,7 @@ Though not required, you can add the `value` prop to the Tab and Tab Panel to ta
 
 ## Composing a custom React component
 
-Use the `render` prop to override the rendered elemen.:
+Use the `render` prop to override the rendered element:
 
 ```jsx
 <Tabs.Tab render={<MyCustomTab />} />
@@ -94,39 +94,39 @@ Use the `render` prop to override the rendered elemen.:
 <Tabs.Tab render={(props) => <MyCustomTab {...props} />} />
 ```
 
-If you provide a non-interactive element such as a `<span>`, the Tab components will automatically add the necessary accessibility attributes.
+If you provide a non-interactive element such as a `<span>`, the Tab components automatically add the necessary accessibility attributes.
 
 ## Indicator
 
-Though it’s optional, the `Tabs.Indicator` component can be added to implement a visual indicator for the active tab.
+Though it's optional, the `Tabs.Indicator` component can be added to implement a visual indicator for the active tab.
 To help with styling—in particular animating its position—some CSS variables are provided.
 
-- `--active-tab-top` is the distance in `px` between the top of the active tab and the top of `Tabs.Panel`'s bounding box.
-- `--active-tab-bottom` is the distance in `px` between the bottom of the active tab and the bottom of `Tabs.Panel`'s bounding box.
-- `--active-tab-left` is the distance in `px` between the left-hand edge of the active tab and the left-hand edge of `Tabs.Panel`'s bounding box.
-- `--active-tab-right` is the distance in `px` between the right-hand edge of the active tab and the right-hand edge of `Tabs.Panel`'s bounding box.
+- `--active-tab-top` is the distance in `px` between the top of the active tab and the top of the `Tabs.Panel`'s bounding box.
+- `--active-tab-bottom` is the distance in `px` between the bottom of the active tab and the bottom of the `Tabs.Panel`'s bounding box.
+- `--active-tab-left` is the distance in `px` between the left-hand edge of the active tab and the left-hand edge of the `Tabs.Panel`'s bounding box.
+- `--active-tab-right` is the distance in `px` between the right-hand edge of the active tab and the right-hand edge of the `Tabs.Panel`'s bounding box.
 - `--active-tab-width` is the width in `px` of the active tab's bounding box.
 - `--active-tab-height` is the height in `px` of the active tab's bounding box.
 
 Additionally, the Indicator has a `data-movement-direction` attribute representing the relation of the selected tab to the previously selected one.
 Its value is one of the following:
 
-- `previous` - the active tab is to the left of the previously active tab (or above, in case of vertical tabs)
-- `next` - the active tab is to the right of the previously active tab (or below, in case of vertical tabs)
+- `previous` - the active tab is to the left of the previously active tab (or above, in the case of vertical tabs)
+- `next` - the active tab is to the right of the previously active tab (or below, in the case of vertical tabs)
 - `none` - there is no previously selected tab
 
 This example uses the CSS variables and data attributes described above to create an "elastic" movement effect.
 
 {{"demo": "IndicatorBubble.js", "defaultCodeOpen": false}}
 
-The next example shows a differently shaped indicator with a simpler movement.
+The next example shows a differently shaped Indicator with a simpler movement.
 As the transition is independent of direction, the `data-movement-direction` attribute is not used for styling.
 
 {{"demo": "IndicatorUnderline.js", "defaultCodeOpen": false }}
 
 ### Server rendering
 
-As the rendering of the Indicator depends on React effects, it cannot be done on the server.
+The Indicator's rendering depends on React effects and cannot be done on the server.
 This means that if you're using server-side rendering (SSR), the initially rendered content will not contain the Indicator.
 It will appear after React hydrates the components.
 
@@ -142,18 +142,18 @@ It is disabled by default, as the script contributes to the size of the payload 
 ## Orientation
 
 To arrange tabs vertically, set `orientation="vertical"` on the `<Tabs />` component.
-Now the user can navigate with the up and down arrow keys, rather than the default left-to-right behavior for horizontal tabs.
+Now, the user can navigate with the up and down arrow keys rather than the default left-to-right behavior for horizontal tabs.
 
 ## Links
 
 Tabs can be rendered as links to routes in your application.
-A common use case for tabs is to implement client-side navigation that doesn't require an HTTP round-trip to the server.
+A common use case for tabs is implementing client-side navigation that doesn't require an HTTP round-trip to the server.
 
 {{"demo": "UnstyledTabsRouting.js", "defaultCodeOpen": false}}
 
 ## Keyboard navigation
 
-By default, when using keyboard navigation, tabs are activated automatically when they recieve focus.
+By default, when using keyboard navigation, tabs are activated automatically when they receive focus.
 Alternatively, you can set `activateOnFocus={false}` on `<Tabs.List>` so tabs are not activated automatically when they receive focus.
 
 ```tsx
