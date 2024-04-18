@@ -56,6 +56,26 @@ Use the `render` prop to override the rendered element in any of the tab-related
 
 If you provide a non-interactive element such as a `<span>`, the Tab components will automatically add the necessary accessibility attributes.
 
+## Floating selection indicator
+
+The TabIndicator component can be used to implement an selection indicator with animated position (transitioning from one selected tab to another).
+
+To help with styling, the following CSS variables are set on the Indicator's rendered element:
+
+- `--active-tab-top`: distance in pixels between the top of the currently selected tab and the top of TabPanel's bounding box.
+- `--active-tab-bottom`: distance in pixels between the bottom of the currently selected tab and the bottom of TabPanel's bounding box.
+- `--active-tab-left`: distance in pixels between the left-hand side of the currently selected tab and the left-hand side of TabPanel's bounding box.
+- `--active-tab-right`: distance in pixels between the right-hand side of the currently selected tab and the right-hand side of TabPanel's bounding box.
+- `--active-tab-width`: width of the selected tab's bounding box.
+- `--active-tab-height`: height of the selected tab's bounding box.
+
+Additionally, the Indicator has a `data-movement-direction` attribute representing the relation of the selected tab to the previously selected one.
+It can be set to `previous` or `next` (or doesn't exist at all after first mount).
+
+Check out the following examples to see how an Indicator can be styled:
+
+{{"demo": "Indicator.js"}}
+
 ## Customization
 
 ### Vertical

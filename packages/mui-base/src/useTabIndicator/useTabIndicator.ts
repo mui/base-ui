@@ -81,12 +81,12 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
         bottom: listBottom,
       } = tabsListRef.current.getBoundingClientRect();
 
-      left = tabLeft - listLeft;
-      right = listRight - tabRight;
-      top = tabTop - listTop;
-      bottom = listBottom - tabBottom;
-      width = tabRight - tabLeft;
-      height = tabBottom - tabTop;
+      left = round(tabLeft - listLeft);
+      right = round(listRight - tabRight);
+      top = round(tabTop - listTop);
+      bottom = round(listBottom - tabBottom);
+      width = round(tabRight - tabLeft);
+      height = round(tabBottom - tabTop);
 
       if (orientation === 'horizontal') {
         if (left < previousTabEdge) {
@@ -110,10 +110,10 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     () =>
       isTabSelected
         ? {
-            left: round(left),
-            right: round(right),
-            top: round(top),
-            bottom: round(bottom),
+            left,
+            right,
+            top,
+            bottom,
             movementDirection,
           }
         : null,
