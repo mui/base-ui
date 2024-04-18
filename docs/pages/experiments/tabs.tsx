@@ -43,7 +43,7 @@ export default function UnstyledTabsIntroduction() {
           <Tab value={2}>Pull Requests</Tab>
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
-          <Indicator />
+          <Indicator renderBeforeHydration />
         </TabsList>
         <TabPanel value={0}>Code panel</TabPanel>
         <TabPanel value={1}>Issues panel</TabPanel>

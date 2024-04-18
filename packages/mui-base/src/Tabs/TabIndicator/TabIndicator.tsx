@@ -62,64 +62,52 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
     // This script is used to set the initial position of the indicator before hydration happens.
     // This is necessary to render the indicator in the right place right after the SSR-generated content is downloaded and not wait for React to kick in.
     const prehydrationScript = `
-      (function() {
-        const tabIndicator = document.querySelector('[data-instance-id="${instanceId}"]');
-        if (!tabIndicator) {
-          return;
-        }
+(function() {
+  let indicator = document.currentScript.previousElementSibling;
+  if (!indicator) {
+    return;
+  }
 
-        let parentTabList = tabIndicator.parentElement;
-        while (parentTabList && parentTabList.getAttribute('role') !== 'tablist') {
-          parentTabList = parentTabList.parentElement;
-        }
+  let list = indicator.closest('[role="tablist"]');
+  if (!list) {
+    return;
+  }
 
-        if (!parentTabList) {
-          return;
-        }
+  let activeTab = list.querySelector('[data-selected="true"]');
+  if (!activeTab) {
+    return;
+  }
 
-        const selectedTabElement = parentTabList.querySelector('[data-selected="true"]');
-        if (!selectedTabElement) {
-          return;
-        }
+  let { left: tabL, right: tabR, top: tabT, bottom: tabB, width: tabW } = activeTab.getBoundingClientRect();
+  let { left: listL, right: listR, top: listT, bottom: listB, width: listW } = list.getBoundingClientRect();
 
-        const {
-          left: tabLeft,
-          right: tabRight,
-          top: tabTop,
-          bottom: tabBottom,
-          width: tabWidth,
-        } = selectedTabElement.getBoundingClientRect();
+  if (tabW === 0 || listW === 0) {
+    return;
+  }
 
-        const {
-          left: listLeft,
-          right: listRight,
-          top: listTop,
-          bottom: listBottom,
-          width: listWidth,
-        } = parentTabList.getBoundingClientRect();
+  let left = tabL - listL;
+  let right = listR - tabR;
+  let top = tabT - listT;
+  let bottom = listB - tabB;
+  let width = tabR - tabL;
+  let height = tabB - tabT;
 
-        if (tabWidth === 0 || listWidth === 0) {
-          return;
-        }
+  function setProp(name, value) {
+    indicator.style.setProperty('--active-tab-' + name, value + 'px');
+  }
 
-        const left = tabLeft - listLeft;
-        const right = listRight - tabRight;
-        const top = tabTop - listTop;
-        const bottom = listBottom - tabBottom;
-        width = tabRight - tabLeft;
-        height = tabBottom - tabTop;
-
-        tabIndicator.style.setProperty('--active-tab-left', \`\${left}px\`);
-        tabIndicator.style.setProperty('--active-tab-right', \`\${right}px\`);
-        tabIndicator.style.setProperty('--active-tab-top', \`\${top}px\`);
-        tabIndicator.style.setProperty('--active-tab-bottom', \`\${bottom}px\`);
-        tabIndicator.style.setProperty('--active-tab-width', \`\${width}px\`);
-        tabIndicator.style.setProperty('--active-tab-height', \`\${height}px\`);
-      })();
+  setProp('left', left);
+  setProp('right', right);
+  setProp('top', top);
+  setProp('bottom', bottom);
+  setProp('width', width);
+  setProp('height', height);
+})();
     `;
 
     return (
       <React.Fragment>
+        <style>{'body { display: block !important } '}</style>
         {evaluateRenderProp(render, rootProps, ownerState)}
         {!isMounted && renderBeforeHydration && (
           <script
