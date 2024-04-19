@@ -4,7 +4,7 @@
 
 ## Shared props
 
-Base components are self-supporting and fully functional in isolation.
+Base UI components are self-supporting and fully functional in isolation.
 
 Each component has its own unique API, but all _non-utility_ components accept the following shared props:
 

@@ -58,5 +58,5 @@ export default NumberFieldDemo;
 
 ## Style your component
 
-Base UI makes no assumptions about style at all. You're free to style your components
+Base UI makes no assumptions about style at all. You're free to style your components
 using any styling solution you like, whether that's plain CSS, Tailwind, CSS-in-JS, or something else.
