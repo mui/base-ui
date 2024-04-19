@@ -1,16 +1,29 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import * as url from 'url';
+import * as path from 'path';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 
-const jsRegex = /\.js$/;
+const pageRegex = /(\.js|\.tsx)$/;
 const blackList = ['/.eslintrc', '/_document', '/_app'];
 
-// Returns the Next.js pages available in a nested format.
-// The output is in the next.js format.
-// Each pathname is a route you can navigate to.
-export default function findPages(
+/**
+ * @typedef {object} NextJSPage
+ * @property {string} pathname
+ * @property {NextJSPage[]} [children]
+ */
+
+/**
+ * Returns the Next.js pages available in a nested format.
+ * The output is in the next.js format.
+ * Each pathname is a route you can navigate to.
+ * @param {{ front: true }} [options]
+ * @param {string} [directory]
+ * @param {NextJSPage[]} pages
+ * @returns {NextJSPage[]}
+ */
+// eslint-disable-next-line import/prefer-default-export
+export function findPages(
   options = {},
   directory = path.resolve(currentDirectory, '../../pages'),
   pages = [],
@@ -21,6 +34,7 @@ export default function findPages(
       .replace(new RegExp(`\\${path.sep}`, 'g'), '/')
       .replace(/^.*\/pages/, '')
       .replace('.js', '')
+      .replace('.tsx', '')
       .replace(/^\/index$/, '/') // Replace `index` by `/`.
       .replace(/\/index$/, '');
 
@@ -50,7 +64,7 @@ export default function findPages(
       return;
     }
 
-    if (!jsRegex.test(item) || blackList.includes(pathname)) {
+    if (!pageRegex.test(item) || blackList.includes(pathname)) {
       return;
     }
 
@@ -59,7 +73,7 @@ export default function findPages(
     });
   });
 
-  // sort by pathname without '-' so that e.g. card comes before card-action
+  // sort by pathnames without '-' so that e.g. card comes before card-action
   pages.sort((a, b) => {
     const pathnameA = a.pathname.replace(/-/g, '');
     const pathnameB = b.pathname.replace(/-/g, '');

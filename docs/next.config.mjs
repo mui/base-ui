@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { createRequire } from 'module';
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
-import findPages from './src/utils/findPages.mjs';
+import { findPages } from './src/utils/findPages.mjs';
 import {
   LANGUAGES,
   LANGUAGES_SSR,
