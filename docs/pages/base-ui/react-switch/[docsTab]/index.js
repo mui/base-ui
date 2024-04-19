@@ -1,6 +1,6 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs-base/src/modules/components/MarkdownDocsV2';
-import AppFrame from 'docs-base/src/modules/components/AppFrame';
+import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
+import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/switch/switch.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import SwitchRootApiJsonPageContent from '../../api/switch-root.json';

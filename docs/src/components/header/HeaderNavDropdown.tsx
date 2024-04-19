@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@mui/docs/Link';
-import ROUTES from 'docs-base/src/route';
+import ROUTES from 'docs/src/route';
 
 const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolean }>(
   ({ theme }) => [

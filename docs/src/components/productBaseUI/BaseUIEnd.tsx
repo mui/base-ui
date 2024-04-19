@@ -11,7 +11,7 @@ import GetStartedButtons from 'docs-base/src/components/productBaseUI/components
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import GradientText from 'docs/src/components/typography/GradientText';
-import ROUTES from 'docs-base/src/route';
+import ROUTES from 'docs/src/route';
 
 export default function BaseUIEnd() {
   return (

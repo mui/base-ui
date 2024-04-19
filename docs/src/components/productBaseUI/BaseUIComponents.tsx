@@ -16,7 +16,7 @@ import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import More from 'docs/src/components/action/More';
 import Frame from 'docs/src/components/action/Frame';
-import ROUTES from 'docs-base/src/route';
+import ROUTES from 'docs/src/route';
 
 // switcher icons
 
