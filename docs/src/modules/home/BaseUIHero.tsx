@@ -6,8 +6,8 @@ import HeroContainer from 'docs/src/layouts/HeroContainer';
 import IconImage from 'docs/src/components/icon/IconImage';
 import GradientText from 'docs/src/components/typography/GradientText';
 import ROUTES from 'docs/src/route';
-import GetStartedButtons from 'docs-base/src/components/productBaseUI/components/GetStartedButtons';
 import { Link } from '@mui/docs/Link';
+import GetStartedButtons from './GetStartedButtons';
 
 const BaseUIThemesDemo = dynamic(() => import('./BaseUIThemesDemo'), {
   ssr: false,

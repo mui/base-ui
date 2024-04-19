@@ -137,7 +137,7 @@ function components() {
   ];
 }
 
-export default function BaseUIComponents() {
+export default function AllComponents() {
   // Fix overloading with prefetch={false}, only prefetch on hover.
   return (
     <Grid container spacing={2} sx={{ pt: 2, pb: 4 }}>

@@ -22,11 +22,11 @@ import ROUTES from 'docs/src/route';
 
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import BaseButtonDemo from './components/BaseButtonDemo';
-import BaseMenuDemo from './components/BaseMenuDemo';
-import BaseInputDemo from './components/BaseInputDemo';
-import BaseTabsDemo from './components/BaseTabsDemo';
-import BaseSliderDemo from './components/BaseSliderDemo';
+import BaseButtonDemo from './componentDemos/BaseButtonDemo';
+import BaseMenuDemo from './componentDemos/BaseMenuDemo';
+import BaseInputDemo from './componentDemos/BaseInputDemo';
+import BaseTabsDemo from './componentDemos/BaseTabsDemo';
+import BaseSliderDemo from './componentDemos/BaseSliderDemo';
 
 const StyledButton = materialStyled(Button)(({ theme }) => ({
   borderRadius: 40,

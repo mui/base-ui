@@ -42,7 +42,7 @@ import RadioRoundedIcon from '@mui/icons-material/RadioRounded';
 
 import ROUTES from 'docs/src/route';
 import { Link } from '@mui/docs/Link';
-import heroVariables from 'docs-base/src/components/productBaseUI/heroVariables';
+import heroVariables from './heroVariables';
 
 // DS imports
 import Switch from './themed-controls/Switch';
