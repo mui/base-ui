@@ -2,16 +2,6 @@
 
 <p class="description">Learn the basics of working with Base UI components.</p>
 
-## Responsive meta tag
-
-Base UI is a _mobile-first_ component library—we write code for mobile devices first, and then scale up the components as necessary using CSS media queries.
-
-To ensure proper rendering and touch zooming for all devices, add the responsive viewport meta tag to your `<head>` element:
-
-```html
-<meta name="viewport" content="initial-scale=1, width=device-width" />
-```
-
 ## Shared props
 
 Base components are self-supporting and fully functional in isolation.
