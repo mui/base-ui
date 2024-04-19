@@ -29,19 +29,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@googleapis/sheets':
-        specifier: ^5.0.5
-        version: 5.0.5
-      '@slack/bolt':
-        specifier: ^3.17.1
-        version: 3.17.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
-      google-auth-library:
-        specifier: ^9.7.0
-        version: 9.7.0
     devDependencies:
       '@argos-ci/core':
         specifier: ^2.0.0
@@ -238,6 +225,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^4.6.0
         version: 4.6.0(eslint@8.57.0)
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
