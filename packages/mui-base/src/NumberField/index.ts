@@ -1,4 +1,3 @@
-'use client';
 export { NumberFieldRoot as Root } from './NumberFieldRoot';
 export { NumberFieldGroup as Group } from './NumberFieldGroup';
 export { NumberFieldInput as Input } from './NumberFieldInput';
