@@ -52,12 +52,6 @@ You can search through existing questions and answers to see if someone has aske
 
 If you can't find your answer, [ask a new question](https://stackoverflow.com/questions/ask?tags=reactjs%20base-ui) using the relevant tags.
 
-## Technical support
-
-We do _not_ offer paid support for Core libraries like Base UI.
-
-But you might want to read the [technical support offered](https://mui.com/x/introduction/support/#technical-support) on MUI X components.
-
 ## Long-term support (LTS)
 
 Bug fixes, performance enhancements, and other improvements are delivered in new releases.
@@ -71,10 +65,9 @@ This includes issues introduced by external sources, like browser upgrades or ch
 
 ## Community
 
-### Social media
+### Twitter
 
-The Base UI community is active on both [X/Twitter](https://twitter.com/BaseUI) and [LinkedIn](https://www.linkedin.com/company/mui/).
-These are great platforms to share what you're working on and connect with other developers.
+The Base UI community is active on [Twitter](https://twitter.com/BaseUI). Feel free to share what you're working on!
 
 ### Discord
 
@@ -86,33 +79,3 @@ You can join Discord to engage in lively discussions, share your projects, and i
 :::warning
 How-to questions are not accepted on Discord, they should be asked on [Stack Overflow](#stack-overflow).
 :::
-
-## Custom work
-
-If your team gets stuck and needs help getting unblocked, Base UI's engineers may be available on a contract basis.
-
-Keep in mind that the work must be directly related to Base UI's products—we don't accept general web development or React work.
-
-Our contracting price starts at $200/hour or $1,500/day.
-
-[Send us an email](mailto:custom-work@mui.com) summarizing of your needs, and we'll let you know whether we can help (or else try to suggest alternatives).
-
-## Tidelift subscription
-
-We and the maintainers of thousands of other packages work with Tidelift to deliver one enterprise subscription that covers all of the open-source you use.
-
-If you want the flexibility of open-source and the confidence of commercial-grade software, this is worth looking at. The Tidelift Subscription manages your dependencies for you.
-
-The end result? All of the capabilities you expect from commercial-grade software, for the full breadth of open-source you use.
-That means less time grappling with esoteric open-source trivia, and more time building your own applications—and your business.
-
-<a
-  data-ga-event-category="support"
-  data-ga-event-action="tidelift"
-  href="https://tidelift.com/subscription/pkg/npm-material-ui?utm_source=npm-material-ui&utm_medium=referral&utm_campaign=enterprise">
-Learn more about Tidelift</a>
-and
-<a
-  data-ga-event-category="support"
-  data-ga-event-action="tidelift"
-  href="https://tidelift.com/solutions/schedule-demo?utm_source=npm-material-ui&utm_medium=referral&utm_campaign=enterprise">request a demo today</a>.
