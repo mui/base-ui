@@ -2,19 +2,17 @@
 title: Overview
 ---
 
-# Base UI - Overview
+# Overview
 
-<p class="description">Base UI is a library of headless ("unstyled") React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.</p>
+<p class="description">Base UI is an unstyled UI component library for building accessible user interfaces while maintaing complete control over styling.</p>
 
 ## Introduction
 
-Base UI is a library of unstyled React UI components and hooks.
-These components were extracted from [Material UI](https://mui.com/material-ui/), and are now available as a standalone package.
-They feature the same robust engineering but without implementing Material Design.
+Our goal with Base UI is to provide a complete set of accessible UI components but with maximum flexibility. We want to facilitate creative user interfaces and help teams ship high-quality products.
 
-Base UI includes prebuilt components with production-ready functionality, along with low-level hooks for transferring that functionality to other components.
+Base UI components are React-based, are built by the same team that created [Material UI](https://mui.com/material-ui/), and feature the same robust engineering but without any styling.
 
-With Base UI, you can rapidly build on top of our foundational components using any styling solution you choose—no need to override any default style engine or theme.
+With Base UI, you can rapidly build on top of our foundational components using any styling or animation solution you choose.
 
 :::info
 Base UI is currently in alpha.
@@ -26,17 +24,13 @@ Look for the [open issues](https://github.com/mui/base-ui/issues) and [pull requ
 
 ## Advantages of Base UI
 
-- **Ship faster:** Base UI gives you the foundational building blocks you need to assemble a sleek and sophisticated user interface in a fraction of the time that it would take to do it all from scratch.
-- **You own the CSS:** unlike Material UI, which uses Emotion as a default style engine, Base UI has no built-in styling solution.
-  This means you have complete control over your app's CSS.
-- **Accessibility:** Base UI components are built with accessibility in mind.
-  We do our best to make all components screen reader-friendly, and offer suggestions for optimizing accessibility throughout our documentation.
+- **Ship faster:** Base UI provides the foundational building blocks you need to assemble a sleek and accessible user interface in a fraction of the time that it would take to do it all from scratch.
+- **You own the CSS:** Base UI has no built-in styling solution, and ships zero presentational styles. You maintain total control over your styling layer.
+- **Accessibility:** Base UI components adhere to WAI-ARIA patterns and are tested across a range of browsers, platforms, devices, and input mechanisms.
 
 ## Base UI vs. Material UI
 
-Base UI features many of the same components as [Material UI](https://mui.com/material-ui/getting-started/), but without the Material Design implementation.
-
-Base UI is not packaged with any default theme or built-in style engine.
+Unlike Material UI, Base UI does not include any default theme or built-in style engine.
 This makes it a great choice if you need complete control over how your app's CSS is implemented.
 
-You could think of Base UI as the "skeletal" or "headless" version of Material UI—in fact, future versions of Material UI will gradually adopt these components and hooks for their foundational structure.
+Future versions of Material UI will gradually adopt Base UI as its foundation.
