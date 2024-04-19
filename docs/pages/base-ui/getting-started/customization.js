@@ -4,7 +4,7 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/getting-started/customization/customization.md?@mui/markdown';
 
 export default function Page() {
-  return <MarkdownDocs {...pageProps} />;
+  return <MarkdownDocs {...pageProps} disableAd />;
 }
 
 Page.getLayout = (page) => {
