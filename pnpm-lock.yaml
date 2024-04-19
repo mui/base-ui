@@ -107,8 +107,8 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@emotion/react@11.11.4)(@emotion/styled@11.11.5)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#81037854cccccb7ff20fbfebed4334585babab0e
-        version: github.com/mui/material-ui/81037854cccccb7ff20fbfebed4334585babab0e
+        specifier: github:mui/material-ui#bbfb2cd742ed3aca3d0c8f6dc3e890ed4fc1d7f2
+        version: github.com/mui/material-ui/bbfb2cd742ed3aca3d0c8f6dc3e890ed4fc1d7f2
       '@mui/utils':
         specifier: 5.15.14
         version: 5.15.14(@types/react@18.2.78)(react@18.2.0)
@@ -17557,10 +17557,10 @@ packages:
       - utf-8-validate
     dev: true
 
-  github.com/mui/material-ui/81037854cccccb7ff20fbfebed4334585babab0e:
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/81037854cccccb7ff20fbfebed4334585babab0e}
+  github.com/mui/material-ui/bbfb2cd742ed3aca3d0c8f6dc3e890ed4fc1d7f2:
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/bbfb2cd742ed3aca3d0c8f6dc3e890ed4fc1d7f2}
     name: '@mui/monorepo'
-    version: 6.0.0-alpha.2
+    version: 6.0.0-alpha.3
     requiresBuild: true
     dependencies:
       '@googleapis/sheets': 5.0.5
