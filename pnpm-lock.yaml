@@ -107,8 +107,8 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@emotion/react@11.11.4)(@emotion/styled@11.11.5)(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#e194cc6d24ac27f348014baf154ef388f913d1dc
-        version: github.com/michaldudak/material-ui/e194cc6d24ac27f348014baf154ef388f913d1dc
+        specifier: github:michaldudak/material-ui#40b3b02967fdf1a0bf8896a5d9ce9496a204f9aa
+        version: github.com/michaldudak/material-ui/40b3b02967fdf1a0bf8896a5d9ce9496a204f9aa
       '@mui/utils':
         specifier: 5.15.14
         version: 5.15.14(@types/react@18.2.78)(react@18.2.0)
@@ -407,8 +407,8 @@ importers:
         specifier: 5.15.11
         version: 5.15.11(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@5.15.15)(@types/react@18.2.78)(next@14.2.1)(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#e194cc6d24ac27f348014baf154ef388f913d1dc
-        version: github.com/michaldudak/material-ui/e194cc6d24ac27f348014baf154ef388f913d1dc
+        specifier: github:michaldudak/material-ui#40b3b02967fdf1a0bf8896a5d9ce9496a204f9aa
+        version: github.com/michaldudak/material-ui/40b3b02967fdf1a0bf8896a5d9ce9496a204f9aa
       '@mui/styles':
         specifier: 5.15.15
         version: 5.15.15(@types/react@18.2.78)(react@18.2.0)
@@ -17559,8 +17559,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  github.com/michaldudak/material-ui/e194cc6d24ac27f348014baf154ef388f913d1dc:
-    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/e194cc6d24ac27f348014baf154ef388f913d1dc}
+  github.com/michaldudak/material-ui/40b3b02967fdf1a0bf8896a5d9ce9496a204f9aa:
+    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/40b3b02967fdf1a0bf8896a5d9ce9496a204f9aa}
     name: '@mui/monorepo'
     version: 6.0.0-alpha.3
     requiresBuild: true

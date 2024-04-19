@@ -19,12 +19,15 @@ import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
 import { DocsProvider } from '@mui/docs/DocsProvider';
+import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
+
+configureSandboxDependencies();
 
 let reloadInterval;
 
