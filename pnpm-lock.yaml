@@ -41,7 +41,7 @@ importers:
         version: 8.0.1
       google-auth-library:
         specifier: ^9.7.0
-        version: 9.7.0(encoding@0.1.13)
+        version: 9.8.0(encoding@0.1.13)
     devDependencies:
       '@argos-ci/core':
         specifier: ^2.0.0
@@ -107,8 +107,8 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#81037854cccccb7ff20fbfebed4334585babab0e
-        version: https://codeload.github.com/mui/material-ui/tar.gz/81037854cccccb7ff20fbfebed4334585babab0e(encoding@0.1.13)
+        specifier: github:mui/material-ui#09630ee4f9fcbe7a9765d586355b7c54dbe7ad85
+        version: https://codeload.github.com/mui/material-ui/tar.gz/09630ee4f9fcbe7a9765d586355b7c54dbe7ad85(encoding@0.1.13)
       '@mui/utils':
         specifier: 5.15.14
         version: 5.15.14(@types/react@18.2.78)(react@18.2.0)
@@ -383,8 +383,8 @@ importers:
         specifier: ^11.11.5
         version: 11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0)
       '@mui/docs':
-        specifier: 6.0.0-alpha.2
-        version: 6.0.0-alpha.2(@mui/base@5.0.0-beta.40(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@5.15.15(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(next@14.2.1(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        specifier: 6.0.0-alpha.3
+        version: 6.0.0-alpha.3(@mui/base@5.0.0-beta.40(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@5.15.15(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(next@14.2.1(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@mui/icons-material':
         specifier: 5.15.15
         version: 5.15.15(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.78)(react@18.2.0)
@@ -2199,8 +2199,8 @@ packages:
   '@mui/core-downloads-tracker@5.15.15':
     resolution: {integrity: sha512-aXnw29OWQ6I5A47iuWEI6qSSUfH6G/aCsW9KmW3LiFqr7uXZBK4Ks+z8G+qeIub8k0T5CMqlT2q0L+ZJTMrqpg==}
 
-  '@mui/docs@6.0.0-alpha.2':
-    resolution: {integrity: sha512-20+urdvFKqkljqFnuMEHMdlpm1kl2oF5QUL+CMb1HWGIHs+onb+6o+7fzHjA5GIiPbKcOLEsZGAyptT203vRAg==}
+  '@mui/docs@6.0.0-alpha.3':
+    resolution: {integrity: sha512-6iP5MElM1htTLrJXUi1Wc6I90ZideNSpuk2YBb6ZVqQ8r75DXPvYFyhSzsKc1yRrCIc0r/aVNGpTZdEub4R+Eg==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@mui/base': '*'
@@ -2317,9 +2317,9 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/81037854cccccb7ff20fbfebed4334585babab0e':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/81037854cccccb7ff20fbfebed4334585babab0e}
-    version: 6.0.0-alpha.2
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/09630ee4f9fcbe7a9765d586355b7c54dbe7ad85':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/09630ee4f9fcbe7a9765d586355b7c54dbe7ad85}
+    version: 6.0.0-alpha.3
 
   '@mui/private-theming@5.15.14':
     resolution: {integrity: sha512-UH0EiZckOWcxiXLX3Jbb0K7rC8mxTr9L9l6QhOZxYc4r8FHUkefltV9VDGLrzCaWh30SQiJvAEd7djX3XXY6Xw==}
@@ -5559,8 +5559,8 @@ packages:
   globjoin@0.1.4:
     resolution: {integrity: sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==}
 
-  google-auth-library@9.7.0:
-    resolution: {integrity: sha512-I/AvzBiUXDzLOy4iIZ2W+Zq33W4lcukQv1nl7C8WUA6SQwyQwUwu3waNmWNAvzds//FG8SZ+DnKnW/2k6mQS8A==}
+  google-auth-library@9.8.0:
+    resolution: {integrity: sha512-TJJXFzMlVGRlIH27gYZ6XXyPf5Y3OItsKFfefsDAafNNywYRTkei83nEO29IrYj8GtdHWU78YnW+YZdaZaXIJA==}
     engines: {node: '>=14'}
 
   googleapis-common@7.1.0:
@@ -11226,7 +11226,7 @@ snapshots:
 
   '@mui/core-downloads-tracker@5.15.15': {}
 
-  ? '@mui/docs@6.0.0-alpha.2(@mui/base@5.0.0-beta.40(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@5.15.15(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(next@14.2.1(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)'
+  ? '@mui/docs@6.0.0-alpha.3(@mui/base@5.0.0-beta.40(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@5.15.15(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@mui/material@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.15.15(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(next@14.2.1(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)'
   : dependencies:
       '@babel/runtime': 7.24.4
       '@mui/base': 5.0.0-beta.40(@types/react@18.2.78)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -11383,13 +11383,13 @@ snapshots:
       '@emotion/styled': 11.11.5(@emotion/react@11.11.4(@types/react@18.2.78)(react@18.2.0))(@types/react@18.2.78)(react@18.2.0)
       '@types/react': 18.2.78
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/81037854cccccb7ff20fbfebed4334585babab0e(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/09630ee4f9fcbe7a9765d586355b7c54dbe7ad85(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 5.0.5(encoding@0.1.13)
       '@netlify/functions': 2.6.0
       '@slack/bolt': 3.17.1
       execa: 8.0.1
-      google-auth-library: 9.7.0(encoding@0.1.13)
+      google-auth-library: 9.8.0(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -15555,7 +15555,7 @@ snapshots:
 
   globjoin@0.1.4: {}
 
-  google-auth-library@9.7.0(encoding@0.1.13):
+  google-auth-library@9.8.0(encoding@0.1.13):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
@@ -15571,7 +15571,7 @@ snapshots:
     dependencies:
       extend: 3.0.2
       gaxios: 6.3.0(encoding@0.1.13)
-      google-auth-library: 9.7.0(encoding@0.1.13)
+      google-auth-library: 9.8.0(encoding@0.1.13)
       qs: 6.12.0
       url-template: 2.0.8
       uuid: 9.0.1
