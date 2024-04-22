@@ -6,7 +6,7 @@ export default function UnstyledTabsIntroduction() {
   return (
     <React.Fragment>
       <Tabs.Root defaultValue={0}>
-        <Tabs.List className="CustomTabsListIntroduction">
+        <Tabs.List className="CustomTabsListIntroduction" aria-label="Settings">
           <Tabs.Tab className="CustomTabIntroduction" value={0}>
             My account
           </Tabs.Tab>

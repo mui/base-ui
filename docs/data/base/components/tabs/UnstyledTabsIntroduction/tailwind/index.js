@@ -16,7 +16,7 @@ export default function UnstyledTabsIntroduction() {
   return (
     <div className={isDarkMode ? 'dark' : ''}>
       <Tabs.Root defaultValue={0}>
-        <TabsList>
+        <TabsList aria-label="Settings">
           <Tab value={0}>My account</Tab>
           <Tab value={1}>Profile</Tab>
           <Tab value={2}>Language</Tab>

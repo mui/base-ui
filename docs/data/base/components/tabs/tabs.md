@@ -9,7 +9,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 
 # Tabs
 
-<p class="description">Tabs organize groups of related content and allow users to navigate between them.</p>
+<p class="description">Tabs organize groups of related content and let users navigate between them.</p>
 
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
@@ -67,7 +67,7 @@ Tabs are implemented using a collection of related components:
 
 ## Specifying values
 
-By default, Tab components and their corresponding panels are **zero-indexed**.
+By default, Tab components and their corresponding panels are zero-indexed.
 The first tab has a `value` of `0`, the second tab has a `value` of `1`, and so on.
 Activating a tab opens the panel with the same `value`, corresponding to the order in which each component is nested within its container.
 
@@ -151,7 +151,7 @@ A common use case for tabs is implementing client-side navigation that doesn't r
 
 {{"demo": "UnstyledTabsRouting.js", "defaultCodeOpen": false}}
 
-## Keyboard navigation
+## Manual tab activation
 
 By default, when using keyboard navigation, tabs are activated automatically when they receive focus.
 Alternatively, you can set `activateOnFocus={false}` on `<Tabs.List>` so tabs are not activated automatically when they receive focus.
@@ -163,6 +163,18 @@ Alternatively, you can set `activateOnFocus={false}` on `<Tabs.List>` so tabs ar
 ## Accessibility
 
 Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+
+### Keyboard navigation
+
+| Key                                | Function                                                                                                      |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| <kbd class="key">Left Arrow</kbd>  | Moves focus to the previous tab (when `orientation=horizontal`) and activates it if `activateOnFocus` is set. |
+| <kbd class="key">Right Arrow</kbd> | Moves focus to the next tab (when `orientation=horizontal`) and activates it if `activateOnFocus` is set.     |
+| <kbd class="key">Up Arrow</kbd>    | Moves focus to the previous tab (when `orientation=vertical`) and activates it if `activateOnFocus` is set.   |
+| <kbd class="key">Down Arrow</kbd>  | Moves focus to the next tab (when `orientation=vertical`) and activates it if `activateOnFocus` is set.       |
+| <kbd class="key">Space</kbd>       | Activates the focused tab.                                                                                    |
+
+### Labeling
 
 To make the Tabs component suite accessible to assistive technology, label the `<Tabs.List />` element with `aria-label`.
 
