@@ -719,8 +719,8 @@ importers:
         specifier: 1.43.1
         version: 1.43.1
       '@testing-library/dom':
-        specifier: ^9.3.4
-        version: 9.3.4
+        specifier: ^10.0.0
+        version: 10.0.0
       '@types/chai':
         specifier: ^4.3.14
         version: 4.3.14
