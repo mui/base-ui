@@ -10,7 +10,7 @@ import { TabMetadata } from '../useTabs';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
-function tabValueGenerator(otherTabValues: Set<string | number>) {
+function tabValueGenerator(otherTabValues: Set<any>) {
   return otherTabValues.size;
 }
 
@@ -38,7 +38,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
     id: value,
     index,
     totalItemCount: totalTabsCount,
-  } = useCompoundItem<string | number, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
+  } = useCompoundItem<any, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
 
   const { getRootProps: getListItemProps, selected } = useListItem({
     item: value,

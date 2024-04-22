@@ -79,7 +79,7 @@ TabsRoot.propTypes /* remove-proptypes */ = {
   /**
    * The default value. Use when the component is not controlled.
    */
-  defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  defaultValue: PropTypes.any,
   /**
    * The direction of the text.
    * @default 'ltr'
@@ -102,7 +102,7 @@ TabsRoot.propTypes /* remove-proptypes */ = {
    * The value of the currently selected `Tab`.
    * If you don't want any selected `Tab`, you can set this prop to `null`.
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.any,
 } as any;
 
 export { TabsRoot as Tabs };

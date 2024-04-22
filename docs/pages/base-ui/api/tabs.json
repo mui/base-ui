@@ -1,7 +1,7 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultValue": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } },
+    "defaultValue": { "type": { "name": "any" } },
     "direction": {
       "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
       "default": "'ltr'"
@@ -12,7 +12,7 @@
       "default": "'horizontal'"
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
+    "value": { "type": { "name": "any" } }
   },
   "name": "Tabs",
   "imports": ["import { Tabs } from '@base_ui/react/Tabs';"],

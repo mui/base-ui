@@ -21,8 +21,8 @@
     },
     "dispatch": {
       "type": {
-        "name": "(action: ListAction&lt;string | number&gt;) =&gt; void",
-        "description": "(action: ListAction&lt;string | number&gt;) =&gt; void"
+        "name": "(action: ListAction&lt;any&gt;) =&gt; void",
+        "description": "(action: ListAction&lt;any&gt;) =&gt; void"
       },
       "required": true
     },
@@ -34,7 +34,7 @@
       "required": true
     },
     "highlightedValue": {
-      "type": { "name": "string | number | null", "description": "string | number | null" },
+      "type": { "name": "any | null", "description": "any | null" },
       "required": true
     },
     "orientation": {
@@ -49,7 +49,7 @@
       "required": true
     },
     "selectedValue": {
-      "type": { "name": "string | number | null", "description": "string | number | null" },
+      "type": { "name": "any | null", "description": "any | null" },
       "required": true
     }
   },

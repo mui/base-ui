@@ -7,7 +7,7 @@
         "description": "React.Ref&lt;HTMLElement&gt;"
       }
     },
-    "value": { "type": { "name": "number | string", "description": "number | string" } }
+    "value": { "type": { "name": "any", "description": "any" } }
   },
   "returnValue": {
     "direction": {

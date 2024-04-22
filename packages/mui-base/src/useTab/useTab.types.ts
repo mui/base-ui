@@ -7,11 +7,11 @@ export interface UseTabParameters {
    * It's used to associate the tab with a tab panel(s) with the same value.
    * If the value is not provided, it falls back to the position index.
    */
-  value?: number | string;
+  value?: any;
   /**
    * If `true`, the tab will be disabled.
    */
-  onChange?: (event: React.SyntheticEvent, value: number | string) => void;
+  onChange?: (event: React.SyntheticEvent, value: any) => void;
   /**
    * Callback fired when the tab is clicked.
    */

@@ -8,7 +8,7 @@ export type TabPanelMetadata = {
   ref: React.RefObject<HTMLElement>;
 };
 
-export type TabsProviderValue = CompoundComponentContextValue<string | number, TabPanelMetadata> &
+export type TabsProviderValue = CompoundComponentContextValue<any, TabPanelMetadata> &
   TabsContextValue;
 
 export interface TabsProviderProps {
@@ -36,17 +36,15 @@ export function TabsProvider(props: TabsProviderProps) {
     getTabPanelId,
   } = valueProp;
 
-  const compoundComponentContextValue: CompoundComponentContextValue<
-    string | number,
-    TabPanelMetadata
-  > = React.useMemo(
-    () => ({
-      getItemIndex,
-      registerItem,
-      totalSubitemCount,
-    }),
-    [registerItem, getItemIndex, totalSubitemCount],
-  );
+  const compoundComponentContextValue: CompoundComponentContextValue<any, TabPanelMetadata> =
+    React.useMemo(
+      () => ({
+        getItemIndex,
+        registerItem,
+        totalSubitemCount,
+      }),
+      [registerItem, getItemIndex, totalSubitemCount],
+    );
 
   const tabsContextValue: TabsContextValue = React.useMemo(
     () => ({

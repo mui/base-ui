@@ -86,7 +86,7 @@ TabPanel.propTypes /* remove-proptypes */ = {
    * If not provided, it will fall back to the index of the panel.
    * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.any,
 } as any;
 
 export { TabPanel };

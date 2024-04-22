@@ -5,8 +5,8 @@ import { TabMetadata } from '../useTabs';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../useCompound';
 import { TabsListContext, TabsListContextValue } from './TabsListContext';
 
-export type TabsListProviderValue = CompoundComponentContextValue<string | number, TabMetadata> &
-  ListContextValue<string | number> &
+export type TabsListProviderValue = CompoundComponentContextValue<any, TabMetadata> &
+  ListContextValue<any> &
   TabsListContextValue;
 
 export interface TabsListProviderProps {
@@ -32,7 +32,7 @@ export function TabsListProvider(props: TabsListProviderProps) {
     tabsListRef,
   } = value;
 
-  const listContextValue: ListContextValue<string | number> = React.useMemo(
+  const listContextValue: ListContextValue<any> = React.useMemo(
     () => ({
       dispatch,
       getItemState,
@@ -41,7 +41,7 @@ export function TabsListProvider(props: TabsListProviderProps) {
     [dispatch, getItemIndex, getItemState],
   );
 
-  const compoundComponentContextValue: CompoundComponentContextValue<string | number, TabMetadata> =
+  const compoundComponentContextValue: CompoundComponentContextValue<any, TabMetadata> =
     React.useMemo(
       () => ({
         getItemIndex,

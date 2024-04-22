@@ -12,9 +12,9 @@ export interface TabProps extends Omit<BaseUIComponentProps<'button', TabOwnerSt
   /**
    * You can provide your own value. Otherwise, it falls back to the child position index.
    */
-  value?: number | string;
+  value?: any;
   /**
    * Callback invoked when new value is being set.
    */
-  onChange?: (event: React.SyntheticEvent, value: number | string) => void;
+  onChange?: (event: React.SyntheticEvent, value: any) => void;
 }

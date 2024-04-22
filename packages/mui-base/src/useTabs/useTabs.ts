@@ -12,7 +12,7 @@ export interface TabMetadata {
   ref: React.RefObject<HTMLElement>;
 }
 
-type IdLookupFunction = (id: string | number) => string | undefined;
+type IdLookupFunction = (id: any) => string | undefined;
 
 /**
  *
@@ -41,7 +41,7 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
   });
 
   const onSelected = React.useCallback(
-    (event: React.SyntheticEvent | null, newValue: string | number | null) => {
+    (event: React.SyntheticEvent | null, newValue: any | null) => {
       setValue(newValue);
       onChange?.(event, newValue);
     },
@@ -49,20 +49,20 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
   );
 
   const { subitems: tabPanels, contextValue: compoundComponentContextValue } = useCompoundParent<
-    string | number,
+    any,
     TabPanelMetadata
   >();
 
   const tabIdLookup = React.useRef<IdLookupFunction>(() => undefined);
 
   const getTabPanelId = React.useCallback(
-    (tabValue: string | number) => {
+    (tabValue: any) => {
       return tabPanels.get(tabValue)?.id;
     },
     [tabPanels],
   );
 
-  const getTabId = React.useCallback((tabPanelId: string | number) => {
+  const getTabId = React.useCallback((tabPanelId: any) => {
     return tabIdLookup.current(tabPanelId);
   }, []);
 

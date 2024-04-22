@@ -13,7 +13,7 @@ export interface TabPanelProps extends BaseUIComponentProps<'div', TabPanelOwner
    * If not provided, it will fall back to the index of the panel.
    * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
    */
-  value?: number | string;
+  value?: any;
   /**
    * If `true`, keeps the contents of the hidden TabPanel in the DOM.
    * @default false

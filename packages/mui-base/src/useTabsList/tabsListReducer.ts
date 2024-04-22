@@ -9,13 +9,13 @@ import {
 import { ActionWithContext } from '../utils/useControllableReducer.types';
 import { TabsListActionTypes, ValueChangeAction } from './useTabsList.types';
 
-export type TabsListActionContext = ListActionContext<string | number> & {
+export type TabsListActionContext = ListActionContext<any> & {
   activateOnFocus: boolean;
 };
 
 export function tabsListReducer(
-  state: ListState<string | number>,
-  action: ActionWithContext<ListAction<string | number> | ValueChangeAction, TabsListActionContext>,
+  state: ListState<any>,
+  action: ActionWithContext<ListAction<any> | ValueChangeAction, TabsListActionContext>,
 ) {
   if (action.type === TabsListActionTypes.valueChange) {
     return {

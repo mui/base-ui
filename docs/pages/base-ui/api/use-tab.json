@@ -4,8 +4,8 @@
     "id": { "type": { "name": "string", "description": "string" } },
     "onChange": {
       "type": {
-        "name": "(event: React.SyntheticEvent, value: number | string) =&gt; void",
-        "description": "(event: React.SyntheticEvent, value: number | string) =&gt; void"
+        "name": "(event: React.SyntheticEvent, value: any) =&gt; void",
+        "description": "(event: React.SyntheticEvent, value: any) =&gt; void"
       }
     },
     "onClick": {
@@ -14,7 +14,7 @@
     "rootRef": {
       "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
     },
-    "value": { "type": { "name": "number | string", "description": "number | string" } }
+    "value": { "type": { "name": "any", "description": "any" } }
   },
   "returnValue": {
     "getRootProps": {

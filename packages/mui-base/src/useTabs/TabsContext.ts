@@ -20,7 +20,7 @@ export interface TabsContextValue {
   /**
    * Registers a function that returns the id of the tab with the given value.
    */
-  registerTabIdLookup: (lookupFunction: (id: string | number) => string | undefined) => void;
+  registerTabIdLookup: (lookupFunction: (id: any) => string | undefined) => void;
   /**
    * Gets the id of the tab with the given value.
    * @param value Value to find the tab for.

@@ -1,8 +1,6 @@
 {
   "parameters": {
-    "defaultValue": {
-      "type": { "name": "string | number | null", "description": "string | number | null" }
-    },
+    "defaultValue": { "type": { "name": "any | null", "description": "any | null" } },
     "direction": {
       "type": {
         "name": "&#39;ltr&#39; | &#39;rtl&#39;",
@@ -12,8 +10,8 @@
     },
     "onChange": {
       "type": {
-        "name": "(event: React.SyntheticEvent | null, value: number | string | null) =&gt; void",
-        "description": "(event: React.SyntheticEvent | null, value: number | string | null) =&gt; void"
+        "name": "(event: React.SyntheticEvent | null, value: any | null) =&gt; void",
+        "description": "(event: React.SyntheticEvent | null, value: any | null) =&gt; void"
       }
     },
     "orientation": {
@@ -23,9 +21,7 @@
       },
       "default": "'horizontal'"
     },
-    "value": {
-      "type": { "name": "string | number | null", "description": "string | number | null" }
-    }
+    "value": { "type": { "name": "any | null", "description": "any | null" } }
   },
   "returnValue": {
     "contextValue": {

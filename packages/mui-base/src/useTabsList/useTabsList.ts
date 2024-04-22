@@ -36,12 +36,12 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   } = useTabsContext();
 
   const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
-    string | number,
+    any,
     TabMetadata
   >();
 
   const tabIdLookup = React.useCallback(
-    (tabValue: string | number) => {
+    (tabValue: any) => {
       return subitems.get(tabValue)?.id;
     },
     [subitems],
@@ -52,7 +52,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
 
   const getTabElement = React.useCallback(
-    (tabValue: string | number) => {
+    (tabValue: any) => {
       if (tabValue == null) {
         return null;
       }
@@ -76,7 +76,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
         | React.KeyboardEvent<Element>
         | React.MouseEvent<Element, MouseEvent>
         | null,
-      newValue: (string | number)[],
+      newValue: any[],
     ) => {
       onSelected(event, newValue[0] ?? null);
     },
@@ -88,7 +88,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   }, [value]);
 
   const isItemDisabled = React.useCallback(
-    (item: string | number) => subitems.get(item)?.disabled ?? false,
+    (item: any) => subitems.get(item)?.disabled ?? false,
     [subitems],
   );
 
@@ -98,12 +98,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     getRootProps: getListboxRootProps,
     state: { highlightedValue, selectedValues },
     rootRef: mergedRootRef,
-  } = useList<
-    string | number,
-    ListState<string | number>,
-    ValueChangeAction,
-    { activateOnFocus: boolean }
-  >({
+  } = useList<any, ListState<any>, ValueChangeAction, { activateOnFocus: boolean }>({
     controlledProps,
     disabledItemsFocusable: !activateOnFocus,
     focusManagement: 'DOM',

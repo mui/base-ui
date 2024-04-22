@@ -6,7 +6,7 @@ import { useCompoundItem } from '../useCompound';
 import { UseTabPanelParameters, UseTabPanelReturnValue } from './useTabPanel.types';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
-function tabPanelValueGenerator(otherTabPanelValues: Set<string | number>) {
+function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
   return otherTabPanelValues.size;
 }
 

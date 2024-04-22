@@ -28,7 +28,7 @@ export interface UseTabsListReturnValue {
    * Action dispatcher for the tabs list component.
    * Allows to programmatically control the tabs list.
    */
-  dispatch: (action: ListAction<string | number>) => void;
+  dispatch: (action: ListAction<any>) => void;
   /**
    * Resolver for the root slot's props.
    * @param externalProps props for the root slot
@@ -40,7 +40,7 @@ export interface UseTabsListReturnValue {
   /**
    * The value of the currently highlighted tab.
    */
-  highlightedValue: string | number | null;
+  highlightedValue: any | null;
   /**
    * If `true`, it will indicate that the text's direction in right-to-left.
    */
@@ -53,7 +53,7 @@ export interface UseTabsListReturnValue {
   /**
    * The value of the currently selected tab.
    */
-  selectedValue: string | number | null;
+  selectedValue: any | null;
 }
 
 export const TabsListActionTypes = {
@@ -62,5 +62,5 @@ export const TabsListActionTypes = {
 
 export interface ValueChangeAction {
   type: typeof TabsListActionTypes.valueChange;
-  value: string | number | null;
+  value: any | null;
 }
