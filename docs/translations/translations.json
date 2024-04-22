@@ -215,7 +215,6 @@
     "/base-ui/getting-started": "Overview",
     "/base-ui/getting-started/quickstart": "Quickstart",
     "/base-ui/getting-started/usage": "Usage",
-    "/base-ui/getting-started/customization": "Customization",
     "/base-ui/getting-started/accessibility": "Accessibility",
     "/base-ui/getting-started/support": "Support",
     "/base-ui/react-": "Components",
@@ -227,8 +226,6 @@
     "navigation": "Navigation",
     "/base-ui/react-tabs": "Tabs",
     "/base-ui/guides": "How-to guides",
-    "/base-ui/guides/working-with-tailwind-css": "Working with Tailwind CSS",
-    "/base-ui/guides/overriding-component-structure": "Overriding component structure",
     "/base-ui/guides/next-js-app-router": "Next.js App Router"
   }
 }

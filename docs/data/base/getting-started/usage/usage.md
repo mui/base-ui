@@ -18,63 +18,39 @@ Base components are self-supporting and fully functional in isolation.
 
 Each component has its own unique API, but all _non-utility_ components accept the following shared props:
 
-### slots
+### render
 
-The `slots` prop is an object that lets you override any interior subcomponents—known as **slots**—of the base component itself.
+The `render` prop lets you override the rendered element of the component.
 
-:::info
-Each component contains a root slot, and other appropriate slots based on the nature of the component.
-For example, the Base UI Badge contains two slots:
-
-- `root`: the container element that wraps the children.
-- `badge`: the badge element itself.
-
-  :::
-
-You can use the `slots` prop to override default slots with either custom components or HTML elements.
-
-For example, the Base UI Badge component renders a `<span>` by default.
-The code snippet below shows how to override this by assigning a `<div>` to the root slot:
+For example, the Base UI Switch component renders a `<button>` by default.
+The code snippet below shows how to use a custom component instead.
 
 ```jsx
-<Badge slots={{ root: 'div' }} />
+<Switch.Root render={<MyFancyButton />} />
 ```
 
-### slotProps
+The custom component must forward a ref to its underlying DOM node and it must spread all the received props.
 
-The `slotProps` prop is an object that contains the props for all slots within a component.
-You can use it to define additional custom props for a component's interior elements.
-
-For example, the code snippet below shows how to add a custom CSS class to the badge slot of the Base UI Badge component:
+The `render` prop comes in two variants: the element one (as shown above) and the function one.
+Using a function gives you complete control over spreading props and allows you to render different content based on the component's state.
 
 ```jsx
-<Badge slotProps={{ badge: { className: 'my-badge' } }} />
+<Switch.Thumb
+  render={(props, internalState) => (
+    <span {...props}>
+      {internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}
+    </span>
+  )}
+/>
 ```
 
-All additional props placed on the primary component are also propagated into the root slot (just as if they were placed in `slotProps.root`).
+### className
 
-These two examples are equivalent:
+The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
 
 ```jsx
-<Badge id="badge1">
+<Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
 ```
-
-```jsx
-<Badge slotProps={{ root: { id: 'badge1' } }}>
-```
-
-:::warning
-If both `slotProps.root` and additional props have the same keys but different values, the `slotProps.root` props will take precedence.
-This does not apply to classes or the `style` prop—they will be merged instead.
-:::
-
-### Best practices
-
-If you are customizing a component like the [Button](/base-ui/react-button/) that only has a root slot, you may prefer to use the more succinct `component` prop instead of `slots`.
-
-Overriding with `component` lets you apply the attributes of that element directly to the root.
-For instance, if you replace the Button root with an `<li>` tag, you can add the `<li>` attribute `value` directly to the component.
-If you did the same with `slots.root`, you would need to place this attribute on the `slotProps.root` object in order to avoid a TypeScript error.
 
 ## Components vs. hooks
 
@@ -88,29 +64,3 @@ Many Base UI components are implemented with the help of [React hooks](https://
 You can use components or hooks—or a combination of both—when building custom components.
 
 In general, we recommend that you begin building with the component, and if you find that you are too limited by the customization options available, then consider refactoring your component to use the corresponding hook instead.
-
-Each option has its own trade-offs:
-
-### Components
-
-#### Pros
-
-- Usually require less code to implement
-- Equipped with accessibility features by default
-
-#### Cons
-
-- Less control over the structure of the rendered HTML
-
-### Hooks
-
-#### Pros
-
-- Complete control over rendered HTML structure
-
-#### Cons
-
-- Usually require more code to implement
-- Extra steps necessary to make the resulting component accessible
-
-Details on usage of hooks can be found in their corresponding component docs.

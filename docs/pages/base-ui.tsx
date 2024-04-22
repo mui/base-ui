@@ -7,7 +7,6 @@ import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
 import BaseUIHero from 'docs/src/components/productBaseUI/BaseUIHero';
 import BaseUISummary from 'docs/src/components/productBaseUI/BaseUISummary';
-import BaseUIComponents from 'docs/src/components/productBaseUI/BaseUIComponents';
 import BaseUICustomization from 'docs/src/components/productBaseUI/BaseUICustomization';
 import BaseUIEnd from 'docs/src/components/productBaseUI/BaseUIEnd';
 import BaseUITestimonial from 'docs/src/components/productBaseUI/BaseUITestimonial';
@@ -31,8 +30,6 @@ export default function BaseUI() {
       <main id="main-content">
         <BaseUIHero />
         <BaseUISummary />
-        <Divider />
-        <BaseUIComponents />
         <Divider />
         <BaseUICustomization />
         <Divider />

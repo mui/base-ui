@@ -102,9 +102,9 @@ function App() {
   return (
     <BaseSwitch.Root
       aria-label="Demo switch"
-      render={(props) => <StyledSwitchRoot {...props} />}
+      render={<StyledSwitchRoot />}
     >
-      <BaseSwitch.Thumb render={(props) => <StyledSwitchThumb {...props} />} />
+      <BaseSwitch.Thumb render={<StyledSwitchThumb />} />
     </BaseSwitch.Root>
     <SwitchFromHook />
   )
@@ -231,8 +231,8 @@ export default function BaseUICustomization() {
             <Highlighter disableBorder {...getSelectedProps(1)} onClick={() => setIndex(1)}>
               <Item
                 icon={<SvgTwinkle />}
-                title="Overriding subcomponent slots"
-                description="Default DOM structure doesn't suit your needs? Replace any node with the element you prefer using the `render` prop."
+                title="Overriding subcomponents"
+                description="Default DOM structure doesn't suit your needs? Replace any node with the element you prefer using the render prop."
               />
             </Highlighter>
             <Highlighter disableBorder {...getSelectedProps(2)} onClick={() => setIndex(2)}>
@@ -262,11 +262,8 @@ export default function BaseUICustomization() {
                 }),
               })}
             >
-              <BaseSwitch.Root
-                aria-label="Demo switch"
-                render={(props) => <StyledSwitchRoot {...props} />}
-              >
-                <BaseSwitch.Thumb render={(props) => <StyledSwitchThumb {...props} />} />
+              <BaseSwitch.Root aria-label="Demo switch" render={<StyledSwitchRoot />}>
+                <BaseSwitch.Thumb render={<StyledSwitchThumb />} />
               </BaseSwitch.Root>
               <SwitchFromHook defaultChecked />
             </Frame.Demo>

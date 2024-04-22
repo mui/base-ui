@@ -67,18 +67,13 @@ This includes issues introduced by external sources, like browser upgrades or ch
 
 ### Supported versions
 
-- Base UI v5: ⚠️ Beta version.
-- Base UI v4 🅧 Never existed.
-- Base UI v3 🅧 Never existed.
-- Base UI v2: 🅧 Never existed.
-- Base UI v1: 🅧 Never existed.
-- Base UI v0.x: 🅧 Never existed.
+- Base UI v1: ⚠️ Alpha version.
 
 ## Community
 
 ### Social media
 
-The Base UI community is active on both [X/Twitter](https://twitter.com/MaterialUI) and [LinkedIn](https://www.linkedin.com/company/mui/).
+The Base UI community is active on both [X/Twitter](https://twitter.com/BaseUI) and [LinkedIn](https://www.linkedin.com/company/mui/).
 These are great platforms to share what you're working on and connect with other developers.
 
 ### Discord
