@@ -112,20 +112,50 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('prop: value', () => {
-    const tabs = (
-      <Tabs.Root value={1}>
-        <Tabs.List>
-          <Tabs.Tab value={0} />
-          <Tabs.Tab value={1} />
-        </Tabs.List>
-      </Tabs.Root>
-    );
-
     it('should pass selected prop to children', () => {
+      const tabs = (
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+        </Tabs.Root>
+      );
+
       const { getAllByRole } = render(tabs);
       const tabElements = getAllByRole('tab');
       expect(tabElements[0]).to.have.attribute('aria-selected', 'false');
       expect(tabElements[1]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('should support values of different types', () => {
+      const tabValues = [0, '1', { value: 2 }, () => 3, Symbol('4'), /5/];
+
+      const { getAllByRole } = render(
+        <Tabs.Root>
+          <Tabs.List>
+            {tabValues.map((value, index) => (
+              <Tabs.Tab key={index} value={value} />
+            ))}
+          </Tabs.List>
+          {tabValues.map((value, index) => (
+            <Tabs.Panel key={index} value={value} />
+          ))}
+        </Tabs.Root>,
+      );
+
+      const tabElements = getAllByRole('tab');
+      const tabPanelElements = getAllByRole('tabpanel', { hidden: true });
+
+      tabValues.forEach((value, index) => {
+        expect(tabPanelElements[index]).to.have.attribute('aria-labelledby', tabElements[index].id);
+
+        act(() => {
+          tabElements[index].click();
+        });
+
+        expect(tabPanelElements[index]).not.to.have.attribute('hidden');
+      });
     });
   });
 
