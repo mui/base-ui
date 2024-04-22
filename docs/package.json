@@ -29,7 +29,7 @@
     "@emotion/styled": "^11.11.5",
     "@base_ui/react": "workspace:*",
     "@mui/base": "5.0.0-beta.40",
-    "@mui/docs": "6.0.0-alpha.2",
+    "@mui/docs": "https://pkg.csb.dev/mui/material-ui/commit/19d7243c/@mui/docs",
     "@mui/icons-material": "5.15.15",
     "@mui/internal-markdown": "^1.0.3",
     "@mui/internal-scripts": "^1.0.6",
