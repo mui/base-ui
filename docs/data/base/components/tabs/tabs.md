@@ -167,7 +167,7 @@ Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/AR
 ### Keyboard navigation
 
 | Key                                | Function                                                                                                      |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | <kbd class="key">Left Arrow</kbd>  | Moves focus to the previous tab (when `orientation=horizontal`) and activates it if `activateOnFocus` is set. |
 | <kbd class="key">Right Arrow</kbd> | Moves focus to the next tab (when `orientation=horizontal`) and activates it if `activateOnFocus` is set.     |
 | <kbd class="key">Up Arrow</kbd>    | Moves focus to the previous tab (when `orientation=vertical`) and activates it if `activateOnFocus` is set.   |
