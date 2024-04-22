@@ -2,6 +2,8 @@
 # Avoid conflicts with the other Next.js apps hosted under https://mui.com/
 /base-ui/_next/* /_next/:splat 301
 
+/base-ui/test-redirect/ /base-ui/react-switch/ 301
+
 # Fix links to other MUI products in deploy previews
 /base-ui/* /base-ui/:splat 200
 /* https://mui.com/:splat 301
