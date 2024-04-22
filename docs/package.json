@@ -28,7 +28,7 @@
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.5",
     "@base_ui/react": "workspace:*",
-    "@mui/docs": "6.0.0-alpha.2",
+    "@mui/docs": "6.0.0-alpha.3",
     "@mui/icons-material": "5.15.15",
     "@mui/internal-markdown": "^1.0.1",
     "@mui/internal-scripts": "^1.0.3",
