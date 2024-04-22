@@ -18,7 +18,7 @@
     "@mui/system": "5.15.15",
     "@mui/utils": "5.15.14",
     "@playwright/test": "1.43.1",
-    "@testing-library/dom": "^9.3.4",
+    "@testing-library/dom": "^10.0.0",
     "@types/chai": "^4.3.14",
     "@types/react": "^18.2.79",
     "@types/react-is": "^18.2.4",
