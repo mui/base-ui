@@ -40,7 +40,7 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       google-auth-library:
-        specifier: ^9.7.0
+        specifier: ^9.8.0
         version: 9.8.0(encoding@0.1.13)
     devDependencies:
       '@argos-ci/core':
