@@ -10,7 +10,7 @@ import {
 } from '@mui-internal/api-docs-builder/buildApiUtils';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
 
-const REPO_ROOT = path.resolve(__dirname, '../../../..');
+const REPO_ROOT = path.resolve(__dirname, '../../..');
 
 export function getBaseUiDemos(name: string) {
   // resolve demos, so that we can getch the API url

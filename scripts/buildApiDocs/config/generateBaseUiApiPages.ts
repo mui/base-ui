@@ -5,7 +5,7 @@ import { getHeaders } from '@mui/internal-markdown';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
 import { writePrettifiedFile } from '@mui-internal/api-docs-builder/buildApiUtils';
 
-const REPO_ROOT = path.resolve(__dirname, '../../../..');
+const REPO_ROOT = path.resolve(__dirname, '../../..');
 
 export async function generateBaseUIApiPages() {
   await Promise.all(
