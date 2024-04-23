@@ -82,7 +82,7 @@
     "@mui/internal-scripts": "^1.0.3",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@mui/material": "5.15.15",
-    "@mui/monorepo": "github:michaldudak/material-ui#configurable-babel-path",
+    "@mui/monorepo": "github:michaldudak/material-ui#29de9d8da3011eedbb94cb0e4d066c685f1c63b8",
     "@mui/utils": "5.15.14",
     "@next/eslint-plugin-next": "^14.2.2",
     "@octokit/rest": "^20.1.0",

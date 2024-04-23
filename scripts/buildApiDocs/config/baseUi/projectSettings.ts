@@ -43,5 +43,4 @@ export const projectSettings: ProjectSettings = {
   translationPagesDirectory: 'docs/translations/api-docs-base',
   generateClassName: () => '',
   isGlobalClassName: () => false,
-  babelConfigPath: path.join(process.cwd(), 'babel.config.js'),
 };
