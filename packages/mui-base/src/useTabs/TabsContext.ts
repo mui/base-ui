@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { type TabActivationDirection } from './useTabs.types';
 
 export interface TabsContextValue {
   /**
@@ -8,7 +9,11 @@ export interface TabsContextValue {
   /**
    * Callback for setting new value.
    */
-  onSelected: (event: React.SyntheticEvent | null, value: number | string | null) => void;
+  onSelected: (
+    event: React.SyntheticEvent | null,
+    value: number | string | null,
+    activationDirection: TabActivationDirection,
+  ) => void;
   /**
    * The component orientation (layout flow direction).
    */

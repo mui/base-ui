@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useTabsListContext } from '../useTabsList/TabsListContext';
 import { useTabsContext } from '../useTabs/TabsContext';
-import { TabSelectionMovementDirection, UseTabIndicatorReturnValue } from './useTabIndicator.types';
+import { UseTabIndicatorReturnValue } from './useTabIndicator.types';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
 function round(value: number) {
@@ -24,11 +24,6 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
   const { orientation, direction, value } = useTabsContext();
   const [, forceUpdate] = React.useState({});
 
-  // The coordinate of the leading edge of the previously active tab
-  const [previousTabEdge, setPreviousTabEdge] = React.useState(0);
-  const [movementDirection, setMovementDirection] =
-    React.useState<TabSelectionMovementDirection>(0);
-
   React.useEffect(() => {
     if (value != null && tabsListRef.current != null && typeof ResizeObserver !== 'undefined') {
       const resizeObserver = new ResizeObserver(() => {
@@ -45,12 +40,6 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     return undefined;
   }, [value, tabsListRef]);
 
-  React.useEffect(() => {
-    // Whenever orientation changes, reset the state.
-    setMovementDirection(0);
-    setPreviousTabEdge(0);
-  }, [orientation]);
-
   let left = 0;
   let right = 0;
   let top = 0;
@@ -65,8 +54,6 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     isTabSelected = true;
 
     if (selectedTabElement != null) {
-      // TODO: resize observer on TabsList
-
       const {
         left: tabLeft,
         right: tabRight,
@@ -87,22 +74,6 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
       bottom = round(listBottom - tabBottom);
       width = round(tabRight - tabLeft);
       height = round(tabBottom - tabTop);
-
-      if (orientation === 'horizontal') {
-        if (left < previousTabEdge) {
-          setMovementDirection(-1);
-          setPreviousTabEdge(left);
-        } else if (left > previousTabEdge) {
-          setMovementDirection(1);
-          setPreviousTabEdge(left);
-        }
-      } else if (top < previousTabEdge) {
-        setMovementDirection(-1);
-        setPreviousTabEdge(top);
-      } else if (top > previousTabEdge) {
-        setMovementDirection(1);
-        setPreviousTabEdge(top);
-      }
     }
   }
 
@@ -114,10 +85,9 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
             right,
             top,
             bottom,
-            movementDirection,
           }
         : null,
-    [left, right, top, bottom, movementDirection, isTabSelected],
+    [left, right, top, bottom, isTabSelected],
   );
 
   const style = React.useMemo(() => {
@@ -150,6 +120,5 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     activeTabPosition,
     orientation,
     direction,
-    movementDirection,
   };
 }

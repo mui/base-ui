@@ -13,6 +13,8 @@ import { useList, ListState, UseListParameters } from '../useList';
 import { tabsListReducer } from './tabsListReducer';
 import { useForkRef } from '../utils/useForkRef';
 import { mergeReactProps } from '../utils/mergeReactProps';
+import { TabsOrientation } from '../Tabs/Tabs.types';
+import { TabActivationDirection } from '../useTabs/useTabs.types';
 
 /**
  *
@@ -69,6 +71,14 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
   }
 
+  const tabsListRef = React.useRef<HTMLElement | null>(null);
+  const detectActivationDirection = useActivationDirectionDetector(
+    value,
+    orientation,
+    tabsListRef,
+    getTabElement,
+  );
+
   const handleChange = React.useCallback(
     (
       event:
@@ -78,9 +88,11 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
         | null,
       newValue: any[],
     ) => {
-      onSelected(event, newValue[0] ?? null);
+      const newSelectedValue = newValue[0] ?? null;
+      const activationDirection = detectActivationDirection(newSelectedValue);
+      onSelected(event, newValue[0] ?? null, activationDirection);
     },
-    [onSelected],
+    [onSelected, detectActivationDirection],
   );
 
   const controlledProps = React.useMemo(() => {
@@ -128,7 +140,6 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     }
   }, [dispatch, value]);
 
-  const tabsListRef = React.useRef<HTMLElement | null>(null);
   const handleRef = useForkRef(mergedRootRef, tabsListRef);
 
   const getRootProps = (
@@ -176,6 +187,65 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     rootRef: handleRef,
     selectedValue: selectedValues[0] ?? null,
   };
+}
+
+function useActivationDirectionDetector(
+  value: any,
+  orientation: TabsOrientation,
+  tabsListRef: React.RefObject<HTMLElement>,
+  getTabElement: (tabValue: any) => HTMLElement | null,
+): (newValue: any) => TabActivationDirection {
+  const previousTabEdge = React.useRef(0);
+
+  React.useEffect(() => {
+    // Whenever orientation changes, reset the state.
+    previousTabEdge.current = 0;
+  }, [orientation]);
+
+  return React.useCallback(
+    (newValue: any) => {
+      if (newValue === value) {
+        return 'none';
+      }
+
+      if (newValue == null) {
+        previousTabEdge.current = 0;
+        return 'none';
+      }
+
+      if (newValue != null && tabsListRef.current != null) {
+        const selectedTabElement = getTabElement(newValue);
+
+        if (selectedTabElement != null) {
+          const { left: tabLeft, top: tabTop } = selectedTabElement.getBoundingClientRect();
+          const { left: listLeft, top: listTop } = tabsListRef.current.getBoundingClientRect();
+
+          const left = tabLeft - listLeft;
+          const top = tabTop - listTop;
+
+          if (orientation === 'horizontal') {
+            if (left < previousTabEdge.current) {
+              previousTabEdge.current = left;
+              return 'left';
+            }
+            if (left > previousTabEdge.current) {
+              previousTabEdge.current = left;
+              return 'right';
+            }
+          } else if (top < previousTabEdge.current) {
+            previousTabEdge.current = top;
+            return 'up';
+          } else if (top > previousTabEdge.current) {
+            previousTabEdge.current = top;
+            return 'down';
+          }
+        }
+      }
+
+      return 'none';
+    },
+    [getTabElement, orientation, previousTabEdge, tabsListRef, value],
+  );
 }
 
 export { useTabsList };

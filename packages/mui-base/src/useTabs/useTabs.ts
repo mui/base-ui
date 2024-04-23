@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useControlled as useControlled } from '@mui/utils';
-import { UseTabsParameters, UseTabsReturnValue } from './useTabs.types';
+import { TabActivationDirection, UseTabsParameters, UseTabsReturnValue } from './useTabs.types';
 import { useCompoundParent } from '../useCompound';
 import { TabPanelMetadata } from './TabsProvider';
 import { mergeReactProps } from '../utils/mergeReactProps';
@@ -40,9 +40,17 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
     state: 'value',
   });
 
+  const [tabActivationDirection, setTabActivationDirection] =
+    React.useState<TabActivationDirection>('none');
+
   const onSelected = React.useCallback(
-    (event: React.SyntheticEvent | null, newValue: any | null) => {
+    (
+      event: React.SyntheticEvent | null,
+      newValue: any | null,
+      activationDirection: TabActivationDirection,
+    ) => {
       setValue(newValue);
+      setTabActivationDirection(activationDirection);
       onChange?.(event, newValue);
     },
     [onChange, setValue],
@@ -90,6 +98,7 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
       ...compoundComponentContextValue,
     },
     getRootProps,
+    tabActivationDirection,
   };
 }
 

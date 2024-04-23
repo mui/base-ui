@@ -37,18 +37,19 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 
   const render = renderProp ?? defaultRenderFunctions.div;
 
-  const ownerState: TabsRootOwnerState = {
-    orientation,
-    direction,
-  };
-
-  const { contextValue, getRootProps } = useTabs({
+  const { contextValue, getRootProps, tabActivationDirection } = useTabs({
     value,
     defaultValue,
     onChange,
     orientation,
     direction,
   });
+
+  const ownerState: TabsRootOwnerState = {
+    orientation,
+    direction,
+    tabActivationDirection,
+  };
 
   const className = resolveClassName(classNameProp, ownerState);
   const styleHooks = useTabsStyleHooks(ownerState);

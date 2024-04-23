@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { TabsProviderValue } from './TabsProvider';
 
+export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
+
 export interface UseTabsParameters {
   /**
    * The value of the currently selected `Tab`.
@@ -35,4 +37,5 @@ export interface UseTabsReturnValue {
   getRootProps: (
     externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
+  tabActivationDirection: TabActivationDirection;
 }

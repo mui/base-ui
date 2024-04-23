@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../utils/BaseUI.types';
+import { TabActivationDirection } from '../useTabs';
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 
@@ -8,6 +9,7 @@ export type TabsDirection = 'ltr' | 'rtl';
 export type TabsRootOwnerState = {
   orientation: TabsOrientation;
   direction: TabsDirection;
+  tabActivationDirection: TabActivationDirection;
 };
 
 export interface TabsRootProps

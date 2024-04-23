@@ -9,6 +9,9 @@ export function useTabsStyleHooks(ownerState: TabsRootOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       direction: () => null,
+      tabActivationDirection: (direction) => ({
+        'data-activation-direction': direction,
+      }),
     });
   }, [ownerState]);
 }
