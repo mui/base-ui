@@ -23,7 +23,7 @@
     "docs:icons": "pnpm --filter docs icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
     "docs:start": "pnpm --filter docs serve",
-    "docs:i18n": "cross-env BABEL_ENV=development babel-node --extensions \".tsx,.ts,.js\" ./docs/scripts/i18n.js",
+    "docs:i18n": "tsx ./docs/scripts/i18n.js",
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:typescript": "pnpm docs:typescript:formatted --watch",
     "docs:typescript:check": "pnpm --filter docs typescript",
@@ -59,12 +59,6 @@
     "typescript": "tsc -b tsconfig.typecheck.json",
     "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts"
   },
-  "dependencies": {
-    "@googleapis/sheets": "^5.0.5",
-    "@slack/bolt": "^3.17.1",
-    "execa": "^8.0.1",
-    "google-auth-library": "^9.8.0"
-  },
   "devDependencies": {
     "@argos-ci/core": "^2.1.0",
     "@babel/cli": "^7.24.1",
@@ -82,9 +76,9 @@
     "@babel/preset-typescript": "^7.24.1",
     "@babel/register": "^7.23.7",
     "@mnajdova/enzyme-adapter-react-18": "^0.2.0",
-    "@mui/internal-docs-utils": "^1.0.4",
-    "@mui/internal-markdown": "^1.0.1",
-    "@mui/internal-scripts": "^1.0.3",
+    "@mui/internal-docs-utils": "^1.0.6",
+    "@mui/internal-markdown": "^1.0.3",
+    "@mui/internal-scripts": "^1.0.6",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@mui/material": "5.15.15",
     "@mui/monorepo": "github:mui/material-ui#09630ee4f9fcbe7a9765d586355b7c54dbe7ad85",
@@ -131,6 +125,7 @@
     "eslint-plugin-mocha": "^10.4.3",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
     "globby": "^14.0.1",

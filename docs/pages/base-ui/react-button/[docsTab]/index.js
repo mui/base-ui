@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/button/button.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/button/button.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import ButtonApiJsonPageContent from '../../api/button.json';
 import useButtonApiJsonPageContent from '../../api/use-button.json';
@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const ButtonApiReq = require.context(
-    'docs/translations/api-docs-base/button',
+    'docs-base/translations/api-docs/button',
     false,
-    /button.*.json$/,
+    /\.\/button.*.json$/,
   );
   const ButtonApiDescriptions = mapApiPageTranslations(ButtonApiReq);
 
   const useButtonApiReq = require.context(
-    'docs/translations/api-docs/use-button',
+    'docs-base/translations/api-docs/use-button',
     false,
-    /use-button.*.json$/,
+    /\.\/use-button.*.json$/,
   );
   const useButtonApiDescriptions = mapApiPageTranslations(useButtonApiReq);
 

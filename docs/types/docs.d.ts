@@ -25,3 +25,8 @@ declare module 'docs/src/modules/components/HighlightedCode' {
   }
   export default function HighlightedCode(props: Props): React.ReactElement;
 }
+
+declare module 'docs/*';
+
+declare module '@mui/monorepo/docs/src/modules/utils/find.mjs';
+declare module '@mui/monorepo/docs/nextConfigDocsInfra.js';

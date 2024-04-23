@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/select/select.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/select/select.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import OptionApiJsonPageContent from '../../api/option.json';
 import OptionGroupApiJsonPageContent from '../../api/option-group.json';
@@ -28,46 +28,46 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const OptionApiReq = require.context(
-    'docs/translations/api-docs-base/option',
+    'docs-base/translations/api-docs/option',
     false,
-    /option.*.json$/,
+    /\.\/option.*.json$/,
   );
   const OptionApiDescriptions = mapApiPageTranslations(OptionApiReq);
 
   const OptionGroupApiReq = require.context(
-    'docs/translations/api-docs-base/option-group',
+    'docs-base/translations/api-docs/option-group',
     false,
-    /option-group.*.json$/,
+    /\.\/option-group.*.json$/,
   );
   const OptionGroupApiDescriptions = mapApiPageTranslations(OptionGroupApiReq);
 
   const SelectApiReq = require.context(
-    'docs/translations/api-docs-base/select',
+    'docs-base/translations/api-docs/select',
     false,
-    /select.*.json$/,
+    /\.\/select.*.json$/,
   );
   const SelectApiDescriptions = mapApiPageTranslations(SelectApiReq);
 
   const useOptionApiReq = require.context(
-    'docs/translations/api-docs/use-option',
+    'docs-base/translations/api-docs/use-option',
     false,
-    /use-option.*.json$/,
+    /\.\/use-option.*.json$/,
   );
   const useOptionApiDescriptions = mapApiPageTranslations(useOptionApiReq);
 
   const useOptionContextStabilizerApiReq = require.context(
-    'docs/translations/api-docs/use-option-context-stabilizer',
+    'docs-base/translations/api-docs/use-option-context-stabilizer',
     false,
-    /use-option-context-stabilizer.*.json$/,
+    /\.\/use-option-context-stabilizer.*.json$/,
   );
   const useOptionContextStabilizerApiDescriptions = mapApiPageTranslations(
     useOptionContextStabilizerApiReq,
   );
 
   const useSelectApiReq = require.context(
-    'docs/translations/api-docs/use-select',
+    'docs-base/translations/api-docs/use-select',
     false,
-    /use-select.*.json$/,
+    /\.\/use-select.*.json$/,
   );
   const useSelectApiDescriptions = mapApiPageTranslations(useSelectApiReq);
 
