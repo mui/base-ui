@@ -30,10 +30,6 @@ function loadPkg(pkgPath) {
 const pkg = loadPkg('.');
 
 export default withDocsInfra({
-  experimental: {
-    workerThreads: true,
-    cpus: 3,
-  },
   // Avoid conflicts with the other Next.js apps hosted under https://mui.com/
   assetPrefix: process.env.DEPLOY_ENV === 'development' ? undefined : '/base-ui/',
   env: {
