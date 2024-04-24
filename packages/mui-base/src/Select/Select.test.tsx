@@ -18,10 +18,6 @@ import { Option, OptionProps, OptionRootSlotProps, optionClasses } from '@base_u
 import { OptionGroup } from '@base_ui/react/OptionGroup';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
-// TODO v6: initialize @testing-library/user-event using userEvent.setup() instead of directly calling methods e.g. userEvent.click() for all related tests in this file
-// currently the setup() method uses the ClipboardEvent constructor which is incompatible with our lowest supported version of iOS Safari (12.2) https://github.com/mui/material-ui/blob/master/.browserslistrc#L44
-// userEvent.setup() requires Safari 14 or up to work
-
 describe('<Select />', () => {
   const mount = createMount();
   const { render: internalRender } = createRenderer();
@@ -121,7 +117,9 @@ describe('<Select />', () => {
             select.focus();
           });
 
-          await userEvent.keyboard(`{${key}}`);
+          const user = userEvent.setup();
+
+          await user.keyboard(`{${key}}`);
 
           expect(select).to.have.attribute('aria-expanded', 'true');
           expect(getByRole('listbox')).not.to.equal(null);
@@ -142,7 +140,10 @@ describe('<Select />', () => {
         });
 
         const listbox = getByRole('listbox');
-        await userEvent.keyboard(`{${key}}`);
+
+        const user = userEvent.setup();
+
+        await user.keyboard(`{${key}}`);
 
         expect(select).to.have.attribute('aria-expanded', 'false');
         expect(listbox).toBeHidden();
@@ -161,7 +162,9 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard(`{${key}}`);
+        const user = userEvent.setup();
+
+        await user.keyboard(`{${key}}`);
 
         expect(select).to.have.attribute('aria-expanded', 'true');
         expect(queryByRole('listbox')).not.to.equal(null);
@@ -180,9 +183,11 @@ describe('<Select />', () => {
 
           const select = getByRole('combobox');
 
-          await userEvent.pointer({ target: select, keys: '[MouseLeft]' });
-          await userEvent.keyboard('{ArrowDown}');
-          await userEvent.keyboard(`{${key}}`);
+          const user = userEvent.setup();
+
+          await user.pointer({ target: select, keys: '[MouseLeft]' });
+          await user.keyboard('{ArrowDown}');
+          await user.keyboard(`{${key}}`);
 
           expect(select).to.have.text('2');
         }),
@@ -199,10 +204,12 @@ describe('<Select />', () => {
 
           const select = getByRole('combobox');
 
-          await userEvent.pointer({ target: select, keys: '[MouseLeft]' });
-          await userEvent.keyboard(`{${key}}`);
-          await userEvent.keyboard('{ArrowDown}');
-          await userEvent.keyboard(`{${key}}`);
+          const user = userEvent.setup();
+
+          await user.pointer({ target: select, keys: '[MouseLeft]' });
+          await user.keyboard(`{${key}}`);
+          await user.keyboard('{ArrowDown}');
+          await user.keyboard(`{${key}}`);
 
           expect(select).to.have.text('1, 2');
         }),
@@ -227,11 +234,13 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard('d');
+        const user = userEvent.setup();
+
+        await user.keyboard('d');
         expect(getByText('Dragon Fruit')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('r');
+        await user.keyboard('r');
         expect(getByText('Dragon Fruit')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('z');
+        await user.keyboard('z');
         expect(getByText('Dragon Fruit')).to.have.class(optionClasses.highlighted);
       });
 
@@ -252,11 +261,13 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard('c');
+        const user = userEvent.setup();
+
+        await user.keyboard('c');
         expect(getByText('Cherry')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('c');
+        await user.keyboard('c');
         expect(getByText('Calamondin')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('c');
+        await user.keyboard('c');
         expect(getByText('Cherry')).to.have.class(optionClasses.highlighted);
       });
 
@@ -291,11 +302,13 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard('d');
+        const user = userEvent.setup();
+
+        await user.keyboard('d');
         expect(getByTestId('5')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('r');
+        await user.keyboard('r');
         expect(getByTestId('5')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('z');
+        await user.keyboard('z');
         expect(getByTestId('5')).to.have.class(optionClasses.highlighted);
       });
 
@@ -319,11 +332,13 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard('c');
+        const user = userEvent.setup();
+
+        await user.keyboard('c');
         expect(getByText('Cherry')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('c');
+        await user.keyboard('c');
         expect(getByText('Calamondin')).to.have.class(optionClasses.highlighted);
-        await userEvent.keyboard('c');
+        await user.keyboard('c');
         expect(getByText('Cherry')).to.have.class(optionClasses.highlighted);
       });
 
@@ -343,10 +358,12 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard('b');
+        const user = userEvent.setup();
+
+        await user.keyboard('b');
         expect(getByText('Ba')).to.have.class(optionClasses.highlighted);
 
-        await userEvent.keyboard('{Control>}{Alt>}ą{/Alt}{/Control}');
+        await user.keyboard('{Control>}{Alt>}ą{/Alt}{/Control}');
         expect(getByText('Bą')).to.have.class(optionClasses.highlighted);
       });
 
@@ -365,13 +382,15 @@ describe('<Select />', () => {
           select.click();
         });
 
-        await userEvent.keyboard('{Control>}{Alt>}ą{/Alt}{/Control}');
+        const user = userEvent.setup();
+
+        await user.keyboard('{Control>}{Alt>}ą{/Alt}{/Control}');
         expect(getByText('ąa')).to.have.class(optionClasses.highlighted);
 
-        await userEvent.keyboard('{Alt>}{Control>}ą{/Control}{/Alt}');
+        await user.keyboard('{Alt>}{Control>}ą{/Control}{/Alt}');
         expect(getByText('ąb')).to.have.class(optionClasses.highlighted);
 
-        await userEvent.keyboard('{Control>}{AltGraph>}ą{/AltGraph}{/Control}');
+        await user.keyboard('{Control>}{AltGraph>}ą{/AltGraph}{/Control}');
         expect(getByText('ąc')).to.have.class(optionClasses.highlighted);
       });
     });
@@ -390,8 +409,10 @@ describe('<Select />', () => {
         select.click();
       });
 
-      await userEvent.keyboard('{ArrowDown}'); // highlights '2'
-      await userEvent.keyboard('{Escape}');
+      const user = userEvent.setup();
+
+      await user.keyboard('{ArrowDown}'); // highlights '2'
+      await user.keyboard('{Escape}');
 
       expect(select).to.have.attribute('aria-expanded', 'false');
       expect(select).to.have.text('1');
@@ -408,9 +429,11 @@ describe('<Select />', () => {
 
       const select = getByRole('combobox');
 
-      await userEvent.pointer({ target: select, keys: '[MouseLeft]' });
-      await userEvent.keyboard('{ArrowDown}'); // highlights '2'
-      await userEvent.keyboard('{Enter}');
+      const user = userEvent.setup();
+
+      await user.pointer({ target: select, keys: '[MouseLeft]' });
+      await user.keyboard('{ArrowDown}'); // highlights '2'
+      await user.keyboard('{Enter}');
 
       expect(select).to.have.attribute('aria-expanded', 'false');
       expect(select).to.have.text('2');
@@ -455,23 +478,25 @@ describe('<Select />', () => {
         select.focus();
       });
 
-      await userEvent.keyboard('{ArrowDown}'); // opens the listbox and highlights 1
+      const user = userEvent.setup();
+
+      await user.keyboard('{ArrowDown}'); // opens the listbox and highlights 1
 
       const listbox = getByRole('listbox');
 
-      await userEvent.keyboard('{ArrowDown}'); // highlights 2
+      await user.keyboard('{ArrowDown}'); // highlights 2
       expect(listbox.scrollTop).to.equal(0);
 
-      await userEvent.keyboard('{ArrowDown}'); // highlights 3
+      await user.keyboard('{ArrowDown}'); // highlights 3
       expect(listbox.scrollTop).to.equal(50);
 
-      await userEvent.keyboard('{ArrowDown}'); // highlights 4
+      await user.keyboard('{ArrowDown}'); // highlights 4
       expect(listbox.scrollTop).to.equal(100);
 
-      await userEvent.keyboard('{ArrowUp}'); // highlights 3
+      await user.keyboard('{ArrowUp}'); // highlights 3
       expect(listbox.scrollTop).to.equal(100);
 
-      await userEvent.keyboard('{ArrowUp}'); // highlights 2
+      await user.keyboard('{ArrowUp}'); // highlights 2
       expect(listbox.scrollTop).to.equal(50);
     });
   });
@@ -1082,11 +1107,13 @@ describe('<Select />', () => {
 
       const select = getByRole('combobox');
 
-      await userEvent.pointer({ keys: '[MouseLeft]', target: select });
+      const user = userEvent.setup();
+
+      await user.pointer({ keys: '[MouseLeft]', target: select });
 
       expect(select).to.have.attribute('aria-expanded', 'true');
 
-      await userEvent.pointer({ keys: '[MouseLeft]', target: select });
+      await user.pointer({ keys: '[MouseLeft]', target: select });
 
       expect(select).to.have.attribute('aria-expanded', 'false');
     });
@@ -1111,7 +1138,10 @@ describe('<Select />', () => {
       });
 
       const listbox = getByRole('listbox');
-      await userEvent.keyboard('{ArrowDown}'); // highlights '2'
+
+      const user = userEvent.setup();
+
+      await user.keyboard('{ArrowDown}'); // highlights '2'
 
       const focusTarget = getByTestId('focus-target');
       act(() => {
@@ -1331,11 +1361,13 @@ describe('<Select />', () => {
     // React renders twice in strict mode, so we expect twice the number of spy calls
     expect(renderOption1Spy.callCount).to.equal(2); // '1' as focusVisible becomes true
 
-    await userEvent.keyboard('{ArrowDown}'); // highlights '2'
+    const user = userEvent.setup();
+
+    await user.keyboard('{ArrowDown}'); // highlights '2'
     expect(renderOption1Spy.callCount).to.equal(6); // '1' rerenders as it loses highlight
     expect(renderOption2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
 
-    await userEvent.keyboard('{Enter}'); // selects '2'
+    await user.keyboard('{Enter}'); // selects '2'
     expect(renderOption1Spy.callCount).to.equal(6);
     expect(renderOption2Spy.callCount).to.equal(8);
 
