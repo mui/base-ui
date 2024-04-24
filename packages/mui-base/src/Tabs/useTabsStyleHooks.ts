@@ -10,7 +10,7 @@ export function useTabsStyleHooks(ownerState: TabsRootOwnerState) {
     return getStyleHookProps(ownerState, {
       direction: () => null,
       tabActivationDirection: (direction) => ({
-        'data-activation-direction': direction,
+        'data-activation-direction': direction as string,
       }),
     });
   }, [ownerState]);

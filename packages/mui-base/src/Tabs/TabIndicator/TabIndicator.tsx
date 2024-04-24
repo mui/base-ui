@@ -32,12 +32,14 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
       getRootProps,
       orientation,
       activeTabPosition: selectedTabPosition,
+      tabActivationDirection,
     } = useTabIndicator();
 
     const ownerState = {
       selectedTabPosition,
       orientation,
       direction,
+      tabActivationDirection,
     };
 
     const className = resolveClassName(classNameProp, ownerState);

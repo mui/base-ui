@@ -761,4 +761,66 @@ describe('<Tabs.Root />', () => {
       ]);
     });
   });
+
+  describe('activation direction', () => {
+    before(function suite() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+    });
+
+    it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', () => {
+      const { getAllByRole, getByTestId } = render(
+        <Tabs.Root data-testid="root">
+          <Tabs.List>
+            <Tabs.Tab />
+            <Tabs.Tab />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const root = getByTestId('root');
+      const tabs = getAllByRole('tab');
+
+      expect(root).to.have.attribute('data-activation-direction', 'none');
+      act(() => {
+        tabs[1].click();
+      });
+
+      expect(root).to.have.attribute('data-activation-direction', 'right');
+
+      act(() => {
+        tabs[0].click();
+      });
+
+      expect(root).to.have.attribute('data-activation-direction', 'left');
+    });
+
+    it('should set the `data-activation-direction` attribute on the tabs root with orientation=vertical', () => {
+      const { getAllByRole, getByTestId } = render(
+        <Tabs.Root data-testid="root" orientation="vertical">
+          <Tabs.List>
+            <Tabs.Tab style={{ display: 'block' }} />
+            <Tabs.Tab style={{ display: 'block' }} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const root = getByTestId('root');
+      const tabs = getAllByRole('tab');
+
+      expect(root).to.have.attribute('data-activation-direction', 'none');
+      act(() => {
+        tabs[1].click();
+      });
+
+      expect(root).to.have.attribute('data-activation-direction', 'down');
+
+      act(() => {
+        tabs[0].click();
+      });
+
+      expect(root).to.have.attribute('data-activation-direction', 'up');
+    });
+  });
 });

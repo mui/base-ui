@@ -140,12 +140,10 @@ describe('<Tabs.Indicator />', () => {
       const tabList = getByRole('tablist');
 
       assertBubblePositionVariables(bubble, tabList, activeTab);
-      expect(bubble.getAttribute('data-movement-direction')).to.equal('next');
 
       setProps({ value: 1 });
       activeTab = tabs[0];
       assertBubblePositionVariables(bubble, tabList, activeTab);
-      expect(bubble.getAttribute('data-movement-direction')).to.equal('previous');
     });
 
     it('should update the position variables when the tab list is resized', async () => {

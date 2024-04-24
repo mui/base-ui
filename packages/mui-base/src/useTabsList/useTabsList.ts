@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import { useTabsContext } from '../useTabs/TabsContext';
 import {
   TabsListActionTypes,
@@ -189,17 +190,27 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   };
 }
 
+function getInset(tab: HTMLElement, tabsList: HTMLElement) {
+  const { left: tabLeft, top: tabTop } = tab.getBoundingClientRect();
+  const { left: listLeft, top: listTop } = tabsList.getBoundingClientRect();
+
+  const left = tabLeft - listLeft;
+  const top = tabTop - listTop;
+
+  return { left, top };
+}
+
 function useActivationDirectionDetector(
   value: any,
   orientation: TabsOrientation,
   tabsListRef: React.RefObject<HTMLElement>,
   getTabElement: (tabValue: any) => HTMLElement | null,
 ): (newValue: any) => TabActivationDirection {
-  const previousTabEdge = React.useRef(0);
+  const previousTabEdge = React.useRef<number | null>(null);
 
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     // Whenever orientation changes, reset the state.
-    previousTabEdge.current = 0;
+    previousTabEdge.current = null;
   }, [orientation]);
 
   return React.useCallback(
@@ -209,7 +220,7 @@ function useActivationDirectionDetector(
       }
 
       if (newValue == null) {
-        previousTabEdge.current = 0;
+        previousTabEdge.current = null;
         return 'none';
       }
 
@@ -217,11 +228,12 @@ function useActivationDirectionDetector(
         const selectedTabElement = getTabElement(newValue);
 
         if (selectedTabElement != null) {
-          const { left: tabLeft, top: tabTop } = selectedTabElement.getBoundingClientRect();
-          const { left: listLeft, top: listTop } = tabsListRef.current.getBoundingClientRect();
+          const { left, top } = getInset(selectedTabElement, tabsListRef.current);
 
-          const left = tabLeft - listLeft;
-          const top = tabTop - listTop;
+          if (previousTabEdge.current == null) {
+            previousTabEdge.current = orientation === 'horizontal' ? left : top;
+            return 'none';
+          }
 
           if (orientation === 'horizontal') {
             if (left < previousTabEdge.current) {

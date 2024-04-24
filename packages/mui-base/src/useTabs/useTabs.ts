@@ -95,6 +95,7 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
       orientation,
       registerTabIdLookup,
       value,
+      tabActivationDirection,
       ...compoundComponentContextValue,
     },
     getRootProps,

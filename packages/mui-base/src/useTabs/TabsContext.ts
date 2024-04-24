@@ -36,6 +36,10 @@ export interface TabsContextValue {
    * @param value Value to find the tab panel for.
    */
   getTabPanelId: (value: number | string) => string | undefined;
+  /**
+   * The position of the active tab relative to the previously active tab.
+   */
+  tabActivationDirection: TabActivationDirection;
 }
 
 /**

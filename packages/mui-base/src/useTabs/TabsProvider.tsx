@@ -34,6 +34,7 @@ export function TabsProvider(props: TabsProviderProps) {
     value,
     getTabId,
     getTabPanelId,
+    tabActivationDirection,
   } = valueProp;
 
   const compoundComponentContextValue: CompoundComponentContextValue<any, TabPanelMetadata> =
@@ -55,8 +56,18 @@ export function TabsProvider(props: TabsProviderProps) {
       orientation,
       registerTabIdLookup,
       value,
+      tabActivationDirection,
     }),
-    [direction, getTabId, getTabPanelId, onSelected, orientation, registerTabIdLookup, value],
+    [
+      direction,
+      getTabId,
+      getTabPanelId,
+      onSelected,
+      orientation,
+      registerTabIdLookup,
+      value,
+      tabActivationDirection,
+    ],
   );
 
   return (

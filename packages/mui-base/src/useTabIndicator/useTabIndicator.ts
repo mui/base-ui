@@ -21,7 +21,7 @@ function round(value: number) {
  */
 export function useTabIndicator(): UseTabIndicatorReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
-  const { orientation, direction, value } = useTabsContext();
+  const { orientation, direction, value, tabActivationDirection } = useTabsContext();
   const [, forceUpdate] = React.useState({});
 
   React.useEffect(() => {
@@ -120,5 +120,6 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     activeTabPosition,
     orientation,
     direction,
+    tabActivationDirection,
   };
 }

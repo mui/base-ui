@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
+import { TabActivationDirection } from '../useTabs';
 
 export interface ActiveTabPosition {
   left: number;
@@ -15,4 +16,5 @@ export type UseTabIndicatorReturnValue = {
   activeTabPosition: ActiveTabPosition | null;
   direction: TabsDirection;
   orientation: TabsOrientation;
+  tabActivationDirection: TabActivationDirection;
 };
