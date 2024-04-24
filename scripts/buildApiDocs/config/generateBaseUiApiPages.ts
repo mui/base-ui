@@ -27,7 +27,7 @@ export async function generateBaseUIApiPages() {
 
         const tokens = markdown.pathname.split('/');
         const name = tokens[tokens.length - 1];
-        const importStatement = `docs/data${markdown.pathname}/${name}.md`;
+        const importStatement = `docs-base/data${markdown.pathname}/${name}.md`;
         const demosSource = `
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
@@ -71,9 +71,9 @@ Page.getLayout = (page) => {
             apiTabImportStatements += `import ${component}ApiJsonPageContent from '../../api/${componentNameKebabCase}.json';`;
             staticProps += `
           const ${component}ApiReq = require.context(
-            'docs/translations/api-docs-base/${componentNameKebabCase}',
+            'docs-base/translations/api-docs/${componentNameKebabCase}',
             false,
-            /${componentNameKebabCase}.*.json$/,
+            /\\.\\/${componentNameKebabCase}.*.json$/,
           );
           const ${component}ApiDescriptions = mapApiPageTranslations(${component}ApiReq);
           `;
@@ -88,9 +88,9 @@ Page.getLayout = (page) => {
             apiTabImportStatements += `import ${hook}ApiJsonPageContent from '../../api/${hookNameKebabCase}.json';`;
             staticProps += `
           const ${hook}ApiReq = require.context(
-            'docs/translations/api-docs/${hookNameKebabCase}',
+            'docs-base/translations/api-docs/${hookNameKebabCase}',
             false,
-            /${hookNameKebabCase}.*.json$/,
+            /\\.\\/${hookNameKebabCase}.*.json$/,
           );
           const ${hook}ApiDescriptions = mapApiPageTranslations(${hook}ApiReq);
           `;

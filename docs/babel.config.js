@@ -3,6 +3,11 @@ const fse = require('fs-extra');
 
 const errorCodesPath = path.resolve(__dirname, './public/static/error-codes.json');
 
+const alias = {
+  docs: '../node_modules/@mui/monorepo/docs',
+  'docs-base': './',
+};
+
 const { version: transformRuntimeVersion } = fse.readJSONSync(
   require.resolve('@babel/runtime-corejs2/package.json'),
 );
@@ -29,6 +34,13 @@ module.exports = {
         muiError: {
           errorCodesPath,
         },
+      },
+    ],
+    [
+      'babel-plugin-module-resolver',
+      {
+        alias,
+        transformFunctions: ['require', 'require.context'],
       },
     ],
     'babel-plugin-optimize-clsx',

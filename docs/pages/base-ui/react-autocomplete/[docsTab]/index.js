@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/autocomplete/autocomplete.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/autocomplete/autocomplete.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import useAutocompleteApiJsonPageContent from '../../api/use-autocomplete.json';
 
@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const useAutocompleteApiReq = require.context(
-    'docs/translations/api-docs/use-autocomplete',
+    'docs-base/translations/api-docs/use-autocomplete',
     false,
-    /use-autocomplete.*.json$/,
+    /\.\/use-autocomplete.*.json$/,
   );
   const useAutocompleteApiDescriptions = mapApiPageTranslations(useAutocompleteApiReq);
 
