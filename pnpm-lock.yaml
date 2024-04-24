@@ -74,8 +74,8 @@ importers:
         specifier: 5.15.15
         version: 5.15.15(@emotion/react@11.11.4(@types/react@18.2.79)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.79)(react@18.2.0))(@types/react@18.2.79)(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#29de9d8da3011eedbb94cb0e4d066c685f1c63b8
-        version: https://codeload.github.com/michaldudak/material-ui/tar.gz/29de9d8da3011eedbb94cb0e4d066c685f1c63b8(encoding@0.1.13)
+        specifier: github:mui/material-ui#v6.0.0-alpha.4
+        version: https://codeload.github.com/mui/material-ui/tar.gz/bfece5004b23204ca1b8ef6627b51e238ae968e5(encoding@0.1.13)
       '@mui/utils':
         specifier: 5.15.14
         version: 5.15.14(@types/react@18.2.79)(react@18.2.0)
@@ -2147,9 +2147,9 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/monorepo@https://codeload.github.com/michaldudak/material-ui/tar.gz/29de9d8da3011eedbb94cb0e4d066c685f1c63b8':
-    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/29de9d8da3011eedbb94cb0e4d066c685f1c63b8}
-    version: 6.0.0-alpha.3
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/bfece5004b23204ca1b8ef6627b51e238ae968e5':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/bfece5004b23204ca1b8ef6627b51e238ae968e5}
+    version: 6.0.0-alpha.4
 
   '@mui/private-theming@5.15.14':
     resolution: {integrity: sha512-UH0EiZckOWcxiXLX3Jbb0K7rC8mxTr9L9l6QhOZxYc4r8FHUkefltV9VDGLrzCaWh30SQiJvAEd7djX3XXY6Xw==}
@@ -10277,7 +10277,7 @@ snapshots:
       '@emotion/styled': 11.11.5(@emotion/react@11.11.4(@types/react@18.2.79)(react@18.2.0))(@types/react@18.2.79)(react@18.2.0)
       '@types/react': 18.2.79
 
-  '@mui/monorepo@https://codeload.github.com/michaldudak/material-ui/tar.gz/29de9d8da3011eedbb94cb0e4d066c685f1c63b8(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/bfece5004b23204ca1b8ef6627b51e238ae968e5(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 5.0.5(encoding@0.1.13)
       '@netlify/functions': 2.6.0

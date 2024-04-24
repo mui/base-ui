@@ -40,7 +40,7 @@ export const projectSettings: ProjectSettings = {
   skipAnnotatingComponentDefinition: true,
   skipSlotsAndClasses: true,
   generateJsonFileOnly: true,
-  translationPagesDirectory: 'docs/translations/api-docs-base',
+  translationPagesDirectory: 'docs/translations/api-docs',
   generateClassName: () => '',
   isGlobalClassName: () => false,
 };
