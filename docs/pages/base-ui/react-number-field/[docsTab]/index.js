@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/number-field/number-field.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/number-field/number-field.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import NumberFieldDecrementApiJsonPageContent from '../../api/number-field-decrement.json';
 import NumberFieldGroupApiJsonPageContent from '../../api/number-field-group.json';
@@ -30,60 +30,60 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const NumberFieldDecrementApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-decrement',
+    'docs-base/translations/api-docs/number-field-decrement',
     false,
-    /number-field-decrement.*.json$/,
+    /\.\/number-field-decrement.*.json$/,
   );
   const NumberFieldDecrementApiDescriptions = mapApiPageTranslations(NumberFieldDecrementApiReq);
 
   const NumberFieldGroupApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-group',
+    'docs-base/translations/api-docs/number-field-group',
     false,
-    /number-field-group.*.json$/,
+    /\.\/number-field-group.*.json$/,
   );
   const NumberFieldGroupApiDescriptions = mapApiPageTranslations(NumberFieldGroupApiReq);
 
   const NumberFieldIncrementApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-increment',
+    'docs-base/translations/api-docs/number-field-increment',
     false,
-    /number-field-increment.*.json$/,
+    /\.\/number-field-increment.*.json$/,
   );
   const NumberFieldIncrementApiDescriptions = mapApiPageTranslations(NumberFieldIncrementApiReq);
 
   const NumberFieldInputApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-input',
+    'docs-base/translations/api-docs/number-field-input',
     false,
-    /number-field-input.*.json$/,
+    /\.\/number-field-input.*.json$/,
   );
   const NumberFieldInputApiDescriptions = mapApiPageTranslations(NumberFieldInputApiReq);
 
   const NumberFieldRootApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-root',
+    'docs-base/translations/api-docs/number-field-root',
     false,
-    /number-field-root.*.json$/,
+    /\.\/number-field-root.*.json$/,
   );
   const NumberFieldRootApiDescriptions = mapApiPageTranslations(NumberFieldRootApiReq);
 
   const NumberFieldScrubAreaApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-scrub-area',
+    'docs-base/translations/api-docs/number-field-scrub-area',
     false,
-    /number-field-scrub-area.*.json$/,
+    /\.\/number-field-scrub-area.*.json$/,
   );
   const NumberFieldScrubAreaApiDescriptions = mapApiPageTranslations(NumberFieldScrubAreaApiReq);
 
   const NumberFieldScrubAreaCursorApiReq = require.context(
-    'docs/translations/api-docs-base/number-field-scrub-area-cursor',
+    'docs-base/translations/api-docs/number-field-scrub-area-cursor',
     false,
-    /number-field-scrub-area-cursor.*.json$/,
+    /\.\/number-field-scrub-area-cursor.*.json$/,
   );
   const NumberFieldScrubAreaCursorApiDescriptions = mapApiPageTranslations(
     NumberFieldScrubAreaCursorApiReq,
   );
 
   const useNumberFieldApiReq = require.context(
-    'docs/translations/api-docs/use-number-field',
+    'docs-base/translations/api-docs/use-number-field',
     false,
-    /use-number-field.*.json$/,
+    /\.\/use-number-field.*.json$/,
   );
   const useNumberFieldApiDescriptions = mapApiPageTranslations(useNumberFieldApiReq);
 

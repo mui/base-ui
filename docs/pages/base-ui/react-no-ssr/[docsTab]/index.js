@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/no-ssr/no-ssr.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/no-ssr/no-ssr.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import NoSsrApiJsonPageContent from '../../api/no-ssr.json';
 
@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const NoSsrApiReq = require.context(
-    'docs/translations/api-docs-base/no-ssr',
+    'docs-base/translations/api-docs/no-ssr',
     false,
-    /no-ssr.*.json$/,
+    /\.\/no-ssr.*.json$/,
   );
   const NoSsrApiDescriptions = mapApiPageTranslations(NoSsrApiReq);
 
