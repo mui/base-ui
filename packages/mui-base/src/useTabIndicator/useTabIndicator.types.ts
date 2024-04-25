@@ -1,6 +1,5 @@
 import * as React from 'react';
-import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
-import { TabActivationDirection } from '../useTabs';
+import type { TabActivationDirection, TabsDirection, TabsOrientation } from '../useTabs';
 
 export interface ActiveTabPosition {
   left: number;

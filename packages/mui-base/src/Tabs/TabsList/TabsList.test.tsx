@@ -21,6 +21,7 @@ describe('<Tabs.List />', () => {
             getTabPanelId: () => '',
             orientation: 'horizontal',
             direction: 'ltr',
+            tabActivationDirection: 'none',
           }}
         >
           {node}

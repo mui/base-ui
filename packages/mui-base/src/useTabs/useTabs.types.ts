@@ -3,6 +3,10 @@ import { TabsProviderValue } from './TabsProvider';
 
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 
+export type TabsOrientation = 'horizontal' | 'vertical';
+
+export type TabsDirection = 'ltr' | 'rtl';
+
 export interface UseTabsParameters {
   /**
    * The value of the currently selected `Tab`.

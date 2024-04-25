@@ -18,6 +18,7 @@ describe('<Tabs.Panel />', () => {
     totalSubitemCount: 1,
     direction: 'ltr',
     orientation: 'horizontal',
+    tabActivationDirection: 'none',
   };
 
   describeConformance(<Tabs.Panel value="1" />, () => ({

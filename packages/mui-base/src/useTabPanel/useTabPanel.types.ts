@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
+import type { TabsDirection, TabsOrientation } from '../useTabs';
 
 export interface UseTabPanelParameters {
   /**

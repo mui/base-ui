@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import type { TabsListProviderValue } from './TabsListProvider';
 import type { ListAction } from '../useList';
-import type { TabsDirection, TabsOrientation } from '../Tabs/Tabs.types';
+import type { TabsDirection, TabsOrientation } from '../useTabs';
 
 export interface UseTabsListParameters {
   /**

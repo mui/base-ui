@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import { useTabsContext } from '../useTabs/TabsContext';
 import {
   TabsListActionTypes,
@@ -8,14 +7,13 @@ import {
   type UseTabsListReturnValue,
   type ValueChangeAction,
 } from './useTabsList.types';
+import type { TabMetadata, TabsOrientation, TabActivationDirection } from '../useTabs';
 import { useCompoundParent } from '../useCompound';
-import { type TabMetadata } from '../useTabs/useTabs';
 import { useList, ListState, UseListParameters } from '../useList';
 import { tabsListReducer } from './tabsListReducer';
 import { useForkRef } from '../utils/useForkRef';
 import { mergeReactProps } from '../utils/mergeReactProps';
-import { TabsOrientation } from '../Tabs/Tabs.types';
-import { TabActivationDirection } from '../useTabs/useTabs.types';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 
 /**
  *

@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
-import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
 import { useTabsContext } from '../useTabs/TabsContext';
 import { UseTabParameters, UseTabReturnValue } from './useTab.types';
 import { useCompoundItem } from '../useCompound';
 import { useListItem } from '../useList';
 import { useButton } from '../useButton';
 import { TabMetadata } from '../useTabs';
+import { useId } from '../utils/useId';
+import { useForkRef } from '../utils/useForkRef';
 import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { mergeReactProps } from '../utils/mergeReactProps';
 

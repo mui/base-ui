@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type TabsOrientation } from '../Tabs/Tabs.types';
+import { type TabsOrientation } from '../useTabs';
 
 export interface UseTabParameters {
   /**

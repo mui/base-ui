@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { unstable_useControlled as useControlled } from '@mui/utils';
 import { TabActivationDirection, UseTabsParameters, UseTabsReturnValue } from './useTabs.types';
 import { useCompoundParent } from '../useCompound';
 import { TabPanelMetadata } from './TabsProvider';
 import { mergeReactProps } from '../utils/mergeReactProps';
+import { useControlled } from '../utils/useControlled';
 
 export interface TabMetadata {
   disabled: boolean;

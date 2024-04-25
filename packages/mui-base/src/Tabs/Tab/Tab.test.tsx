@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
 import { TabsListProvider, TabsListProviderValue } from '@base_ui/react/useTabsList';
-import { TabsContext, TabsContextValue } from '@base_ui/react/useTabs/TabsContext';
+import { TabsContext, TabsContextValue } from '@base_ui/react/useTabs';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Tabs.Tab />', () => {
@@ -31,6 +31,7 @@ describe('<Tabs.Tab />', () => {
     getTabPanelId: () => '',
     orientation: 'horizontal',
     direction: 'ltr',
+    tabActivationDirection: 'none',
   };
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
