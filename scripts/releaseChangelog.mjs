@@ -200,7 +200,7 @@ yargs(process.argv.slice(2))
           type: 'string',
         })
         .option('repo', {
-          default: 'material-ui',
+          default: 'base-ui',
           describe: 'Repository to generate a changelog for',
           type: 'string',
         });
