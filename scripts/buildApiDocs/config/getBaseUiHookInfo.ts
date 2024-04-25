@@ -12,7 +12,7 @@ import {
 } from '@mui-internal/api-docs-builder/buildApiUtils';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
 
-const REPO_ROOT = path.resolve(__dirname, '../../../..');
+const REPO_ROOT = path.resolve(__dirname, '../../..');
 
 export function getBaseUiHookInfo(filename: string): HookInfo {
   const { name } = extractPackageFile(filename);
