@@ -1,6 +1,6 @@
 import path from 'path';
 
-const repositoryRoot = path.resolve(__dirname, '../../../..');
+const repositoryRoot = path.resolve(__dirname, '../../..');
 
 export function getComponentImports(name: string, filename: string) {
   const relativePath = path.relative(repositoryRoot, filename);
