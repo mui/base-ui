@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { TabsContext, TabsContextValue } from './TabsContext';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
 
@@ -21,7 +22,7 @@ export interface TabsProviderProps {
  *
  * @ignore - do not document.
  */
-export function TabsProvider(props: TabsProviderProps) {
+function TabsProvider(props: TabsProviderProps) {
   const { value: valueProp, children } = props;
   const {
     direction,
@@ -76,3 +77,32 @@ export function TabsProvider(props: TabsProviderProps) {
     </CompoundComponentContext.Provider>
   );
 }
+
+TabsProvider.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * @ignore
+   */
+  value: PropTypes.shape({
+    direction: PropTypes.oneOf(['ltr', 'rtl']).isRequired,
+    getItemIndex: PropTypes.func.isRequired,
+    getTabId: PropTypes.func.isRequired,
+    getTabPanelId: PropTypes.func.isRequired,
+    onSelected: PropTypes.func.isRequired,
+    orientation: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
+    registerItem: PropTypes.func.isRequired,
+    registerTabIdLookup: PropTypes.func.isRequired,
+    tabActivationDirection: PropTypes.oneOf(['down', 'left', 'none', 'right', 'up']).isRequired,
+    totalSubitemCount: PropTypes.number.isRequired,
+    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  }).isRequired,
+} as any;
+
+export { TabsProvider };

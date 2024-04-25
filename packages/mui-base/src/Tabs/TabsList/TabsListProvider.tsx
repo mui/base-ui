@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { TabsListContext, TabsListContextValue } from './TabsListContext';
 import { TabMetadata } from '../Root/useTabsRoot';
 import { ListContext, ListContextValue } from '../../useList/ListContext';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
+import { refType } from '../../utils/proptypes';
 
 export type TabsListProviderValue = CompoundComponentContextValue<any, TabMetadata> &
   ListContextValue<any> &
@@ -19,7 +21,7 @@ export interface TabsListProviderProps {
  *
  * @ignore - do not document.
  */
-export function TabsListProvider(props: TabsListProviderProps) {
+function TabsListProvider(props: TabsListProviderProps) {
   const { value, children } = props;
   const {
     dispatch,
@@ -64,3 +66,29 @@ export function TabsListProvider(props: TabsListProviderProps) {
     </CompoundComponentContext.Provider>
   );
 }
+
+TabsListProvider.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * @ignore
+   */
+  value: PropTypes.shape({
+    activateOnFocus: PropTypes.bool.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    getItemIndex: PropTypes.func.isRequired,
+    getItemState: PropTypes.func.isRequired,
+    getTabElement: PropTypes.func.isRequired,
+    registerItem: PropTypes.func.isRequired,
+    tabsListRef: refType.isRequired,
+    totalSubitemCount: PropTypes.number.isRequired,
+  }).isRequired,
+} as any;
+
+export { TabsListProvider };
