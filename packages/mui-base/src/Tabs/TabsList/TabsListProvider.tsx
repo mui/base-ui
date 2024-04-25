@@ -79,7 +79,7 @@ TabsListProvider.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  value: PropTypes.shape({
+  value: PropTypes /* @typescript-to-proptypes-ignore */.shape({
     activateOnFocus: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     getItemIndex: PropTypes.func.isRequired,

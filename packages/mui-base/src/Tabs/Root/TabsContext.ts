@@ -5,13 +5,13 @@ export interface TabsContextValue {
   /**
    * The currently selected tab's value.
    */
-  value: number | string | null;
+  value?: any | null;
   /**
    * Callback for setting new value.
    */
   onSelected: (
     event: React.SyntheticEvent | null,
-    value: number | string | null,
+    value: any | null,
     activationDirection: TabActivationDirection,
   ) => void;
   /**
@@ -30,12 +30,12 @@ export interface TabsContextValue {
    * Gets the id of the tab with the given value.
    * @param value Value to find the tab for.
    */
-  getTabId: (value: number | string) => string | undefined;
+  getTabId: (value: any) => string | undefined;
   /**
    * Gets the id of the tab panel with the given value.
    * @param value Value to find the tab panel for.
    */
-  getTabPanelId: (value: number | string) => string | undefined;
+  getTabPanelId: (value: any) => string | undefined;
   /**
    * The position of the active tab relative to the previously active tab.
    */

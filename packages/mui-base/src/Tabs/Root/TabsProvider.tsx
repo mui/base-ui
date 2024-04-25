@@ -101,7 +101,7 @@ TabsProvider.propTypes /* remove-proptypes */ = {
     registerTabIdLookup: PropTypes.func.isRequired,
     tabActivationDirection: PropTypes.oneOf(['down', 'left', 'none', 'right', 'up']).isRequired,
     totalSubitemCount: PropTypes.number.isRequired,
-    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    value: PropTypes.any,
   }).isRequired,
 } as any;
 
