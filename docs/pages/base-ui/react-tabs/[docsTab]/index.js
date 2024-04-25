@@ -39,9 +39,9 @@ export const getStaticProps = () => {
   const TabApiDescriptions = mapApiPageTranslations(TabApiReq);
 
   const TabIndicatorApiReq = require.context(
-    'docs/translations/api-docs-base/tab-indicator',
+    'docs-base/translations/api-docs/tab-indicator',
     false,
-    /tab-indicator.*.json$/,
+    /\.\/tab-indicator.*.json$/,
   );
   const TabIndicatorApiDescriptions = mapApiPageTranslations(TabIndicatorApiReq);
 
@@ -74,9 +74,9 @@ export const getStaticProps = () => {
   const useTabApiDescriptions = mapApiPageTranslations(useTabApiReq);
 
   const useTabIndicatorApiReq = require.context(
-    'docs/translations/api-docs/use-tab-indicator',
+    'docs-base/translations/api-docs/use-tab-indicator',
     false,
-    /use-tab-indicator.*.json$/,
+    /\.\/use-tab-indicator.*.json$/,
   );
   const useTabIndicatorApiDescriptions = mapApiPageTranslations(useTabIndicatorApiReq);
 
