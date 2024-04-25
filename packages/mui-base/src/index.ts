@@ -29,12 +29,8 @@ export {
   type ThumbProps as SwitchThumbProps,
   type OwnerState as SwitchOwnerState,
 } from './Switch';
-export { Root as TabsRoot, List as TabsList, Tab as TabsTab, Panel as TabsPanel } from './Tabs';
+export * from './Tabs/index.barrel';
 
 export * from './useCheckbox';
 export * from './useNumberField';
 export * from './useSwitch';
-export * from './useTab';
-export * from './useTabPanel';
-export * from './useTabs';
-export * from './useTabsList';

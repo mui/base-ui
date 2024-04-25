@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TabsRootOwnerState, TabsRootProps } from './Tabs.types';
-import { useTabs } from '../useTabs';
-import { TabsProvider } from '../useTabs/TabsProvider';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useTabsStyleHooks } from './useTabsStyleHooks';
-import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import { TabsRootOwnerState, TabsRootProps } from './TabsRoot.types';
+import { useTabs } from './useTabs';
+import { TabsProvider } from './TabsProvider';
+import { useTabsStyleHooks } from './useTabsRootStyleHooks';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 /**
  *

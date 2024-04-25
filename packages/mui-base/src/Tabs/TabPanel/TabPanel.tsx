@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabPanel } from '../../useTabPanel/useTabPanel';
+import { useTabPanel } from './useTabPanel';
 import { TabPanelOwnerState, TabPanelProps } from './TabPanel.types';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { resolveClassName } from '../../utils/resolveClassName';

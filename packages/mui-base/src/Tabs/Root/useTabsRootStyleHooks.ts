@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { TabsRootOwnerState } from './Tabs.types';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
+import { TabsRootOwnerState } from './TabsRoot.types';
+import { getStyleHookProps } from '../../utils/getStyleHookProps';
 
 /**
  * @ignore - internal hook.

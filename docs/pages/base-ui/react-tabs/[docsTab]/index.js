@@ -6,8 +6,8 @@ import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslation
 import TabApiJsonPageContent from '../../api/tab.json';
 import TabIndicatorApiJsonPageContent from '../../api/tab-indicator.json';
 import TabPanelApiJsonPageContent from '../../api/tab-panel.json';
-import TabsApiJsonPageContent from '../../api/tabs.json';
 import TabsListApiJsonPageContent from '../../api/tabs-list.json';
+import TabsRootApiJsonPageContent from '../../api/tabs-root.json';
 import useTabApiJsonPageContent from '../../api/use-tab.json';
 import useTabIndicatorApiJsonPageContent from '../../api/use-tab-indicator.json';
 import useTabPanelApiJsonPageContent from '../../api/use-tab-panel.json';
@@ -52,19 +52,19 @@ export const getStaticProps = () => {
   );
   const TabPanelApiDescriptions = mapApiPageTranslations(TabPanelApiReq);
 
-  const TabsApiReq = require.context(
-    'docs-base/translations/api-docs/tabs',
-    false,
-    /\.\/tabs.*.json$/,
-  );
-  const TabsApiDescriptions = mapApiPageTranslations(TabsApiReq);
-
   const TabsListApiReq = require.context(
     'docs-base/translations/api-docs/tabs-list',
     false,
     /\.\/tabs-list.*.json$/,
   );
   const TabsListApiDescriptions = mapApiPageTranslations(TabsListApiReq);
+
+  const TabsRootApiReq = require.context(
+    'docs-base/translations/api-docs/tabs-root',
+    false,
+    /\.\/tabs-root.*.json$/,
+  );
+  const TabsRootApiDescriptions = mapApiPageTranslations(TabsRootApiReq);
 
   const useTabApiReq = require.context(
     'docs-base/translations/api-docs/use-tab',
@@ -107,15 +107,15 @@ export const getStaticProps = () => {
         Tab: TabApiDescriptions,
         TabIndicator: TabIndicatorApiDescriptions,
         TabPanel: TabPanelApiDescriptions,
-        Tabs: TabsApiDescriptions,
         TabsList: TabsListApiDescriptions,
+        TabsRoot: TabsRootApiDescriptions,
       },
       componentsApiPageContents: {
         Tab: TabApiJsonPageContent,
         TabIndicator: TabIndicatorApiJsonPageContent,
         TabPanel: TabPanelApiJsonPageContent,
-        Tabs: TabsApiJsonPageContent,
         TabsList: TabsListApiJsonPageContent,
+        TabsRoot: TabsRootApiJsonPageContent,
       },
       hooksApiDescriptions: {
         useTab: useTabApiDescriptions,

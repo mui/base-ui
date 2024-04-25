@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useTabsContext } from '../useTabs/TabsContext';
-import { useCompoundItem } from '../useCompound';
-import { UseTabPanelParameters, UseTabPanelReturnValue } from './useTabPanel.types';
-import { useId } from '../utils/useId';
-import { useForkRef } from '../utils/useForkRef';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { UseTabPanelParameters, UseTabPanelReturnValue } from './TabPanel.types';
+import { useTabsContext } from '../Root/TabsContext';
+import { useCompoundItem } from '../../useCompound';
+import { useId } from '../../utils/useId';
+import { useForkRef } from '../../utils/useForkRef';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
   return otherTabPanelValues.size;

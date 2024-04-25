@@ -1,9 +1,9 @@
-export { Tabs as Root } from './Root/TabsRoot';
+export { Tabs } from './Root/TabsRoot';
 export type {
-  TabsRootOwnerState as RootOwnerState,
-  TabsRootProps as RootProps,
-  TabsDirection as Direction,
-  TabsOrientation as Orientation,
+  TabsRootOwnerState,
+  TabsRootProps,
+  TabsDirection,
+  TabsOrientation,
   UseTabsParameters,
   UseTabsReturnValue,
 } from './Root/TabsRoot.types';
@@ -15,27 +15,27 @@ export { Tab } from './Tab/Tab';
 export type { TabOwnerState, TabProps, UseTabParameters, UseTabReturnValue } from './Tab/Tab.types';
 export { useTab } from './Tab/useTab';
 
-export { TabIndicator as Indicator } from './TabIndicator/TabIndicator';
+export { TabIndicator } from './TabIndicator/TabIndicator';
 export type {
-  TabIndicatorOwnerState as IndicatorOwnerState,
-  TabIndicatorProps as IndicatorProps,
+  TabIndicatorOwnerState,
+  TabIndicatorProps,
   UseTabIndicatorReturnValue,
 } from './TabIndicator/TabIndicator.types';
 export { useTabIndicator } from './TabIndicator/useTabIndicator';
 
-export { TabPanel as Panel } from './TabPanel/TabPanel';
+export { TabPanel } from './TabPanel/TabPanel';
 export type {
-  TabPanelOwnerState as PanelOwnerState,
-  TabPanelProps as PanelProps,
+  TabPanelOwnerState,
+  TabPanelProps,
   UseTabPanelParameters,
   UseTabPanelReturnValue,
 } from './TabPanel/TabPanel.types';
 export { useTabPanel } from './TabPanel/useTabPanel';
 
-export { TabsList as List } from './TabsList/TabsList';
+export { TabsList } from './TabsList/TabsList';
 export type {
-  TabsListOwnerState as ListOwnerState,
-  TabsListProps as ListProps,
+  TabsListOwnerState,
+  TabsListProps,
   UseTabsListParameters,
   UseTabsListReturnValue,
 } from './TabsList/TabsList.types';

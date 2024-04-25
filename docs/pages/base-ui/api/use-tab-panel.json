@@ -35,7 +35,7 @@
     }
   },
   "name": "useTabPanel",
-  "filename": "/packages/mui-base/src/useTabPanel/useTabPanel.ts",
-  "imports": ["import { useTabPanel } from '@base_ui/react/useTabPanel';"],
+  "filename": "/packages/mui-base/src/Tabs/TabPanel/useTabPanel.ts",
+  "imports": ["import { useTabPanel } from '@base_ui/react/Tabs';"],
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
 }

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
-import { describeConformance } from '../../test/describeConformance';
+import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();

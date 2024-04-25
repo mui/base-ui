@@ -1,6 +1,10 @@
 import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import type { TabsDirection, TabsOrientation, TabsRootOwnerState } from '../Tabs.types';
-import type { ActiveTabPosition } from '../../useTabIndicator/useTabIndicator.types';
+import type {
+  TabActivationDirection,
+  TabsDirection,
+  TabsOrientation,
+  TabsRootOwnerState,
+} from '../Root/TabsRoot.types';
 
 export type TabIndicatorOwnerState = TabsRootOwnerState & {
   selectedTabPosition: ActiveTabPosition | null;
@@ -17,3 +21,20 @@ export interface TabIndicatorProps extends BaseUIComponentProps<'span', TabIndic
    */
   renderBeforeHydration?: boolean;
 }
+
+export interface ActiveTabPosition {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export type UseTabIndicatorReturnValue = {
+  getRootProps: (
+    otherProps?: React.ComponentPropsWithRef<'span'>,
+  ) => React.ComponentPropsWithRef<'span'>;
+  activeTabPosition: ActiveTabPosition | null;
+  direction: TabsDirection;
+  orientation: TabsOrientation;
+  tabActivationDirection: TabActivationDirection;
+};

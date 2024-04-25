@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabIndicator } from '../../useTabIndicator/useTabIndicator';
+import { useTabIndicator } from './useTabIndicator';
+import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
 import { TabIndicatorProps } from './TabIndicator.types';
+import { useTabsContext } from '../Root/TabsContext';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
-import { useTabsContext } from '../../useTabs/TabsContext';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(

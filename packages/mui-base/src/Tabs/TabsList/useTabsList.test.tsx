@@ -2,68 +2,64 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import * as Tabs from '../Tabs';
-import { useTab } from './useTab';
+import * as Tabs from '@base_ui/react/Tabs';
+import { useTabsList } from './useTabsList';
 
-describe('useTab', () => {
+describe('useTabsList', () => {
   const { render } = createRenderer();
 
   describe('getRootProps', () => {
     it('returns props for root slot', () => {
-      function TestTab() {
+      function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
-        const { getRootProps } = useTab({ rootRef });
-        return <button {...getRootProps()} />;
+        const { getRootProps } = useTabsList({ rootRef, activateOnFocus: true, loop: true });
+        return <div {...getRootProps()} />;
       }
 
       function Test() {
         return (
-          <Tabs.Root defaultValue={1}>
-            <Tabs.List>
-              <TestTab />
-            </Tabs.List>
+          <Tabs.Root>
+            <TestTabsList />
           </Tabs.Root>
         );
       }
 
       const { getByRole } = render(<Test />);
 
-      const tab = getByRole('tab');
-      expect(tab).not.to.equal(null);
+      const tablist = getByRole('tablist');
+      expect(tablist).not.to.equal(null);
     });
 
     it('forwards external props including event handlers', () => {
       const handleClick = spy();
 
-      function TestTab() {
+      function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
-        const { getRootProps } = useTab({ rootRef });
+        const { getRootProps } = useTabsList({ rootRef, activateOnFocus: true, loop: true });
         return (
-          <button
+          <div
             {...getRootProps({
-              'data-testid': 'test-tab',
+              'data-testid': 'test-tabslist',
               onClick: handleClick,
-            } as React.ComponentPropsWithoutRef<'button'>)}
+            } as React.ComponentPropsWithoutRef<'div'>)}
           />
         );
       }
 
       function Test() {
         return (
-          <Tabs.Root defaultValue={1}>
-            <Tabs.List>
-              <TestTab />
-            </Tabs.List>
+          <Tabs.Root>
+            <TestTabsList />
           </Tabs.Root>
         );
       }
 
       render(<Test />);
 
-      const tab = screen.getByTestId('test-tab');
-      expect(tab).not.to.equal(null);
+      const tabsList = screen.getByTestId('test-tabslist');
+      expect(tabsList).not.to.equal(null);
 
-      fireEvent.click(tab);
+      fireEvent.click(tabsList);
       expect(handleClick.callCount).to.equal(1);
     });
   });

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabProps, TabOwnerState } from './Tab.types';
-import { useTab } from '../../useTab';
+import { useTab } from './useTab';
 import { useTabStyleHooks } from './useTabStyleHooks';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { resolveClassName } from '../../utils/resolveClassName';

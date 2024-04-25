@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useTabsContext } from '../useTabs/TabsContext';
-import { UseTabParameters, UseTabReturnValue } from './useTab.types';
-import { useCompoundItem } from '../useCompound';
-import { useListItem } from '../useList';
-import { useButton } from '../useButton';
-import { TabMetadata } from '../useTabs';
-import { useId } from '../utils/useId';
-import { useForkRef } from '../utils/useForkRef';
-import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { useTabsContext } from '../Root/TabsContext';
+import { UseTabParameters, UseTabReturnValue } from './Tab.types';
+import { useCompoundItem } from '../../useCompound';
+import { useListItem } from '../../useList';
+import { useButton } from '../../useButton';
+import { TabMetadata } from '../Root/useTabs';
+import { useId } from '../../utils/useId';
+import { useForkRef } from '../../utils/useForkRef';
+import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 function tabValueGenerator(otherTabValues: Set<any>) {
   return otherTabValues.size;

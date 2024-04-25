@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type TabActivationDirection } from './useTabs.types';
+import { type TabActivationDirection } from './TabsRoot.types';
 
 export interface TabsContextValue {
   /**

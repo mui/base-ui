@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useTabsListContext } from '../useTabsList/TabsListContext';
-import { useTabsContext } from '../useTabs/TabsContext';
-import { UseTabIndicatorReturnValue } from './useTabIndicator.types';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { UseTabIndicatorReturnValue } from './TabIndicator.types';
+import { useTabsListContext } from '../TabsList/TabsListContext';
+import { useTabsContext } from '../Root/TabsContext';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;

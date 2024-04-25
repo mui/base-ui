@@ -14,14 +14,14 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": { "type": { "name": "any" } }
   },
-  "name": "Tabs",
-  "imports": ["import { Tabs } from '@base_ui/react/Tabs';"],
+  "name": "TabsRoot",
+  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst TabsRoot = Tabs.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "Tabs",
+  "muiName": "TabsRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tabs/Tabs.tsx",
+  "filename": "/packages/mui-base/src/Tabs/Root/TabsRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

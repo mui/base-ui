@@ -2,8 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabsListOwnerState, TabsListProps } from './TabsList.types';
-import { useTabsList } from '../../useTabsList';
-import { TabsListProvider } from '../../useTabsList/TabsListProvider';
+import { useTabsList } from './useTabsList';
+import { TabsListProvider } from './TabsListProvider';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';

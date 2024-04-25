@@ -1,8 +1,32 @@
 {
   "parameters": {},
-  "returnValue": {},
+  "returnValue": {
+    "activeTabPosition": {
+      "type": { "name": "ActiveTabPosition | null", "description": "ActiveTabPosition | null" },
+      "required": true
+    },
+    "direction": {
+      "type": { "name": "TabsDirection", "description": "TabsDirection" },
+      "required": true
+    },
+    "getRootProps": {
+      "type": {
+        "name": "(otherProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(otherProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    },
+    "orientation": {
+      "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
+      "required": true
+    },
+    "tabActivationDirection": {
+      "type": { "name": "TabActivationDirection", "description": "TabActivationDirection" },
+      "required": true
+    }
+  },
   "name": "useTabIndicator",
-  "filename": "/packages/mui-base/src/useTabIndicator/useTabIndicator.ts",
-  "imports": ["import { useTabIndicator } from '@base_ui/react/useTabIndicator';"],
+  "filename": "/packages/mui-base/src/Tabs/TabIndicator/useTabIndicator.ts",
+  "imports": ["import { useTabIndicator } from '@base_ui/react/Tabs';"],
   "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
 }

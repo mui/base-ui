@@ -1,19 +1,20 @@
 'use client';
 import * as React from 'react';
-import { useTabsContext } from '../useTabs/TabsContext';
 import {
   TabsListActionTypes,
   type UseTabsListParameters,
   type UseTabsListReturnValue,
   type ValueChangeAction,
-} from './useTabsList.types';
-import type { TabMetadata, TabsOrientation, TabActivationDirection } from '../useTabs';
-import { useCompoundParent } from '../useCompound';
-import { useList, ListState, UseListParameters } from '../useList';
+} from './TabsList.types';
 import { tabsListReducer } from './tabsListReducer';
-import { useForkRef } from '../utils/useForkRef';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
+import { useTabsContext } from '../Root/TabsContext';
+import { type TabMetadata } from '../Root/useTabs';
+import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot.types';
+import { useCompoundParent } from '../../useCompound';
+import { useList, ListState, UseListParameters } from '../../useList';
+import { useForkRef } from '../../utils/useForkRef';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  *
