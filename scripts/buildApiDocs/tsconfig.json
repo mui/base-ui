@@ -18,8 +18,6 @@
 
     "types": ["node", "mocha"],
     "paths": {
-      "@base_ui/react": ["../../packages/mui-base/src"],
-      "@base_ui/react/*": ["../../packages/mui-base/src/*"],
       "@mui-internal/api-docs-builder": [
         "../../node_modules/@mui/monorepo/packages/api-docs-builder"
       ],
