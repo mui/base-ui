@@ -11,8 +11,8 @@ import TabsRootApiJsonPageContent from '../../api/tabs-root.json';
 import useTabApiJsonPageContent from '../../api/use-tab.json';
 import useTabIndicatorApiJsonPageContent from '../../api/use-tab-indicator.json';
 import useTabPanelApiJsonPageContent from '../../api/use-tab-panel.json';
-import useTabsApiJsonPageContent from '../../api/use-tabs.json';
 import useTabsListApiJsonPageContent from '../../api/use-tabs-list.json';
+import useTabsRootApiJsonPageContent from '../../api/use-tabs-root.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -87,19 +87,19 @@ export const getStaticProps = () => {
   );
   const useTabPanelApiDescriptions = mapApiPageTranslations(useTabPanelApiReq);
 
-  const useTabsApiReq = require.context(
-    'docs-base/translations/api-docs/use-tabs',
-    false,
-    /\.\/use-tabs.*.json$/,
-  );
-  const useTabsApiDescriptions = mapApiPageTranslations(useTabsApiReq);
-
   const useTabsListApiReq = require.context(
     'docs-base/translations/api-docs/use-tabs-list',
     false,
     /\.\/use-tabs-list.*.json$/,
   );
   const useTabsListApiDescriptions = mapApiPageTranslations(useTabsListApiReq);
+
+  const useTabsRootApiReq = require.context(
+    'docs-base/translations/api-docs/use-tabs-root',
+    false,
+    /\.\/use-tabs-root.*.json$/,
+  );
+  const useTabsRootApiDescriptions = mapApiPageTranslations(useTabsRootApiReq);
 
   return {
     props: {
@@ -121,15 +121,15 @@ export const getStaticProps = () => {
         useTab: useTabApiDescriptions,
         useTabIndicator: useTabIndicatorApiDescriptions,
         useTabPanel: useTabPanelApiDescriptions,
-        useTabs: useTabsApiDescriptions,
         useTabsList: useTabsListApiDescriptions,
+        useTabsRoot: useTabsRootApiDescriptions,
       },
       hooksApiPageContents: {
         useTab: useTabApiJsonPageContent,
         useTabIndicator: useTabIndicatorApiJsonPageContent,
         useTabPanel: useTabPanelApiJsonPageContent,
-        useTabs: useTabsApiJsonPageContent,
         useTabsList: useTabsListApiJsonPageContent,
+        useTabsRoot: useTabsRootApiJsonPageContent,
       },
     },
   };

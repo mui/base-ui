@@ -5,7 +5,7 @@ import { UseTabParameters, UseTabReturnValue } from './Tab.types';
 import { useCompoundItem } from '../../useCompound';
 import { useListItem } from '../../useList';
 import { useButton } from '../../useButton';
-import { TabMetadata } from '../Root/useTabs';
+import { TabMetadata } from '../Root/useTabsRoot';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';

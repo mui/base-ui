@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TabsListContext, TabsListContextValue } from './TabsListContext';
-import { TabMetadata } from '../Root/useTabs';
+import { TabMetadata } from '../Root/useTabsRoot';
 import { ListContext, ListContextValue } from '../../useList/ListContext';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
 

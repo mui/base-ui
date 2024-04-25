@@ -8,7 +8,7 @@ import {
 } from './TabsList.types';
 import { tabsListReducer } from './tabsListReducer';
 import { useTabsContext } from '../Root/TabsContext';
-import { type TabMetadata } from '../Root/useTabs';
+import { type TabMetadata } from '../Root/useTabsRoot';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot.types';
 import { useCompoundParent } from '../../useCompound';
 import { useList, ListState, UseListParameters } from '../../useList';

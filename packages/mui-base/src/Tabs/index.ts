@@ -7,7 +7,7 @@ export type {
   UseTabsParameters,
   UseTabsReturnValue,
 } from './Root/TabsRoot.types';
-export { useTabs } from './Root/useTabs';
+export { useTabsRoot } from './Root/useTabsRoot';
 export { TabsContext, type TabsContextValue, useTabsContext } from './Root/TabsContext';
 export * from './Root/TabsProvider';
 

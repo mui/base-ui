@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabsRootOwnerState, TabsRootProps } from './TabsRoot.types';
-import { useTabs } from './useTabs';
+import { useTabsRoot } from './useTabsRoot';
 import { TabsProvider } from './TabsProvider';
 import { useTabsStyleHooks } from './useTabsRootStyleHooks';
 import { resolveClassName } from '../../utils/resolveClassName';
@@ -37,7 +37,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 
   const render = renderProp ?? defaultRenderFunctions.div;
 
-  const { contextValue, getRootProps, tabActivationDirection } = useTabs({
+  const { contextValue, getRootProps, tabActivationDirection } = useTabsRoot({
     value,
     defaultValue,
     onChange,

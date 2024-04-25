@@ -26,9 +26,9 @@ type IdLookupFunction = (id: any) => string | undefined;
  *
  * API:
  *
- * - [useTabs API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tabs)
+ * - [useTabsRoot API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tabs-root)
  */
-function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
+function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
   const {
     value: valueProp,
     defaultValue,
@@ -107,4 +107,4 @@ function useTabs(parameters: UseTabsParameters): UseTabsReturnValue {
   };
 }
 
-export { useTabs };
+export { useTabsRoot };

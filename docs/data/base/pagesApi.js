@@ -156,8 +156,8 @@ module.exports = [
     title: 'useTabIndicator',
   },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab-panel', title: 'useTabPanel' },
-  { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs', title: 'useTabs' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-list', title: 'useTabsList' },
+  { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-root', title: 'useTabsRoot' },
   {
     pathname: '/base-ui/react-transitions/hooks-api/#use-transition-state-manager',
     title: 'useTransitionStateManager',
