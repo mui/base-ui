@@ -217,7 +217,7 @@ To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScru
 ## Hook
 
 ```js
-import { useNumberField } from '@mui/base/useNumberField';
+import { useNumberField } from '@base_ui/react/useNumberField';
 ```
 
 The `useNumberField` hook lets you apply the functionality of a Number Field to a fully custom component.
