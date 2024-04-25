@@ -142,6 +142,8 @@ describe('<MenuButton />', () => {
             dispatch: dispatchSpy,
           };
 
+          const user = userEvent.setup();
+
           const { getByRole } = render(
             <DropdownContext.Provider value={context}>{buttonComponent}</DropdownContext.Provider>,
           );
@@ -150,8 +152,6 @@ describe('<MenuButton />', () => {
           act(() => {
             button.focus();
           });
-
-          const user = userEvent.setup();
 
           await user.keyboard(`{${key}}`);
 
@@ -169,6 +169,8 @@ describe('<MenuButton />', () => {
             dispatch: dispatchSpy,
           };
 
+          const user = userEvent.setup();
+
           const { getByRole } = render(
             <DropdownContext.Provider value={context}>{buttonComponent}</DropdownContext.Provider>,
           );
@@ -177,8 +179,6 @@ describe('<MenuButton />', () => {
           act(() => {
             button.focus();
           });
-
-          const user = userEvent.setup();
 
           await user.keyboard(`{${key}}`);
 
