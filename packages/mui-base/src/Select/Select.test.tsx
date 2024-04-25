@@ -111,13 +111,14 @@ describe('<Select />', () => {
       const triggerType = selectComponent.props.slots?.root ? 'non-native' : 'native';
       ['Enter', 'ArrowDown', 'ArrowUp', ' '].forEach((key) => {
         it(`opens the dropdown when the "${key}" key is pressed on a ${triggerType} button trigger`, async () => {
+          const user = userEvent.setup();
+
           const { getByRole } = await render(selectComponent);
+
           const select = getByRole('combobox');
           act(() => {
             select.focus();
           });
-
-          const user = userEvent.setup();
 
           await user.keyboard(`{${key}}`);
 
@@ -129,6 +130,8 @@ describe('<Select />', () => {
 
     ['Enter', ' ', 'Escape'].forEach((key) => {
       it(`closes the dropdown when the "${key}" key is pressed`, async () => {
+        const user = userEvent.setup();
+
         const { getByRole } = await render(
           <Select>
             <Option value={1}>1</Option>
@@ -141,8 +144,6 @@ describe('<Select />', () => {
 
         const listbox = getByRole('listbox');
 
-        const user = userEvent.setup();
-
         await user.keyboard(`{${key}}`);
 
         expect(select).to.have.attribute('aria-expanded', 'false');
@@ -152,6 +153,8 @@ describe('<Select />', () => {
 
     ['Enter', ' '].forEach((key) => {
       it(`does not close the multiselect dropdown when the "${key}" key is pressed`, async () => {
+        const user = userEvent.setup();
+
         const { getByRole, queryByRole } = await render(
           <Select multiple>
             <Option value={1}>1</Option>
@@ -161,8 +164,6 @@ describe('<Select />', () => {
         act(() => {
           select.click();
         });
-
-        const user = userEvent.setup();
 
         await user.keyboard(`{${key}}`);
 
@@ -174,6 +175,8 @@ describe('<Select />', () => {
     describe('item selection', () => {
       ['Enter', ' '].forEach((key) =>
         it(`selects a highlighted item using the "${key}" key in single mode`, async () => {
+          const user = userEvent.setup();
+
           const { getByRole } = await render(
             <Select>
               <Option value={1}>1</Option>
@@ -182,8 +185,6 @@ describe('<Select />', () => {
           );
 
           const select = getByRole('combobox');
-
-          const user = userEvent.setup();
 
           await user.pointer({ target: select, keys: '[MouseLeft]' });
           await user.keyboard('{ArrowDown}');
@@ -195,6 +196,8 @@ describe('<Select />', () => {
 
       ['Enter', ' '].forEach((key) =>
         it(`selects a highlighted item using the "${key}" key in multiple mode`, async () => {
+          const user = userEvent.setup();
+
           const { getByRole } = await render(
             <Select multiple>
               <Option value={1}>1</Option>
@@ -203,8 +206,6 @@ describe('<Select />', () => {
           );
 
           const select = getByRole('combobox');
-
-          const user = userEvent.setup();
 
           await user.pointer({ target: select, keys: '[MouseLeft]' });
           await user.keyboard(`{${key}}`);
@@ -218,6 +219,8 @@ describe('<Select />', () => {
 
     describe('text navigation', () => {
       it('navigate to matched key', async () => {
+        const user = userEvent.setup();
+
         const { getByRole, getByText } = await render(
           <Select>
             <Option value={1}>Apple</Option>
@@ -233,8 +236,6 @@ describe('<Select />', () => {
         act(() => {
           select.click();
         });
-
-        const user = userEvent.setup();
 
         await user.keyboard('d');
         expect(getByText('Dragon Fruit')).to.have.class(optionClasses.highlighted);
@@ -245,6 +246,8 @@ describe('<Select />', () => {
       });
 
       it('navigate to next element with same starting character on repeated keys', async () => {
+        const user = userEvent.setup();
+
         const { getByRole, getByText } = await render(
           <Select>
             <Option value={1}>Apple</Option>
@@ -260,8 +263,6 @@ describe('<Select />', () => {
         act(() => {
           select.click();
         });
-
-        const user = userEvent.setup();
 
         await user.keyboard('c');
         expect(getByText('Cherry')).to.have.class(optionClasses.highlighted);
@@ -286,6 +287,8 @@ describe('<Select />', () => {
           );
         }
 
+        const user = userEvent.setup();
+
         const { getByRole, getByTestId } = await render(
           <Select>
             <RichOption data-testid="1" value={1} label="Apple" />
@@ -302,8 +305,6 @@ describe('<Select />', () => {
           select.click();
         });
 
-        const user = userEvent.setup();
-
         await user.keyboard('d');
         expect(getByTestId('5')).to.have.class(optionClasses.highlighted);
         await user.keyboard('r');
@@ -313,6 +314,8 @@ describe('<Select />', () => {
       });
 
       it('skips the non-stringifiable options', async () => {
+        const user = userEvent.setup();
+
         const { getByRole, getByText } = await render(
           <Select>
             <Option value={{ key: 'Apple' }}>Apple</Option>
@@ -332,8 +335,6 @@ describe('<Select />', () => {
           select.click();
         });
 
-        const user = userEvent.setup();
-
         await user.keyboard('c');
         expect(getByText('Cherry')).to.have.class(optionClasses.highlighted);
         await user.keyboard('c');
@@ -343,6 +344,8 @@ describe('<Select />', () => {
       });
 
       it('navigate to options with diacritic characters', async () => {
+        const user = userEvent.setup();
+
         const { getByRole, getByText } = await render(
           <Select>
             <Option value={{ key: 'Aa' }}>Aa</Option>
@@ -358,8 +361,6 @@ describe('<Select />', () => {
           select.click();
         });
 
-        const user = userEvent.setup();
-
         await user.keyboard('b');
         expect(getByText('Ba')).to.have.class(optionClasses.highlighted);
 
@@ -368,6 +369,8 @@ describe('<Select />', () => {
       });
 
       it('navigate to next options with beginning diacritic characters', async () => {
+        const user = userEvent.setup();
+
         const { getByRole, getByText } = await render(
           <Select>
             <Option value={{ key: 'Aa' }}>Aa</Option>
@@ -382,8 +385,6 @@ describe('<Select />', () => {
           select.click();
         });
 
-        const user = userEvent.setup();
-
         await user.keyboard('{Control>}{Alt>}ą{/Alt}{/Control}');
         expect(getByText('ąa')).to.have.class(optionClasses.highlighted);
 
@@ -396,6 +397,8 @@ describe('<Select />', () => {
     });
 
     it('closes the listbox without selecting an option when "Escape" is pressed', async () => {
+      const user = userEvent.setup();
+
       const { getByRole, queryByRole } = await render(
         <Select defaultValue={1}>
           <Option value={1}>1</Option>
@@ -409,8 +412,6 @@ describe('<Select />', () => {
         select.click();
       });
 
-      const user = userEvent.setup();
-
       await user.keyboard('{ArrowDown}'); // highlights '2'
       await user.keyboard('{Escape}');
 
@@ -420,6 +421,8 @@ describe('<Select />', () => {
     });
 
     it('closes the listbox after selecting with keyboard', async () => {
+      const user = userEvent.setup();
+
       const { getByRole, queryByRole } = await render(
         <Select defaultValue={1}>
           <Option value={1}>1</Option>
@@ -428,8 +431,6 @@ describe('<Select />', () => {
       );
 
       const select = getByRole('combobox');
-
-      const user = userEvent.setup();
 
       await user.pointer({ target: select, keys: '[MouseLeft]' });
       await user.keyboard('{ArrowDown}'); // highlights '2'
@@ -461,6 +462,8 @@ describe('<Select />', () => {
         return <Option {...props} ref={ref} slotProps={{ root: { style: { height: '50px' } } }} />;
       });
 
+      const user = userEvent.setup();
+
       const { getByRole } = await render(
         <Select slots={{ listbox: SelectListbox }}>
           <CustomOption value="1">1</CustomOption>
@@ -477,8 +480,6 @@ describe('<Select />', () => {
       act(() => {
         select.focus();
       });
-
-      const user = userEvent.setup();
 
       await user.keyboard('{ArrowDown}'); // opens the listbox and highlights 1
 
@@ -1099,6 +1100,8 @@ describe('<Select />', () => {
     });
 
     it('closes the listbox when the select is clicked again', async () => {
+      const user = userEvent.setup();
+
       const { getByRole } = await render(
         <Select>
           <Option value={1}>One</Option>
@@ -1106,8 +1109,6 @@ describe('<Select />', () => {
       );
 
       const select = getByRole('combobox');
-
-      const user = userEvent.setup();
 
       await user.pointer({ keys: '[MouseLeft]', target: select });
 
@@ -1119,6 +1120,8 @@ describe('<Select />', () => {
     });
 
     it('closes the listbox without selecting an option when focus is lost', async () => {
+      const user = userEvent.setup();
+
       const { getByRole, getByTestId } = await render(
         <div>
           <Select defaultValue={1}>
@@ -1138,8 +1141,6 @@ describe('<Select />', () => {
       });
 
       const listbox = getByRole('listbox');
-
-      const user = userEvent.setup();
 
       await user.keyboard('{ArrowDown}'); // highlights '2'
 
@@ -1315,6 +1316,8 @@ describe('<Select />', () => {
       return <li {...other} ref={ref} />;
     });
 
+    const user = userEvent.setup();
+
     const { getByRole } = await render(
       <Select>
         <Option
@@ -1360,8 +1363,6 @@ describe('<Select />', () => {
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
     expect(renderOption1Spy.callCount).to.equal(2); // '1' as focusVisible becomes true
-
-    const user = userEvent.setup();
 
     await user.keyboard('{ArrowDown}'); // highlights '2'
     expect(renderOption1Spy.callCount).to.equal(6); // '1' rerenders as it loses highlight
