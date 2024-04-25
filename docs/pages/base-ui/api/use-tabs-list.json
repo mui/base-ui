@@ -51,6 +51,10 @@
     "selectedValue": {
       "type": { "name": "any | null", "description": "any | null" },
       "required": true
+    },
+    "tabActivationDirection": {
+      "type": { "name": "TabActivationDirection", "description": "TabActivationDirection" },
+      "required": true
     }
   },
   "name": "useTabsList",

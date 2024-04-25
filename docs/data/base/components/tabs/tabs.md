@@ -108,19 +108,21 @@ To help with styling—in particular animating its position—some CSS variables
 - `--active-tab-width` is the width in `px` of the active tab's bounding box.
 - `--active-tab-height` is the height in `px` of the active tab's bounding box.
 
-Additionally, the Indicator has a `data-movement-direction` attribute representing the relation of the selected tab to the previously selected one.
+Additionally, the Indicator has the `data-activation-direction` attribute representing the relation of the selected tab to the previously selected one.
 Its value is one of the following:
 
-- `previous` - the active tab is to the left of the previously active tab (or above, in the case of vertical tabs)
-- `next` - the active tab is to the right of the previously active tab (or below, in the case of vertical tabs)
-- `none` - there is no previously selected tab
+- `left` when the active tab is to the left of the previously active tab (only applied when `orientation=horizontal`).
+- `right` when the active tab is to the right of the previously active tab (only applied when `orientation=vertical`).
+- `top` when the active tab is above the previously active tab (only applied when `orientation=vertical`).
+- `bottom` when the active tab is below the previously active tab (only applied when `orientation=vertical`).
+- `none` when there is no previously selected tab.
 
 This example uses the CSS variables and data attributes described above to create an "elastic" movement effect.
 
 {{"demo": "IndicatorBubble.js", "defaultCodeOpen": false}}
 
 The next example shows a differently shaped Indicator with a simpler movement.
-As the transition is independent of direction, the `data-movement-direction` attribute is not used for styling.
+As the transition is independent of direction, the `data-activation-direction` attribute is not used for styling.
 
 {{"demo": "IndicatorUnderline.js", "defaultCodeOpen": false }}
 

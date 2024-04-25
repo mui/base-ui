@@ -1,12 +1,14 @@
 import { TabsListProviderValue } from './TabsListProvider';
-import { TabsDirection, TabsOrientation } from '../Root/TabsRoot.types';
+import {
+  TabActivationDirection,
+  TabsDirection,
+  TabsOrientation,
+  TabsRootOwnerState,
+} from '../Root/TabsRoot.types';
 import { ListAction } from '../../useList';
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
-export type TabsListOwnerState = {
-  direction: TabsDirection;
-  orientation: TabsOrientation;
-};
+export type TabsListOwnerState = TabsRootOwnerState;
 
 export interface TabsListProps extends BaseUIComponentProps<'div', TabsListOwnerState> {
   /**
@@ -75,6 +77,7 @@ export interface UseTabsListReturnValue {
    * The value of the currently selected tab.
    */
   selectedValue: any | null;
+  tabActivationDirection: TabActivationDirection;
 }
 
 export const TabsListActionTypes = {

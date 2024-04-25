@@ -1,10 +1,13 @@
 import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import type { TabsDirection, TabsOrientation } from '../Root/TabsRoot.types';
+import type {
+  TabActivationDirection,
+  TabsDirection,
+  TabsOrientation,
+  TabsRootOwnerState,
+} from '../Root/TabsRoot.types';
 
-export type TabPanelOwnerState = {
+export type TabPanelOwnerState = TabsRootOwnerState & {
   hidden: boolean;
-  orientation: TabsOrientation;
-  direction: TabsDirection;
 };
 
 export interface TabPanelProps extends BaseUIComponentProps<'div', TabPanelOwnerState> {
@@ -52,4 +55,5 @@ export interface UseTabPanelReturnValue {
   rootRef: React.RefCallback<HTMLElement> | null;
   orientation: TabsOrientation;
   direction: TabsDirection;
+  tabActivationDirection: TabActivationDirection;
 }

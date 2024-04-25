@@ -23,7 +23,13 @@ function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
  */
 function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue {
   const { value: valueParam, id: idParam, rootRef: externalRef } = parameters;
-  const { value: selectedTabValue, getTabId, orientation, direction } = useTabsContext();
+  const {
+    value: selectedTabValue,
+    getTabId,
+    orientation,
+    direction,
+    tabActivationDirection,
+  } = useTabsContext();
 
   const id = useId(idParam);
   const ref = React.useRef<HTMLElement>(null);
@@ -58,6 +64,7 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
     rootRef: handleRef,
     orientation,
     direction,
+    tabActivationDirection,
   };
 }
 

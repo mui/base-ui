@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { TabsRootOwnerState, TabsRootProps } from './TabsRoot.types';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsProvider } from './TabsProvider';
-import { useTabsStyleHooks } from './useTabsRootStyleHooks';
+import { useTabsRootStyleHooks } from './useTabsRootStyleHooks';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
@@ -52,7 +52,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   };
 
   const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useTabsStyleHooks(ownerState);
+  const styleHooks = useTabsRootStyleHooks(ownerState);
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const rootProps = getRootProps({ ...styleHooks, ...other, className, ref: mergedRef });

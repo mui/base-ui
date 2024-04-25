@@ -5,7 +5,7 @@ import { getStyleHookProps } from '../../utils/getStyleHookProps';
 /**
  * @ignore - internal hook.
  */
-export function useTabsStyleHooks(ownerState: TabPanelOwnerState) {
+export function useTabPanelStyleHooks(ownerState: TabPanelOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       direction: () => null,

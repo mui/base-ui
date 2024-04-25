@@ -6,7 +6,7 @@ import { TabPanelOwnerState, TabPanelProps } from './TabPanel.types';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useTabsStyleHooks } from './useTabPanelStyleHooks';
+import { useTabPanelStyleHooks } from './useTabPanelStyleHooks';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 /**
@@ -33,19 +33,21 @@ const TabPanel = React.forwardRef(function TabPanel(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.div;
 
-  const { hidden, getRootProps, rootRef, orientation, direction } = useTabPanel({
-    ...props,
-    rootRef: forwardedRef,
-  });
+  const { hidden, getRootProps, rootRef, orientation, direction, tabActivationDirection } =
+    useTabPanel({
+      ...props,
+      rootRef: forwardedRef,
+    });
 
   const ownerState: TabPanelOwnerState = {
     hidden,
     orientation,
     direction,
+    tabActivationDirection,
   };
 
   const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useTabsStyleHooks(ownerState);
+  const styleHooks = useTabPanelStyleHooks(ownerState);
   const mergedRef = useRenderPropForkRef(render, rootRef);
 
   const rootProps = getRootProps({

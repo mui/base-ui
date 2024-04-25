@@ -33,18 +33,20 @@ const TabsList = React.forwardRef(function TabsList(
   } = props;
 
   const render = renderProp ?? defaultRenderFunctions.div;
-  const { direction, orientation, getRootProps, contextValue, rootRef } = useTabsList({
-    rootRef: forwardedRef,
-    loop,
-    activateOnFocus,
-  });
+  const { direction, orientation, getRootProps, contextValue, rootRef, tabActivationDirection } =
+    useTabsList({
+      rootRef: forwardedRef,
+      loop,
+      activateOnFocus,
+    });
 
   const ownerState: TabsListOwnerState = React.useMemo(
     () => ({
       direction,
       orientation,
+      tabActivationDirection,
     }),
-    [direction, orientation],
+    [direction, orientation, tabActivationDirection],
   );
 
   const className = resolveClassName(classNameProp, ownerState);

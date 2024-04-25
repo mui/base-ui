@@ -35,6 +35,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     orientation = 'horizontal',
     value,
     registerTabIdLookup,
+    tabActivationDirection,
   } = useTabsContext();
 
   const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
@@ -186,6 +187,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     orientation,
     rootRef: handleRef,
     selectedValue: selectedValues[0] ?? null,
+    tabActivationDirection,
   };
 }
 

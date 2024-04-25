@@ -14,6 +14,9 @@ export function useTabIndicatorStyleHooks(ownerState: TabIndicatorOwnerState) {
     return getStyleHookProps(ownerState, {
       direction: NOOP,
       selectedTabPosition: NOOP,
+      tabActivationDirection: (direction) => ({
+        'data-activation-direction': direction as string,
+      }),
     });
   }, [ownerState]);
 }

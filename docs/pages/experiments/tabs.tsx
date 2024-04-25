@@ -125,40 +125,40 @@ const Indicator = styled(BaseTabs.Indicator)`
     inset: var(--active-tab-top) 6px var(--active-tab-bottom) 6px;
   }
 
-  &[data-movement-direction='next'] {
+  &[data-activation-direction='right'] {
     transition:
       left 0.6s 0.1s,
       right 0.3s,
       top 0.3s,
       bottom 0.3s,
       box-shadow 0.2s;
-
-    &[data-orientation='vertical'] {
-      transition:
-        top 0.6s 0.1s,
-        bottom 0.3s;
-      left: 0;
-      right: 0;
-      margin: 0 6px;
-    }
   }
 
-  &[data-movement-direction='previous'] {
+  &[data-activation-direction='bottom'] {
+    transition:
+      top 0.6s 0.1s,
+      bottom 0.3s;
+    left: 0;
+    right: 0;
+    margin: 0 6px;
+  }
+
+  &[data-activation-direction='left'] {
     transition:
       left 0.3s,
       right 0.6s 0.1s,
       top 0.3s,
       bottom 0.3s,
       box-shadow 0.2s;
+  }
 
-    &[data-orientation='vertical'] {
-      transition:
-        top 0.3s,
-        bottom 0.6s 0.1s;
-      left: 0;
-      right: 0;
-      margin: 0 6px;
-    }
+  &[data-activation-direction='top'] {
+    transition:
+      top 0.3s,
+      bottom 0.6s 0.1s;
+    left: 0;
+    right: 0;
+    margin: 0 6px;
   }
 
   *:has(:focus-visible) > & {

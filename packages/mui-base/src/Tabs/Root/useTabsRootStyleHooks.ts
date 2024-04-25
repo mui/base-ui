@@ -5,7 +5,7 @@ import { getStyleHookProps } from '../../utils/getStyleHookProps';
 /**
  * @ignore - internal hook.
  */
-export function useTabsStyleHooks(ownerState: TabsRootOwnerState) {
+export function useTabsRootStyleHooks(ownerState: TabsRootOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       direction: () => null,

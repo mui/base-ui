@@ -1,14 +1,9 @@
-import * as React from 'react';
 import { TabsListOwnerState } from './TabsList.types';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
+import { useTabsRootStyleHooks } from '../Root/useTabsRootStyleHooks';
 
 /**
  * @ignore - internal hook.
  */
 export function useTabsListStyleHooks(ownerState: TabsListOwnerState) {
-  return React.useMemo(() => {
-    return getStyleHookProps(ownerState, {
-      direction: () => null,
-    });
-  }, [ownerState]);
+  return useTabsRootStyleHooks(ownerState);
 }

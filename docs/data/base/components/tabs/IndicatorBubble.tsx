@@ -83,7 +83,7 @@ const Indicator = styled(BaseTabs.Indicator)`
   box-shadow: 0 0 0 0 ${blue[200]};
   outline-width: 0;
 
-  &[data-movement-direction='next'] {
+  &[data-activation-direction='right'] {
     transition:
       left 0.6s 0.1s,
       right 0.3s,
@@ -92,7 +92,7 @@ const Indicator = styled(BaseTabs.Indicator)`
       box-shadow 0.2s;
   }
 
-  &[data-movement-direction='previous'] {
+  &[data-activation-direction='left'] {
     transition:
       left 0.3s,
       right 0.6s 0.1s,
