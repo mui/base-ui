@@ -4,6 +4,7 @@ import { UseTabIndicatorReturnValue } from './TabIndicator.types';
 import { useTabsListContext } from '../TabsList/TabsListContext';
 import { useTabsContext } from '../Root/TabsContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForcedRerendering } from '../../utils/useForcedRerendering';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;
@@ -22,12 +23,12 @@ function round(value: number) {
 export function useTabIndicator(): UseTabIndicatorReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
   const { orientation, direction, value, tabActivationDirection } = useTabsContext();
-  const [, forceUpdate] = React.useState({});
 
+  const rerender = useForcedRerendering();
   React.useEffect(() => {
     if (value != null && tabsListRef.current != null && typeof ResizeObserver !== 'undefined') {
       const resizeObserver = new ResizeObserver(() => {
-        forceUpdate({});
+        rerender();
       });
 
       resizeObserver.observe(tabsListRef.current);
@@ -38,7 +39,7 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     }
 
     return undefined;
-  }, [value, tabsListRef]);
+  }, [value, tabsListRef, rerender]);
 
   let left = 0;
   let right = 0;
