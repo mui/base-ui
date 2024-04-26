@@ -112,7 +112,7 @@ Additionally, the Indicator has the `data-activation-direction` attribute repres
 Its value is one of the following:
 
 - `left` when the active tab is to the left of the previously active tab (only applied when `orientation=horizontal`).
-- `right` when the active tab is to the right of the previously active tab (only applied when `orientation=vertical`).
+- `right` when the active tab is to the right of the previously active tab (only applied when `orientation=horizontal`).
 - `top` when the active tab is above the previously active tab (only applied when `orientation=vertical`).
 - `bottom` when the active tab is below the previously active tab (only applied when `orientation=vertical`).
 - `none` when there is no previously selected tab.
@@ -170,10 +170,10 @@ Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/AR
 
 | Key                                                        | Function                                                                                                        |
 | :--------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
-| <kbd class="key">🠄</kbd>                                   | Moves focus to the previous tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set. |
-| <kbd class="key">🠆</kbd>                                   | Moves focus to the next tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set.     |
-| <kbd class="key">🠅</kbd>                                   | Moves focus to the previous tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.   |
-| <kbd class="key">🠇</kbd>                                   | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
+| <kbd class="key">Left arrow</kbd>                          | Moves focus to the previous tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set. |
+| <kbd class="key">Right arrow</kbd>                         | Moves focus to the next tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set.     |
+| <kbd class="key">Up arrow</kbd>                            | Moves focus to the previous tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.   |
+| <kbd class="key">Down arrow</kbd>                          | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
 | <kbd class="key">Space</kbd>, <kbd class="key">Enter</kbd> | Activates the focused tab.                                                                                      |
 
 ### Labeling
