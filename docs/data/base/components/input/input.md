@@ -25,7 +25,7 @@ It can also be transformed into a `<textarea>` as needed.
 ## Component
 
 ```jsx
-import { Input } from '@mui/base/Input';
+import { Input } from '@base_ui/react/Input';
 ```
 
 Input behaves similarly to the native HTML `<input>`, except that it's nested inside of a root `<div>`—see [Anatomy](#anatomy) for details.
@@ -82,7 +82,7 @@ The same applies for props specific to custom primitive elements:
 ## Hook
 
 ```js
-import { useInput } from '@mui/base/useInput';
+import { useInput } from '@base_ui/react/useInput';
 ```
 
 The `useInput` hook lets you apply the functionality of an Input to a fully custom component.
@@ -105,7 +105,7 @@ The demo below shows how to use the `useInput` hook to create a custom input com
 
 :::info
 The following features can be used with both components and hooks.
-For the sake of simplicity, demos and code snippets primarily feature components.
+For the sake of simplicity, demos, and code snippets primarily feature components.
 :::
 
 ### Adornments

@@ -4,8 +4,8 @@ import {
   useSelect,
   SelectOptionDefinition,
   SelectProvider,
-} from '@mui/base/useSelect';
-import { useOption } from '@mui/base/useOption';
+} from '@base_ui/react/useSelect';
+import { useOption } from '@base_ui/react/useOption';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 

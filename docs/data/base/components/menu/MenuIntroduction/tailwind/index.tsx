@@ -1,12 +1,19 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Menu as BaseMenu, MenuListboxSlotProps, MenuProps } from '@mui/base/Menu';
-import { MenuButton as BaseMenuButton, MenuButtonProps } from '@mui/base/MenuButton';
-import { MenuItem as BaseMenuItem, MenuItemProps } from '@mui/base/MenuItem';
-import { Dropdown } from '@mui/base/Dropdown';
+import {
+  Menu as BaseMenu,
+  MenuListboxSlotProps,
+  MenuProps,
+} from '@base_ui/react/Menu';
+import {
+  MenuButton as BaseMenuButton,
+  MenuButtonProps,
+} from '@base_ui/react/MenuButton';
+import { MenuItem as BaseMenuItem, MenuItemProps } from '@base_ui/react/MenuItem';
+import { Dropdown } from '@base_ui/react/Dropdown';
 import { useTheme } from '@mui/system';
-import { PopupContext } from '@mui/base/Unstable_Popup';
-import { CssTransition } from '@mui/base/Transitions';
+import { PopupContext } from '@base_ui/react/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/Transitions';
 
 function useIsDarkMode() {
   const theme = useTheme();

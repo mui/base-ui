@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useTransitionStateManager",
   "filename": "/packages/mui-base/src/useTransition/useTransitionStateManager.ts",
-  "imports": [
-    "import { useTransitionStateManager } from '@mui/base/useTransition';",
-    "import { useTransitionStateManager } from '@mui/base';"
-  ],
+  "imports": ["import { useTransitionStateManager } from '@base_ui/react/useTransition';"],
   "demos": "<ul><li><a href=\"/base-ui/react-transitions/#hooks\">Transitions</a></li></ul>"
 }

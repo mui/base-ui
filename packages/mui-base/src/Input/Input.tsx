@@ -242,15 +242,6 @@ Input.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * @ignore
-   */
-  inputRef: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({
-      current: PropTypes.object,
-    }),
-  ]),
-  /**
    * Maximum number of rows to display when multiline option is set to true.
    */
   maxRows: PropTypes.number,

@@ -44,9 +44,9 @@ You can browse the documentation, find an example close to your use case, and th
 
 You can use a starter React template to build a reproduction case with [JavaScript](https://stackblitz.com/github/stackblitz/starters/tree/main/react) or [TypeScript](https://stackblitz.com/github/stackblitz/starters/tree/main/react-ts).
 
-## Stack Overflow
+## Stack Overflow
 
-We use Stack Overflow for how-to questions. Answers are crowdsourced from expert developers in the Base UI community as well as Base UI maintainers.
+We use Stack Overflow for how-to questions. Answers are crowdsourced from expert developers in the Base UI community as well as Base UI maintainers.
 
 You can search through existing questions and answers to see if someone has asked a similar question using the [base-ui tags](https://stackoverflow.com/questions/tagged/base-ui):
 
@@ -67,18 +67,13 @@ This includes issues introduced by external sources, like browser upgrades or ch
 
 ### Supported versions
 
-- Base UI v5: ⚠️ Beta version.
-- Base UI v4 🅧 Never existed.
-- Base UI v3 🅧 Never existed.
-- Base UI v2: 🅧 Never existed.
-- Base UI v1: 🅧 Never existed.
-- Base UI v0.x: 🅧 Never existed.
+- Base UI v1: ⚠️ Alpha version.
 
 ## Community
 
 ### Social media
 
-The Base UI community is active on both [X/Twitter](https://twitter.com/MaterialUI) and [LinkedIn](https://www.linkedin.com/company/mui/).
+The Base UI community is active on both [X/Twitter](https://twitter.com/BaseUI) and [LinkedIn](https://www.linkedin.com/company/mui/).
 These are great platforms to share what you're working on and connect with other developers.
 
 ### Discord
@@ -89,7 +84,7 @@ Our tools are used by thousands of developers and teams all around the world, ma
 You can join Discord to engage in lively discussions, share your projects, and interact with developers just like you from all around the world. We'd love for you to join us!
 
 :::warning
-How-to questions are not accepted on Discord, they should be asked on [Stack Overflow](#stack-overflow).
+How-to questions are not accepted on Discord, they should be asked on [Stack Overflow](#stack-overflow).
 :::
 
 ## Custom work

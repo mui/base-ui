@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, styled, css } from '@mui/system';
-import { Modal as BaseModal } from '@mui/base/Modal';
+import { Modal as BaseModal } from '@base_ui/react/Modal';
 
 export default function ServerModal() {
   const rootRef = React.useRef<HTMLDivElement>(null);

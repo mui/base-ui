@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  aws-cli: circleci/aws-cli@4.1
+  aws-cli: circleci/aws-cli@4.1.3
   aws-s3: circleci/aws-s3@4.0
 
 parameters:
@@ -21,7 +21,7 @@ parameters:
     type: string
     default: ''
 
-defaults: &defaults
+default-job: &default-job
   parameters:
     react-version:
       description: The version of react to be used
@@ -45,7 +45,11 @@ defaults: &defaults
     AWS_REGION_ARTIFACTS: eu-central-1
   working_directory: /tmp/material-ui
   docker:
-    - image: cimg/node:18.19
+    - image: cimg/node:18.20
+
+default-context: &default-context
+  context:
+    - org-global
 
 # CircleCI has disabled the cache across forks for security reasons.
 # Following their official statement, it was a quick solution, they
@@ -62,12 +66,17 @@ commands:
       browsers:
         type: boolean
         default: false
-        description: 'Set to true if you intend to any browser (e.g. with playwright).'
+        description: 'Set to true if you intend to any browser (for example with playwright).'
+      react-version:
+        description: The version of react to be used
+        type: string
+        default: stable
 
     steps:
       - run:
           name: Resolve React version
           command: |
+            echo 'Using React version: << parameters.react-version >>'
             node scripts/useReactVersion.mjs
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
@@ -78,7 +87,6 @@ commands:
                 name: Install pnpm package manager
                 command: |
                   corepack enable
-                  corepack prepare pnpm@latest-8 --activate
             - run:
                 name: Prepare playwright hash
                 command: pnpm list --json --filter playwright > /tmp/playwright_info.json
@@ -89,14 +97,35 @@ commands:
                 name: Restore playwright cache
                 keys:
                   - v6-playwright-{{ arch }}-{{ checksum "/tmp/playwright_info.json" }}
+      - when:
+          condition:
+            not: << parameters.browsers >>
+          steps:
+            # See https://stackoverflow.com/a/73411601
+            - run: corepack enable --install-directory ~/bin
+
       - run:
           name: View install environment
           command: |
             node --version
             pnpm --version
-      - run:
-          name: Install js dependencies
-          command: pnpm install
+      - when:
+          condition:
+            equal: [<< parameters.react-version >>, stable]
+          steps:
+            - run:
+                name: Install JS dependencies
+                command: pnpm install
+      - unless:
+          condition:
+            equal: [<< parameters.react-version >>, stable]
+          steps:
+            - run:
+                name: Install JS dependencies (without frozen lockfile)
+                command: pnpm install --no-frozen-lockfile
+            - run:
+                name: Restore clean working copy
+                command: git restore .
       - when:
           condition: << parameters.browsers >>
           steps:
@@ -113,10 +142,11 @@ commands:
 
 jobs:
   checkout:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - when:
           # Install can be "dirty" when running with non-default versions of React
           condition:
@@ -128,17 +158,19 @@ jobs:
             - run:
                 name: Check for duplicated packages
                 command: |
-                  if [[ $(git diff --name-status master | grep pnpm.lock) == "" ]];
+                  # #default-branch-switch
+                  if [[ $(git diff --name-status master | grep -E 'pnpm-workspace\.yaml|pnpm-lock.yaml|package\.json') == "" ]];
                   then
                       echo "No changes to dependencies detected. Skipping..."
                   else
                       pnpm dedupe --check
                   fi
   test_unit:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Tests fake browser
           command: pnpm test:coverage:ci
@@ -156,10 +188,11 @@ jobs:
             chmod +x codecov
             ./codecov -t ${CODECOV_TOKEN} -Z -F "$REACT_VERSION-jsdom"
   test_lint:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Eslint
           command: pnpm eslint:ci
@@ -173,10 +206,11 @@ jobs:
           name: Lint Markdown
           command: pnpm markdownlint
   test_static:
-    <<: *defaults
+    <<: *default-job
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: '`pnpm prettier` changes committed?'
           command: pnpm prettier --check
@@ -209,11 +243,12 @@ jobs:
             pnpm docs:link-check
             git add -A && git diff --exit-code --staged
   test_types:
-    <<: *defaults
+    <<: *default-job
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Transpile TypeScript demos
           command: pnpm docs:typescript:formatted
@@ -222,7 +257,7 @@ jobs:
           command: git add -A && git diff --exit-code --staged
       - run:
           name: Tests TypeScript definitions
-          command: pnpm typescript:ci
+          command: pnpm typescript
           environment:
             NODE_OPTIONS: --max-old-space-size=3072
       - run:
@@ -235,7 +270,7 @@ jobs:
             # packages with generated declaration files
             - packages/mui-base/build
   test_types_next:
-    <<: *defaults
+    <<: *default-job
     resource_class: 'medium+'
     steps:
       - checkout
@@ -245,7 +280,8 @@ jobs:
             pnpm add typescript@next -d -w
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
-      - install_js
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Tests TypeScript definitions
           command: |
@@ -253,7 +289,7 @@ jobs:
             # it's expected that typescript@next fails since the lines of the errors
             # change frequently. This build is monitored regardless of its status
             set +e
-            pnpm typescript:ci
+            pnpm typescript
             exit 0
 
       - restore_cache:
@@ -280,15 +316,16 @@ jobs:
             node scripts/testBuiltTypes.mjs
             exit 0
   test_browser:
-    <<: *defaults
+    <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-focal
+      - image: mcr.microsoft.com/playwright:v1.43.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Tests real browsers
@@ -311,14 +348,15 @@ jobs:
           path: /tmp/_karma_webpack_
           destination: artifact-file
   test_profile:
-    <<: *defaults
+    <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-focal
+      - image: mcr.microsoft.com/playwright:v1.43.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Tests real browsers
@@ -338,14 +376,15 @@ jobs:
           path: tmp/react-profiler-report/karma
           destination: react-profiler-report/karma
   test_regressions:
-    <<: *defaults
+    <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-focal
+      - image: mcr.microsoft.com/playwright:v1.43.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Run visual regression tests
@@ -354,14 +393,15 @@ jobs:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
   test_benchmark:
-    <<: *defaults
+    <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-focal
+      - image: mcr.microsoft.com/playwright:v1.43.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
+          react-version: << parameters.react-version >>
           browsers: true
       - run: pnpm benchmark:browser
       - store_artifacts:
@@ -374,23 +414,30 @@ workflows:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
-      - checkout
+      - checkout:
+          <<: *default-context
       - test_unit:
+          <<: *default-context
           requires:
             - checkout
       - test_lint:
+          <<: *default-context
           requires:
             - checkout
       - test_static:
+          <<: *default-context
           requires:
             - checkout
       - test_types:
+          <<: *default-context
           requires:
             - checkout
       - test_browser:
+          <<: *default-context
           requires:
             - checkout
       - test_regressions:
+          <<: *default-context
           requires:
             - checkout
 
@@ -398,7 +445,8 @@ workflows:
     when:
       equal: [profile, << pipeline.parameters.workflow >>]
     jobs:
-      - test_profile
+      - test_profile:
+          <<: *default-context
   react-17:
     triggers:
       - schedule:
@@ -409,10 +457,13 @@ workflows:
                 - master
     jobs:
       - test_unit:
+          <<: *default-context
           react-version: ^17.0.0
       - test_browser:
+          <<: *default-context
           react-version: ^17.0.0
       - test_regressions:
+          <<: *default-context
           react-version: ^17.0.0
   react-next:
     triggers:
@@ -424,10 +475,13 @@ workflows:
                 - master
     jobs:
       - test_unit:
+          <<: *default-context
           react-version: next
       - test_browser:
+          <<: *default-context
           react-version: next
       - test_regressions:
+          <<: *default-context
           react-version: next
   typescript-next:
     triggers:
@@ -438,9 +492,11 @@ workflows:
               only:
                 - master
     jobs:
-      - test_types_next
+      - test_types_next:
+          <<: *default-context
   benchmark:
     when:
       equal: [benchmark, << pipeline.parameters.workflow >>]
     jobs:
-      - test_benchmark
+      - test_benchmark:
+          <<: *default-context

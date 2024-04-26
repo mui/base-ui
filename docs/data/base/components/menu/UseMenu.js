@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { useMenu, MenuProvider } from '@mui/base/useMenu';
-import { useMenuItem } from '@mui/base/useMenuItem';
-import { Popper } from '@mui/base/Popper';
-import { useDropdown, DropdownContext } from '@mui/base/useDropdown';
-import { useMenuButton } from '@mui/base/useMenuButton';
+import { useMenu, MenuProvider } from '@base_ui/react/useMenu';
+import { useMenuItem } from '@base_ui/react/useMenuItem';
+import { Popper } from '@base_ui/react/Popper';
+import { useDropdown, DropdownContext } from '@base_ui/react/useDropdown';
+import { useMenuButton } from '@base_ui/react/useMenuButton';
 import { useTheme } from '@mui/system';
 
 const Menu = React.forwardRef(function Menu(props, ref) {

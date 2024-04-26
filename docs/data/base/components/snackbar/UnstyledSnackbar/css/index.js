@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useSnackbar } from '@mui/base/useSnackbar';
-import { ClickAwayListener } from '@mui/base/ClickAwayListener';
+import { useSnackbar } from '@base_ui/react/useSnackbar';
+import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
 import { useTheme } from '@mui/system';
 
 export default function UseSnackbar() {

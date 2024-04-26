@@ -9,12 +9,13 @@ module.exports = {
   resolve: {
     modules: [__dirname, 'node_modules'],
     alias: {
-      '@mui/base': path.resolve(__dirname, './packages/mui-base/src'),
-      docs: path.resolve(__dirname, './docs'),
+      '@base_ui/react': path.resolve(__dirname, './packages/mui-base/src'),
       '@mui-internal/api-docs-builder': path.resolve(
         __dirname,
         './node_modules/@mui/monorepo/packages/api-docs-builder',
       ),
+      docs: path.resolve(__dirname, './node_modules/@mui/monorepo/docs'),
+      'docs-base': path.resolve(__dirname, './docs'),
     },
     extensions: ['.js', '.ts', '.tsx', '.d.ts'],
   },

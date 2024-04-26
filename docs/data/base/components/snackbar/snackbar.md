@@ -25,7 +25,7 @@ The Snackbar component is built to appear on-screen to inform users about an act
 ## Component
 
 ```jsx
-import { Snackbar } from '@mui/base/Snackbar';
+import { Snackbar } from '@base_ui/react/Snackbar';
 ```
 
 Snackbar doesn't impose any restrictions on its implementation—it's up to you to design it so that it doesn't interrupt the user experience, and disappears after a set amount of time without requiring the user to take action.
@@ -81,7 +81,7 @@ The same applies for props specific to custom primitive elements:
 ## Hook
 
 ```js
-import { useSnackbar } from '@mui/base/useSnackbar';
+import { useSnackbar } from '@base_ui/react/useSnackbar';
 ```
 
 The `useSnackbar` hook lets you apply the functionality of a Snackbar to a fully custom component.
@@ -109,7 +109,7 @@ You may not need to use hooks unless you find that you're limited by the customi
 
 :::info
 The following features can be used with both components and hooks.
-For the sake of simplicity, demos and code snippets primarily feature components.
+For the sake of simplicity, demos, and code snippets primarily feature components.
 :::
 
 ### Transitions

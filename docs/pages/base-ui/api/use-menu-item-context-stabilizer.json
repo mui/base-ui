@@ -3,9 +3,6 @@
   "returnValue": {},
   "name": "useMenuItemContextStabilizer",
   "filename": "/packages/mui-base/src/useMenuItem/useMenuItemContextStabilizer.ts",
-  "imports": [
-    "import { useMenuItemContextStabilizer } from '@mui/base/useMenuItem';",
-    "import { useMenuItemContextStabilizer } from '@mui/base';"
-  ],
+  "imports": ["import { useMenuItemContextStabilizer } from '@base_ui/react/useMenuItem';"],
   "demos": "<ul><li><a href=\"/base-ui/react-menu/#hooks\">Menu</a></li></ul>"
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, createMount, screen } from '@mui/internal-test-utils';
-import { Popper, popperClasses } from '@mui/base/Popper';
+import { Popper, popperClasses } from '@base_ui/react/Popper';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 describe('<Popper />', () => {

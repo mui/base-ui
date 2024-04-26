@@ -13,7 +13,7 @@ import {
   testComponentProp,
   testReactTestRenderer,
 } from '@mui/internal-test-utils';
-import { ClassNameConfigurator } from '@mui/base/utils';
+import { ClassNameConfigurator } from '@base_ui/react/utils';
 
 export interface UnstyledConformanceOptions
   extends Omit<Partial<ConformanceOptions>, 'render' | 'skip' | 'classes'> {
@@ -412,6 +412,13 @@ function describeConformance(
   });
 }
 
-const describeConformanceUnstyled = createDescribe('Base UI component API', describeConformance);
+/**
+ * @deprecated describeConformanceUnstyled is used only for legacy (slot-based) Base UI components.
+ * To test the component-per-node components, use `describeConformance` instead.
+ */
+const describeConformanceUnstyled = createDescribe(
+  'Base UI legacy component API',
+  describeConformance,
+);
 
 export { describeConformanceUnstyled };

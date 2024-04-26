@@ -2,6 +2,14 @@ module.exports = [
   { pathname: '/base-ui/react-badge/components-api/#badge', title: 'Badge' },
   { pathname: '/base-ui/react-button/components-api/#button', title: 'Button' },
   {
+    pathname: '/base-ui/react-checkbox/components-api/#checkbox-indicator',
+    title: 'CheckboxIndicator',
+  },
+  {
+    pathname: '/base-ui/react-checkbox/components-api/#checkbox-root',
+    title: 'CheckboxRoot',
+  },
+  {
     pathname:
       '/base-ui/react-click-away-listener/components-api/#click-away-listener',
     title: 'ClickAwayListener',
@@ -33,8 +41,33 @@ module.exports = [
   { pathname: '/base-ui/react-modal/components-api/#modal', title: 'Modal' },
   { pathname: '/base-ui/react-no-ssr/components-api/#no-ssr', title: 'NoSsr' },
   {
-    pathname: '/base-ui/react-number-input/components-api/#number-input',
-    title: 'NumberInput',
+    pathname: '/base-ui/react-number-field/components-api/#number-field-decrement',
+    title: 'NumberFieldDecrement',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-group',
+    title: 'NumberFieldGroup',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-increment',
+    title: 'NumberFieldIncrement',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-input',
+    title: 'NumberFieldInput',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-root',
+    title: 'NumberFieldRoot',
+  },
+  {
+    pathname: '/base-ui/react-number-field/components-api/#number-field-scrub-area',
+    title: 'NumberFieldScrubArea',
+  },
+  {
+    pathname:
+      '/base-ui/react-number-field/components-api/#number-field-scrub-area-cursor',
+    title: 'NumberFieldScrubAreaCursor',
   },
   { pathname: '/base-ui/react-select/components-api/#option', title: 'Option' },
   {
@@ -50,7 +83,14 @@ module.exports = [
     pathname: '/base-ui/react-snackbar/components-api/#snackbar',
     title: 'Snackbar',
   },
-  { pathname: '/base-ui/react-switch/components-api/#switch', title: 'Switch' },
+  {
+    pathname: '/base-ui/react-switch/components-api/#switch-root',
+    title: 'SwitchRoot',
+  },
+  {
+    pathname: '/base-ui/react-switch/components-api/#switch-thumb',
+    title: 'SwitchThumb',
+  },
   { pathname: '/base-ui/react-tabs/components-api/#tab', title: 'Tab' },
   { pathname: '/base-ui/react-tabs/components-api/#tab-panel', title: 'TabPanel' },
   {
@@ -69,6 +109,10 @@ module.exports = [
   },
   { pathname: '/base-ui/react-badge/hooks-api/#use-badge', title: 'useBadge' },
   { pathname: '/base-ui/react-button/hooks-api/#use-button', title: 'useButton' },
+  {
+    pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox',
+    title: 'useCheckbox',
+  },
   { pathname: '/base-ui/react-menu/hooks-api/#use-dropdown', title: 'useDropdown' },
   {
     pathname: '/base-ui/react-form-control/hooks-api/#use-form-control-context',
@@ -87,8 +131,8 @@ module.exports = [
   },
   { pathname: '/base-ui/react-modal/hooks-api/#use-modal', title: 'useModal' },
   {
-    pathname: '/base-ui/react-number-input/hooks-api/#use-number-input',
-    title: 'useNumberInput',
+    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field',
+    title: 'useNumberField',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-option', title: 'useOption' },
   {

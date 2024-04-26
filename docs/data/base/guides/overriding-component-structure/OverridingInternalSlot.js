@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Select } from '@mui/base/Select';
-import { Option } from '@mui/base/Option';
+import { Select } from '@base_ui/react/Select';
+import { Option } from '@base_ui/react/Option';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

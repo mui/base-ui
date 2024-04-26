@@ -18,14 +18,12 @@ const prettier = require('prettier');
 const {
   getPropTypesFromFile,
   injectPropTypesInFile,
-  // false positive
-  // eslint-disable-next-line import/no-unresolved
 } = require('@mui/internal-scripts/typescript-to-proptypes');
 const {
   createTypeScriptProjectBuilder,
 } = require('@mui-internal/api-docs-builder/utils/createTypeScriptProject');
 const yargs = require('yargs');
-const { fixBabelGeneratorIssues, fixLineEndings } = require('@mui-internal/docs-utils');
+const { fixBabelGeneratorIssues, fixLineEndings } = require('@mui/internal-docs-utils');
 const { default: CORE_TYPESCRIPT_PROJECTS } = require('../../scripts/coreTypeScriptProjects');
 
 const babelConfig = {

@@ -4,16 +4,16 @@
  * import the entire lib for coverage reporting
  */
 import { expect } from 'chai';
-import * as MaterialUI from './index';
+import * as BaseUI from './index';
 
-describe('@mui/base', () => {
+describe('@base_ui/react', () => {
   it('should have exports', () => {
-    expect(typeof MaterialUI).to.equal('object');
+    expect(typeof BaseUI).to.equal('object');
   });
 
   it('should not have undefined exports', () => {
-    Object.keys(MaterialUI).forEach((exportKey) =>
-      expect(Boolean(MaterialUI[exportKey])).to.equal(true),
-    );
+    Object.keys(BaseUI).forEach((exportKey) => {
+      expect(Boolean(BaseUI[exportKey])).to.equal(true);
+    });
   });
 });

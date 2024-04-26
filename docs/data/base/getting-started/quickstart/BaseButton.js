@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Button } from '@mui/base/Button';
-import { useButton } from '@mui/base/useButton';
+import { Button } from '@base_ui/react/Button';
+import { useButton } from '@base_ui/react/useButton';
 import Stack from '@mui/material/Stack';
 
 export default function BaseButton() {

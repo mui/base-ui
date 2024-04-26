@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button as BaseButton, ButtonProps } from '@mui/base/Button';
+import { Button as BaseButton, ButtonProps } from '@base_ui/react/Button';
 import Stack from '@mui/material/Stack';
 import clsx from 'clsx';
 import { useTheme } from '@mui/system';

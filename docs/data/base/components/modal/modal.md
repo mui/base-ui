@@ -28,7 +28,7 @@ A modal [blocks interaction with the rest of the application](https://en.wikiped
 As such, it should be used sparingly—only when the app _requires_ user input before it can continue.
 :::
 
-<!-- Uncomment the next line, once an unstyled dialog component is added in @mui/base -->
+<!-- Uncomment the next line, once an unstyled dialog component is added in @base_ui/react -->
 <!-- If you are creating a modal dialog, the [`Dialog`](/material-ui/dialog/) component is better suited for this specific use case. -->
 
 Modal is a lower-level construct that is used in the following Material UI components:
@@ -41,7 +41,7 @@ Modal is a lower-level construct that is used in the following Material UI comp
 ## Component
 
 ```jsx
-import { Modal } from '@mui/base/Modal';
+import { Modal } from '@base_ui/react/Modal';
 ```
 
 The following demo shows how to create and style a basic modal.
@@ -136,7 +136,7 @@ If the user needs to interact with another part of the page—for example, to in
 ## Hook
 
 ```js
-import useModal from '@mui/base/unstable_useModal';
+import useModal from '@base_ui/react/unstable_useModal';
 ```
 
 The `useModal` hook lets you apply the functionality of a Modal to a fully custom component.

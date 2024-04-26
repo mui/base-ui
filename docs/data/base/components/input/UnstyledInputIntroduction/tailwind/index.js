@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Input as BaseInput } from '@mui/base/Input';
+import { Input as BaseInput } from '@base_ui/react/Input';
 import { useTheme } from '@mui/system';
 import clsx from 'clsx';
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export interface UseSwitchParameters {
   /**
-   * If `true`, the component is checked.
+   * If `true`, the switch is checked.
    */
   checked?: boolean;
   /**
@@ -10,10 +10,19 @@ export interface UseSwitchParameters {
    */
   defaultChecked?: boolean;
   /**
-   * If `true`, the component is disabled.
+   * If `true`, the component is disabled and can't be interacted with.
+   *
+   * @default false
    */
   disabled?: boolean;
-  onBlur?: React.FocusEventHandler;
+  /**
+   * Ref to the underlying input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * Name of the underlying input element.
+   */
+  name?: string;
   /**
    * Callback fired when the state is changed.
    *
@@ -22,33 +31,59 @@ export interface UseSwitchParameters {
    * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  onFocus?: React.FocusEventHandler;
-  onFocusVisible?: React.FocusEventHandler;
   /**
-   * If `true`, the component is read only.
+   * If `true`, the component is read-only.
+   * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
+   *
+   * @default false
    */
   readOnly?: boolean;
   /**
-   * If `true`, the `input` element is required.
+   * If `true`, the switch must be checked for the browser validation to pass.
+   *
+   * @default false
    */
   required?: boolean;
 }
 
-interface UseSwitchInputSlotOwnProps {
-  checked?: boolean;
-  defaultChecked?: boolean;
+interface UseSwitchInputElementOwnProps {
+  checked: boolean;
   disabled?: boolean;
-  onBlur: React.FocusEventHandler;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
-  onFocus: React.FocusEventHandler;
-  readOnly?: boolean;
-  ref: React.RefCallback<HTMLInputElement> | null;
+  name?: string;
   required?: boolean;
-  type: React.HTMLInputTypeAttribute;
+  style: React.CSSProperties;
+  type: 'checkbox';
+  'aria-hidden': React.AriaAttributes['aria-hidden'];
+  ref: React.RefCallback<HTMLInputElement> | null;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
 }
 
-export type UseSwitchInputSlotProps<TOther = {}> = Omit<TOther, keyof UseSwitchInputSlotOwnProps> &
-  UseSwitchInputSlotOwnProps;
+/**
+ * Props that are received by the input element of the Switch.
+ */
+export type UseSwitchInputElementProps<TOther = {}> = Omit<
+  TOther,
+  keyof UseSwitchInputElementOwnProps
+> &
+  UseSwitchInputElementOwnProps;
+
+interface UseSwitchButtonElementOwnProps {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  type: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
+  role: React.AriaRole;
+  'aria-disabled': React.AriaAttributes['aria-disabled'];
+  'aria-checked': React.AriaAttributes['aria-checked'];
+  'aria-readonly': React.AriaAttributes['aria-readonly'];
+}
+
+/**
+ * Props that are received by the button element of the Switch.
+ */
+export type UseSwitchButtonElementProps<TOther = {}> = Omit<
+  TOther,
+  keyof UseSwitchButtonElementOwnProps
+> &
+  UseSwitchButtonElementOwnProps;
 
 export interface UseSwitchReturnValue {
   /**
@@ -56,27 +91,19 @@ export interface UseSwitchReturnValue {
    */
   checked: boolean;
   /**
-   * If `true`, the component will be disabled.
-   */
-  disabled: boolean;
-  /**
-   * If `true`, it indicates that the component is being focused using keyboard.
-   */
-  focusVisible: boolean;
-  /**
-   * Resolver for the input slot's props.
-   * @param externalProps props for the input slot
-   * @returns props that should be spread on the input slot
+   * Resolver for the input element's props.
+   * @param externalProps Additional props for the input element
+   * @returns Props that should be spread on the input element
    */
   getInputProps: (
-    externalProps?: React.HTMLAttributes<HTMLInputElement>,
-  ) => UseSwitchInputSlotProps;
+    externalProps?: React.ComponentPropsWithRef<'input'>,
+  ) => React.ComponentPropsWithRef<'input'>;
   /**
-   * Ref to the input slot's DOM node.
+   * Resolver for the button element's props.
+   * @param externalProps Additional props for the input element
+   * @returns Props that should be spread on the button element
    */
-  inputRef: React.RefCallback<HTMLInputElement> | null;
-  /**
-   * If `true`, the component will be read only.
-   */
-  readOnly: boolean;
+  getButtonProps: (
+    externalProps?: React.ComponentPropsWithRef<'button'>,
+  ) => React.ComponentPropsWithRef<'button'>;
 }

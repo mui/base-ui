@@ -5,9 +5,9 @@
   "description": "Custom eslint rules for Base UI.",
   "main": "src/index.js",
   "devDependencies": {
-    "@types/eslint": "^8.56.5",
+    "@types/eslint": "^8.56.10",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^7.2.0"
+    "@typescript-eslint/parser": "^7.7.0"
   },
   "scripts": {
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/eslint-plugin-material-ui/**/*.test.js' --timeout 3000"

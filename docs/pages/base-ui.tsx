@@ -5,18 +5,17 @@ import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
-import BaseUIHero from 'docs/src/components/productBaseUI/BaseUIHero';
-import BaseUISummary from 'docs/src/components/productBaseUI/BaseUISummary';
-import BaseUIComponents from 'docs/src/components/productBaseUI/BaseUIComponents';
-import BaseUICustomization from 'docs/src/components/productBaseUI/BaseUICustomization';
-import BaseUIEnd from 'docs/src/components/productBaseUI/BaseUIEnd';
-import BaseUITestimonial from 'docs/src/components/productBaseUI/BaseUITestimonial';
+import BaseUIHero from 'docs-base/src/modules/home/BaseUIHero';
+import BaseUISummary from 'docs-base/src/modules/home/BaseUISummary';
+import BaseUICustomization from 'docs-base/src/modules/home/BaseUICustomization';
+import BaseUIEnd from 'docs-base/src/modules/home/BaseUIEnd';
+import BaseUITestimonial from 'docs-base/src/modules/home/BaseUITestimonial';
 
 export default function BaseUI() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Base UI: Unstyled React components and low-level hooks."
+        title="Base UI: Unstyled React components and low-level hooks"
         description={`Base UI is a library of headless ("unstyled") React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.`}
         card="/static/social-previews/baseui-preview.jpg"
       >
@@ -31,8 +30,6 @@ export default function BaseUI() {
       <main id="main-content">
         <BaseUIHero />
         <BaseUISummary />
-        <Divider />
-        <BaseUIComponents />
         <Divider />
         <BaseUICustomization />
         <Divider />

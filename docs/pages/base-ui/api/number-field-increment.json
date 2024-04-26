@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "NumberFieldIncrement",
+  "imports": [
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldIncrement = NumberField.Increment;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "NumberFieldIncrement",
+  "forwardsRefTo": "HTMLButtonElement",
+  "filename": "/packages/mui-base/src/NumberField/NumberFieldIncrement.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-number-field/\">Number Field</a></li></ul>",
+  "cssComponent": false
+}

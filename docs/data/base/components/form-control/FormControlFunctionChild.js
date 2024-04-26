@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { FormControl } from '@mui/base/FormControl';
-import { Input, inputClasses } from '@mui/base/Input';
+import { FormControl } from '@base_ui/react/FormControl';
+import { Input, inputClasses } from '@base_ui/react/Input';
 import { styled } from '@mui/system';
 
 export default function FormControlFunctionChild() {

@@ -4,7 +4,7 @@ import {
   TablePaginationActions,
   TablePaginationActionsButtonSlotProps,
   TablePaginationActionsRootSlotProps,
-} from '@mui/base/TablePagination';
+} from '@base_ui/react/TablePagination';
 
 function Root(props: TablePaginationActionsRootSlotProps) {
   const { ownerState, ...other } = props;

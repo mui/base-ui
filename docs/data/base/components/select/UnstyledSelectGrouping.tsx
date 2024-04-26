@@ -4,12 +4,12 @@ import {
   SelectProps,
   selectClasses,
   SelectRootSlotProps,
-} from '@mui/base/Select';
-import { Option as BaseOption, optionClasses } from '@mui/base/Option';
+} from '@base_ui/react/Select';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
 import {
   OptionGroup as BaseOptionGroup,
   OptionGroupProps,
-} from '@mui/base/OptionGroup';
+} from '@base_ui/react/OptionGroup';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 

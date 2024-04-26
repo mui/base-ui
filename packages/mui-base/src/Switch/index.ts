@@ -1,5 +1,5 @@
 'use client';
-export { Switch } from './Switch';
-export * from './Switch.types';
+export { SwitchRoot as Root } from './SwitchRoot';
+export { SwitchThumb as Thumb } from './SwitchThumb';
 
-export * from './switchClasses';
+export * from './Switch.types';

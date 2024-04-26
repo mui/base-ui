@@ -3,12 +3,12 @@ import {
   Select as BaseSelect,
   SelectProps,
   SelectRootSlotProps,
-} from '@mui/base/Select';
+} from '@base_ui/react/Select';
 import {
   Option as BaseOption,
   OptionProps,
   OptionOwnerState,
-} from '@mui/base/Option';
+} from '@base_ui/react/Option';
 import { useTheme } from '@mui/system';
 import clsx from 'clsx';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';

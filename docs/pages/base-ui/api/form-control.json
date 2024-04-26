@@ -18,10 +18,7 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "FormControl",
-  "imports": [
-    "import { FormControl } from '@mui/base/FormControl';",
-    "import { FormControl } from '@mui/base';"
-  ],
+  "imports": ["import { FormControl } from '@base_ui/react/FormControl';"],
   "classes": [],
   "spread": true,
   "muiName": "FormControl",

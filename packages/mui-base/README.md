@@ -12,7 +12,7 @@ Base UI is a library of headless ("unstyled") React components and low-level ho
 Install the package in your project directory with:
 
 ```bash
-npm install @mui/base
+npm install @base_ui/react
 ```
 
 ## Documentation
@@ -24,7 +24,7 @@ Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full docu
 ## Questions
 
 For how-to questions that don't involve making changes to the code base, please use [Stack Overflow](https://stackoverflow.com/questions/tagged/base-ui) instead of GitHub issues.
-Use the "base-ui" tag on Stack Overflow to make it easier for the community to find your question.
+Use the "base-ui" tag on Stack Overflow to make it easier for the community to find your question.
 
 ## Examples
 
@@ -35,7 +35,7 @@ Our documentation features [a collection of example projects using Base UI](htt
 Read the [contributing guide](/CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes.
 
 Contributing to Base UI is about more than just issues and pull requests!
-There are many other ways to [support MUI](https://mui.com/material-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) beyond contributing to the code base.
+There are many other ways to [support Base UI](https://mui.com/material-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) beyond contributing to the code base.
 
 ## Changelog
 
@@ -43,7 +43,7 @@ The [changelog](https://github.com/mui/base-ui/releases) is regularly updated to
 
 ## Roadmap
 
-Future plans and high-priority features and enhancements can be found in our [roadmap](https://github.com/orgs/mui/projects/1).
+Future plans and high-priority features and enhancements can be found in the [roadmap](https://github.com/orgs/mui/projects/1).
 
 ## License
 

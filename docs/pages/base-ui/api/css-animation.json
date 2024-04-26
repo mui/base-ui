@@ -6,10 +6,7 @@
     "exitClassName": { "type": { "name": "string" } }
   },
   "name": "CssAnimation",
-  "imports": [
-    "import { CssAnimation } from '@mui/base/Transitions';",
-    "import { CssAnimation } from '@mui/base';"
-  ],
+  "imports": ["import { CssAnimation } from '@base_ui/react/Transitions';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,

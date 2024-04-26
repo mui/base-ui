@@ -14,10 +14,7 @@
     }
   },
   "name": "MenuItem",
-  "imports": [
-    "import { MenuItem } from '@mui/base/MenuItem';",
-    "import { MenuItem } from '@mui/base';"
-  ],
+  "imports": ["import { MenuItem } from '@base_ui/react/MenuItem';"],
   "classes": [],
   "spread": true,
   "muiName": "MenuItem",

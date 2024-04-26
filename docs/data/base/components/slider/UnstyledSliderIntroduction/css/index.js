@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTheme, alpha } from '@mui/system';
-import { Slider, sliderClasses } from '@mui/base/Slider';
+import { Slider, sliderClasses } from '@base_ui/react/Slider';
 
 export default function UnstyledSliderIntroduction() {
   return (
