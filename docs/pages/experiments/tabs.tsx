@@ -18,7 +18,7 @@ export default function UnstyledTabsIntroduction() {
           <Tab value={2}>Pull Requests</Tab>
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
-          <Indicator renderBeforeHydration />
+          <Indicator />
         </TabsList>
         <TabPanel value={0} keepMounted>
           Code panel
@@ -45,7 +45,7 @@ export default function UnstyledTabsIntroduction() {
           <Tab value={2}>Pull Requests</Tab>
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
-          <Indicator renderBeforeHydration />
+          <Indicator />
         </TabsList>
         <TabPanel value={0}>Code panel</TabPanel>
         <TabPanel value={1}>Issues panel</TabPanel>
@@ -136,7 +136,7 @@ const Indicator = styled(BaseTabs.Indicator)`
       box-shadow 0.2s;
   }
 
-  &[data-activation-direction='bottom'] {
+  &[data-activation-direction='down'] {
     transition:
       top 0.6s 0.1s,
       bottom 0.3s;
@@ -154,7 +154,7 @@ const Indicator = styled(BaseTabs.Indicator)`
       box-shadow 0.2s;
   }
 
-  &[data-activation-direction='top'] {
+  &[data-activation-direction='up'] {
     transition:
       top 0.3s,
       bottom 0.6s 0.1s;

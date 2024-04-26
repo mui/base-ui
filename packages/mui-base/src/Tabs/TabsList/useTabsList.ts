@@ -211,8 +211,20 @@ function useActivationDirectionDetector(
 
   useEnhancedEffect(() => {
     // Whenever orientation changes, reset the state.
-    previousTabEdge.current = null;
-  }, [orientation]);
+    if (value == null || tabsListRef.current == null) {
+      previousTabEdge.current = null;
+      return;
+    }
+
+    const activeTab = getTabElement(value);
+    if (activeTab == null) {
+      previousTabEdge.current = null;
+      return;
+    }
+
+    const { left, top } = getInset(activeTab, tabsListRef.current);
+    previousTabEdge.current = orientation === 'horizontal' ? left : top;
+  }, [orientation, getTabElement, tabsListRef, value]);
 
   return React.useCallback(
     (newValue: any) => {
