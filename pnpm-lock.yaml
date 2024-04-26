@@ -295,6 +295,9 @@ importers:
       stylelint-config-standard:
         specifier: ^36.0.0
         version: 36.0.0(stylelint@16.3.1(typescript@5.4.5))
+      terser:
+        specifier: ^5.30.4
+        version: 5.30.4
       terser-webpack-plugin:
         specifier: ^5.3.10
         version: 5.3.10(webpack@5.91.0(webpack-cli@5.1.4))
@@ -8009,8 +8012,8 @@ packages:
       uglify-js:
         optional: true
 
-  terser@5.30.1:
-    resolution: {integrity: sha512-PJhOnRttZqqmIujxOQOMu4QuFGvh43lR7Youln3k6OJvmxwZ5FxK5rbCEh8XABRCpLf7ZnhrZuclCNCASsScnA==}
+  terser@5.30.4:
+    resolution: {integrity: sha512-xRdd0v64a8mFK9bnsKVdoNP9GQIKUAaJPTaqEQDL4w/J8WaW4sWXXoMZ+6SimPkfT5bElreXf8m9HnmPc3E1BQ==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -14035,7 +14038,7 @@ snapshots:
       he: 1.2.0
       param-case: 3.0.4
       relateurl: 0.2.7
-      terser: 5.30.1
+      terser: 5.30.4
 
   html-tags@3.3.1: {}
 
@@ -17432,7 +17435,7 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
-      terser: 5.30.1
+      terser: 5.30.4
       webpack: 5.91.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.91.0))
 
   terser-webpack-plugin@5.3.10(webpack@5.91.0(webpack-cli@5.1.4)):
@@ -17441,10 +17444,10 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
-      terser: 5.30.1
+      terser: 5.30.4
       webpack: 5.91.0(webpack-cli@5.1.4)
 
-  terser@5.30.1:
+  terser@5.30.4:
     dependencies:
       '@jridgewell/source-map': 0.3.6
       acorn: 8.11.3

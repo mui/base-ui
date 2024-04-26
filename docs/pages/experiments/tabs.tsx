@@ -1,3 +1,4 @@
+/* eslint-disable react/no-danger */
 import * as React from 'react';
 import { css, styled } from '@mui/system';
 import * as BaseTabs from '@base_ui/react/Tabs';
@@ -7,6 +8,7 @@ export default function UnstyledTabsIntroduction() {
 
   return (
     <div style={{ margin: '30px auto', maxWidth: '1800px', display: 'block' }}>
+      <style dangerouslySetInnerHTML={{ __html: 'body { display: block !important;' }} />
       <h1>Tabs</h1>
       <h2>Horizontal</h2>
       <Tabs value={v} onChange={(e, val) => sv(val)}>
@@ -16,7 +18,7 @@ export default function UnstyledTabsIntroduction() {
           <Tab value={2}>Pull Requests</Tab>
           <Tab value={3}>Discussions</Tab>
           <Tab value={4}>Actions</Tab>
-          <Indicator />
+          <Indicator renderBeforeHydration />
         </TabsList>
         <TabPanel value={0} keepMounted>
           Code panel

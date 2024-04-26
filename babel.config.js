@@ -87,7 +87,10 @@ module.exports = function getBabelConfig(api) {
     },
     presets,
     plugins,
-    ignore: [/@babel[\\|/]runtime/], // Fix a Windows issue.
+    ignore: [
+      /@babel[\\|/]runtime/, // Fix a Windows issue.
+      '**/*.template.js',
+    ],
     overrides: [
       {
         exclude: /\.test\.(js|ts|tsx)$/,

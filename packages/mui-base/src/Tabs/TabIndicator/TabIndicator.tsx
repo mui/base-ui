@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useTabIndicator } from './useTabIndicator';
 import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
 import { TabIndicatorProps } from './TabIndicator.types';
+import { script as prehydrationScript } from './prehydrationScript.min';
 import { useTabsContext } from '../Root/TabsContext';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
@@ -59,55 +60,8 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
       suppressHydrationWarning: true,
     } as React.ComponentPropsWithRef<'span'>);
 
-    // This script is used to set the initial position of the indicator before hydration happens.
-    // This is necessary to render the indicator in the right place right after the SSR-generated content is downloaded and not wait for React to kick in.
-    const prehydrationScript = `
-(function() {
-  let indicator = document.currentScript.previousElementSibling;
-  if (!indicator) {
-    return;
-  }
-
-  let list = indicator.closest('[role="tablist"]');
-  if (!list) {
-    return;
-  }
-
-  let activeTab = list.querySelector('[data-selected="true"]');
-  if (!activeTab) {
-    return;
-  }
-
-  let { left: tabL, right: tabR, top: tabT, bottom: tabB, width: tabW } = activeTab.getBoundingClientRect();
-  let { left: listL, right: listR, top: listT, bottom: listB, width: listW } = list.getBoundingClientRect();
-
-  if (tabW === 0 || listW === 0) {
-    return;
-  }
-
-  let left = tabL - listL;
-  let right = listR - tabR;
-  let top = tabT - listT;
-  let bottom = listB - tabB;
-  let width = tabR - tabL;
-  let height = tabB - tabT;
-
-  function setProp(name, value) {
-    indicator.style.setProperty('--active-tab-' + name, value + 'px');
-  }
-
-  setProp('left', left);
-  setProp('right', right);
-  setProp('top', top);
-  setProp('bottom', bottom);
-  setProp('width', width);
-  setProp('height', height);
-})();
-    `;
-
     return (
       <React.Fragment>
-        <style>{'body { display: block !important } '}</style>
         {evaluateRenderProp(render, rootProps, ownerState)}
         {!isMounted && renderBeforeHydration && (
           <script
