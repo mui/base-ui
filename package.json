@@ -147,7 +147,7 @@
     "recast": "^0.23.6",
     "remark": "^13.0.0",
     "rimraf": "^5.0.5",
-    "serve": "^14.2.1",
+    "serve": "^14.2.3",
     "stylelint": "^16.3.1",
     "stylelint-config-standard": "^36.0.0",
     "terser-webpack-plugin": "^5.3.10",
