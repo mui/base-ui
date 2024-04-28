@@ -78,7 +78,7 @@
     "@mui/material": "6.0.0-alpha.4",
     "@mui/monorepo": "github:mui/material-ui#v6.0.0-alpha.4",
     "@mui/utils": "6.0.0-alpha.3",
-    "@next/eslint-plugin-next": "^14.2.2",
+    "@next/eslint-plugin-next": "^14.2.3",
     "@octokit/rest": "^20.1.0",
     "@playwright/test": "1.43.1",
     "@types/enzyme": "^3.10.18",
