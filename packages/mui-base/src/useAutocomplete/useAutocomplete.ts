@@ -237,27 +237,28 @@ export function useAutocomplete<
 
   const popupOpen = open && !readOnly;
 
-  const filteredOptions = (disableFocusRender || popupOpen)
-    ? filterOptions(
-        options.filter((option) => {
-          if (
-            filterSelectedOptions &&
-            (multiple ? value : [value]).some(
-              (value2) => value2 !== null && isOptionEqualToValue(option, value2),
-            )
-          ) {
-            return false;
-          }
-          return true;
-        }),
-        // we use the empty string to manipulate `filterOptions` to not filter any options
-        // i.e. the filter predicate always returns true
-        {
-          inputValue: inputValueIsSelectedValue && inputPristine ? '' : inputValue,
-          getOptionLabel,
-        },
-      )
-    : [];
+  const filteredOptions =
+    disableFocusRender || popupOpen
+      ? filterOptions(
+          options.filter((option) => {
+            if (
+              filterSelectedOptions &&
+              (multiple ? value : [value]).some(
+                (value2) => value2 !== null && isOptionEqualToValue(option, value2),
+              )
+            ) {
+              return false;
+            }
+            return true;
+          }),
+          // we use the empty string to manipulate `filterOptions` to not filter any options
+          // i.e. the filter predicate always returns true
+          {
+            inputValue: inputValueIsSelectedValue && inputPristine ? '' : inputValue,
+            getOptionLabel,
+          },
+        )
+      : [];
 
   const previousProps = usePreviousProps({
     filteredOptions,
