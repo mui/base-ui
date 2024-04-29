@@ -91,6 +91,7 @@
     "NoSsr/",
     "Portal/",
     "Switch/",
+    "Tabs/",
     "Transitions/",
     "useButton",
     "useCheckbox/",
@@ -99,12 +100,15 @@
     "useSwitch/",
     "useTransition/",
     "utils/",
+    "index.js",
+    "index.d.ts",
     "node/Checkbox/",
     "node/ClickAwayListener/",
     "node/FocusTrap/",
     "node/NoSsr/",
     "node/Portal/",
     "node/Switch/",
+    "node/Tabs/",
     "node/Transitions/",
     "node/useButton",
     "node/useCheckbox/",
@@ -112,6 +116,8 @@
     "node/useList",
     "node/useSwitch/",
     "node/utils/",
-    "node/useTransition/"
+    "node/useTransition/",
+    "node/index.js",
+    "node/index.d.ts"
   ]
 }
