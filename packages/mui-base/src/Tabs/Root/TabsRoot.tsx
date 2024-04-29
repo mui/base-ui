@@ -28,7 +28,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     className: classNameProp,
     defaultValue,
     direction = 'ltr',
-    onChange,
+    onValueChange,
     orientation = 'horizontal',
     render: renderProp,
     value,
@@ -40,7 +40,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   const { contextValue, getRootProps, tabActivationDirection } = useTabsRoot({
     value,
     defaultValue,
-    onChange,
+    onValueChange,
     orientation,
     direction,
   });
@@ -89,7 +89,7 @@ TabsRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback invoked when new value is being set.
    */
-  onChange: PropTypes.func,
+  onValueChange: PropTypes.func,
   /**
    * The component orientation (layout flow direction).
    * @default 'horizontal'

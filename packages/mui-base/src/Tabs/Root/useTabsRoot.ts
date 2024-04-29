@@ -32,7 +32,7 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
   const {
     value: valueProp,
     defaultValue,
-    onChange,
+    onValueChange,
     orientation = 'horizontal',
     direction = 'ltr',
   } = parameters;
@@ -55,9 +55,9 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
     ) => {
       setValue(newValue);
       setTabActivationDirection(activationDirection);
-      onChange?.(event, newValue);
+      onValueChange?.(newValue, event);
     },
-    [onChange, setValue],
+    [onValueChange, setValue],
   );
 
   const { subitems: tabPanels, contextValue: compoundComponentContextValue } = useCompoundParent<

@@ -2,12 +2,6 @@
   "parameters": {
     "disabled": { "type": { "name": "boolean", "description": "boolean" } },
     "id": { "type": { "name": "string", "description": "string" } },
-    "onChange": {
-      "type": {
-        "name": "(event: React.SyntheticEvent, value: any) =&gt; void",
-        "description": "(event: React.SyntheticEvent, value: any) =&gt; void"
-      }
-    },
     "onClick": {
       "type": { "name": "React.MouseEventHandler", "description": "React.MouseEventHandler" }
     },

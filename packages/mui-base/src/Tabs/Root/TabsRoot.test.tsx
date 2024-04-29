@@ -159,11 +159,11 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describe('prop: onChange', () => {
-    it('should call onChange when clicking', () => {
+  describe('prop: onValueChange', () => {
+    it('should call onValueChange when clicking', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs.Root value={0} onChange={handleChange}>
+        <Tabs.Root value={0} onValueChange={handleChange}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
@@ -173,13 +173,13 @@ describe('<Tabs.Root />', () => {
 
       fireEvent.click(getAllByRole('tab')[1]);
       expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.args[0][1]).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
-    it('should not call onChange when already selected', () => {
+    it('should not call onValueChange when already selected', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs.Root value={0} onChange={handleChange}>
+        <Tabs.Root value={0} onValueChange={handleChange}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
@@ -191,10 +191,10 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.callCount).to.equal(0);
     });
 
-    it('should call onChange if an unselected tab gets focused', () => {
+    it('should call onValueChange if an unselected tab gets focused', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs.Root value={0} onChange={handleChange}>
+        <Tabs.Root value={0} onValueChange={handleChange}>
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
@@ -210,13 +210,13 @@ describe('<Tabs.Root />', () => {
       fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
 
       expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[1]).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
-    it('when `activateOnFocus = false` should not call onChange if an unselected tab gets focused', () => {
+    it('when `activateOnFocus = false` should not call onValueChange if an unselected tab gets focused', () => {
       const handleChange = spy();
       const { getAllByRole } = render(
-        <Tabs.Root value={1} onChange={handleChange}>
+        <Tabs.Root value={1} onValueChange={handleChange}>
           <Tabs.List activateOnFocus={false}>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
@@ -277,7 +277,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={0}
@@ -308,7 +308,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
@@ -341,7 +341,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={0}
@@ -362,7 +362,7 @@ describe('<Tabs.Root />', () => {
 
               expect(lastTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
-              expect(handleChange.firstCall.args[1]).to.equal(2);
+              expect(handleChange.firstCall.args[0]).to.equal(2);
               expect(handleKeyDown.callCount).to.equal(1);
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
@@ -373,7 +373,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
@@ -394,7 +394,7 @@ describe('<Tabs.Root />', () => {
 
               expect(firstTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
-              expect(handleChange.firstCall.args[1]).to.equal(0);
+              expect(handleChange.firstCall.args[0]).to.equal(0);
               expect(handleKeyDown.callCount).to.equal(1);
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
@@ -437,7 +437,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={2}
@@ -468,7 +468,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
@@ -501,7 +501,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={2}
@@ -522,7 +522,7 @@ describe('<Tabs.Root />', () => {
 
               expect(firstTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
-              expect(handleChange.firstCall.args[1]).to.equal(0);
+              expect(handleChange.firstCall.args[0]).to.equal(0);
               expect(handleKeyDown.callCount).to.equal(1);
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
@@ -533,7 +533,7 @@ describe('<Tabs.Root />', () => {
               const { getAllByRole } = render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
-                  onChange={handleChange}
+                  onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
                   value={1}
@@ -554,7 +554,7 @@ describe('<Tabs.Root />', () => {
 
               expect(lastTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
-              expect(handleChange.firstCall.args[1]).to.equal(2);
+              expect(handleChange.firstCall.args[0]).to.equal(2);
               expect(handleKeyDown.callCount).to.equal(1);
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
@@ -597,7 +597,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={2}>
               <Tabs.List activateOnFocus={false}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -622,7 +622,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={2}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -639,7 +639,7 @@ describe('<Tabs.Root />', () => {
 
           expect(firstTab).toHaveFocus();
           expect(handleChange.callCount).to.equal(1);
-          expect(handleChange.firstCall.args[1]).to.equal(0);
+          expect(handleChange.firstCall.args[0]).to.equal(0);
           expect(handleKeyDown.callCount).to.equal(1);
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
@@ -673,7 +673,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={0}>
               <Tabs.List activateOnFocus={false}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -698,7 +698,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onChange={handleChange} onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={0}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -715,7 +715,7 @@ describe('<Tabs.Root />', () => {
 
           expect(lastTab).toHaveFocus();
           expect(handleChange.callCount).to.equal(1);
-          expect(handleChange.firstCall.args[1]).to.equal(2);
+          expect(handleChange.firstCall.args[0]).to.equal(2);
           expect(handleKeyDown.callCount).to.equal(1);
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });

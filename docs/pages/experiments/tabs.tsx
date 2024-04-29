@@ -11,7 +11,7 @@ export default function UnstyledTabsIntroduction() {
       <style dangerouslySetInnerHTML={{ __html: 'body { display: block !important;' }} />
       <h1>Tabs</h1>
       <h2>Horizontal</h2>
-      <Tabs value={v} onChange={(e, val) => sv(val)}>
+      <Tabs value={v} onValueChange={(val) => sv(val)}>
         <TabsList>
           <Tab value={0}>Code</Tab>
           <Tab value={1}>Issues</Tab>
@@ -38,7 +38,7 @@ export default function UnstyledTabsIntroduction() {
       </Tabs>
 
       <h2>Vertical</h2>
-      <Tabs value={v} onChange={(e, val) => sv(val)} orientation="vertical">
+      <Tabs value={v} onValueChange={(val) => sv(val)} orientation="vertical">
         <TabsList>
           <Tab value={0}>Code</Tab>
           <Tab value={1}>Issues</Tab>

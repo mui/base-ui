@@ -23,14 +23,7 @@ const Tab = React.forwardRef(function Tab(
   props: TabProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const {
-    className: classNameProp,
-    disabled = false,
-    onChange,
-    render: renderProp,
-    value,
-    ...other
-  } = props;
+  const { className: classNameProp, disabled = false, render: renderProp, value, ...other } = props;
 
   const render = renderProp ?? defaultRenderFunctions.button;
 
@@ -76,10 +69,6 @@ Tab.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   disabled: PropTypes.bool,
-  /**
-   * Callback invoked when new value is being set.
-   */
-  onChange: PropTypes.func,
   /**
    * A function to customize rendering of the component.
    */

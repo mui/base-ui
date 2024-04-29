@@ -4,7 +4,6 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "onChange": { "description": "Callback invoked when new value is being set." },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
       "description": "You can provide your own value. Otherwise, it falls back to the child position index."

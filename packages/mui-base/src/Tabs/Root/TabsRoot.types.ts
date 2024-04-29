@@ -8,8 +8,7 @@ export type TabsRootOwnerState = {
   tabActivationDirection: TabActivationDirection;
 };
 
-export interface TabsRootProps
-  extends Omit<BaseUIComponentProps<'div', TabsRootOwnerState>, 'defaultValue' | 'onChange'> {
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootOwnerState> {
   /**
    * The value of the currently selected `Tab`.
    * If you don't want any selected `Tab`, you can set this prop to `null`.
@@ -32,7 +31,7 @@ export interface TabsRootProps
   /**
    * Callback invoked when new value is being set.
    */
-  onChange?: (event: React.SyntheticEvent | null, value: any | null) => void;
+  onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
 }
 
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
@@ -64,7 +63,7 @@ export interface UseTabsParameters {
   /**
    * Callback invoked when new value is being set.
    */
-  onChange?: (event: React.SyntheticEvent | null, value: any | null) => void;
+  onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
 }
 
 export interface UseTabsReturnValue {

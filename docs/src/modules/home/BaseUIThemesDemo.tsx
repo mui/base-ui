@@ -721,7 +721,7 @@ export default function BaseUIThemesDemo() {
   return (
     <Fade in timeout={700}>
       <Panel sx={{ ...heroVariables[design] }}>
-        <Tabs.Root value={design} onChange={(event, newValue) => setDesign(newValue as number)}>
+        <Tabs.Root value={design} onValueChange={(newValue) => setDesign(newValue as number)}>
           <Tabs.List render={(props) => <StyledTabsList {...props} />}>
             <Tabs.Tab render={(props) => <StyledTab {...props} />} value={0}>
               <AutoAwesomeRounded sx={{ fontSize: 15 }} />

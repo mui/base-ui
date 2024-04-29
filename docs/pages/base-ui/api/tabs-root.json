@@ -6,7 +6,7 @@
       "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
       "default": "'ltr'"
     },
-    "onChange": { "type": { "name": "func" } },
+    "onValueChange": { "type": { "name": "func" } },
     "orientation": {
       "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
       "default": "'horizontal'"

@@ -8,15 +8,11 @@ export type TabOwnerState = {
   orientation: TabsOrientation;
 };
 
-export interface TabProps extends Omit<BaseUIComponentProps<'button', TabOwnerState>, 'onChange'> {
+export interface TabProps extends BaseUIComponentProps<'button', TabOwnerState> {
   /**
    * You can provide your own value. Otherwise, it falls back to the child position index.
    */
   value?: any;
-  /**
-   * Callback invoked when new value is being set.
-   */
-  onChange?: (event: React.SyntheticEvent, value: any) => void;
 }
 
 export interface UseTabParameters {
@@ -26,10 +22,6 @@ export interface UseTabParameters {
    * If the value is not provided, it falls back to the position index.
    */
   value?: any;
-  /**
-   * If `true`, the tab will be disabled.
-   */
-  onChange?: (event: React.SyntheticEvent, value: any) => void;
   /**
    * Callback fired when the tab is clicked.
    */

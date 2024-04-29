@@ -8,7 +8,7 @@
       "description": "The default value. Use when the component is not controlled."
     },
     "direction": { "description": "The direction of the text." },
-    "onChange": { "description": "Callback invoked when new value is being set." },
+    "onValueChange": { "description": "Callback invoked when new value is being set." },
     "orientation": { "description": "The component orientation (layout flow direction)." },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
