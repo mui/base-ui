@@ -126,6 +126,12 @@ export interface UseAutocompleteProps<
    */
   disableListWrap?: boolean;
   /**
+   * If 'true', the filtered list items will be returned if the
+   * input looses focus instead of an empty array [].
+   * @default false
+   */
+  disableFocusRender?: boolean;
+  /**
    * A function that determines the filtered options to be rendered on search.
    *
    * @default createFilterOptions()

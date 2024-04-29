@@ -120,6 +120,7 @@ export function useAutocomplete<
     disabled: disabledProp,
     disabledItemsFocusable = false,
     disableListWrap = false,
+    disableFocusRender = false,
     filterOptions = defaultFilterOptions,
     filterSelectedOptions = false,
     freeSolo = false,
@@ -236,7 +237,7 @@ export function useAutocomplete<
 
   const popupOpen = open && !readOnly;
 
-  const filteredOptions = popupOpen
+  const filteredOptions = (disableFocusRender || popupOpen)
     ? filterOptions(
         options.filter((option) => {
           if (
