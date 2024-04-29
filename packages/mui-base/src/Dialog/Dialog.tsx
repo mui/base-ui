@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useForkRef } from '../utils/useForkRef';
 
 export type DialogOpenState = 'closed' | 'open' | 'openModal';
@@ -7,16 +8,17 @@ export interface DialogRootProps {
   open?: boolean;
   modal?: boolean;
   children?: React.ReactNode;
-  onClosed?: () => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const defaultRender = (props: React.ComponentPropsWithRef<'dialog'>) => <dialog {...props} />;
 
 const DialogRoot = React.forwardRef(function DialogRoot(
-  props: DialogRootProps,
+  props: DialogRootProps & React.ComponentPropsWithoutRef<'dialog'>,
   forwardedRef: React.Ref<HTMLDialogElement>,
 ) {
-  const { open, modal, onClosed, ...other } = props;
+  const { open = false, modal = true, onOpenChange, ...other } = props;
+  const previousOpen = React.useRef<boolean>(open);
 
   const ref = React.useRef<HTMLDialogElement>(null);
   const handleRef = useForkRef(ref, forwardedRef);
@@ -24,25 +26,30 @@ const DialogRoot = React.forwardRef(function DialogRoot(
   React.useEffect(() => {
     if (!open) {
       ref.current?.close();
-      return;
-    }
-
-    if (modal) {
+    } else if (modal) {
+      if (previousOpen.current === true) {
+        ref.current?.close();
+      }
       ref.current?.showModal();
     } else {
+      if (previousOpen.current === true) {
+        ref.current?.close();
+      }
       ref.current?.show();
     }
+
+    previousOpen.current = open;
   }, [open, modal]);
 
   const handleCancel = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    onClosed?.();
+    onOpenChange?.(false);
   };
 
   const handleFormSubmit = (event: React.FormEvent) => {
     if ((event.target as HTMLFormElement).method === 'dialog') {
       event.preventDefault();
-      handleCancel(event);
+      onOpenChange?.(false);
     }
   };
 
@@ -55,5 +62,28 @@ const DialogRoot = React.forwardRef(function DialogRoot(
 
   return defaultRender(outputProps);
 });
+
+DialogRoot.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * @ignore
+   */
+  modal: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  onOpenChange: PropTypes.func,
+  /**
+   * @ignore
+   */
+  open: PropTypes.bool,
+} as any;
 
 export { DialogRoot };

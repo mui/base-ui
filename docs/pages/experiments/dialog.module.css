@@ -1,0 +1,52 @@
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.dialog {
+  background: #fff;
+  border: 1px solid #f5f5f5;
+  min-width: 300px;
+  max-width: 500px;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+  padding: 16px;
+
+  &::backdrop {
+    backdrop-filter: blur(8px);
+    background: radial-gradient(#cecdcf36, #8b94ab47);
+  }
+}
+
+.button {
+  background: #eee;
+  padding: 8px 16px;
+  margin: 8px;
+  border: 1px solid #d8d8d8;
+  border-radius: 4px;
+  font-family: inherit;
+
+  &:hover {
+    background: #ffbf2b;
+  }
+
+  &:active {
+    background: #cc9922;
+  }
+}
+
+.form {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+
+  & > * {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+.nonmodal {
+  top: 20vh;
+}
