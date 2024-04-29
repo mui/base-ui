@@ -1,15 +1,11 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
-import { TabsList as BaseTabsList } from '@base_ui/react/TabsList';
-import { TabPanel as BaseTabPanel } from '@base_ui/react/TabPanel';
-import { buttonClasses } from '@base_ui/react/Button';
-import { Tab as BaseTab, tabClasses } from '@base_ui/react/Tab';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsIntroduction() {
   return (
-    <Tabs defaultValue={0}>
-      <TabsList>
+    <Tabs.Root defaultValue={0}>
+      <TabsList aria-label="Settings">
         <Tab value={0}>My account</Tab>
         <Tab value={1}>Profile</Tab>
         <Tab value={2}>Language</Tab>
@@ -17,7 +13,7 @@ export default function UnstyledTabsIntroduction() {
       <TabPanel value={0}>My account page</TabPanel>
       <TabPanel value={1}>Profile page</TabPanel>
       <TabPanel value={2}>Language page</TabPanel>
-    </Tabs>
+    </Tabs.Root>
   );
 }
 
@@ -47,7 +43,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Tab = styled(BaseTab)`
+const Tab = styled(Tabs.Tab)`
   font-family: 'IBM Plex Sans', sans-serif;
   color: #fff;
   cursor: pointer;
@@ -71,18 +67,18 @@ const Tab = styled(BaseTab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &.${tabClasses.selected} {
+  &[data-selected='true'] {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &.${buttonClasses.disabled} {
+  &[data-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `;
 
-const TabPanel = styled(BaseTabPanel)(
+const TabPanel = styled(Tabs.Panel)(
   ({ theme }) => `
   width: 100%;
   font-family: 'IBM Plex Sans', sans-serif;
@@ -95,7 +91,7 @@ const TabPanel = styled(BaseTabPanel)(
   `,
 );
 
-const TabsList = styled(BaseTabsList)(
+const TabsList = styled(Tabs.List)(
   ({ theme }) => `
   min-width: 400px;
   background-color: ${blue[500]};

@@ -57,7 +57,8 @@
     "test:unit": "cross-env NODE_ENV=test mocha 'packages/**/*.test.{js,ts,tsx}' 'docs/**/*.test.{js,ts,tsx}'",
     "test:argos": "node ./scripts/pushArgos.mjs",
     "typescript": "tsc -b tsconfig.typecheck.json",
-    "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts"
+    "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts",
+    "inline-scripts": "tsx ./scripts/inlineScripts.mts"
   },
   "devDependencies": {
     "@argos-ci/core": "^2.1.0",
@@ -150,6 +151,7 @@
     "serve": "^14.2.1",
     "stylelint": "^16.3.1",
     "stylelint-config-standard": "^36.0.0",
+    "terser": "^5.30.4",
     "terser-webpack-plugin": "^5.3.10",
     "tsx": "^4.7.2",
     "typescript": "^5.4.5",

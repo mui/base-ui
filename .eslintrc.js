@@ -19,5 +19,16 @@ module.exports = {
     // TODO move to @mui/monorepo, codebase is moving away from default exports
     'import/prefer-default-export': 'off',
   },
-  overrides: [...baseline.overrides],
+  overrides: [
+    ...baseline.overrides,
+    {
+      files: ['docs/pages/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
+      rules: {
+        '@typescript-eslint/no-use-before-define': 'off',
+        'react/prop-types': 'off',
+        'no-alert': 'off',
+        'no-console': 'off',
+      },
+    },
+  ],
 };

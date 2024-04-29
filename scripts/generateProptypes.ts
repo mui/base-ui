@@ -168,7 +168,7 @@ async function run(argv: HandlerArgv) {
   // Example: AppBar/AppBar.d.ts
   const allFiles = await Promise.all(
     [path.resolve(__dirname, '../packages/mui-base/src')].map((folderPath) =>
-      glob('+([A-Z])*/+([A-Z])*.*@(d.ts|ts|tsx)', {
+      glob(['[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)', '[A-Z]*/[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)'], {
         absolute: true,
         cwd: folderPath,
       }),
