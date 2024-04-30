@@ -57,6 +57,7 @@
     {
       "groupName": "MUI",
       "matchPackagePatterns": ["@mui/*"],
+      "allowedVersions": "!/-dev/",
       "schedule": "before 6:00am on Wednesday"
     },
     {
