@@ -392,22 +392,6 @@ jobs:
       - run:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
-  test_benchmark:
-    <<: *default-job
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.43.1-focal
-        environment:
-          NODE_ENV: development # Needed if playwright is in `devDependencies`
-    steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
-          browsers: true
-      - run: pnpm benchmark:browser
-      - store_artifacts:
-          name: Publish benchmark results as a pipeline artifact.
-          path: tmp/benchmarks
-          destination: benchmarks
 workflows:
   version: 2
   pipeline:
@@ -493,10 +477,4 @@ workflows:
                 - master
     jobs:
       - test_types_next:
-          <<: *default-context
-  benchmark:
-    when:
-      equal: [benchmark, << pipeline.parameters.workflow >>]
-    jobs:
-      - test_benchmark:
           <<: *default-context
