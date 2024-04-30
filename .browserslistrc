@@ -56,7 +56,3 @@ node 18.0
 # same as `node`
 [test]
 node 18.0
-
-# same as `node`
-[benchmark]
-node 18.0
