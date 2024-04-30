@@ -287,8 +287,8 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       serve:
-        specifier: ^14.2.1
-        version: 14.2.2
+        specifier: ^14.2.3
+        version: 14.2.3
       stylelint:
         specifier: ^16.3.1
         version: 16.4.0(typescript@5.4.5)
@@ -549,8 +549,8 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5
       serve:
-        specifier: ^14.2.1
-        version: 14.2.2
+        specifier: ^14.2.3
+        version: 14.2.3
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3
@@ -3203,8 +3203,8 @@ packages:
     resolution: {integrity: sha512-aiATs7pSutzda/rq8fnuPwTglyVwjM22bNnK2ZgjrpAjQHSSl3lztd2f9evst1W/qnC58DRz7T7QndUDumAR4Q==}
     engines: {node: '>=14.15.0'}
 
-  '@zeit/schemas@2.29.0':
-    resolution: {integrity: sha512-g5QiLIfbg3pLuYUJPlisNKY+epQJTcMDsOnVNkscrDP1oi7vmJnzOANYJI/1pZcVJ6umUkBv3aFtlg1UvUHGzA==}
+  '@zeit/schemas@2.36.0':
+    resolution: {integrity: sha512-7kjMwcChYEzMKjeex9ZFXkt1AyNov9R5HZtjBKVsmVpw7pa7ZtlCGvCBC2vnnXctaYN+aRI61HjIqeetZW5ROg==}
 
   '@zkochan/js-yaml@0.0.6':
     resolution: {integrity: sha512-nzvgl3VfhcELQ8LyVrYOru+UtAy1nrygk2+AGbTm8a5YcO6o8lSjAT+pfg3vJWxIoZKOUhrK6UU7xW/+00kQrg==}
@@ -7703,8 +7703,8 @@ packages:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
     engines: {node: '>= 0.8.0'}
 
-  serve@14.2.2:
-    resolution: {integrity: sha512-MktTGv3ooijGxd67iQVocNdiHaOdNnEApGj7At4qHUN44XDaLFfrqbEtj5mXf+QNqyig/VdHYMRTXWRQj6TEbw==}
+  serve@14.2.3:
+    resolution: {integrity: sha512-VqUFMC7K3LDGeGnJM9h56D3XGKb6KGgOw0cVNtA26yYXHCcpxf3xwCTUaQoWlVS7i8Jdh3GjQkOB23qsXyjoyQ==}
     engines: {node: '>= 14'}
     hasBin: true
 
@@ -11644,7 +11644,7 @@ snapshots:
       js-yaml: 3.14.1
       tslib: 2.6.2
 
-  '@zeit/schemas@2.29.0': {}
+  '@zeit/schemas@2.36.0': {}
 
   '@zkochan/js-yaml@0.0.6':
     dependencies:
@@ -17071,9 +17071,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  serve@14.2.2:
+  serve@14.2.3:
     dependencies:
-      '@zeit/schemas': 2.29.0
+      '@zeit/schemas': 2.36.0
       ajv: 8.12.0
       arg: 5.0.2
       boxen: 7.0.0
