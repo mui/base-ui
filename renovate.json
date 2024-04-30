@@ -56,11 +56,19 @@
     },
     {
       "groupName": "MUI",
-      "matchPackagePatterns": ["@mui/*"]
+      "matchPackagePatterns": ["@mui/*"],
+      "schedule": "before 6:00am on Wednesday"
     },
     {
       "groupName": "React",
-      "matchPackageNames": ["react", "react-dom", "react-is", "react-test-renderer"]
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "react-is",
+        "react-test-renderer",
+        "@types/react",
+        "@types/react-dom"
+      ]
     },
     {
       "groupName": "typescript-eslint",
@@ -126,6 +134,6 @@
   "prConcurrentLimit": 30,
   "prHourlyLimit": 0,
   "rangeStrategy": "bump",
-  "schedule": "on sunday before 6:00pm",
+  "schedule": "on the first day of the month before 4:00am",
   "timezone": "UTC"
 }
