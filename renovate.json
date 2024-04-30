@@ -60,6 +60,12 @@
       "schedule": "before 6:00am on Wednesday"
     },
     {
+      "groupName": "Public packages' dependencies",
+      "matchFileNames": ["packages/*/package.json"],
+      "matchDepTypes": ["dependencies"],
+      "schedule": "before 6:00am on Wednesday"
+    },
+    {
       "groupName": "React",
       "matchPackageNames": [
         "react",
