@@ -413,7 +413,7 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       clsx:
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: 2.1.1
       core-js:
         specifier: ^2.6.11
@@ -588,7 +588,7 @@ importers:
         specifier: ^2.11.8
         version: 2.11.8
       clsx:
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: 2.1.1
       prop-types:
         specifier: ^15.8.1
