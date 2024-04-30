@@ -62,8 +62,8 @@ importers:
         specifier: ^1.0.6
         version: 1.0.6
       '@mui/internal-markdown':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown
+        version: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown
       '@mui/internal-scripts':
         specifier: ^1.0.6
         version: 1.0.6
@@ -353,14 +353,14 @@ importers:
         specifier: ^11.11.5
         version: 11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       '@mui/docs':
-        specifier: 6.0.0-alpha.4
-        version: 6.0.0-alpha.4(@mui/base@5.0.0-beta.42(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.4(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        specifier: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/docs
+        version: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/docs(@mui/base@5.0.0-beta.42(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.4(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@mui/icons-material':
         specifier: 6.0.0-alpha.4
         version: 6.0.0-alpha.4(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       '@mui/internal-markdown':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown
+        version: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown
       '@mui/internal-scripts':
         specifier: ^1.0.6
         version: 1.0.6
@@ -2038,8 +2038,9 @@ packages:
   '@mui/core-downloads-tracker@6.0.0-alpha.4':
     resolution: {integrity: sha512-azrhvrurLrfIZntnYVFfFrmKMZ4ZXvgouEvjeU1SmZSo56X9khgiFJ0ie1lzh9eoVYS2WneyykyyibptTv3g6w==}
 
-  '@mui/docs@6.0.0-alpha.4':
-    resolution: {integrity: sha512-8Ab3rNuQr6uum6XJD9KQxRFehfKxja+SxO9wq39yJcbiaSKAX9R4HfpZnSYIjzGaIdvvTRFGCqtG8WJPBkI2Qg==}
+  '@mui/docs@https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/docs':
+    resolution: {tarball: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/docs}
+    version: 6.0.0-alpha.4
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@mui/base': '*'
@@ -2084,8 +2085,9 @@ packages:
   '@mui/internal-docs-utils@1.0.6':
     resolution: {integrity: sha512-/XZsdEPulG2bkTTZAkQ7/jECzwdRLUs3HB9TgFmQixBCMblYpNHMTRVGJe9UrDHEAlJmBXFf0stiqboOJBM8sw==}
 
-  '@mui/internal-markdown@1.0.3':
-    resolution: {integrity: sha512-b+8T8S1raSuaOXaNyKiChyw1Lb/nEY1ITGsw6oygVLacsN6mZ7EB5cmvEbHA4EQiNwqCn7BgI9OoBTTr0GdZtg==}
+  '@mui/internal-markdown@https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown':
+    resolution: {tarball: https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown}
+    version: 1.0.3
 
   '@mui/internal-scripts@1.0.6':
     resolution: {integrity: sha512-Walp2Uw1Ho/LTX2mFWZjpcXesUAMsDfndCCoDbOfYaUMVlwFw9N8GzgYgdTNfxy0/kMYR5ExkAoW3ON9VPpvsw==}
@@ -10235,12 +10237,12 @@ snapshots:
 
   '@mui/core-downloads-tracker@6.0.0-alpha.4': {}
 
-  ? '@mui/docs@6.0.0-alpha.4(@mui/base@5.0.0-beta.42(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.4(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)'
+  ? '@mui/docs@https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/docs(@mui/base@5.0.0-beta.42(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.4(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.4)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)'
   : dependencies:
       '@babel/runtime': 7.24.4
       '@mui/base': 5.0.0-beta.42(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/icons-material': 6.0.0-alpha.4(@mui/material@6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
-      '@mui/internal-markdown': 1.0.3
+      '@mui/internal-markdown': https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown
       '@mui/material': 6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/system': 6.0.0-alpha.4(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       clipboard-copy: 4.0.1
@@ -10280,7 +10282,7 @@ snapshots:
       rimraf: 5.0.5
       typescript: 5.4.5
 
-  '@mui/internal-markdown@1.0.3':
+  '@mui/internal-markdown@https://pkg.csb.dev/mui/material-ui/commit/8ce36fea/@mui/internal-markdown':
     dependencies:
       '@babel/runtime': 7.24.4
       lodash: 4.17.21
