@@ -12,10 +12,6 @@ async function waitForNextEventCycle() {
   });
 }
 
-function round(value: number) {
-  return Math.round(value * 100) * 0.01;
-}
-
 describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
 
@@ -59,6 +55,11 @@ describe('<Tabs.Indicator />', () => {
       expect(queryByTestId('bubble')).to.equal(null);
     });
 
+    function assertSize(actual: string, expected: number) {
+      const actualNumber = parseFloat(actual);
+      expect(actualNumber).to.be.closeTo(expected, 0.01);
+    }
+
     function assertBubblePositionVariables(
       bubble: HTMLElement,
       tabList: HTMLElement,
@@ -78,26 +79,21 @@ describe('<Tabs.Indicator />', () => {
         bottom: tabBottom,
       } = activeTab.getBoundingClientRect();
 
-      const relativeLeft = round(tabLeft - listLeft);
-      const relativeRight = round(listRight - tabRight);
-      const relativeTop = round(tabTop - listTop);
-      const relativeBottom = round(listBottom - tabBottom);
+      const relativeLeft = tabLeft - listLeft;
+      const relativeRight = listRight - tabRight;
+      const relativeTop = tabTop - listTop;
+      const relativeBottom = listBottom - tabBottom;
 
-      expect(window.getComputedStyle(bubble).getPropertyValue('--active-tab-left')).to.equal(
-        `${relativeLeft}px`,
-      );
+      const bubbleComputedStyle = window.getComputedStyle(bubble);
+      const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
+      const actualRight = bubbleComputedStyle.getPropertyValue('--active-tab-right');
+      const actualTop = bubbleComputedStyle.getPropertyValue('--active-tab-top');
+      const actualBottom = bubbleComputedStyle.getPropertyValue('--active-tab-bottom');
 
-      expect(window.getComputedStyle(bubble).getPropertyValue('--active-tab-right')).to.equal(
-        `${relativeRight}px`,
-      );
-
-      expect(window.getComputedStyle(bubble).getPropertyValue('--active-tab-top')).to.equal(
-        `${relativeTop}px`,
-      );
-
-      expect(window.getComputedStyle(bubble).getPropertyValue('--active-tab-bottom')).to.equal(
-        `${relativeBottom}px`,
-      );
+      assertSize(actualLeft, relativeLeft);
+      assertSize(actualRight, relativeRight);
+      assertSize(actualTop, relativeTop);
+      assertSize(actualBottom, relativeBottom);
     }
 
     it('should set CSS variables corresponding to the active tab', () => {
