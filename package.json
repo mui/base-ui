@@ -151,7 +151,7 @@
     "serve": "^14.2.3",
     "stylelint": "^16.4.0",
     "stylelint-config-standard": "^36.0.0",
-    "terser": "^5.30.4",
+    "terser": "^5.31.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsx": "^4.7.3",
     "typescript": "^5.4.5",
