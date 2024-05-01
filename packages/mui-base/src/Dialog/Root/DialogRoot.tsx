@@ -1,58 +1,51 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useForkRef } from '../../utils/useForkRef';
 import { DialogRootProps } from './DialogRoot.types';
+import { DialogRootContext, DialogRootContextValue } from './DialogRootContext';
+import { useControlled } from '../../utils/useControlled';
 
-const defaultRender = (props: React.ComponentPropsWithRef<'dialog'>) => <dialog {...props} />;
+const defaultRender = (props: React.PropsWithChildren<{ ref: React.Ref<HTMLElement> }>) => (
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  <React.Fragment>{props.children}</React.Fragment>
+);
 
 const DialogRoot = React.forwardRef(function DialogRoot(
-  props: DialogRootProps & React.ComponentPropsWithoutRef<'dialog'>,
-  forwardedRef: React.Ref<HTMLDialogElement>,
+  props: DialogRootProps,
+  forwardedRef: React.Ref<HTMLElement>,
 ) {
-  const { open = false, modal = true, onOpenChange, ...other } = props;
-  const previousOpen = React.useRef<boolean>(open);
+  const { modal = true, onOpenChange, open: openProp, defaultOpen, ...other } = props;
+  const [open, setOpen] = useControlled({
+    controlled: openProp,
+    default: defaultOpen,
+    name: 'DialogRoot',
+  });
 
-  const ref = React.useRef<HTMLDialogElement>(null);
-  const handleRef = useForkRef(ref, forwardedRef);
-
-  React.useEffect(() => {
-    if (!open) {
-      ref.current?.close();
-    } else if (modal) {
-      if (previousOpen.current === true) {
-        ref.current?.close();
-      }
-      ref.current?.showModal();
-    } else {
-      if (previousOpen.current === true) {
-        ref.current?.close();
-      }
-      ref.current?.show();
-    }
-
-    previousOpen.current = open;
-  }, [open, modal]);
-
-  const handleCancel = (event: React.SyntheticEvent) => {
-    event.preventDefault();
-    onOpenChange?.(false);
-  };
-
-  const handleFormSubmit = (event: React.FormEvent) => {
-    if ((event.target as HTMLFormElement).method === 'dialog') {
-      event.preventDefault();
-      onOpenChange?.(false);
-    }
-  };
-
-  const outputProps: React.ComponentPropsWithRef<'dialog'> = {
+  const rootProps = {
     ...other,
-    onCancel: handleCancel,
-    onSubmit: handleFormSubmit,
-    ref: handleRef,
+    ref: forwardedRef,
   };
 
-  return defaultRender(outputProps);
+  const handleOpenChange = React.useCallback(
+    (shouldOpen: boolean) => {
+      setOpen(shouldOpen);
+      onOpenChange?.(shouldOpen);
+    },
+    [onOpenChange, setOpen],
+  );
+
+  const contextValue: DialogRootContextValue = React.useMemo(() => {
+    return {
+      modal,
+      onOpenChange: handleOpenChange,
+      open,
+    };
+  }, [modal, handleOpenChange, open]);
+
+  return (
+    <DialogRootContext.Provider value={contextValue}>
+      {defaultRender(rootProps)}
+    </DialogRootContext.Provider>
+  );
 });
 
 DialogRoot.propTypes /* remove-proptypes */ = {
