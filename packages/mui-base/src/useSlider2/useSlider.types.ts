@@ -159,6 +159,7 @@ export interface UseSliderReturnValue {
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
   compoundComponentContextValue: CompoundComponentContextValue<any, ThumbMetadata>;
+  dragging: boolean;
   disabled: boolean;
   isRtl: boolean;
   largeStep: number;

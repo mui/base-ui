@@ -45,9 +45,10 @@ export default function App() {
   const [val2, setVal2] = React.useState([40, 60]);
   const [val3, setVal3] = React.useState([20, 40, 60, 80]);
   return (
-    <div style={{ width: 320, padding: 16 }}>
+    <div className="SliderDemo" style={{ width: 320, padding: 16 }}>
       <h3>Uncontrolled</h3>
       <Slider.Root className="MySlider" defaultValue={50}>
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track" render={<span />}>
           <TrackFillSingleThumb className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
@@ -55,6 +56,7 @@ export default function App() {
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={30} disabled render={<span />}>
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFillSingleThumb className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
@@ -62,6 +64,7 @@ export default function App() {
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[40, 60]} render={<span />}>
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFillRange className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
@@ -70,6 +73,7 @@ export default function App() {
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[40, 60, 80]} render={<span />}>
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
@@ -78,7 +82,6 @@ export default function App() {
       </Slider.Root>
 
       <h3 style={{ marginTop: 32 }}>Controlled</h3>
-      <pre>{val1}</pre>
       <Slider.Root
         className="MySlider"
         value={val1}
@@ -86,13 +89,13 @@ export default function App() {
           setVal1(newValue as number);
         }}
       >
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track" render={<span />}>
           <TrackFillSingleThumb className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb" />
         </Slider.Track>
       </Slider.Root>
 
-      <pre>{val2.join('-')}</pre>
       <Slider.Root
         className="MySlider"
         value={val2}
@@ -100,6 +103,7 @@ export default function App() {
           setVal2(newValue as number[]);
         }}
       >
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track" render={<span />}>
           <TrackFillRange className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb" />
@@ -107,7 +111,6 @@ export default function App() {
         </Slider.Track>
       </Slider.Root>
 
-      <pre>{`[${val3.toString()}]`}</pre>
       <Slider.Root
         className="MySlider"
         value={val3}
@@ -115,6 +118,7 @@ export default function App() {
           setVal3(newValue as number[]);
         }}
       >
+        <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track" render={<span />}>
           {val3.map((_val, idx) => (
             <Slider.Thumb key={`thumb-${idx}`} className="MySlider-thumb" />
@@ -161,27 +165,37 @@ function Styles() {
   const isDarkMode = useIsDarkMode();
   return (
     <style>{`
+    .SliderDemo {
+      font-family: system-ui, sans-serif;
+    }
+
     .MySlider {
       color: ${isDarkMode ? cyan[300] : cyan[500]};
-      height: 4px;
       width: 100%;
       padding: 16px 0;
-      display: inline-flex;
       align-items: center;
       position: relative;
-      cursor: pointer;
       touch-action: none;
       -webkit-tap-highlight-color: transparent;
-      margin-bottom: 32px;
+      margin-bottom: 2rem;
+      display: grid;
+      grid-auto-rows: 1.5rem auto;
+      grid-gap: 1rem;
+    }
+
+    .MySlider-output {
+      text-align: right;
+      font-size: .875rem;
     }
 
     .MySlider-track {
       display: block;
-      position: absolute;
+      position: relative;
       width: 100%;
       height: 4px;
       border-radius: 6px;
       background-color: color-mix(in srgb, currentColor 30%, transparent);
+      cursor: pointer;
     }
 
     .MySlider-track-fill {

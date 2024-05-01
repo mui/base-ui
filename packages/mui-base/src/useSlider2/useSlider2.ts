@@ -250,7 +250,6 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const changeValue = React.useCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
-      // const index = Number(event.currentTarget.getAttribute('data-index'));
       const value = values[index];
       const marksIndex = marksValues.indexOf(value);
       let newValue: number | number[] = valueInput;
@@ -512,6 +511,13 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ref: handleRef,
+      }),
+    [handleRef],
+  );
+
+  const getTrackProps: UseSliderReturnValue['getTrackProps'] = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps(externalProps, {
         onPointerDown(event: React.PointerEvent<HTMLSpanElement>) {
           if (disabled) {
             return;
@@ -550,19 +556,11 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       disabled,
       getFingerNewValue,
       handleValueChange,
-      handleRef,
       handleTouchEnd,
       handleTouchMove,
       setValueState,
       valueState,
     ],
-  );
-
-  const getTrackProps: UseSliderReturnValue['getTrackProps'] = React.useCallback(
-    (externalProps = {}) => ({
-      ...externalProps,
-    }),
-    [],
   );
 
   const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
@@ -592,6 +590,7 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       axisProps,
       changeValue,
       compoundComponentContextValue,
+      dragging,
       disabled,
       isRtl,
       largeStep,
@@ -617,6 +616,7 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       axis,
       changeValue,
       compoundComponentContextValue,
+      dragging,
       disabled,
       isRtl,
       largeStep,

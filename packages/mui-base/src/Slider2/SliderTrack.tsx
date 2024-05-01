@@ -26,11 +26,6 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
-    // style: {
-    //   ...otherProps.style,
-    //   ...axisProps[axis].offset(trackOffset),
-    //   ...axisProps[axis].leap(trackLeap),
-    // },
   });
 
   return evaluateRenderProp(render, trackProps, ownerState);

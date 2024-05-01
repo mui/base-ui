@@ -105,7 +105,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           changeValue(event.target.valueAsNumber, index, event);
         },
         onFocus() {
-          // const index = Number(event.currentTarget.getAttribute('data-index'));
           setOpen(index);
         },
         onBlur() {
@@ -144,6 +143,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         },
         tabIndex,
         type: 'range',
+        value: thumbValue ?? '',
       });
     },
     [

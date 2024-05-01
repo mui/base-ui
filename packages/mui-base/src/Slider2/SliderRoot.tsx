@@ -43,14 +43,18 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const ownerState: SliderOwnerState = React.useMemo(
     () => ({
       disabled,
+      dragging: slider.dragging,
       max: slider.max,
       min: slider.min,
       value: slider.value,
     }),
-    [disabled, slider.max, slider.min, slider.value],
+    [disabled, slider.dragging, slider.max, slider.min, slider.value],
   );
 
-  const styleHooks = React.useMemo(() => getStyleHookProps({ disabled }), [disabled]);
+  const styleHooks = React.useMemo(
+    () => getStyleHookProps({ disabled, dragging: slider.dragging }),
+    [disabled, slider.dragging],
+  );
 
   const rootProps = slider.getRootProps({
     ...styleHooks,
