@@ -87,7 +87,10 @@ module.exports = function getBabelConfig(api) {
     },
     presets,
     plugins,
-    ignore: [/@babel[\\|/]runtime/], // Fix a Windows issue.
+    ignore: [
+      /@babel[\\|/]runtime/, // Fix a Windows issue.
+      '**/*.template.js',
+    ],
     overrides: [
       {
         exclude: /\.test\.(js|ts|tsx)$/,
@@ -118,16 +121,6 @@ module.exports = function getBabelConfig(api) {
           ],
         ],
       },
-      rollup: {
-        plugins: [
-          [
-            'babel-plugin-module-resolver',
-            {
-              alias: defaultAlias,
-            },
-          ],
-        ],
-      },
       test: {
         sourceMaps: 'both',
         plugins: [
@@ -135,17 +128,6 @@ module.exports = function getBabelConfig(api) {
             'babel-plugin-module-resolver',
             {
               root: ['./'],
-              alias: defaultAlias,
-            },
-          ],
-        ],
-      },
-      benchmark: {
-        plugins: [
-          ...productionPlugins,
-          [
-            'babel-plugin-module-resolver',
-            {
               alias: defaultAlias,
             },
           ],

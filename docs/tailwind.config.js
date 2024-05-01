@@ -73,10 +73,15 @@ module.exports = {
         'required',
         'selected',
       ].forEach((state) => {
-        addVariant(`ui-${state}`, [`&[class~="Mui-${state}"]`, `&[class~="base--${state}"]`]);
+        addVariant(`ui-${state}`, [
+          `&[class~="Mui-${state}"]`,
+          `&[class~="base--${state}"]`,
+          `&[data-${state}="true"]`,
+        ]);
         addVariant(`ui-not-${state}`, [
           `&:not([class~="Mui-${state}"])`,
           `&:not([class~="base--${state}"])`,
+          `&:not([data-${state}="true"])`,
         ]);
       });
 
