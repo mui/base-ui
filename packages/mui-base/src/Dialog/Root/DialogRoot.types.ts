@@ -7,4 +7,5 @@ export interface DialogRootProps {
   children?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
   type?: DialogType;
+  closeOnClickOutside?: boolean;
 }

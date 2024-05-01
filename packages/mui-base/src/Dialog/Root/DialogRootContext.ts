@@ -6,6 +6,7 @@ export interface DialogRootContextValue {
   onOpenChange?: (open: boolean) => void;
   modal: boolean;
   type: DialogType;
+  closeOnClickOutside: boolean;
   titleElementId: string | null;
   registerTitle: (elementId: string | null) => void;
   descriptionElementId: string | null;

@@ -19,8 +19,10 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     open: openProp,
     defaultOpen,
     type = 'dialog',
+    closeOnClickOutside = false,
     ...other
   } = props;
+
   const [open, setOpen] = useControlled({
     controlled: openProp,
     default: defaultOpen,
@@ -61,6 +63,7 @@ const DialogRoot = React.forwardRef(function DialogRoot(
       onOpenChange: handleOpenChange,
       open,
       type,
+      closeOnClickOutside,
       titleElementId,
       registerTitle: setTitleElementId,
       descriptionElementId,
@@ -68,7 +71,16 @@ const DialogRoot = React.forwardRef(function DialogRoot(
       popupElementId,
       registerPopup: setPopupElementId,
     };
-  }, [modal, handleOpenChange, open, type, titleElementId, descriptionElementId, popupElementId]);
+  }, [
+    modal,
+    handleOpenChange,
+    open,
+    type,
+    titleElementId,
+    descriptionElementId,
+    popupElementId,
+    closeOnClickOutside,
+  ]);
 
   return (
     <DialogRootContext.Provider value={contextValue}>

@@ -6,7 +6,7 @@ import classes from './dialog.module.css';
 function UncontrolledDialogDemo() {
   return (
     <div>
-      <Dialog.Root>
+      <Dialog.Root closeOnClickOutside>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
             Open
@@ -54,7 +54,7 @@ function ControlledDialogDemo() {
       <button type="button" className={classes.button} onClick={setState(true, true)}>
         Open modal
       </button>
-      <Dialog.Root open={open} modal={modal} onOpenChange={setState(false)}>
+      <Dialog.Root open={open} modal={modal} onOpenChange={setState(false)} closeOnClickOutside>
         <Dialog.Popup className={clsx(classes.dialog, modal ? classes.modal : classes.nonmodal)}>
           <Dialog.Title className={classes.title}>Dialog</Dialog.Title>
           <Dialog.Description>This is a sample dialog</Dialog.Description>
