@@ -35,7 +35,7 @@ function UncontrolledDialogDemo() {
 
 function ControlledDialogDemo() {
   const [open, setOpen] = React.useState(false);
-  const [modal, setModal] = React.useState(false);
+  const [modal, setModal] = React.useState(true);
 
   function setState(shouldOpen: boolean, shouldBeModal?: boolean) {
     return () => {

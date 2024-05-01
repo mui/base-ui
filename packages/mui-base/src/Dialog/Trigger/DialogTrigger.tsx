@@ -8,7 +8,7 @@ interface DialogTriggerProps {
 function DialogTrigger(props: DialogTriggerProps) {
   const { children } = props;
 
-  const { open, onOpenChange } = useDialogRootContext();
+  const { open, onOpenChange, popupElementId } = useDialogRootContext();
 
   const handleClick = () => {
     if (!open) {
@@ -16,7 +16,13 @@ function DialogTrigger(props: DialogTriggerProps) {
     }
   };
 
-  return React.cloneElement(children, { onClick: handleClick });
+  const newProps: React.ButtonHTMLAttributes<HTMLButtonElement> = {
+    onClick: handleClick,
+    'aria-haspopup': 'dialog',
+    'aria-controls': popupElementId ?? undefined,
+  };
+
+  return React.cloneElement(children, newProps);
 }
 
 export { DialogTrigger };

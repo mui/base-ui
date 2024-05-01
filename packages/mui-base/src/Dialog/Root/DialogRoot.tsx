@@ -13,12 +13,23 @@ const DialogRoot = React.forwardRef(function DialogRoot(
   props: DialogRootProps,
   forwardedRef: React.Ref<HTMLElement>,
 ) {
-  const { modal = true, onOpenChange, open: openProp, defaultOpen, ...other } = props;
+  const {
+    modal = true,
+    onOpenChange,
+    open: openProp,
+    defaultOpen,
+    type = 'dialog',
+    ...other
+  } = props;
   const [open, setOpen] = useControlled({
     controlled: openProp,
     default: defaultOpen,
     name: 'DialogRoot',
   });
+
+  const [titleElementId, setTitleElementId] = React.useState<string | null>(null);
+  const [descriptionElementId, setDescriptionElementId] = React.useState<string | null>(null);
+  const [popupElementId, setPopupElementId] = React.useState<string | null>(null);
 
   const rootProps = {
     ...other,
@@ -33,13 +44,31 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     [onOpenChange, setOpen],
   );
 
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (type === 'alertdialog' && !modal) {
+        console.warn(
+          'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
+        );
+      }
+    });
+  }
+
   const contextValue: DialogRootContextValue = React.useMemo(() => {
     return {
       modal,
       onOpenChange: handleOpenChange,
       open,
+      type,
+      titleElementId,
+      registerTitle: setTitleElementId,
+      descriptionElementId,
+      registerDescription: setDescriptionElementId,
+      popupElementId,
+      registerPopup: setPopupElementId,
     };
-  }, [modal, handleOpenChange, open]);
+  }, [modal, handleOpenChange, open, type, titleElementId, descriptionElementId, popupElementId]);
 
   return (
     <DialogRootContext.Provider value={contextValue}>
