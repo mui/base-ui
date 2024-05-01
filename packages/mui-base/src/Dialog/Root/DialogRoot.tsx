@@ -6,7 +6,7 @@ import { useControlled } from '../../utils/useControlled';
 
 const defaultRender = (props: React.PropsWithChildren<{ ref: React.Ref<HTMLElement> }>) => (
   // eslint-disable-next-line react/jsx-no-useless-fragment
-  <React.Fragment>{props.children}</React.Fragment>
+  <React.Fragment {...props} />
 );
 
 const DialogRoot = React.forwardRef(function DialogRoot(
@@ -89,6 +89,10 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  defaultOpen: PropTypes.bool,
+  /**
+   * @ignore
+   */
   modal: PropTypes.bool,
   /**
    * @ignore
@@ -98,6 +102,10 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   open: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  type: PropTypes.oneOf(['alertdialog', 'dialog']),
 } as any;
 
 export { DialogRoot };

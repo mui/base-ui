@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
@@ -73,5 +74,24 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   return <dialog {...outputProps} />;
 });
+
+DialogPopup.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
+   * @ignore
+   */
+  keepMounted: PropTypes.bool,
+} as any;
 
 export { DialogPopup };
