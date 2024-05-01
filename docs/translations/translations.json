@@ -223,14 +223,11 @@
     "/base-ui/react-checkbox": "Checkbox",
     "/base-ui/react-number-field": "Number Field",
     "/base-ui/react-switch": "Switch",
-<<<<<<< HEAD
-    "navigation": "Navigation",
-    "/base-ui/react-tabs": "Tabs",
-=======
     "data-display": "Data display",
     "/base-ui/react-badge": "Badge",
     "/base-ui/react-tooltip": "Tooltip",
->>>>>>> ba3820b9 ([Tooltip] Component and Hook)
+    "navigation": "Navigation",
+    "/base-ui/react-tabs": "Tabs",
     "/base-ui/guides": "How-to guides",
     "/base-ui/guides/next-js-app-router": "Next.js App Router"
   }
