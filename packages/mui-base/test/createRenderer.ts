@@ -2,9 +2,7 @@ import {
   CreateRendererOptions,
   RenderOptions,
   createRenderer as sharedCreateRenderer,
-  waitFor,
   act,
-  MuiRenderResult,
 } from '@mui/internal-test-utils';
 
 export function createRenderer(globalOptions?: CreateRendererOptions) {
@@ -12,16 +10,15 @@ export function createRenderer(globalOptions?: CreateRendererOptions) {
   const { render: originalRender } = createRendererResult;
 
   const render = async (element: React.ReactElement, options?: RenderOptions) => {
-    let result: MuiRenderResult;
+    const result = originalRender(element, options);
 
-    if (navigator.userAgent.includes('jsdom')) {
-      result = await act(() => originalRender(element, options));
-    } else {
-      result = await originalRender(element, options);
-    }
+    // Wait for async tasks.
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+    });
 
-    // flush microtasks
-    await waitFor(async () => {});
     return result;
   };
 

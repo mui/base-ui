@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
-import { throwMissingPropError } from './utils';
+import { throwMissingPropError, waitForAsyncTasks } from './utils';
 
 export function testClassName(
   element: React.ReactElement,
@@ -16,6 +16,7 @@ export function testClassName(
 
     it('should apply the className when passed as a string', async () => {
       await render(React.cloneElement(element, { className: 'test-class' }));
+      await waitForAsyncTasks();
       expect(document.querySelector('.test-class')).not.to.equal(null);
     });
   });

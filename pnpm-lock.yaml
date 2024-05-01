@@ -9950,14 +9950,23 @@ snapshots:
 
   '@eslint/js@8.57.0': {}
 
+<<<<<<< HEAD
   '@floating-ui/core@1.6.3':
+=======
+  '@floating-ui/core@1.6.2':
+>>>>>>> 46026c05 ([Popover] Component and Hook)
     dependencies:
       '@floating-ui/utils': 0.2.3
 
   '@floating-ui/dom@1.6.6':
     dependencies:
+<<<<<<< HEAD
       '@floating-ui/core': 1.6.3
       '@floating-ui/utils': 0.2.3
+=======
+      '@floating-ui/core': 1.6.2
+      '@floating-ui/utils': 0.2.2
+>>>>>>> 46026c05 ([Popover] Component and Hook)
 
   '@floating-ui/react-dom@2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:

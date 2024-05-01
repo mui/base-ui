@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { randomStringValue } from '@mui/internal-test-utils';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
-import { throwMissingPropError } from './utils';
+import { throwMissingPropError, waitForAsyncTasks } from './utils';
 
 export function testRenderProp(
   element: React.ReactElement,
@@ -34,6 +34,8 @@ export function testRenderProp(
         }),
       );
 
+      await waitForAsyncTasks();
+
       expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
       expect(queryByTestId('wrapped')).not.to.equal(null);
       expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
@@ -47,6 +49,8 @@ export function testRenderProp(
         }),
       );
 
+      await waitForAsyncTasks();
+
       expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
       expect(queryByTestId('wrapped')).not.to.equal(null);
       expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
@@ -59,10 +63,12 @@ export function testRenderProp(
         }),
       );
 
+      await waitForAsyncTasks();
+
       expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
     });
 
-    it('should pass the ref to the custom component', () => {
+    it('should pass the ref to the custom component', async () => {
       let instanceFromRef = null;
 
       function Test() {
@@ -76,6 +82,7 @@ export function testRenderProp(
       }
 
       render(<Test />);
+      await waitForAsyncTasks();
       expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
       expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
     });

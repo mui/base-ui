@@ -1,0 +1,43 @@
+{
+  "componentDescription": "The popover positioner element.",
+  "propDescriptions": {
+    "alignment": {
+      "description": "The alignment of the popover element to the anchor element along its cross axis."
+    },
+    "alignmentOffset": {
+      "description": "The offset of the popover element along its alignment axis."
+    },
+    "anchor": { "description": "The anchor element to which the popover popup will be placed at." },
+    "arrowPadding": {
+      "description": "Determines the padding between the arrow and the popover popup&#39;s edges. Useful when the popover popup has rounded corners via <code>border-radius</code>."
+    },
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "collisionBoundary": {
+      "description": "The boundary that the popover element should be constrained to."
+    },
+    "collisionPadding": { "description": "The padding of the collision boundary." },
+    "container": {
+      "description": "The container element to which the popover popup will be appended to."
+    },
+    "hideWhenDetached": {
+      "description": "If <code>true</code>, the popover will be hidden if it is detached from its anchor element due to differing clipping contexts."
+    },
+    "keepMounted": {
+      "description": "If <code>true</code>, popover stays mounted in the DOM when closed."
+    },
+    "positionStrategy": {
+      "description": "The CSS position strategy for positioning the popover popup element."
+    },
+    "render": { "description": "A function to customize rendering of the component." },
+    "side": {
+      "description": "The side of the anchor element that the popover element should align to."
+    },
+    "sideOffset": { "description": "The gap between the anchor element and the popover element." },
+    "sticky": {
+      "description": "If <code>true</code>, allow the popover to remain in stuck view while the anchor element is scrolled out of view."
+    }
+  },
+  "classDescriptions": {}
+}

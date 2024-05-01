@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
-import { throwMissingPropError } from './utils';
+import { throwMissingPropError, waitForAsyncTasks } from './utils';
 
 async function verifyRef(
   element: React.ReactElement,
@@ -17,6 +17,8 @@ async function verifyRef(
   const { container } = await render(
     <React.Fragment>{React.cloneElement(element, { ref })}</React.Fragment>,
   );
+
+  await waitForAsyncTasks();
 
   onRef(ref.current, container);
 }
