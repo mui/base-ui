@@ -37,10 +37,6 @@ export default function DialogExperiment() {
           pellentesque diam nec ligula hendrerit dapibus.
         </p>
 
-        <Dialog.Root open={open} modal style={{ zIndex: 109 }}>
-          A nested dialog!
-        </Dialog.Root>
-
         <form method="dialog" className={classes.form}>
           <button type="submit" className={classes.button}>
             Submit

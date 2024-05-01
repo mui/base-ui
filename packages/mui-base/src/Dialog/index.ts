@@ -1,1 +1,2 @@
-export { DialogRoot as Root, type DialogRootProps as RootProps } from './Dialog';
+export { DialogRoot as Root } from './Root/DialogRoot';
+export type { DialogRootProps as RootProps } from './Root/DialogRoot.types';

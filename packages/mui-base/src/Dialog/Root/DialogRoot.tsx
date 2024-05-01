@@ -1,15 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useForkRef } from '../utils/useForkRef';
-
-export type DialogOpenState = 'closed' | 'open' | 'openModal';
-
-export interface DialogRootProps {
-  open?: boolean;
-  modal?: boolean;
-  children?: React.ReactNode;
-  onOpenChange?: (open: boolean) => void;
-}
+import { useForkRef } from '../../utils/useForkRef';
+import { DialogRootProps } from './DialogRoot.types';
 
 const defaultRender = (props: React.ComponentPropsWithRef<'dialog'>) => <dialog {...props} />;
 
