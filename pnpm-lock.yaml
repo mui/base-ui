@@ -695,8 +695,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       '@types/react-is':
-        specifier: ^18.2.4
-        version: 18.2.4
+        specifier: ^18.3.0
+        version: 18.3.0
       '@types/sinon':
         specifier: ^17.0.3
         version: 17.0.3
@@ -2978,8 +2978,8 @@ packages:
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
-  '@types/react-is@18.2.4':
-    resolution: {integrity: sha512-wBc7HgmbCcrvw0fZjxbgz/xrrlZKzEqmABBMeSvpTvdm25u6KI6xdIi9pRE2G0C1Lw5ETFdcn4UbYZ4/rpqUYw==}
+  '@types/react-is@18.3.0':
+    resolution: {integrity: sha512-KZJpHUkAdzyKj/kUHJDc6N7KyidftICufJfOFpiG6haL/BDQNQt5i4n1XDUL/nDZAtGLHDSWRYpLzKTAKSvX6w==}
 
   '@types/react-transition-group@4.4.10':
     resolution: {integrity: sha512-hT/+s0VQs2ojCX823m60m5f0sL5idt9SO6Tj6Dg+rdphGPIeJbJ6CxvBYkgkGKrYeDjvIpKTR38UzmtHJOGW3Q==}
@@ -11356,7 +11356,7 @@ snapshots:
     dependencies:
       '@types/react': 18.3.1
 
-  '@types/react-is@18.2.4':
+  '@types/react-is@18.3.0':
     dependencies:
       '@types/react': 18.3.1
 
