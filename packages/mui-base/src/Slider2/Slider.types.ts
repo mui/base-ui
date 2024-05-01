@@ -65,3 +65,5 @@ export interface ThumbProps
 }
 
 export interface TrackProps extends BaseUIComponentProps<'div', SliderOwnerState> {}
+
+export interface OutputProps extends BaseUIComponentProps<'output', SliderOwnerState> {}

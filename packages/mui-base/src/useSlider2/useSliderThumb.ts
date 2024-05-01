@@ -39,12 +39,18 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
   const isThumbDisabled = disabledProp || disabled;
 
-  const id = useId(idParam);
+  const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
 
-  const thumbMetadata: ThumbMetadata = React.useMemo(() => ({ id: id ?? '', ref: thumbRef }), [id]);
+  const thumbMetadata: ThumbMetadata = React.useMemo(
+    () => ({ id: thumbId ? `${thumbId}-input` : '', ref: thumbRef }),
+    [thumbId],
+  );
 
-  const { id: compoundItemId, index } = useCompoundItem(id ?? idGenerator, thumbMetadata);
+  const { id: compoundItemId, index } = useCompoundItem(
+    (thumbId ? `${thumbId}-input` : thumbId) ?? idGenerator,
+    thumbMetadata,
+  );
 
   const thumbValue = sliderValues[index];
 
@@ -68,6 +74,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
         'data-index': index,
+        id: idParam,
         onPointerOver(/* event: React.PointerEvent<HTMLSpanElement> */) {
           // const index = Number(event.currentTarget.getAttribute('data-index'));
           setOpen(index);
@@ -80,7 +87,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         },
       });
     },
-    [getThumbStyle, index, setOpen],
+    [getThumbStyle, idParam, index, setOpen],
   );
 
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(

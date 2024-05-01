@@ -22,6 +22,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     className,
     children,
     disabled: disabledProp = false,
+    id,
     onFocus = NOOP,
     onBlur = NOOP,
     onKeyDown = NOOP,
@@ -34,6 +35,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     disabled: disabledProp,
+    id,
   });
 
   const styleHooks = React.useMemo(

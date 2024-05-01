@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
   SliderContext.displayName = 'SliderContext';
 }
 
-type Part = 'Track' | 'Thumb';
+type Part = 'Track' | 'Thumb' | 'Output';
 
 export function useSliderContext(part: Part) {
   const context = React.useContext(SliderContext);

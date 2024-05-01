@@ -9,8 +9,10 @@ export {
   Root as SliderRoot,
   Track as SliderTrack,
   Thumb as SliderThumb,
+  Output as SliderOutput,
   type RootProps as SliderRootProps,
   type TrackProps as SliderTrackProps,
   type ThumbProps as SliderThumbProps,
+  type OutputProps as SliderOutputProps,
 } from './Slider2';
 export * from './useSlider2';

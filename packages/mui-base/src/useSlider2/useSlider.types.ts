@@ -137,6 +137,9 @@ export interface UseSliderReturnValue {
   getTrackProps: (
     externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
+  getOutputProps: (
+    externalProps?: React.ComponentPropsWithRef<'output'>,
+  ) => React.ComponentPropsWithRef<'output'>;
   /**
    * The index of the active thumb.
    */

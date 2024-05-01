@@ -565,10 +565,27 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     [],
   );
 
+  const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
+    return `${acc} ${item.id}`;
+  }, '');
+
+  const getOutputProps: UseSliderReturnValue['getOutputProps'] = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps(externalProps, {
+        // off by default because it will keep announcing when the slider is being dragged
+        // and also when the value is changing (but not yet committed)
+        'aria-live': 'off',
+        htmlFor: outputFor.trim(),
+      });
+    },
+    [outputFor],
+  );
+
   return React.useMemo(
     () => ({
       getRootProps,
       getTrackProps,
+      getOutputProps,
       active,
       ariaLabelledby,
       axis,
@@ -594,6 +611,7 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     [
       getRootProps,
       getTrackProps,
+      getOutputProps,
       active,
       ariaLabelledby,
       axis,
