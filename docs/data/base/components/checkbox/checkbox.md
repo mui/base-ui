@@ -56,7 +56,7 @@ Checkbox is composed of two components.
 </Checkbox.Root>
 ```
 
-## Custom structure
+## Overriding default components
 
 Use the `render` prop to override the rendered checkbox or indicator element with your own components.
 

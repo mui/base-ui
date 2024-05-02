@@ -84,7 +84,7 @@ Though not required, you can add the `value` prop to the Tab and Tab Panel to 
 </Tabs.Root>
 ```
 
-## Composing a custom React component
+## Overriding default components
 
 Use the `render` prop to override the rendered element:
 

@@ -56,7 +56,7 @@ Switch is composed of two components.
 </Switch.Root>
 ```
 
-## Composing a custom React component
+## Overriding default components
 
 Use the `render` prop to override the root or thumb component:
 

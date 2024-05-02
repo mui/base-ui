@@ -68,7 +68,7 @@ NumberField is implemented using a collection of related components:
 </NumberField.Root>
 ```
 
-## Composing a custom React component
+## Overriding default components
 
 Use the `render` prop to override the rendered elements with your own components.
 
