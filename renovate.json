@@ -74,7 +74,8 @@
         "react-is",
         "react-test-renderer",
         "@types/react",
-        "@types/react-dom"
+        "@types/react-dom",
+        "@types/react-is"
       ]
     },
     {
