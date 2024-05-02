@@ -56,7 +56,7 @@ export default function App() {
       >
         <Slider.Track className="MySlider-track" render={<span />}>
           <TrackFillSingleThumb className="MySlider-track-fill" />
-          <Slider.Thumb index={0} className="MySlider-thumb one" />
+          <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
 
@@ -70,8 +70,8 @@ export default function App() {
       >
         <Slider.Track className="MySlider-track" render={<span />}>
           <TrackFillRange className="MySlider-track-fill" />
-          <Slider.Thumb index={0} className="MySlider-thumb one" />
-          <Slider.Thumb index={1} className="MySlider-thumb one" />
+          <Slider.Thumb className="MySlider-thumb one" />
+          <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
       <Styles />

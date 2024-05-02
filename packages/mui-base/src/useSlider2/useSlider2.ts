@@ -8,7 +8,7 @@ import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useForkRef } from '../utils/useForkRef';
 import { useCompoundParent } from '../useCompound';
-import { valueToPercent } from './utils';
+import { percentToValue, roundValueToStep, valueToPercent } from './utils';
 import { Mark, UseSliderParameters, UseSliderReturnValue } from './useSlider.types';
 import { ThumbMetadata } from './useSliderThumb.types';
 
@@ -71,28 +71,6 @@ function focusThumb({
   if (setActive) {
     setActive(activeIndex);
   }
-}
-
-function getDecimalPrecision(num: number) {
-  // This handles the case when num is very small (0.00000001), js will turn this into 1e-8.
-  // When num is bigger than 1 or less than -1 it won't get converted to this notation so it's fine.
-  if (Math.abs(num) < 1) {
-    const parts = num.toExponential().split('e-');
-    const matissaDecimalPart = parts[0].split('.')[1];
-    return (matissaDecimalPart ? matissaDecimalPart.length : 0) + parseInt(parts[1], 10);
-  }
-
-  const decimalPart = num.toString().split('.')[1];
-  return decimalPart ? decimalPart.length : 0;
-}
-
-function percentToValue(percent: number, min: number, max: number) {
-  return (max - min) * percent + min;
-}
-
-function roundValueToStep(value: number, step: number, min: number) {
-  const nearest = Math.round((value - min) / step) * step + min;
-  return Number(nearest.toFixed(getDecimalPrecision(step)));
 }
 
 function setValueIndex({
