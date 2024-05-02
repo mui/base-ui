@@ -68,4 +68,13 @@ Use the `render` prop to override the root or thumb component:
 
 ## Accessibility
 
-To make the Switch component accessible, you should ensure that the corresponding labels reflect its current state.
+Ensure the Switch has an accessible name via a `<label>` element.
+
+```jsx
+<Switch.Root id="my-switch">
+  <Switch.Thumb />
+</Switch.Root>
+<label htmlFor="my-switch">
+  My label
+</label>
+```

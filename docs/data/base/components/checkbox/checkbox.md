@@ -80,7 +80,7 @@ It's a _visual-only_ state, so its internal `checked` state can still be changed
 
 ## Accessibility
 
-Ensure the checkbox has an accessible name via a `<label>` element.
+Ensure the Checkbox has an accessible name via a `<label>` element.
 
 ```jsx
 <Checkbox.Root id="my-checkbox">
