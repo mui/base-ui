@@ -9,27 +9,46 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
 
 # Switch
 
-<p class="description">Switches are UI elements that let users choose between two states—most commonly on/off.</p>
+<p class="description">Switch is a UI element that let users choose between two states.</p>
 
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
-## Introduction
-
-The Switch component provides users with a switch for toggling between two mutually exclusive states.
-
 {{"demo": "UnstyledSwitchIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
-## Component
+## Installation
 
-```jsx
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
+```
+
+```bash yarn
+yarn add @base_ui/react
+```
+
+```bash pnpm
+pnpm add @base_ui/react
+```
+
+</codeblock>
+
+Once you have the package installed, import the component.
+
+```ts
 import * as Switch from '@base_ui/react/Switch';
 ```
 
-### Anatomy
+## Anatomy
 
-The Switch component is composed of a root that houses one interior slot—a thumb:
+Switch is composed of two components.
+
+- `<Switch.Root />` renders a `<button>`.
+- `<Switch.Thumbs />` renders a `<span>` for providing a visual indicator.
 
 ```tsx
 <Switch.Root>
@@ -37,32 +56,16 @@ The Switch component is composed of a root that houses one interior slot—a thu
 </Switch.Root>
 ```
 
-### Custom structure
+## Composing a custom React component
 
 Use the `render` prop to override the root or thumb component:
 
 ```jsx
-<Switch.Root render={(props) => <MyFancySwitchRoot {...props} />}>
-  <Switch.Thumb render={(props) => <MyFancySwitchThumb {...props} />} />
+<Switch.Root render={(props) => <MyCustomSwitch {...props} />}>
+  <Switch.Thumb render={(props) => <MyCustomThumb {...props} />} />
 </Switch.Root>
 ```
 
-## Hook
-
-```js
-import { useSwitch } from '@base_ui/react/useSwitch';
-```
-
-The `useSwitch` hook lets you apply the functionality of a Switch to a fully custom component.
-It returns props to be placed on the custom component, along with fields representing the component's internal state.
-
-:::info
-Hooks give you the most room for customization, but require more work to implement.
-With hooks, you can take full control over how your component is rendered, and define all the custom props and CSS classes you need.
-
-You may not need to use hooks unless you find that you're limited by the customization options of their component counterparts—for instance, if your component requires significantly different [HTML structure](#anatomy).
-:::
-
 ## Accessibility
 
-To make the Switch component accessible, you should ensure that the corresponding labels reflect the Switch's current state.
+To make the Switch component accessible, you should ensure that the corresponding labels reflect its current state.
