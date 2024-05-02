@@ -84,18 +84,6 @@ Though not required, you can add the `value` prop to the Tab and Tab Panel to 
 </Tabs.Root>
 ```
 
-## Overriding default components
-
-Use the `render` prop to override the rendered element:
-
-```jsx
-<Tabs.Tab render={<MyCustomTab />} />
-// or
-<Tabs.Tab render={(props) => <MyCustomTab {...props} />} />
-```
-
-If you provide a non-interactive element such as a `<span>`, the Tab components automatically add the necessary accessibility attributes.
-
 ## Indicator
 
 Though it's optional, the `Tabs.Indicator` component can be added to implement a visual indicator for the active tab.
@@ -161,6 +149,18 @@ Alternatively, you can set `activateOnFocus={false}` on `<Tabs.List>` so tabs ar
 ```tsx
 <Tabs.List activateOnFocus={false} />
 ```
+
+## Overriding default components
+
+Use the `render` prop to override the rendered element:
+
+```jsx
+<Tabs.Tab render={<MyCustomTab />} />
+// or
+<Tabs.Tab render={(props) => <MyCustomTab {...props} />} />
+```
+
+If you provide a non-interactive element such as a `<span>`, the Tab components automatically add the necessary accessibility attributes.
 
 ## Accessibility
 

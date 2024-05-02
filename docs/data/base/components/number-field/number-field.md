@@ -68,16 +68,6 @@ NumberField is implemented using a collection of related components:
 </NumberField.Root>
 ```
 
-## Overriding default components
-
-Use the `render` prop to override the rendered elements with your own components.
-
-```jsx
-<NumberField.Input render={(props) => <MyCustomInput {...props} />}> />
-```
-
-All subcomponents accept the `render` prop.
-
 ## Value
 
 ### Default value
@@ -222,6 +212,16 @@ This specifies the `px` distance the cursor can travel from the center of the sc
 To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop.
 
 {{"demo": "UnstyledNumberFieldWheelScrub.js"}}
+
+## Overriding default components
+
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+<NumberField.Input render={(props) => <MyCustomInput {...props} />}> />
+```
+
+All subcomponents accept the `render` prop.
 
 ## Accessibility
 

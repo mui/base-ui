@@ -56,16 +56,6 @@ Checkbox is composed of two components.
 </Checkbox.Root>
 ```
 
-## Overriding default components
-
-Use the `render` prop to override the rendered checkbox or indicator element with your own components.
-
-```jsx
-<Checkbox.Root render={(props) => <MyCheckbox {...props} />}>
-  <Checkbox.Indicator render={(props) => <MyCheckboxIndicator {...props} />} />
-</Checkbox.Root>
-```
-
 ## Indeterminate state
 
 To make the checkbox indeterminate, add the `indeterminate` prop to override the appearance of the checkbox. The checkbox remains in an indeterminate state regardless of user interaction until set back to `false`.
@@ -77,6 +67,16 @@ The primary use case for an indeterminate checkbox is representing the state of 
 {{"demo": "UnstyledCheckboxIndeterminateGroup.js", "defaultCodeOpen": false}}
 
 It's a _visual-only_ state, so its internal `checked` state can still be changed.
+
+## Overriding default components
+
+Use the `render` prop to override the rendered checkbox or indicator element with your own components.
+
+```jsx
+<Checkbox.Root render={(props) => <MyCheckbox {...props} />}>
+  <Checkbox.Indicator render={(props) => <MyCheckboxIndicator {...props} />} />
+</Checkbox.Root>
+```
 
 ## Accessibility
 
