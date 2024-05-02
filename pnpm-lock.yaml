@@ -485,8 +485,8 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       styled-components:
-        specifier: ^6.1.8
-        version: 6.1.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^6.1.9
+        version: 6.1.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       stylis:
         specifier: 4.3.2
         version: 4.3.2
@@ -743,8 +743,8 @@ importers:
         specifier: ^17.0.1
         version: 17.0.1
       styled-components:
-        specifier: ^6.1.8
-        version: 6.1.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^6.1.9
+        version: 6.1.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       stylis:
         specifier: 4.3.2
         version: 4.3.2
@@ -1624,9 +1624,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  '@emotion/unitless@0.8.0':
-    resolution: {integrity: sha512-VINS5vEYAscRl2ZUDiT3uMPlrFQupiKgHz5AA4bCH1miKBg4qtwkim1qPmJj/4WG6TreYMY111rEFsjupcOKHw==}
 
   '@emotion/unitless@0.8.1':
     resolution: {integrity: sha512-KOEGMu6dmJZtpadb476IsZBclKvILjopjUii3V+7MnXIQCYh8W3NgNcgwo21n9LXZX6EDIKvqfjYxXebDwxKmQ==}
@@ -7982,8 +7979,8 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  styled-components@6.1.8:
-    resolution: {integrity: sha512-PQ6Dn+QxlWyEGCKDS71NGsXoVLKfE1c3vApkvDYS5KAK+V8fNWGhbSUEo9Gg2iaID2tjLXegEW3bZDUGpofRWw==}
+  styled-components@6.1.9:
+    resolution: {integrity: sha512-aBOqs0uMsYufFXSE4q6cA6Ty1fwZuMk4BJRHfiGSna59F1otnxiDelwhN4fEwmBtIymmF0ZqXHnpSigr2ps9Cg==}
     engines: {node: '>= 16'}
     peerDependencies:
       react: '>= 16.8.0'
@@ -9828,8 +9825,6 @@ snapshots:
       react: 18.2.0
     optionalDependencies:
       '@types/react': 18.3.1
-
-  '@emotion/unitless@0.8.0': {}
 
   '@emotion/unitless@0.8.1': {}
 
@@ -17449,10 +17444,10 @@ snapshots:
       minimist: 1.2.8
       through: 2.3.8
 
-  styled-components@6.1.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+  styled-components@6.1.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       '@emotion/is-prop-valid': 1.2.1
-      '@emotion/unitless': 0.8.0
+      '@emotion/unitless': 0.8.1
       '@types/stylis': 4.2.0
       css-to-react-native: 3.2.0
       csstype: 3.1.2
