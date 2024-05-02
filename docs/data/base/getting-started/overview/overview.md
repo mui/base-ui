@@ -1,7 +1,3 @@
----
-title: Overview
----
-
 # Overview
 
 <p class="description">Base UI is an unstyled UI component library for building accessible user interfaces while maintaing complete control over styling.</p>
