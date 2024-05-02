@@ -39,26 +39,15 @@ You can use [C. Liam Brown's Color Contrast Tool](https://cliambrown.com/contras
 
 It's your responsibility to ensure that components have accessible names.
 
-For form controls (such as the [Input](/base-ui/react-input/), [Number Field](/base-ui/react-number-field/), and [Select](/base-ui/react-select/)), this requires adding an associated `<label>` element, or placing an `aria-label` attribute on the component itself:
+For form controls such as [Number Field](/base-ui/react-number-field/), this requires adding an associated `<label>` element, or placing an `aria-label` attribute on the component itself.
 
 ```jsx
-<label>
-  First name <Input />
-</label>
+<NumberField.Root id="balance">
+  <label htmlFor="balance">Amount</label>
+  <NumberField.Group>
+    <NumberField.Decrement />
+    <NumberField.Input />
+    <NumberField.Increment />
+  </NumberField.Group>
+</NumberField.Root>
 ```
-
-or
-
-```jsx
-<label for="first-name">First name</label>
-<Input id="first-name" />
-```
-
-or
-
-```jsx
-<Input aria-label="First name" />
-```
-
-For buttons, their inner text becomes the accessible label.
-You only need to place an `aria-label` attribute if the button contains no text (like an icon button).
