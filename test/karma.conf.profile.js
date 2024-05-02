@@ -153,7 +153,8 @@ module.exports = function setKarmaConfig(config) {
           os: 'Windows',
           os_version: '10',
           browser: 'firefox',
-          browser_version: '15.0',
+          // We support Firefox 115.x per .browserslistrc
+          browser_version: '115.0',
         },
         // No accurate performance timings (integer precision instead of double).
         safari: {

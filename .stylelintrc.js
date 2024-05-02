@@ -4,9 +4,9 @@ module.exports = {
     // TypeScript declaration files contain no styles.
     // Stylelint is also reporting parseError on `docs/types/react-docgen.d.ts`.
     '**/*.d.ts',
-    'docs/.next',
-    'docs/export',
-    'node_modules',
+    'docs/.next/**/*',
+    'docs/export/**/*',
+    '**/node_modules/**/*',
   ],
   rules: {
     'alpha-value-notation': null,

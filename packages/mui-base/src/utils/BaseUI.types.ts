@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
 };
@@ -5,7 +7,7 @@ export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
 type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
   ? E extends React.SyntheticEvent<Element, Event>
     ? (event: BaseUIEvent<E>) => ReturnType<T>
-    : never
+    : T
   : T extends undefined
     ? undefined
     : T;
@@ -29,10 +31,11 @@ export type ComponentRenderFn<Props, State> = (props: Props, state: State) => Re
  * Props shared by all Base UI components.
  * Contains `className` (string or callback taking the component's state as an argument) and `render` (function to customize rendering).
  */
-export type BaseUIComponentProps<ElementType extends React.ElementType, OwnerState> = Omit<
-  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
-  'className'
-> & {
+export type BaseUIComponentProps<
+  ElementType extends React.ElementType,
+  OwnerState,
+  RenderFunctionProps = React.HTMLAttributes<any>,
+> = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
@@ -40,7 +43,5 @@ export type BaseUIComponentProps<ElementType extends React.ElementType, OwnerSta
   /**
    * A function to customize rendering of the component.
    */
-  render?:
-    | ComponentRenderFn<React.ComponentPropsWithRef<ElementType>, OwnerState>
-    | React.ReactElement<ElementType>;
+  render?: ComponentRenderFn<RenderFunctionProps, OwnerState> | React.ReactElement<ElementType>;
 };

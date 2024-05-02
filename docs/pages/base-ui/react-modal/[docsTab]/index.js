@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/modal/modal.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/modal/modal.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import ModalApiJsonPageContent from '../../api/modal.json';
 import useModalApiJsonPageContent from '../../api/use-modal.json';
@@ -24,16 +24,16 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const ModalApiReq = require.context(
-    'docs/translations/api-docs-base/modal',
+    'docs-base/translations/api-docs/modal',
     false,
-    /modal.*.json$/,
+    /\.\/modal.*.json$/,
   );
   const ModalApiDescriptions = mapApiPageTranslations(ModalApiReq);
 
   const useModalApiReq = require.context(
-    'docs/translations/api-docs/use-modal',
+    'docs-base/translations/api-docs/use-modal',
     false,
-    /use-modal.*.json$/,
+    /\.\/use-modal.*.json$/,
   );
   const useModalApiDescriptions = mapApiPageTranslations(useModalApiReq);
 

@@ -6,7 +6,7 @@ import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 import basePkgJson from 'packages/mui-base/package.json';
-import basePages from 'docs/data/base/pages';
+import basePages from 'docs-base/data/base/pages';
 import PageContext from 'docs/src/modules/components/PageContext';
 import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
@@ -19,12 +19,15 @@ import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
 import { DocsProvider } from '@mui/docs/DocsProvider';
+import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
+
+configureSandboxDependencies();
 
 let reloadInterval;
 
