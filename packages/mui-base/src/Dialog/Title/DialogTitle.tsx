@@ -9,15 +9,15 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
   const { id: idProp } = props;
-  const { registerTitle } = useDialogRootContext();
+  const { setTitleElementId } = useDialogRootContext();
   const id = useId(idProp);
 
   React.useEffect(() => {
-    registerTitle(id ?? null);
+    setTitleElementId(id ?? null);
     return () => {
-      registerTitle(null);
+      setTitleElementId(null);
     };
-  }, [id, registerTitle]);
+  }, [id, setTitleElementId]);
 
   const rootProps = {
     ...props,

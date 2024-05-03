@@ -21,7 +21,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     modal,
     titleElementId,
     descriptionElementId,
-    registerPopup,
+    setPopupElementId,
     type,
     onOpenChange,
     closeOnClickOutside,
@@ -44,11 +44,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const handleRef = useForkRef(ref, forwardedRef, refs.setFloating);
 
   React.useEffect(() => {
-    registerPopup(id ?? null);
+    setPopupElementId(id ?? null);
     return () => {
-      registerPopup(null);
+      setPopupElementId(null);
     };
-  }, [id, registerPopup]);
+  }, [id, setPopupElementId]);
 
   const outputProps: React.ComponentPropsWithRef<'div'> = {
     'aria-labelledby': titleElementId ?? undefined,

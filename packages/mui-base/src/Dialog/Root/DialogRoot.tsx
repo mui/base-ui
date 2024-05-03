@@ -1,11 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogRootProps } from './DialogRoot.types';
-import { DialogRootContext, DialogRootContextValue } from './DialogRootContext';
-import { useControlled } from '../../utils/useControlled';
-import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
+import { DialogRootOwnerState, DialogRootProps } from './DialogRoot.types';
+import { DialogRootContext } from './DialogRootContext';
+import { useDialogRootStyleHooks } from './useDialogRootStyleHooks';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useDialogRoot } from './useDialogRoot';
 
-const defaultRender = (props: React.PropsWithChildren<{ ref: React.Ref<HTMLElement> }>) => (
+const defaultRender = (props: React.HTMLAttributes<any>) => (
   // eslint-disable-next-line react/jsx-no-useless-fragment
   <React.Fragment {...props} />
 );
@@ -15,77 +17,47 @@ const DialogRoot = React.forwardRef(function DialogRoot(
   forwardedRef: React.Ref<HTMLElement>,
 ) {
   const {
+    render: renderProp,
+    className: classNameProp,
     modal = true,
     onOpenChange,
     open: openProp,
     defaultOpen,
     type = 'dialog',
-    closeOnClickOutside = false,
+    closeOnClickOutside,
     ...other
   } = props;
 
-  const [open, setOpen] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'DialogRoot',
+  const render = renderProp ?? defaultRender;
+
+  const { open, contextValue } = useDialogRoot({
+    open: openProp,
+    defaultOpen,
+    onOpenChange,
+    type,
+    modal,
+    closeOnClickOutside,
   });
 
-  const [titleElementId, setTitleElementId] = React.useState<string | null>(null);
-  const [descriptionElementId, setDescriptionElementId] = React.useState<string | null>(null);
-  const [popupElementId, setPopupElementId] = React.useState<string | null>(null);
+  const ownerState: DialogRootOwnerState = {
+    open,
+    modal,
+    type,
+  };
+
+  const className = resolveClassName(classNameProp, ownerState);
+  const styleHooks = useDialogRootStyleHooks(ownerState);
 
   const rootProps = {
+    ...styleHooks,
     ...other,
+    className,
     ref: forwardedRef,
   };
 
-  const handleOpenChange = React.useCallback(
-    (shouldOpen: boolean) => {
-      setOpen(shouldOpen);
-      onOpenChange?.(shouldOpen);
-    },
-    [onOpenChange, setOpen],
-  );
-
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (type === 'alertdialog' && !modal) {
-        console.warn(
-          'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
-        );
-      }
-    });
-  }
-
-  const contextValue: DialogRootContextValue = React.useMemo(() => {
-    return {
-      modal,
-      onOpenChange: handleOpenChange,
-      open,
-      type,
-      closeOnClickOutside,
-      titleElementId,
-      registerTitle: setTitleElementId,
-      descriptionElementId,
-      registerDescription: setDescriptionElementId,
-      popupElementId,
-      registerPopup: setPopupElementId,
-    };
-  }, [
-    modal,
-    handleOpenChange,
-    open,
-    type,
-    titleElementId,
-    descriptionElementId,
-    popupElementId,
-    closeOnClickOutside,
-  ]);
-
   return (
     <DialogRootContext.Provider value={contextValue}>
-      {defaultRender(rootProps)}
+      {evaluateRenderProp(render, rootProps, ownerState)}
     </DialogRootContext.Provider>
   );
 });

@@ -9,15 +9,15 @@ const DialogDescription = React.forwardRef(function DialogDescription(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { id: idProp } = props;
-  const { registerDescription } = useDialogRootContext();
+  const { setDescriptionElementId } = useDialogRootContext();
   const id = useId(idProp);
 
   React.useEffect(() => {
-    registerDescription(id ?? null);
+    setDescriptionElementId(id ?? null);
     return () => {
-      registerDescription(null);
+      setDescriptionElementId(null);
     };
-  }, [id, registerDescription]);
+  }, [id, setDescriptionElementId]);
 
   const rootProps = {
     ...props,
