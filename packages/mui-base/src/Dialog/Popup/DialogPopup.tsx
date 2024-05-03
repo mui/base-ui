@@ -1,10 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../Root/DialogRootContext';
+import { FocusTrap } from '../../FocusTrap';
 import { useForkRef } from '../../utils/useForkRef';
-import { ownerDocument } from '../../utils/owner';
 import { useId } from '../../utils/useId';
-import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
 
 export interface DialogPopupProps {
   keepMounted?: boolean;
@@ -12,45 +11,18 @@ export interface DialogPopupProps {
 }
 
 const DialogPopup = React.forwardRef(function DialogPopup(
-  props: DialogPopupProps & React.ComponentPropsWithRef<'dialog'>,
-  forwardedRef: React.ForwardedRef<HTMLDialogElement>,
+  props: DialogPopupProps & React.ComponentPropsWithRef<'div'>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { keepMounted, id: idProp, ...other } = props;
 
-  const {
-    open,
-    onOpenChange,
-    modal,
-    titleElementId,
-    descriptionElementId,
-    registerPopup,
-    type,
-    closeOnClickOutside,
-  } = useDialogRootContext();
+  const { open, modal, titleElementId, descriptionElementId, registerPopup, type } =
+    useDialogRootContext();
 
   const id = useId(idProp);
 
-  const previousOpen = React.useRef<boolean>(open);
-  const ref = React.useRef<HTMLDialogElement>(null);
+  const ref = React.useRef<HTMLDivElement>(null);
   const handleRef = useForkRef(ref, forwardedRef);
-
-  React.useEffect(() => {
-    if (!open) {
-      ref.current?.close();
-    } else if (modal) {
-      if (previousOpen.current === true) {
-        ref.current?.close();
-      }
-      ref.current?.showModal();
-    } else {
-      if (previousOpen.current === true) {
-        ref.current?.close();
-      }
-      ref.current?.show();
-    }
-
-    previousOpen.current = open;
-  }, [open, modal]);
 
   React.useEffect(() => {
     registerPopup(id ?? null);
@@ -59,90 +31,28 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     };
   }, [id, registerPopup]);
 
-  /* const handleClickOutside = React.useCallback(
-    (event: PointerEvent) => {
-      const popupElement = ref.current;
-      if (!popupElement) {
-        return;
-      }
-
-      if (modal) {
-        // When the dialog is modal, clicking on the backdrop is recognized as clicking on the dialog itself.
-        // We need to check whether the click was outside the dialog's bounding box.
-        // We also don't want to close the dialog when clicking on any descendant of it (such as an open select).
-        if (
-          (event.target === popupElement && hasClickedOutsideBoundingBox(event, popupElement)) ||
-          !popupElement.contains(event.target as Node)
-        ) {
-          onOpenChange?.(false);
-        }
-      } else if (!popupElement.contains(event.target as Node)) {
-        onOpenChange?.(false);
-      }
-    },
-    [onOpenChange, modal],
-  );*/
-
-  /* React.useEffect(() => {
-    if (!closeOnClickOutside) {
-      return undefined;
-    }
-
-    const doc = ownerDocument(ref.current);
-    if (open) {
-      doc.addEventListener('pointerdown', handleClickOutside);
-    }
-
-    return () => doc.removeEventListener('pointerdown', handleClickOutside);
-  }, [open, handleClickOutside, closeOnClickOutside]); */
-
-  const handleClickOutside = React.useCallback(() => {
-    onOpenChange?.(false);
-  }, [onOpenChange]);
-
-  const handleCancel = (event: React.SyntheticEvent) => {
-    event.preventDefault();
-    onOpenChange?.(false);
-  };
-
-  const handleFormSubmit = (event: React.FormEvent) => {
-    if ((event.target as HTMLFormElement).method === 'dialog') {
-      event.preventDefault();
-      onOpenChange?.(false);
-    }
-  };
-
-  const outputProps: React.ComponentPropsWithRef<'dialog'> = {
+  const outputProps: React.ComponentPropsWithRef<'div'> = {
     'aria-labelledby': titleElementId ?? undefined,
     'aria-describedby': descriptionElementId ?? undefined,
-    role: type === 'alertdialog' ? 'alertdialog' : undefined,
+    'aria-modal': open && modal ? true : undefined,
+    role: type,
     ...other,
     id,
-    onCancel: handleCancel,
-    onSubmit: handleFormSubmit,
+    hidden: !open,
     ref: handleRef,
+    tabIndex: -1,
   };
 
+  if (!keepMounted && !open) {
+    return null;
+  }
+
   return (
-    <ClickAwayListener
-      mouseEvent={closeOnClickOutside ? 'onMouseDown' : false}
-      touchEvent={closeOnClickOutside ? 'onTouchEnd' : false}
-      onClickAway={handleClickOutside}
-    >
-      <dialog {...outputProps} />
-    </ClickAwayListener>
+    <FocusTrap open={open && modal} disableEnforceFocus>
+      <div {...outputProps} />
+    </FocusTrap>
   );
 });
-
-function hasClickedOutsideBoundingBox(event: PointerEvent, element: HTMLElement) {
-  const boundingRect = element.getBoundingClientRect();
-  return (
-    event.clientX < boundingRect.left ||
-    event.clientX >= boundingRect.right ||
-    event.clientY < boundingRect.top ||
-    event.clientY >= boundingRect.bottom
-  );
-}
 
 DialogPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

@@ -1,37 +1,48 @@
 import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
-import clsx from 'clsx';
 import classes from './dialog.module.css';
 
+function renderContent() {
+  return (
+    <React.Fragment>
+      <Dialog.Title className={classes.title}>Dialog</Dialog.Title>
+      <Dialog.Description>This is a sample dialog</Dialog.Description>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget sapien id dolor rutrum
+        porta. Sed enim nulla, placerat eu tincidunt non, ultrices in lectus. Curabitur pellentesque
+        diam nec ligula hendrerit dapibus.
+      </p>
+
+      <textarea className={classes.textarea} />
+      <input type="text" name="username" />
+      <input type="password" name="password" />
+
+      <Dialog.Close className={classes.button}>Close</Dialog.Close>
+    </React.Fragment>
+  );
+}
+
 function UncontrolledDialogDemo() {
+  const [modal, setModal] = React.useState(true);
+
   return (
     <div>
-      <Dialog.Root closeOnClickOutside>
+      <Dialog.Root closeOnClickOutside modal={modal}>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
             Open
           </button>
         </Dialog.Trigger>
-        <Dialog.Popup className={classes.dialog}>
-          <Dialog.Title className={classes.title}>Dialog</Dialog.Title>
-          <Dialog.Description>This is a sample dialog</Dialog.Description>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget sapien id dolor rutrum
-            porta. Sed enim nulla, placerat eu tincidunt non, ultrices in lectus. Curabitur
-            pellentesque diam nec ligula hendrerit dapibus.
-          </p>
-
-          <textarea className={classes.textarea} />
-          <input type="text" name="username" />
-          <input type="password" name="password" />
-
-          <form method="dialog" className={classes.form}>
-            <button type="submit" className={classes.button}>
-              Submit
-            </button>
-            <Dialog.Close className={classes.button}>Cancel</Dialog.Close>
-          </form>
-        </Dialog.Popup>
+        <label>
+          <input
+            type="checkbox"
+            checked={modal}
+            onChange={(event) => setModal(event.target.checked)}
+          />{' '}
+          Modal
+        </label>
+        <Dialog.Backdrop className={classes.backdrop} />
+        <Dialog.Popup className={classes.dialog}>{renderContent()}</Dialog.Popup>
       </Dialog.Root>
     </div>
   );
@@ -41,42 +52,22 @@ function ControlledDialogDemo() {
   const [open, setOpen] = React.useState(false);
   const [modal, setModal] = React.useState(true);
 
-  function setState(shouldOpen: boolean, shouldBeModal?: boolean) {
-    return () => {
-      setOpen(shouldOpen);
-      if (shouldBeModal !== undefined) {
-        setModal(shouldBeModal);
-      }
-    };
-  }
-
   return (
     <div>
-      <button type="button" className={classes.button} onClick={setState(true, false)}>
-        Open non-modal
+      <button type="button" className={classes.button} onClick={() => setOpen(true)}>
+        Open
       </button>
-      <button type="button" className={classes.button} onClick={setState(true, true)}>
-        Open modal
-      </button>
-      <Dialog.Root open={open} modal={modal} onOpenChange={setState(false)} closeOnClickOutside>
-        <Dialog.Popup className={clsx(classes.dialog, modal ? classes.modal : classes.nonmodal)}>
-          <Dialog.Title className={classes.title}>Dialog</Dialog.Title>
-          <Dialog.Description>This is a sample dialog</Dialog.Description>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget sapien id dolor rutrum
-            porta. Sed enim nulla, placerat eu tincidunt non, ultrices in lectus. Curabitur
-            pellentesque diam nec ligula hendrerit dapibus.
-          </p>
-
-          <form method="dialog" className={classes.form}>
-            <button type="submit" className={classes.button}>
-              Submit
-            </button>
-            <button type="button" className={classes.button} onClick={setState(false)}>
-              Cancel
-            </button>
-          </form>
-        </Dialog.Popup>
+      <label>
+        <input
+          type="checkbox"
+          checked={modal}
+          onChange={(event) => setModal(event.target.checked)}
+        />{' '}
+        Modal
+      </label>
+      <Dialog.Root open={open} modal={modal} onOpenChange={setOpen}>
+        <Dialog.Backdrop className={classes.backdrop} />
+        <Dialog.Popup className={classes.dialog}>{renderContent()}</Dialog.Popup>
       </Dialog.Root>
     </div>
   );

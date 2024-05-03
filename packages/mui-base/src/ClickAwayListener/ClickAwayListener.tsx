@@ -132,15 +132,6 @@ function ClickAwayListener(props: ClickAwayListenerProps): JSX.Element {
       return;
     }
 
-    if (nodeRef.current.tagName === 'DIALOG' && nodeRef.current === event.target) {
-      // Modal dialogs consider clicks on a backdrop as clicks on the dialog itself.
-      // Clicking a backdrop should trigger onClickAway.
-
-      if (hasClickedOutsideBoundingBox(event, nodeRef.current)) {
-        onClickAway(event);
-      }
-    }
-
     let insideDOM;
 
     // If not enough, can use https://github.com/DieterHolvoet/event-propagation-path/blob/master/propagationPath.js
@@ -223,31 +214,6 @@ function ClickAwayListener(props: ClickAwayListenerProps): JSX.Element {
   }, [handleClickAway, mouseEvent]);
 
   return <React.Fragment>{React.cloneElement(children, childrenProps)}</React.Fragment>;
-}
-
-function hasClickedOutsideBoundingBox(event: MouseEvent | TouchEvent, element: Element) {
-  const boundingRect = element.getBoundingClientRect();
-  let clientX: number;
-  let clientY: number;
-
-  if ('touches' in event) {
-    if (event.touches.length !== 1) {
-      return false;
-    }
-
-    clientX = event.touches[0].clientX;
-    clientY = event.touches[0].clientY;
-  } else {
-    clientX = event.clientX;
-    clientY = event.clientY;
-  }
-
-  return (
-    clientX < boundingRect.left ||
-    clientX >= boundingRect.right ||
-    clientY < boundingRect.top ||
-    clientY >= boundingRect.bottom
-  );
 }
 
 ClickAwayListener.propTypes /* remove-proptypes */ = {

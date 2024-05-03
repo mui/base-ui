@@ -15,7 +15,13 @@
     font-weight: 600;
   }
 
-  input {
+  label {
+    font-size: 0.8333rem;
+  }
+
+  input[type='text'],
+  input[type='password'],
+  textarea {
     padding: 8px;
     border: 1px solid #d8d8d8;
     border-radius: 4px;
@@ -32,11 +38,22 @@
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
   padding: 16px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
 
-  &::backdrop {
-    backdrop-filter: blur(8px);
-    background: radial-gradient(#cecdcf36, #8b94ab47);
-  }
+.backdrop {
+  backdrop-filter: blur(8px);
+  background: radial-gradient(#cecdcf36, #8b94ab47);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
 }
 
 .button {
@@ -63,9 +80,14 @@
     }
   }
 
-  & + .button {
+  & + &,
+  input + & {
     margin-left: 8px;
   }
+}
+
+.button + label {
+  margin-left: 16px;
 }
 
 .form {
