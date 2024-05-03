@@ -120,7 +120,12 @@ const TooltipContent = React.forwardRef(function TooltipContent(
     ['data-status' as string]: tooltip.status,
     ['data-instant' as string]: tooltip.instantType,
     ...otherProps,
-  };
+    style: {
+      // <Tooltip.Arrow> must be relative to the content element.
+      position: 'relative',
+      ...otherProps.style,
+    },
+  } as const;
 
   return (
     <TooltipContentContext.Provider value={contextValue}>
@@ -230,6 +235,10 @@ TooltipContent.propTypes /* remove-proptypes */ = {
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
 
 export { TooltipContent };
