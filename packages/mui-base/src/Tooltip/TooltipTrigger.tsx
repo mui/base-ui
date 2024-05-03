@@ -19,7 +19,7 @@ import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 function TooltipTrigger(props: TriggerProps) {
   const { children } = props;
 
-  const { open, setAnchorEl, anchorProps } = useTooltipContext();
+  const { open, setAnchorEl, triggerProps } = useTooltipContext();
 
   const mergedRef = useRenderPropForkRef(children, setAnchorEl);
 
@@ -27,17 +27,17 @@ function TooltipTrigger(props: TriggerProps) {
 
   const styleHooks = useTooltipStyleHooks(ownerState);
 
-  const mergedAnchorProps = {
+  const mergedtriggerProps = {
     ref: mergedRef,
-    ...anchorProps,
+    ...triggerProps,
     ...styleHooks,
   };
 
   if (typeof children === 'function') {
-    return children(mergedAnchorProps);
+    return children(mergedtriggerProps);
   }
 
-  return React.cloneElement(children, mergedAnchorProps);
+  return React.cloneElement(children, mergedtriggerProps);
 }
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {

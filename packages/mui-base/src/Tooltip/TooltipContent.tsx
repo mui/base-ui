@@ -52,7 +52,7 @@ const TooltipContent = React.forwardRef(function TooltipContent(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { open, setOpen, anchorEl, setAnchorProps, delay, delayType, closeDelay } =
+  const { open, setOpen, anchorEl, setTriggerProps, delay, delayType, closeDelay } =
     useTooltipContext();
 
   const tooltip = useTooltip({
@@ -76,11 +76,11 @@ const TooltipContent = React.forwardRef(function TooltipContent(
     arrowPadding,
   });
 
-  const getAnchorProps = tooltip.getAnchorProps;
+  const getTriggerProps = tooltip.getTriggerProps;
 
   useEnhancedEffect(() => {
-    setAnchorProps(getAnchorProps());
-  }, [setAnchorProps, getAnchorProps]);
+    setTriggerProps(getTriggerProps());
+  }, [setTriggerProps, getTriggerProps]);
 
   const ownerState: ContentOwnerState = React.useMemo(
     () => ({

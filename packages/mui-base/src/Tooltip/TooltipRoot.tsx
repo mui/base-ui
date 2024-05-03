@@ -28,7 +28,7 @@ function TooltipRoot(props: RootProps) {
   const { delay = 200, delayType = 'rest', closeDelay = 0 } = props;
 
   const [anchorEl, setAnchorEl] = React.useState<Element | null>(null);
-  const [anchorProps, setAnchorProps] = React.useState<React.HTMLProps<Element>>({
+  const [triggerProps, setTriggerProps] = React.useState<React.HTMLProps<Element>>({
     // Anchor props are set only once hydration has occurred, so we provide initial values for SSR.
     // Props that only make sense once hydration has occurred (indicating interactivity will work)
     // are ignored.
@@ -43,9 +43,9 @@ function TooltipRoot(props: RootProps) {
       open,
       setOpen,
       anchorEl,
-      anchorProps,
+      triggerProps,
       setAnchorEl,
-      setAnchorProps,
+      setTriggerProps,
       mounted,
       setMounted,
       status,
@@ -57,7 +57,7 @@ function TooltipRoot(props: RootProps) {
       open,
       setOpen,
       anchorEl,
-      anchorProps,
+      triggerProps,
       mounted,
       setMounted,
       status,
@@ -92,8 +92,8 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   delay: PropTypes.number,
   /**
    * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the anchor before the tooltip content is opened. `hover` means the `delay` represents
-   * how long to wait once the user's cursor has entered the anchor.
+   * rest on the trigger before the tooltip content is opened. `hover` means the `delay` represents
+   * how long to wait once the user's cursor has entered the trigger.
    * @default 'rest'
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),

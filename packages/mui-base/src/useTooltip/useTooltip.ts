@@ -255,7 +255,7 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
     clientPoint,
   ]);
 
-  const getAnchorProps: UseTooltipReturnValue['getAnchorProps'] = React.useCallback(
+  const getTriggerProps: UseTooltipReturnValue['getTriggerProps'] = React.useCallback(
     (externalProps = {}) => mergeReactProps(externalProps, getReferenceProps()),
     [getReferenceProps],
   );
@@ -307,10 +307,10 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
     () => ({
       status,
       mounted,
-      getAnchorProps,
+      getTriggerProps,
       getContentProps,
       arrowRef,
-      setAnchorEl: refs.setReference,
+      setTriggerEl: refs.setReference,
       setContentEl: refs.setFloating,
       floatingContext: context,
       side: renderedSide,
@@ -320,7 +320,7 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
     [
       status,
       mounted,
-      getAnchorProps,
+      getTriggerProps,
       getContentProps,
       refs.setReference,
       refs.setFloating,

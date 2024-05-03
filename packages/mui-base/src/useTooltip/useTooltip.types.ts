@@ -7,7 +7,7 @@ import type {
   VirtualElement,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../utils/BaseUI.types';
-import type { Status } from '../Tooltip';
+import type { Status } from '../useTransitionStatus';
 
 export interface UseTooltipOpenStateParameters {
   /**
@@ -112,12 +112,12 @@ export interface UseTooltipParameters extends TooltipContentParameters {
    */
   delayType?: 'rest' | 'hover';
   /**
-   * The delay in milliseconds before the tooltip opens after the anchor element is hovered.
+   * The delay in milliseconds before the tooltip opens after the trigger element is hovered.
    * @default 0
    */
   delay?: number;
   /**
-   * The delay in milliseconds before the tooltip closes after the anchor element is unhovered.
+   * The delay in milliseconds before the tooltip closes after the trigger element is unhovered.
    * @default 0
    */
   closeDelay?: number;
@@ -125,19 +125,19 @@ export interface UseTooltipParameters extends TooltipContentParameters {
 
 export interface UseTooltipReturnValue {
   /**
-   * Props to spread on the anchor element.
+   * Props to spread on the trigger element.
    */
-  getAnchorProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * Props to spread on the tooltip element.
+   * Props to spread on the tooltip content element.
    */
   getContentProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * Sets the anchor element.
+   * Sets the trigger element.
    */
-  setAnchorEl: (value: HTMLElement | null) => void;
+  setTriggerEl: (value: HTMLElement | null) => void;
   /**
-   * Sets the tooltip element.
+   * Sets the tooltip content element.
    */
   setContentEl: (value: HTMLElement | null) => void;
   /**

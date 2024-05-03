@@ -78,14 +78,14 @@
       "type": { "name": "FloatingContext", "description": "FloatingContext" },
       "required": true
     },
-    "getAnchorProps": {
+    "getContentProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
         "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
       },
       "required": true
     },
-    "getContentProps": {
+    "getTriggerProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
         "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
@@ -100,14 +100,14 @@
       "required": true
     },
     "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "setAnchorEl": {
+    "setContentEl": {
       "type": {
         "name": "(value: HTMLElement | null) =&gt; void",
         "description": "(value: HTMLElement | null) =&gt; void"
       },
       "required": true
     },
-    "setContentEl": {
+    "setTriggerEl": {
       "type": {
         "name": "(value: HTMLElement | null) =&gt; void",
         "description": "(value: HTMLElement | null) =&gt; void"

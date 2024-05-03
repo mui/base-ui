@@ -13,10 +13,10 @@ import type { Status } from '../useTransitionStatus';
 export interface ContextValue {
   open: boolean;
   setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  anchorEl: Element | null;
-  setAnchorEl: (anchorEl: Element | null) => void;
-  anchorProps: React.HTMLAttributes<Element>;
-  setAnchorProps: (anchorProps: React.HTMLProps<Element>) => void;
+  triggerEl: Element | null;
+  setTriggerEl: (el: Element | null) => void;
+  triggerProps: React.HTMLAttributes<Element>;
+  setTriggerProps: (props: React.HTMLProps<Element>) => void;
   delay: number;
   closeDelay: number;
   delayType: 'rest' | 'hover';
@@ -74,8 +74,8 @@ export interface RootProps {
   closeDelay?: number;
   /**
    * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the anchor before the tooltip content is opened. `hover` means the `delay` represents
-   * how long to wait once the user's cursor has entered the anchor.
+   * rest on the trigger before the tooltip content is opened. `hover` means the `delay` represents
+   * how long to wait once the user's cursor has entered the trigger.
    * @default 'rest'
    */
   delayType?: 'rest' | 'hover';

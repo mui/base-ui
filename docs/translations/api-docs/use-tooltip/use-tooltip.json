@@ -12,14 +12,14 @@
       "description": "Determines the padding between the arrow and the tooltip content. Useful when the tooltip has rounded corners via <code>border-radius</code>."
     },
     "closeDelay": {
-      "description": "The delay in milliseconds before the tooltip closes after the anchor element is unhovered."
+      "description": "The delay in milliseconds before the tooltip closes after the trigger element is unhovered."
     },
     "collisionBoundary": {
       "description": "The boundary that the tooltip element should be constrained to."
     },
     "collisionPadding": { "description": "The padding of the collision boundary." },
     "delay": {
-      "description": "The delay in milliseconds before the tooltip opens after the anchor element is hovered."
+      "description": "The delay in milliseconds before the tooltip opens after the trigger element is hovered."
     },
     "delayType": { "description": "The type of open delay." },
     "followCursorAxis": {
@@ -48,16 +48,16 @@
     "alignment": { "description": "The rendered alignment of the tooltip element." },
     "arrowRef": { "description": "The ref of the arrow element." },
     "floatingContext": { "description": "The Floating UI context of the tooltip element." },
-    "getAnchorProps": { "description": "Props to spread on the anchor element." },
-    "getContentProps": { "description": "Props to spread on the tooltip element." },
+    "getContentProps": { "description": "Props to spread on the tooltip content element." },
+    "getTriggerProps": { "description": "Props to spread on the trigger element." },
     "instantType": {
       "description": "Determines if the tooltip is in an instant phase, and what type."
     },
     "mounted": {
       "description": "Whether the tooltip is mounted, including CSS transitions or animations."
     },
-    "setAnchorEl": { "description": "Sets the anchor element." },
-    "setContentEl": { "description": "Sets the tooltip element." },
+    "setContentEl": { "description": "Sets the tooltip content element." },
+    "setTriggerEl": { "description": "Sets the trigger element." },
     "side": { "description": "The rendered side of the tooltip element." },
     "status": {
       "description": "The status of the tooltip element when considering CSS transitions or animations."
