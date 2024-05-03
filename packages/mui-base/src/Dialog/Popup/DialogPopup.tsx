@@ -4,6 +4,7 @@ import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { ownerDocument } from '../../utils/owner';
 import { useId } from '../../utils/useId';
+import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
 
 export interface DialogPopupProps {
   keepMounted?: boolean;
@@ -58,7 +59,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     };
   }, [id, registerPopup]);
 
-  const handleClickOutside = React.useCallback(
+  /* const handleClickOutside = React.useCallback(
     (event: PointerEvent) => {
       const popupElement = ref.current;
       if (!popupElement) {
@@ -80,9 +81,9 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       }
     },
     [onOpenChange, modal],
-  );
+  );*/
 
-  React.useEffect(() => {
+  /* React.useEffect(() => {
     if (!closeOnClickOutside) {
       return undefined;
     }
@@ -93,7 +94,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     }
 
     return () => doc.removeEventListener('pointerdown', handleClickOutside);
-  }, [open, handleClickOutside, closeOnClickOutside]);
+  }, [open, handleClickOutside, closeOnClickOutside]); */
+
+  const handleClickOutside = React.useCallback(() => {
+    onOpenChange?.(false);
+  }, [onOpenChange]);
 
   const handleCancel = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -118,7 +123,15 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     ref: handleRef,
   };
 
-  return <dialog {...outputProps} />;
+  return (
+    <ClickAwayListener
+      mouseEvent={closeOnClickOutside ? 'onMouseDown' : false}
+      touchEvent={closeOnClickOutside ? 'onTouchEnd' : false}
+      onClickAway={handleClickOutside}
+    >
+      <dialog {...outputProps} />
+    </ClickAwayListener>
+  );
 });
 
 function hasClickedOutsideBoundingBox(event: PointerEvent, element: HTMLElement) {

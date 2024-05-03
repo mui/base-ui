@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DialogRootProps } from './DialogRoot.types';
 import { DialogRootContext, DialogRootContextValue } from './DialogRootContext';
 import { useControlled } from '../../utils/useControlled';
+import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
 
 const defaultRender = (props: React.PropsWithChildren<{ ref: React.Ref<HTMLElement> }>) => (
   // eslint-disable-next-line react/jsx-no-useless-fragment

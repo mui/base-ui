@@ -14,6 +14,14 @@
     font-size: 1.5rem;
     font-weight: 600;
   }
+
+  input {
+    padding: 8px;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
 }
 
 .dialog {
@@ -73,4 +81,12 @@
 
 .nonmodal {
   top: 20vh;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  font-family: inherit;
+  box-sizing: border-box;
 }

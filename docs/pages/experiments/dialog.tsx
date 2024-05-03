@@ -21,6 +21,10 @@ function UncontrolledDialogDemo() {
             pellentesque diam nec ligula hendrerit dapibus.
           </p>
 
+          <textarea className={classes.textarea} />
+          <input type="text" name="username" />
+          <input type="password" name="password" />
+
           <form method="dialog" className={classes.form}>
             <button type="submit" className={classes.button}>
               Submit
