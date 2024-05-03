@@ -5,23 +5,13 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: React.ComponentPropsWithoutRef<'div'>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { open, onOpenChange } = useDialogRootContext();
-
-  const handleMouseDown = React.useCallback(
-    (event: React.MouseEvent) => {
-      if (event.target === event.currentTarget) {
-        onOpenChange?.(false);
-      }
-    },
-    [onOpenChange],
-  );
+  const { open, modal } = useDialogRootContext();
 
   if (!open) {
     return null;
   }
 
-  // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-  return <div {...props} ref={forwardedRef} onMouseDown={handleMouseDown} />;
+  return <div {...props} data-modal={modal || undefined} ref={forwardedRef} />;
 });
 
 export { DialogBackdrop };

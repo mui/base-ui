@@ -19,6 +19,10 @@
     font-size: 0.8333rem;
   }
 
+  label + label {
+    margin-left: 16px;
+  }
+
   input[type='text'],
   input[type='password'],
   textarea {
@@ -46,7 +50,8 @@
 }
 
 .backdrop {
-  backdrop-filter: blur(8px);
+  pointer-events: none;
+  backdrop-filter: blur(6px);
   background: radial-gradient(#cecdcf36, #8b94ab47);
   position: fixed;
   top: 0;
@@ -84,10 +89,6 @@
   input + & {
     margin-left: 8px;
   }
-}
-
-.button + label {
-  margin-left: 16px;
 }
 
 .form {

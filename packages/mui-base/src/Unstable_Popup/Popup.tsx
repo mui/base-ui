@@ -1,14 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  autoUpdate,
-  flip,
-  offset,
-  shift,
-  useFloating,
-  VirtualElement,
-} from '@floating-ui/react-dom';
+import { autoUpdate, flip, offset, shift, useFloating, VirtualElement } from '@floating-ui/react';
 import {
   HTMLElementType,
   unstable_useEnhancedEffect as useEnhancedEffect,

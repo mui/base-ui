@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useFloating, FloatingFocusManager, useInteractions, useDismiss } from '@floating-ui/react';
 import { useDialogRootContext } from '../Root/DialogRootContext';
-import { FocusTrap } from '../../FocusTrap';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 
@@ -16,13 +16,32 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { keepMounted, id: idProp, ...other } = props;
 
-  const { open, modal, titleElementId, descriptionElementId, registerPopup, type } =
-    useDialogRootContext();
+  const {
+    open,
+    modal,
+    titleElementId,
+    descriptionElementId,
+    registerPopup,
+    type,
+    onOpenChange,
+    closeOnClickOutside,
+  } = useDialogRootContext();
+
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange,
+  });
+
+  const dismiss = useDismiss(context, {
+    outsidePressEvent: 'mousedown',
+    enabled: closeOnClickOutside,
+  });
+  const { getFloatingProps } = useInteractions([dismiss]);
 
   const id = useId(idProp);
 
   const ref = React.useRef<HTMLDivElement>(null);
-  const handleRef = useForkRef(ref, forwardedRef);
+  const handleRef = useForkRef(ref, forwardedRef, refs.setFloating);
 
   React.useEffect(() => {
     registerPopup(id ?? null);
@@ -41,16 +60,19 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     hidden: !open,
     ref: handleRef,
     tabIndex: -1,
+    ...getFloatingProps(),
   };
 
   if (!keepMounted && !open) {
     return null;
   }
 
-  return (
-    <FocusTrap open={open && modal} disableEnforceFocus>
+  return open ? (
+    <FloatingFocusManager context={context} modal={modal} guards={false}>
       <div {...outputProps} />
-    </FocusTrap>
+    </FloatingFocusManager>
+  ) : (
+    <div {...outputProps} />
   );
 });
 
