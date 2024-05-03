@@ -52,11 +52,11 @@ const TooltipContent = React.forwardRef(function TooltipContent(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { open, setOpen, anchorEl, setTriggerProps, delay, delayType, closeDelay } =
+  const { open, setOpen, triggerEl, setTriggerProps, delay, delayType, closeDelay } =
     useTooltipContext();
 
   const tooltip = useTooltip({
-    anchor: anchor || anchorEl,
+    anchor: anchor || triggerEl,
     keepMounted,
     open,
     onOpenChange: setOpen,

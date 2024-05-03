@@ -27,7 +27,7 @@ function TooltipRoot(props: RootProps) {
 
   const { delay = 200, delayType = 'rest', closeDelay = 0 } = props;
 
-  const [anchorEl, setAnchorEl] = React.useState<Element | null>(null);
+  const [triggerEl, setTriggerEl] = React.useState<Element | null>(null);
   const [triggerProps, setTriggerProps] = React.useState<React.HTMLProps<Element>>({
     // Anchor props are set only once hydration has occurred, so we provide initial values for SSR.
     // Props that only make sense once hydration has occurred (indicating interactivity will work)
@@ -42,9 +42,9 @@ function TooltipRoot(props: RootProps) {
       closeDelay,
       open,
       setOpen,
-      anchorEl,
+      triggerEl,
       triggerProps,
-      setAnchorEl,
+      setTriggerEl,
       setTriggerProps,
       mounted,
       setMounted,
@@ -56,7 +56,7 @@ function TooltipRoot(props: RootProps) {
       closeDelay,
       open,
       setOpen,
-      anchorEl,
+      triggerEl,
       triggerProps,
       mounted,
       setMounted,
