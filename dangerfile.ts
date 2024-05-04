@@ -1,8 +1,6 @@
-// inspire by reacts dangerfile
+// Inspired by React dangerfile
 // danger has to be the first thing required!
 import { danger, markdown } from 'danger';
-// eslint-disable-next-line no-restricted-imports
-import replaceUrl from '@mui/monorepo/packages/api-docs-builder/utils/replaceUrl';
 import { exec } from 'child_process';
 import { loadComparison } from './scripts/sizeSnapshot';
 
@@ -14,7 +12,7 @@ const parsedSizeChangeThreshold = 300;
 const gzipSizeChangeThreshold = 100;
 
 /**
- * executes a git subcommand
+ * Executes a git subcommand.
  * @param {any} args
  */
 function git(args: any) {
@@ -41,8 +39,8 @@ async function reportBundleSizeCleanup() {
 }
 
 /**
- * creates a callback for Object.entries(comparison).filter that excludes every
- * entry that does not exceed the given threshold values for parsed and gzip size
+ * Creates a callback for Object.entries(comparison).filter that excludes every
+ * entry that does not exceed the given threshold values for parsed and gzip size.
  * @param {number} parsedThreshold
  * @param {number} gzipThreshold
  */
@@ -57,17 +55,7 @@ function createComparisonFilter(parsedThreshold: number, gzipThreshold: number) 
 }
 
 /**
- * checks if the bundle is of a package e.b. `@mui/material` but not
- * `@mui/material/Paper`
- * @param {[string, any]} comparisonEntry
- */
-function isPackageComparison(comparisonEntry: [string, any]) {
-  const [bundleKey] = comparisonEntry;
-  return /^@[\w-]+\/[\w-]+$/.test(bundleKey);
-}
-
-/**
- * Generates a user-readable string from a percentage change
+ * Generates a user-readable string from a percentage change.
  * @param {number} change
  * @param {string} goodEmoji emoji on reduction
  * @param {string} badEmoji emoji on increase
@@ -92,7 +80,7 @@ function generateEmphasizedChange([bundle, { parsed, gzip }]: [
 }
 
 /**
- * Puts results in different buckets wh
+ * Puts results in different buckets.
  * @param {*} results
  */
 function sieveResults<T>(results: Array<[string, T]>) {
@@ -138,8 +126,7 @@ async function loadLastComparison(
 }
 
 async function reportBundleSize() {
-  // Use git locally to grab the commit which represents the place
-  // where the branches differ
+  // Use git locally to grab the commit which represents the place where the branches differ
   const upstreamRepo = danger.github.pr.base.repo.full_name;
   const upstreamRef = danger.github.pr.base.ref;
   try {
@@ -162,12 +149,25 @@ async function reportBundleSize() {
   if (anyResultsChanges.length > 0) {
     const importantChanges = mainResults
       .filter(createComparisonFilter(parsedSizeChangeThreshold, gzipSizeChangeThreshold))
-      .filter(isPackageComparison)
+      .sort(([, a], [, b]) => {
+        const aDiff = Math.abs(a.parsed.absoluteDiff) + Math.abs(a.gzip.absoluteDiff);
+        const bDiff = Math.abs(b.parsed.absoluteDiff) + Math.abs(b.gzip.absoluteDiff);
+        return bDiff - aDiff;
+      })
       .map(generateEmphasizedChange);
 
     // have to guard against empty strings
     if (importantChanges.length > 0) {
-      markdown(importantChanges.join('\n'));
+      const maxVisible = 20;
+
+      const lines = importantChanges.slice(0, maxVisible);
+
+      const nrOfHiddenChanges = Math.max(0, importantChanges.length - maxVisible);
+      if (nrOfHiddenChanges > 0) {
+        lines.push(`and [${nrOfHiddenChanges} more changes](${detailedComparisonToolpadUrl})`);
+      }
+
+      markdown(lines.join('\n'));
     }
 
     const details = `## Bundle size report
@@ -185,55 +185,12 @@ async function reportBundleSize() {
 }
 
 function addDeployPreviewUrls() {
-  /**
-   * The incoming path from danger does not start with `/`
-   * e.g. ['docs/data/joy/components/button/button.md']
-   */
-  function formatFileToLink(path: string) {
-    let url = path.replace('docs/data', '').replace(/\.md$/, '');
-
-    const fragments = url.split('/').reverse();
-    if (fragments[0] === fragments[1]) {
-      // check if the end of pathname is the same as the one before
-      // for example `/data/material/getting-started/overview/overview.md
-      url = fragments.slice(1).reverse().join('/');
-    }
-
-    if (url.startsWith('/material')) {
-      // needs to convert to correct material legacy folder structure to the existing url.
-      url = replaceUrl(url.replace('/material', ''), '/material-ui').replace(/^\//, '');
-    } else {
-      url = url
-        .replace(/^\//, '') // remove initial `/`
-        .replace('joy/', 'joy-ui/')
-        .replace('components/', 'react-');
-    }
-
-    return url;
-  }
-
   const netlifyPreview = `https://deploy-preview-${danger.github.pr.number}--base-ui.netlify.app/`;
-
-  const files = [...danger.git.created_files, ...danger.git.modified_files];
-
-  // limit to the first 5 docs
-  const docs = files
-    .filter((file) => file.startsWith('docs/data') && file.endsWith('.md'))
-    .slice(0, 5);
 
   markdown(`
 ## Netlify deploy preview
 
-${
-  docs.length
-    ? docs
-        .map((path) => {
-          const formattedUrl = formatFileToLink(path);
-          return `- [${path}](${netlifyPreview}${formattedUrl})`;
-        })
-        .join('\n')
-    : netlifyPreview
-}
+${netlifyPreview}
 `);
 }
 
