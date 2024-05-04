@@ -212,7 +212,7 @@ function addDeployPreviewUrls() {
     return url;
   }
 
-  const netlifyPreview = `https://deploy-preview-${danger.github.pr.number}--material-ui.netlify.app/`;
+  const netlifyPreview = `https://deploy-preview-${danger.github.pr.number}--base-ui.netlify.app/`;
 
   const files = [...danger.git.created_files, ...danger.git.modified_files];
 
