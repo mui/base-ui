@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useTabs",
-  "filename": "/packages/mui-base/src/useTabs/useTabs.ts",
-  "imports": ["import { useTabs } from '@base_ui/react/useTabs';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-tabs/#hooks\">Tabs</a></li></ul>"
-}
