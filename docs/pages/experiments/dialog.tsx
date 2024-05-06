@@ -2,6 +2,11 @@ import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
 import classes from './dialog.module.css';
 
+interface DemoProps {
+  modal: boolean;
+  closeOnClickOutside: boolean;
+}
+
 function renderContent(title: string) {
   return (
     <React.Fragment>
@@ -13,7 +18,7 @@ function renderContent(title: string) {
         diam nec ligula hendrerit dapibus.
       </p>
 
-      <textarea className={classes.textarea} />
+      <textarea />
       <input type="text" name="username" />
       <input type="password" name="password" />
 
@@ -22,15 +27,15 @@ function renderContent(title: string) {
   );
 }
 
-function UncontrolledDialogDemo(props) {
+function UncontrolledDialogDemo(props: DemoProps) {
   const { modal, closeOnClickOutside } = props;
 
   return (
-    <div>
+    <span className={classes.demo}>
       <Dialog.Root modal={modal} closeOnClickOutside={closeOnClickOutside}>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
-            Open
+            Open uncontrolled
           </button>
         </Dialog.Trigger>
         {modal && <Dialog.Backdrop className={classes.backdrop} />}
@@ -38,18 +43,18 @@ function UncontrolledDialogDemo(props) {
           {renderContent(`Uncontrolled ${modal ? 'modal' : 'nonmodal'} dialog`)}
         </Dialog.Popup>
       </Dialog.Root>
-    </div>
+    </span>
   );
 }
 
-function ControlledDialogDemo(props) {
+function ControlledDialogDemo(props: DemoProps) {
   const [open, setOpen] = React.useState(false);
   const { modal, closeOnClickOutside } = props;
 
   return (
-    <div>
+    <span className={classes.demo}>
       <button type="button" className={classes.button} onClick={() => setOpen(true)}>
-        Open
+        Open controlled
       </button>
 
       <Dialog.Root
@@ -63,7 +68,7 @@ function ControlledDialogDemo(props) {
           {renderContent(`Controlled ${modal ? 'modal' : 'nonmodal'} dialog`)}
         </Dialog.Popup>
       </Dialog.Root>
-    </div>
+    </span>
   );
 }
 
@@ -74,6 +79,8 @@ export default function DialogExperiment() {
   return (
     <div className={classes.page}>
       <h1>Dialog</h1>
+      <UncontrolledDialogDemo modal={modal} closeOnClickOutside={closeOnClickOutside} />
+      <ControlledDialogDemo modal={modal} closeOnClickOutside={closeOnClickOutside} />
       <h2>Options</h2>
       <label>
         <input
@@ -91,10 +98,6 @@ export default function DialogExperiment() {
         />{' '}
         Soft-close
       </label>
-      <h2>Uncontrolled</h2>
-      <UncontrolledDialogDemo modal={modal} closeOnClickOutside={closeOnClickOutside} />
-      <h2>Controlled</h2>
-      <ControlledDialogDemo modal={modal} closeOnClickOutside={closeOnClickOutside} />
     </div>
   );
 }

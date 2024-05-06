@@ -32,6 +32,14 @@
     font-family: inherit;
     box-sizing: border-box;
   }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+    width: 100%;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
 }
 
 .dialog {
@@ -50,7 +58,6 @@
 }
 
 .backdrop {
-  pointer-events: none;
   backdrop-filter: blur(6px);
   background: radial-gradient(#cecdcf36, #8b94ab47);
   position: fixed;
@@ -102,14 +109,6 @@
   }
 }
 
-.nonmodal {
-  top: 20vh;
-}
-
-.textarea {
-  resize: vertical;
-  min-height: 100px;
-  width: 100%;
-  font-family: inherit;
-  box-sizing: border-box;
+.demo {
+  margin-right: 8px;
 }
