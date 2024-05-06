@@ -17,87 +17,62 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 
 ## Introduction
 
-Tooltips are visual-only floating elements that display information about an anchor element for sighted users when using a mouse to hover or keyboard to focus — the content is a tip for a "tool" that performs an action.
+Tooltips are visual-only floating elements that display information about an element for sighted users when using a mouse to hover or keyboard to focus.
 
 {{"demo": "UnstyledTooltipIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
+## Installation
+
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
+```
+
+```bash yarn
+yarn add @base_ui/react
+```
+
+```bash pnpm
+pnpm add @base_ui/react
+```
+
+</codeblock>
+
+Once you have the package installed, import the component.
+
+```ts
+import * as Tooltip from '@base_ui/react/Tooltip';
+```
+
 :::info
-If critical information is hidden behind a tooltip, you're likely looking for a `Infotip` instead. These are floating elements that anchor themselves to an icon designed only to display information, not a button ("tool") that performs an action. All inputs, including touch, can see an infotip.
+If critical information is hidden behind a tooltip, you're likely looking for an infotip instead. These are created by using the `Popover` component and enabling the hover trigger. Infotips are floating elements that anchor themselves to an icon designed only to display information, not a button ("tool") that performs an action. All inputs, including touch, can see an infotip.
 :::
 
-## Component
+## Anatomy
 
-```jsx
-import * as Tooltip from '@mui/base/Tooltip';
-```
+Tooltip is implemented using a collection of related components:
 
-### Anatomy
+- `<Tooltip.Root />` is a top-level component that wraps all other components.
+- `<Tooltip.Trigger />` contains the trigger element.
+- `<Tooltip.Content />` contains the tooltip content.
+- `<Tooltip.Arrow />` contains an optional pointing arrow.
 
-The `Tooltip` component is composed of a root component that contains two main subcomponents: `Trigger` and `Content`.
-
-```jsx
-<Tooltip.Root>
-  <Tooltip.Trigger />
-  <Tooltip.Content>
-    <Tooltip.Arrow />
-  </Tooltip.Content>
-</Tooltip.Root>
-```
-
-- `Content` is the tooltip element itself.
-- `Trigger` provides props for its child element that lets the `Content` element be anchored to it.
-- `Arrow` is an optional element placed inside `Content` for displaying a caret (or triangle) that points to the center of the anchor.
-
-```jsx
+```tsx
 <Tooltip.Root>
   <Tooltip.Trigger>
-    <button>Anchor</button>
+    <button>My trigger</button>
   </Tooltip.Trigger>
   <Tooltip.Content>
-    Tooltip
     <Tooltip.Arrow />
+    My tooltip
   </Tooltip.Content>
 </Tooltip.Root>
 ```
 
-### Custom structure
-
-Use the `render` prop for `Tooltip.Content` and `Tooltip.Arrow` to override them with your own component:
-
-```jsx
-<Tooltip.Root>
-  <Tooltip.Trigger>
-    <MyTooltipAnchor />
-  </Tooltip.Trigger>
-  <Tooltip.Content render={(props) => <MyTooltipContent {...props} />}>
-    Tooltip
-    <Tooltip.Arrow render={(props) => <MyTooltipArrow {...props} />} />
-  </Tooltip.Content>
-</Tooltip.Root>
-```
-
-To ensure behavior works as expected:
-
-- **Forward all props**: Your component should spread all props to the underlying element.
-- **Forward the `ref`**: Your component should use [`forwardRef`](https://react.dev/reference/react/forwardRef) to ensure the Tooltip components can access the element via a ref.
-
-A custom component that adheres to these two principles looks like this:
-
-```jsx
-const MyTooltipContent = React.forwardRef(function MyTooltipContent(props, ref) {
-  return <button ref={ref} {...props} />;
-});
-```
-
-If you need control of how the props get passed to the anchor component, use the `children` function for `Tooltip.Trigger`:
-
-```jsx
-<Tooltip.Trigger>
-  {(props) => <MyTooltipAnchor triggerProps={props} />}
-</Tooltip.Trigger>
-```
-
-### Accessibility
+## Accessibility
 
 Tooltips are only for sighted users with access to a pointer with hover capability or keyboard focus. This means you must supply an accessible name via `aria-label` to elements that don't contain text content, such as an icon button.
 
@@ -116,14 +91,14 @@ Your `aria-label` and tooltip content should closely match or be identical so th
 
 Tooltips should ideally also be secondary in nature, because touch users cannot see them. They are most useful as progressive enhancement in high-density desktop applications that have many icon buttons where visual labels are impractical to use. They are also useful for things like thumbnail tooltips when hovering over a progress bar when using a mouse.
 
-### Placement
+## Placement
 
 By default, the tooltip is placed on the top side of its anchor. To change this, use the `side` prop on `Tooltip.Content`:
 
 ```jsx
 <Tooltip.Root>
   <Tooltip.Trigger>
-    <button>Anchor</button>
+    <button>Trigger</button>
   </Tooltip.Trigger>
   <Tooltip.Content side="right">Tooltip</Tooltip.Content>
 </Tooltip.Root>
@@ -152,9 +127,9 @@ To access the true rendered values, which may change as the result of a collisio
 
 This allows you to conditionally style the tooltip based on its rendered side or alignment.
 
-### Offsets
+## Offsets
 
-#### Side
+### Side
 
 To offset the side position, use the `sideOffset` prop:
 
@@ -164,7 +139,7 @@ To offset the side position, use the `sideOffset` prop:
 
 This creates a gap between the anchor and its tooltip content.
 
-#### Alignment
+### Alignment
 
 To offset the alignment position, use the `alignmentOffset` prop:
 
@@ -174,9 +149,9 @@ To offset the alignment position, use the `alignmentOffset` prop:
 
 This prop acts logically for the `start` and `end` alignments.
 
-### Delay
+## Delay
 
-By default, the tooltip waits until the user's cursor is at rest over the anchor element before it is opened. To change this timeout, use the `delay` prop, which represents how long the tooltip waits after being triggered to open in milliseconds:
+By default, the tooltip waits until the user's cursor is at rest over the anchor element before it is opened. To change this timeout, use the `delay` prop, which represents how long the tooltip waits after the cursor rests to open in milliseconds:
 
 ```jsx
 <Tooltip.Root delay={200}>
@@ -188,19 +163,19 @@ The close delay can also be configured:
 <Tooltip.Root closeDelay={200}>
 ```
 
-The delay type can be changed from `"rest"` (user's cursor is static for the given timeout in milliseconds) to `"hover"` (the tooltip opens as soon as the anchor element is hovered):
+The delay type can be changed from `"rest"` (user's cursor is static for the given timeout in milliseconds) to `"hover"`:
 
 ```jsx
 <Tooltip.Root delayType="hover">
 ```
 
-#### Grouping
+## Grouping
 
-When you want nearby anchor elements' delays to become `0` when one of the tooltips of the group opens in order to enable higher discovery of tooltips, use the `Tooltip.Group` component, wrapping the `Tooltip.Root`s with it.
+To ensure nearby trigger elements' delays become `0` once one of the tooltips of the group opens, use the `Tooltip.Group` component, wrapping the `Tooltip.Root`s with it.
 
 {{"demo": "UnstyledTooltipDelayGroup.js"}}
 
-### Open state
+## Controlled
 
 To control the tooltip with external state, use the `open` and `onOpenChange` props:
 
@@ -215,7 +190,7 @@ function App() {
 }
 ```
 
-### Default open
+## Default open
 
 To show the tooltip initially while leaving it uncontrolled, use the `defaultOpen` prop:
 
@@ -223,7 +198,7 @@ To show the tooltip initially while leaving it uncontrolled, use the `defaultOpe
 <Tooltip.Root defaultOpen>
 ```
 
-### Hoverable content
+## Hoverable content
 
 To prevent the content inside from being hoverable, use the `hoverable` prop:
 
@@ -235,7 +210,7 @@ To prevent the content inside from being hoverable, use the `hoverable` prop:
 This has accessibility consequences and should only be disabled when necessary, such as in high-density UIs where tooltips can block other nearby controls.
 :::
 
-### Arrow
+## Arrow
 
 To add an arrow (caret or triangle) inside the tooltip content that points toward the center of the anchor element, use the `Tooltip.Arrow` component:
 
@@ -246,7 +221,7 @@ To add an arrow (caret or triangle) inside the tooltip content that points towar
 </Tooltip.Content>
 ```
 
-Its `width`, `height`, `fill`, `stroke`, `strokeWidth`, `tipRadius` (tip rounding), and `d` (custom path) prop can be modified.
+Its `width`, `height`, `fill`, `stroke`, `strokeWidth`, `tipRadius` (tip rounding), and `d` (custom path) prop can be specified.
 
 For example, you can use a fancily rounded arrow like so:
 
@@ -261,13 +236,13 @@ For example, you can use a fancily rounded arrow like so:
 </Tooltip.Content>
 ```
 
-### Cursor following
+## Cursor following
 
 The tooltip can follow the cursor on both axes or one axis using the `followCursorAxis` prop on `Tooltip.Content`. Possible values are: `none` (default), `both`, `x`, or `y`.
 
 {{"demo": "UnstyledTooltipFollowCursor.js"}}
 
-### Anchoring
+## Anchoring
 
 By default, the `Trigger` acts as the anchor. This can be changed to another element, either virtual or real:
 
@@ -284,7 +259,7 @@ By default, the `Trigger` acts as the anchor. This can be changed to another ele
 </Tooltip.Content>
 ```
 
-### Styling
+## Styling
 
 The `Tooltip.Content` element receives the following CSS variables:
 
@@ -307,7 +282,7 @@ The `Tooltip.Content` element receives the following CSS variables:
 
 By default, `maxWidth` and `maxHeight` are already specified using `--available-{width,height}` to prevent the tooltip from being too big to fit on the screen.
 
-### Animations
+## Animations
 
 CSS transitions or animations can be used to animate the tooltip opening or closing.
 
@@ -367,7 +342,7 @@ CSS animations can also be used—useful for more complex animations with differ
 }
 ```
 
-#### Instant type
+### Instant animation
 
 Animations can be removed under certain conditions using the `data-instant` attribute on `Tooltip.Content`. This attribute can be used unconditionally, but it also has different values for granular checks:
 
@@ -383,18 +358,16 @@ In most of these cases, you'll want to remove any animations:
 }
 ```
 
-## Hook
+## Overriding default components
 
-```js
-import { useTooltip, useTooltipOpenState } from '@base_ui/react/useTooltip';
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+// Element shorthand
+<Tooltip.Content render={<MyTooltipContent />} />
 ```
 
-The `useTooltip` and `useTooltipOpenState` hooks let you apply the functionality of a Tooltip to fully custom components.
-It returns props to be placed on the custom component, along with fields representing the component's internal state.
-
-:::info
-Hooks give you the most room for customization, but require more work to implement.
-With hooks, you can take full control over how your component is rendered, and define all the custom props and CSS classes you need.
-
-You may not need to use hooks unless you find that you're limited by the customization options of their component counterparts—for instance, if your component requires significantly different [HTML structure](#anatomy).
-:::
+```jsx
+// Function
+<Tooltip.Content render={(props) => <MyTooltipContent {...props} />} />
+```
