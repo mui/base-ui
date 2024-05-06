@@ -58,7 +58,7 @@ Tooltip is implemented using a collection of related components:
 - `<Tooltip.Root />` is a top-level component that wraps all other components.
 - `<Tooltip.Trigger />` contains the trigger element.
 - `<Tooltip.Content />` contains the tooltip content.
-- `<Tooltip.Arrow />` contains an optional pointing arrow.
+- `<Tooltip.Arrow />` renders an optional pointing arrow.
 
 ```tsx
 <Tooltip.Root>
