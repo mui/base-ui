@@ -6,7 +6,7 @@ export function evaluateRenderProp<ElementType extends React.ElementType, OwnerS
   render: BaseUIComponentProps<ElementType, OwnerState>['render'],
   props: React.HTMLAttributes<any>,
   ownerState: OwnerState,
-) {
+): React.ReactElement {
   return typeof render === 'function'
     ? render(props, ownerState)
     : React.cloneElement(render, mergeReactProps(render.props, props));

@@ -2,19 +2,17 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootOwnerState, DialogRootProps } from './DialogRoot.types';
 import { DialogRootContext } from './DialogRootContext';
-import { useDialogRootStyleHooks } from './useDialogRootStyleHooks';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useDialogRoot } from './useDialogRoot';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 
 const DialogRoot = React.forwardRef(function DialogRoot(
   props: DialogRootProps,
-  forwardedRef: React.Ref<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    render: renderProp,
-    className: classNameProp,
+    render,
+    className,
     modal = true,
     onOpenChange,
     open: openProp,
@@ -23,8 +21,6 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     closeOnClickOutside,
     ...other
   } = props;
-
-  const render = renderProp ?? defaultRenderFunctions.Fragment;
 
   const { open, contextValue } = useDialogRoot({
     open: openProp,
@@ -41,20 +37,17 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     type,
   };
 
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useDialogRootStyleHooks(ownerState);
-
-  const rootProps = {
-    ...styleHooks,
-    ...other,
+  const { renderElement } = useBaseUIComponentRenderer({
+    render: render ?? defaultRenderFunctions.Fragment,
     className,
+    ownerState,
     ref: forwardedRef,
-  };
+    extraProps: other,
+    customStyleHookMapping: { open: (value) => ({ 'data-state': value ? 'open' : 'closed' }) },
+  });
 
   return (
-    <DialogRootContext.Provider value={contextValue}>
-      {evaluateRenderProp(render, rootProps, ownerState)}
-    </DialogRootContext.Provider>
+    <DialogRootContext.Provider value={contextValue}>{renderElement()}</DialogRootContext.Provider>
   );
 });
 
