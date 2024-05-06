@@ -1,31 +1,33 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useDialogDescription } from './useDialogDescription';
+import type { DialogDescriptionProps } from './DialogDescription.types';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useId } from '../../utils/useId';
-import { useDialogRootContext } from '../Root/DialogRootContext';
+import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 
 const DialogDescription = React.forwardRef(function DialogDescription(
-  props: React.ComponentPropsWithRef<'p'>,
+  props: DialogDescriptionProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { id: idProp } = props;
-  const { setDescriptionElementId } = useDialogRootContext();
-  const id = useId(idProp);
+  const { render, className, id, ...other } = props;
 
-  React.useEffect(() => {
-    setDescriptionElementId(id ?? null);
-    return () => {
-      setDescriptionElementId(null);
-    };
-  }, [id, setDescriptionElementId]);
-
-  const rootProps = {
-    ...props,
-    id,
-    ref: forwardedRef,
+  const { getRootProps, open, modal, type } = useDialogDescription({ id });
+  const ownerState = {
+    open,
+    modal,
+    type,
   };
 
-  return defaultRenderFunctions.p(rootProps);
+  const { renderElement } = useBaseUIComponentRenderer({
+    render: render ?? defaultRenderFunctions.p,
+    className,
+    ownerState,
+    propGetter: getRootProps,
+    ref: forwardedRef,
+    extraProps: other,
+  });
+
+  return renderElement();
 });
 
 DialogDescription.propTypes /* remove-proptypes */ = {

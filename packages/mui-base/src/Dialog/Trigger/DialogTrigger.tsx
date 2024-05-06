@@ -1,29 +1,24 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogRootContext } from '../Root/DialogRootContext';
-
-interface DialogTriggerProps {
-  children: React.ReactElement;
-}
+import { useDialogTrigger } from './useDialogTrigger';
+import type { DialogTriggerProps } from './DialogTrigger.types';
+import { getStyleHookProps } from '../../utils/getStyleHookProps';
 
 function DialogTrigger(props: DialogTriggerProps) {
   const { children } = props;
+  const { getRootProps, open, modal, type } = useDialogTrigger();
+  const styleHooks = React.useMemo(
+    () =>
+      getStyleHookProps(
+        { open, modal, type },
+        {
+          open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+        },
+      ),
+    [open, modal, type],
+  );
 
-  const { open, onOpenChange, popupElementId } = useDialogRootContext();
-
-  const handleClick = () => {
-    if (!open) {
-      onOpenChange?.(true);
-    }
-  };
-
-  const newProps: React.ButtonHTMLAttributes<HTMLButtonElement> = {
-    onClick: handleClick,
-    'aria-haspopup': 'dialog',
-    'aria-controls': popupElementId ?? undefined,
-  };
-
-  return React.cloneElement(children, newProps);
+  return React.cloneElement(children, getRootProps(styleHooks));
 }
 
 DialogTrigger.propTypes /* remove-proptypes */ = {

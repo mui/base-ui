@@ -9,7 +9,7 @@ import { useControlled } from '../../utils/useControlled';
 export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRootReturnValue {
   const {
     open: openParam,
-    defaultOpen,
+    defaultOpen = false,
     onOpenChange,
     type = 'dialog',
     modal = true,
@@ -35,6 +35,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
   );
 
   if (process.env.NODE_ENV !== 'production') {
+    // the above condition doesn't change at runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (type === 'alertdialog' && !modal) {
