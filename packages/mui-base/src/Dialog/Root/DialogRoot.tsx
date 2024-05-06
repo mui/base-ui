@@ -6,11 +6,7 @@ import { useDialogRootStyleHooks } from './useDialogRootStyleHooks';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useDialogRoot } from './useDialogRoot';
-
-const defaultRender = (props: React.HTMLAttributes<any>) => (
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  <React.Fragment {...props} />
-);
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 
 const DialogRoot = React.forwardRef(function DialogRoot(
   props: DialogRootProps,
@@ -28,7 +24,7 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     ...other
   } = props;
 
-  const render = renderProp ?? defaultRender;
+  const render = renderProp ?? defaultRenderFunctions.Fragment;
 
   const { open, contextValue } = useDialogRoot({
     open: openProp,

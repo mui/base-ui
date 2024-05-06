@@ -7,6 +7,9 @@ export const defaultRenderFunctions = {
   div: (props: React.ComponentPropsWithRef<'div'>) => {
     return <div {...props} />;
   },
+  Fragment: (props: React.HTMLAttributes<any>) => {
+    return <React.Fragment>{props.children}</React.Fragment>;
+  },
   h2: (props: React.ComponentPropsWithRef<'h2'>) => {
     // eslint-disable-next-line jsx-a11y/heading-has-content
     return <h2 {...props} />;
