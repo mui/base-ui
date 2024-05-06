@@ -6,7 +6,12 @@ import type {
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogDescription API](https://mui.com/base-ui/api/use-dialog-description/)
+ */
 export function useDialogDescription(
   parameters: UseDialogDescriptionParameters,
 ): UseDialogDescriptionReturnValue {

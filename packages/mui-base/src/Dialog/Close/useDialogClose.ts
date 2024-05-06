@@ -2,7 +2,12 @@ import * as React from 'react';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { UseDialogCloseReturnValue } from './DialogClose.types';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogClose API](https://mui.com/base-ui/api/use-dialog-close/)
+ */
 export function useDialogClose(): UseDialogCloseReturnValue {
   const { open, onOpenChange, modal, type } = useDialogRootContext();
 

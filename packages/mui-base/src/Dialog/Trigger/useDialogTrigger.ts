@@ -2,7 +2,12 @@ import * as React from 'react';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { UseDialogTriggerReturnValue } from './DialogTrigger.types';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogTrigger API](https://mui.com/base-ui/api/use-dialog-trigger/)
+ */
 export function useDialogTrigger(): UseDialogTriggerReturnValue {
   const { open, onOpenChange, modal, type, popupElementId } = useDialogRootContext();
 

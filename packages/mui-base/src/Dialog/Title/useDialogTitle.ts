@@ -3,7 +3,12 @@ import type { UseDialogTitleParameters, UseDialogTitleReturnValue } from './Dial
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogTitle API](https://mui.com/base-ui/api/use-dialog-title/)
+ */
 export function useDialogTitle(parameters: UseDialogTitleParameters): UseDialogTitleReturnValue {
   const { id: idParam } = parameters;
   const { setTitleElementId, open, modal, type } = useDialogRootContext();

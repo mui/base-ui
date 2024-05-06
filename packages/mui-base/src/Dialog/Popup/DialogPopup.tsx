@@ -56,6 +56,10 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * @ignore
    */
   id: PropTypes.string,
@@ -63,6 +67,10 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   keepMounted: PropTypes.bool,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { DialogPopup };

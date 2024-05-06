@@ -5,7 +5,12 @@ import { UseDialogPopupParameters } from './DialogPopup.types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogPopup API](https://mui.com/base-ui/api/use-dialog-popup/)
+ */
 export function useDialogPopup(parameters: UseDialogPopupParameters) {
   const { id: idParam, ref } = parameters;
 

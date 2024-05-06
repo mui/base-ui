@@ -5,7 +5,12 @@ import type {
   DialogRootContextValue,
 } from './DialogRoot.types';
 import { useControlled } from '../../utils/useControlled';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogRoot API](https://mui.com/base-ui/api/use-dialog-root/)
+ */
 export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRootReturnValue {
   const {
     open: openParam,
