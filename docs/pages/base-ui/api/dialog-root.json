@@ -1,0 +1,14 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "DialogRoot",
+  "imports": ["import * as Dialog from '@base_ui/react/Dialog';\nconst DialogRoot = Dialog.Root;"],
+  "classes": [],
+  "muiName": "DialogRoot",
+  "filename": "/packages/mui-base/src/Dialog/Root/DialogRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/\">Dialog</a></li></ul>",
+  "cssComponent": false
+}

@@ -1,56 +1,56 @@
-export { DialogBackdrop as Backdrop } from './Backdrop/DialogBackdrop';
+export { DialogBackdrop } from './Backdrop/DialogBackdrop';
 export type {
-  DialogBackdropProps as BackdropProps,
-  DialogBackdropOwnerState as BackdropOwnerState,
+  DialogBackdropProps,
+  DialogBackdropOwnerState,
 } from './Backdrop/DialogBackdrop.types';
 
-export { DialogClose as Close } from './Close/DialogClose';
+export { DialogClose } from './Close/DialogClose';
 export { useDialogClose } from './Close/useDialogClose';
 export type {
-  DialogCloseProps as CloseProps,
-  DialogCloseOwnerState as CloseOwnerState,
+  DialogCloseProps,
+  DialogCloseOwnerState,
   UseDialogCloseReturnValue,
 } from './Close/DialogClose.types';
 
-export { DialogDescription as Description } from './Description/DialogDescription';
+export { DialogDescription } from './Description/DialogDescription';
 export { useDialogDescription } from './Description/useDialogDescription';
 export type {
-  DialogDescriptionProps as DescriptionProps,
-  DialogDescriptionOwnerState as DescriptionOwnerState,
+  DialogDescriptionProps,
+  DialogDescriptionOwnerState,
   UseDialogDescriptionParameters,
   UseDialogDescriptionReturnValue,
 } from './Description/DialogDescription.types';
 
-export { DialogPopup as Popup } from './Popup/DialogPopup';
+export { DialogPopup } from './Popup/DialogPopup';
 export { useDialogPopup } from './Popup/useDialogPopup';
 export type {
-  DialogPopupProps as PopupProps,
-  DialogPopupOwnerState as PopupOwnerState,
+  DialogPopupProps,
+  DialogPopupOwnerState,
   UseDialogPopupParameters,
   UseDialogPopupReturnValue,
 } from './Popup/DialogPopup.types';
 
-export { DialogRoot as Root } from './Root/DialogRoot';
+export { DialogRoot } from './Root/DialogRoot';
 export { useDialogRoot } from './Root/useDialogRoot';
 export type {
-  DialogRootProps as RootProps,
-  DialogRootOwnerState as RootOwnerState,
+  DialogRootProps,
+  DialogRootOwnerState,
   UseDialogRootParameters,
   UseDialogRootReturnValue,
 } from './Root/DialogRoot.types';
 
-export { DialogTitle as Title } from './Title/DialogTitle';
+export { DialogTitle } from './Title/DialogTitle';
 export { useDialogTitle } from './Title/useDialogTitle';
 export type {
-  DialogTitleProps as TitleProps,
-  DialogTitleOwnerState as TitleOwnerState,
+  DialogTitleProps,
+  DialogTitleOwnerState,
   UseDialogTitleParameters,
   UseDialogTitleReturnValue,
 } from './Title/DialogTitle.types';
 
-export { DialogTrigger as Trigger } from './Trigger/DialogTrigger';
+export { DialogTrigger } from './Trigger/DialogTrigger';
 export { useDialogTrigger } from './Trigger/useDialogTrigger';
 export type {
-  DialogTriggerProps as TriggerProps,
+  DialogTriggerProps,
   UseDialogTriggerReturnValue,
 } from './Trigger/DialogTrigger.types';

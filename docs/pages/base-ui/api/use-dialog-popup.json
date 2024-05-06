@@ -1,0 +1,33 @@
+{
+  "parameters": {
+    "ref": {
+      "type": {
+        "name": "React.Ref&lt;HTMLElement&gt;",
+        "description": "React.Ref&lt;HTMLElement&gt;"
+      },
+      "required": true
+    },
+    "id": { "type": { "name": "string", "description": "string" } },
+    "keepMounted": { "type": { "name": "boolean", "description": "boolean" } }
+  },
+  "returnValue": {
+    "floatingUIContext": {
+      "type": { "name": "FloatingContext", "description": "FloatingContext" },
+      "required": true
+    },
+    "getRootProps": {
+      "type": {
+        "name": "(otherProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(otherProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
+      },
+      "required": true
+    },
+    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true }
+  },
+  "name": "useDialogPopup",
+  "filename": "/packages/mui-base/src/Dialog/Popup/useDialogPopup.tsx",
+  "imports": ["import { useDialogPopup } from '@base_ui/react/Dialog';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/#hooks\">Dialog</a></li></ul>"
+}

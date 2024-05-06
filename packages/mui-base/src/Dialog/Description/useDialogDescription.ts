@@ -8,9 +8,13 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
 /**
  *
+ * Demos:
+ *
+ * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
+ *
  * API:
  *
- * - [useDialogDescription API](https://mui.com/base-ui/api/use-dialog-description/)
+ * - [useDialogDescription API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-description)
  */
 export function useDialogDescription(
   parameters: UseDialogDescriptionParameters,

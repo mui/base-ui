@@ -7,9 +7,13 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 /**
  *
+ * Demos:
+ *
+ * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
+ *
  * API:
  *
- * - [useDialogPopup API](https://mui.com/base-ui/api/use-dialog-popup/)
+ * - [useDialogPopup API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-popup)
  */
 export function useDialogPopup(parameters: UseDialogPopupParameters) {
   const { id: idParam, ref } = parameters;
@@ -62,7 +66,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
   return {
     open,
     getRootProps,
-    floatingContext: context,
+    floatingUIContext: context,
     modal,
     type,
   };

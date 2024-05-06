@@ -5,6 +5,7 @@ export {
   type IndicatorProps as CheckboxIndicatorProps,
   type OwnerState as CheckboxOwnerState,
 } from './Checkbox';
+export * from './Dialog/index.barrel';
 export {
   Root as NumberFieldRoot,
   Group as NumberFieldGroup,

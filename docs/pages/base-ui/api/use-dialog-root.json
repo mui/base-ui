@@ -1,0 +1,23 @@
+{
+  "parameters": {
+    "closeOnClickOutside": { "type": { "name": "boolean", "description": "boolean" } },
+    "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
+    "modal": { "type": { "name": "boolean", "description": "boolean" } },
+    "onOpenChange": {
+      "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" }
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" } },
+    "type": { "type": { "name": "DialogType", "description": "DialogType" } }
+  },
+  "returnValue": {
+    "contextValue": {
+      "type": { "name": "DialogRootContextValue", "description": "DialogRootContextValue" },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+  },
+  "name": "useDialogRoot",
+  "filename": "/packages/mui-base/src/Dialog/Root/useDialogRoot.ts",
+  "imports": ["import { useDialogRoot } from '@base_ui/react/Dialog';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/#hooks\">Dialog</a></li></ul>"
+}

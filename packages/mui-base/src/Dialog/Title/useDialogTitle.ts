@@ -5,9 +5,13 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
 /**
  *
+ * Demos:
+ *
+ * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
+ *
  * API:
  *
- * - [useDialogTitle API](https://mui.com/base-ui/api/use-dialog-title/)
+ * - [useDialogTitle API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-title)
  */
 export function useDialogTitle(parameters: UseDialogTitleParameters): UseDialogTitleReturnValue {
   const { id: idParam } = parameters;

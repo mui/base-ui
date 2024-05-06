@@ -1,0 +1,13 @@
+{
+  "props": {},
+  "name": "DialogTrigger",
+  "imports": [
+    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogTrigger = Dialog.Trigger;"
+  ],
+  "classes": [],
+  "muiName": "DialogTrigger",
+  "filename": "/packages/mui-base/src/Dialog/Trigger/DialogTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/\">Dialog</a></li></ul>",
+  "cssComponent": false
+}

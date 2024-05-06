@@ -1,0 +1,25 @@
+{
+  "parameters": { "id": { "type": { "name": "string", "description": "string" } } },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(otherProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;",
+        "description": "(otherProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;"
+      },
+      "required": true
+    },
+    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "type": {
+      "type": {
+        "name": "&#39;dialog&#39; | &#39;alertdialog&#39;",
+        "description": "&#39;dialog&#39; | &#39;alertdialog&#39;"
+      },
+      "required": true
+    }
+  },
+  "name": "useDialogTitle",
+  "filename": "/packages/mui-base/src/Dialog/Title/useDialogTitle.ts",
+  "imports": ["import { useDialogTitle } from '@base_ui/react/Dialog';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/#hooks\">Dialog</a></li></ul>"
+}

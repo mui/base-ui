@@ -7,9 +7,13 @@ import type {
 import { useControlled } from '../../utils/useControlled';
 /**
  *
+ * Demos:
+ *
+ * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
+ *
  * API:
  *
- * - [useDialogRoot API](https://mui.com/base-ui/api/use-dialog-root/)
+ * - [useDialogRoot API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-root)
  */
 export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRootReturnValue {
   const {
