@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type BaseUIComponentProps } from '@base_ui/react/utils/BaseUI.types';
+import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export type DialogType = 'dialog' | 'alertdialog';
 

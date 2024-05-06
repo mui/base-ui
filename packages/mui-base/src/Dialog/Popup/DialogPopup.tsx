@@ -1,78 +1,47 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloating, FloatingFocusManager, useInteractions, useDismiss } from '@floating-ui/react';
-import { useDialogRootContext } from '../Root/DialogRootContext';
-import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
-
-export interface DialogPopupProps {
-  keepMounted?: boolean;
-  children?: React.ReactNode;
-}
+import { FloatingFocusManager } from '@floating-ui/react';
+import { DialogPopupProps } from './DialogPopup.types';
+import { useDialogPopup } from './useDialogPopup';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useDialogPopupStyleHooks } from './useDialogPopupStyleHooks';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
-  props: DialogPopupProps & React.ComponentPropsWithRef<'div'>,
+  props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { keepMounted, id: idProp, ...other } = props;
+  const { render: renderProp, className: classNameProp, keepMounted, id: idProp, ...other } = props;
 
-  const {
+  const render = renderProp ?? defaultRenderFunctions.div;
+
+  const { getRootProps, open, floatingContext, modal, type } = useDialogPopup({
+    id: idProp,
+    keepMounted,
+    ref: forwardedRef,
+  });
+
+  const ownerState = {
     open,
     modal,
-    titleElementId,
-    descriptionElementId,
-    setPopupElementId,
     type,
-    onOpenChange,
-    closeOnClickOutside,
-  } = useDialogRootContext();
-
-  const { refs, context } = useFloating({
-    open,
-    onOpenChange,
-  });
-
-  const dismiss = useDismiss(context, {
-    outsidePressEvent: 'mousedown',
-    enabled: closeOnClickOutside,
-  });
-  const { getFloatingProps } = useInteractions([dismiss]);
-
-  const id = useId(idProp);
-
-  const ref = React.useRef<HTMLDivElement>(null);
-  const handleRef = useForkRef(ref, forwardedRef, refs.setFloating);
-
-  React.useEffect(() => {
-    setPopupElementId(id ?? null);
-    return () => {
-      setPopupElementId(null);
-    };
-  }, [id, setPopupElementId]);
-
-  const outputProps: React.ComponentPropsWithRef<'div'> = {
-    'aria-labelledby': titleElementId ?? undefined,
-    'aria-describedby': descriptionElementId ?? undefined,
-    'aria-modal': open && modal ? true : undefined,
-    role: type,
-    ...other,
-    id,
-    hidden: !open,
-    ref: handleRef,
-    tabIndex: -1,
-    ...getFloatingProps(),
   };
+
+  const styleHooks = useDialogPopupStyleHooks(ownerState);
+  const className = resolveClassName(classNameProp, ownerState);
+  const rootProps = getRootProps({ ...styleHooks, ...other, className });
 
   if (!keepMounted && !open) {
     return null;
   }
 
   return open ? (
-    <FloatingFocusManager context={context} modal={modal} guards={false}>
-      <div {...outputProps} />
+    <FloatingFocusManager context={floatingContext} modal={modal} guards={false}>
+      {evaluateRenderProp(render, rootProps, ownerState)}
     </FloatingFocusManager>
   ) : (
-    <div {...outputProps} />
+    <div {...rootProps} />
   );
 });
 
