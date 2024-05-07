@@ -34,9 +34,13 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
 /**
  * The basic building block for creating custom tooltips.
  *
+ * Demos:
+ *
+ * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
+ *
  * API:
  *
- * - [useTooltipContent API](https://mui.com/base-ui/api/use-tooltip-content/)
+ * - [useTooltipContent API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-content)
  */
 export function useTooltipContent(
   params: UseTooltipContentParameters,

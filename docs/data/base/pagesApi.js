@@ -182,6 +182,14 @@ module.exports = [
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-list', title: 'useTabsList' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-root', title: 'useTabsRoot' },
   {
+    pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-content',
+    title: 'useTooltipContent',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-root',
+    title: 'useTooltipRoot',
+  },
+  {
     pathname: '/base-ui/react-transitions/hooks-api/#use-transition-state-manager',
     title: 'useTransitionStateManager',
   },

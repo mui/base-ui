@@ -125,5 +125,5 @@
   "name": "useTooltipContent",
   "filename": "/packages/mui-base/src/Tooltip/Content/useTooltipContent.ts",
   "imports": ["import { useTooltipContent } from '@base_ui/react/Tooltip';"],
-  "demos": "<ul></ul>"
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/#hooks\">Tooltip</a></li></ul>"
 }

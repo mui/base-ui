@@ -8,8 +8,8 @@ import TooltipContentApiJsonPageContent from '../../api/tooltip-content.json';
 import TooltipGroupApiJsonPageContent from '../../api/tooltip-group.json';
 import TooltipRootApiJsonPageContent from '../../api/tooltip-root.json';
 import TooltipTriggerApiJsonPageContent from '../../api/tooltip-trigger.json';
-import useTooltipApiJsonPageContent from '../../api/use-tooltip.json';
-import useTooltipOpenStateApiJsonPageContent from '../../api/use-tooltip-open-state.json';
+import useTooltipContentApiJsonPageContent from '../../api/use-tooltip-content.json';
+import useTooltipRootApiJsonPageContent from '../../api/use-tooltip-root.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -63,19 +63,19 @@ export const getStaticProps = () => {
   );
   const TooltipTriggerApiDescriptions = mapApiPageTranslations(TooltipTriggerApiReq);
 
-  const useTooltipApiReq = require.context(
-    'docs-base/translations/api-docs/use-tooltip',
+  const useTooltipContentApiReq = require.context(
+    'docs-base/translations/api-docs/use-tooltip-content',
     false,
-    /\.\/use-tooltip.*.json$/,
+    /\.\/use-tooltip-content.*.json$/,
   );
-  const useTooltipApiDescriptions = mapApiPageTranslations(useTooltipApiReq);
+  const useTooltipContentApiDescriptions = mapApiPageTranslations(useTooltipContentApiReq);
 
-  const useTooltipOpenStateApiReq = require.context(
-    'docs-base/translations/api-docs/use-tooltip-open-state',
+  const useTooltipRootApiReq = require.context(
+    'docs-base/translations/api-docs/use-tooltip-root',
     false,
-    /\.\/use-tooltip-open-state.*.json$/,
+    /\.\/use-tooltip-root.*.json$/,
   );
-  const useTooltipOpenStateApiDescriptions = mapApiPageTranslations(useTooltipOpenStateApiReq);
+  const useTooltipRootApiDescriptions = mapApiPageTranslations(useTooltipRootApiReq);
 
   return {
     props: {
@@ -94,12 +94,12 @@ export const getStaticProps = () => {
         TooltipTrigger: TooltipTriggerApiJsonPageContent,
       },
       hooksApiDescriptions: {
-        useTooltip: useTooltipApiDescriptions,
-        useTooltipOpenState: useTooltipOpenStateApiDescriptions,
+        useTooltipContent: useTooltipContentApiDescriptions,
+        useTooltipRoot: useTooltipRootApiDescriptions,
       },
       hooksApiPageContents: {
-        useTooltip: useTooltipApiJsonPageContent,
-        useTooltipOpenState: useTooltipOpenStateApiJsonPageContent,
+        useTooltipContent: useTooltipContentApiJsonPageContent,
+        useTooltipRoot: useTooltipRootApiJsonPageContent,
       },
     },
   };

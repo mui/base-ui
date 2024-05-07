@@ -8,9 +8,13 @@ import { useTransitionStatus } from '../../useTransitionStatus';
 /**
  * Manages the root state for a tooltip.
  *
+ * Demos:
+ *
+ * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
+ *
  * API:
  *
- * - [useTooltipRoot API](https://mui.com/base-ui/api/use-tooltip-root/)
+ * - [useTooltipRoot API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-root)
  */
 export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRootReturnValue {
   const {
