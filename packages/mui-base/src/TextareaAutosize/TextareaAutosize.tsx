@@ -139,10 +139,7 @@ const TextareaAutosize = React.forwardRef(function TextareaAutosize(
     const handleResize = () => {
       syncHeight();
     };
-    // Workaround a "ResizeObserver loop completed with undelivered notifications" error
-    // in test.
-    // Note that we might need to use this logic in production per https://github.com/WICG/resize-observer/issues/38
-    // Also see https://github.com/mui/mui-x/issues/8733
+    // Workaround a "ResizeObserver loop completed with undelivered notifications" error.
     let rAF: any;
     const rAFHandleResize = () => {
       cancelAnimationFrame(rAF);
@@ -159,9 +156,7 @@ const TextareaAutosize = React.forwardRef(function TextareaAutosize(
     let resizeObserver: ResizeObserver;
 
     if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(
-        process.env.NODE_ENV === 'test' ? rAFHandleResize : handleResize,
-      );
+      resizeObserver = new ResizeObserver(rAFHandleResize);
       resizeObserver.observe(input);
     }
 
