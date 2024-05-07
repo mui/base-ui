@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../test/describeConformance';
+import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Tooltip.Content />', () => {
   const { render } = createRenderer();

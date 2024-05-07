@@ -10,17 +10,29 @@
     "open": { "type": { "name": "boolean", "description": "boolean" } }
   },
   "returnValue": {
+    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "setMounted": {
+      "type": {
+        "name": "React.Dispatch&lt;React.SetStateAction&lt;boolean&gt;&gt;",
+        "description": "React.Dispatch&lt;React.SetStateAction&lt;boolean&gt;&gt;"
+      },
+      "required": true
+    },
     "setOpen": {
       "type": {
         "name": "(value: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void",
         "description": "(value: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void"
       },
       "required": true
+    },
+    "transitionStatus": {
+      "type": { "name": "TransitionStatus", "description": "TransitionStatus" },
+      "required": true
     }
   },
-  "name": "useTooltipOpenState",
-  "filename": "/packages/mui-base/src/useTooltip/useTooltipOpenState.ts",
-  "imports": ["import { useTooltipOpenState } from '@base_ui/react/useTooltip';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/#hooks\">Tooltip</a></li></ul>"
+  "name": "useTooltipRoot",
+  "filename": "/packages/mui-base/src/Tooltip/Root/useTooltipRoot.ts",
+  "imports": ["import { useTooltipRoot } from '@base_ui/react/Tooltip';"],
+  "demos": "<ul></ul>"
 }

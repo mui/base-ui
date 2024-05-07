@@ -1,7 +1,8 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingDelayGroup } from '@floating-ui/react';
-import type { GroupProps } from './Tooltip.types';
+import type { TooltipGroupProps } from './TooltipGroup.types';
 
 /**
  * Groups tooltips' delays together so that once one of the tooltips opens, subsequent tooltips will
@@ -15,7 +16,7 @@ import type { GroupProps } from './Tooltip.types';
  *
  * - [TooltipGroup API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-group)
  */
-function TooltipGroup(props: GroupProps) {
+function TooltipGroup(props: TooltipGroupProps) {
   const { delay = 0, closeDelay = 0, timeout = 400 } = props;
   return (
     <FloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>

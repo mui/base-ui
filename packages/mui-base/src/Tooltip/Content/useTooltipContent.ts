@@ -22,24 +22,25 @@ import {
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
-import type { UseTooltipParameters, UseTooltipReturnValue } from './useTooltip.types';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { ownerWindow } from '../utils/owner';
-import { useLatestRef } from '../utils/useLatestRef';
-import { useTooltipContext } from '../Tooltip/TooltipContext';
+import type {
+  UseTooltipContentParameters,
+  UseTooltipContentReturnValue,
+} from './useTooltipContent.types';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { ownerWindow } from '../../utils/owner';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 /**
  * The basic building block for creating custom tooltips.
  *
- * Demos:
- *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
- *
  * API:
  *
- * - [useTooltip API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip)
+ * - [useTooltipContent API](https://mui.com/base-ui/api/use-tooltip-content/)
  */
-export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue {
+export function useTooltipContent(
+  params: UseTooltipContentParameters,
+): UseTooltipContentReturnValue {
   const {
     anchor,
     open,
@@ -61,7 +62,7 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
     arrowPadding = 5,
   } = params;
 
-  const { status, mounted, setMounted } = useTooltipContext();
+  const { mounted, setMounted } = useTooltipRootContext();
 
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
@@ -255,12 +256,12 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
     clientPoint,
   ]);
 
-  const getTriggerProps: UseTooltipReturnValue['getTriggerProps'] = React.useCallback(
+  const getTriggerProps: UseTooltipContentReturnValue['getTriggerProps'] = React.useCallback(
     (externalProps = {}) => mergeReactProps(externalProps, getReferenceProps()),
     [getReferenceProps],
   );
 
-  const getContentProps: UseTooltipReturnValue['getContentProps'] = React.useCallback(
+  const getContentProps: UseTooltipContentReturnValue['getContentProps'] = React.useCallback(
     (externalProps = {}) => {
       function handleTransitionOrAnimationEnd({ target }: React.SyntheticEvent) {
         const contentElement = refs.floating.current?.firstElementChild;
@@ -272,10 +273,6 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
       return mergeReactProps(
         externalProps,
         getFloatingProps({
-          ['data-side' as string]: renderedSide,
-          ['data-alignment' as string]: renderedAlignment,
-          ['data-status' as string]: status,
-          ['data-instant' as string]: instantTypeState,
           style: {
             ...floatingStyles,
             maxWidth: 'var(--available-width)',
@@ -289,23 +286,11 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
         }),
       );
     },
-    [
-      getFloatingProps,
-      floatingStyles,
-      isHidden,
-      followCursorAxis,
-      renderedSide,
-      renderedAlignment,
-      status,
-      setMounted,
-      refs,
-      instantTypeState,
-    ],
+    [getFloatingProps, floatingStyles, isHidden, followCursorAxis, setMounted, refs],
   );
 
   return React.useMemo(
     () => ({
-      status,
       mounted,
       getTriggerProps,
       getContentProps,
@@ -318,7 +303,6 @@ export function useTooltip(params: UseTooltipParameters): UseTooltipReturnValue 
       instantType,
     }),
     [
-      status,
       mounted,
       getTriggerProps,
       getContentProps,

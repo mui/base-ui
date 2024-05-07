@@ -1,14 +1,16 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
-import type { ContentOwnerState, ContentProps } from './Tooltip.types';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useTooltipContext } from './TooltipContext';
-import { Portal } from '../Portal';
-import { useTooltip } from '../useTooltip';
+import type { TooltipContentOwnerState, TooltipContentProps } from './TooltipContent.types';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { Portal } from '../../Portal';
+import { useTooltipContent } from './useTooltipContent';
 import { TooltipContentContext } from './TooltipContentContext';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useContentStyleHooks } from './useStyleHooks';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -26,7 +28,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  * - [TooltipContent API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-content)
  */
 const TooltipContent = React.forwardRef(function TooltipContent(
-  props: ContentProps,
+  props: TooltipContentProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -52,10 +54,18 @@ const TooltipContent = React.forwardRef(function TooltipContent(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { open, setOpen, triggerEl, setTriggerProps, delay, delayType, closeDelay } =
-    useTooltipContext();
+  const {
+    open,
+    setOpen,
+    triggerEl,
+    setTriggerProps,
+    delay,
+    delayType,
+    closeDelay,
+    transitionStatus,
+  } = useTooltipRootContext();
 
-  const tooltip = useTooltip({
+  const tooltip = useTooltipContent({
     anchor: anchor || triggerEl,
     keepMounted,
     open,
@@ -82,14 +92,15 @@ const TooltipContent = React.forwardRef(function TooltipContent(
     setTriggerProps(getTriggerProps());
   }, [setTriggerProps, getTriggerProps]);
 
-  const ownerState: ContentOwnerState = React.useMemo(
+  const ownerState: TooltipContentOwnerState = React.useMemo(
     () => ({
       open,
+      status: transitionStatus,
       side: tooltip.side,
       alignment: tooltip.alignment,
-      status: tooltip.status,
+      instant: tooltip.instantType,
     }),
-    [open, tooltip.side, tooltip.alignment, tooltip.status],
+    [open, transitionStatus, tooltip.side, tooltip.alignment, tooltip.instantType],
   );
 
   const contextValue = React.useMemo(
@@ -100,6 +111,8 @@ const TooltipContent = React.forwardRef(function TooltipContent(
     }),
     [ownerState, tooltip.arrowRef, tooltip.floatingContext],
   );
+
+  const styleHooks = useContentStyleHooks(ownerState);
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
@@ -115,10 +128,7 @@ const TooltipContent = React.forwardRef(function TooltipContent(
   const contentProps = {
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
-    ['data-side' as string]: tooltip.side,
-    ['data-alignment' as string]: tooltip.alignment,
-    ['data-status' as string]: tooltip.status,
-    ['data-instant' as string]: tooltip.instantType,
+    ...styleHooks,
     ...otherProps,
     style: {
       // <Tooltip.Arrow> must be relative to the content element.

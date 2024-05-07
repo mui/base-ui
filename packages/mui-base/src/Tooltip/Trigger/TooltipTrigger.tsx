@@ -1,9 +1,10 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { TriggerProps } from './Tooltip.types';
-import { useTooltipContext } from './TooltipContext';
-import { useTooltipStyleHooks } from './utils';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { TooltipTriggerProps } from './TooltipTrigger.types';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useTriggerStyleHooks } from './useStyleHooks';
 
 /**
  * Provides props for its child element to trigger the tooltip, anchoring it to the child element.
@@ -16,16 +17,16 @@ import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
  *
  * - [TooltipTrigger API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-trigger)
  */
-function TooltipTrigger(props: TriggerProps) {
+function TooltipTrigger(props: TooltipTriggerProps) {
   const { children } = props;
 
-  const { open, setTriggerEl, triggerProps } = useTooltipContext();
+  const { open, setTriggerEl, triggerProps } = useTooltipRootContext();
 
   const mergedRef = useRenderPropForkRef(children, setTriggerEl);
 
   const ownerState = React.useMemo(() => ({ open }), [open]);
 
-  const styleHooks = useTooltipStyleHooks(ownerState);
+  const styleHooks = useTriggerStyleHooks(ownerState);
 
   const mergedTriggerProps = {
     ref: mergedRef,

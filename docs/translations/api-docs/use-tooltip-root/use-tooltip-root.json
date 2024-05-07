@@ -1,5 +1,5 @@
 {
-  "hookDescription": "Manages the open state for a tooltip.",
+  "hookDescription": "Manages the root state for a tooltip.",
   "parametersDescriptions": {
     "defaultOpen": {
       "description": "If <code>true</code>, the tooltip will be open by default. Use when uncontrolled."
@@ -12,7 +12,10 @@
     }
   },
   "returnValueDescriptions": {
+    "mounted": { "description": "If <code>true</code>, the tooltip is mounted." },
     "open": { "description": "If <code>true</code>, the tooltip is open." },
-    "setOpen": { "description": "Sets the open state of the tooltip." }
+    "setMounted": { "description": "Sets the mounted state of the tooltip." },
+    "setOpen": { "description": "Sets the open state of the tooltip." },
+    "transitionStatus": { "description": "The transition status of the tooltip." }
   }
 }

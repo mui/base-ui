@@ -58,9 +58,6 @@
     },
     "setContentEl": { "description": "Sets the tooltip content element." },
     "setTriggerEl": { "description": "Sets the trigger element." },
-    "side": { "description": "The rendered side of the tooltip element." },
-    "status": {
-      "description": "The status of the tooltip element when considering CSS transitions or animations."
-    }
+    "side": { "description": "The rendered side of the tooltip element." }
   }
 }

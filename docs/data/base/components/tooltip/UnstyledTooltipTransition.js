@@ -35,7 +35,7 @@ export const TooltipContent = styled(Tooltip.Content)`
     transform: scale(0.9);
     transform-origin: var(--transform-origin);
 
-    &[data-status='opening'] {
+    &[data-transition-status='opening'] {
       opacity: 1;
       transform: scale(1);
     }

@@ -181,11 +181,6 @@ module.exports = [
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab-panel', title: 'useTabPanel' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-list', title: 'useTabsList' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-root', title: 'useTabsRoot' },
-  { pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip', title: 'useTooltip' },
-  {
-    pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-open-state',
-    title: 'useTooltipOpenState',
-  },
   {
     pathname: '/base-ui/react-transitions/hooks-api/#use-transition-state-manager',
     title: 'useTransitionStateManager',

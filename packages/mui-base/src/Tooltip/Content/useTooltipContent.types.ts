@@ -6,23 +6,7 @@ import type {
   OpenChangeReason,
   VirtualElement,
 } from '@floating-ui/react';
-import type { GenericHTMLProps } from '../utils/BaseUI.types';
-import type { Status } from '../useTransitionStatus';
-
-export interface UseTooltipOpenStateParameters {
-  /**
-   * If `true`, the tooltip will be open by default. Use when uncontrolled.
-   */
-  defaultOpen?: boolean;
-  /**
-   * If `true`, the tooltip will be open. Use when controlled.
-   */
-  open?: boolean;
-  /**
-   * Callback fired when the tooltip is requested to be opened or closed.
-   */
-  onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
-}
+import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 export interface TooltipContentParameters {
   /**
@@ -85,7 +69,7 @@ export interface TooltipContentParameters {
   arrowPadding?: number;
 }
 
-export interface UseTooltipParameters extends TooltipContentParameters {
+export interface UseTooltipContentParameters extends TooltipContentParameters {
   /**
    * The anchor element of the tooltip.
    */
@@ -123,7 +107,7 @@ export interface UseTooltipParameters extends TooltipContentParameters {
   closeDelay?: number;
 }
 
-export interface UseTooltipReturnValue {
+export interface UseTooltipContentReturnValue {
   /**
    * Props to spread on the trigger element.
    */
@@ -161,22 +145,7 @@ export interface UseTooltipReturnValue {
    */
   mounted: boolean;
   /**
-   * The status of the tooltip element when considering CSS transitions or animations.
-   */
-  status: Status;
-  /**
    * Determines if the tooltip is in an instant phase, and what type.
    */
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
-}
-
-export interface UseTooltipOpenStateReturnValue {
-  /**
-   * If `true`, the tooltip is open.
-   */
-  open: boolean;
-  /**
-   * Sets the open state of the tooltip.
-   */
-  setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
 }

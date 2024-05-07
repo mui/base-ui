@@ -1,7 +1,7 @@
 import * as React from 'react';
-import type { ContentContextValue } from './Tooltip.types';
+import type { TooltipContentContextValue } from './TooltipContent.types';
 
-export const TooltipContentContext = React.createContext<ContentContextValue | null>(null);
+export const TooltipContentContext = React.createContext<TooltipContentContextValue | null>(null);
 
 export function useTooltipContentContext() {
   const context = React.useContext(TooltipContentContext);

@@ -1,9 +1,9 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { RootProps } from './Tooltip.types';
-import { TooltipContext } from './TooltipContext';
-import { useTooltipOpenState } from '../useTooltip/useTooltipOpenState';
-import { useTransitionStatus } from '../useTransitionStatus';
+import type { TooltipRootProps } from './TooltipRoot.types';
+import { TooltipRootContext } from './TooltipRootContext';
+import { useTooltipRoot } from './useTooltipRoot';
 
 /**
  * The foundation for building custom-styled tooltips.
@@ -14,16 +14,14 @@ import { useTransitionStatus } from '../useTransitionStatus';
  *
  * API:
  *
- * - [Tooltip API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip)
+ * - [TooltipRoot API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-root)
  */
-function TooltipRoot(props: RootProps) {
-  const { open, setOpen } = useTooltipOpenState({
+function TooltipRoot(props: TooltipRootProps) {
+  const { open, setOpen, mounted, setMounted, transitionStatus } = useTooltipRoot({
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
   });
-
-  const { mounted, setMounted, status } = useTransitionStatus(open);
 
   const { delay = 200, delayType = 'rest', closeDelay = 0 } = props;
 
@@ -48,7 +46,7 @@ function TooltipRoot(props: RootProps) {
       setTriggerProps,
       mounted,
       setMounted,
-      status,
+      transitionStatus,
     }),
     [
       delay,
@@ -60,11 +58,13 @@ function TooltipRoot(props: RootProps) {
       triggerProps,
       mounted,
       setMounted,
-      status,
+      transitionStatus,
     ],
   );
 
-  return <TooltipContext.Provider value={contextValue}>{props.children}</TooltipContext.Provider>;
+  return (
+    <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
+  );
 }
 
 TooltipRoot.propTypes /* remove-proptypes */ = {

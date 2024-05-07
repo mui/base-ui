@@ -120,11 +120,10 @@
         "description": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;"
       },
       "required": true
-    },
-    "status": { "type": { "name": "Status", "description": "Status" }, "required": true }
+    }
   },
-  "name": "useTooltip",
-  "filename": "/packages/mui-base/src/useTooltip/useTooltip.ts",
-  "imports": ["import { useTooltip } from '@base_ui/react/useTooltip';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/#hooks\">Tooltip</a></li></ul>"
+  "name": "useTooltipContent",
+  "filename": "/packages/mui-base/src/Tooltip/Content/useTooltipContent.ts",
+  "imports": ["import { useTooltipContent } from '@base_ui/react/Tooltip';"],
+  "demos": "<ul></ul>"
 }

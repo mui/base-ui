@@ -1,26 +1,18 @@
 import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import type { OpenChangeReason } from '@floating-ui/react';
-import type {
-  UseTooltipOpenStateParameters,
-  UseTooltipOpenStateReturnValue,
-} from './useTooltip.types';
-import { useControlled } from '../utils/useControlled';
+import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useTooltipRoot.types';
+import { useControlled } from '../../utils/useControlled';
+import { useTransitionStatus } from '../../useTransitionStatus';
 
 /**
- * Manages the open state for a tooltip.
- *
- * Demos:
- *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
+ * Manages the root state for a tooltip.
  *
  * API:
  *
- * - [useTooltipOpenState API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-open-state)
+ * - [useTooltipRoot API](https://mui.com/base-ui/api/use-tooltip-root/)
  */
-export function useTooltipOpenState(
-  params: UseTooltipOpenStateParameters,
-): UseTooltipOpenStateReturnValue {
+export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRootReturnValue {
   const {
     open: externalOpen,
     onOpenChange: unstableOnOpenChange = () => {},
@@ -44,11 +36,16 @@ export function useTooltipOpenState(
     [onOpenChange, setOpenUnwrapped],
   );
 
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
   return React.useMemo(
     () => ({
       open,
       setOpen,
+      mounted,
+      setMounted,
+      transitionStatus,
     }),
-    [open, setOpen],
+    [mounted, open, setMounted, setOpen, transitionStatus],
   );
 }

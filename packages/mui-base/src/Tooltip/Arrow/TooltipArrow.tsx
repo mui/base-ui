@@ -1,13 +1,14 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingArrow } from '@floating-ui/react';
-import type { ArrowOwnerState, ArrowProps } from './Tooltip.types';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useTooltipContentContext } from './TooltipContentContext';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { TooltipArrowOwnerState, TooltipArrowProps } from './TooltipArrow.types';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useTooltipContentContext } from '../Content/TooltipContentContext';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
-function defaultRender(props: any, ownerState: ArrowOwnerState) {
+function defaultRender(props: any, ownerState: TooltipArrowOwnerState) {
   return (
     <FloatingArrow
       context={ownerState.floatingContext}
@@ -33,7 +34,7 @@ function defaultRender(props: any, ownerState: ArrowOwnerState) {
  * - [TooltipArrow API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-arrow)
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
-  props: ArrowProps,
+  props: TooltipArrowProps,
   forwardedRef: React.ForwardedRef<SVGSVGElement>,
 ) {
   const {
@@ -49,7 +50,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 
   const { open, arrowRef, floatingContext, side, alignment } = useTooltipContentContext();
 
-  const ownerState: ArrowOwnerState = React.useMemo(
+  const ownerState: TooltipArrowOwnerState = React.useMemo(
     () => ({
       open,
       side,

@@ -1,1 +1,1 @@
-export type Status = 'unmounted' | 'initial' | 'opening' | 'closing';
+export type TransitionStatus = 'unmounted' | 'initial' | 'opening' | 'closing';

@@ -1,24 +1,27 @@
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import * as React from 'react';
-import type { Status } from './useTransitionStatus.types';
+import type { TransitionStatus } from './useTransitionStatus.types';
 
 /**
+ * Provides a status string for CSS transitions and animations for conditionally-rendered
+ * components.
+ * @param isRendered - a boolean that determines if the component is rendered.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(trigger: boolean) {
-  const [status, setStatus] = React.useState<Status>('unmounted');
-  const [mounted, setMounted] = React.useState(trigger);
+export function useTransitionStatus(isRendered: boolean) {
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('unmounted');
+  const [mounted, setMounted] = React.useState(isRendered);
 
-  if (trigger && !mounted) {
+  if (isRendered && !mounted) {
     setMounted(true);
   }
 
   useEnhancedEffect(() => {
-    if (trigger) {
-      setStatus('initial');
+    if (isRendered) {
+      setTransitionStatus('initial');
 
       const frame = requestAnimationFrame(() => {
-        setStatus('opening');
+        setTransitionStatus('opening');
       });
 
       return () => {
@@ -26,14 +29,14 @@ export function useTransitionStatus(trigger: boolean) {
       };
     }
 
-    setStatus('closing');
+    setTransitionStatus('closing');
 
     return undefined;
-  }, [trigger]);
+  }, [isRendered]);
 
   return {
     mounted,
     setMounted,
-    status,
+    transitionStatus,
   };
 }
