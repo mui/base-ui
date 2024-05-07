@@ -76,7 +76,8 @@ const Popup = React.forwardRef(function Popup<RootComponentType extends React.El
     placement: finalPlacement,
   } = useFloating({
     elements: {
-      reference: resolveAnchor(anchorProp),
+      // elements.reference incorrectly(?) rejects VirtualElement.
+      reference: resolveAnchor(anchorProp) as HTMLElement | null,
     },
     open,
     middleware: middleware ?? [offset(offsetProp ?? 0), flip(), shift()],

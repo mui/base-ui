@@ -3,6 +3,7 @@ import type { ComponentRenderFn } from './BaseUI.types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
+import { useRenderPropForkRef } from './useRenderPropForkRef';
 
 export interface BaseUIComponentRendererSettings<OwnerState, RenderedElementType extends Element> {
   /**
@@ -26,7 +27,9 @@ export interface BaseUIComponentRendererSettings<OwnerState, RenderedElementType
    * A function that returns props for the rendered element.
    * It should accept and merge additional props.
    */
-  propGetter?: (externalProps: Record<string, any>) => React.HTMLAttributes<any>;
+  propGetter?: (
+    externalProps: Record<string, any>,
+  ) => React.HTMLAttributes<any> & React.RefAttributes<RenderedElementType>;
   /**
    * Additional props to be spread on the rendered element.
    */
@@ -61,14 +64,19 @@ export function useBaseUIComponentRenderer<
     return getStyleHookProps(ownerState, customStyleHookMapping);
   }, [ownerState, customStyleHookMapping]);
 
-  const renderedElementProps = propGetter({
+  const ownProps: Record<string, any> = {
     ...styleHooks,
     ...extraProps,
     className,
-    ref,
-  });
+  };
 
-  const renderElement = () => evaluateRenderProp(renderProp, renderedElementProps, ownerState);
+  const renderedElementProps = propGetter(ownProps);
+  const propsWithRef = {
+    ...renderedElementProps,
+    ref: useRenderPropForkRef(renderProp, ref as React.Ref<any>, renderedElementProps.ref),
+  };
+
+  const renderElement = () => evaluateRenderProp(renderProp, propsWithRef, ownerState);
 
   return {
     renderElement,

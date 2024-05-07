@@ -4,7 +4,7 @@ import { mergeReactProps } from './mergeReactProps';
 
 export function evaluateRenderProp<ElementType extends React.ElementType, OwnerState>(
   render: BaseUIComponentProps<ElementType, OwnerState>['render'],
-  props: React.HTMLAttributes<any>,
+  props: React.HTMLAttributes<any> & React.RefAttributes<any>,
   ownerState: OwnerState,
 ): React.ReactElement {
   return typeof render === 'function'

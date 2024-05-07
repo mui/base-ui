@@ -19,7 +19,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   };
 
   const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.p,
+    render: render ?? defaultRenderFunctions.h2,
     className,
     ownerState,
     propGetter: getRootProps,

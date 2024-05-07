@@ -101,8 +101,10 @@ export function testRenderProp(
       }
 
       render(<Test />);
+      expect(refA).not.to.equal(null);
       expect(refA!.tagName).to.equal(Element.toUpperCase());
       expect(refA!).to.have.attribute('data-testid', 'wrapped');
+      expect(refB).not.to.equal(null);
       expect(refB!.tagName).to.equal(Element.toUpperCase());
       expect(refB!).to.have.attribute('data-testid', 'wrapped');
     });

@@ -6,6 +6,8 @@
   "name": "DialogRoot",
   "imports": ["import * as Dialog from '@base_ui/react/Dialog';\nconst DialogRoot = Dialog.Root;"],
   "classes": [],
+  "spread": false,
+  "themeDefaultProps": true,
   "muiName": "DialogRoot",
   "filename": "/packages/mui-base/src/Dialog/Root/DialogRoot.tsx",
   "inheritance": null,

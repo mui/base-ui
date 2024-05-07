@@ -4,7 +4,7 @@ import {
   Placement as PopupPlacement,
   Strategy as PopupStrategy,
   VirtualElement as PopupVirtualElement,
-} from '@floating-ui/react-dom';
+} from '@floating-ui/react';
 import { PortalProps } from '../Portal';
 import { PolymorphicProps, SlotComponentProps } from '../utils';
 
