@@ -392,7 +392,7 @@ jobs:
       - run:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
-  test_benchmark:
+  test_e2e:
     <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.43.1-focal
@@ -401,13 +401,10 @@ jobs:
     steps:
       - checkout
       - install_js:
-          react-version: << parameters.react-version >>
           browsers: true
-      - run: pnpm benchmark:browser
-      - store_artifacts:
-          name: Publish benchmark results as a pipeline artifact.
-          path: tmp/benchmarks
-          destination: benchmarks
+      - run:
+          name: pnpm test:e2e
+          command: pnpm test:e2e
 workflows:
   version: 2
   pipeline:
@@ -440,7 +437,10 @@ workflows:
           <<: *default-context
           requires:
             - checkout
-
+      - test_e2e:
+          <<: *default-context
+          requires:
+            - checkout
   profile:
     when:
       equal: [profile, << pipeline.parameters.workflow >>]
@@ -493,10 +493,4 @@ workflows:
                 - master
     jobs:
       - test_types_next:
-          <<: *default-context
-  benchmark:
-    when:
-      equal: [benchmark, << pipeline.parameters.workflow >>]
-    jobs:
-      - test_benchmark:
           <<: *default-context

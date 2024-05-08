@@ -1,9 +1,9 @@
 /.git
 /.yarn
-/benchmark/**/dist
 /coverage
 /docs/export
 /docs/pages/playground/
+/packages/mui-base/**/*.min.*
 /packages/mui-utils/macros/__fixtures__/
 # Ignore fixtures
 /test/bundling/fixtures/**/*.fixture.js

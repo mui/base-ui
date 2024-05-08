@@ -122,12 +122,12 @@ function components() {
     //   srcDark: '/static/base-ui/react-components/pagination-dark.png',
     //   href: '/base-ui/react-table-pagination/',
     // },
-    // {
-    //   title: 'Tabs',
-    //   srcLight: '/static/base-ui/react-components/tabs-light.png',
-    //   srcDark: '/static/base-ui/react-components/tabs-dark.png',
-    //   href: '/base-ui/react-tabs/',
-    // },
+    {
+      title: 'Tabs',
+      srcLight: '/static/base-ui/react-components/tabs-light.png',
+      srcDark: '/static/base-ui/react-components/tabs-dark.png',
+      href: '/base-ui/react-tabs/',
+    },
     // {
     //   title: 'Textarea Autosize',
     //   srcLight: '/static/base-ui/react-components/textarea-light.png',
