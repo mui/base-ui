@@ -4,12 +4,18 @@ import { createRenderer, createMount, screen } from '@mui/internal-test-utils';
 import { Popper, popperClasses } from '@base_ui/react/Popper';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
+function createAnchor() {
+  const anchor = document.createElement('div');
+  document.body.appendChild(anchor);
+  return anchor;
+}
+
 describe('<Popper />', () => {
   const { render } = createRenderer();
   const mount = createMount();
 
   const defaultProps = {
-    anchorEl: () => document.createElement('svg'),
+    anchorEl: () => createAnchor(),
     children: <span>Hello World</span>,
     open: true,
   };
@@ -35,13 +41,7 @@ describe('<Popper />', () => {
     const CustomComponent = React.forwardRef<HTMLDivElement, any>(({ ownerState }, ref) => (
       <div ref={ref} data-testid="foo" id={ownerState.id} />
     ));
-    render(
-      <Popper
-        anchorEl={() => document.createElement('div')}
-        open
-        slots={{ root: CustomComponent }}
-      />,
-    );
+    render(<Popper anchorEl={() => createAnchor()} open slots={{ root: CustomComponent }} />);
 
     expect(screen.getByTestId('foo')).to.not.have.attribute('id', 'id');
   });

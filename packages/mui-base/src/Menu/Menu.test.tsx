@@ -17,6 +17,12 @@ import { Popper } from '@base_ui/react/Popper';
 import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
 import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
+function createAnchor() {
+  const anchor = document.createElement('div');
+  document.body.appendChild(anchor);
+  return anchor;
+}
+
 const testContext: DropdownContextValue = {
   dispatch: () => {},
   popupId: 'menu-popup',
@@ -158,7 +164,7 @@ describe('<Menu />', () => {
           disabledItemsFocusable: false,
         });
 
-        const anchorEl = triggerElement ?? document.createElement('div');
+        const anchorEl = triggerElement ?? createAnchor();
 
         return (
           <Popper open={open} anchorEl={anchorEl}>

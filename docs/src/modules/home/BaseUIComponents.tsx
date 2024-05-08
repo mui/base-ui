@@ -20,8 +20,7 @@ import ROUTES from 'docs/src/route';
 
 // switcher icons
 
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import { HighlightedCode } from '@mui/docs/HighlightedCode';
 import BaseButtonDemo from './componentDemos/BaseButtonDemo';
 import BaseMenuDemo from './componentDemos/BaseMenuDemo';
 import BaseInputDemo from './componentDemos/BaseInputDemo';
@@ -182,7 +181,7 @@ export default function BaseUIComponents() {
               >
                 <HighlightedCode
                   copyButtonHidden
-                  component={MarkdownElement}
+                  plainStyle
                   code={(() => {
                     const result = CODES[demo];
                     if (typeof result === 'function') {
