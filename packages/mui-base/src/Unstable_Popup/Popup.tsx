@@ -1,7 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { autoUpdate, flip, offset, shift, useFloating, VirtualElement } from '@floating-ui/react';
+import {
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useFloating,
+  VirtualElement,
+} from '@floating-ui/react-dom';
 import {
   HTMLElementType,
   unstable_useEnhancedEffect as useEnhancedEffect,
@@ -76,8 +83,7 @@ const Popup = React.forwardRef(function Popup<RootComponentType extends React.El
     placement: finalPlacement,
   } = useFloating({
     elements: {
-      // elements.reference incorrectly(?) rejects VirtualElement.
-      reference: resolveAnchor(anchorProp) as HTMLElement | null,
+      reference: resolveAnchor(anchorProp) || null,
     },
     open,
     middleware: middleware ?? [offset(offsetProp ?? 0), flip(), shift()],
