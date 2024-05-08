@@ -411,10 +411,8 @@ jobs:
       - checkout
       - install_js
       - run:
-          name: prepare danger on PRs
-          command: pnpm danger ci
-          environment:
-            DANGER_COMMAND: prepareBundleSizeReport
+          name: Run danger on PRs
+          command: pnpm danger ci --fail-on-errors
       # TODO test bundle size https://github.com/mui/base-ui/issues/201
 workflows:
   version: 2
@@ -448,11 +446,11 @@ workflows:
           <<: *default-context
           requires:
             - checkout
-<<<<<<< HEAD
       - test_e2e:
-=======
+          <<: *default-context
+          requires:
+            - checkout
       - test_bundle_size_monitor:
->>>>>>> 17292f7a ([docs] Link to docs on PRs)
           <<: *default-context
           requires:
             - checkout
