@@ -35,7 +35,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     transform: scale(0.9);
     transform-origin: var(--transform-origin);
 
-    &[data-transition-status='opening'] {
+    &[data-status='opening'] {
       opacity: 1;
       transform: scale(1);
     }

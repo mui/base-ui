@@ -9,15 +9,13 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 
 # Tooltip
 
-<p class="description">Tooltips are floating elements that display information when a user hovers or focuses an element.</p>
+<p class="description">Tooltips are visual-only floating elements that display information about a trigger element when a user hovers or focuses it.</p>
 
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
 ## Introduction
-
-Tooltips are visual-only floating elements that display information about an element for sighted users when using a mouse to hover or keyboard to focus.
 
 {{"demo": "UnstyledTooltipIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
@@ -58,23 +56,23 @@ Tooltip is implemented using a collection of related components:
 - `<Tooltip.Root />` is a top-level component that wraps all other components.
 - `<Tooltip.Trigger />` contains the trigger element.
 - `<Tooltip.Popup />` contains the tooltip content.
-- `<Tooltip.Arrow />` renders an optional pointing arrow.
+- `<Tooltip.Arrow />` renders an optional pointing arrow, placed inside the popup.
 
 ```tsx
 <Tooltip.Root>
   <Tooltip.Trigger>
-    <button>My trigger</button>
+    <button>Trigger</button>
   </Tooltip.Trigger>
   <Tooltip.Popup>
     <Tooltip.Arrow />
-    My tooltip
+    Tooltip
   </Tooltip.Popup>
 </Tooltip.Root>
 ```
 
 ## Accessibility
 
-Tooltips are only for sighted users with access to a pointer with hover capability or keyboard focus. This means you must supply an accessible name via `aria-label` to elements that don't contain text content, such as an icon button.
+Tooltips are only for sighted users with access to a pointer with hover capability or keyboard focus. This means you must supply an accessible name via `aria-label` to trigger elements that don't contain text content, such as an icon button.
 
 ```jsx
 <Tooltip.Root>
@@ -253,9 +251,12 @@ By default, the `Trigger` acts as the anchor. This can be changed to another ele
   // React ref
   anchor={anchorRef}
   // VirtualElement
-  anchor={{ getBoundingClientRect: () => DOMRect }}
+  anchor={{
+    getBoundingClientRect: () => DOMRect,
+    contextElement: domElement, // optional
+  }}
 >
-  <button />
+  Content
 </Tooltip.Popup>
 ```
 
@@ -265,9 +266,9 @@ The `Tooltip.Popup` element receives the following CSS variables:
 
 - `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the tooltip with its anchor.
 - `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the tooltip with its anchor.
-- `--available-width`: Specifies the available width of the tooltip element before it overflows the viewport.
-- `--available-height`: Specifies the available height of the tooltip element before it overflows the viewport.
-- `--transform-origin`: Specifies the origin of the floating element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
+- `--available-width`: Specifies the available width of the popup element before it overflows the viewport.
+- `--available-height`: Specifies the available height of the popup element before it overflows the viewport.
+- `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
 ```jsx
 <Tooltip.Popup
