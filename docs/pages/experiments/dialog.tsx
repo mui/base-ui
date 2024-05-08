@@ -27,27 +27,19 @@ function renderContent(title: string) {
   );
 }
 
-function logRef(element: HTMLElement | null) {
-  console.log('component:', element);
-}
-
-function logInnerRef(element: HTMLElement | null) {
-  console.log('rendered element:', element);
-}
-
 function UncontrolledDialogDemo(props: DemoProps) {
   const { modal, softClose } = props;
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} softClose={softClose} render={<div />}>
+      <Dialog.Root modal={modal} softClose={softClose}>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
             Open uncontrolled
           </button>
         </Dialog.Trigger>
         {modal && <Dialog.Backdrop className={classes.backdrop} />}
-        <Dialog.Popup className={classes.dialog} ref={logRef} render={<div ref={logInnerRef} />}>
+        <Dialog.Popup className={classes.dialog}>
           {renderContent(`Uncontrolled ${modal ? 'modal' : 'nonmodal'} dialog`)}
         </Dialog.Popup>
       </Dialog.Root>
@@ -58,8 +50,6 @@ function UncontrolledDialogDemo(props: DemoProps) {
 function ControlledDialogDemo(props: DemoProps) {
   const [open, setOpen] = React.useState(false);
   const { modal, softClose } = props;
-
-  return null;
 
   return (
     <span className={classes.demo}>
