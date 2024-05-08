@@ -31,11 +31,14 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const render = renderProp ?? defaultRender;
 
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+
   const { ownerState, active: activeIndex } = useSliderContext('Thumb');
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     disabled: disabledProp,
     id,
+    rootRef: mergedRef,
   });
 
   const styleHooks = React.useMemo(
@@ -43,13 +46,10 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     [activeIndex, index],
   );
 
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
   const thumbProps = getRootProps({
     ...styleHooks,
     ...otherProps,
     className: resolveClassName(className, ownerState),
-    ref: mergedRef,
   });
 
   const inputProps = getThumbInputProps({ disabled, onFocus, onBlur, onKeyDown });

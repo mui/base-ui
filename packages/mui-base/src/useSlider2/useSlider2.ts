@@ -493,6 +493,13 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     [handleRef],
   );
 
+  const thumbRefs = React.useMemo(() => {
+    return Array.from(subitems).map(subitem => {
+      const { ref } = subitem[1];
+      return ref.current;
+    })
+  }, [subitems])
+
   const getTrackProps: UseSliderReturnValue['getTrackProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
@@ -517,10 +524,13 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
             const { newValue, activeIndex } = getFingerNewValue({ finger });
             focusThumb({ sliderRef, activeIndex, setActive });
 
-            setValueState(newValue);
+            // do not change the value and shift the thumb if the event lands on a thumb
+            if (!thumbRefs.includes(event.target as HTMLElement)) {
+              setValueState(newValue);
 
-            if (handleValueChange && !areValuesEqual(newValue, valueState)) {
-              handleValueChange(newValue, activeIndex, event);
+              if (handleValueChange && !areValuesEqual(newValue, valueState)) {
+                handleValueChange(newValue, activeIndex, event);
+              }
             }
           }
 
@@ -536,13 +546,14 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       handleValueChange,
       handleTouchEnd,
       handleTouchMove,
+      thumbRefs,
       setValueState,
       valueState,
     ],
   );
 
   const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
-    return `${acc} ${item.id}`;
+    return `${acc} ${item.inputId}`;
   }, '');
 
   const getOutputProps: UseSliderReturnValue['getOutputProps'] = React.useCallback(

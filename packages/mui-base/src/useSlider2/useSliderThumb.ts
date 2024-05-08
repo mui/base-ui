@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { mergeReactProps } from '../utils/mergeReactProps';
+import { useForkRef } from '../utils/useForkRef';
 import { useId } from '../utils/useId';
 import { visuallyHidden } from '../utils/visuallyHidden';
 import { useCompoundItem } from '../useCompound';
@@ -16,7 +17,7 @@ function idGenerator(existingKeys: Set<string>) {
 }
 
 export function useSliderThumb(parameters: UseSliderThumbParameters) {
-  const { disabled: disabledProp = false, id: idParam } = parameters;
+  const { disabled: disabledProp = false, id: idParam, rootRef: externalRef } = parameters;
 
   const {
     active: activeIndex,
@@ -41,9 +42,12 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
   const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleRef = useForkRef(externalRef, thumbRef);
 
   const thumbMetadata: ThumbMetadata = React.useMemo(
-    () => ({ id: thumbId ? `${thumbId}-input` : '', ref: thumbRef }),
+    () => ({ inputId: thumbId ? `${thumbId}-input` : '', ref: thumbRef, inputRef }),
     [thumbId],
   );
 
@@ -82,12 +86,13 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         onPointerLeave() {
           setOpen(-1);
         },
+        ref: handleRef,
         style: {
           ...getThumbStyle(),
         },
       });
     },
-    [getThumbStyle, idParam, index, setOpen],
+    [getThumbStyle, idParam, index, handleRef, setOpen],
   );
 
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
@@ -133,6 +138,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
             }
           }
         },
+        ref: inputRef,
         // TODO: step
         style: {
           ...visuallyHidden,

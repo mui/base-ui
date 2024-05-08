@@ -1,6 +1,7 @@
 export interface UseSliderThumbParameters {
   id?: string;
   disabled?: boolean;
+  rootRef?: React.Ref<Element>;
 }
 
 export interface UseSliderThumbReturnValue {
@@ -20,6 +21,7 @@ export interface UseSliderThumbReturnValue {
 }
 
 export interface ThumbMetadata {
-  id: string;
+  inputId: string;
   ref: React.RefObject<HTMLElement>;
+  inputRef: React.RefObject<HTMLInputElement>;
 }
