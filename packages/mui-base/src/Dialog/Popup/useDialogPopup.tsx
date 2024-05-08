@@ -27,6 +27,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
     type,
     onOpenChange,
     softClose,
+    transitionPending,
   } = useDialogRootContext();
 
   const { refs, context } = useFloating({
@@ -57,7 +58,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
       'aria-describedby': descriptionElementId ?? undefined,
       'aria-modal': open && modal ? true : undefined,
       role: type,
-      hidden: !open,
+      hidden: !open && !transitionPending,
       tabIndex: -1,
       ...getFloatingProps(),
       id,
@@ -69,5 +70,6 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
     getRootProps,
     floatingUIContext: context,
     modal,
+    transitionPending,
   };
 }

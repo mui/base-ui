@@ -24,4 +24,5 @@ export interface UseDialogPopupReturnValue {
     otherProps: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
   floatingUIContext: FloatingContext;
+  transitionPending: boolean;
 }

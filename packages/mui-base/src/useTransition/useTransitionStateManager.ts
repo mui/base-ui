@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TransitionContext } from './TransitionContext';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 
 export type UseTransitionStateManagerReturnValue = {
   /**
@@ -11,7 +12,13 @@ export type UseTransitionStateManagerReturnValue = {
    * Callback to be called when the element has completely exited.
    */
   onExited: () => void;
+  /**
+   * The current transition status.
+   */
+  transitionStatus: TransitionStatus;
 };
+
+export type TransitionStatus = 'unmounted' | 'initial' | 'opening' | 'closing';
 
 /**
  * Allows an element to be transitioned in and out.
@@ -26,6 +33,7 @@ export type UseTransitionStateManagerReturnValue = {
  * - [useTransitionStateManager API](https://mui.com/base-ui/react-transitions/hooks-api/#use-transition-state-manager)
  */
 export function useTransitionStateManager(): UseTransitionStateManagerReturnValue {
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('unmounted');
   const transitionContext = React.useContext(TransitionContext);
   if (!transitionContext) {
     throw new Error('Missing transition context');
@@ -37,7 +45,33 @@ export function useTransitionStateManager(): UseTransitionStateManagerReturnValu
     return registerTransition();
   }, [registerTransition]);
 
+  // The `opening` state (which is used to determine the right CSS class to apply)
+  // is updated slightly (one animation frame) after the `requestedEnter` state is updated.
+  // Thanks to this, elements that are mounted will have their enter transition applied
+  // (if the `opening` was applied when the element was mounted, the transition
+  // would not be fired unless @starting-style is used).
+  useEnhancedEffect(() => {
+    if (requestedEnter) {
+      setTransitionStatus('initial');
+
+      const frame = requestAnimationFrame(() => {
+        setTransitionStatus('opening');
+      });
+
+      return () => {
+        cancelAnimationFrame(frame);
+      };
+    }
+
+    if (!requestedEnter) {
+      setTransitionStatus('closing');
+    }
+
+    return undefined;
+  }, [requestedEnter]);
+
   return {
+    transitionStatus,
     onExited,
     requestedEnter,
   };

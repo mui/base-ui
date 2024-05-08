@@ -1,3 +1,5 @@
+import { TransitionContextValue } from '../../useTransition';
+
 export type DialogType = 'dialog' | 'alertdialog';
 
 export type SoftCloseOptions = boolean | 'clickOutside' | 'escapeKey';
@@ -17,6 +19,9 @@ export interface UseDialogRootParameters {
 
 export interface UseDialogRootReturnValue {
   contextValue: DialogRootContextValue;
+  transitionContextValue: TransitionContextValue;
+  open: boolean;
+  transitionPending: boolean;
 }
 
 export interface DialogRootContextValue {
@@ -31,4 +36,5 @@ export interface DialogRootContextValue {
   setDescriptionElementId: (elementId: string | null) => void;
   popupElementId: string | null;
   setPopupElementId: (elementId: string | null) => void;
+  transitionPending: boolean;
 }

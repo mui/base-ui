@@ -42,6 +42,46 @@
   }
 }
 
+@keyframes dialog-opening {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-closing {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes backdrop-opening {
+  0% {
+    backdrop-filter: blur(1px);
+    opacity: 0;
+  }
+  100% {
+    backdrop-filter: blur(6px);
+    opacity: 1;
+  }
+}
+
+@keyframes backdrop-closing {
+  0% {
+    backdrop-filter: blur(6px);
+    opacity: 1;
+  }
+  100% {
+    backdrop-filter: blur(1px);
+    opacity: 0;
+  }
+}
+
 .dialog {
   background: #fff;
   border: 1px solid #f5f5f5;
@@ -55,10 +95,35 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
+
+  &.withTransitions {
+    transition: opacity 0.3s ease-in-out;
+
+    &[data-status='opening'] {
+      opacity: 1;
+    }
+
+    &[data-status='closing'] {
+      opacity: 0;
+    }
+  }
+
+  &.withAnimations {
+    &[data-status='initial'] {
+      opacity: 0;
+    }
+
+    &[data-status='opening'] {
+      animation: dialog-opening 1s ease-out both;
+    }
+
+    &[data-status='closing'] {
+      animation: dialog-closing 1s ease-in both;
+    }
+  }
 }
 
 .backdrop {
-  backdrop-filter: blur(6px);
   background: radial-gradient(#cecdcf36, #8b94ab47);
   position: fixed;
   top: 0;
@@ -66,6 +131,39 @@
   right: 0;
   bottom: 0;
   z-index: 0;
+
+  &[data-status='initial'] {
+    backdrop-filter: blur(1px);
+    opacity: 0;
+  }
+
+  &.withTransitions {
+    &[data-status='opening'] {
+      backdrop-filter: blur(6px);
+      opacity: 1;
+      transition:
+        backdrop-filter 2s ease-out,
+        opacity 0.3s ease-out;
+    }
+
+    &[data-status='closing'] {
+      backdrop-filter: blur(1px);
+      opacity: 0;
+      transition:
+        backdrop-filter 1s ease-in,
+        opacity 0.8s ease-in;
+    }
+  }
+
+  &.withAnimations {
+    &[data-status='opening'] {
+      animation: backdrop-opening 1s ease-out forwards;
+    }
+
+    &[data-status='closing'] {
+      animation: backdrop-closing 1s ease-in forwards;
+    }
+  }
 }
 
 .button {

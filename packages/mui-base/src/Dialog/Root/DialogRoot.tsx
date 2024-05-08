@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DialogRootProps } from './DialogRoot.types';
 import { DialogRootContext } from './DialogRootContext';
 import { useDialogRoot } from './useDialogRoot';
+import { TransitionContext } from '../../useTransition';
 
 const DialogRoot = function DialogRoot(props: DialogRootProps) {
   const {
@@ -15,7 +16,7 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     type = 'dialog',
   } = props;
 
-  const { contextValue } = useDialogRoot({
+  const { contextValue, transitionContextValue } = useDialogRoot({
     open: openProp,
     defaultOpen,
     onOpenChange,
@@ -24,7 +25,13 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     softClose,
   });
 
-  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
+  return (
+    <DialogRootContext.Provider value={contextValue}>
+      <TransitionContext.Provider value={transitionContextValue}>
+        {children}
+      </TransitionContext.Provider>
+    </DialogRootContext.Provider>
+  );
 };
 
 DialogRoot.propTypes /* remove-proptypes */ = {

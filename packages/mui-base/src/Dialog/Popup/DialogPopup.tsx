@@ -10,9 +10,9 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted, id: idProp, ...other } = props;
+  const { render, className, keepMounted = true, id: idProp, ...other } = props;
 
-  const { getRootProps, open, floatingUIContext, modal } = useDialogPopup({
+  const { getRootProps, open, floatingUIContext, modal, transitionPending } = useDialogPopup({
     id: idProp,
     keepMounted,
     ref: forwardedRef,
@@ -32,11 +32,13 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     customStyleHookMapping: { open: (value) => ({ 'data-state': value ? 'open' : 'closed' }) },
   });
 
-  if (!keepMounted && !open) {
+  const shouldBeMounted = open || transitionPending;
+
+  if (!keepMounted && !shouldBeMounted) {
     return null;
   }
 
-  return open ? (
+  return shouldBeMounted ? (
     <FloatingFocusManager context={floatingUIContext} modal={modal} guards={false}>
       {renderElement()}
     </FloatingFocusManager>

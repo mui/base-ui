@@ -10,7 +10,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, modal } = useDialogRootContext();
+  const { open, modal, transitionPending } = useDialogRootContext();
   const ownerState: DialogBackdropOwnerState = { open, modal };
 
   const { renderElement } = useBaseUIComponentRenderer({
@@ -21,7 +21,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     extraProps: { role: 'presentation', ...other },
   });
 
-  if (!open) {
+  if (!open && !transitionPending) {
     return null;
   }
 
