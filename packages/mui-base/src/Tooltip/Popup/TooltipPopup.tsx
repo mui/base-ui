@@ -121,11 +121,11 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     return null;
   }
 
-  const rootContentProps = tooltip.getContentProps();
+  const rootContentProps = tooltip.getPopupProps();
 
   // The content element needs to be a child of a wrapper floating element in order to avoid
   // conflicts with CSS transitions and the positioning transform.
-  const contentProps = {
+  const popupProps = {
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...styleHooks,
@@ -140,8 +140,8 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   return (
     <TooltipPopupContext.Provider value={contextValue}>
       <Portal container={container}>
-        <div role="presentation" ref={tooltip.setContentEl} {...rootContentProps}>
-          {evaluateRenderProp(render, contentProps, ownerState)}
+        <div role="presentation" ref={tooltip.setPopupEl} {...rootContentProps}>
+          {evaluateRenderProp(render, popupProps, ownerState)}
         </div>
       </Portal>
     </TooltipPopupContext.Provider>

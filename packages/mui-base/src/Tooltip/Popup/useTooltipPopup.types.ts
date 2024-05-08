@@ -115,7 +115,7 @@ export interface UseTooltipPopupReturnValue {
   /**
    * Props to spread on the tooltip content element.
    */
-  getContentProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
    * Sets the trigger element.
    */
@@ -123,7 +123,7 @@ export interface UseTooltipPopupReturnValue {
   /**
    * Sets the tooltip content element.
    */
-  setContentEl: (value: HTMLElement | null) => void;
+  setPopupEl: (value: HTMLElement | null) => void;
   /**
    * The ref of the arrow element.
    */

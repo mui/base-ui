@@ -189,9 +189,9 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
         setInstantTypeState(undefined);
       }
 
-      const contentElement = refs.floating.current?.firstElementChild;
-      if (!openValue && contentElement) {
-        const computedStyles = ownerWindow(contentElement).getComputedStyle(contentElement);
+      const popupElement = refs.floating.current?.firstElementChild;
+      if (!openValue && popupElement) {
+        const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
         const noTransitionDuration = ['', '0s'].includes(computedStyles.transitionDuration);
         const noAnimationName = ['', 'none'].includes(computedStyles.animationName);
         const noAnimation = noTransitionDuration && noAnimationName;
@@ -263,11 +263,11 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     [getReferenceProps],
   );
 
-  const getContentProps: UseTooltipPopupReturnValue['getContentProps'] = React.useCallback(
+  const getPopupProps: UseTooltipPopupReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
       function handleTransitionOrAnimationEnd({ target }: React.SyntheticEvent) {
-        const contentElement = refs.floating.current?.firstElementChild;
-        if (target === contentElement) {
+        const popupElement = refs.floating.current?.firstElementChild;
+        if (target === popupElement) {
           setMounted((prevMounted) => (prevMounted ? false : prevMounted));
         }
       }
@@ -295,10 +295,10 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     () => ({
       mounted,
       getTriggerProps,
-      getContentProps,
+      getPopupProps,
       arrowRef,
       setTriggerEl: refs.setReference,
-      setContentEl: refs.setFloating,
+      setPopupEl: refs.setFloating,
       floatingContext: context,
       side: renderedSide,
       alignment: renderedAlignment,
@@ -307,7 +307,7 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     [
       mounted,
       getTriggerProps,
-      getContentProps,
+      getPopupProps,
       refs.setReference,
       refs.setFloating,
       context,

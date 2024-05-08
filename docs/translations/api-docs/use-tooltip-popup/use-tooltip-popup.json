@@ -48,7 +48,7 @@
     "alignment": { "description": "The rendered alignment of the tooltip element." },
     "arrowRef": { "description": "The ref of the arrow element." },
     "floatingContext": { "description": "The Floating UI context of the tooltip element." },
-    "getContentProps": { "description": "Props to spread on the tooltip content element." },
+    "getPopupProps": { "description": "Props to spread on the tooltip content element." },
     "getTriggerProps": { "description": "Props to spread on the trigger element." },
     "instantType": {
       "description": "Determines if the tooltip is in an instant phase, and what type."
@@ -56,7 +56,7 @@
     "mounted": {
       "description": "Whether the tooltip is mounted, including CSS transitions or animations."
     },
-    "setContentEl": { "description": "Sets the tooltip content element." },
+    "setPopupEl": { "description": "Sets the tooltip content element." },
     "setTriggerEl": { "description": "Sets the trigger element." },
     "side": { "description": "The rendered side of the tooltip element." }
   }

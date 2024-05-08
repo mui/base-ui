@@ -78,7 +78,7 @@
       "type": { "name": "FloatingContext", "description": "FloatingContext" },
       "required": true
     },
-    "getContentProps": {
+    "getPopupProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
         "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
@@ -100,7 +100,7 @@
       "required": true
     },
     "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "setContentEl": {
+    "setPopupEl": {
       "type": {
         "name": "(value: HTMLElement | null) =&gt; void",
         "description": "(value: HTMLElement | null) =&gt; void"
