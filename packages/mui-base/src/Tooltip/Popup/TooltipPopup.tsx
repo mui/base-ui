@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type { TooltipPopupOwnerState, TooltipPopupProps } from './TooltipPopup.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { Portal } from '../../Portal';

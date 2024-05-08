@@ -1,5 +1,4 @@
 import * as React from 'react';
-import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import {
   autoUpdate,
   flip,
@@ -22,6 +21,7 @@ import {
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type {
   UseTooltipPopupParameters,
   UseTooltipPopupReturnValue,

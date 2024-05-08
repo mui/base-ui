@@ -1,5 +1,5 @@
-import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import * as React from 'react';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import type { TransitionStatus } from './useTransitionStatus.types';
 
 /**
