@@ -1,5 +1,5 @@
 {
-  "componentDescription": "The tooltip content element.",
+  "componentDescription": "The tooltip popup element.",
   "propDescriptions": {
     "alignment": {
       "description": "The alignment of the tooltip element to the anchor element along its cross axis."

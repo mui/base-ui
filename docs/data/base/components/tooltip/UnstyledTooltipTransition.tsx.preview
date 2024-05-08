@@ -2,5 +2,5 @@
   <Tooltip.Trigger>
     <AnchorButton>Anchor</AnchorButton>
   </Tooltip.Trigger>
-  <TooltipContent sideOffset={5}>Tooltip</TooltipContent>
+  <TooltipPopup sideOffset={5}>Tooltip</TooltipPopup>
 </Tooltip.Root>

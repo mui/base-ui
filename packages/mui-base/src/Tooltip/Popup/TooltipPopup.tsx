@@ -2,11 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
-import type { TooltipContentOwnerState, TooltipContentProps } from './TooltipContent.types';
+import type { TooltipPopupOwnerState, TooltipPopupProps } from './TooltipPopup.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { Portal } from '../../Portal';
-import { useTooltipContent } from './useTooltipContent';
-import { TooltipContentContext } from './TooltipContentContext';
+import { useTooltipPopup } from './useTooltipPopup';
+import { TooltipPopupContext } from './TooltipPopupContext';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { useContentStyleHooks } from './useStyleHooks';
@@ -17,7 +17,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
 }
 
 /**
- * The tooltip content element.
+ * The tooltip popup element.
  *
  * Demos:
  *
@@ -25,10 +25,10 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  *
  * API:
  *
- * - [TooltipContent API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-content)
+ * - [TooltipPopup API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-popup)
  */
-const TooltipContent = React.forwardRef(function TooltipContent(
-  props: TooltipContentProps,
+const TooltipPopup = React.forwardRef(function TooltipPopup(
+  props: TooltipPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -65,7 +65,7 @@ const TooltipContent = React.forwardRef(function TooltipContent(
     transitionStatus,
   } = useTooltipRootContext();
 
-  const tooltip = useTooltipContent({
+  const tooltip = useTooltipPopup({
     anchor: anchor || triggerEl,
     keepMounted,
     open,
@@ -92,7 +92,7 @@ const TooltipContent = React.forwardRef(function TooltipContent(
     setTriggerProps(getTriggerProps());
   }, [setTriggerProps, getTriggerProps]);
 
-  const ownerState: TooltipContentOwnerState = React.useMemo(
+  const ownerState: TooltipPopupOwnerState = React.useMemo(
     () => ({
       open,
       status: transitionStatus,
@@ -138,17 +138,17 @@ const TooltipContent = React.forwardRef(function TooltipContent(
   } as const;
 
   return (
-    <TooltipContentContext.Provider value={contextValue}>
+    <TooltipPopupContext.Provider value={contextValue}>
       <Portal container={container}>
         <div role="presentation" ref={tooltip.setContentEl} {...rootContentProps}>
           {evaluateRenderProp(render, contentProps, ownerState)}
         </div>
       </Portal>
-    </TooltipContentContext.Provider>
+    </TooltipPopupContext.Provider>
   );
 });
 
-TooltipContent.propTypes /* remove-proptypes */ = {
+TooltipPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -251,4 +251,4 @@ TooltipContent.propTypes /* remove-proptypes */ = {
   style: PropTypes.object,
 } as any;
 
-export { TooltipContent };
+export { TooltipPopup };

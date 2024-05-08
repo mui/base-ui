@@ -2,7 +2,7 @@
   <Tooltip.Trigger>
     <AnchorButton>Anchor</AnchorButton>
   </Tooltip.Trigger>
-  <TooltipContent sideOffset={5} followCursorAxis="both">
+  <TooltipPopup sideOffset={5} followCursorAxis="both">
     Tooltip
-  </TooltipContent>
+  </TooltipPopup>
 </Tooltip.Root>

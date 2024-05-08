@@ -1,11 +1,11 @@
 import * as React from 'react';
-import type { TooltipContentOwnerState } from './TooltipContent.types';
+import type { TooltipPopupOwnerState } from './TooltipPopup.types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 
 /**
  * @ignore - internal hook.
  */
-export function useContentStyleHooks(ownerState: TooltipContentOwnerState) {
+export function useContentStyleHooks(ownerState: TooltipPopupOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       open(value) {

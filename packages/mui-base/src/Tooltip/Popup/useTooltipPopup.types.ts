@@ -8,7 +8,7 @@ import type {
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
-export interface TooltipContentParameters {
+export interface TooltipPopupParameters {
   /**
    * The side of the anchor element that the tooltip element should align to.
    * @default 'top'
@@ -69,7 +69,7 @@ export interface TooltipContentParameters {
   arrowPadding?: number;
 }
 
-export interface UseTooltipContentParameters extends TooltipContentParameters {
+export interface UseTooltipPopupParameters extends TooltipPopupParameters {
   /**
    * The anchor element of the tooltip.
    */
@@ -107,7 +107,7 @@ export interface UseTooltipContentParameters extends TooltipContentParameters {
   closeDelay?: number;
 }
 
-export interface UseTooltipContentReturnValue {
+export interface UseTooltipPopupReturnValue {
   /**
    * Props to spread on the trigger element.
    */

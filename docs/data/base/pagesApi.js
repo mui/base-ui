@@ -112,12 +112,12 @@ module.exports = [
     title: 'TooltipArrow',
   },
   {
-    pathname: '/base-ui/react-tooltip/components-api/#tooltip-content',
-    title: 'TooltipContent',
-  },
-  {
     pathname: '/base-ui/react-tooltip/components-api/#tooltip-group',
     title: 'TooltipGroup',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-popup',
+    title: 'TooltipPopup',
   },
   {
     pathname: '/base-ui/react-tooltip/components-api/#tooltip-root',
@@ -182,8 +182,8 @@ module.exports = [
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-list', title: 'useTabsList' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-root', title: 'useTabsRoot' },
   {
-    pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-content',
-    title: 'useTooltipContent',
+    pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-popup',
+    title: 'useTooltipPopup',
   },
   {
     pathname: '/base-ui/react-tooltip/hooks-api/#use-tooltip-root',

@@ -41,16 +41,16 @@
     "sideOffset": { "type": { "name": "number" }, "default": "0" },
     "sticky": { "type": { "name": "bool" }, "default": "false" }
   },
-  "name": "TooltipContent",
+  "name": "TooltipPopup",
   "imports": [
-    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipContent = Tooltip.Content;"
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipPopup = Tooltip.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "TooltipContent",
+  "muiName": "TooltipPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tooltip/Content/TooltipContent.tsx",
+  "filename": "/packages/mui-base/src/Tooltip/Popup/TooltipPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

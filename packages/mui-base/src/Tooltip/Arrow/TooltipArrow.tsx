@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingArrow } from '@floating-ui/react';
 import type { TooltipArrowOwnerState, TooltipArrowProps } from './TooltipArrow.types';
 import { resolveClassName } from '../../utils/resolveClassName';
-import { useTooltipContentContext } from '../Content/TooltipContentContext';
+import { useTooltipPopupContext } from '../Popup/TooltipPopupContext';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
@@ -48,7 +48,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { open, arrowRef, floatingContext, side, alignment } = useTooltipContentContext();
+  const { open, arrowRef, floatingContext, side, alignment } = useTooltipPopupContext();
 
   const ownerState: TooltipArrowOwnerState = React.useMemo(
     () => ({

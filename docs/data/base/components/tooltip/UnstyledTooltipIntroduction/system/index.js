@@ -8,10 +8,10 @@ export default function UnstyledTooltipIntroduction() {
       <Tooltip.Trigger>
         <AnchorButton>Anchor</AnchorButton>
       </Tooltip.Trigger>
-      <TooltipContent sideOffset={7} arrowPadding={3}>
+      <TooltipPopup sideOffset={7} arrowPadding={3}>
         Tooltip
         <TooltipArrow />
-      </TooltipContent>
+      </TooltipPopup>
     </Tooltip.Root>
   );
 }
@@ -22,7 +22,7 @@ const blue = {
   800: '#004C99',
 };
 
-export const TooltipContent = styled(Tooltip.Content)`
+export const TooltipPopup = styled(Tooltip.Popup)`
   ${({ theme }) => `
     background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
     color: ${theme.palette.mode === 'dark' ? 'black' : 'white'};

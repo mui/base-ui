@@ -2,8 +2,8 @@
   <Tooltip.Trigger>
     <AnchorButton>Anchor</AnchorButton>
   </Tooltip.Trigger>
-  <TooltipContent sideOffset={7} arrowPadding={3}>
+  <TooltipPopup sideOffset={7} arrowPadding={3}>
     Tooltip
     <TooltipArrow />
-  </TooltipContent>
+  </TooltipPopup>
 </Tooltip.Root>

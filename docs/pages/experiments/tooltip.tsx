@@ -22,7 +22,7 @@ const blue = {
   800: '#004C99',
 };
 
-export const TooltipContent = styled(Tooltip.Content)`
+export const TooltipPopup = styled(Tooltip.Popup)`
   ${({ theme }) => css`
     font-family: 'IBM Plex Sans', sans-serif;
     background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
@@ -95,17 +95,17 @@ export default function TooltipTransitionExperiment() {
             <Tooltip.Trigger>
               <AnchorButton>Anchor</AnchorButton>
             </Tooltip.Trigger>
-            <TooltipContent data-transition sideOffset={7}>
+            <TooltipPopup data-transition sideOffset={7}>
               Tooltip
-            </TooltipContent>
+            </TooltipPopup>
           </Tooltip.Root>
           <Tooltip.Root>
             <Tooltip.Trigger>
               <AnchorButton>Anchor</AnchorButton>
             </Tooltip.Trigger>
-            <TooltipContent data-transition sideOffset={7}>
+            <TooltipPopup data-transition sideOffset={7}>
               Tooltip
-            </TooltipContent>
+            </TooltipPopup>
           </Tooltip.Root>
         </Tooltip.Group>
       </div>
@@ -114,9 +114,9 @@ export default function TooltipTransitionExperiment() {
         <Tooltip.Trigger>
           <AnchorButton>Anchor</AnchorButton>
         </Tooltip.Trigger>
-        <TooltipContent data-animation sideOffset={7}>
+        <TooltipPopup data-animation sideOffset={7}>
           Tooltip
-        </TooltipContent>
+        </TooltipPopup>
       </Tooltip.Root>
     </div>
   );

@@ -4,10 +4,10 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Tooltip.Content />', () => {
+describe('<Tooltip.Popup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Tooltip.Content />, () => ({
+  describeConformance(<Tooltip.Popup />, () => ({
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
@@ -19,7 +19,7 @@ describe('<Tooltip.Content />', () => {
   it('should render the children', () => {
     render(
       <Tooltip.Root open>
-        <Tooltip.Content>Content</Tooltip.Content>
+        <Tooltip.Popup>Content</Tooltip.Popup>
       </Tooltip.Root>,
     );
 

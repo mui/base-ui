@@ -1,9 +1,9 @@
 import type { Side, FloatingContext, VirtualElement } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import type { TooltipContentParameters } from './useTooltipContent.types';
+import type { TooltipPopupParameters } from './useTooltipPopup.types';
 import type { TransitionStatus } from '../../useTransitionStatus';
 
-export interface TooltipContentContextValue {
+export interface TooltipPopupContextValue {
   open: boolean;
   side: Side;
   alignment: 'start' | 'end' | 'center';
@@ -11,7 +11,7 @@ export interface TooltipContentContextValue {
   floatingContext: FloatingContext;
 }
 
-export type TooltipContentOwnerState = {
+export type TooltipPopupOwnerState = {
   open: boolean;
   side: Side;
   alignment: 'start' | 'end' | 'center';
@@ -19,9 +19,9 @@ export type TooltipContentOwnerState = {
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
 };
 
-export interface TooltipContentProps
-  extends BaseUIComponentProps<'div', TooltipContentOwnerState>,
-    TooltipContentParameters {
+export interface TooltipPopupProps
+  extends BaseUIComponentProps<'div', TooltipPopupOwnerState>,
+    TooltipPopupParameters {
   /**
    * The container element to which the tooltip content will be appended to.
    * @default document.body

@@ -23,9 +23,9 @@ import {
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
 import type {
-  UseTooltipContentParameters,
-  UseTooltipContentReturnValue,
-} from './useTooltipContent.types';
+  UseTooltipPopupParameters,
+  UseTooltipPopupReturnValue,
+} from './useTooltipPopup.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
@@ -40,11 +40,9 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
  *
  * API:
  *
- * - [useTooltipContent API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-content)
+ * - [useTooltipPopup API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-popup)
  */
-export function useTooltipContent(
-  params: UseTooltipContentParameters,
-): UseTooltipContentReturnValue {
+export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPopupReturnValue {
   const {
     anchor,
     open,
@@ -260,12 +258,12 @@ export function useTooltipContent(
     clientPoint,
   ]);
 
-  const getTriggerProps: UseTooltipContentReturnValue['getTriggerProps'] = React.useCallback(
+  const getTriggerProps: UseTooltipPopupReturnValue['getTriggerProps'] = React.useCallback(
     (externalProps = {}) => mergeReactProps(externalProps, getReferenceProps()),
     [getReferenceProps],
   );
 
-  const getContentProps: UseTooltipContentReturnValue['getContentProps'] = React.useCallback(
+  const getContentProps: UseTooltipPopupReturnValue['getContentProps'] = React.useCallback(
     (externalProps = {}) => {
       function handleTransitionOrAnimationEnd({ target }: React.SyntheticEvent) {
         const contentElement = refs.floating.current?.firstElementChild;

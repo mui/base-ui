@@ -1,8 +1,8 @@
 ---
 productId: base-ui
 title: React Tooltip component
-components: TooltipRoot, TooltipContent, TooltipTrigger, TooltipGroup, TooltipArrow
-hooks: useTooltipRoot, useTooltipContent
+components: TooltipRoot, TooltipPopup, TooltipTrigger, TooltipGroup, TooltipArrow
+hooks: useTooltipRoot, useTooltipPopup
 githubLabel: 'component: tooltip'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 ---
@@ -57,7 +57,7 @@ Tooltip is implemented using a collection of related components:
 
 - `<Tooltip.Root />` is a top-level component that wraps all other components.
 - `<Tooltip.Trigger />` contains the trigger element.
-- `<Tooltip.Content />` contains the tooltip content.
+- `<Tooltip.Popup />` contains the tooltip content.
 - `<Tooltip.Arrow />` renders an optional pointing arrow.
 
 ```tsx
@@ -65,10 +65,10 @@ Tooltip is implemented using a collection of related components:
   <Tooltip.Trigger>
     <button>My trigger</button>
   </Tooltip.Trigger>
-  <Tooltip.Content>
+  <Tooltip.Popup>
     <Tooltip.Arrow />
     My tooltip
-  </Tooltip.Content>
+  </Tooltip.Popup>
 </Tooltip.Root>
 ```
 
@@ -83,7 +83,7 @@ Tooltips are only for sighted users with access to a pointer with hover capabili
       <EditIcon />
     </button>
   </Tooltip.Trigger>
-  <Tooltip.Content>Edit</Tooltip.Content>
+  <Tooltip.Popup>Edit</Tooltip.Popup>
 </Tooltip.Root>
 ```
 
@@ -93,23 +93,23 @@ Tooltips should ideally also be secondary in nature, because touch users cannot 
 
 ## Placement
 
-By default, the tooltip is placed on the top side of its anchor. To change this, use the `side` prop on `Tooltip.Content`:
+By default, the tooltip is placed on the top side of its anchor. To change this, use the `side` prop on `Tooltip.Popup`:
 
 ```jsx
 <Tooltip.Root>
   <Tooltip.Trigger>
     <button>Trigger</button>
   </Tooltip.Trigger>
-  <Tooltip.Content side="right">Tooltip</Tooltip.Content>
+  <Tooltip.Popup side="right">Tooltip</Tooltip.Popup>
 </Tooltip.Root>
 ```
 
 You can also change the alignment of the tooltip in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `alignment` prop:
 
 ```jsx
-<Tooltip.Content side="right" alignment="start">
+<Tooltip.Popup side="right" alignment="start">
   Tooltip
-</Tooltip.Content>
+</Tooltip.Popup>
 ```
 
 Possible alignment values are `center`, `start`, and `end`. The latter two are logical values that adapt to the writing direction (LTR or RTL).
@@ -134,7 +134,7 @@ This allows you to conditionally style the tooltip based on its rendered side or
 To offset the side position, use the `sideOffset` prop:
 
 ```jsx
-<Tooltip.Content sideOffset={10}>
+<Tooltip.Popup sideOffset={10}>
 ```
 
 This creates a gap between the anchor and its tooltip content.
@@ -144,7 +144,7 @@ This creates a gap between the anchor and its tooltip content.
 To offset the alignment position, use the `alignmentOffset` prop:
 
 ```jsx
-<Tooltip.Content alignmentOffset={10}>
+<Tooltip.Popup alignmentOffset={10}>
 ```
 
 This prop acts logically for the `start` and `end` alignments.
@@ -203,7 +203,7 @@ To show the tooltip initially while leaving it uncontrolled, use the `defaultOpe
 To prevent the content inside from being hoverable, use the `hoverable` prop:
 
 ```jsx
-<Tooltip.Content hoverable={false}>
+<Tooltip.Popup hoverable={false}>
 ```
 
 :::info
@@ -215,10 +215,10 @@ This has accessibility consequences and should only be disabled when necessary, 
 To add an arrow (caret or triangle) inside the tooltip content that points toward the center of the anchor element, use the `Tooltip.Arrow` component:
 
 ```js
-<Tooltip.Content>
+<Tooltip.Popup>
   Tooltip
   <Tooltip.Arrow width={10} height={5} tipRadius={1} />
-</Tooltip.Content>
+</Tooltip.Popup>
 ```
 
 Its `width`, `height`, `fill`, `stroke`, `strokeWidth`, `tipRadius` (tip rounding), and `d` (custom path) prop can be specified.
@@ -226,19 +226,19 @@ Its `width`, `height`, `fill`, `stroke`, `strokeWidth`, `tipRadius` (tip roundin
 For example, you can use a fancily rounded arrow like so:
 
 ```jsx
-<Tooltip.Content>
+<Tooltip.Popup>
   Tooltip
   <Tooltip.Arrow
     width={20}
     height={20}
     d="M0 20C0 20 2.06906 19.9829 5.91817 15.4092C7.49986 13.5236 8.97939 12.3809 10.0002 12.3809C11.0202 12.3809 12.481 13.6451 14.0814 15.5472C17.952 20.1437 20 20 20 20H0Z"
   />
-</Tooltip.Content>
+</Tooltip.Popup>
 ```
 
 ## Cursor following
 
-The tooltip can follow the cursor on both axes or one axis using the `followCursorAxis` prop on `Tooltip.Content`. Possible values are: `none` (default), `both`, `x`, or `y`.
+The tooltip can follow the cursor on both axes or one axis using the `followCursorAxis` prop on `Tooltip.Popup`. Possible values are: `none` (default), `both`, `x`, or `y`.
 
 {{"demo": "UnstyledTooltipFollowCursor.js"}}
 
@@ -247,7 +247,7 @@ The tooltip can follow the cursor on both axes or one axis using the `followCurs
 By default, the `Trigger` acts as the anchor. This can be changed to another element, either virtual or real:
 
 ```js
-<Tooltip.Content
+<Tooltip.Popup
   // Element
   anchor={domElement}
   // React ref
@@ -256,12 +256,12 @@ By default, the `Trigger` acts as the anchor. This can be changed to another ele
   anchor={{ getBoundingClientRect: () => DOMRect }}
 >
   <button />
-</Tooltip.Content>
+</Tooltip.Popup>
 ```
 
 ## Styling
 
-The `Tooltip.Content` element receives the following CSS variables:
+The `Tooltip.Popup` element receives the following CSS variables:
 
 - `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the tooltip with its anchor.
 - `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the tooltip with its anchor.
@@ -270,14 +270,14 @@ The `Tooltip.Content` element receives the following CSS variables:
 - `--transform-origin`: Specifies the origin of the floating element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
 ```jsx
-<Tooltip.Content
+<Tooltip.Popup
   style={{
     width: 'var(--anchor-width)',
     height: 'var(--anchor-height)',
   }}
 >
   Content
-</Tooltip.Content>
+</Tooltip.Popup>
 ```
 
 By default, `maxWidth` and `maxHeight` are already specified using `--available-{width,height}` to prevent the tooltip from being too big to fit on the screen.
@@ -286,7 +286,7 @@ By default, `maxWidth` and `maxHeight` are already specified using `--available-
 
 CSS transitions or animations can be used to animate the tooltip opening or closing.
 
-`Tooltip.Content` receives a `data-status` attribute in one of four states:
+`Tooltip.Popup` receives a `data-status` attribute in one of four states:
 
 - `unmounted`, indicating the tooltip is not mounted on the DOM.
 - `initial`, indicating the tooltip has been inserted into the DOM.
@@ -296,11 +296,11 @@ CSS transitions or animations can be used to animate the tooltip opening or clos
 Here is an example of how to apply a symmetric scale and fade transition:
 
 ```jsx
-<Tooltip.Content className="TooltipContent">Tooltip</Tooltip.Content>
+<Tooltip.Popup className="TooltipPopup">Tooltip</Tooltip.Popup>
 ```
 
 ```css
-.TooltipContent {
+.TooltipPopup {
   transition-property: opacity, transform;
   transition-duration: 0.2s;
   opacity: 0;
@@ -308,7 +308,7 @@ Here is an example of how to apply a symmetric scale and fade transition:
   transform-origin: var(--transform-origin);
 }
 
-.TooltipContent[data-status='opening'] {
+.TooltipPopup[data-status='opening'] {
   opacity: 1;
   transform: scale(1);
 }
@@ -333,18 +333,18 @@ CSS animations can also be used—useful for more complex animations with differ
   }
 }
 
-.TooltipContent {
+.TooltipPopup {
   animation: scale-in 0.2s;
 }
 
-.TooltipContent[data-status='closing'] {
+.TooltipPopup[data-status='closing'] {
   animation: scale-out 0.2s forwards;
 }
 ```
 
 ### Instant animation
 
-Animations can be removed under certain conditions using the `data-instant` attribute on `Tooltip.Content`. This attribute can be used unconditionally, but it also has different values for granular checks:
+Animations can be removed under certain conditions using the `data-instant` attribute on `Tooltip.Popup`. This attribute can be used unconditionally, but it also has different values for granular checks:
 
 - `data-instant="delay"` indicates the tooltip is grouped and instantly opened with no delay.
 - `data-instant="focus"` indicates it was triggered by keyboard focus.
@@ -353,7 +353,7 @@ Animations can be removed under certain conditions using the `data-instant` attr
 In most of these cases, you'll want to remove any animations:
 
 ```css
-.TooltipContent[data-instant] {
+.TooltipPopup[data-instant] {
   transition-duration: 0s;
 }
 ```
@@ -364,10 +364,10 @@ Use the `render` prop to override the rendered elements with your own components
 
 ```jsx
 // Element shorthand
-<Tooltip.Content render={<MyTooltipContent />} />
+<Tooltip.Popup render={<MyTooltipPopup />} />
 ```
 
 ```jsx
 // Function
-<Tooltip.Content render={(props) => <MyTooltipContent {...props} />} />
+<Tooltip.Popup render={(props) => <MyTooltipPopup {...props} />} />
 ```

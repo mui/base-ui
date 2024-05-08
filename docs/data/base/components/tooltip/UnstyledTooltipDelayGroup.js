@@ -10,13 +10,13 @@ export default function UnstyledTooltipDelayGroup() {
           <Tooltip.Trigger>
             <AnchorButton>Anchor A</AnchorButton>
           </Tooltip.Trigger>
-          <TooltipContent sideOffset={5}>Tooltip A</TooltipContent>
+          <TooltipPopup sideOffset={5}>Tooltip A</TooltipPopup>
         </Tooltip.Root>
         <Tooltip.Root>
           <Tooltip.Trigger>
             <AnchorButton>Anchor B</AnchorButton>
           </Tooltip.Trigger>
-          <TooltipContent sideOffset={5}>Tooltip B</TooltipContent>
+          <TooltipPopup sideOffset={5}>Tooltip B</TooltipPopup>
         </Tooltip.Root>
       </Tooltip.Group>
     </div>
@@ -29,7 +29,7 @@ const blue = {
   800: '#004C99',
 };
 
-export const TooltipContent = styled(Tooltip.Content)`
+export const TooltipPopup = styled(Tooltip.Popup)`
   ${({ theme }) => `
     background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
     color: ${theme.palette.mode === 'dark' ? 'black' : 'white'};

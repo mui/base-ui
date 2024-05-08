@@ -30,7 +30,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -53,7 +53,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -83,7 +83,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -102,7 +102,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -128,7 +128,7 @@ describe('<Tooltip.Root />', () => {
     it('should open when controlled open is true', async () => {
       render(
         <Tooltip.Root open>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -138,7 +138,7 @@ describe('<Tooltip.Root />', () => {
     it('should close when controlled open is false', async () => {
       render(
         <Tooltip.Root open={false}>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -162,7 +162,7 @@ describe('<Tooltip.Root />', () => {
             <Tooltip.Trigger>
               <button />
             </Tooltip.Trigger>
-            <Tooltip.Content data-testid="content">Content</Tooltip.Content>
+            <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
           </Tooltip.Root>
         );
       }
@@ -207,7 +207,7 @@ describe('<Tooltip.Root />', () => {
             <Tooltip.Trigger>
               <button />
             </Tooltip.Trigger>
-            <Tooltip.Content data-testid="content">Content</Tooltip.Content>
+            <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
           </Tooltip.Root>
         );
       }
@@ -238,7 +238,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -253,7 +253,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -268,7 +268,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -283,7 +283,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -310,7 +310,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -336,7 +336,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 
@@ -366,7 +366,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Trigger>
             <button />
           </Tooltip.Trigger>
-          <Tooltip.Content>Content</Tooltip.Content>
+          <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
 

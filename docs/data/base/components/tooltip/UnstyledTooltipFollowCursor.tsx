@@ -9,9 +9,9 @@ export default function UnstyledTooltipFollowCursor() {
         <Tooltip.Trigger>
           <AnchorButton>Anchor</AnchorButton>
         </Tooltip.Trigger>
-        <TooltipContent sideOffset={5} followCursorAxis="both">
+        <TooltipPopup sideOffset={5} followCursorAxis="both">
           Tooltip
-        </TooltipContent>
+        </TooltipPopup>
       </Tooltip.Root>
     </div>
   );
@@ -23,7 +23,7 @@ const blue = {
   800: '#004C99',
 };
 
-export const TooltipContent = styled(Tooltip.Content)`
+export const TooltipPopup = styled(Tooltip.Popup)`
   ${({ theme }) => `
     background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
     color: ${theme.palette.mode === 'dark' ? 'black' : 'white'};
