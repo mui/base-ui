@@ -4,7 +4,7 @@ import classes from './dialog.module.css';
 
 interface DemoProps {
   modal: boolean;
-  closeOnClickOutside: boolean;
+  softClose: boolean;
 }
 
 function renderContent(title: string) {
@@ -36,11 +36,11 @@ function logInnerRef(element: HTMLElement | null) {
 }
 
 function UncontrolledDialogDemo(props: DemoProps) {
-  const { modal, closeOnClickOutside } = props;
+  const { modal, softClose } = props;
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} closeOnClickOutside={closeOnClickOutside} render={<div />}>
+      <Dialog.Root modal={modal} softClose={softClose} render={<div />}>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
             Open uncontrolled
@@ -57,7 +57,7 @@ function UncontrolledDialogDemo(props: DemoProps) {
 
 function ControlledDialogDemo(props: DemoProps) {
   const [open, setOpen] = React.useState(false);
-  const { modal, closeOnClickOutside } = props;
+  const { modal, softClose } = props;
 
   return null;
 
@@ -67,12 +67,7 @@ function ControlledDialogDemo(props: DemoProps) {
         Open controlled
       </button>
 
-      <Dialog.Root
-        open={open}
-        modal={modal}
-        onOpenChange={setOpen}
-        closeOnClickOutside={closeOnClickOutside}
-      >
+      <Dialog.Root open={open} modal={modal} onOpenChange={setOpen} softClose={softClose}>
         {modal && <Dialog.Backdrop className={classes.backdrop} />}
         <Dialog.Popup className={classes.dialog}>
           {renderContent(`Controlled ${modal ? 'modal' : 'nonmodal'} dialog`)}
@@ -84,13 +79,13 @@ function ControlledDialogDemo(props: DemoProps) {
 
 export default function DialogExperiment() {
   const [modal, setModal] = React.useState(false);
-  const [closeOnClickOutside, setCloseOnClickOutside] = React.useState(false);
+  const [softClose, setSoftClose] = React.useState(false);
 
   return (
     <div className={classes.page}>
       <h1>Dialog</h1>
-      <UncontrolledDialogDemo modal={modal} closeOnClickOutside={closeOnClickOutside} />
-      <ControlledDialogDemo modal={modal} closeOnClickOutside={closeOnClickOutside} />
+      <UncontrolledDialogDemo modal={modal} softClose={softClose} />
+      <ControlledDialogDemo modal={modal} softClose={softClose} />
       <h2>Options</h2>
       <label>
         <input
@@ -103,8 +98,8 @@ export default function DialogExperiment() {
       <label>
         <input
           type="checkbox"
-          checked={closeOnClickOutside}
-          onChange={(event) => setCloseOnClickOutside(event.target.checked)}
+          checked={softClose}
+          onChange={(event) => setSoftClose(event.target.checked)}
         />{' '}
         Soft-close
       </label>

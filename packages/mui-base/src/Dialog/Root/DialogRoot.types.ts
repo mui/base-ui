@@ -3,6 +3,8 @@ import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export type DialogType = 'dialog' | 'alertdialog';
 
+export type SoftCloseOptions = boolean | 'clickOutside' | 'escapeKey';
+
 export interface DialogRootProps
   extends BaseUIComponentProps<typeof React.Fragment, DialogRootOwnerState>,
     UseDialogRootParameters {}
@@ -19,7 +21,7 @@ export interface UseDialogRootParameters {
   modal?: boolean;
   onOpenChange?: (open: boolean) => void;
   type?: DialogType;
-  closeOnClickOutside?: boolean;
+  softClose?: SoftCloseOptions;
 }
 
 export interface UseDialogRootReturnValue {
@@ -32,7 +34,7 @@ export interface DialogRootContextValue {
   onOpenChange?: (open: boolean) => void;
   modal: boolean;
   type: DialogType;
-  closeOnClickOutside: boolean;
+  softClose: SoftCloseOptions;
   titleElementId: string | null;
   setTitleElementId: (elementId: string | null) => void;
   descriptionElementId: string | null;

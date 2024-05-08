@@ -22,7 +22,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     onOpenChange,
     type = 'dialog',
     modal = true,
-    closeOnClickOutside = false,
+    softClose = false,
   } = parameters;
 
   const [open, setOpen] = useControlled({
@@ -52,7 +52,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
           'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
         );
       }
-    });
+    }, [modal, type]);
   }
 
   const contextValue: DialogRootContextValue = React.useMemo(() => {
@@ -61,7 +61,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
       onOpenChange: handleOpenChange,
       open,
       type,
-      closeOnClickOutside,
+      softClose,
       titleElementId,
       setTitleElementId,
       descriptionElementId,
@@ -77,7 +77,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     titleElementId,
     descriptionElementId,
     popupElementId,
-    closeOnClickOutside,
+    softClose,
   ]);
 
   return {

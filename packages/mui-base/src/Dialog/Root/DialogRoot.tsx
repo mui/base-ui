@@ -18,7 +18,7 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     open: openProp,
     defaultOpen,
     type = 'dialog',
-    closeOnClickOutside,
+    softClose,
     ...other
   } = props;
 
@@ -28,7 +28,7 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     onOpenChange,
     type,
     modal,
-    closeOnClickOutside,
+    softClose,
   });
 
   const ownerState: DialogRootOwnerState = {
@@ -67,10 +67,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  closeOnClickOutside: PropTypes.bool,
-  /**
-   * @ignore
-   */
   defaultOpen: PropTypes.bool,
   /**
    * @ignore
@@ -88,6 +84,10 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  softClose: PropTypes.oneOfType([PropTypes.oneOf(['clickOutside', 'escapeKey']), PropTypes.bool]),
   /**
    * @ignore
    */

@@ -1,12 +1,12 @@
 {
   "parameters": {
-    "closeOnClickOutside": { "type": { "name": "boolean", "description": "boolean" } },
     "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
     "modal": { "type": { "name": "boolean", "description": "boolean" } },
     "onOpenChange": {
       "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" }
     },
     "open": { "type": { "name": "boolean", "description": "boolean" } },
+    "softClose": { "type": { "name": "boolean", "description": "boolean" } },
     "type": { "type": { "name": "DialogType", "description": "DialogType" } }
   },
   "returnValue": {

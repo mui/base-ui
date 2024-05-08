@@ -18,7 +18,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     className,
     ownerState,
     ref: forwardedRef,
-    extraProps: other,
+    extraProps: { role: 'presentation', ...other },
   });
 
   if (!open) {

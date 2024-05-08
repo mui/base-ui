@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
+import { expect } from 'chai';
+import { spy } from 'sinon';
+import userEvent from '@testing-library/user-event';
+import {
+  act,
+  createRenderer,
+  fireEvent,
+  strictModeDoubleLoggingSuppressed,
+} from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -10,4 +18,202 @@ describe('<Dialog.Root />', () => {
     render,
     skip: ['refForwarding', 'className', 'propsSpread'],
   }));
+
+  describe('uncontrolled mode', () => {
+    it('should open the dialog with the trigger', () => {
+      const { queryByRole, getByRole } = render(
+        <Dialog.Root>
+          <Dialog.Trigger>
+            <button>Open</button>
+          </Dialog.Trigger>
+          <Dialog.Popup />
+        </Dialog.Root>,
+      );
+
+      const button = getByRole('button');
+      expect(queryByRole('dialog')).to.equal(null);
+
+      act(() => {
+        button.click();
+      });
+
+      expect(queryByRole('dialog')).not.to.equal(null);
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('should open and close the dialog with the `open` prop', () => {
+      const { queryByRole, setProps } = render(
+        <Dialog.Root open={false}>
+          <Dialog.Popup />
+        </Dialog.Root>,
+      );
+
+      expect(queryByRole('dialog')).to.equal(null);
+
+      setProps({ open: true });
+      expect(queryByRole('dialog')).not.to.equal(null);
+
+      setProps({ open: false });
+      expect(queryByRole('dialog')).to.equal(null);
+    });
+  });
+
+  describe('prop: type', () => {
+    it('should render an alert dialog when type="alertdialog"', () => {
+      const { getByTestId } = render(
+        <Dialog.Root open type="alertdialog">
+          <Dialog.Popup data-testid="dialog" />
+        </Dialog.Root>,
+      );
+
+      expect(getByTestId('dialog')).to.have.attribute('role', 'alertdialog');
+    });
+
+    it('should warn when type="alertdialog" and modal=false', () => {
+      expect(() => {
+        render(
+          <Dialog.Root open type="alertdialog" modal={false}>
+            <Dialog.Popup />
+          </Dialog.Root>,
+        );
+      }).toWarnDev([
+        'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
+        !strictModeDoubleLoggingSuppressed &&
+          'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
+      ]);
+    });
+  });
+
+  describe('prop: modal', () => {
+    it.only('should render a modal dialog by default', async () => {
+      const { getByText, getByTestId } = render(
+        <div>
+          <input />
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <button>Open</button>
+            </Dialog.Trigger>
+            <Dialog.Popup data-testid="dialog">
+              <input data-testid="dialog-input" />
+              <button data-testid="dialog-button">Close</button>
+            </Dialog.Popup>
+          </Dialog.Root>
+          <input />
+        </div>,
+      );
+
+      const trigger = getByText('Open');
+      act(() => {
+        trigger.click();
+      });
+
+      await act(() => async () => {});
+      const dialogInput = getByTestId('dialog-input');
+      const dialogButton = getByTestId('dialog-button');
+
+      expect(getByTestId('dialog')).to.have.attribute('aria-modal', 'true');
+      expect(document.activeElement).to.equal(dialogInput);
+
+      await userEvent.keyboard(`{Tab}`);
+      expect(document.activeElement).to.equal(dialogButton);
+
+      await userEvent.keyboard(`{Tab}`);
+      expect(document.activeElement).to.equal(dialogInput);
+    });
+  });
+
+  describe('prop: softClose', () => {
+    (
+      [
+        [true, true],
+        ['escapeKey', true],
+        ['clickOutside', false],
+        [false, false],
+      ] as const
+    ).forEach(([softClose, expectClosed]) => {
+      it(`${expectClosed ? 'closes' : 'does not close'} the dialog when pressing Esc if softClose=${softClose}`, () => {
+        const handleOpenChange = spy();
+
+        const { getByTestId, queryByRole } = render(
+          <Dialog.Root defaultOpen onOpenChange={handleOpenChange} softClose={softClose}>
+            <Dialog.Popup>
+              <div tabIndex={0} data-testid="content" />
+            </Dialog.Popup>
+          </Dialog.Root>,
+        );
+
+        const content = getByTestId('content');
+
+        act(() => {
+          content.focus();
+        });
+
+        // keyDown not targetted at anything specific
+        // eslint-disable-next-line material-ui/disallow-active-element-as-key-event-target
+        fireEvent.keyDown(document.activeElement!, { key: 'Esc' });
+        expect(handleOpenChange.calledOnce).to.equal(expectClosed);
+
+        if (expectClosed) {
+          expect(queryByRole('dialog')).to.equal(null);
+        } else {
+          expect(queryByRole('dialog')).not.to.equal(null);
+        }
+      });
+    });
+
+    (
+      [
+        [true, true],
+        ['clickOutside', true],
+        ['escapeKey', false],
+        [false, false],
+      ] as const
+    ).forEach(([softClose, expectClosed]) => {
+      it(`${expectClosed ? 'closes' : 'does not close'} the dialog when clicking outside if softClose=${softClose}`, () => {
+        const handleOpenChange = spy();
+
+        const { getByTestId, queryByRole } = render(
+          <div data-testid="outside">
+            <Dialog.Root defaultOpen onOpenChange={handleOpenChange} softClose={softClose}>
+              <Dialog.Popup />
+            </Dialog.Root>
+          </div>,
+        );
+
+        const outside = getByTestId('outside');
+
+        fireEvent.mouseDown(outside);
+        expect(handleOpenChange.calledOnce).to.equal(expectClosed);
+
+        if (expectClosed) {
+          expect(queryByRole('dialog')).to.equal(null);
+        } else {
+          expect(queryByRole('dialog')).not.to.equal(null);
+        }
+      });
+    });
+
+    // TODO Implement IME handling
+    it.skip('should not close until the IME is cancelled', () => {
+      const handleOpenChange = spy();
+      const { getByRole } = render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Dialog.Popup>
+            <input type="text" autoFocus />
+          </Dialog.Popup>
+        </Dialog.Root>,
+      );
+
+      const textbox = getByRole('textbox');
+
+      // Actual Behavior when "あ" (Japanese) is entered and press the Esc for IME cancellation.
+      fireEvent.change(textbox, { target: { value: 'あ' } });
+      fireEvent.keyDown(textbox, { key: 'Esc', keyCode: 229 });
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      fireEvent.keyDown(textbox, { key: 'Esc' });
+      expect(handleOpenChange.callCount).to.equal(1);
+    });
+  });
 });
