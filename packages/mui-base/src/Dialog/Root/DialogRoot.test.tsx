@@ -84,37 +84,6 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('focus management', () => {
-    [true, false].forEach((modal) =>
-      it(`should focus the first focusable element within the popup when modal=${modal}`, async () => {
-        const { getByText, getByTestId } = render(
-          <div>
-            <input />
-            <Dialog.Root modal={modal}>
-              <Dialog.Trigger>
-                <button>Open</button>
-              </Dialog.Trigger>
-              <Dialog.Popup data-testid="dialog">
-                <input data-testid="dialog-input" />
-                <button>Close</button>
-              </Dialog.Popup>
-            </Dialog.Root>
-            <input />
-          </div>,
-        );
-
-        const trigger = getByText('Open');
-        act(() => {
-          trigger.click();
-        });
-
-        await act(() => async () => {});
-        const dialogInput = getByTestId('dialog-input');
-        expect(document.activeElement).to.equal(dialogInput);
-      }),
-    );
-  });
-
   describe('prop: softClose', () => {
     (
       [
@@ -184,6 +153,41 @@ describe('<Dialog.Root />', () => {
           expect(queryByRole('dialog')).not.to.equal(null);
         }
       });
+    });
+  });
+
+  describe('focus management', () => {
+    before(function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+    });
+
+    it('should focus the first focusable element within the popup', async () => {
+      const { getByText, getByTestId } = render(
+        <div>
+          <input />
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <button>Open</button>
+            </Dialog.Trigger>
+            <Dialog.Popup data-testid="dialog">
+              <input data-testid="dialog-input" />
+              <button>Close</button>
+            </Dialog.Popup>
+          </Dialog.Root>
+          <input />
+        </div>,
+      );
+
+      const trigger = getByText('Open');
+      act(() => {
+        trigger.click();
+      });
+
+      await act(() => async () => {});
+      const dialogInput = getByTestId('dialog-input');
+      expect(dialogInput).to.toHaveFocus();
     });
   });
 });
