@@ -170,14 +170,11 @@ function Styles() {
     }
 
     .MySlider {
-      color: ${isDarkMode ? cyan[300] : cyan[500]};
       width: 100%;
-      padding: 16px 0;
+      margin: 16px 0;
       align-items: center;
       position: relative;
-      touch-action: none;
       -webkit-tap-highlight-color: transparent;
-      margin-bottom: 2rem;
       display: grid;
       grid-auto-rows: 1.5rem auto;
       grid-gap: 1rem;
@@ -189,55 +186,42 @@ function Styles() {
     }
 
     .MySlider-track {
-      display: block;
+      display: flex;
+      align-items: center;
       position: relative;
       width: 100%;
-      height: 4px;
-      border-radius: 6px;
-      background-color: color-mix(in srgb, currentColor 30%, transparent);
-      cursor: pointer;
+      height: 2px;
+      border-radius: 9999px;
+      background-color: gainsboro;
+      touch-action: none;
     }
 
     .MySlider-track-fill {
       display: block;
       position: absolute;
-      height: 4px;
-      border-radius: 6px;
-      background-color: currentColor;
+      height: 100%;
+      border-radius: 9999px;
+      background-color: black;
     }
 
     .MySlider-thumb {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: absolute;
-      top: -8px;
-      width: 20px;
-      height: 20px;
-      margin-left: -6px;
+      width: 16px;
+      height: 16px;
       box-sizing: border-box;
       border-radius: 50%;
-      outline: 0;
-      background-color: ${isDarkMode ? cyan[300] : cyan[500]};
-      transition-property: box-shadow, transform;
-      transition-timing-function: ease;
-      transition-duration: 120ms;
-      transform-origin: center;
-    }
-
-    .MySlider-thumb:hover {
-      box-shadow: 0 0 0 6px ${alpha(isDarkMode ? cyan[300] : cyan[200], 0.3)};
+      background-color: black;
+      transform: translateX(-50%);
+      touch-action: none;
     }
 
     .MySlider-thumb:focus-within {
-      box-shadow: 0 0 0 8px ${alpha(isDarkMode ? cyan[400] : cyan[200], 0.5)};
-      outline: none;
+      outline: 2px solid black;
+      outline-offset: 2px;
     }
 
     .MySlider-thumb[data-active] {
-      box-shadow: 0 0 0 8px ${alpha(isDarkMode ? cyan[400] : cyan[200], 0.5)};
-      outline: none;
-      transform: scale(1.2);
+      background-color: pink;
     }
 
     .MySlider-thumb:has(input:disabled) {
@@ -245,10 +229,7 @@ function Styles() {
     }
 
     .MySlider[data-disabled] {
-      pointer-events: none;
-      cursor: default;
-      color: ${isDarkMode ? grey[600] : grey[300]};
-      outline: none;
+      cursor: not-allowed;
     }
     `}</style>
   );

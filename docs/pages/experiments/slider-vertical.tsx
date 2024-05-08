@@ -61,7 +61,7 @@ export default function App() {
       </Slider.Root>
       <Styles />
     </div>
-  )
+  );
 }
 
 const grey = {
@@ -90,13 +90,11 @@ function Styles() {
     }
 
     .VerticalSlider {
-      color: ${isDarkMode ? grey[300] : grey[800]};
       height: 100%;
       width: 5rem;
-      padding: 1rem 0;
+      margin: 1rem 0;
       align-items: center;
       position: relative;
-      touch-action: none;
       -webkit-tap-highlight-color: transparent;
       display: flex;
       flex-flow: column nowrap;
@@ -108,67 +106,49 @@ function Styles() {
     }
 
     .VerticalSlider-track {
-      display: block;
+      display: flex;
+      justify-content: center;
       position: relative;
       height: 20rem;
-      width: .25rem;
-      border-radius: .375rem;
-      background-color: color-mix(in srgb, currentColor 30%, transparent);
-      cursor: pointer;
+      width: 2px;
+      border-radius: 9999px;
+      background-color: gainsboro;
+      touch-action: none;
+      box-sizing: border-box;
     }
 
     .VerticalSlider-track-fill {
-      display: block;
       position: absolute;
-      width: .25rem;
-      border-radius: .375rem;
-      background-color: currentColor;
+      width: 100%;
+      border-radius: 9999px;
+      background-color: black;
       bottom: 0;
+      box-sizing: border-box;
     }
 
     .VerticalSlider-thumb {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: absolute;
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 16px;
+      height: 16px;
       box-sizing: border-box;
       border-radius: 50%;
-      outline: 0;
-      left: -.65rem;
-      margin-bottom: -.75rem;
-      background-color: ${isDarkMode ? grey[300] : grey[800]};
-      transition-property: box-shadow, transform;
-      transition-timing-function: ease;
-      transition-duration: 120ms;
-      transform-origin: center;
-    }
-
-    .VerticalSlider-thumb:hover {
-      box-shadow: 0 0 0 .375rem ${alpha(isDarkMode ? grey[300] : grey[500], 0.3)};
+      background-color: black;
+      touch-action: none;
+      transform: translateY(50%);
+      left: 4px;
     }
 
     .VerticalSlider-thumb:focus-within {
-      box-shadow: 0 0 0 .5rem ${alpha(isDarkMode ? grey[400] : grey[500], 0.5)};
-      outline: none;
+      outline: 2px solid black;
+      outline-offset: 2px;
     }
 
     .VerticalSlider-thumb[data-active] {
-      box-shadow: 0 0 0 .5rem ${alpha(isDarkMode ? grey[400] : grey[500], 0.5)};
-      outline: none;
-      transform: scale(1.2);
-    }
-
-    .VerticalSlider-thumb:has(input:disabled) {
-      background-color: ${isDarkMode ? grey[600] : grey[300]};
+      background-color: pink;
     }
 
     .VerticalSlider[data-disabled] {
-      pointer-events: none;
-      cursor: default;
-      color: ${isDarkMode ? grey[600] : grey[300]};
-      outline: none;
+      cursor: not-allowed;
     }
     `}</style>
   );
