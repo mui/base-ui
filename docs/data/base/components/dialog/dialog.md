@@ -14,4 +14,3 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
-

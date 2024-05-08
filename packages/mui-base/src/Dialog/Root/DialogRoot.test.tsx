@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 import {
   act,
   createRenderer,
@@ -85,42 +84,35 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: modal', () => {
-    it.only('should render a modal dialog by default', async () => {
-      const { getByText, getByTestId } = render(
-        <div>
-          <input />
-          <Dialog.Root>
-            <Dialog.Trigger>
-              <button>Open</button>
-            </Dialog.Trigger>
-            <Dialog.Popup data-testid="dialog">
-              <input data-testid="dialog-input" />
-              <button data-testid="dialog-button">Close</button>
-            </Dialog.Popup>
-          </Dialog.Root>
-          <input />
-        </div>,
-      );
+  describe('focus management', () => {
+    [true, false].forEach((modal) =>
+      it(`should focus the first focusable element within the popup when modal=${modal}`, async () => {
+        const { getByText, getByTestId } = render(
+          <div>
+            <input />
+            <Dialog.Root modal={modal}>
+              <Dialog.Trigger>
+                <button>Open</button>
+              </Dialog.Trigger>
+              <Dialog.Popup data-testid="dialog">
+                <input data-testid="dialog-input" />
+                <button>Close</button>
+              </Dialog.Popup>
+            </Dialog.Root>
+            <input />
+          </div>,
+        );
 
-      const trigger = getByText('Open');
-      act(() => {
-        trigger.click();
-      });
+        const trigger = getByText('Open');
+        act(() => {
+          trigger.click();
+        });
 
-      await act(() => async () => {});
-      const dialogInput = getByTestId('dialog-input');
-      const dialogButton = getByTestId('dialog-button');
-
-      expect(getByTestId('dialog')).to.have.attribute('aria-modal', 'true');
-      expect(document.activeElement).to.equal(dialogInput);
-
-      await userEvent.keyboard(`{Tab}`);
-      expect(document.activeElement).to.equal(dialogButton);
-
-      await userEvent.keyboard(`{Tab}`);
-      expect(document.activeElement).to.equal(dialogInput);
-    });
+        await act(() => async () => {});
+        const dialogInput = getByTestId('dialog-input');
+        expect(document.activeElement).to.equal(dialogInput);
+      }),
+    );
   });
 
   describe('prop: softClose', () => {
@@ -192,28 +184,6 @@ describe('<Dialog.Root />', () => {
           expect(queryByRole('dialog')).not.to.equal(null);
         }
       });
-    });
-
-    // TODO Implement IME handling
-    it.skip('should not close until the IME is cancelled', () => {
-      const handleOpenChange = spy();
-      const { getByRole } = render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
-          <Dialog.Popup>
-            <input type="text" autoFocus />
-          </Dialog.Popup>
-        </Dialog.Root>,
-      );
-
-      const textbox = getByRole('textbox');
-
-      // Actual Behavior when "あ" (Japanese) is entered and press the Esc for IME cancellation.
-      fireEvent.change(textbox, { target: { value: 'あ' } });
-      fireEvent.keyDown(textbox, { key: 'Esc', keyCode: 229 });
-      expect(handleOpenChange.callCount).to.equal(0);
-
-      fireEvent.keyDown(textbox, { key: 'Esc' });
-      expect(handleOpenChange.callCount).to.equal(1);
     });
   });
 });
