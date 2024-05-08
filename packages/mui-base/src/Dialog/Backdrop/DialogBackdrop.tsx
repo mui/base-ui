@@ -10,8 +10,8 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, modal, type } = useDialogRootContext();
-  const ownerState: DialogBackdropOwnerState = { open, modal, type };
+  const { open, modal } = useDialogRootContext();
+  const ownerState: DialogBackdropOwnerState = { open, modal };
 
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.div,

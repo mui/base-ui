@@ -20,7 +20,7 @@ export function useDialogDescription(
   parameters: UseDialogDescriptionParameters,
 ): UseDialogDescriptionReturnValue {
   const { id: idParam } = parameters;
-  const { setDescriptionElementId, open, modal, type } = useDialogRootContext();
+  const { setDescriptionElementId, open, modal } = useDialogRootContext();
   const id = useId(idParam);
 
   React.useEffect(() => {
@@ -36,7 +36,6 @@ export function useDialogDescription(
   return {
     getRootProps,
     open,
-    type,
     modal,
   };
 }

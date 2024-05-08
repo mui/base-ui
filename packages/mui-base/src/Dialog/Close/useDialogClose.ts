@@ -13,7 +13,7 @@ import type { UseDialogCloseReturnValue } from './DialogClose.types';
  * - [useDialogClose API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-close)
  */
 export function useDialogClose(): UseDialogCloseReturnValue {
-  const { open, onOpenChange, modal, type } = useDialogRootContext();
+  const { open, onOpenChange, modal } = useDialogRootContext();
 
   const handleClick = React.useCallback(() => {
     if (open) {
@@ -27,7 +27,6 @@ export function useDialogClose(): UseDialogCloseReturnValue {
   return {
     getRootProps,
     open,
-    type,
     modal,
   };
 }

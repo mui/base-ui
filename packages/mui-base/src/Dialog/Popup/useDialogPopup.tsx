@@ -69,6 +69,5 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
     getRootProps,
     floatingUIContext: context,
     modal,
-    type,
   };
 }

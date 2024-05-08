@@ -15,7 +15,7 @@ import { useId } from '../../utils/useId';
  */
 export function useDialogTitle(parameters: UseDialogTitleParameters): UseDialogTitleReturnValue {
   const { id: idParam } = parameters;
-  const { setTitleElementId, open, modal, type } = useDialogRootContext();
+  const { setTitleElementId, open, modal } = useDialogRootContext();
   const id = useId(idParam);
 
   React.useEffect(() => {
@@ -31,7 +31,6 @@ export function useDialogTitle(parameters: UseDialogTitleParameters): UseDialogT
   return {
     getRootProps,
     open,
-    type,
     modal,
   };
 }

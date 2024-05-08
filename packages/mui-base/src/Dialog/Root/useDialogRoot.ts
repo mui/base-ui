@@ -81,7 +81,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
   ]);
 
   return {
-    open,
     contextValue,
   };
 }

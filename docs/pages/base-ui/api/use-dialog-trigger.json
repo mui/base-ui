@@ -9,14 +9,7 @@
       "required": true
     },
     "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "type": {
-      "type": {
-        "name": "&#39;dialog&#39; | &#39;alertdialog&#39;",
-        "description": "&#39;dialog&#39; | &#39;alertdialog&#39;"
-      },
-      "required": true
-    }
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
   },
   "name": "useDialogTrigger",
   "filename": "/packages/mui-base/src/Dialog/Trigger/useDialogTrigger.ts",

@@ -10,12 +10,11 @@ const DialogClose = React.forwardRef(function DialogClose(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { getRootProps, open, modal, type } = useDialogClose();
+  const { getRootProps, open, modal } = useDialogClose();
 
   const ownerState = {
     open,
     modal,
-    type,
   };
 
   const { renderElement } = useBaseUIComponentRenderer({

@@ -6,16 +6,16 @@ import { getStyleHookProps } from '../../utils/getStyleHookProps';
 
 function DialogTrigger(props: DialogTriggerProps) {
   const { children } = props;
-  const { getRootProps, open, modal, type } = useDialogTrigger();
+  const { getRootProps, open, modal } = useDialogTrigger();
   const styleHooks = React.useMemo(
     () =>
       getStyleHookProps(
-        { open, modal, type },
+        { open, modal },
         {
           open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
         },
       ),
-    [open, modal, type],
+    [open, modal],
   );
 
   return React.cloneElement(children, getRootProps(styleHooks));

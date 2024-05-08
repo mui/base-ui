@@ -11,11 +11,10 @@ const DialogTitle = React.forwardRef(function DialogTitle(
 ) {
   const { render, className, id, ...other } = props;
 
-  const { getRootProps, open, modal, type } = useDialogTitle({ id });
+  const { getRootProps, open, modal } = useDialogTitle({ id });
   const ownerState = {
     open,
     modal,
-    type,
   };
 
   const { renderElement } = useBaseUIComponentRenderer({

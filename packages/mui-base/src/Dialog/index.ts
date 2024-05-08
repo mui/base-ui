@@ -34,7 +34,6 @@ export { DialogRoot as Root } from './Root/DialogRoot';
 export { useDialogRoot } from './Root/useDialogRoot';
 export type {
   DialogRootProps as RootProps,
-  DialogRootOwnerState as RootOwnerState,
   UseDialogRootParameters,
   UseDialogRootReturnValue,
 } from './Root/DialogRoot.types';

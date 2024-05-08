@@ -13,7 +13,7 @@ import type { UseDialogTriggerReturnValue } from './DialogTrigger.types';
  * - [useDialogTrigger API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-trigger)
  */
 export function useDialogTrigger(): UseDialogTriggerReturnValue {
-  const { open, onOpenChange, modal, type, popupElementId } = useDialogRootContext();
+  const { open, onOpenChange, modal, popupElementId } = useDialogRootContext();
 
   const handleClick = React.useCallback(() => {
     if (!open) {
@@ -34,7 +34,6 @@ export function useDialogTrigger(): UseDialogTriggerReturnValue {
   return {
     getRootProps,
     open,
-    type,
     modal,
   };
 }

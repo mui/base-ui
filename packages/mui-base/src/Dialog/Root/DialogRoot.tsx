@@ -1,28 +1,21 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogRootOwnerState, DialogRootProps } from './DialogRoot.types';
+import { DialogRootProps } from './DialogRoot.types';
 import { DialogRootContext } from './DialogRootContext';
 import { useDialogRoot } from './useDialogRoot';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 
-const DialogRoot = React.forwardRef(function DialogRoot(
-  props: DialogRootProps,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+const DialogRoot = function DialogRoot(props: DialogRootProps) {
   const {
-    render,
-    className,
+    children,
+    defaultOpen,
     modal = true,
     onOpenChange,
     open: openProp,
-    defaultOpen,
-    type = 'dialog',
     softClose,
-    ...other
+    type = 'dialog',
   } = props;
 
-  const { open, contextValue } = useDialogRoot({
+  const { contextValue } = useDialogRoot({
     open: openProp,
     defaultOpen,
     onOpenChange,
@@ -31,25 +24,8 @@ const DialogRoot = React.forwardRef(function DialogRoot(
     softClose,
   });
 
-  const ownerState: DialogRootOwnerState = {
-    open,
-    modal,
-    type,
-  };
-
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.Fragment,
-    className,
-    ownerState,
-    ref: forwardedRef,
-    extraProps: other,
-    customStyleHookMapping: { open: (value) => ({ 'data-state': value ? 'open' : 'closed' }) },
-  });
-
-  return (
-    <DialogRootContext.Provider value={contextValue}>{renderElement()}</DialogRootContext.Provider>
-  );
-});
+  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
+};
 
 DialogRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -60,10 +36,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * @ignore
    */
@@ -80,10 +52,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   open: PropTypes.bool,
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * @ignore
    */
