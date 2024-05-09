@@ -134,9 +134,6 @@ export interface UseSliderReturnValue {
   getRootProps: (
     externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
-  getTrackProps: (
-    externalProps?: React.ComponentPropsWithRef<'div'>,
-  ) => React.ComponentPropsWithRef<'div'>;
   getOutputProps: (
     externalProps?: React.ComponentPropsWithRef<'output'>,
   ) => React.ComponentPropsWithRef<'output'>;
@@ -161,6 +158,17 @@ export interface UseSliderReturnValue {
   compoundComponentContextValue: CompoundComponentContextValue<any, ThumbMetadata>;
   dragging: boolean;
   disabled: boolean;
+  getFingerNewValue: (args: {
+    finger: { x: number; y: number };
+    move?: boolean;
+    offset?: number;
+    referenceRef?: React.RefObject<HTMLElement>;
+  }) => { newValue: number | number[]; activeIndex: number; newValuePercent: number };
+  handleValueChange: (
+    value: number | number[],
+    activeThumb: number,
+    event: React.SyntheticEvent | Event,
+  ) => void;
   isRtl: boolean;
   largeStep: number;
   /**
@@ -172,15 +180,21 @@ export interface UseSliderReturnValue {
    */
   min: number;
   name?: string;
+  onValueCommitted?: (value: number | number[], event: React.SyntheticEvent | Event) => void;
   /**
    * The thumb index for the current value when in hover state.
    */
   open: number;
   orientation: 'horizontal' | 'vertical';
   scale: (value: number) => number;
+  setActive: (activeIndex: number) => void;
+  setDragging: (isDragging: boolean) => void;
   setOpen: (index: number) => void;
+  setValueState: (newValue: number | number[]) => void;
   step?: number | null;
   tabIndex?: number;
+  thumbRefs: (HTMLElement | null)[];
+  valueState: number | readonly number[];
   value: ReadonlyArray<number>;
 }
 

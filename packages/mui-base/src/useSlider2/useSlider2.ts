@@ -5,16 +5,13 @@ import { clamp } from '../utils/clamp';
 import { mergeReactProps } from '../utils/mergeReactProps';
 import { ownerDocument } from '../utils/owner';
 import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useForkRef } from '../utils/useForkRef';
 import { useCompoundParent } from '../useCompound';
 import { percentToValue, roundValueToStep, valueToPercent } from './utils';
 import { Mark, UseSliderParameters, UseSliderReturnValue } from './useSlider.types';
 import { ThumbMetadata } from './useSliderThumb.types';
 
-const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
-
-function areValuesEqual(
+export function areValuesEqual(
   newValue: number | ReadonlyArray<number>,
   oldValue: number | ReadonlyArray<number>,
 ): boolean {
@@ -51,7 +48,7 @@ function findClosest(values: number[], currentValue: number) {
   return closestIndex;
 }
 
-function focusThumb({
+export function focusThumb({
   sliderRef,
   activeIndex,
   setActive,
@@ -87,7 +84,7 @@ function setValueIndex({
   return output.sort(asc);
 }
 
-function trackFinger(
+export function trackFinger(
   event: TouchEvent | PointerEvent | React.PointerEvent,
   touchId: React.RefObject<any>,
 ) {
@@ -155,11 +152,6 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
-  // A number that uniquely identifies the current finger in the touch session.
-  const touchId = React.useRef<number>();
-
-  const moveCount = React.useRef(0);
-
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
@@ -224,7 +216,7 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const sliderRef = React.useRef<HTMLDivElement>(null);
 
-  const handleRef = useForkRef(rootRef, sliderRef);
+  const handleRootRef = useForkRef(rootRef, sliderRef);
 
   const changeValue = React.useCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
@@ -303,15 +295,27 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
   }
 
   const getFingerNewValue = React.useCallback(
-    ({ finger, move = false }: { finger: { x: number; y: number }; move?: boolean }) => {
-      const { current: slider } = sliderRef;
-      const { width, height, bottom, left } = slider!.getBoundingClientRect();
+    ({
+      finger,
+      move = false,
+      offset = 0,
+      // TODO: remove this ref argument, it should always be measured against trackRef
+      referenceRef = sliderRef,
+    }: {
+      finger: { x: number; y: number };
+      move?: boolean;
+      offset?: number;
+      referenceRef?: React.RefObject<HTMLElement>;
+    }) => {
+      const { current: referenceElement } = referenceRef;
+      // TODO: getBoundingClientRect adjust for padding/border?
+      const { width, height, bottom, left } = referenceElement!.getBoundingClientRect();
       let percent;
 
       if (axis.indexOf('vertical') === 0) {
-        percent = (bottom - finger.y) / height;
+        percent = (bottom - finger.y + offset) / height;
       } else {
-        percent = (finger.x - left) / width;
+        percent = (finger.x - left + offset) / width;
       }
 
       if (axis.indexOf('-reverse') !== -1) {
@@ -360,127 +364,10 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
         }
       }
 
-      return { newValue, activeIndex };
+      return { newValue, activeIndex, newValuePercent: percent };
     },
     [axis, disableSwap, marksValues, max, min, range, step, values],
   );
-
-  const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    const finger = trackFinger(nativeEvent, touchId);
-
-    if (!finger) {
-      return;
-    }
-
-    moveCount.current += 1;
-
-    // Cancel move in case some other element consumed a pointerup event and it was not fired.
-    // @ts-ignore buttons doesn't not exists on touch event
-    if (nativeEvent.type === 'pointermove' && nativeEvent.buttons === 0) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      handleTouchEnd(nativeEvent);
-      return;
-    }
-
-    const { newValue, activeIndex } = getFingerNewValue({
-      finger,
-      move: true,
-    });
-
-    focusThumb({ sliderRef, activeIndex, setActive });
-    setValueState(newValue);
-
-    if (!dragging && moveCount.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
-      setDragging(true);
-    }
-
-    if (handleValueChange && !areValuesEqual(newValue, valueState)) {
-      handleValueChange(newValue, activeIndex, nativeEvent);
-    }
-  });
-
-  const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    const finger = trackFinger(nativeEvent, touchId);
-    setDragging(false);
-
-    if (!finger) {
-      return;
-    }
-
-    const { newValue } = getFingerNewValue({ finger, move: true });
-
-    setActive(-1);
-    if (nativeEvent.type === 'touchend') {
-      setOpen(-1);
-    }
-
-    if (onValueCommitted) {
-      onValueCommitted(newValue, nativeEvent);
-    }
-
-    touchId.current = undefined;
-
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    stopListening();
-  });
-
-  const handleTouchStart = useEventCallback((nativeEvent: TouchEvent) => {
-    if (disabled) {
-      return;
-    }
-
-    const touch = nativeEvent.changedTouches[0];
-
-    if (touch != null) {
-      touchId.current = touch.identifier;
-    }
-
-    const finger = trackFinger(nativeEvent, touchId);
-
-    if (finger !== false) {
-      const { newValue, activeIndex } = getFingerNewValue({ finger });
-      focusThumb({ sliderRef, activeIndex, setActive });
-
-      setValueState(newValue);
-
-      if (handleValueChange && !areValuesEqual(newValue, valueState)) {
-        handleValueChange(newValue, activeIndex, nativeEvent);
-      }
-    }
-
-    moveCount.current = 0;
-    const doc = ownerDocument(sliderRef.current);
-    doc.addEventListener('touchmove', handleTouchMove, { passive: true });
-    doc.addEventListener('touchend', handleTouchEnd, { passive: true });
-  });
-
-  const stopListening = React.useCallback(() => {
-    const doc = ownerDocument(sliderRef.current);
-    doc.removeEventListener('pointermove', handleTouchMove);
-    doc.removeEventListener('pointerup', handleTouchEnd);
-    doc.removeEventListener('touchmove', handleTouchMove);
-    doc.removeEventListener('touchend', handleTouchEnd);
-  }, [handleTouchEnd, handleTouchMove]);
-
-  React.useEffect(() => {
-    const { current: slider } = sliderRef;
-    slider!.addEventListener('touchstart', handleTouchStart, {
-      // TODO: check this is ok, all supported browsers in 2024 should support touch-action: none
-      passive: true,
-    });
-
-    return () => {
-      slider!.removeEventListener('touchstart', handleTouchStart);
-
-      stopListening();
-    };
-  }, [stopListening, handleTouchStart, sliderRef]);
-
-  React.useEffect(() => {
-    if (disabled) {
-      stopListening();
-    }
-  }, [disabled, stopListening]);
 
   const trackOffset = valueToPercent(range ? values[0] : min, min, max);
   const trackLeap = valueToPercent(values[values.length - 1], min, max) - trackOffset;
@@ -488,69 +375,17 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
   const getRootProps: UseSliderReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
-        ref: handleRef,
+        ref: handleRootRef,
       }),
-    [handleRef],
+    [handleRootRef],
   );
 
   const thumbRefs = React.useMemo(() => {
-    return Array.from(subitems).map(subitem => {
+    return Array.from(subitems).map((subitem) => {
       const { ref } = subitem[1];
       return ref.current;
-    })
-  }, [subitems])
-
-  const getTrackProps: UseSliderReturnValue['getTrackProps'] = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        onPointerDown(event: React.PointerEvent<HTMLSpanElement>) {
-          if (disabled) {
-            return;
-          }
-
-          if (event.defaultPrevented) {
-            return;
-          }
-
-          // Only handle left clicks
-          if (event.button !== 0) {
-            return;
-          }
-
-          // Avoid text selection
-          event.preventDefault();
-          const finger = trackFinger(event, touchId);
-          if (finger !== false) {
-            const { newValue, activeIndex } = getFingerNewValue({ finger });
-            focusThumb({ sliderRef, activeIndex, setActive });
-
-            // do not change the value and shift the thumb if the event lands on a thumb
-            if (!thumbRefs.includes(event.target as HTMLElement)) {
-              setValueState(newValue);
-
-              if (handleValueChange && !areValuesEqual(newValue, valueState)) {
-                handleValueChange(newValue, activeIndex, event);
-              }
-            }
-          }
-
-          moveCount.current = 0;
-          const doc = ownerDocument(sliderRef.current);
-          doc.addEventListener('pointermove', handleTouchMove, { passive: true });
-          doc.addEventListener('pointerup', handleTouchEnd);
-        },
-      }),
-    [
-      disabled,
-      getFingerNewValue,
-      handleValueChange,
-      handleTouchEnd,
-      handleTouchMove,
-      thumbRefs,
-      setValueState,
-      valueState,
-    ],
-  );
+    });
+  }, [subitems]);
 
   const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
     return `${acc} ${item.inputId}`;
@@ -571,7 +406,6 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
   return React.useMemo(
     () => ({
       getRootProps,
-      getTrackProps,
       getOutputProps,
       active,
       ariaLabelledby,
@@ -581,24 +415,31 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       compoundComponentContextValue,
       dragging,
       disabled,
+      getFingerNewValue,
+      handleValueChange,
       isRtl,
       largeStep,
       max,
       min,
       name,
+      onValueCommitted,
       open,
       orientation,
       scale,
+      setActive,
+      setDragging,
       setOpen,
+      setValueState,
       step,
       tabIndex,
+      thumbRefs,
       trackOffset,
       trackLeap,
       value: values,
+      valueState,
     }),
     [
       getRootProps,
-      getTrackProps,
       getOutputProps,
       active,
       ariaLabelledby,
@@ -607,20 +448,28 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       compoundComponentContextValue,
       dragging,
       disabled,
+      getFingerNewValue,
+      handleValueChange,
       isRtl,
       largeStep,
       max,
       min,
       name,
+      onValueCommitted,
       open,
       orientation,
       scale,
+      setActive,
+      setDragging,
       setOpen,
+      setValueState,
       step,
       tabIndex,
+      thumbRefs,
       trackOffset,
       trackLeap,
       values,
+      valueState,
     ],
   );
 }

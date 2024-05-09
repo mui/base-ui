@@ -5,6 +5,7 @@ import { resolveClassName } from '../utils/resolveClassName';
 import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
 import { useSliderContext } from './SliderContext';
 import { TrackProps } from './Slider.types';
+import { useSliderTrack } from '../useSlider2/useSliderTrack';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -18,12 +19,15 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 
   const render = renderProp ?? defaultRender;
 
-  const { getTrackProps, ownerState } = useSliderContext('Track');
-
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const trackProps = getTrackProps({
-    ref: mergedRef,
+  const { ownerState } = useSliderContext('Track');
+
+  const { getRootProps } = useSliderTrack({
+    rootRef: mergedRef,
+  });
+
+  const trackProps = getRootProps({
     className: resolveClassName(className, ownerState),
     ...otherProps,
   });
