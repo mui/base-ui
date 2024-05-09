@@ -4,24 +4,33 @@ import { useDialogRootContext } from '../Root/DialogRootContext';
 import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBackdrop.types';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useTransitionStatus } from '../../Transitions';
 
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
-  const { open, modal, transitionPending } = useDialogRootContext();
+  const { render, className, animated = false, ...other } = props;
+  const { open, modal } = useDialogRootContext();
   const ownerState: DialogBackdropOwnerState = { open, modal };
+
+  const { props: transitionProps, transitionStatus, mounted } = useTransitionStatus(open, animated);
 
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.div,
     className,
     ownerState,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', ...other },
+    // TODO: merge props
+    extraProps: {
+      role: 'presentation',
+      ...transitionProps,
+      ...other,
+      'data-status': transitionStatus,
+    },
   });
 
-  if (!open && !transitionPending) {
+  if (!mounted) {
     return null;
   }
 

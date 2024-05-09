@@ -68,8 +68,6 @@ export function useTransitionStatus(isRendered: boolean, enabled: boolean) {
     [handleTransitionAndAnimationEnd, enabled],
   );
 
-  console.log({ transitionStatus, mounted });
-
   return {
     mounted,
     props,

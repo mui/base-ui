@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
-import { CssTransition, CssAnimation } from '@base_ui/react/Transitions';
 import { useTransitionStateManager } from '@base_ui/react/useTransition';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
@@ -40,14 +39,15 @@ function CssTransitionDialogDemo({ animated, keepMounted }: DemoProps) {
           </button>
         </Dialog.Trigger>
 
-        <CssTransition lastTransitionedPropertyOnExit="backdrop-filter">
-          <Dialog.Backdrop className={`${classes.backdrop} ${classes.withTransitions}`} />
-        </CssTransition>
+        <Dialog.Backdrop
+          animated={animated}
+          className={`${classes.backdrop} ${animated && classes.withTransitions}`}
+        />
 
         <Dialog.Popup
           animated={animated}
           keepMounted={keepMounted}
-          className={`${classes.dialog} ${classes.withTransitions}`}
+          className={`${classes.dialog} ${animated && classes.withTransitions}`}
         >
           {renderContent('Dialog with CSS transitions')}
         </Dialog.Popup>
@@ -66,14 +66,15 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
           </button>
         </Dialog.Trigger>
 
-        <CssAnimation>
-          <Dialog.Backdrop className={`${classes.backdrop} ${classes.withAnimations}`} />
-        </CssAnimation>
+        <Dialog.Backdrop
+          animated={animated}
+          className={`${classes.backdrop} ${animated && classes.withAnimations}`}
+        />
 
         <Dialog.Popup
           animated={animated}
           keepMounted={keepMounted}
-          className={`${classes.dialog} ${classes.withAnimations}`}
+          className={`${classes.dialog} ${animated && classes.withAnimations}`}
         >
           {renderContent('Dialog with CSS animations')}
         </Dialog.Popup>
@@ -82,7 +83,7 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
   );
 }
 
-function ReactSpringDialogDemo({ keepMounted }: DemoProps) {
+function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
   return (
     <span className={classes.demo}>
       <Dialog.Root softClose>
@@ -92,9 +93,10 @@ function ReactSpringDialogDemo({ keepMounted }: DemoProps) {
           </button>
         </Dialog.Trigger>
 
-        <CssAnimation>
-          <Dialog.Backdrop className={`${classes.backdrop}`} />
-        </CssAnimation>
+        <Dialog.Backdrop
+          animated={animated}
+          className={`${classes.backdrop} ${animated && classes.withAnimations}`}
+        />
 
         <ReactSpringTransition>
           <Dialog.Popup

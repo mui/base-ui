@@ -92,7 +92,7 @@
   padding: 16px;
   z-index: 1;
 
-  &[data-status='unmounted'] {
+  &[data-state='closed'] {
     display: none;
   }
 
@@ -102,6 +102,14 @@
     left: 50%;
     transform: translate(-50%, -50%);
     transition: opacity 0.3s ease-in-out;
+
+    &[data-state='closed'] {
+      display: initial;
+    }
+
+    &[data-status='unmounted'] {
+      display: none;
+    }
 
     &[data-status='opening'] {
       opacity: 1;
@@ -117,6 +125,14 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
+    &[data-state='closed'] {
+      display: initial;
+    }
+
+    &[data-status='unmounted'] {
+      display: none;
+    }
 
     &[data-status='initial'] {
       opacity: 0;
@@ -136,6 +152,10 @@
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
+
+    &[data-state='closed'] {
+      display: initial;
+    }
   }
 }
 
