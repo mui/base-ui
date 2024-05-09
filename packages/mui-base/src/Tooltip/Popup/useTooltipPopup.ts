@@ -36,7 +36,7 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
+ * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
  *
  * API:
  *
@@ -61,25 +61,17 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     sticky = false,
     keepMounted = false,
     followCursorAxis = 'none',
-    arrowPadding = 5,
+    arrowPadding = 3,
   } = params;
 
   const { mounted, setMounted } = useTooltipRootContext();
 
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
-  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of
-  // the tooltip. If this assumption ends up being false, we can switch to state to manage the
-  // arrow's presence.
+  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
+  // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's
+  // presence.
   const arrowRef = React.useRef<Element | null>(null);
-
-  useEnhancedEffect(() => {
-    // `transform-origin` calculations rely on an arrow element existing. If it doesn't exist, we
-    // can create a fake node.
-    if (!arrowRef.current) {
-      arrowRef.current = document.createElement('div');
-    }
-  }, []);
 
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
@@ -134,7 +126,12 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
         });
       },
     }),
-    arrow({ element: arrowRef, padding: arrowPadding }),
+    arrow(() => ({
+      // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
+      // we'll create a fake element.
+      element: arrowRef.current || document.createElement('div'),
+      padding: arrowPadding,
+    })),
     hideWhenDetached && hide(),
     {
       name: 'transformOrigin',
@@ -190,20 +187,19 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
       }
 
       const popupElement = refs.floating.current?.firstElementChild;
-      if (!openValue && popupElement) {
+      if (!keepMounted && !openValue && popupElement) {
         const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
         const noTransitionDuration = ['', '0s'].includes(computedStyles.transitionDuration);
         const noAnimationName = ['', 'none'].includes(computedStyles.animationName);
         const noAnimation = noTransitionDuration && noAnimationName;
-        if (noAnimation && !keepMounted) {
+        if (noAnimation) {
           setMounted(false);
         }
       }
     },
   });
 
-  // Keep primitive values reactive.
-  const anchorDep = typeof anchor === 'function' || typeof anchor === 'object' ? null : anchor;
+  // The `anchor` prop is non-reactive.
   const anchorRef = useLatestRef(anchor);
 
   useEnhancedEffect(() => {
@@ -215,7 +211,7 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     if (resolvedAnchor && !isElement(resolvedAnchor)) {
       refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
     }
-  }, [refs, anchorRef, anchorDep]);
+  }, [refs, anchorRef]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
