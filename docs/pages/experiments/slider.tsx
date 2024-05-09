@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { alpha, useTheme } from '@mui/system';
+import { useTheme } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider2';
 import { valueToPercent } from '@base_ui/react/useSlider2/utils';
 import { useSliderContext } from '@base_ui/react/Slider2/SliderContext';
@@ -129,19 +129,6 @@ export default function App() {
     </div>
   );
 }
-
-const cyan = {
-  50: '#E9F8FC',
-  100: '#BDEBF4',
-  200: '#99D8E5',
-  300: '#66BACC',
-  400: '#1F94AD',
-  500: '#0D5463',
-  600: '#094855',
-  700: '#063C47',
-  800: '#043039',
-  900: '#022127',
-};
 
 const grey = {
   50: '#F3F6F9',

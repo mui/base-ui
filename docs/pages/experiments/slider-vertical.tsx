@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { alpha } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider2';
 import { valueToPercent } from '@base_ui/react/useSlider2/utils';
 import { useSliderContext } from '@base_ui/react/Slider2/SliderContext';
@@ -64,21 +63,7 @@ export default function App() {
   );
 }
 
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
 function Styles() {
-  const isDarkMode = false;
   return (
     <style>{`
     .App {
@@ -135,7 +120,6 @@ function Styles() {
       background-color: black;
       touch-action: none;
       transform: translateY(50%);
-      left: 4px;
     }
 
     .VerticalSlider-thumb:focus-within {
