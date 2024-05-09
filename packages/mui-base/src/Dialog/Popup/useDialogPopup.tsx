@@ -5,6 +5,7 @@ import { UseDialogPopupParameters } from './DialogPopup.types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useTransitionStatus } from '../../Transitions';
 /**
  *
  * Demos:
@@ -16,7 +17,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useDialogPopup API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-popup)
  */
 export function useDialogPopup(parameters: UseDialogPopupParameters) {
-  const { id: idParam, ref } = parameters;
+  const { id: idParam, ref, animated } = parameters;
 
   const {
     open,
@@ -27,7 +28,6 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
     type,
     onOpenChange,
     softClose,
-    transitionPending,
   } = useDialogRootContext();
 
   const { refs, context } = useFloating({
@@ -45,6 +45,8 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
   const id = useId(idParam);
   const handleRef = useForkRef(ref, refs.setFloating);
 
+  const { props: transitionProps, transitionStatus, mounted } = useTransitionStatus(open, animated);
+
   React.useEffect(() => {
     setPopupElementId(id ?? null);
     return () => {
@@ -56,20 +58,22 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
     mergeReactProps(otherProps, {
       'aria-labelledby': titleElementId ?? undefined,
       'aria-describedby': descriptionElementId ?? undefined,
+      'aria-hidden': !open || undefined,
       'aria-modal': open && modal ? true : undefined,
       role: type,
-      hidden: !open && !transitionPending,
       tabIndex: -1,
       ...getFloatingProps(),
+      ...transitionProps,
       id,
       ref: handleRef,
     });
 
   return {
     open,
+    mounted,
     getRootProps,
     floatingUIContext: context,
     modal,
-    transitionPending,
+    transitionStatus,
   };
 }

@@ -18,7 +18,7 @@ export type UseTransitionStateManagerReturnValue = {
   transitionStatus: TransitionStatus;
 };
 
-export type TransitionStatus = 'unmounted' | 'initial' | 'opening' | 'closing';
+export type TransitionStatus = 'initial' | 'opening' | 'closing' | 'closed';
 
 /**
  * Allows an element to be transitioned in and out.
@@ -35,13 +35,18 @@ export type TransitionStatus = 'unmounted' | 'initial' | 'opening' | 'closing';
 export function useTransitionStateManager(
   enabled: boolean = true,
 ): UseTransitionStateManagerReturnValue {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('unmounted');
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('closed');
   const transitionContext = React.useContext(TransitionContext);
   if (!transitionContext) {
     throw new Error('Missing transition context');
   }
 
   const { registerTransition, requestedEnter, onExited } = transitionContext;
+
+  const handleExited = React.useCallback(() => {
+    setTransitionStatus('closed');
+    onExited();
+  }, [onExited]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -82,7 +87,7 @@ export function useTransitionStateManager(
 
   return {
     transitionStatus,
-    onExited,
+    onExited: handleExited,
     requestedEnter,
   };
 }

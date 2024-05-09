@@ -5,8 +5,6 @@ import { DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
-import { useCSSAnimations } from '../../Transitions';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
@@ -14,35 +12,37 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { render, className, keepMounted = true, id: idProp, animated = false, ...other } = props;
 
-  const { getRootProps, open, floatingUIContext, modal, transitionPending } = useDialogPopup({
-    id: idProp,
-    keepMounted,
-    ref: forwardedRef,
-  });
+  const { getRootProps, open, floatingUIContext, modal, mounted, transitionStatus } =
+    useDialogPopup({
+      id: idProp,
+      animated,
+      keepMounted,
+      ref: forwardedRef,
+    });
 
   const ownerState = {
     open,
     modal,
+    transitionStatus,
   };
-
-  const animationProps = useCSSAnimations(animated);
 
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.div,
     className,
     ownerState,
     propGetter: getRootProps,
-    extraProps: mergeReactProps(other, animationProps),
-    customStyleHookMapping: { open: (value) => ({ 'data-state': value ? 'open' : 'closed' }) },
+    extraProps: other,
+    customStyleHookMapping: {
+      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+      transitionStatus: (value) => (value == null ? null : { 'data-status': value }),
+    },
   });
 
-  const shouldBeMounted = open || transitionPending;
-
-  if (!keepMounted && !shouldBeMounted) {
+  if (!keepMounted && !mounted) {
     return null;
   }
 
-  return shouldBeMounted ? (
+  return mounted ? (
     <FloatingFocusManager context={floatingUIContext} modal={modal} guards={false}>
       {renderElement()}
     </FloatingFocusManager>

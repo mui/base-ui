@@ -2,8 +2,13 @@ import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
 import { CssTransition, CssAnimation } from '@base_ui/react/Transitions';
 import { useTransitionStateManager } from '@base_ui/react/useTransition';
-import { animated, useSpring, useSpringRef } from '@react-spring/web';
+import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
+
+interface DemoProps {
+  animated: boolean;
+  keepMounted: boolean;
+}
 
 function renderContent(title: string) {
   return (
@@ -25,7 +30,7 @@ function renderContent(title: string) {
   );
 }
 
-function CssTransitionDialogDemo() {
+function CssTransitionDialogDemo({ animated, keepMounted }: DemoProps) {
   return (
     <span className={classes.demo}>
       <Dialog.Root softClose>
@@ -40,8 +45,8 @@ function CssTransitionDialogDemo() {
         </CssTransition>
 
         <Dialog.Popup
-          keepMounted={false}
-          animated
+          animated={animated}
+          keepMounted={keepMounted}
           className={`${classes.dialog} ${classes.withTransitions}`}
         >
           {renderContent('Dialog with CSS transitions')}
@@ -51,7 +56,7 @@ function CssTransitionDialogDemo() {
   );
 }
 
-function CssAnimationDialogDemo() {
+function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
   return (
     <span className={classes.demo}>
       <Dialog.Root softClose>
@@ -65,9 +70,39 @@ function CssAnimationDialogDemo() {
           <Dialog.Backdrop className={`${classes.backdrop} ${classes.withAnimations}`} />
         </CssAnimation>
 
+        <Dialog.Popup
+          animated={animated}
+          keepMounted={keepMounted}
+          className={`${classes.dialog} ${classes.withAnimations}`}
+        >
+          {renderContent('Dialog with CSS animations')}
+        </Dialog.Popup>
+      </Dialog.Root>
+    </span>
+  );
+}
+
+function ReactSpringDialogDemo({ keepMounted }: DemoProps) {
+  return (
+    <span className={classes.demo}>
+      <Dialog.Root softClose>
+        <Dialog.Trigger>
+          <button type="button" className={classes.button}>
+            Open with React Spring transition
+          </button>
+        </Dialog.Trigger>
+
+        <CssAnimation>
+          <Dialog.Backdrop className={`${classes.backdrop}`} />
+        </CssAnimation>
+
         <ReactSpringTransition>
-          <Dialog.Popup keepMounted={false} className={`${classes.dialog}`}>
-            {renderContent('Dialog with CSS animations')}
+          <Dialog.Popup
+            animated={false}
+            keepMounted={keepMounted}
+            className={`${classes.dialog} ${classes.withReactSpringTransition}`}
+          >
+            {renderContent('Dialog with ReactSpring transitions')}
           </Dialog.Popup>
         </ReactSpringTransition>
       </Dialog.Root>
@@ -105,18 +140,40 @@ function ReactSpringTransition(props: { children?: React.ReactElement }) {
   console.log(transitionStatus);
 
   return (
-    <animated.div style={springs} className={classes.springWrapper}>
+    <springAnimated.div style={springs} className={classes.springWrapper}>
       {children}
-    </animated.div>
+    </springAnimated.div>
   );
 }
 
 export default function DialogExperiment() {
+  const [keepMounted, setKeepMounted] = React.useState(false);
+  const [isAnimated, setAnimated] = React.useState(true);
+
   return (
     <div className={classes.page}>
       <h1>Dialog</h1>
-      <CssTransitionDialogDemo />
-      <CssAnimationDialogDemo />
+      <CssTransitionDialogDemo keepMounted={keepMounted} animated={isAnimated} />
+      <CssAnimationDialogDemo keepMounted={keepMounted} animated={isAnimated} />
+      <ReactSpringDialogDemo keepMounted={keepMounted} animated={isAnimated} />
+
+      <h2>Options</h2>
+      <label>
+        <input
+          type="checkbox"
+          checked={isAnimated}
+          onChange={(event) => setAnimated(event.target.checked)}
+        />{' '}
+        Animated
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={keepMounted}
+          onChange={(event) => setKeepMounted(event.target.checked)}
+        />{' '}
+        Keep mounted
+      </label>
     </div>
   );
 }

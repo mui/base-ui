@@ -90,8 +90,11 @@
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
   padding: 16px;
-
   z-index: 1;
+
+  &[data-status='unmounted'] {
+    display: none;
+  }
 
   &.withTransitions {
     position: fixed;
@@ -114,18 +117,33 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
     &[data-status='initial'] {
       opacity: 0;
     }
 
     &[data-status='opening'] {
-      animation: dialog-opening 1s ease-out both;
+      animation: dialog-opening 1s ease-out forwards;
     }
 
     &[data-status='closing'] {
-      animation: dialog-closing 1s ease-in both;
+      animation: dialog-closing 1s ease-in forwards;
     }
   }
+
+  &.withReactSpringTransition {
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.springWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 .backdrop {
@@ -170,12 +188,6 @@
       animation: backdrop-closing 1s ease-in forwards;
     }
   }
-}
-
-.springWrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .button {

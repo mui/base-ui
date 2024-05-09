@@ -1,3 +1,3 @@
 export * from './CssAnimation';
 export * from './CssTransition';
-export * from './useCSSAnimations';
+export * from './useTransitionStatus';
