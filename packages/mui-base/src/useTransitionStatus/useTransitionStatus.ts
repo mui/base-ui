@@ -10,17 +10,19 @@ import type { TransitionStatus } from './useTransitionStatus.types';
  * @ignore - internal hook.
  */
 export function useTransitionStatus(isRendered: boolean) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('unmounted');
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
   const [mounted, setMounted] = React.useState(isRendered);
 
   if (isRendered && !mounted) {
     setMounted(true);
+
+    if (transitionStatus === 'closing') {
+      setTransitionStatus(undefined);
+    }
   }
 
   useEnhancedEffect(() => {
     if (isRendered) {
-      setTransitionStatus('initial');
-
       const frame = requestAnimationFrame(() => {
         setTransitionStatus('opening');
       });
@@ -35,9 +37,12 @@ export function useTransitionStatus(isRendered: boolean) {
     return undefined;
   }, [isRendered]);
 
-  return {
-    mounted,
-    setMounted,
-    transitionStatus,
-  };
+  return React.useMemo(
+    () => ({
+      mounted,
+      setMounted,
+      transitionStatus,
+    }),
+    [mounted, transitionStatus],
+  );
 }
