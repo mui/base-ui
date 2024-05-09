@@ -90,13 +90,14 @@
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
   padding: 16px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+
   z-index: 1;
 
   &.withTransitions {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     transition: opacity 0.3s ease-in-out;
 
     &[data-status='opening'] {
@@ -109,6 +110,10 @@
   }
 
   &.withAnimations {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     &[data-status='initial'] {
       opacity: 0;
     }
@@ -125,11 +130,6 @@
 
 .backdrop {
   background: radial-gradient(#cecdcf36, #8b94ab47);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   z-index: 0;
 
   &[data-status='initial'] {
@@ -138,6 +138,9 @@
   }
 
   &.withTransitions {
+    position: fixed;
+    inset: 0;
+
     &[data-status='opening'] {
       backdrop-filter: blur(6px);
       opacity: 1;
@@ -156,6 +159,9 @@
   }
 
   &.withAnimations {
+    position: fixed;
+    inset: 0;
+
     &[data-status='opening'] {
       animation: backdrop-opening 1s ease-out forwards;
     }
@@ -164,6 +170,12 @@
       animation: backdrop-closing 1s ease-in forwards;
     }
   }
+}
+
+.springWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .button {

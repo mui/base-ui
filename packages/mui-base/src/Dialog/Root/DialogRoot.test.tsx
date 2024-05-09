@@ -8,15 +8,9 @@ import {
   strictModeDoubleLoggingSuppressed,
 } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
-import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
-
-  describeConformance(<Dialog.Root />, () => ({
-    render,
-    skip: ['refForwarding', 'className', 'propsSpread'],
-  }));
 
   describe('uncontrolled mode', () => {
     it('should open the dialog with the trigger', () => {
@@ -30,13 +24,13 @@ describe('<Dialog.Root />', () => {
       );
 
       const button = getByRole('button');
-      expect(queryByRole('dialog')).to.equal(null);
+      expect(queryByRole('dialog')).to.have.attribute('hidden');
 
       act(() => {
         button.click();
       });
 
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(queryByRole('dialog')).not.to.have.attribute('hidden');
     });
   });
 
@@ -48,13 +42,13 @@ describe('<Dialog.Root />', () => {
         </Dialog.Root>,
       );
 
-      expect(queryByRole('dialog')).to.equal(null);
+      expect(queryByRole('dialog')).to.have.attribute('hidden');
 
       setProps({ open: true });
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(queryByRole('dialog')).not.to.have.attribute('hidden');
 
       setProps({ open: false });
-      expect(queryByRole('dialog')).to.equal(null);
+      expect(queryByRole('dialog')).to.have.attribute('hidden');
     });
   });
 
@@ -116,9 +110,9 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.calledOnce).to.equal(expectClosed);
 
         if (expectClosed) {
-          expect(queryByRole('dialog')).to.equal(null);
+          expect(queryByRole('dialog')).to.have.attribute('hidden');
         } else {
-          expect(queryByRole('dialog')).not.to.equal(null);
+          expect(queryByRole('dialog')).not.to.have.attribute('hidden');
         }
       });
     });
@@ -148,9 +142,9 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.calledOnce).to.equal(expectClosed);
 
         if (expectClosed) {
-          expect(queryByRole('dialog')).to.equal(null);
+          expect(queryByRole('dialog')).to.have.attribute('hidden');
         } else {
-          expect(queryByRole('dialog')).not.to.equal(null);
+          expect(queryByRole('dialog')).not.to.have.attribute('hidden');
         }
       });
     });

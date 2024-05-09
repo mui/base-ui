@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
 import { describeConformance } from '../../../test/describeConformance';
@@ -13,4 +14,28 @@ describe('<Dialog.Popup />', () => {
     },
     skip: ['reactTestRenderer'],
   }));
+
+  describe('prop: keepMounted', () => {
+    [
+      [true, true],
+      [false, false],
+      [undefined, true],
+    ].forEach(([keepMounted, expectedIsMounted]) => {
+      it(`should ${!expectedIsMounted ? 'not' : ''} keep the dialog mounted when keepMounted=${keepMounted}`, () => {
+        const { queryByRole } = render(
+          <Dialog.Root open={false}>
+            <Dialog.Popup keepMounted={keepMounted} />
+          </Dialog.Root>,
+        );
+
+        const dialog = queryByRole('dialog');
+        if (expectedIsMounted) {
+          expect(dialog).not.to.equal(null);
+          expect(dialog).to.have.attribute('hidden');
+        } else {
+          expect(dialog).to.equal(null);
+        }
+      });
+    });
+  });
 });

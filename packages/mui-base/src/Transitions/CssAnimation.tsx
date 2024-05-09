@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useTransitionStateManager } from '../useTransition';
 
 export interface CssAnimationProps {
-  children: React.ReactElement;
+  children?: React.ReactElement;
   /**
    * The name of the CSS animation (the `animation-name` CSS property) applied to the component when
    * the transition is requested to exit.
@@ -43,7 +43,7 @@ function CssAnimation(props: CssAnimationProps) {
     'data-status': transitionStatus,
   };
 
-  return React.cloneElement(children, newProps);
+  return children && React.cloneElement(children, newProps);
 }
 
 CssAnimation.propTypes /* remove-proptypes */ = {

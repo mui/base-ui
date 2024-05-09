@@ -32,7 +32,9 @@ export type TransitionStatus = 'unmounted' | 'initial' | 'opening' | 'closing';
  *
  * - [useTransitionStateManager API](https://mui.com/base-ui/react-transitions/hooks-api/#use-transition-state-manager)
  */
-export function useTransitionStateManager(): UseTransitionStateManagerReturnValue {
+export function useTransitionStateManager(
+  enabled: boolean = true,
+): UseTransitionStateManagerReturnValue {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('unmounted');
   const transitionContext = React.useContext(TransitionContext);
   if (!transitionContext) {
@@ -42,8 +44,12 @@ export function useTransitionStateManager(): UseTransitionStateManagerReturnValu
   const { registerTransition, requestedEnter, onExited } = transitionContext;
 
   React.useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
     return registerTransition();
-  }, [registerTransition]);
+  }, [registerTransition, enabled]);
 
   // The `opening` state (which is used to determine the right CSS class to apply)
   // is updated slightly (one animation frame) after the `requestedEnter` state is updated.
@@ -51,6 +57,10 @@ export function useTransitionStateManager(): UseTransitionStateManagerReturnValu
   // (if the `opening` was applied when the element was mounted, the transition
   // would not be fired unless @starting-style is used).
   useEnhancedEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
     if (requestedEnter) {
       setTransitionStatus('initial');
 
@@ -68,7 +78,7 @@ export function useTransitionStateManager(): UseTransitionStateManagerReturnValu
     }
 
     return undefined;
-  }, [requestedEnter]);
+  }, [requestedEnter, enabled]);
 
   return {
     transitionStatus,

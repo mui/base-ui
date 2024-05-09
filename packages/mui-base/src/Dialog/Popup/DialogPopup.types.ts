@@ -4,6 +4,7 @@ import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupOwnerState> {
   keepMounted?: boolean;
+  animated?: boolean;
 }
 
 export interface DialogPopupOwnerState {

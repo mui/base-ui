@@ -5,12 +5,14 @@ import { DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useCSSAnimations } from '../../Transitions';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = true, id: idProp, ...other } = props;
+  const { render, className, keepMounted = true, id: idProp, animated = false, ...other } = props;
 
   const { getRootProps, open, floatingUIContext, modal, transitionPending } = useDialogPopup({
     id: idProp,
@@ -23,12 +25,14 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     modal,
   };
 
+  const animationProps = useCSSAnimations(animated);
+
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.div,
     className,
     ownerState,
     propGetter: getRootProps,
-    extraProps: other,
+    extraProps: mergeReactProps(other, animationProps),
     customStyleHookMapping: { open: (value) => ({ 'data-state': value ? 'open' : 'closed' }) },
   });
 

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useTransitionStateManager } from '../useTransition';
 
 export interface CssTransitionProps {
-  children: React.ReactElement;
+  children?: React.ReactElement;
   /**
    * The name of the CSS property that is transitioned the longest (has the largest `transition-duration`) on exit.
    * This is used to determine when the transition has ended.
@@ -50,7 +50,7 @@ const CssTransition = function CssTransition(props: CssTransitionProps) {
     'data-status': transitionStatus,
   };
 
-  return React.cloneElement(children, newProps);
+  return children && React.cloneElement(children, newProps);
 };
 
 CssTransition.propTypes /* remove-proptypes */ = {
