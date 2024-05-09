@@ -22,19 +22,18 @@ export function useTransitionStatus(isRendered: boolean) {
   }
 
   useEnhancedEffect(() => {
-    if (isRendered) {
-      const frame = requestAnimationFrame(() => {
-        setTransitionStatus('opening');
-      });
-
-      return () => {
-        cancelAnimationFrame(frame);
-      };
+    if (!isRendered) {
+      setTransitionStatus('closing');
+      return undefined;
     }
 
-    setTransitionStatus('closing');
+    const frame = requestAnimationFrame(() => {
+      setTransitionStatus('opening');
+    });
 
-    return undefined;
+    return () => {
+      cancelAnimationFrame(frame);
+    };
   }, [isRendered]);
 
   return React.useMemo(
