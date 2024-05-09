@@ -36,7 +36,7 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
  *
  * API:
  *
