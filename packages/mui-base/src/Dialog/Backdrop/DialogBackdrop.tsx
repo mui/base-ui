@@ -1,42 +1,36 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogRootContext } from '../Root/DialogRootContext';
 import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBackdrop.types';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { OpenState, useTransitionedElement } from '../../Transitions';
+import { useDialogBackdrop } from './useDialogBackdrop';
 
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, animated = false, ...other } = props;
-  const { open, modal } = useDialogRootContext();
+  const { render, className, animated = false, keepMounted = false, ...other } = props;
+  const { getRootProps, open, openState, mounted, modal } = useDialogBackdrop({ animated });
 
-  const {
-    getRootProps: getTransitionProps,
-    openState,
-    mounted,
-  } = useTransitionedElement({ isRendered: open, enabled: animated });
-
-  const ownerState: DialogBackdropOwnerState = { open, modal, openState: openState as OpenState };
+  const ownerState: DialogBackdropOwnerState = React.useMemo(
+    () => ({ open, modal, openState }),
+    [open, modal, openState],
+  );
 
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.div,
     className,
     ownerState,
+    propGetter: getRootProps,
     ref: forwardedRef,
-    extraProps: getTransitionProps({
-      role: 'presentation',
-      ...other,
-    }),
+    extraProps: other,
     customStyleHookMapping: {
       open: () => null,
       openState: (value) => ({ 'data-state': value }),
     },
   });
 
-  if (!mounted) {
+  if (!mounted && !keepMounted) {
     return null;
   }
 

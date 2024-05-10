@@ -11,7 +11,10 @@ export type OpenState = 'beforeOpen' | 'open' | 'closing' | 'closed';
  * @param enabled - determines if the transition logic should be enabled.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(shouldOpen: boolean, enabled: boolean) {
+export function useTransitionStatus(
+  shouldOpen: boolean,
+  enabled: boolean,
+): UseTransitionStatusReturnValue {
   const [openState, setOpenState] = React.useState<OpenState>('closed');
   const [mounted, setMounted] = React.useState(shouldOpen);
   const previouslyRendered = React.useRef(shouldOpen);
@@ -69,4 +72,10 @@ export function useTransitionStatus(shouldOpen: boolean, enabled: boolean) {
     notifyTransitionEnded,
     openState,
   };
+}
+
+export interface UseTransitionStatusReturnValue {
+  mounted: boolean;
+  notifyTransitionEnded: () => void;
+  openState: OpenState;
 }

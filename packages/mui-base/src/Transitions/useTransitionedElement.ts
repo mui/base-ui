@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useTransitionStatus } from './useTransitionStatus';
+import { OpenState, useTransitionStatus } from './useTransitionStatus';
 import { mergeReactProps } from '../utils/mergeReactProps';
 
-export interface UseTransitionedElementParameters {
-  isRendered: boolean;
-  enabled: boolean;
-}
-
-export function useTransitionedElement(parameters: UseTransitionedElementParameters) {
+export function useTransitionedElement(
+  parameters: UseTransitionedElementParameters,
+): UseTransitionedElementReturnValue {
   const { isRendered, enabled } = parameters;
   const { notifyTransitionEnded, mounted, openState } = useTransitionStatus(isRendered, enabled);
 
@@ -40,4 +37,17 @@ export function useTransitionedElement(parameters: UseTransitionedElementParamet
     mounted,
     openState,
   };
+}
+
+export interface UseTransitionedElementParameters {
+  isRendered: boolean;
+  enabled: boolean;
+}
+
+export interface UseTransitionedElementReturnValue {
+  getRootProps: (
+    externalProps?: React.ComponentPropsWithRef<any>,
+  ) => React.ComponentPropsWithRef<any>;
+  mounted: boolean;
+  openState: OpenState;
 }
