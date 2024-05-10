@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useFloating, useInteractions, useDismiss } from '@floating-ui/react';
 import { useDialogRootContext } from '../Root/DialogRootContext';
-import { UseDialogPopupParameters } from './DialogPopup.types';
+import { UseDialogPopupParameters, UseDialogPopupReturnValue } from './DialogPopup.types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useTransitionStatus } from '../../Transitions';
+import { OpenState, useTransitionedElement } from '../../Transitions';
 /**
  *
  * Demos:
@@ -16,7 +16,7 @@ import { useTransitionStatus } from '../../Transitions';
  *
  * - [useDialogPopup API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-popup)
  */
-export function useDialogPopup(parameters: UseDialogPopupParameters) {
+export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogPopupReturnValue {
   const { id: idParam, ref, animated } = parameters;
 
   const {
@@ -45,7 +45,11 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
   const id = useId(idParam);
   const handleRef = useForkRef(ref, refs.setFloating);
 
-  const { props: transitionProps, transitionStatus, mounted } = useTransitionStatus(open, animated);
+  const {
+    getRootProps: getTransitionProps,
+    openState,
+    mounted,
+  } = useTransitionedElement({ isRendered: open, enabled: animated });
 
   React.useEffect(() => {
     setPopupElementId(id ?? null);
@@ -55,25 +59,27 @@ export function useDialogPopup(parameters: UseDialogPopupParameters) {
   }, [id, setPopupElementId]);
 
   const getRootProps = (otherProps: React.HTMLAttributes<any>) =>
-    mergeReactProps(otherProps, {
-      'aria-labelledby': titleElementId ?? undefined,
-      'aria-describedby': descriptionElementId ?? undefined,
-      'aria-hidden': !open || undefined,
-      'aria-modal': open && modal ? true : undefined,
-      role: type,
-      tabIndex: -1,
-      ...getFloatingProps(),
-      ...transitionProps,
-      id,
-      ref: handleRef,
-    });
+    mergeReactProps(
+      otherProps,
+      getTransitionProps({
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        'aria-hidden': !open || undefined,
+        'aria-modal': open && modal ? true : undefined,
+        role: type,
+        tabIndex: -1,
+        ...getFloatingProps(),
+        id,
+        ref: handleRef,
+      }),
+    );
 
   return {
-    open,
+    open, // determines if the popup was requested to open/close
+    openState: openState as OpenState, // the actual current state
     mounted,
     getRootProps,
     floatingUIContext: context,
     modal,
-    transitionStatus,
   };
 }

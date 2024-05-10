@@ -12,18 +12,17 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { render, className, keepMounted = true, id: idProp, animated = false, ...other } = props;
 
-  const { getRootProps, open, floatingUIContext, modal, mounted, transitionStatus } =
-    useDialogPopup({
-      id: idProp,
-      animated,
-      keepMounted,
-      ref: forwardedRef,
-    });
+  const { getRootProps, open, floatingUIContext, modal, mounted, openState } = useDialogPopup({
+    id: idProp,
+    animated,
+    keepMounted,
+    ref: forwardedRef,
+  });
 
   const ownerState = {
     open,
     modal,
-    transitionStatus,
+    openState,
   };
 
   const { renderElement } = useBaseUIComponentRenderer({
@@ -33,8 +32,8 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: other,
     customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      transitionStatus: (value) => (value == null ? null : { 'data-status': value }),
+      open: () => null,
+      openState: (value) => ({ 'data-state': value }),
     },
   });
 
@@ -42,12 +41,15 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     return null;
   }
 
-  return mounted ? (
-    <FloatingFocusManager context={floatingUIContext} modal={modal} guards={false}>
+  return (
+    <FloatingFocusManager
+      context={floatingUIContext}
+      modal={modal}
+      guards={false}
+      disabled={!mounted}
+    >
       {renderElement()}
     </FloatingFocusManager>
-  ) : (
-    renderElement()
   );
 });
 

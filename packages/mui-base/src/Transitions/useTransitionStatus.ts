@@ -2,24 +2,25 @@
 import * as React from 'react';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 
-export type TransitionStatus = 'unmounted' | 'initial' | 'opening' | 'closing';
+export type OpenState = 'beforeOpen' | 'open' | 'closing' | 'closed';
 
 /**
  * Provides a status string for CSS transitions and animations for conditionally-rendered
  * components.
- * @param isRendered - a boolean that determines if the component is rendered.
+ * @param shouldOpen - a boolean that determines if the component should be visible.
+ * @param enabled - determines if the transition logic should be enabled.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(isRendered: boolean, enabled: boolean) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>('unmounted');
-  const [mounted, setMounted] = React.useState(isRendered);
-  const previouslyRendered = React.useRef(isRendered);
+export function useTransitionStatus(shouldOpen: boolean, enabled: boolean) {
+  const [openState, setOpenState] = React.useState<OpenState>('closed');
+  const [mounted, setMounted] = React.useState(shouldOpen);
+  const previouslyRendered = React.useRef(shouldOpen);
 
-  if (isRendered && !mounted) {
+  if (shouldOpen && !mounted) {
     setMounted(true);
   }
 
-  if (!enabled && !isRendered && mounted) {
+  if (!enabled && !shouldOpen && mounted) {
     setMounted(false);
   }
 
@@ -28,12 +29,12 @@ export function useTransitionStatus(isRendered: boolean, enabled: boolean) {
       return undefined;
     }
 
-    if (isRendered) {
-      setTransitionStatus('initial');
-      previouslyRendered.current = isRendered;
+    if (shouldOpen) {
+      setOpenState('beforeOpen');
+      previouslyRendered.current = shouldOpen;
 
       const frame = requestAnimationFrame(() => {
-        setTransitionStatus('opening');
+        setOpenState('open');
       });
 
       return () => {
@@ -42,36 +43,30 @@ export function useTransitionStatus(isRendered: boolean, enabled: boolean) {
     }
 
     if (previouslyRendered.current) {
-      setTransitionStatus('closing');
+      setOpenState('closing');
     }
 
-    previouslyRendered.current = isRendered;
+    previouslyRendered.current = shouldOpen;
 
     return undefined;
-  }, [isRendered, enabled]);
+  }, [shouldOpen, enabled]);
 
-  const handleTransitionAndAnimationEnd = React.useCallback(() => {
-    if (!isRendered) {
-      setMounted(false);
-      setTransitionStatus('unmounted');
-    }
-  }, [isRendered]);
+  const notifyTransitionEnded = React.useCallback(() => {
+    setMounted(false);
+    setOpenState('closed');
+  }, []);
 
-  const props = React.useMemo(
-    () =>
-      enabled
-        ? {
-            onAnimationEnd: handleTransitionAndAnimationEnd,
-            onTransitionEnd: handleTransitionAndAnimationEnd,
-          }
-        : null,
-    [handleTransitionAndAnimationEnd, enabled],
-  );
+  if (!enabled) {
+    return {
+      mounted,
+      notifyTransitionEnded,
+      openState: mounted ? 'open' : 'closed',
+    };
+  }
 
   return {
     mounted,
-    setMounted,
-    props,
-    transitionStatus: enabled ? transitionStatus : null,
+    notifyTransitionEnded,
+    openState,
   };
 }

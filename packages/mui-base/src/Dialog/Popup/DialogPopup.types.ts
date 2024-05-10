@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { type FloatingContext } from '@floating-ui/react';
 import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
-import { TransitionStatus } from '../../Transitions';
+import { OpenState } from '../../Transitions';
 
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupOwnerState> {
   keepMounted?: boolean;
@@ -11,6 +11,7 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
 export interface DialogPopupOwnerState {
   open: boolean;
   modal: boolean;
+  openState: OpenState;
 }
 
 export interface UseDialogPopupParameters {
@@ -28,5 +29,5 @@ export interface UseDialogPopupReturnValue {
     otherProps: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
   floatingUIContext: FloatingContext;
-  transitionStatus: TransitionStatus | null;
+  openState: OpenState;
 }

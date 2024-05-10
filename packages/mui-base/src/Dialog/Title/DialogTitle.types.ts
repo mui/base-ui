@@ -1,9 +1,11 @@
-import { DialogPopupOwnerState } from '../Popup/DialogPopup.types';
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export interface DialogTitleProps extends BaseUIComponentProps<'button', DialogTitleOwnerState> {}
 
-export interface DialogTitleOwnerState extends DialogPopupOwnerState {}
+export interface DialogTitleOwnerState {
+  open: boolean;
+  modal: boolean;
+}
 
 export interface UseDialogTitleParameters {
   id?: string;

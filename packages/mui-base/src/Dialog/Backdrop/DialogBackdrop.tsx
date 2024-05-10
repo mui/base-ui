@@ -4,7 +4,7 @@ import { useDialogRootContext } from '../Root/DialogRootContext';
 import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBackdrop.types';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useTransitionStatus } from '../../Transitions';
+import { OpenState, useTransitionedElement } from '../../Transitions';
 
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
@@ -12,21 +12,27 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 ) {
   const { render, className, animated = false, ...other } = props;
   const { open, modal } = useDialogRootContext();
-  const ownerState: DialogBackdropOwnerState = { open, modal };
 
-  const { props: transitionProps, transitionStatus, mounted } = useTransitionStatus(open, animated);
+  const {
+    getRootProps: getTransitionProps,
+    openState,
+    mounted,
+  } = useTransitionedElement({ isRendered: open, enabled: animated });
+
+  const ownerState: DialogBackdropOwnerState = { open, modal, openState: openState as OpenState };
 
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.div,
     className,
     ownerState,
     ref: forwardedRef,
-    // TODO: merge props
-    extraProps: {
+    extraProps: getTransitionProps({
       role: 'presentation',
-      ...transitionProps,
       ...other,
-      'data-status': transitionStatus,
+    }),
+    customStyleHookMapping: {
+      open: () => null,
+      openState: (value) => ({ 'data-state': value }),
     },
   });
 

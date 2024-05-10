@@ -123,7 +123,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
     from: { opacity: 0, transform: 'translateY(-8px) scale(0.95)' },
   });
 
-  const { mounted, setMounted } = useTransitionStatus(open, true);
+  const { mounted, notifyTransitionEnded } = useTransitionStatus(open, true);
 
   React.useEffect(() => {
     if (open) {
@@ -137,10 +137,10 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
         opacity: 0,
         transform: 'translateY(-8px) scale(0.95)',
         config: { tension: 170, friction: 26 },
-        onRest: () => setMounted(false),
+        onRest: () => notifyTransitionEnded(),
       });
     }
-  }, [api, open, mounted, setMounted]);
+  }, [api, open, mounted, notifyTransitionEnded]);
 
   return mounted ? (
     <springAnimated.div style={springs} className={classes.springWrapper}>

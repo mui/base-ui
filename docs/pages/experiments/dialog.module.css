@@ -103,20 +103,18 @@
     transform: translate(-50%, -50%);
     transition: opacity 0.3s ease-in-out;
 
-    &[data-state='closed'] {
+    &[data-state='open'] {
       display: initial;
-    }
-
-    &[data-status='unmounted'] {
-      display: none;
-    }
-
-    &[data-status='opening'] {
       opacity: 1;
     }
 
-    &[data-status='closing'] {
+    &[data-state='closing'] {
+      display: initial;
       opacity: 0;
+    }
+
+    &[data-state='closed'] {
+      display: none;
     }
   }
 
@@ -125,24 +123,16 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    display: none;
+    opacity: 0;
 
-    &[data-state='closed'] {
-      display: initial;
-    }
-
-    &[data-status='unmounted'] {
-      display: none;
-    }
-
-    &[data-status='initial'] {
-      opacity: 0;
-    }
-
-    &[data-status='opening'] {
+    &[data-state='open'] {
+      display: block;
       animation: dialog-opening 1s ease-out forwards;
     }
 
-    &[data-status='closing'] {
+    &[data-state='closing'] {
+      display: block;
       animation: dialog-closing 1s ease-in forwards;
     }
   }
@@ -169,17 +159,14 @@
 .backdrop {
   background: radial-gradient(#cecdcf36, #8b94ab47);
   z-index: 0;
-
-  &[data-status='initial'] {
-    backdrop-filter: blur(1px);
-    opacity: 0;
-  }
+  backdrop-filter: blur(1px);
+  opacity: 0;
 
   &.withTransitions {
     position: fixed;
     inset: 0;
 
-    &[data-status='opening'] {
+    &[data-state='open'] {
       backdrop-filter: blur(6px);
       opacity: 1;
       transition:
@@ -187,12 +174,16 @@
         opacity 0.3s ease-out;
     }
 
-    &[data-status='closing'] {
+    &[data-state='closing'] {
       backdrop-filter: blur(1px);
       opacity: 0;
       transition:
         backdrop-filter 1s ease-in,
         opacity 0.8s ease-in;
+    }
+
+    &[data-state='closed'] {
+      display: none;
     }
   }
 
@@ -200,12 +191,16 @@
     position: fixed;
     inset: 0;
 
-    &[data-status='opening'] {
+    &[data-state='open'] {
       animation: backdrop-opening 1s ease-out forwards;
     }
 
-    &[data-status='closing'] {
+    &[data-state='closing'] {
       animation: backdrop-closing 1s ease-in forwards;
+    }
+
+    &[data-state='closed'] {
+      display: none;
     }
   }
 }
