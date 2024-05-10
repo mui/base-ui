@@ -5,7 +5,7 @@ import type {
   DialogRootContextValue,
 } from './DialogRoot.types';
 import { useControlled } from '../../utils/useControlled';
-import { useTransitionTrigger } from '../../useTransition';
+
 /**
  *
  * Demos:
@@ -44,8 +44,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     [onOpenChange, setOpen],
   );
 
-  const { contextValue: transitionContextValue, hasExited } = useTransitionTrigger(open);
-
   if (process.env.NODE_ENV !== 'production') {
     // the above condition doesn't change at runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -71,7 +69,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
       setDescriptionElementId,
       popupElementId,
       setPopupElementId,
-      transitionPending: !hasExited,
     };
   }, [
     modal,
@@ -82,13 +79,10 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     descriptionElementId,
     popupElementId,
     softClose,
-    hasExited,
   ]);
 
   return {
     contextValue,
-    transitionContextValue,
     open,
-    transitionPending: !hasExited,
   };
 }

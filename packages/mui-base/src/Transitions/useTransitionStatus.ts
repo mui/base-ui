@@ -70,6 +70,7 @@ export function useTransitionStatus(isRendered: boolean, enabled: boolean) {
 
   return {
     mounted,
+    setMounted,
     props,
     transitionStatus: enabled ? transitionStatus : null,
   };

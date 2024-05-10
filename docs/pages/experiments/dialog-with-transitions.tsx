@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
-import { useTransitionStateManager } from '@base_ui/react/useTransition';
+import { useTransitionStatus } from '@base_ui/react/Transitions';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
 
@@ -84,9 +84,11 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
 }
 
 function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
+  const [open, setOpen] = React.useState(false);
+
   return (
     <span className={classes.demo}>
-      <Dialog.Root softClose>
+      <Dialog.Root softClose open={open} onOpenChange={setOpen}>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
             Open with React Spring transition
@@ -98,7 +100,7 @@ function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
           className={`${classes.backdrop} ${animated && classes.withAnimations}`}
         />
 
-        <ReactSpringTransition>
+        <ReactSpringTransition open={open}>
           <Dialog.Popup
             animated={false}
             keepMounted={keepMounted}
@@ -112,9 +114,8 @@ function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
   );
 }
 
-function ReactSpringTransition(props: { children?: React.ReactElement }) {
-  const { children } = props;
-  const { requestedEnter, onExited, transitionStatus } = useTransitionStateManager(true);
+function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement }) {
+  const { open, children } = props;
 
   const api = useSpringRef();
   const springs = useSpring({
@@ -122,8 +123,10 @@ function ReactSpringTransition(props: { children?: React.ReactElement }) {
     from: { opacity: 0, transform: 'translateY(-8px) scale(0.95)' },
   });
 
+  const { mounted, setMounted } = useTransitionStatus(open, true);
+
   React.useEffect(() => {
-    if (requestedEnter) {
+    if (open) {
       api.start({
         opacity: 1,
         transform: 'translateY(0) scale(1)',
@@ -134,18 +137,16 @@ function ReactSpringTransition(props: { children?: React.ReactElement }) {
         opacity: 0,
         transform: 'translateY(-8px) scale(0.95)',
         config: { tension: 170, friction: 26 },
-        onRest: onExited,
+        onRest: () => setMounted(false),
       });
     }
-  }, [requestedEnter, api, onExited]);
+  }, [api, open, mounted, setMounted]);
 
-  console.log(transitionStatus);
-
-  return (
+  return mounted ? (
     <springAnimated.div style={springs} className={classes.springWrapper}>
       {children}
     </springAnimated.div>
-  );
+  ) : null;
 }
 
 export default function DialogExperiment() {
