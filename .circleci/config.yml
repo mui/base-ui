@@ -405,6 +405,15 @@ jobs:
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
+  test_bundle_size_monitor:
+    <<: *default-job
+    steps:
+      - checkout
+      - install_js
+      - run:
+          name: Run danger on PRs
+          command: pnpm danger ci --fail-on-errors
+      # TODO test bundle size https://github.com/mui/base-ui/issues/201
 workflows:
   version: 2
   pipeline:
@@ -438,6 +447,10 @@ workflows:
           requires:
             - checkout
       - test_e2e:
+          <<: *default-context
+          requires:
+            - checkout
+      - test_bundle_size_monitor:
           <<: *default-context
           requires:
             - checkout
