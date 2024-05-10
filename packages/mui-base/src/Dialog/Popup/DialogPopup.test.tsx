@@ -31,7 +31,7 @@ describe('<Dialog.Popup />', () => {
         const dialog = queryByRole('dialog');
         if (expectedIsMounted) {
           expect(dialog).not.to.equal(null);
-          expect(dialog).to.have.attribute('hidden');
+          expect(dialog).toBeInaccessible();
         } else {
           expect(dialog).to.equal(null);
         }

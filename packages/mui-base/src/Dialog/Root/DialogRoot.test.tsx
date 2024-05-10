@@ -24,13 +24,13 @@ describe('<Dialog.Root />', () => {
       );
 
       const button = getByRole('button');
-      expect(queryByRole('dialog')).to.have.attribute('hidden');
+      expect(queryByRole('dialog')).toBeInaccessible();
 
       act(() => {
         button.click();
       });
 
-      expect(queryByRole('dialog')).not.to.have.attribute('hidden');
+      expect(queryByRole('dialog')).not.toBeInaccessible();
     });
   });
 
@@ -42,13 +42,13 @@ describe('<Dialog.Root />', () => {
         </Dialog.Root>,
       );
 
-      expect(queryByRole('dialog')).to.have.attribute('hidden');
+      expect(queryByRole('dialog')).toBeInaccessible();
 
       setProps({ open: true });
-      expect(queryByRole('dialog')).not.to.have.attribute('hidden');
+      expect(queryByRole('dialog')).not.toBeInaccessible();
 
       setProps({ open: false });
-      expect(queryByRole('dialog')).to.have.attribute('hidden');
+      expect(queryByRole('dialog')).toBeInaccessible();
     });
   });
 
@@ -110,9 +110,9 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.calledOnce).to.equal(expectClosed);
 
         if (expectClosed) {
-          expect(queryByRole('dialog')).to.have.attribute('hidden');
+          expect(queryByRole('dialog')).toBeInaccessible();
         } else {
-          expect(queryByRole('dialog')).not.to.have.attribute('hidden');
+          expect(queryByRole('dialog')).not.toBeInaccessible();
         }
       });
     });
@@ -142,9 +142,9 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.calledOnce).to.equal(expectClosed);
 
         if (expectClosed) {
-          expect(queryByRole('dialog')).to.have.attribute('hidden');
+          expect(queryByRole('dialog')).toBeInaccessible();
         } else {
-          expect(queryByRole('dialog')).not.to.have.attribute('hidden');
+          expect(queryByRole('dialog')).not.toBeInaccessible();
         }
       });
     });
