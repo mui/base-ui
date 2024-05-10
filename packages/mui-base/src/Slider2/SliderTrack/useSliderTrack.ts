@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { useForkRef } from '../utils/useForkRef';
-import { useSliderContext } from '../Slider2/SliderContext';
-import { useEventCallback } from '../utils/useEventCallback';
-import { areValuesEqual, focusThumb, trackFinger } from './useSlider2';
-import { ownerDocument } from '../utils/owner';
-import { roundValueToStep, valueToPercent } from './utils';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { ownerDocument } from '../../utils/owner';
+import { useForkRef } from '../../utils/useForkRef';
+import { useSliderContext } from '../Root/SliderContext';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { roundValueToStep, valueToPercent } from '../utils';
+import { areValuesEqual, focusThumb, trackFinger } from '../Root/useSliderRoot';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
@@ -38,10 +38,17 @@ export function useSliderTrack(parameters: any) {
     setDragging,
     setOpen,
     setValueState,
-    thumbRefs,
+    subitems,
     value,
     valueState,
   } = useSliderContext('Track');
+
+  const thumbRefs = React.useMemo(() => {
+    return Array.from(subitems).map((subitem) => {
+      const { ref } = subitem[1];
+      return ref.current;
+    });
+  }, [subitems]);
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const finger = trackFinger(nativeEvent, touchId);

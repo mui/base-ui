@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { useForkRef } from '../utils/useForkRef';
-import { useId } from '../utils/useId';
-import { visuallyHidden } from '../utils/visuallyHidden';
-import { useCompoundItem } from '../useCompound';
-import { useSliderContext } from '../Slider2/SliderContext';
-import { valueToPercent } from './utils';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForkRef } from '../../utils/useForkRef';
+import { useId } from '../../utils/useId';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useCompoundItem } from '../../useCompound';
+import { valueToPercent } from '../utils';
+import { useSliderContext } from '../Root/SliderContext';
 import {
-  ThumbMetadata,
+  SliderThumbMetadata,
   UseSliderThumbParameters,
   UseSliderThumbReturnValue,
-} from './useSliderThumb.types';
+} from './SliderThumb.types';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
@@ -46,7 +46,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
   const handleRef = useForkRef(externalRef, thumbRef);
 
-  const thumbMetadata: ThumbMetadata = React.useMemo(
+  const thumbMetadata: SliderThumbMetadata = React.useMemo(
     () => ({ inputId: thumbId ? `${thumbId}-input` : '', ref: thumbRef, inputRef }),
     [thumbId],
   );

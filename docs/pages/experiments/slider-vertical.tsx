@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider2';
-import { valueToPercent } from '@base_ui/react/useSlider2/utils';
-import { useSliderContext } from '@base_ui/react/Slider2/SliderContext';
+import { valueToPercent } from '@base_ui/react/Slider2/utils';
+import { useSliderContext } from '@base_ui/react/Slider2';
 
 function TrackFillSingleThumb(props: any) {
   const { value: values, min, max } = useSliderContext('Track');

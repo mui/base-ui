@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { areArraysEqual } from '../utils/areArraysEqual';
-import { clamp } from '../utils/clamp';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { ownerDocument } from '../utils/owner';
-import { useControlled } from '../utils/useControlled';
-import { useForkRef } from '../utils/useForkRef';
-import { useCompoundParent } from '../useCompound';
-import { percentToValue, roundValueToStep, valueToPercent } from './utils';
-import { Mark, UseSliderParameters, UseSliderReturnValue } from './useSlider.types';
-import { ThumbMetadata } from './useSliderThumb.types';
+import { areArraysEqual } from '../../utils/areArraysEqual';
+import { clamp } from '../../utils/clamp';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { ownerDocument } from '../../utils/owner';
+import { useControlled } from '../../utils/useControlled';
+import { useForkRef } from '../../utils/useForkRef';
+import { useCompoundParent } from '../../useCompound';
+import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
+import { Mark, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
+import { SliderThumbMetadata } from '../SliderThumb/SliderThumb.types';
 
 export function areValuesEqual(
   newValue: number | ReadonlyArray<number>,
@@ -130,7 +130,7 @@ const axisProps = {
 
 export const Identity = (x: any) => x;
 
-function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
+function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
     defaultValue,
@@ -167,7 +167,7 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
-    ThumbMetadata
+    SliderThumbMetadata
   >();
 
   const handleValueChange = React.useCallback(
@@ -376,37 +376,15 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ref: handleRootRef,
+        role: 'group',
+        ...externalProps,
       }),
     [handleRootRef],
-  );
-
-  const thumbRefs = React.useMemo(() => {
-    return Array.from(subitems).map((subitem) => {
-      const { ref } = subitem[1];
-      return ref.current;
-    });
-  }, [subitems]);
-
-  const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
-    return `${acc} ${item.inputId}`;
-  }, '');
-
-  const getOutputProps: UseSliderReturnValue['getOutputProps'] = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        // off by default because it will keep announcing when the slider is being dragged
-        // and also when the value is changing (but not yet committed)
-        'aria-live': 'off',
-        htmlFor: outputFor.trim(),
-      });
-    },
-    [outputFor],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
-      getOutputProps,
       active,
       ariaLabelledby,
       axis,
@@ -431,8 +409,8 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       setOpen,
       setValueState,
       step,
+      subitems,
       tabIndex,
-      thumbRefs,
       trackOffset,
       trackLeap,
       value: values,
@@ -440,7 +418,6 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
     }),
     [
       getRootProps,
-      getOutputProps,
       active,
       ariaLabelledby,
       axis,
@@ -464,8 +441,8 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
       setOpen,
       setValueState,
       step,
+      subitems,
       tabIndex,
-      thumbRefs,
       trackOffset,
       trackLeap,
       values,
@@ -474,4 +451,4 @@ function useSlider(parameters: UseSliderParameters): UseSliderReturnValue {
   );
 }
 
-export { useSlider };
+export { useSliderRoot };

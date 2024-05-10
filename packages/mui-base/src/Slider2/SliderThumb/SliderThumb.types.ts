@@ -1,3 +1,17 @@
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+
+export type SliderThumbOwnerState = {};
+
+export interface SliderThumbProps
+  extends UseSliderThumbParameters,
+    BaseUIComponentProps<'div', SliderThumbOwnerState> {
+  onPointerLeave?: React.PointerEventHandler;
+  onPointerOver?: React.PointerEventHandler;
+  onBlur?: React.FocusEventHandler;
+  onFocus?: React.FocusEventHandler;
+  onKeyDown?: React.KeyboardEventHandler;
+}
+
 export interface UseSliderThumbParameters {
   id?: string;
   disabled?: boolean;
@@ -20,7 +34,7 @@ export interface UseSliderThumbReturnValue {
   index: number;
 }
 
-export interface ThumbMetadata {
+export interface SliderThumbMetadata {
   inputId: string;
   ref: React.RefObject<HTMLElement>;
   inputRef: React.RefObject<HTMLInputElement>;

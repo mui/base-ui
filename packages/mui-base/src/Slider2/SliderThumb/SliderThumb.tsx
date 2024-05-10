@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
-import { useSliderContext } from './SliderContext';
-import { ThumbProps } from './Slider.types';
-import { useSliderThumb } from '../useSlider2/useSliderThumb';
+import { getStyleHookProps } from '../../utils/getStyleHookProps';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useSliderContext } from '../Root/SliderContext';
+import { SliderThumbProps } from './SliderThumb.types';
+import { useSliderThumb } from './useSliderThumb';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -14,7 +14,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
 function NOOP() {}
 
 const SliderThumb = React.forwardRef(function SliderThumb(
-  props: ThumbProps,
+  props: SliderThumbProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -42,7 +42,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   });
 
   const styleHooks = React.useMemo(
-    () => getStyleHookProps({ active: activeIndex === index }),
+    () => getStyleHookProps({ dragging: activeIndex === index }),
     [activeIndex, index],
   );
 

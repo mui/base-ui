@@ -1,20 +1,19 @@
 'use client';
 import * as React from 'react';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
-import { CompoundComponentContext } from '../useCompound';
-import { useSlider } from '../useSlider2';
-import { SliderContext } from './SliderContext';
-import { RootProps, SliderOwnerState } from './Slider.types';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { getStyleHookProps } from '../../utils/getStyleHookProps';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useSliderRoot } from './useSliderRoot';
+import { SliderProvider } from './SliderProvider';
+import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
 }
 
 const SliderRoot = React.forwardRef(function SliderRoot(
-  props: RootProps,
+  props: SliderRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -31,7 +30,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const { compoundComponentContextValue, ...slider } = useSlider({
+  const { getRootProps, ...slider } = useSliderRoot({
     defaultValue,
     disabled,
     onValueChange,
@@ -40,7 +39,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps,
   });
 
-  const ownerState: SliderOwnerState = React.useMemo(
+  const ownerState: SliderRootOwnerState = React.useMemo(
     () => ({
       disabled,
       dragging: slider.dragging,
@@ -56,7 +55,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     [disabled, slider.dragging],
   );
 
-  const rootProps = slider.getRootProps({
+  const rootProps = getRootProps({
     ...styleHooks,
     ...otherProps,
     className: resolveClassName(className, ownerState),
@@ -71,12 +70,10 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   );
 
   return (
-    <CompoundComponentContext.Provider value={compoundComponentContextValue}>
-      <SliderContext.Provider value={contextValue}>
-        {evaluateRenderProp(render, rootProps, ownerState)}
-      </SliderContext.Provider>
-    </CompoundComponentContext.Provider>
+    <SliderProvider value={contextValue}>
+      {evaluateRenderProp(render, rootProps, ownerState)}
+    </SliderProvider>
   );
 });
 
-export { SliderRoot };
+export { SliderRoot as Slider };

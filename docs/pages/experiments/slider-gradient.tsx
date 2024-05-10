@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { alpha, hexToRgb, decomposeColor, recomposeColor, rgbToHex } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider2';
-import { percentToValue, roundValueToStep } from '@base_ui/react/useSlider2/utils';
+import { percentToValue, roundValueToStep } from '@base_ui/react/Slider2/utils';
 import { clamp } from '@base_ui/react/utils/clamp';
 import { BaseUIEvent } from '@base_ui/react/utils/BaseUI.types';
 
@@ -34,7 +34,9 @@ export default function App() {
   const insertNewValue = (newPosition: number) => {
     // console.log('insertNewValue position:', newPosition)
 
-    const newIndex = [...values.map(val => val.position), newPosition].sort((a, b) => a - b).indexOf(newPosition);
+    const newIndex = [...values.map((val) => val.position), newPosition]
+      .sort((a, b) => a - b)
+      .indexOf(newPosition);
     // console.log('newIndex:', newIndex)
 
     const newValue = { color: null, position: newPosition };
@@ -43,28 +45,34 @@ export default function App() {
     const floor = newValues[newIndex - 1];
     const ceiling = newValues[newIndex + 1];
 
-    const distance = Math.abs(ceiling.position - floor.position)
+    const distance = Math.abs(ceiling.position - floor.position);
 
     const percentage = (newPosition - floor.position) / distance;
 
-    const { values: floorColor } = decomposeColor(hexToRgb((floor as Stop).color))
-    const { values: ceilingColor } = decomposeColor(hexToRgb((ceiling as Stop).color))
+    const { values: floorColor } = decomposeColor(hexToRgb((floor as Stop).color));
+    const { values: ceilingColor } = decomposeColor(hexToRgb((ceiling as Stop).color));
 
     // console.log('floor color', floorColor);
     // console.log('ceiling color', ceilingColor);
     // console.log('percentage', percentage);
 
-    const newColor = recomposeColor({ type: 'rgb', values: [
-      floorColor[0] * (1 - percentage) + ceilingColor[0] * percentage,
-      floorColor[1] * (1 - percentage) + ceilingColor[1] * percentage,
-      floorColor[2] * (1 - percentage) + ceilingColor[2] * percentage,
-      ] })
+    const newColor = recomposeColor({
+      type: 'rgb',
+      values: [
+        floorColor[0] * (1 - percentage) + ceilingColor[0] * percentage,
+        floorColor[1] * (1 - percentage) + ceilingColor[1] * percentage,
+        floorColor[2] * (1 - percentage) + ceilingColor[2] * percentage,
+      ],
+    });
     // console.log('newColor', rgbToHex(newColor))
 
-    const finalValues = [...values, {
-      color: rgbToHex(newColor),
-      position: newPosition,
-    }].sort((a, b) => a.position - b.position);
+    const finalValues = [
+      ...values,
+      {
+        color: rgbToHex(newColor),
+        position: newPosition,
+      },
+    ].sort((a, b) => a.position - b.position);
 
     setValues(finalValues);
   };
@@ -84,13 +92,13 @@ export default function App() {
 
   const handleValueChange = (newValue: number | number[], activeThumbIndex: number) => {
     if (!Array.isArray(newValue)) {
-      console.error('array only!')
+      console.error('array only!');
       return;
     }
 
     const activeStopColor = activeStopRef.current?.color ?? null;
     // FIXME: bug happens if activeStopColor appears twice or more
-    const valuesWithoutActiveStop = values.filter(val => val.color !== activeStopColor);
+    const valuesWithoutActiveStop = values.filter((val) => val.color !== activeStopColor);
     // console.log('valuesWithoutActiveStop', JSON.stringify(valuesWithoutActiveStop))
     // console.log('newThumbIndex', activeThumbIndex);
 
@@ -98,14 +106,14 @@ export default function App() {
       ...valuesWithoutActiveStop,
       {
         ...activeStopRef.current,
-        position: newValue[activeThumbIndex]
+        position: newValue[activeThumbIndex],
       },
     ].sort((a, b) => a.position - b.position);
 
     // console.log('handleValueChange', newValues);
     // @ts-ignore
     setValues(newValues);
-  }
+  };
 
   const handlePointerDown = (event: BaseUIEvent<React.PointerEvent>) => {
     if (event.target === trackRef.current) {
@@ -144,7 +152,9 @@ export default function App() {
         value={values.map(({ position }) => position)}
         onValueChange={handleValueChange}
       >
-        <Slider.Output className="MySlider-output"><pre>background: {gradient}</pre></Slider.Output>
+        <Slider.Output className="MySlider-output">
+          <pre>background: {gradient}</pre>
+        </Slider.Output>
         <Slider.Track
           className="MySlider-track"
           render={<span />}
@@ -158,7 +168,7 @@ export default function App() {
           {values.map(({ color }, index) => (
             <Slider.Thumb
               key={`slider-thumb-${index}`}
-              className={classNames('MySlider-thumb', openThumbIndex === index && 'active' )}
+              className={classNames('MySlider-thumb', openThumbIndex === index && 'active')}
               onFocus={(event: BaseUIEvent<React.FocusEvent<HTMLInputElement>>) => {
                 const currentIndex = Number(event.target.dataset.index);
                 if (Number.isInteger(currentIndex)) {
@@ -173,7 +183,7 @@ export default function App() {
                   activeStopRef.current = null;
                 }
               }}
-              onPointerDown={event => {
+              onPointerDown={(event) => {
                 isDraggingRef.current = true;
                 const currentIndex = Number(event.currentTarget.dataset.index);
                 // console.log('currentStop', values[currentIndex])
@@ -223,27 +233,15 @@ export default function App() {
                         return {
                           ...val,
                           color: event.target.value,
-                        }
+                        };
                       }
                       return val;
-                    })
-                    setValues(newValues)
+                    });
+                    setValues(newValues);
                   }}
                 />
-                <input
-                  type="text"
-                  value={color}
-                  readOnly
-                  disabled
-                  className="Stop-color"
-                />
-                <input
-                  type="text"
-                  value={position}
-                  readOnly
-                  disabled
-                  className="Stop-position"
-                />
+                <input type="text" value={color} readOnly disabled className="Stop-color" />
+                <input type="text" value={position} readOnly disabled className="Stop-position" />
                 <button
                   type="button"
                   onClick={() => removeValueByIndex(index)}

@@ -1,5 +1,39 @@
-import { CompoundComponentContextValue } from '../useCompound';
-import { ThumbMetadata } from './useSliderThumb.types';
+import { SliderThumbMetadata } from '../SliderThumb/SliderThumb.types';
+import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { CompoundComponentContextValue } from '../../useCompound';
+
+export interface SliderRootOwnerState {
+  /**
+   * If `true`, the component is disabled.
+   */
+  disabled: boolean;
+  min: number;
+  max: number;
+  /**
+   * The raw number value of the slider.
+   */
+  value: number | ReadonlyArray<number>;
+}
+
+export interface SliderRootProps
+  extends UseSliderParameters,
+    Omit<BaseUIComponentProps<'div', SliderRootOwnerState>, 'defaultValue' | 'onChange' | 'value'> {
+  /**
+   * The default value of the slider. Use when the component is not controlled.
+   */
+  defaultValue?: number | ReadonlyArray<number>;
+  /**
+  /**
+   * If `true`, the component is disabled.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * The value of the slider.
+   * For ranged sliders, provide an array with two values.
+   */
+  value?: number | ReadonlyArray<number>;
+}
 
 export interface UseSliderParameters {
   /**
@@ -134,9 +168,6 @@ export interface UseSliderReturnValue {
   getRootProps: (
     externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;
-  getOutputProps: (
-    externalProps?: React.ComponentPropsWithRef<'output'>,
-  ) => React.ComponentPropsWithRef<'output'>;
   /**
    * The index of the active thumb.
    */
@@ -155,7 +186,7 @@ export interface UseSliderReturnValue {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
-  compoundComponentContextValue: CompoundComponentContextValue<any, ThumbMetadata>;
+  compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
   dragging: boolean;
   disabled: boolean;
   getFingerNewValue: (args: {
@@ -192,8 +223,8 @@ export interface UseSliderReturnValue {
   setOpen: (index: number) => void;
   setValueState: (newValue: number | number[]) => void;
   step?: number | null;
+  subitems: Map<any, SliderThumbMetadata>;
   tabIndex?: number;
-  thumbRefs: (HTMLElement | null)[];
   valueState: number | readonly number[];
   value: ReadonlyArray<number>;
 }

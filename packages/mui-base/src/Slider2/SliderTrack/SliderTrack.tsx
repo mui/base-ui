@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
-import { useSliderContext } from './SliderContext';
-import { TrackProps } from './Slider.types';
-import { useSliderTrack } from '../useSlider2/useSliderTrack';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useSliderContext } from '../Root/SliderContext';
+import { SliderTrackProps } from './SliderTrack.types';
+import { useSliderTrack } from './useSliderTrack';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
 }
 
 const SliderTrack = React.forwardRef(function SliderTrack(
-  props: TrackProps,
+  props: SliderTrackProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
