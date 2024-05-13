@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useTransitionedElement",
+  "filename": "/packages/mui-base/src/Transitions/useTransitionedElement.ts",
+  "imports": ["import { useTransitionedElement } from '@base_ui/react/Transitions';"],
+  "demos": "<ul></ul>"
+}

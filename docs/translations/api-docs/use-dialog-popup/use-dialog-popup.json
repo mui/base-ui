@@ -1,1 +1,11 @@
-{ "hookDescription": "", "parametersDescriptions": {}, "returnValueDescriptions": {} }
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "animated": {
+      "description": "If <code>true</code>, the dialog supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
+    },
+    "id": { "description": "The id of the dialog element." },
+    "ref": { "description": "The ref to the dialog element." }
+  },
+  "returnValueDescriptions": {}
+}

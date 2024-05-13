@@ -1,5 +1,6 @@
 {
   "parameters": {
+    "animated": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "ref": {
       "type": {
         "name": "React.Ref&lt;HTMLElement&gt;",
@@ -7,8 +8,7 @@
       },
       "required": true
     },
-    "id": { "type": { "name": "string", "description": "string" } },
-    "keepMounted": { "type": { "name": "boolean", "description": "boolean" } }
+    "id": { "type": { "name": "string", "description": "string" } }
   },
   "returnValue": {
     "floatingUIContext": {
@@ -23,7 +23,9 @@
       "required": true
     },
     "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "openState": { "type": { "name": "OpenState", "description": "OpenState" }, "required": true }
   },
   "name": "useDialogPopup",
   "filename": "/packages/mui-base/src/Dialog/Popup/useDialogPopup.tsx",

@@ -1,19 +1,23 @@
 {
   "parameters": {
     "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
-    "modal": { "type": { "name": "boolean", "description": "boolean" } },
+    "modal": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
     "onOpenChange": {
       "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" }
     },
     "open": { "type": { "name": "boolean", "description": "boolean" } },
-    "softClose": { "type": { "name": "SoftCloseOptions", "description": "SoftCloseOptions" } },
-    "type": { "type": { "name": "DialogType", "description": "DialogType" } }
+    "softClose": {
+      "type": { "name": "SoftCloseOptions", "description": "SoftCloseOptions" },
+      "default": "false"
+    },
+    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "default": "'dialog'" }
   },
   "returnValue": {
     "contextValue": {
       "type": { "name": "DialogRootContextValue", "description": "DialogRootContextValue" },
       "required": true
-    }
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
   },
   "name": "useDialogRoot",
   "filename": "/packages/mui-base/src/Dialog/Root/useDialogRoot.ts",

@@ -10,12 +10,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = true, id: idProp, animated = false, ...other } = props;
+  const { render, className, keepMounted = false, id: idProp, animated = false, ...other } = props;
 
   const { getRootProps, open, floatingUIContext, modal, mounted, openState } = useDialogPopup({
     id: idProp,
     animated,
-    keepMounted,
     ref: forwardedRef,
   });
 
@@ -59,6 +58,13 @@ DialogPopup.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default false
+   */
+  animated: PropTypes.bool,
+  /**
    * @ignore
    */
   children: PropTypes.node,
@@ -71,7 +77,9 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * @ignore
+   * If `true`, the dialog element is kept in the DOM when closed.
+   *
+   * @default false
    */
   keepMounted: PropTypes.bool,
   /**

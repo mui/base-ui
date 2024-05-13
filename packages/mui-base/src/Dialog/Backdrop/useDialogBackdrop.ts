@@ -3,7 +3,12 @@ import type { UseDialogBackdropParams, UseDialogBackdropReturnValue } from './Di
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useTransitionedElement } from '../../Transitions';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
+/**
+ *
+ * API:
+ *
+ * - [useDialogBackdrop API](https://mui.com/base-ui/api/use-dialog-backdrop/)
+ */
 export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBackdropReturnValue {
   const { animated } = params;
   const { open, modal } = useDialogRootContext();

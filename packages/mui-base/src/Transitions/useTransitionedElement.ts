@@ -2,7 +2,12 @@
 import * as React from 'react';
 import { OpenState, useTransitionStatus } from './useTransitionStatus';
 import { mergeReactProps } from '../utils/mergeReactProps';
-
+/**
+ *
+ * API:
+ *
+ * - [useTransitionedElement API](https://mui.com/base-ui/api/use-transitioned-element/)
+ */
 export function useTransitionedElement(
   parameters: UseTransitionedElementParameters,
 ): UseTransitionedElementReturnValue {

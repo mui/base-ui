@@ -9,6 +9,9 @@ export interface DialogDescriptionOwnerState {
 }
 
 export interface UseDialogDescriptionParameters {
+  /**
+   * The id of the description element.
+   */
   id?: string;
 }
 

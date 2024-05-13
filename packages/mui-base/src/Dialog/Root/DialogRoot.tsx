@@ -37,27 +37,31 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * @ignore
+   * Determines whether the dialog is initally open.
+   * This is an uncontrolled equivalent of the `open` prop.
    */
   defaultOpen: PropTypes.bool,
   /**
-   * @ignore
+   * Determines whether the dialog is modal.
    */
   modal: PropTypes.bool,
   /**
-   * @ignore
+   * Callback invoked when the dialog is being opened or closed.
+   * @param open The new open state.
    */
   onOpenChange: PropTypes.func,
   /**
-   * @ignore
+   * Determines whether the dialog is open.
    */
   open: PropTypes.bool,
   /**
-   * @ignore
+   * Determines whether the dialog should close when clicking outside of it or pressing the escape key.
+   * @default false
    */
   softClose: PropTypes.oneOfType([PropTypes.oneOf(['clickOutside', 'escapeKey']), PropTypes.bool]),
   /**
-   * @ignore
+   * The type of the dialog - either 'dialog' or 'alertdialog'.
+   * @default 'dialog'
    */
   type: PropTypes.oneOf(['alertdialog', 'dialog']),
 } as any;
