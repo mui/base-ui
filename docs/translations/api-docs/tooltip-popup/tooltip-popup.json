@@ -29,7 +29,6 @@
     "hideWhenDetached": {
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
-    "hoverable": { "description": "If <code>true</code>, the tooltip content will be hoverable." },
     "keepMounted": {
       "description": "If <code>true</code>, the tooltip content will be kept mounted in the DOM."
     },

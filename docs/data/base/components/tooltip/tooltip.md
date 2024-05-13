@@ -198,10 +198,10 @@ To show the tooltip initially while leaving it uncontrolled, use the `defaultOpe
 
 ## Hoverable content
 
-To prevent the content inside from being hoverable, use the `hoverable` prop:
+To prevent the content inside from being hoverable, use the `hoverable` prop on `Tooltip.Root`:
 
 ```jsx
-<Tooltip.Popup hoverable={false}>
+<Tooltip.Root hoverable={false}>
 ```
 
 :::info

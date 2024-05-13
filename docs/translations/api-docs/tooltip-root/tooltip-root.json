@@ -11,6 +11,12 @@
     "delayType": {
       "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip content is opened. <code>hover</code> means the <code>delay</code> represents how long to wait once the user&#39;s cursor has entered the trigger."
     },
+    "followCursorAxis": {
+      "description": "Determines which axis the tooltip should follow the cursor on."
+    },
+    "hoverable": {
+      "description": "Whether you can move from the trigger to the tooltip without it closing."
+    },
     "onOpenChange": {
       "description": "Callback fired when the tooltip content is requested to be opened or closed. Use when controlled."
     },

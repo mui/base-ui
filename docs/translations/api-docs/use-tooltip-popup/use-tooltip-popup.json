@@ -7,7 +7,7 @@
     "alignmentOffset": {
       "description": "The offset of the tooltip element along its alignment axis."
     },
-    "anchor": { "description": "The anchor element of the tooltip." },
+    "anchor": { "description": "The anchor element of the tooltip popup." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the tooltip content. Useful when the tooltip has rounded corners via <code>border-radius</code>."
     },
@@ -25,17 +25,17 @@
     "followCursorAxis": {
       "description": "Determines which axis the tooltip should follow the cursor on."
     },
+    "getRootPopupProps": { "description": "The props to spread on the tooltip popup element." },
     "hideWhenDetached": {
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
-    "hoverable": { "description": "If <code>true</code>, the tooltip content will be hoverable." },
+    "instant": { "description": "Determines if the tooltip is in an instant phase." },
     "keepMounted": {
       "description": "If <code>true</code>, the tooltip will be mounted, including CSS transitions or animations."
     },
-    "onOpenChange": {
-      "description": "Callback fired when the tooltip is requested to be opened or closed."
-    },
-    "open": { "description": "If <code>true</code>, the tooltip will be open." },
+    "mounted": { "description": "Determines if the tooltip is mounted." },
+    "rootContext": { "description": "The tooltip root context." },
+    "setMounted": { "description": "Callback fired when the mounted state changes." },
     "side": {
       "description": "The side of the anchor element that the tooltip element should align to."
     },
@@ -49,15 +49,9 @@
     "arrowRef": { "description": "The ref of the arrow element." },
     "floatingContext": { "description": "The Floating UI context of the tooltip element." },
     "getPopupProps": { "description": "Props to spread on the tooltip content element." },
-    "getTriggerProps": { "description": "Props to spread on the trigger element." },
-    "instantType": {
-      "description": "Determines if the tooltip is in an instant phase, and what type."
-    },
     "mounted": {
       "description": "Whether the tooltip is mounted, including CSS transitions or animations."
     },
-    "setPopupEl": { "description": "Sets the tooltip content element." },
-    "setTriggerEl": { "description": "Sets the trigger element." },
     "side": { "description": "The rendered side of the tooltip element." }
   }
 }

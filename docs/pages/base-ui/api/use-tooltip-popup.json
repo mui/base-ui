@@ -1,13 +1,12 @@
 {
   "parameters": {
-    "onOpenChange": {
+    "getRootPopupProps": {
       "type": {
-        "name": "(isOpen: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void",
-        "description": "(isOpen: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void"
+        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
+        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
       },
       "required": true
     },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "alignment": {
       "type": {
         "name": "&#39;start&#39; | &#39;end&#39; | &#39;center&#39;",
@@ -38,8 +37,8 @@
     },
     "followCursorAxis": {
       "type": {
-        "name": "&#39;none&#39; | &#39;both&#39; | &#39;x&#39; | &#39;y&#39;",
-        "description": "&#39;none&#39; | &#39;both&#39; | &#39;x&#39; | &#39;y&#39;"
+        "name": "&#39;both&#39; | &#39;none&#39; | &#39;x&#39; | &#39;y&#39;",
+        "description": "&#39;both&#39; | &#39;none&#39; | &#39;x&#39; | &#39;y&#39;"
       },
       "default": "'none'"
     },
@@ -47,8 +46,18 @@
       "type": { "name": "boolean", "description": "boolean" },
       "default": "false"
     },
-    "hoverable": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
+    "instant": { "type": { "name": "boolean", "description": "boolean" } },
     "keepMounted": { "type": { "name": "boolean", "description": "boolean" } },
+    "mounted": { "type": { "name": "boolean", "description": "boolean" } },
+    "rootContext": {
+      "type": { "name": "FloatingRootContext", "description": "FloatingRootContext" }
+    },
+    "setMounted": {
+      "type": {
+        "name": "React.Dispatch&lt;React.SetStateAction&lt;boolean&gt;&gt;",
+        "description": "React.Dispatch&lt;React.SetStateAction&lt;boolean&gt;&gt;"
+      }
+    },
     "side": {
       "type": {
         "name": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;",
@@ -85,35 +94,7 @@
       },
       "required": true
     },
-    "getTriggerProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    },
-    "instantType": {
-      "type": {
-        "name": "&#39;delay&#39; | &#39;dismiss&#39; | &#39;focus&#39; | undefined",
-        "description": "&#39;delay&#39; | &#39;dismiss&#39; | &#39;focus&#39; | undefined"
-      },
-      "required": true
-    },
     "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "setPopupEl": {
-      "type": {
-        "name": "(value: HTMLElement | null) =&gt; void",
-        "description": "(value: HTMLElement | null) =&gt; void"
-      },
-      "required": true
-    },
-    "setTriggerEl": {
-      "type": {
-        "name": "(value: HTMLElement | null) =&gt; void",
-        "description": "(value: HTMLElement | null) =&gt; void"
-      },
-      "required": true
-    },
     "side": {
       "type": {
         "name": "&#39;top&#39; | &#39;right&#39; | &#39;bottom&#39; | &#39;left&#39;",

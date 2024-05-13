@@ -7,6 +7,14 @@
       "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
       "default": "'rest'"
     },
+    "followCursorAxis": {
+      "type": {
+        "name": "enum",
+        "description": "'both'<br>&#124;&nbsp;'none'<br>&#124;&nbsp;'x'<br>&#124;&nbsp;'y'"
+      },
+      "default": "'none'"
+    },
+    "hoverable": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } }
   },

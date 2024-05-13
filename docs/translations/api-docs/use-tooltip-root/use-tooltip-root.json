@@ -1,19 +1,45 @@
 {
   "hookDescription": "Manages the root state for a tooltip.",
   "parametersDescriptions": {
+    "closeDelay": {
+      "description": "The delay in milliseconds until the tooltip content is closed."
+    },
     "defaultOpen": {
       "description": "If <code>true</code>, the tooltip will be open by default. Use when uncontrolled."
+    },
+    "delay": { "description": "The delay in milliseconds until the tooltip content is opened." },
+    "delayType": {
+      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip content is opened. <code>hover</code> means the <code>delay</code> represents how long to wait once the user&#39;s cursor has entered the trigger."
+    },
+    "followCursorAxis": {
+      "description": "Determines which axis the tooltip should follow the cursor on."
+    },
+    "hoverable": {
+      "description": "Whether you can move from the trigger to the tooltip without it closing."
+    },
+    "keepMounted": {
+      "description": "If <code>true</code>, the tooltip will remain mounted in the DOM."
     },
     "onOpenChange": {
       "description": "Callback fired when the tooltip is requested to be opened or closed."
     },
     "open": {
       "description": "If <code>true</code>, the tooltip will be open. Use when controlled."
-    }
+    },
+    "popupEl": { "description": "The popup element. Store in state." },
+    "triggerEl": { "description": "The trigger element. Store in state." }
   },
   "returnValueDescriptions": {
+    "getRootPopupProps": {
+      "description": "Prop getter to spread root props on the popup element."
+    },
+    "getTriggerProps": { "description": "Prop getter to spread props on the trigger element." },
+    "instantType": {
+      "description": "The type of instant phase the tooltip is in to remove animations."
+    },
     "mounted": { "description": "If <code>true</code>, the tooltip is mounted." },
     "open": { "description": "If <code>true</code>, the tooltip is open." },
+    "rootContext": { "description": "The root context object." },
     "setMounted": { "description": "Sets the mounted state of the tooltip." },
     "setOpen": { "description": "Sets the open state of the tooltip." },
     "transitionStatus": { "description": "The transition status of the tooltip." }

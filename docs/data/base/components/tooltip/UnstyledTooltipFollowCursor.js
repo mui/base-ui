@@ -5,13 +5,11 @@ import { styled } from '@mui/system';
 export default function UnstyledTooltipFollowCursor() {
   return (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Tooltip.Root>
+      <Tooltip.Root followCursorAxis="both">
         <Tooltip.Trigger>
           <AnchorButton>Anchor</AnchorButton>
         </Tooltip.Trigger>
-        <TooltipPopup sideOffset={5} followCursorAxis="both">
-          Tooltip
-        </TooltipPopup>
+        <TooltipPopup sideOffset={5}>Tooltip</TooltipPopup>
       </Tooltip.Root>
     </div>
   );

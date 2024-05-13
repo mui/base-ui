@@ -28,7 +28,6 @@
       "default": "'none'"
     },
     "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
-    "hoverable": { "type": { "name": "bool" }, "default": "true" },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "side": {
