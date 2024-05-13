@@ -1,0 +1,18 @@
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "aria-label": { "description": "The label for the input element." },
+    "aria-valuetext": {
+      "description": "A string value that provides a user-friendly name for the current value of the slider."
+    },
+    "getAriaLabel": {
+      "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
+    },
+    "getAriaValueText": {
+      "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider. This is important for screen reader users."
+    }
+  },
+  "returnValueDescriptions": {
+    "getThumbStyle": { "description": "Resolver for the thumb slot&#39;s style prop." }
+  }
+}

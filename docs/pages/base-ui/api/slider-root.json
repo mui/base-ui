@@ -1,0 +1,63 @@
+{
+  "props": {
+    "aria-labelledby": { "type": { "name": "string" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultValue": {
+      "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
+    },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "disableSwap": { "type": { "name": "bool" }, "default": "false" },
+    "isRtl": { "type": { "name": "bool" }, "default": "false" },
+    "largeStep": { "type": { "name": "number" }, "default": "10" },
+    "marks": {
+      "type": {
+        "name": "union",
+        "description": "Array&lt;{ label?: node, value: number }&gt;<br>&#124;&nbsp;bool"
+      },
+      "default": "false"
+    },
+    "max": { "type": { "name": "number" }, "default": "100" },
+    "min": { "type": { "name": "number" }, "default": "0" },
+    "name": { "type": { "name": "string" } },
+    "onValueChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(value: number | Array<number>, activeThumb: number, event: Event) => void",
+        "describedArgs": ["value", "activeThumb", "event"]
+      }
+    },
+    "onValueCommitted": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(value: number | Array<number>, event: React.SyntheticEvent | Event) => void",
+        "describedArgs": ["value", "event"]
+      }
+    },
+    "orientation": {
+      "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
+      "default": "'horizontal'"
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "scale": {
+      "type": { "name": "func" },
+      "default": "function Identity(x) {\n  return x;\n}",
+      "signature": { "type": "function(x: any) => any", "describedArgs": [] }
+    },
+    "step": { "type": { "name": "number" }, "default": "1" },
+    "tabIndex": { "type": { "name": "number" } },
+    "value": {
+      "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
+    }
+  },
+  "name": "SliderRoot",
+  "imports": ["import * as Slider from '@base_ui/react/Slider';\nconst SliderRoot = Slider.Root;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SliderRoot",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Slider/Root/SliderRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/\">Slider</a></li></ul>",
+  "cssComponent": false
+}

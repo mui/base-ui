@@ -1,0 +1,51 @@
+{
+  "parameters": {
+    "aria-label": { "type": { "name": "string", "description": "string" } },
+    "aria-valuetext": { "type": { "name": "string", "description": "string" } },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" } },
+    "getAriaLabel": {
+      "type": {
+        "name": "(index: number) =&gt; string",
+        "description": "(index: number) =&gt; string"
+      }
+    },
+    "getAriaValueText": {
+      "type": {
+        "name": "(value: number, index: number) =&gt; string",
+        "description": "(value: number, index: number) =&gt; string"
+      }
+    },
+    "id": { "type": { "name": "string", "description": "string" } },
+    "rootRef": {
+      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
+    }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    },
+    "getThumbInputProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
+      },
+      "required": true
+    },
+    "getThumbStyle": {
+      "type": {
+        "name": "(index: number) =&gt; Record&lt;string, unknown&gt;",
+        "description": "(index: number) =&gt; Record&lt;string, unknown&gt;"
+      },
+      "required": true
+    },
+    "index": { "type": { "name": "number", "description": "number" }, "required": true }
+  },
+  "name": "useSliderThumb",
+  "filename": "/packages/mui-base/src/Slider/SliderThumb/useSliderThumb.ts",
+  "imports": ["import { useSliderThumb } from '@base_ui/react/Slider';"],
+  "demos": "<ul></ul>"
+}

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useTheme, alpha } from '@mui/system';
-import { Slider, sliderClasses } from '@base_ui/react/Slider';
+import { Slider, sliderClasses } from '@base_ui/react/v5_Slider';
 
-export default function UnstyledSliderIntroduction() {
+export default function App() {
   return (
-    <div style={{ width: 320 }}>
+    <div className="App">
       <Slider
         slotProps={{
           root: { className: 'CustomSlider' },
@@ -14,6 +14,7 @@ export default function UnstyledSliderIntroduction() {
         }}
         defaultValue={50}
       />
+
       <Slider
         slotProps={{
           root: { className: 'CustomSlider' },
@@ -23,6 +24,19 @@ export default function UnstyledSliderIntroduction() {
         }}
         defaultValue={30}
         disabled
+      />
+
+      <Slider
+        slotProps={{
+          root: { className: 'CustomSlider' },
+          rail: { className: 'CustomSlider-rail' },
+          track: { className: 'CustomSlider-track' },
+          thumb: { className: 'CustomSlider-thumb' },
+        }}
+        defaultValue={0.2}
+        min={-100}
+        max={100}
+        step={0.00000001}
       />
       <Styles />
     </div>
@@ -65,6 +79,13 @@ function Styles() {
   const isDarkMode = useIsDarkMode();
   return (
     <style>{`
+    .App {
+      width: 20rem;
+      display: flex;
+      flex-flow: column nowrap;
+      gap: 4rem;
+    }
+
     .CustomSlider {
       color: ${isDarkMode ? cyan[300] : cyan[500]};
       height: 4px;

@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useSliderTrack",
+  "filename": "/packages/mui-base/src/Slider/SliderTrack/useSliderTrack.ts",
+  "imports": ["import { useSliderTrack } from '@base_ui/react/Slider';"],
+  "demos": "<ul></ul>"
+}

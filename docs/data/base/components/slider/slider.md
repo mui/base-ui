@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Slider component and hook
-components: Slider
+components: Slider, SliderRoot, SliderOutput, SliderThumb, SliderTrack
 hooks: useSlider
 githubLabel: 'component: slider'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb/
@@ -27,7 +27,7 @@ Sliders are ideal for interface controls that benefit from a visual representati
 ## Component
 
 ```jsx
-import { Slider } from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/v5_Slider';
 ```
 
 ### Anatomy

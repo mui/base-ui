@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled, alpha, Box } from '@mui/system';
-import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
+import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/v5_Slider';
 
 export default function UnstyledSliderIntroduction() {
   return (

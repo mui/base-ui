@@ -1,39 +1,60 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import * as Slider from '@base_ui/react/Slider2';
-import { valueToPercent } from '@base_ui/react/Slider2/utils';
-import { useSliderContext } from '@base_ui/react/Slider2';
+import * as Slider from '@base_ui/react/Slider';
+import { useSliderContext } from '@base_ui/react/Slider';
 
-function TrackFillSingleThumb(props: any) {
-  const { value: values, min, max } = useSliderContext('Track');
-  const value = values[0];
-  const { style, ...otherProps } = props;
-  const percent = valueToPercent(value, min, max);
+const axisProps = {
+  horizontal: {
+    offset: (percent: number) => ({ left: `${percent}%` }),
+    leap: (percent: number) => ({ width: `${percent}%` }),
+  },
+  'horizontal-reverse': {
+    offset: (percent: number) => ({ right: `${percent}%` }),
+    leap: (percent: number) => ({ width: `${percent}%` }),
+  },
+  vertical: {
+    offset: (percent: number) => ({ bottom: `${percent}%` }),
+    leap: (percent: number) => ({ height: `${percent}%` }),
+  },
+};
+
+export function TrackFill(props: any) {
+  // does not support inverted range fill !!!
+  const { inverted = false, style, ...otherProps } = props;
+
+  const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext('TrackFill');
+
+  const isRange = percentageValues.length > 1;
+
+  let internalStyles;
+
+  if (isRange) {
+    const trackOffset = percentageValues[0];
+    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
+
+    internalStyles = {
+      ...axisProps[axis].offset(trackOffset),
+      ...axisProps[axis].leap(trackLeap),
+    };
+  } else if (orientation === 'vertical') {
+    internalStyles = {
+      [inverted ? 'top' : 'bottom']: 0,
+      height: `${inverted ? 100 - percentageValues[0] : percentageValues[0]}%`,
+    };
+  } else {
+    internalStyles = {
+      width: `${inverted ? 100 - percentageValues[0] : percentageValues[0]}%`,
+      [(isRtl || inverted) && isRtl !== inverted ? 'right' : 'left']: 0,
+    };
+  }
 
   return (
     <span
+      data-disabled={disabled}
+      data-inverted={inverted}
       {...otherProps}
       style={{
-        width: `${percent}%`,
-        ...style,
-      }}
-    />
-  );
-}
-
-function TrackFillRange(props: any) {
-  const { axis, axisProps, min, max, value: values } = useSliderContext('Track');
-  const { style, ...otherProps } = props;
-
-  const trackOffset = valueToPercent(values[0], min, max);
-  const trackLeap = valueToPercent(values[values.length - 1], min, max) - trackOffset;
-
-  return (
-    <span
-      {...otherProps}
-      style={{
-        ...axisProps[axis].offset(trackOffset),
-        ...axisProps[axis].leap(trackLeap),
+        ...internalStyles,
         ...style,
       }}
     />
@@ -45,43 +66,44 @@ export default function App() {
   const [val2, setVal2] = React.useState([40, 60]);
   const [val3, setVal3] = React.useState([20, 40, 60, 80]);
   return (
-    <div className="SliderDemo" style={{ width: 320, padding: 16 }}>
+    <div className="App">
       <h3>Uncontrolled</h3>
       <Slider.Root className="MySlider" defaultValue={50}>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track" render={<span />}>
-          <TrackFillSingleThumb className="MySlider-track-fill" />
+        <Slider.Track className="MySlider-track">
+          <TrackFill className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="MySlider" defaultValue={30} disabled render={<span />}>
+      <Slider.Root className="MySlider" defaultValue={30} disabled>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFillSingleThumb className="MySlider-track-fill" />
+          <TrackFill className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="MySlider" defaultValue={[40, 60]} render={<span />}>
+      <Slider.Root className="MySlider" defaultValue={[40, 60]}>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFillRange className="MySlider-track-fill" />
+          <TrackFill className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="MySlider" defaultValue={[40, 60, 80]} render={<span />}>
+      <Slider.Root className="MySlider" defaultValue={[40, 60, 80]}>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
+          <TrackFill className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
           <Slider.Thumb className="MySlider-thumb three" />
         </Slider.Track>
       </Slider.Root>
 
-      <h3 style={{ marginTop: 32 }}>Controlled</h3>
+      <h3>Controlled</h3>
       <Slider.Root
         className="MySlider"
         value={val1}
@@ -90,8 +112,8 @@ export default function App() {
         }}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track" render={<span />}>
-          <TrackFillSingleThumb className="MySlider-track-fill" />
+        <Slider.Track className="MySlider-track">
+          <TrackFill className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb" />
         </Slider.Track>
       </Slider.Root>
@@ -104,8 +126,8 @@ export default function App() {
         }}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track" render={<span />}>
-          <TrackFillRange className="MySlider-track-fill" />
+        <Slider.Track className="MySlider-track">
+          <TrackFill className="MySlider-track-fill" />
           <Slider.Thumb className="MySlider-thumb" />
           <Slider.Thumb className="MySlider-thumb" />
         </Slider.Track>
@@ -119,7 +141,7 @@ export default function App() {
         }}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track" render={<span />}>
+        <Slider.Track className="MySlider-track">
           {val3.map((_val, idx) => (
             <Slider.Thumb key={`thumb-${idx}`} className="MySlider-thumb" />
           ))}
@@ -148,12 +170,18 @@ function useIsDarkMode() {
   return theme.palette.mode === 'dark';
 }
 
-function Styles() {
+export function Styles() {
   const isDarkMode = useIsDarkMode();
   return (
     <style>{`
-    .SliderDemo {
+    .App {
       font-family: system-ui, sans-serif;
+      width: 20rem;
+      padding: 1rem;
+    }
+
+    .App h3 {
+      margin-top: 4rem;
     }
 
     .MySlider {
@@ -165,6 +193,8 @@ function Styles() {
       display: grid;
       grid-auto-rows: 1.5rem auto;
       grid-gap: 1rem;
+
+      margin-bottom: 2rem;
     }
 
     .MySlider-output {
@@ -202,6 +232,10 @@ function Styles() {
       touch-action: none;
     }
 
+    .MySlider[dir=rtl] .MySlider-thumb {
+      transform: translateX(50%);
+    }
+
     .MySlider-thumb:focus-within {
       outline: 2px solid black;
       outline-offset: 2px;
@@ -216,6 +250,68 @@ function Styles() {
     }
 
     .MySlider[data-disabled] {
+      cursor: not-allowed;
+    }
+
+    .VerticalSlider {
+      height: 100%;
+      width: 5rem;
+      margin: 1rem 0;
+      align-items: center;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      flex-flow: column nowrap;
+
+      margin-bottom: 2rem;
+    }
+
+    .VerticalSlider-output {
+      margin-bottom: 1rem;
+      font-size: .875rem;
+    }
+
+    .VerticalSlider-track {
+      display: flex;
+      justify-content: center;
+      position: relative;
+      height: 20rem;
+      width: 2px;
+      border-radius: 9999px;
+      background-color: gainsboro;
+      touch-action: none;
+      box-sizing: border-box;
+    }
+
+    .VerticalSlider-track-fill {
+      position: absolute;
+      width: 100%;
+      border-radius: 9999px;
+      background-color: black;
+      box-sizing: border-box;
+    }
+
+    .VerticalSlider-thumb {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      box-sizing: border-box;
+      border-radius: 50%;
+      background-color: black;
+      touch-action: none;
+      transform: translateY(50%);
+    }
+
+    .VerticalSlider-thumb:focus-within {
+      outline: 2px solid black;
+      outline-offset: 2px;
+    }
+
+    .VerticalSlider-thumb[data-active] {
+      background-color: pink;
+    }
+
+    .VerticalSlider[data-disabled] {
       cursor: not-allowed;
     }
     `}</style>

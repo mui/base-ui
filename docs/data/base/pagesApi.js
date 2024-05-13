@@ -136,6 +136,22 @@ module.exports = [
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
   { pathname: '/base-ui/react-slider/components-api/#slider', title: 'Slider' },
   {
+    pathname: '/base-ui/react-slider/components-api/#slider-output',
+    title: 'SliderOutput',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-root',
+    title: 'SliderRoot',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-thumb',
+    title: 'SliderThumb',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-track',
+    title: 'SliderTrack',
+  },
+  {
     pathname: '/base-ui/react-snackbar/components-api/#snackbar',
     title: 'Snackbar',
   },

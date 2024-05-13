@@ -1,0 +1,66 @@
+'use client';
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { getStyleHookProps } from '../../utils/getStyleHookProps';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useSliderContext } from '../Root/SliderContext';
+import { SliderOutputProps } from './SliderOutput.types';
+import { useSliderOutput } from './useSliderOutput';
+
+function defaultRender(props: React.ComponentPropsWithRef<'output'>) {
+  return <output {...props} />;
+}
+
+const SliderOutput = React.forwardRef(function SliderOutput(
+  props: SliderOutputProps,
+  forwardedRef: React.ForwardedRef<HTMLOutputElement>,
+) {
+  const { render: renderProp, className, ...otherProps } = props;
+
+  const render = renderProp ?? defaultRender;
+
+  const { disabled, dragging, ownerState, values } = useSliderContext('Output');
+
+  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+
+  const { getRootProps } = useSliderOutput({
+    rootRef: mergedRef,
+  });
+
+  const styleHooks = React.useMemo(
+    () => getStyleHookProps({ disabled, dragging }),
+    [disabled, dragging],
+  );
+
+  const outputProps = getRootProps({
+    children: values.join(' – '),
+    ...styleHooks,
+    ...otherProps,
+    className: resolveClassName(className, ownerState),
+  });
+
+  return evaluateRenderProp(render, outputProps, ownerState);
+});
+
+SliderOutput.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+} as any;
+
+export { SliderOutput };

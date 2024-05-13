@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useSliderOutput",
+  "filename": "/packages/mui-base/src/Slider/SliderOutput/useSliderOutput.ts",
+  "imports": ["import { useSliderOutput } from '@base_ui/react/Slider';"],
+  "demos": "<ul></ul>"
+}

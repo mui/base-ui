@@ -87,12 +87,12 @@
     }
   },
   "name": "Slider",
-  "imports": ["import { Slider } from '@base_ui/react/Slider';"],
+  "imports": ["import { Slider } from '@base_ui/react/v5_Slider';"],
   "classes": [],
   "spread": true,
   "muiName": "Slider",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Slider/Slider.tsx",
+  "filename": "/packages/mui-base/src/v5_Slider/Slider.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

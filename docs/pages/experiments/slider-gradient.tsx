@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { alpha, hexToRgb, decomposeColor, recomposeColor, rgbToHex } from '@mui/system';
-import * as Slider from '@base_ui/react/Slider2';
-import { percentToValue, roundValueToStep } from '@base_ui/react/Slider2/utils';
+import * as Slider from '@base_ui/react/Slider';
+// eslint-disable-next-line no-restricted-imports
+import { percentToValue, roundValueToStep } from '@base_ui/react/Slider/utils';
+// eslint-disable-next-line no-restricted-imports
 import { clamp } from '@base_ui/react/utils/clamp';
+// eslint-disable-next-line no-restricted-imports
 import { BaseUIEvent } from '@base_ui/react/utils/BaseUI.types';
 
 type Stop = {
@@ -157,7 +160,6 @@ export default function App() {
         </Slider.Output>
         <Slider.Track
           className="MySlider-track"
-          render={<span />}
           ref={trackRef}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
