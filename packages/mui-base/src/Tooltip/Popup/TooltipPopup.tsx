@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type { TooltipPopupOwnerState, TooltipPopupProps } from './TooltipPopup.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { Portal } from '../../Portal';
@@ -45,7 +44,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     // determine the actual best value. It's up to the user to adjust this value if needed.
     arrowPadding = 3,
     hideWhenDetached = false,
-    hoverable = true,
     sticky = false,
     followCursorAxis = 'none',
     keepMounted = false,
@@ -56,20 +54,26 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   const {
     open,
-    setOpen,
     triggerEl,
-    setTriggerProps,
     delay,
     delayType,
     closeDelay,
     transitionStatus,
+    setPopupEl,
+    getRootPopupProps,
+    mounted,
+    setMounted,
+    rootContext,
+    instantType,
   } = useTooltipRootContext();
 
   const tooltip = useTooltipPopup({
     anchor: anchor || triggerEl,
+    rootContext,
+    mounted,
+    setMounted,
+    getRootPopupProps,
     keepMounted,
-    open,
-    onOpenChange: setOpen,
     side,
     sideOffset,
     alignment,
@@ -78,7 +82,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     collisionPadding,
     hideWhenDetached,
     sticky,
-    hoverable,
     followCursorAxis,
     delay,
     delayType,
@@ -86,21 +89,15 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     arrowPadding,
   });
 
-  const getTriggerProps = tooltip.getTriggerProps;
-
-  useEnhancedEffect(() => {
-    setTriggerProps(getTriggerProps());
-  }, [setTriggerProps, getTriggerProps]);
-
   const ownerState: TooltipPopupOwnerState = React.useMemo(
     () => ({
       open,
       status: transitionStatus,
+      instant: instantType,
       side: tooltip.side,
       alignment: tooltip.alignment,
-      instant: tooltip.instantType,
     }),
-    [open, transitionStatus, tooltip.side, tooltip.alignment, tooltip.instantType],
+    [open, transitionStatus, instantType, tooltip.side, tooltip.alignment],
   );
 
   const contextValue = React.useMemo(
@@ -121,8 +118,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     return null;
   }
 
-  const rootContentProps = tooltip.getPopupProps();
-
   // The content element needs to be a child of a wrapper floating element in order to avoid
   // conflicts with CSS transitions and the positioning transform.
   const popupProps = {
@@ -131,7 +126,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     ...styleHooks,
     ...otherProps,
     style: {
-      // <Tooltip.Arrow> must be relative to the content element.
+      // <Tooltip.Arrow> must be relative to the inner popup element.
       position: 'relative',
       ...otherProps.style,
     },
@@ -140,7 +135,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   return (
     <TooltipPopupContext.Provider value={contextValue}>
       <Portal container={container}>
-        <div role="presentation" ref={tooltip.setPopupEl} {...rootContentProps}>
+        <div role="presentation" ref={setPopupEl} {...tooltip.getPopupProps()}>
           {evaluateRenderProp(render, popupProps, ownerState)}
         </div>
       </Portal>
@@ -215,11 +210,6 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
-  /**
-   * If `true`, the tooltip content will be hoverable.
-   * @default true
-   */
-  hoverable: PropTypes.bool,
   /**
    * If `true`, the tooltip content will be kept mounted in the DOM.
    * @default false

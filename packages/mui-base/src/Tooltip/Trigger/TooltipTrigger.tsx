@@ -20,7 +20,7 @@ import { useTriggerStyleHooks } from './useStyleHooks';
 function TooltipTrigger(props: TooltipTriggerProps) {
   const { children } = props;
 
-  const { open, setTriggerEl, triggerProps } = useTooltipRootContext();
+  const { open, setTriggerEl, getTriggerProps } = useTooltipRootContext();
 
   const mergedRef = useRenderPropForkRef(children, setTriggerEl);
 
@@ -28,11 +28,10 @@ function TooltipTrigger(props: TooltipTriggerProps) {
 
   const styleHooks = useTriggerStyleHooks(ownerState);
 
-  const mergedTriggerProps = {
+  const mergedTriggerProps = getTriggerProps({
     ref: mergedRef,
-    ...triggerProps,
     ...styleHooks,
-  };
+  });
 
   if (typeof children === 'function') {
     return children(mergedTriggerProps);

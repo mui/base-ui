@@ -17,20 +17,35 @@ import { useTooltipRoot } from './useTooltipRoot';
  * - [TooltipRoot API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-root)
  */
 function TooltipRoot(props: TooltipRootProps) {
-  const { open, setOpen, mounted, setMounted, transitionStatus } = useTooltipRoot({
+  const {
+    delayType = 'rest',
+    delay = 200,
+    closeDelay = 0,
+    hoverable = true,
+    followCursorAxis = 'none',
+  } = props;
+
+  const [triggerEl, setTriggerEl] = React.useState<Element | null>(null);
+  const [popupEl, setPopupEl] = React.useState<HTMLElement | null>(null);
+
+  const {
+    open,
+    setOpen,
+    mounted,
+    setMounted,
+    transitionStatus,
+    instantType,
+    getTriggerProps,
+    getRootPopupProps,
+    rootContext,
+  } = useTooltipRoot({
+    popupEl,
+    triggerEl,
+    hoverable,
+    followCursorAxis,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
-  });
-
-  const { delay = 200, delayType = 'rest', closeDelay = 0 } = props;
-
-  const [triggerEl, setTriggerEl] = React.useState<Element | null>(null);
-  const [triggerProps, setTriggerProps] = React.useState<React.HTMLProps<Element>>({
-    // Anchor props are set only once hydration has occurred, so we provide initial values for SSR.
-    // Props that only make sense once hydration has occurred (indicating interactivity will work)
-    // are ignored.
-    ['data-state' as string]: 'closed',
   });
 
   const contextValue = React.useMemo(
@@ -41,12 +56,17 @@ function TooltipRoot(props: TooltipRootProps) {
       open,
       setOpen,
       triggerEl,
-      triggerProps,
       setTriggerEl,
-      setTriggerProps,
+      popupEl,
+      setPopupEl,
       mounted,
       setMounted,
       transitionStatus,
+      instantType,
+      getTriggerProps,
+      getRootPopupProps,
+      rootContext,
+      followCursorAxis,
     }),
     [
       delay,
@@ -55,10 +75,15 @@ function TooltipRoot(props: TooltipRootProps) {
       open,
       setOpen,
       triggerEl,
-      triggerProps,
+      popupEl,
       mounted,
       setMounted,
       transitionStatus,
+      instantType,
+      getTriggerProps,
+      getRootPopupProps,
+      rootContext,
+      followCursorAxis,
     ],
   );
 
@@ -97,6 +122,16 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    * @default 'rest'
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
+  /**
+   * Determines which axis the tooltip should follow the cursor on.
+   * @default 'none'
+   */
+  followCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
+  /**
+   * Whether you can move from the trigger to the tooltip without it closing.
+   * @default true
+   */
+  hoverable: PropTypes.bool,
   /**
    * Callback fired when the tooltip content is requested to be opened or closed. Use when
    * controlled.

@@ -1,4 +1,8 @@
-import type { OpenChangeReason } from '@floating-ui/react';
+import type {
+  FloatingRootContext,
+  OpenChangeReason,
+  UseInteractionsReturn,
+} from '@floating-ui/react';
 import type { TransitionStatus } from '../../useTransitionStatus';
 
 export interface TooltipRootContextValue {
@@ -6,14 +10,19 @@ export interface TooltipRootContextValue {
   setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
   triggerEl: Element | null;
   setTriggerEl: (el: Element | null) => void;
-  triggerProps: React.HTMLAttributes<Element>;
-  setTriggerProps: (props: React.HTMLProps<Element>) => void;
+  popupEl: HTMLElement | null;
+  setPopupEl: (el: HTMLElement | null) => void;
   delay: number;
   closeDelay: number;
   delayType: 'rest' | 'hover';
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  transitionStatus: TransitionStatus;
+  transitionStatus: TransitionStatus | undefined;
+  getTriggerProps: UseInteractionsReturn['getReferenceProps'];
+  getRootPopupProps: UseInteractionsReturn['getFloatingProps'];
+  instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+  rootContext: FloatingRootContext;
+  followCursorAxis: 'none' | 'x' | 'y' | 'both';
 }
 
 export interface TooltipRootProps {
@@ -48,4 +57,14 @@ export interface TooltipRootProps {
    * @default 'rest'
    */
   delayType?: 'rest' | 'hover';
+  /**
+   * Whether you can move from the trigger to the tooltip without it closing.
+   * @default true
+   */
+  hoverable?: boolean;
+  /**
+   * Determines which axis the tooltip should follow the cursor on.
+   * @default 'none'
+   */
+  followCursorAxis?: 'none' | 'x' | 'y' | 'both';
 }

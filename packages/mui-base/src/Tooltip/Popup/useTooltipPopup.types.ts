@@ -3,8 +3,8 @@ import type {
   FloatingContext,
   Boundary,
   Padding,
-  OpenChangeReason,
   VirtualElement,
+  FloatingRootContext,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
@@ -52,26 +52,37 @@ export interface TooltipPopupParameters {
    */
   sticky?: boolean;
   /**
-   * If `true`, the tooltip content will be hoverable.
-   * @default true
-   */
-  hoverable?: boolean;
-  /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis?: 'none' | 'both' | 'x' | 'y';
-  /**
    * Determines the padding between the arrow and the tooltip content. Useful when the tooltip
    * has rounded corners via `border-radius`.
    * @default 3
    */
   arrowPadding?: number;
+  /**
+   * Determines if the tooltip is in an instant phase.
+   */
+  instant?: boolean;
+  /**
+   * Determines if the tooltip is mounted.
+   */
+  mounted?: boolean;
+  /**
+   * Callback fired when the mounted state changes.
+   */
+  setMounted?: React.Dispatch<React.SetStateAction<boolean>>;
+  /**
+   * The tooltip root context.
+   */
+  rootContext?: FloatingRootContext;
+  /**
+   * Determines which axis the tooltip should follow the cursor on.
+   * @default 'none'
+   */
+  followCursorAxis?: 'both' | 'none' | 'x' | 'y';
 }
 
 export interface UseTooltipPopupParameters extends TooltipPopupParameters {
   /**
-   * The anchor element of the tooltip.
+   * The anchor element of the tooltip popup.
    */
   anchor?:
     | Element
@@ -83,14 +94,6 @@ export interface UseTooltipPopupParameters extends TooltipPopupParameters {
    * If `true`, the tooltip will be mounted, including CSS transitions or animations.
    */
   keepMounted?: boolean;
-  /**
-   * If `true`, the tooltip will be open.
-   */
-  open: boolean;
-  /**
-   * Callback fired when the tooltip is requested to be opened or closed.
-   */
-  onOpenChange: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   /**
    * The type of open delay.
    */
@@ -105,25 +108,17 @@ export interface UseTooltipPopupParameters extends TooltipPopupParameters {
    * @default 0
    */
   closeDelay?: number;
+  /**
+   * The props to spread on the tooltip popup element.
+   */
+  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
 export interface UseTooltipPopupReturnValue {
   /**
-   * Props to spread on the trigger element.
-   */
-  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
    * Props to spread on the tooltip content element.
    */
   getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
-   * Sets the trigger element.
-   */
-  setTriggerEl: (value: HTMLElement | null) => void;
-  /**
-   * Sets the tooltip content element.
-   */
-  setPopupEl: (value: HTMLElement | null) => void;
   /**
    * The ref of the arrow element.
    */
@@ -144,8 +139,4 @@ export interface UseTooltipPopupReturnValue {
    * Whether the tooltip is mounted, including CSS transitions or animations.
    */
   mounted: boolean;
-  /**
-   * Determines if the tooltip is in an instant phase, and what type.
-   */
-  instantType: 'delay' | 'dismiss' | 'focus' | undefined;
 }

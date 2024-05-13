@@ -7,13 +7,6 @@ import {
   shift,
   arrow,
   useFloating,
-  useHover,
-  useFocus,
-  useDismiss,
-  useClientPoint,
-  useInteractions,
-  safePolygon,
-  useDelayGroup,
   size,
   hide,
   type Placement,
@@ -27,9 +20,7 @@ import type {
   UseTooltipPopupReturnValue,
 } from './useTooltipPopup.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 /**
  * The basic building block for creating custom tooltips.
@@ -45,11 +36,6 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
 export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPopupReturnValue {
   const {
     anchor,
-    open,
-    onOpenChange,
-    delayType = 'rest',
-    delay = 200,
-    closeDelay = 0,
     side = 'top',
     sideOffset = 0,
     alignment = 'center',
@@ -57,16 +43,15 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     collisionBoundary,
     collisionPadding = 5,
     hideWhenDetached = false,
-    hoverable = true,
     sticky = false,
     keepMounted = false,
-    followCursorAxis = 'none',
     arrowPadding = 3,
+    mounted = true,
+    setMounted,
+    getRootPopupProps,
+    rootContext,
+    followCursorAxis = 'none',
   } = params;
-
-  const { mounted, setMounted } = useTooltipRootContext();
-
-  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
   // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's
@@ -168,35 +153,10 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     update,
     placement: renderedPlacement,
   } = useFloating({
+    rootContext,
     placement,
     middleware,
-    open,
     whileElementsMounted: keepMounted ? undefined : autoUpdate,
-    elements: anchor && isElement(anchor) ? { reference: anchor } : undefined,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      onOpenChange(openValue, eventValue, reasonValue);
-
-      const isFocusOpen = openValue && reasonValue === 'focus';
-      const isDismissClose =
-        !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
-
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else {
-        setInstantTypeState(undefined);
-      }
-
-      const popupElement = refs.floating.current?.firstElementChild;
-      if (!keepMounted && !openValue && popupElement) {
-        const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
-        const noTransitionDuration = ['', '0s'].includes(computedStyles.transitionDuration);
-        const noAnimationName = ['', 'none'].includes(computedStyles.animationName);
-        const noAnimation = noTransitionDuration && noAnimationName;
-        if (noAnimation) {
-          setMounted(false);
-        }
-      }
-    },
   });
 
   // The `anchor` prop is non-reactive.
@@ -220,57 +180,22 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     return undefined;
   }, [keepMounted, mounted, elements, update]);
 
-  const { delay: groupDelay, isInstantPhase } = useDelayGroup(context);
-
   const renderedSide = getSide(renderedPlacement);
   const renderedAlignment = getAlignment(renderedPlacement) || 'center';
   const isHidden = hideWhenDetached && middlewareData.hide?.referenceHidden;
-  // TODO: While in the instant phase, if the tooltip is closing and no other tooltip is opening,
-  // the `instantType` should be `undefined`. This ensures the close animation will play. This may
-  // need an internal fix in Floating UI.
-  const instantType = isInstantPhase ? 'delay' : instantTypeState;
-
-  const hover = useHover(context, {
-    mouseOnly: true,
-    move: false,
-    handleClose: hoverable && followCursorAxis !== 'both' ? safePolygon() : null,
-    restMs: delayType === 'rest' ? delay : undefined,
-    delay: groupDelay || {
-      open: delayType === 'hover' ? delay : 0,
-      close: closeDelay,
-    },
-  });
-  const focus = useFocus(context);
-  const dismiss = useDismiss(context, { referencePress: true });
-  const clientPoint = useClientPoint(context, {
-    enabled: followCursorAxis !== 'none',
-    axis: followCursorAxis === 'none' ? undefined : followCursorAxis,
-  });
-
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    hover,
-    focus,
-    dismiss,
-    clientPoint,
-  ]);
-
-  const getTriggerProps: UseTooltipPopupReturnValue['getTriggerProps'] = React.useCallback(
-    (externalProps = {}) => mergeReactProps(externalProps, getReferenceProps()),
-    [getReferenceProps],
-  );
 
   const getPopupProps: UseTooltipPopupReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
       function handleTransitionOrAnimationEnd({ target }: React.SyntheticEvent) {
         const popupElement = refs.floating.current?.firstElementChild;
-        if (target === popupElement) {
+        if (target === popupElement && setMounted) {
           setMounted((prevMounted) => (prevMounted ? false : prevMounted));
         }
       }
 
       return mergeReactProps(
         externalProps,
-        getFloatingProps({
+        getRootPopupProps({
           style: {
             ...floatingStyles,
             maxWidth: 'var(--available-width)',
@@ -284,32 +209,18 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
         }),
       );
     },
-    [getFloatingProps, floatingStyles, isHidden, followCursorAxis, setMounted, refs],
+    [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, setMounted, refs],
   );
 
   return React.useMemo(
     () => ({
       mounted,
-      getTriggerProps,
       getPopupProps,
       arrowRef,
-      setTriggerEl: refs.setReference,
-      setPopupEl: refs.setFloating,
       floatingContext: context,
       side: renderedSide,
       alignment: renderedAlignment,
-      instantType,
     }),
-    [
-      mounted,
-      getTriggerProps,
-      getPopupProps,
-      refs.setReference,
-      refs.setFloating,
-      context,
-      renderedSide,
-      renderedAlignment,
-      instantType,
-    ],
+    [mounted, getPopupProps, context, renderedSide, renderedAlignment],
   );
 }

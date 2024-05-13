@@ -1,9 +1,20 @@
 import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
-import type { OpenChangeReason } from '@floating-ui/react';
+import {
+  safePolygon,
+  useClientPoint,
+  useDelayGroup,
+  useDismiss,
+  useFloatingRootContext,
+  useFocus,
+  useHover,
+  useInteractions,
+  type OpenChangeReason,
+} from '@floating-ui/react';
 import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useTooltipRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../useTransitionStatus';
+import { ownerWindow } from '../../utils/owner';
 
 /**
  * Manages the root state for a tooltip.
@@ -19,9 +30,19 @@ import { useTransitionStatus } from '../../useTransitionStatus';
 export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRootReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: unstableOnOpenChange = () => {},
+    onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
+    keepMounted = false,
+    triggerEl = null,
+    popupEl = null,
+    hoverable = true,
+    followCursorAxis = 'none',
+    delayType = 'rest',
+    delay = 200,
+    closeDelay = 0,
   } = params;
+
+  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -30,7 +51,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     state: 'open',
   });
 
-  const onOpenChange = useEventCallback(unstableOnOpenChange);
+  const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const setOpen = React.useCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -42,6 +63,62 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const context = useFloatingRootContext({
+    elements: { reference: triggerEl, floating: popupEl },
+    open,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      const isFocusOpen = openValue && reasonValue === 'focus';
+      const isDismissClose =
+        !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
+
+      if (isFocusOpen || isDismissClose) {
+        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+      } else {
+        setInstantTypeState(undefined);
+      }
+
+      const popupElement = popupEl?.firstElementChild;
+      if (!keepMounted && !openValue && popupElement && setMounted) {
+        const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
+        const noTransitionDuration = ['', '0s'].includes(computedStyles.transitionDuration);
+        const noAnimationName = ['', 'none'].includes(computedStyles.animationName);
+        const noAnimation = noTransitionDuration && noAnimationName;
+        if (noAnimation) {
+          setMounted(false);
+        }
+      }
+
+      setOpen(openValue, eventValue, reasonValue);
+    },
+  });
+
+  const { delay: groupDelay, isInstantPhase } = useDelayGroup(context);
+
+  // TODO: While in the instant phase, if the tooltip is closing and no other tooltip is opening,
+  // the `instantType` should be `undefined`. This ensures the close animation will play. This may
+  // need an internal fix in Floating UI.
+  const instantType = isInstantPhase ? 'delay' : instantTypeState;
+
+  const hover = useHover(context, {
+    mouseOnly: true,
+    move: false,
+    handleClose: hoverable && followCursorAxis !== 'both' ? safePolygon() : null,
+    restMs: delayType === 'rest' ? delay : undefined,
+    delay: groupDelay || {
+      open: delayType === 'hover' ? delay : 0,
+      close: closeDelay,
+    },
+  });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context, { referencePress: true });
+  const clientPoint = useClientPoint(context, {
+    enabled: followCursorAxis !== 'none',
+    axis: followCursorAxis === 'none' ? undefined : followCursorAxis,
+  });
+
+  const { getReferenceProps: getTriggerProps, getFloatingProps: getRootPopupProps } =
+    useInteractions([hover, focus, dismiss, clientPoint]);
+
   return React.useMemo(
     () => ({
       open,
@@ -49,7 +126,21 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       mounted,
       setMounted,
       transitionStatus,
+      getTriggerProps,
+      getRootPopupProps,
+      rootContext: context,
+      instantType,
     }),
-    [mounted, open, setMounted, setOpen, transitionStatus],
+    [
+      mounted,
+      open,
+      setMounted,
+      setOpen,
+      transitionStatus,
+      getTriggerProps,
+      getRootPopupProps,
+      context,
+      instantType,
+    ],
   );
 }

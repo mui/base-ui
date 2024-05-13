@@ -15,7 +15,7 @@ export type TooltipPopupOwnerState = {
   open: boolean;
   side: Side;
   alignment: 'start' | 'end' | 'center';
-  status: TransitionStatus;
+  status: TransitionStatus | undefined;
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
 };
 
