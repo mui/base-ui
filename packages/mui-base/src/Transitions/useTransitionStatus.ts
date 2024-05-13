@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 
-export type OpenState = 'beforeOpen' | 'open' | 'closing' | 'closed';
+export type OpenState = 'open' | 'closed';
 
 /**
  * Provides a status string for CSS transitions and animations for conditionally-rendered
@@ -33,7 +33,7 @@ export function useTransitionStatus(
     }
 
     if (shouldOpen) {
-      setOpenState('beforeOpen');
+      setOpenState('closed');
       previouslyRendered.current = shouldOpen;
 
       const frame = requestAnimationFrame(() => {
@@ -46,7 +46,7 @@ export function useTransitionStatus(
     }
 
     if (previouslyRendered.current) {
-      setOpenState('closing');
+      setOpenState('closed');
     }
 
     previouslyRendered.current = shouldOpen;

@@ -44,27 +44,22 @@
 
 @keyframes dialog-opening {
   0% {
-    opacity: 0;
+    visibility: visible;
   }
+
   100% {
     opacity: 1;
   }
 }
 
 @keyframes dialog-closing {
-  0% {
-    opacity: 1;
-  }
   100% {
     opacity: 0;
+    visibility: hidden;
   }
 }
 
 @keyframes backdrop-opening {
-  0% {
-    backdrop-filter: blur(1px);
-    opacity: 0;
-  }
   100% {
     backdrop-filter: blur(6px);
     opacity: 1;
@@ -72,10 +67,6 @@
 }
 
 @keyframes backdrop-closing {
-  0% {
-    backdrop-filter: blur(6px);
-    opacity: 1;
-  }
   100% {
     backdrop-filter: blur(1px);
     opacity: 0;
@@ -91,30 +82,24 @@
   box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
   padding: 16px;
   z-index: 1;
-
-  &[data-state='closed'] {
-    display: none;
-  }
+  visibility: hidden;
+  opacity: 0;
 
   &.withTransitions {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transition: opacity 0.3s ease-in-out;
+    transition:
+      opacity 0.3s ease-in-out,
+      visibility 0.3s step-end;
 
     &[data-state='open'] {
-      display: initial;
+      visibility: visible;
       opacity: 1;
-    }
-
-    &[data-state='closing'] {
-      display: initial;
-      opacity: 0;
-    }
-
-    &[data-state='closed'] {
-      display: none;
+      transition:
+        opacity 0.3s ease-in-out,
+        visibility 0.3s step-start;
     }
   }
 
@@ -123,16 +108,12 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: none;
-    opacity: 0;
 
     &[data-state='open'] {
-      display: block;
       animation: dialog-opening 1s ease-out forwards;
     }
 
-    &[data-state='closing'] {
-      display: block;
+    &[data-state='closed'] {
       animation: dialog-closing 1s ease-in forwards;
     }
   }
@@ -161,36 +142,26 @@
   z-index: 0;
   backdrop-filter: blur(1px);
   opacity: 0;
+  visibility: hidden;
+  position: fixed;
+  inset: 0;
+  transition:
+    backdrop-filter 1s ease-in,
+    opacity 1s ease-in,
+    visibility 1s step-end;
 
   &.withTransitions {
-    position: fixed;
-    inset: 0;
-
     &[data-state='open'] {
       backdrop-filter: blur(6px);
       opacity: 1;
+      visibility: visible;
       transition:
         backdrop-filter 2s ease-out,
         opacity 0.3s ease-out;
     }
-
-    &[data-state='closing'] {
-      backdrop-filter: blur(1px);
-      opacity: 0;
-      transition:
-        backdrop-filter 1s ease-in,
-        opacity 0.8s ease-in;
-    }
-
-    &[data-state='closed'] {
-      display: none;
-    }
   }
 
   &.withAnimations {
-    position: fixed;
-    inset: 0;
-
     &[data-state='open'] {
       animation: backdrop-opening 1s ease-out forwards;
     }
