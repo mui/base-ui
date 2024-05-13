@@ -88,6 +88,7 @@
   "files": [
     "Checkbox/",
     "ClickAwayListener/",
+    "Dialog/",
     "FocusTrap/",
     "NoSsr/",
     "NumberField/",
@@ -107,6 +108,7 @@
     "index.d.ts",
     "node/Checkbox/",
     "node/ClickAwayListener/",
+    "node/Dialog/",
     "node/FocusTrap/",
     "node/NoSsr/",
     "node/NumberField/",
