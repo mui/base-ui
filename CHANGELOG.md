@@ -6,7 +6,7 @@ _May 13, 2024_
 
 A big thanks to the 4 contributors who made this release possible. Here are some highlights ✨:
 
-⭐ We overhauled the Tabs components' API and added a few exciting new features to them (#245)
+⭐ We overhauled the Tabs components' API and added a few exciting new features to them (#245).
 
 ### `@base_ui/react@1.0.0-alpha.1`
 
@@ -21,6 +21,7 @@ A big thanks to the 4 contributors who made this release possible. Here are some
 - Reference shared code from the Core monorepo (#326) @michaldudak
 - Remove or hide pages describing the old API (#323) @michaldudak
 - Prepare React 19 (#393) @oliviertassinari
+- Fix incorrect Tabs import instructions (#401) @michaldudak
 
 ## Core
 
