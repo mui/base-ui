@@ -106,4 +106,4 @@ TabsRoot.propTypes /* remove-proptypes */ = {
   value: PropTypes.any,
 } as any;
 
-export { TabsRoot as Tabs };
+export { TabsRoot };
