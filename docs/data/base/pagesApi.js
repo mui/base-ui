@@ -145,7 +145,6 @@ module.exports = [
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',
     title: 'useSnackbar',
   },
-  { pathname: '/base-ui/react-switch/hooks-api/#use-switch', title: 'useSwitch' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab', title: 'useTab' },
   {
     pathname: '/base-ui/react-tabs/hooks-api/#use-tab-indicator',

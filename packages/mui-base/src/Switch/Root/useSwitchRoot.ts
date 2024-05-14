@@ -9,13 +9,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 /**
  * The basic building block for creating custom switches.
  *
- * Demos:
- *
- * - [Switch](https://mui.com/base-ui/react-switch/#hook)
- *
  * API:
  *
- * - [useSwitch API](https://mui.com/base-ui/react-switch/hooks-api/#use-switch)
+ * - [useSwitchRoot API](https://mui.com/base-ui/api/use-switch-root/)
  */
 export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootReturnValue {
   const {

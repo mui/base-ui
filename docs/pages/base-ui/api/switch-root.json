@@ -24,7 +24,7 @@
   "themeDefaultProps": true,
   "muiName": "SwitchRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Switch/SwitchRoot.tsx",
+  "filename": "/packages/mui-base/src/Switch/Root/SwitchRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-switch/\">Switch</a></li></ul>",
   "cssComponent": false
