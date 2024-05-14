@@ -2,6 +2,7 @@ import * as React from 'react';
 import { type FloatingContext } from '@floating-ui/react';
 import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
 import { OpenState } from '../../Transitions';
+import { DialogType, SoftCloseOptions } from '../Root/DialogRoot.types';
 
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupOwnerState> {
   /**
@@ -39,14 +40,17 @@ export interface UseDialogPopupParameters {
    * It is kept in the DOM until the animation completes.
    */
   animated: boolean;
+  modal: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  titleElementId: string | undefined;
+  descriptionElementId: string | undefined;
+  setPopupElementId: (id: string | undefined) => void;
+  type: DialogType;
+  softClose: SoftCloseOptions;
 }
 
 export interface UseDialogPopupReturnValue {
-  /**
-   *
-   */
-  open: boolean;
-  modal: boolean;
   mounted: boolean;
   getRootProps: (
     otherProps: React.ComponentPropsWithRef<'div'>,

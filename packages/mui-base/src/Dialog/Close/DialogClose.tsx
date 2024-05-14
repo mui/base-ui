@@ -4,13 +4,15 @@ import { DialogCloseProps } from './DialogClose.types';
 import { useDialogClose } from './useDialogClose';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogCloseProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { getRootProps, open, modal } = useDialogClose();
+  const { open, onOpenChange, modal } = useDialogRootContext();
+  const { getRootProps } = useDialogClose({ open, onOpenChange });
 
   const ownerState = {
     open,

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useFloating, useInteractions, useDismiss } from '@floating-ui/react';
-import { useDialogRootContext } from '../Root/DialogRootContext';
 import { UseDialogPopupParameters, UseDialogPopupReturnValue } from './DialogPopup.types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
@@ -17,18 +16,19 @@ import { OpenState, useTransitionedElement } from '../../Transitions';
  * - [useDialogPopup API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-popup)
  */
 export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogPopupReturnValue {
-  const { id: idParam, ref, animated } = parameters;
-
   const {
-    open,
-    modal,
-    titleElementId,
+    animated,
     descriptionElementId,
-    setPopupElementId,
-    type,
+    id: idParam,
+    modal,
     onOpenChange,
+    open,
+    ref,
+    setPopupElementId,
     softClose,
-  } = useDialogRootContext();
+    titleElementId,
+    type,
+  } = parameters;
 
   const { refs, context } = useFloating({
     open,
@@ -52,9 +52,9 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   } = useTransitionedElement({ isRendered: open, enabled: animated });
 
   React.useEffect(() => {
-    setPopupElementId(id ?? null);
+    setPopupElementId(id);
     return () => {
-      setPopupElementId(null);
+      setPopupElementId(undefined);
     };
   }, [id, setPopupElementId]);
 
@@ -75,11 +75,9 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     );
 
   return {
-    open, // determines if the popup was requested to open/close
-    openState: openState as OpenState, // the actual current state
-    mounted,
-    getRootProps,
     floatingUIContext: context,
-    modal,
+    getRootProps,
+    mounted,
+    openState: openState as OpenState, // the actual current state
   };
 }

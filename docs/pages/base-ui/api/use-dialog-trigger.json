@@ -1,5 +1,15 @@
 {
-  "parameters": {},
+  "parameters": {
+    "onOpenChange": {
+      "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "popupElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    }
+  },
   "returnValue": {
     "getRootProps": {
       "type": {
@@ -7,9 +17,7 @@
         "description": "(otherProps?: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;"
       },
       "required": true
-    },
-    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+    }
   },
   "name": "useDialogTrigger",
   "filename": "/packages/mui-base/src/Dialog/Trigger/useDialogTrigger.ts",

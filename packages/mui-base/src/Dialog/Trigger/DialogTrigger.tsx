@@ -2,11 +2,19 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogTrigger } from './useDialogTrigger';
 import type { DialogTriggerProps } from './DialogTrigger.types';
+import { useDialogRootContext } from '../Root/DialogRootContext';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 
 function DialogTrigger(props: DialogTriggerProps) {
   const { children } = props;
-  const { getRootProps, open, modal } = useDialogTrigger();
+  const { open, onOpenChange, modal, popupElementId } = useDialogRootContext();
+
+  const { getRootProps } = useDialogTrigger({
+    open,
+    onOpenChange,
+    popupElementId,
+  });
+
   const styleHooks = React.useMemo(
     () =>
       getStyleHookProps(

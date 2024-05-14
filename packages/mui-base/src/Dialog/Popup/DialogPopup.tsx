@@ -5,17 +5,21 @@ import { DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, id: idProp, animated = false, ...other } = props;
+  const rootContext = useDialogRootContext();
+  const { open, modal } = rootContext;
 
-  const { getRootProps, open, floatingUIContext, modal, mounted, openState } = useDialogPopup({
+  const { getRootProps, floatingUIContext, mounted, openState } = useDialogPopup({
     id: idProp,
     animated,
     ref: forwardedRef,
+    ...rootContext,
   });
 
   const ownerState = {

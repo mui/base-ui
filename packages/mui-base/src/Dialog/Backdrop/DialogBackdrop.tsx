@@ -4,13 +4,15 @@ import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBack
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useDialogBackdrop } from './useDialogBackdrop';
+import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, animated = false, keepMounted = false, ...other } = props;
-  const { getRootProps, open, openState, mounted, modal } = useDialogBackdrop({ animated });
+  const { open, modal } = useDialogRootContext();
+  const { getRootProps, openState, mounted } = useDialogBackdrop({ animated, open });
 
   const ownerState: DialogBackdropOwnerState = React.useMemo(
     () => ({ open, modal, openState }),

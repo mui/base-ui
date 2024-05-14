@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { useDialogRootContext } from '../Root/DialogRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UseDialogTriggerReturnValue } from './DialogTrigger.types';
+import type {
+  UseDialogTriggerParameters,
+  UseDialogTriggerReturnValue,
+} from './DialogTrigger.types';
 /**
  *
  * Demos:
@@ -12,9 +14,8 @@ import type { UseDialogTriggerReturnValue } from './DialogTrigger.types';
  *
  * - [useDialogTrigger API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-trigger)
  */
-export function useDialogTrigger(): UseDialogTriggerReturnValue {
-  const { open, onOpenChange, modal, popupElementId } = useDialogRootContext();
-
+export function useDialogTrigger(params: UseDialogTriggerParameters): UseDialogTriggerReturnValue {
+  const { open, onOpenChange, popupElementId } = params;
   const handleClick = React.useCallback(() => {
     if (!open) {
       onOpenChange?.(true);
@@ -33,7 +34,5 @@ export function useDialogTrigger(): UseDialogTriggerReturnValue {
 
   return {
     getRootProps,
-    open,
-    modal,
   };
 }

@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { useDialogRootContext } from '../Root/DialogRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UseDialogCloseReturnValue } from './DialogClose.types';
+import type { UseDialogCloseParameters, UseDialogCloseReturnValue } from './DialogClose.types';
 /**
  *
  * Demos:
@@ -12,9 +11,8 @@ import type { UseDialogCloseReturnValue } from './DialogClose.types';
  *
  * - [useDialogClose API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-close)
  */
-export function useDialogClose(): UseDialogCloseReturnValue {
-  const { open, onOpenChange, modal } = useDialogRootContext();
-
+export function useDialogClose(params: UseDialogCloseParameters): UseDialogCloseReturnValue {
+  const { open, onOpenChange } = params;
   const handleClick = React.useCallback(() => {
     if (open) {
       onOpenChange?.(false);
@@ -26,7 +24,5 @@ export function useDialogClose(): UseDialogCloseReturnValue {
 
   return {
     getRootProps,
-    open,
-    modal,
   };
 }

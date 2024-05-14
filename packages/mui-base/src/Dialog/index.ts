@@ -9,16 +9,14 @@ export { useDialogClose } from './Close/useDialogClose';
 export type {
   DialogCloseProps as CloseProps,
   DialogCloseOwnerState as CloseOwnerState,
+  UseDialogCloseParameters,
   UseDialogCloseReturnValue,
 } from './Close/DialogClose.types';
 
 export { DialogDescription as Description } from './Description/DialogDescription';
-export { useDialogDescription } from './Description/useDialogDescription';
 export type {
   DialogDescriptionProps as DescriptionProps,
   DialogDescriptionOwnerState as DescriptionOwnerState,
-  UseDialogDescriptionParameters,
-  UseDialogDescriptionReturnValue,
 } from './Description/DialogDescription.types';
 
 export { DialogPopup as Popup } from './Popup/DialogPopup';
@@ -39,17 +37,15 @@ export type {
 } from './Root/DialogRoot.types';
 
 export { DialogTitle as Title } from './Title/DialogTitle';
-export { useDialogTitle } from './Title/useDialogTitle';
 export type {
   DialogTitleProps as TitleProps,
   DialogTitleOwnerState as TitleOwnerState,
-  UseDialogTitleParameters,
-  UseDialogTitleReturnValue,
 } from './Title/DialogTitle.types';
 
 export { DialogTrigger as Trigger } from './Trigger/DialogTrigger';
 export { useDialogTrigger } from './Trigger/useDialogTrigger';
 export type {
   DialogTriggerProps as TriggerProps,
+  UseDialogTriggerParameters,
   UseDialogTriggerReturnValue,
 } from './Trigger/DialogTrigger.types';

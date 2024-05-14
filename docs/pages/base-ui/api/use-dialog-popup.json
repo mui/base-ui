@@ -1,6 +1,16 @@
 {
   "parameters": {
     "animated": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "descriptionElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    },
+    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "onOpenChange": {
+      "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "ref": {
       "type": {
         "name": "React.Ref&lt;HTMLElement&gt;",
@@ -8,6 +18,22 @@
       },
       "required": true
     },
+    "setPopupElementId": {
+      "type": {
+        "name": "(id: string | undefined) =&gt; void",
+        "description": "(id: string | undefined) =&gt; void"
+      },
+      "required": true
+    },
+    "softClose": {
+      "type": { "name": "SoftCloseOptions", "description": "SoftCloseOptions" },
+      "required": true
+    },
+    "titleElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    },
+    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true },
     "id": { "type": { "name": "string", "description": "string" } }
   },
   "returnValue": {
@@ -22,9 +48,7 @@
       },
       "required": true
     },
-    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "openState": { "type": { "name": "OpenState", "description": "OpenState" }, "required": true }
   },
   "name": "useDialogPopup",

@@ -38,24 +38,18 @@ export interface UseDialogRootParameters {
   softClose?: SoftCloseOptions;
 }
 
-export interface UseDialogRootReturnValue {
-  contextValue: DialogRootContextValue;
-  /**
-   * The open state of the dialog.
-   */
-  open: boolean;
-}
+export interface UseDialogRootReturnValue extends DialogRootContextValue {}
 
 export interface DialogRootContextValue {
   open: boolean;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange: (open: boolean) => void;
   modal: boolean;
   type: DialogType;
   softClose: SoftCloseOptions;
-  titleElementId: string | null;
-  setTitleElementId: (elementId: string | null) => void;
-  descriptionElementId: string | null;
-  setDescriptionElementId: (elementId: string | null) => void;
-  popupElementId: string | null;
-  setPopupElementId: (elementId: string | null) => void;
+  titleElementId: string | undefined;
+  setTitleElementId: (elementId: string | undefined) => void;
+  descriptionElementId: string | undefined;
+  setDescriptionElementId: (elementId: string | undefined) => void;
+  popupElementId: string | undefined;
+  setPopupElementId: (elementId: string | undefined) => void;
 }

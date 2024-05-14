@@ -1,9 +1,5 @@
 import * as React from 'react';
-import type {
-  UseDialogRootParameters,
-  UseDialogRootReturnValue,
-  DialogRootContextValue,
-} from './DialogRoot.types';
+import type { UseDialogRootParameters, UseDialogRootReturnValue } from './DialogRoot.types';
 import { useControlled } from '../../utils/useControlled';
 
 /**
@@ -32,9 +28,11 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     name: 'DialogRoot',
   });
 
-  const [titleElementId, setTitleElementId] = React.useState<string | null>(null);
-  const [descriptionElementId, setDescriptionElementId] = React.useState<string | null>(null);
-  const [popupElementId, setPopupElementId] = React.useState<string | null>(null);
+  const [titleElementId, setTitleElementId] = React.useState<string | undefined>(undefined);
+  const [descriptionElementId, setDescriptionElementId] = React.useState<string | undefined>(
+    undefined,
+  );
+  const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
 
   const handleOpenChange = React.useCallback(
     (shouldOpen: boolean) => {
@@ -56,7 +54,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     }, [modal, type]);
   }
 
-  const contextValue: DialogRootContextValue = React.useMemo(() => {
+  return React.useMemo(() => {
     return {
       modal,
       onOpenChange: handleOpenChange,
@@ -80,9 +78,4 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     popupElementId,
     softClose,
   ]);
-
-  return {
-    contextValue,
-    open,
-  };
 }

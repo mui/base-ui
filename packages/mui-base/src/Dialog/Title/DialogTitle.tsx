@@ -1,27 +1,33 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogTitle } from './useDialogTitle';
 import type { DialogTitleProps } from './DialogTitle.types';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitleProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id, ...other } = props;
+  const { setTitleElementId, open, modal } = useDialogRootContext();
 
-  const { getRootProps, open, modal } = useDialogTitle({ id });
   const ownerState = {
     open,
     modal,
   };
 
+  React.useEffect(() => {
+    setTitleElementId(id);
+    return () => {
+      setTitleElementId(undefined);
+    };
+  }, [id, setTitleElementId]);
+
   const { renderElement } = useBaseUIComponentRenderer({
     render: render ?? defaultRenderFunctions.h2,
     className,
     ownerState,
-    propGetter: getRootProps,
     ref: forwardedRef,
     extraProps: other,
   });

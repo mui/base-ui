@@ -13,11 +13,50 @@
     "type": { "type": { "name": "DialogType", "description": "DialogType" }, "default": "'dialog'" }
   },
   "returnValue": {
-    "contextValue": {
-      "type": { "name": "DialogRootContextValue", "description": "DialogRootContextValue" },
+    "descriptionElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "onOpenChange": {
+      "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "popupElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    },
+    "setDescriptionElementId": {
+      "type": {
+        "name": "(elementId: string | undefined) =&gt; void",
+        "description": "(elementId: string | undefined) =&gt; void"
+      },
+      "required": true
+    },
+    "setPopupElementId": {
+      "type": {
+        "name": "(elementId: string | undefined) =&gt; void",
+        "description": "(elementId: string | undefined) =&gt; void"
+      },
+      "required": true
+    },
+    "setTitleElementId": {
+      "type": {
+        "name": "(elementId: string | undefined) =&gt; void",
+        "description": "(elementId: string | undefined) =&gt; void"
+      },
+      "required": true
+    },
+    "softClose": {
+      "type": { "name": "SoftCloseOptions", "description": "SoftCloseOptions" },
+      "required": true
+    },
+    "titleElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    },
+    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true }
   },
   "name": "useDialogRoot",
   "filename": "/packages/mui-base/src/Dialog/Root/useDialogRoot.ts",

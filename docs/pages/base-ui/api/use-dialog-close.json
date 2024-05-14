@@ -1,5 +1,11 @@
 {
-  "parameters": {},
+  "parameters": {
+    "onOpenChange": {
+      "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+  },
   "returnValue": {
     "getRootProps": {
       "type": {
@@ -7,9 +13,7 @@
         "description": "(otherProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;"
       },
       "required": true
-    },
-    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+    }
   },
   "name": "useDialogClose",
   "filename": "/packages/mui-base/src/Dialog/Close/useDialogClose.ts",

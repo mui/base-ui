@@ -16,5 +16,5 @@
       "description": "The type of the dialog - either &#39;dialog&#39; or &#39;alertdialog&#39;."
     }
   },
-  "returnValueDescriptions": { "open": { "description": "The open state of the dialog." } }
+  "returnValueDescriptions": {}
 }

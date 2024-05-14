@@ -15,7 +15,7 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     type = 'dialog',
   } = props;
 
-  const { contextValue } = useDialogRoot({
+  const contextValue = useDialogRoot({
     open: openProp,
     defaultOpen,
     onOpenChange,
@@ -43,6 +43,7 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * Determines whether the dialog is modal.
+   * @default true
    */
   modal: PropTypes.bool,
   /**
