@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act } from '@mui/internal-test-utils';
 import * as Switch from '@base_ui/react/Switch';
-import { describeConformance } from '../../test/describeConformance';
+import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();

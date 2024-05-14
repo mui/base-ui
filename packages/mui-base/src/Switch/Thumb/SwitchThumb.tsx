@@ -1,18 +1,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { ThumbProps } from './Switch.types';
-import { SwitchContext } from './SwitchContext';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useSwitchStyleHooks } from './useSwitchStyleHooks';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import { SwitchThumbProps } from './SwitchThumb.types';
+import { SwitchContext } from '../Root/SwitchContext';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useSwitchStyleHooks } from '../Root/useSwitchStyleHooks';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
 }
 
 const SwitchThumb = React.forwardRef(function SwitchThumb(
-  props: ThumbProps,
+  props: SwitchThumbProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className: classNameProp, ...other } = props;

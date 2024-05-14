@@ -2,13 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import refType from '@mui/utils/refType';
-import { useSwitch } from '../useSwitch';
-import type { RootProps, OwnerState } from './Switch.types';
-import { resolveClassName } from '../utils/resolveClassName';
+import { useSwitchRoot } from './useSwitchRoot';
+import type { SwitchRootProps, SwitchOwnerState } from './SwitchRoot.types';
+import { resolveClassName } from '../../utils/resolveClassName';
 import { SwitchContext } from './SwitchContext';
 import { useSwitchStyleHooks } from './useSwitchStyleHooks';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
@@ -26,7 +26,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  * - [Switch API](https://mui.com/base-ui/react-switch/components-api/#switch)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
-  props: RootProps,
+  props: SwitchRootProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -43,9 +43,9 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const { getInputProps, getButtonProps, checked } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
-  const ownerState: OwnerState = React.useMemo(
+  const ownerState: SwitchOwnerState = React.useMemo(
     () => ({
       checked,
       disabled,

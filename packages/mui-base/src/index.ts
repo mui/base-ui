@@ -22,15 +22,8 @@ export {
   type ScrubAreaCursorProps as NumberFieldScrubAreaCursorProps,
   type OwnerState as NumberFieldOwnerState,
 } from './NumberField';
-export {
-  Root as SwitchRoot,
-  Thumb as SwitchThumb,
-  type RootProps as SwitchRootProps,
-  type ThumbProps as SwitchThumbProps,
-  type OwnerState as SwitchOwnerState,
-} from './Switch';
+export * from './Switch/index.barrel';
 export * from './Tabs/index.barrel';
 
 export * from './useCheckbox';
 export * from './useNumberField';
-export * from './useSwitch';

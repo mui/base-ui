@@ -1,6 +1,19 @@
-import * as React from 'react';
+import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
-export interface UseSwitchParameters {
+export type SwitchOwnerState = {
+  checked: boolean;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+};
+
+export interface SwitchRootProps
+  extends UseSwitchRootParameters,
+    Omit<BaseUIComponentProps<'button', SwitchOwnerState>, 'onChange'> {}
+
+export type SwitchContextValue = SwitchOwnerState;
+
+export interface UseSwitchRootParameters {
   /**
    * If `true`, the switch is checked.
    */
@@ -45,47 +58,7 @@ export interface UseSwitchParameters {
    */
   required?: boolean;
 }
-
-interface UseSwitchInputElementOwnProps {
-  checked: boolean;
-  disabled?: boolean;
-  name?: string;
-  required?: boolean;
-  style: React.CSSProperties;
-  type: 'checkbox';
-  'aria-hidden': React.AriaAttributes['aria-hidden'];
-  ref: React.RefCallback<HTMLInputElement> | null;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
-}
-
-/**
- * Props that are received by the input element of the Switch.
- */
-export type UseSwitchInputElementProps<TOther = {}> = Omit<
-  TOther,
-  keyof UseSwitchInputElementOwnProps
-> &
-  UseSwitchInputElementOwnProps;
-
-interface UseSwitchButtonElementOwnProps {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  type: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
-  role: React.AriaRole;
-  'aria-disabled': React.AriaAttributes['aria-disabled'];
-  'aria-checked': React.AriaAttributes['aria-checked'];
-  'aria-readonly': React.AriaAttributes['aria-readonly'];
-}
-
-/**
- * Props that are received by the button element of the Switch.
- */
-export type UseSwitchButtonElementProps<TOther = {}> = Omit<
-  TOther,
-  keyof UseSwitchButtonElementOwnProps
-> &
-  UseSwitchButtonElementOwnProps;
-
-export interface UseSwitchReturnValue {
+export interface UseSwitchRootReturnValue {
   /**
    * If `true`, the component will be checked.
    */

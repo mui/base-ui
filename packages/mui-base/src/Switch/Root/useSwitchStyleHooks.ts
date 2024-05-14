@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { OwnerState } from './Switch.types';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
+import { SwitchOwnerState } from './SwitchRoot.types';
+import { getStyleHookProps } from '../../utils/getStyleHookProps';
 
 /**
  * @ignore - internal hook.
  */
-export function useSwitchStyleHooks(ownerState: OwnerState) {
+export function useSwitchStyleHooks(ownerState: SwitchOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       checked: (value) => ({ 'data-state': value ? 'checked' : 'unchecked' }),

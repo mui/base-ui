@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '../utils/useControlled';
-import { UseSwitchParameters, UseSwitchReturnValue } from './useSwitch.types';
-import { useForkRef } from '../utils/useForkRef';
-import { visuallyHidden } from '../utils/visuallyHidden';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { useControlled } from '../../utils/useControlled';
+import type { UseSwitchRootParameters, UseSwitchRootReturnValue } from './SwitchRoot.types';
+import { useForkRef } from '../../utils/useForkRef';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * The basic building block for creating custom switches.
@@ -17,7 +17,7 @@ import { mergeReactProps } from '../utils/mergeReactProps';
  *
  * - [useSwitch API](https://mui.com/base-ui/react-switch/hooks-api/#use-switch)
  */
-export function useSwitch(params: UseSwitchParameters): UseSwitchReturnValue {
+export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootReturnValue {
   const {
     checked: checkedProp,
     defaultChecked,
