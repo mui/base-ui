@@ -2,6 +2,13 @@ import path from 'path';
 
 const repositoryRoot = path.resolve(__dirname, '../../..');
 
+// components which names do not start with directory name
+const componentExportExceptions: Record<string, string> = {
+  Tab: 'Tab',
+  TabIndicator: 'Indicator',
+  TabPanel: 'Panel',
+};
+
 export function getComponentImports(name: string, filename: string) {
   const relativePath = path.relative(repositoryRoot, filename);
   const directories = path.dirname(relativePath).split(path.sep);
@@ -16,6 +23,12 @@ export function getComponentImports(name: string, filename: string) {
   const componentDirectory = directories[3];
   if (componentDirectory === name) {
     return [`import { ${name} } from '@base_ui/react/${name}';`];
+  }
+
+  if (Object.keys(componentExportExceptions).includes(name)) {
+    return [
+      `import * as ${componentDirectory} from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${componentExportExceptions[name]};`,
+    ];
   }
 
   if (name.startsWith(componentDirectory) && !name.startsWith('use')) {

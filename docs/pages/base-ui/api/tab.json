@@ -5,7 +5,7 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "Tab",
-  "imports": ["import { Tab } from '@base_ui/react/Tabs';"],
+  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst Tab = Tabs.Tab;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
