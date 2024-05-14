@@ -1,5 +1,7 @@
 'use client';
 export { SwitchRoot } from './Root/SwitchRoot';
+export { useSwitchRoot } from './Root/useSwitchRoot';
+export { SwitchContext } from './Root/SwitchContext';
 export type {
   SwitchRootProps,
   SwitchOwnerState,
