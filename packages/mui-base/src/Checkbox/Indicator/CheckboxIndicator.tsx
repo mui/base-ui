@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { IndicatorProps } from './Checkbox.types';
-import { CheckboxContext } from './CheckboxContext';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useCheckboxStyleHooks } from './utils';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { CheckboxIndicatorProps } from './CheckboxIndicator.types';
+import { CheckboxContext } from '../Root/CheckboxContext';
+import { useCheckboxStyleHooks } from '../utils';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -23,7 +23,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [CheckboxIndicator API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-indicator)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
-  props: IndicatorProps,
+  props: CheckboxIndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className, keepMounted = false, ...otherProps } = props;

@@ -1,16 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { OwnerState, RootProps } from './Checkbox.types';
-import { resolveClassName } from '../utils/resolveClassName';
 import { CheckboxContext } from './CheckboxContext';
-import { useCheckbox } from '../useCheckbox';
-import { useCheckboxStyleHooks } from './utils';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
-
-function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
-  return <button type="button" {...props} />;
-}
+import type { CheckboxOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useCheckboxRoot } from './useCheckboxRoot';
+import { useCheckboxStyleHooks } from '../utils';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -24,7 +21,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  * - [Checkbox API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox)
  */
 const CheckboxRoot = React.forwardRef(function CheckboxRoot(
-  props: RootProps,
+  props: CheckboxRootProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -40,11 +37,11 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     className,
     ...otherProps
   } = props;
-  const render = renderProp ?? defaultRender;
+  const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { checked, getInputProps, getButtonProps } = useCheckbox(props);
+  const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
 
-  const ownerState: OwnerState = React.useMemo(
+  const ownerState: CheckboxOwnerState = React.useMemo(
     () => ({
       checked,
       disabled,
@@ -80,6 +77,12 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * If `true`, the checkbox is focused on mount.
+   *
+   * @default false
+   */
+  autoFocus: PropTypes.bool,
+  /**
    * If `true`, the component is checked.
    *
    * @default undefined
@@ -111,6 +114,15 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   indeterminate: PropTypes.bool,
+  /**
+   * The ref to the input element.
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
   /**
    * Name of the underlying input element.
    *

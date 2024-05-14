@@ -1,10 +1,4 @@
-export {
-  Root as CheckboxRoot,
-  Indicator as CheckboxIndicator,
-  type RootProps as CheckboxRootProps,
-  type IndicatorProps as CheckboxIndicatorProps,
-  type OwnerState as CheckboxOwnerState,
-} from './Checkbox';
+export * from './Checkbox/index.barrel';
 export {
   Root as NumberFieldRoot,
   Group as NumberFieldGroup,
@@ -25,5 +19,4 @@ export {
 export * from './Switch/index.barrel';
 export * from './Tabs/index.barrel';
 
-export * from './useCheckbox';
 export * from './useNumberField';

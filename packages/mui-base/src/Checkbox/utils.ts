@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { getStyleHookProps } from '../utils/getStyleHookProps';
-import type { OwnerState } from './Checkbox.types';
+import type { CheckboxOwnerState } from './Root/CheckboxRoot.types';
 
-export function useCheckboxStyleHooks(ownerState: OwnerState) {
+export function useCheckboxStyleHooks(ownerState: CheckboxOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       // `data-state="mixed"` is used to style the checkbox when it's indeterminate

@@ -1,22 +1,18 @@
 import * as React from 'react';
-import { useControlled } from '../utils/useControlled';
-import type { UseCheckboxParameters, UseCheckboxReturnValue } from './useCheckbox.types';
-import { visuallyHidden } from '../utils/visuallyHidden';
-import { useForkRef } from '../utils/useForkRef';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import type { UseCheckboxRootParameters, UseCheckboxRootReturnValue } from './CheckboxRoot.types';
+import { useControlled } from '../../utils/useControlled';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useForkRef } from '../../utils/useForkRef';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * The basic building block for creating custom checkboxes.
  *
- * Demos:
- *
- * - [Checkbox](https://mui.com/base-ui/react-checkbox/#hook)
- *
  * API:
  *
- * - [useCheckbox API](https://mui.com/base-ui/react-checkbox/hooks-api/#use-checkbox)
+ * - [useCheckboxRoot API](https://mui.com/base-ui/api/use-checkbox-root/)
  */
-export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnValue {
+export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
   const {
     checked: externalChecked,
     inputRef: externalInputRef,
@@ -46,7 +42,7 @@ export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnVal
     state: 'checked',
   });
 
-  const getButtonProps: UseCheckboxReturnValue['getButtonProps'] = React.useCallback(
+  const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(externalProps, {
         value: 'off',
@@ -67,7 +63,7 @@ export function useCheckbox(params: UseCheckboxParameters): UseCheckboxReturnVal
     [checked, disabled, indeterminate, readOnly],
   );
 
-  const getInputProps: UseCheckboxReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
         checked,

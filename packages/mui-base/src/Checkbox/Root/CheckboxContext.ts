@@ -1,6 +1,4 @@
 import * as React from 'react';
-import type { OwnerState } from './Checkbox.types';
-
-export type CheckboxContextValue = OwnerState;
+import type { CheckboxContextValue } from './CheckboxRoot.types';
 
 export const CheckboxContext = React.createContext<CheckboxContextValue | null>(null);

@@ -1,10 +1,14 @@
 {
   "props": {
+    "autoFocus": { "type": { "name": "bool" }, "default": "false" },
     "checked": { "type": { "name": "bool" }, "default": "undefined" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultChecked": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "indeterminate": { "type": { "name": "bool" }, "default": "false" },
+    "inputRef": {
+      "type": { "name": "union", "description": "func<br>&#124;&nbsp;{ current?: object }" }
+    },
     "name": { "type": { "name": "string" }, "default": "undefined" },
     "onChange": {
       "type": { "name": "func" },
@@ -26,7 +30,7 @@
   "themeDefaultProps": true,
   "muiName": "CheckboxRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Checkbox/CheckboxRoot.tsx",
+  "filename": "/packages/mui-base/src/Checkbox/Root/CheckboxRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-checkbox/\">Checkbox</a></li></ul>",
   "cssComponent": false

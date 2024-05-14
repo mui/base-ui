@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
 import * as Checkbox from '@base_ui/react/Checkbox';
-import { describeConformance } from '../../test/describeConformance';
-import { CheckboxContext } from './CheckboxContext';
+import { CheckboxContext } from '@base_ui/react/Checkbox';
+import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
   checked: true,

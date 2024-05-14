@@ -1,6 +1,20 @@
-import * as React from 'react';
+import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
-export interface UseCheckboxParameters {
+export type CheckboxOwnerState = {
+  checked: boolean;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  indeterminate: boolean;
+};
+
+export interface CheckboxRootProps
+  extends UseCheckboxRootParameters,
+    Omit<BaseUIComponentProps<'button', CheckboxOwnerState>, 'onChange'> {}
+
+export type CheckboxContextValue = CheckboxOwnerState;
+
+export interface UseCheckboxRootParameters {
   /**
    * Name of the underlying input element.
    *
@@ -63,7 +77,7 @@ export interface UseCheckboxParameters {
   inputRef?: React.Ref<HTMLInputElement>;
 }
 
-export interface UseCheckboxReturnValue {
+export interface UseCheckboxRootReturnValue {
   /**
    * If `true`, the checkbox is checked.
    */
