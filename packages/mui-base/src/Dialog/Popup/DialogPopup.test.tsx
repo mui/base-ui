@@ -19,7 +19,7 @@ describe('<Dialog.Popup />', () => {
     [
       [true, true],
       [false, false],
-      [undefined, true],
+      [undefined, false],
     ].forEach(([keepMounted, expectedIsMounted]) => {
       it(`should ${!expectedIsMounted ? 'not' : ''} keep the dialog mounted when keepMounted=${keepMounted}`, () => {
         const { queryByRole } = render(

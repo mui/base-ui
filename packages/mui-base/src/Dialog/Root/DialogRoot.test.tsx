@@ -24,13 +24,13 @@ describe('<Dialog.Root />', () => {
       );
 
       const button = getByRole('button');
-      expect(queryByRole('dialog')).toBeInaccessible();
+      expect(queryByRole('dialog')).to.equal(null);
 
       act(() => {
         button.click();
       });
 
-      expect(queryByRole('dialog')).not.toBeInaccessible();
+      expect(queryByRole('dialog')).not.to.equal(null);
     });
   });
 
@@ -42,13 +42,13 @@ describe('<Dialog.Root />', () => {
         </Dialog.Root>,
       );
 
-      expect(queryByRole('dialog')).toBeInaccessible();
+      expect(queryByRole('dialog')).to.equal(null);
 
       setProps({ open: true });
-      expect(queryByRole('dialog')).not.toBeInaccessible();
+      expect(queryByRole('dialog')).not.to.equal(null);
 
       setProps({ open: false });
-      expect(queryByRole('dialog')).toBeInaccessible();
+      expect(queryByRole('dialog')).to.equal(null);
     });
   });
 
@@ -110,9 +110,9 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.calledOnce).to.equal(expectClosed);
 
         if (expectClosed) {
-          expect(queryByRole('dialog')).toBeInaccessible();
+          expect(queryByRole('dialog')).to.equal(null);
         } else {
-          expect(queryByRole('dialog')).not.toBeInaccessible();
+          expect(queryByRole('dialog')).not.to.equal(null);
         }
       });
     });
@@ -142,9 +142,9 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.calledOnce).to.equal(expectClosed);
 
         if (expectClosed) {
-          expect(queryByRole('dialog')).toBeInaccessible();
+          expect(queryByRole('dialog')).to.equal(null);
         } else {
-          expect(queryByRole('dialog')).not.toBeInaccessible();
+          expect(queryByRole('dialog')).not.to.equal(null);
         }
       });
     });
