@@ -15,10 +15,6 @@
     visibility: visible;
   }
 
-  99% {
-    visibility: visible;
-  }
-
   100% {
     opacity: 0;
     visibility: hidden;
@@ -57,8 +53,8 @@
     visibility: hidden;
     opacity: 0;
     transition:
-      opacity 0.3s ease-in-out,
-      visibility 0.3s step-end;
+      opacity 0.5s ease-in-out,
+      visibility 0.5s step-end;
 
     &[data-state='open'] {
       visibility: visible;
@@ -90,17 +86,18 @@
 .backdrop {
   background: radial-gradient(#cecdcf36, #8b94ab47);
   z-index: 0;
-  backdrop-filter: blur(1px);
-  opacity: 0;
-  visibility: hidden;
   position: fixed;
   inset: 0;
-  transition:
-    backdrop-filter 1s ease-in,
-    opacity 1s ease-in,
-    visibility 1s step-end;
 
   &.withTransitions {
+    opacity: 0;
+    visibility: hidden;
+    backdrop-filter: blur(1px);
+    transition:
+      backdrop-filter 1s ease-in,
+      opacity 1s ease-in,
+      visibility 1s step-end;
+
     &[data-state='open'] {
       backdrop-filter: blur(6px);
       opacity: 1;
@@ -116,12 +113,8 @@
       animation: backdrop-opening 1s ease-out forwards;
     }
 
-    &[data-state='closing'] {
+    [data-state='closed'] {
       animation: backdrop-closing 1s ease-in forwards;
-    }
-
-    &[data-state='closed'] {
-      display: none;
     }
   }
 }
