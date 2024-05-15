@@ -8,7 +8,7 @@ export default function UnstyledTooltipIntroduction() {
       <Tooltip.Trigger>
         <AnchorButton>Anchor</AnchorButton>
       </Tooltip.Trigger>
-      <TooltipPopup sideOffset={7} arrowPadding={3}>
+      <TooltipPopup sideOffset={7}>
         Tooltip
         <TooltipArrow />
       </TooltipPopup>
@@ -54,6 +54,23 @@ export const AnchorButton = styled('button')`
 
 export const TooltipArrow = styled(Tooltip.Arrow)`
   ${({ theme }) => `
-    fill: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
+    z-index: -1;
+
+    &[data-side='top'] {
+      bottom: -5px;
+    }
+    &[data-side='right'] {
+      left: -5px;
+    }
+    &[data-side='bottom'] {
+      top: -5px;
+    }
+    &[data-side='left'] {
+      right: -5px;
+    }
   `}
 `;

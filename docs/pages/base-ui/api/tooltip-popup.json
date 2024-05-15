@@ -9,7 +9,7 @@
     },
     "alignmentOffset": { "type": { "name": "number" }, "default": "0" },
     "anchor": { "type": { "name": "any" } },
-    "arrowPadding": { "type": { "name": "number" }, "default": "3" },
+    "arrowPadding": { "type": { "name": "number" }, "default": "5" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "collisionBoundary": { "type": { "name": "any" }, "default": "'clippingAncestors'" },
     "collisionPadding": {

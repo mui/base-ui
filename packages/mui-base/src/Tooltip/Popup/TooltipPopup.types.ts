@@ -1,5 +1,5 @@
-import type { Side, FloatingContext, VirtualElement } from '@floating-ui/react';
-import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import type { Side, VirtualElement } from '@floating-ui/react';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/BaseUI.types';
 import type { TooltipPopupParameters } from './useTooltipPopup.types';
 import type { TransitionStatus } from '../../useTransitionStatus';
 
@@ -8,7 +8,8 @@ export interface TooltipPopupContextValue {
   side: Side;
   alignment: 'start' | 'end' | 'center';
   arrowRef: React.MutableRefObject<Element | null>;
-  floatingContext: FloatingContext;
+  arrowUncentered: boolean;
+  getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
 export type TooltipPopupOwnerState = {

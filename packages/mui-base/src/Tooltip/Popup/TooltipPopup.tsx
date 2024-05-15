@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { TooltipPopupOwnerState, TooltipPopupProps } from './TooltipPopup.types';
+import type {
+  TooltipPopupContextValue,
+  TooltipPopupOwnerState,
+  TooltipPopupProps,
+} from './TooltipPopup.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { Portal } from '../../Portal';
 import { useTooltipPopup } from './useTooltipPopup';
@@ -10,10 +14,6 @@ import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { useContentStyleHooks } from './useStyleHooks';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
-
-function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
-  return <div {...props} />;
-}
 
 /**
  * The tooltip popup element.
@@ -40,9 +40,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     alignmentOffset = 0,
     collisionBoundary,
     collisionPadding = 5,
-    // This is the most sensible default for most `border-radius` values. However, we can't
-    // determine the actual best value. It's up to the user to adjust this value if needed.
-    arrowPadding = 3,
+    arrowPadding = 5,
     hideWhenDetached = false,
     sticky = false,
     followCursorAxis = 'none',
@@ -50,7 +48,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     container,
     ...otherProps
   } = props;
-  const render = renderProp ?? defaultRender;
+  const render = renderProp ?? <div />;
 
   const {
     open,
@@ -100,13 +98,14 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, transitionStatus, instantType, tooltip.side, tooltip.alignment],
   );
 
-  const contextValue = React.useMemo(
+  const contextValue: TooltipPopupContextValue = React.useMemo(
     () => ({
       ...ownerState,
       arrowRef: tooltip.arrowRef,
-      floatingContext: tooltip.floatingContext,
+      getArrowProps: tooltip.getArrowProps,
+      arrowUncentered: tooltip.arrowUncentered,
     }),
-    [ownerState, tooltip.arrowRef, tooltip.floatingContext],
+    [ownerState, tooltip.arrowRef, tooltip.getArrowProps, tooltip.arrowUncentered],
   );
 
   const styleHooks = useContentStyleHooks(ownerState);
@@ -165,7 +164,7 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
   /**
    * Determines the padding between the arrow and the tooltip content. Useful when the tooltip
    * has rounded corners via `border-radius`.
-   * @default 3
+   * @default 5
    */
   arrowPadding: PropTypes.number,
   /**

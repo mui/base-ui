@@ -2,9 +2,7 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "hideWhenUncentered": { "type": { "name": "bool" }, "default": "false" },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "staticOffset": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } },
-    "tipRadius": { "type": { "name": "number" }, "default": "0 (sharp)" }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "TooltipArrow",
   "imports": [

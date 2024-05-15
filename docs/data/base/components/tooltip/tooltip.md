@@ -215,24 +215,11 @@ To add an arrow (caret or triangle) inside the tooltip content that points towar
 ```js
 <Tooltip.Popup>
   Tooltip
-  <Tooltip.Arrow width={10} height={5} tipRadius={1} />
+  <Tooltip.Arrow />
 </Tooltip.Popup>
 ```
 
-Its `width`, `height`, `fill`, `stroke`, `strokeWidth`, `tipRadius` (tip rounding), and `d` (custom path) prop can be specified.
-
-For example, you can use a fancily rounded arrow like so:
-
-```jsx
-<Tooltip.Popup>
-  Tooltip
-  <Tooltip.Arrow
-    width={20}
-    height={20}
-    d="M0 20C0 20 2.06906 19.9829 5.91817 15.4092C7.49986 13.5236 8.97939 12.3809 10.0002 12.3809C11.0202 12.3809 12.481 13.6451 14.0814 15.5472C17.952 20.1437 20 20 20 20H0Z"
-  />
-</Tooltip.Popup>
-```
+It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
 
 ## Cursor following
 

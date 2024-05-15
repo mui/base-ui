@@ -45,7 +45,7 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     hideWhenDetached = false,
     sticky = false,
     keepMounted = false,
-    arrowPadding = 3,
+    arrowPadding = 5,
     mounted = true,
     setMounted,
     getRootPopupProps,
@@ -148,7 +148,6 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     refs,
     elements,
     floatingStyles,
-    context,
     middlewareData,
     update,
     placement: renderedPlacement,
@@ -212,15 +211,31 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, setMounted, refs],
   );
 
+  const getArrowProps: UseTooltipPopupReturnValue['getArrowProps'] = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps(externalProps, {
+        style: {
+          position: 'absolute',
+          top: middlewareData.arrow?.y,
+          left: middlewareData.arrow?.x,
+        },
+      });
+    },
+    [middlewareData],
+  );
+
+  const arrowUncentered = middlewareData.arrow?.centerOffset !== 0;
+
   return React.useMemo(
     () => ({
       mounted,
       getPopupProps,
+      getArrowProps,
       arrowRef,
-      floatingContext: context,
+      arrowUncentered,
       side: renderedSide,
       alignment: renderedAlignment,
     }),
-    [mounted, getPopupProps, context, renderedSide, renderedAlignment],
+    [mounted, getPopupProps, getArrowProps, arrowUncentered, renderedSide, renderedAlignment],
   );
 }

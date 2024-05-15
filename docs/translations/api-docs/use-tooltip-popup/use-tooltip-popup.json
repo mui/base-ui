@@ -47,7 +47,8 @@
   "returnValueDescriptions": {
     "alignment": { "description": "The rendered alignment of the tooltip element." },
     "arrowRef": { "description": "The ref of the arrow element." },
-    "floatingContext": { "description": "The Floating UI context of the tooltip element." },
+    "arrowUncentered": { "description": "Determines if the arrow can not be centered." },
+    "getArrowProps": { "description": "Props to spread on the arrow element." },
     "getPopupProps": { "description": "Props to spread on the tooltip content element." },
     "mounted": {
       "description": "Whether the tooltip is mounted, including CSS transitions or animations."

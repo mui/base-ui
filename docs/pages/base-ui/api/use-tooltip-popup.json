@@ -21,7 +21,7 @@
         "description": "Element | null | VirtualElement | React.MutableRefObject&lt;Element | null&gt; | (() =&gt; Element | VirtualElement | null)"
       }
     },
-    "arrowPadding": { "type": { "name": "number", "description": "number" }, "default": "3" },
+    "arrowPadding": { "type": { "name": "number", "description": "number" }, "default": "5" },
     "closeDelay": { "type": { "name": "number", "description": "number" }, "default": "0" },
     "collisionBoundary": {
       "type": { "name": "Boundary", "description": "Boundary" },
@@ -83,8 +83,15 @@
       },
       "required": true
     },
-    "floatingContext": {
-      "type": { "name": "FloatingContext", "description": "FloatingContext" },
+    "arrowUncentered": {
+      "type": { "name": "boolean", "description": "boolean" },
+      "required": true
+    },
+    "getArrowProps": {
+      "type": {
+        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
+        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
+      },
       "required": true
     },
     "getPopupProps": {

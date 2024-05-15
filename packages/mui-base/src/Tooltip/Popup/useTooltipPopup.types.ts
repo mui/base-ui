@@ -1,11 +1,5 @@
 import type * as React from 'react';
-import type {
-  FloatingContext,
-  Boundary,
-  Padding,
-  VirtualElement,
-  FloatingRootContext,
-} from '@floating-ui/react';
+import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 export interface TooltipPopupParameters {
@@ -54,7 +48,7 @@ export interface TooltipPopupParameters {
   /**
    * Determines the padding between the arrow and the tooltip content. Useful when the tooltip
    * has rounded corners via `border-radius`.
-   * @default 3
+   * @default 5
    */
   arrowPadding?: number;
   /**
@@ -120,13 +114,17 @@ export interface UseTooltipPopupReturnValue {
    */
   getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
+   * Props to spread on the arrow element.
+   */
+  getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  /**
    * The ref of the arrow element.
    */
   arrowRef: React.MutableRefObject<Element | null>;
   /**
-   * The Floating UI context of the tooltip element.
+   * Determines if the arrow can not be centered.
    */
-  floatingContext: FloatingContext;
+  arrowUncentered: boolean;
   /**
    * The rendered side of the tooltip element.
    */

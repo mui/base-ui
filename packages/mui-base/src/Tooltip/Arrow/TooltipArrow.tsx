@@ -1,26 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingArrow } from '@floating-ui/react';
 import type { TooltipArrowOwnerState, TooltipArrowProps } from './TooltipArrow.types';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { useTooltipPopupContext } from '../Popup/TooltipPopupContext';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-
-function defaultRender(props: any, ownerState: TooltipArrowOwnerState) {
-  return (
-    <FloatingArrow
-      context={ownerState.floatingContext}
-      tipRadius={ownerState.tipRadius}
-      staticOffset={ownerState.staticOffset}
-      d={ownerState.d}
-      strokeWidth={1}
-      stroke="transparent"
-      {...props}
-    />
-  );
-}
+import { useStyleHooks } from './useStyleHooks';
 
 /**
  * The tooltip arrow caret element.
@@ -35,48 +21,37 @@ function defaultRender(props: any, ownerState: TooltipArrowOwnerState) {
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrowProps,
-  forwardedRef: React.ForwardedRef<SVGSVGElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    render: renderProp,
-    hideWhenUncentered = false,
-    className,
-    tipRadius,
-    staticOffset,
-    d,
-    ...otherProps
-  } = props;
-  const render = renderProp ?? defaultRender;
+  const { render: renderProp, hideWhenUncentered = false, className, ...otherProps } = props;
+  const render = renderProp ?? <div />;
 
-  const { open, arrowRef, floatingContext, side, alignment } = useTooltipPopupContext();
+  const { open, arrowRef, side, alignment, arrowUncentered, getArrowProps } =
+    useTooltipPopupContext();
 
   const ownerState: TooltipArrowOwnerState = React.useMemo(
     () => ({
       open,
       side,
       alignment,
-      tipRadius,
-      staticOffset,
-      d,
-      floatingContext,
     }),
-    [open, side, alignment, tipRadius, staticOffset, d, floatingContext],
+    [open, side, alignment],
   );
 
   const mergedRef = useRenderPropForkRef(render, arrowRef, forwardedRef);
 
-  const arrowProps = {
+  const styleHooks = useStyleHooks(ownerState);
+
+  const arrowProps = getArrowProps({
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
+    ...styleHooks,
     ...otherProps,
     style: {
+      ...(hideWhenUncentered && arrowUncentered && { visibility: 'hidden' }),
       ...otherProps.style,
-      ...(hideWhenUncentered &&
-        floatingContext.middlewareData.arrow?.centerOffset !== 0 && {
-          visibility: 'hidden' as const,
-        }),
     },
-  };
+  });
 
   return evaluateRenderProp(render, arrowProps, ownerState);
 });
@@ -95,10 +70,6 @@ TooltipArrow.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
-   */
-  d: PropTypes.string,
-  /**
    * If `true`, the arrow will be hidden when it can't point to the center of the anchor element.
    * @default false
    */
@@ -108,18 +79,9 @@ TooltipArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Forces a static offset over dynamic positioning under a certain condition.
-   */
-  staticOffset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  /**
    * @ignore
    */
   style: PropTypes.object,
-  /**
-   * The corner radius (rounding) of the arrow tip.
-   * @default 0 (sharp)
-   */
-  tipRadius: PropTypes.number,
 } as any;
 
 export { TooltipArrow };
