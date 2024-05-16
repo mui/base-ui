@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { fireEvent } from '@testing-library/react';
 import * as NumberFieldBase from '@base_ui/react/NumberField';
-import { describeConformance } from '../../test/describeConformance';
+import { describeConformance } from '../../../test/describeConformance';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();

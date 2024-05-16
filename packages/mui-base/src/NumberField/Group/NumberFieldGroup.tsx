@@ -1,17 +1,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { DecrementProps } from './NumberField.types';
-import { useNumberFieldContext } from './NumberFieldContext';
-import { resolveClassName } from '../utils/resolveClassName';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import type { NumberFieldGroupProps } from './NumberFieldGroup.types';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
-function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
-  return <button type="button" {...props} />;
+function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
+  return <div {...props} />;
 }
 
 /**
- * The decrement stepper button.
+ * Groups interactive `NumberField` components together.
  *
  * Demos:
  *
@@ -19,29 +19,29 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  *
  * API:
  *
- * - [NumberFieldDecrement API](https://mui.com/base-ui/react-number-field/components-api/#number-field-decrement)
+ * - [NumberFieldGroup API](https://mui.com/base-ui/react-number-field/components-api/#number-field-group)
  */
-const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
-  props: DecrementProps,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
+  props: NumberFieldGroupProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
-  const { getDecrementButtonProps, ownerState } = useNumberFieldContext('Decrement');
+  const { getGroupProps, ownerState } = useNumberFieldContext('Group');
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const buttonProps = getDecrementButtonProps({
+  const groupProps = getGroupProps({
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
   });
 
-  return evaluateRenderProp(render, buttonProps, ownerState);
+  return evaluateRenderProp(render, groupProps, ownerState);
 });
 
-NumberFieldDecrement.propTypes /* remove-proptypes */ = {
+NumberFieldGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -60,4 +60,4 @@ NumberFieldDecrement.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { NumberFieldDecrement };
+export { NumberFieldGroup };

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldContext } from './NumberFieldContext';
-import type { OwnerState, RootProps } from './NumberField.types';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useNumberField } from '../useNumberField/useNumberField';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { NumberFieldRootOwnerState, NumberFieldRootProps } from './NumberFieldRoot.types';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useNumberFieldRoot } from './useNumberFieldRoot';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -23,7 +23,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  * - [NumberField API](https://mui.com/base-ui/react-number-field/components-api/#number-field)
  */
 const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
-  props: RootProps,
+  props: NumberFieldRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -50,9 +50,9 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   } = props;
   const render = renderProp ?? defaultRender;
 
-  const numberField = useNumberField(props);
+  const numberField = useNumberFieldRoot(props);
 
-  const ownerState: OwnerState = React.useMemo(
+  const ownerState: NumberFieldRootOwnerState = React.useMemo(
     () => ({
       disabled,
       invalid,

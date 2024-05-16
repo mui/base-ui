@@ -1,22 +1,25 @@
 import * as React from 'react';
-import { useEventCallback } from '../utils/useEventCallback';
-import { useControlled } from '../utils/useControlled';
-import { useLatestRef } from '../utils/useLatestRef';
-import type { UseNumberFieldParameters, UseNumberFieldReturnValue } from './useNumberField.types';
-import { ownerDocument, ownerWindow } from '../utils/owner';
-import { useId } from '../utils/useId';
-import { isIOS } from '../utils/detectBrowser';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
-import { formatNumber } from '../NumberField/utils/format';
-import { toValidatedNumber } from '../NumberField/utils/validate';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useControlled } from '../../utils/useControlled';
+import { useLatestRef } from '../../utils/useLatestRef';
+import type {
+  UseNumberFieldRootParameters,
+  UseNumberFieldRootReturnValue,
+} from './NumberFieldRoot.types';
+import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { useId } from '../../utils/useId';
+import { isIOS } from '../../utils/detectBrowser';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { formatNumber } from '../utils/format';
+import { toValidatedNumber } from '../utils/validate';
 import {
   ARABIC_RE,
   HAN_RE,
   PERCENTAGES,
   getNumberLocaleDetails,
   parseNumber,
-} from '../NumberField/utils/parse';
-import { useForcedRerendering } from '../utils/useForcedRerendering';
+} from '../utils/parse';
+import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useScrub } from './useScrub';
 import {
   CHANGE_VALUE_TICK_DELAY,
@@ -25,8 +28,8 @@ import {
   SCROLLING_POINTER_MOVE_DISTANCE,
   START_AUTO_CHANGE_DELAY,
   TOUCH_TIMEOUT,
-} from './constants';
-import { mergeReactProps } from '../utils/mergeReactProps';
+} from '../utils/constants';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * The basic building block for creating custom number fields.
@@ -37,9 +40,11 @@ import { mergeReactProps } from '../utils/mergeReactProps';
  *
  * API:
  *
- * - [useNumberField API](https://mui.com/base-ui/react-number-field/hooks-api/#use-number-field)
+ * - [useNumberFieldRoot API](https://mui.com/base-ui/react-number-field/hooks-api/#use-number-field-root)
  */
-export function useNumberField(params: UseNumberFieldParameters): UseNumberFieldReturnValue {
+export function useNumberFieldRoot(
+  params: UseNumberFieldRootParameters,
+): UseNumberFieldRootReturnValue {
   const {
     id: idProp,
     name,
@@ -336,7 +341,7 @@ export function useNumberField(params: UseNumberFieldParameters): UseNumberField
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const getGroupProps: UseNumberFieldReturnValue['getGroupProps'] = React.useCallback(
+  const getGroupProps: UseNumberFieldRootReturnValue['getGroupProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         role: 'group',
@@ -469,19 +474,19 @@ export function useNumberField(params: UseNumberFieldParameters): UseNumberField
     ],
   );
 
-  const getIncrementButtonProps: UseNumberFieldReturnValue['getIncrementButtonProps'] =
+  const getIncrementButtonProps: UseNumberFieldRootReturnValue['getIncrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(true, externalProps),
       [getCommonButtonProps],
     );
 
-  const getDecrementButtonProps: UseNumberFieldReturnValue['getDecrementButtonProps'] =
+  const getDecrementButtonProps: UseNumberFieldRootReturnValue['getDecrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(false, externalProps),
       [getCommonButtonProps],
     );
 
-  const getInputProps: UseNumberFieldReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: UseNumberFieldRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
         id,

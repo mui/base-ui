@@ -2,9 +2,9 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
-import { describeConformance } from '../../test/describeConformance';
-import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
-import { isWebKit } from '../utils/detectBrowser';
+import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { isWebKit } from '../../utils/detectBrowser';
+import { describeConformance } from '../../../test/describeConformance';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {

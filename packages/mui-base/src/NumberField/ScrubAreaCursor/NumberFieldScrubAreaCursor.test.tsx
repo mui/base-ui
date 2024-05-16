@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { expect } from 'chai';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
-import { expect } from 'chai';
-import { describeConformance } from '../../test/describeConformance';
-import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
-import { isWebKit } from '../utils/detectBrowser';
+import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { isWebKit } from '../../utils/detectBrowser';
+import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,

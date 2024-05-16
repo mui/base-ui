@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import type { ScrubAreaCursorProps } from './NumberField.types';
-import { isWebKit } from '../utils/detectBrowser';
-import { resolveClassName } from '../utils/resolveClassName';
-import { useNumberFieldContext } from './NumberFieldContext';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { NumberFieldScrubAreaCursorProps } from './NumberFieldScrubAreaCursor.types';
+import { isWebKit } from '../../utils/detectBrowser';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -25,7 +25,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [NumberFieldScrubAreaCursor API](https://mui.com/base-ui/react-number-field/components-api/#number-field-scrub-area-cursor)
  */
 const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
-  props: ScrubAreaCursorProps,
+  props: NumberFieldScrubAreaCursorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from './NumberFieldContext';
-import type { ScrubAreaProps } from './NumberField.types';
-import { resolveClassName } from '../utils/resolveClassName';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { NumberFieldScrubAreaProps } from './NumberFieldScrubArea.types';
+import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -23,7 +23,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [NumberFieldScrubArea API](https://mui.com/base-ui/react-number-field/components-api/#number-field-scrub-area)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: ScrubAreaProps,
+  props: NumberFieldScrubAreaProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {

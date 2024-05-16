@@ -1,10 +1,5 @@
 import * as React from 'react';
-import type { UseNumberFieldReturnValue } from '../useNumberField/useNumberField.types';
-import { OwnerState } from './NumberField.types';
-
-export type NumberFieldContextValue = UseNumberFieldReturnValue & {
-  ownerState: OwnerState;
-};
+import { NumberFieldContextValue } from './NumberFieldRoot.types';
 
 export const NumberFieldContext = React.createContext<NumberFieldContextValue | null>(null);
 

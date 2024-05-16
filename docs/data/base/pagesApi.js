@@ -131,8 +131,8 @@ module.exports = [
   },
   { pathname: '/base-ui/react-modal/hooks-api/#use-modal', title: 'useModal' },
   {
-    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field',
-    title: 'useNumberField',
+    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field-root',
+    title: 'useNumberFieldRoot',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-option', title: 'useOption' },
   {

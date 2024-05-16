@@ -3,9 +3,9 @@ import { expect } from 'chai';
 import { fireEvent } from '@testing-library/react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
-import { describeConformance } from '../../test/describeConformance';
-import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
-import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../useNumberField/constants';
+import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { describeConformance } from '../../../test/describeConformance';
+import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 
 const testContext = {
   getIncrementButtonProps: (externalProps) => externalProps,

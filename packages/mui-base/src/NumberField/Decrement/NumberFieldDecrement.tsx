@@ -1,17 +1,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { IncrementProps } from './NumberField.types';
-import { useNumberFieldContext } from './NumberFieldContext';
-import { resolveClassName } from '../utils/resolveClassName';
-import { evaluateRenderProp } from '../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../utils/useRenderPropForkRef';
+import type { NumberFieldDecrementProps } from './NumberFieldDecrement.types';
+import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
 }
 
 /**
- * The increment stepper button.
+ * The decrement stepper button.
  *
  * Demos:
  *
@@ -19,20 +19,20 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  *
  * API:
  *
- * - [NumberFieldIncrement API](https://mui.com/base-ui/react-number-field/components-api/#number-field-increment)
+ * - [NumberFieldDecrement API](https://mui.com/base-ui/react-number-field/components-api/#number-field-decrement)
  */
-const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: IncrementProps,
+const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
+  props: NumberFieldDecrementProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
-  const { getIncrementButtonProps, ownerState } = useNumberFieldContext('Increment');
+  const { getDecrementButtonProps, ownerState } = useNumberFieldContext('Decrement');
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const buttonProps = getIncrementButtonProps({
+  const buttonProps = getDecrementButtonProps({
     ref: mergedRef,
     className: resolveClassName(className, ownerState),
     ...otherProps,
@@ -41,7 +41,7 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   return evaluateRenderProp(render, buttonProps, ownerState);
 });
 
-NumberFieldIncrement.propTypes /* remove-proptypes */ = {
+NumberFieldDecrement.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -60,4 +60,4 @@ NumberFieldIncrement.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { NumberFieldIncrement };
+export { NumberFieldDecrement };

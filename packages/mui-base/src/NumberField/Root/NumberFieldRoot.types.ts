@@ -1,6 +1,46 @@
 import type { ScrubHandle } from './useScrub.types';
+import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
-export interface UseNumberFieldParameters {
+export type NumberFieldRootOwnerState = {
+  /**
+   * The raw number value of the input element.
+   */
+  value: number | null;
+  /**
+   * The string value of the input element.
+   */
+  inputValue: string;
+  /**
+   * If `true`, the input element is required.
+   */
+  required: boolean;
+  /**
+   * If `true`, the input element is disabled.
+   */
+  disabled: boolean;
+  /**
+   * If `true`, the input element is invalid.
+   */
+  invalid: boolean;
+  /**
+   * If `true`, the input element is read only.
+   */
+  readOnly: boolean;
+  /**
+   * If `true`, the value is being scrubbed.
+   */
+  scrubbing: boolean;
+};
+
+export interface NumberFieldRootProps
+  extends UseNumberFieldRootParameters,
+    Omit<BaseUIComponentProps<'div', NumberFieldRootOwnerState>, 'onChange' | 'defaultValue'> {}
+
+export type NumberFieldContextValue = UseNumberFieldRootReturnValue & {
+  ownerState: NumberFieldRootOwnerState;
+};
+
+export interface UseNumberFieldRootParameters {
   /**
    * The id of the input element.
    */
@@ -85,7 +125,7 @@ export interface UseNumberFieldParameters {
   onChange?: (value: number | null) => void;
 }
 
-export interface UseNumberFieldReturnValue {
+export interface UseNumberFieldRootReturnValue {
   getGroupProps: (
     externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;

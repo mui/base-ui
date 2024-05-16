@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
-import { describeConformance } from '../../test/describeConformance';
-import { NumberFieldContext, NumberFieldContextValue } from './NumberFieldContext';
+import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
   getGroupProps: (externalProps) => ({ role: 'group', ...externalProps }),
