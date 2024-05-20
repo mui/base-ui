@@ -148,7 +148,6 @@
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
     "process": "^0.11.10",
-    "raw-loader": "4.0.2",
     "react-docgen": "^5.4.3",
     "recast": "^0.23.6",
     "remark": "^13.0.0",
