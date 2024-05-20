@@ -15,7 +15,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const rootContext = useDialogRootContext();
   const { open, modal } = rootContext;
 
-  const { getRootProps, floatingUIContext, mounted, openState } = useDialogPopup({
+  const { getRootProps, floatingUIContext, mounted } = useDialogPopup({
     id: idProp,
     animated,
     ref: forwardedRef,
@@ -25,7 +25,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const ownerState = {
     open,
     modal,
-    openState,
   };
 
   const { renderElement } = useBaseUIComponentRenderer({
@@ -35,8 +34,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: other,
     customStyleHookMapping: {
-      open: () => null,
-      openState: (value) => ({ 'data-state': value }),
+      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },
   });
 

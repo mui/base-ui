@@ -12,11 +12,11 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 ) {
   const { render, className, animated = false, keepMounted = false, ...other } = props;
   const { open, modal } = useDialogRootContext();
-  const { getRootProps, openState, mounted } = useDialogBackdrop({ animated, open });
+  const { getRootProps, mounted } = useDialogBackdrop({ animated, open });
 
   const ownerState: DialogBackdropOwnerState = React.useMemo(
-    () => ({ open, modal, openState }),
-    [open, modal, openState],
+    () => ({ open, modal }),
+    [open, modal],
   );
 
   const { renderElement } = useBaseUIComponentRenderer({
@@ -27,8 +27,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     ref: forwardedRef,
     extraProps: other,
     customStyleHookMapping: {
-      open: () => null,
-      openState: (value) => ({ 'data-state': value }),
+      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },
   });
 

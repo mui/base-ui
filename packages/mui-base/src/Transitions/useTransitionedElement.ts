@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
-import { OpenState, useTransitionStatus } from './useTransitionStatus';
+import { useTransitionStatus } from './useTransitionStatus';
 import { mergeReactProps } from '../utils/mergeReactProps';
+import { ownerWindow } from '../utils/owner';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 /**
  *
  * API:
@@ -11,24 +13,30 @@ import { mergeReactProps } from '../utils/mergeReactProps';
 export function useTransitionedElement(
   parameters: UseTransitionedElementParameters,
 ): UseTransitionedElementReturnValue {
-  const { isRendered, enabled } = parameters;
-  const { notifyTransitionEnded, mounted, openState } = useTransitionStatus(isRendered, enabled);
+  const { isRendered, elementRef } = parameters;
+  const { onTransitionEnded, mounted } = useTransitionStatus(isRendered);
+
+  useEnhancedEffect(() => {
+    if (
+      !isRendered &&
+      (elementRef.current == null || !hasAnimationOrTransition(elementRef.current))
+    ) {
+      onTransitionEnded();
+    }
+  });
 
   const handleTransitionAndAnimationEnd = React.useCallback(() => {
     if (!isRendered) {
-      notifyTransitionEnded();
+      onTransitionEnded();
     }
-  }, [isRendered, notifyTransitionEnded]);
+  }, [isRendered, onTransitionEnded]);
 
   const props = React.useMemo(
-    () =>
-      enabled
-        ? {
-            onAnimationEnd: handleTransitionAndAnimationEnd,
-            onTransitionEnd: handleTransitionAndAnimationEnd,
-          }
-        : {},
-    [handleTransitionAndAnimationEnd, enabled],
+    () => ({
+      onAnimationEnd: handleTransitionAndAnimationEnd,
+      onTransitionEnd: handleTransitionAndAnimationEnd,
+    }),
+    [handleTransitionAndAnimationEnd],
   );
 
   const getRootProps = React.useCallback(
@@ -40,13 +48,19 @@ export function useTransitionedElement(
   return {
     getRootProps,
     mounted,
-    openState,
   };
+}
+
+function hasAnimationOrTransition(element: HTMLElement) {
+  const computedStyles = ownerWindow(element).getComputedStyle(element);
+  const hasTransitionDuration = !['', '0s'].includes(computedStyles.transitionDuration);
+  const hasAnimationName = !['', 'none'].includes(computedStyles.animationName);
+  return hasTransitionDuration || hasAnimationName;
 }
 
 export interface UseTransitionedElementParameters {
   isRendered: boolean;
-  enabled: boolean;
+  elementRef: React.RefObject<HTMLElement>;
 }
 
 export interface UseTransitionedElementReturnValue {
@@ -54,5 +68,4 @@ export interface UseTransitionedElementReturnValue {
     externalProps?: React.ComponentPropsWithRef<any>,
   ) => React.ComponentPropsWithRef<any>;
   mounted: boolean;
-  openState: OpenState;
 }

@@ -9,13 +9,14 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useDialogBackdrop API](https://mui.com/base-ui/api/use-dialog-backdrop/)
  */
 export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBackdropReturnValue {
-  const { animated, open } = params;
+  const { open } = params;
 
-  const {
-    getRootProps: getTransitionProps,
-    openState,
-    mounted,
-  } = useTransitionedElement({ isRendered: open, enabled: animated });
+  const ref = React.useRef<HTMLElement | null>(null);
+
+  const { getRootProps: getTransitionProps, mounted } = useTransitionedElement({
+    isRendered: open,
+    elementRef: ref,
+  });
 
   const getRootProps = React.useCallback(
     (externalProps: React.ComponentPropsWithRef<any>) =>
@@ -23,6 +24,7 @@ export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBac
         externalProps,
         getTransitionProps({
           role: 'presentation',
+          ref,
         }),
       ),
     [getTransitionProps],
@@ -30,7 +32,6 @@ export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBac
 
   return {
     getRootProps,
-    openState,
     mounted,
   };
 }

@@ -1,37 +1,43 @@
 @keyframes dialog-opening {
-  0% {
-    opacity: 0;
-    visibility: visible;
-  }
-
-  100% {
+  to {
     opacity: 1;
     visibility: visible;
   }
 }
 
 @keyframes dialog-closing {
-  0% {
-    visibility: visible;
+  from {
+    opacity: 1;
   }
-
-  100% {
+  to {
     opacity: 0;
     visibility: hidden;
   }
 }
 
 @keyframes backdrop-opening {
-  100% {
+  from {
+    backdrop-filter: blur(1px);
+    opacity: 0;
+  }
+
+  to {
     backdrop-filter: blur(6px);
     opacity: 1;
+    visibility: visible;
   }
 }
 
 @keyframes backdrop-closing {
-  100% {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+
+  to {
     backdrop-filter: blur(1px);
     opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -66,12 +72,13 @@
   }
 
   &.withAnimations {
+    opacity: 0;
     &[data-state='open'] {
-      animation: dialog-opening 0.8s ease-out forwards;
+      animation: dialog-opening 0.8s ease-out both;
     }
 
     &[data-state='closed'] {
-      animation: dialog-closing 0.8s ease-in forwards;
+      animation: dialog-closing 0.8s ease-in both;
     }
   }
 
@@ -113,7 +120,7 @@
       animation: backdrop-opening 1s ease-out forwards;
     }
 
-    [data-state='closed'] {
+    &[data-state='closed'] {
       animation: backdrop-closing 1s ease-in forwards;
     }
   }

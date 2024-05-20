@@ -1,6 +1,5 @@
 import { BaseUIComponentProps } from '@base_ui/react/utils/BaseUI.types';
 import { DialogPopupOwnerState } from '../Popup/DialogPopup.types';
-import { OpenState } from '../../Transitions';
 
 export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdropOwnerState> {
   animated?: boolean;
@@ -16,6 +15,5 @@ export interface UseDialogBackdropParams {
 
 export interface UseDialogBackdropReturnValue {
   getRootProps: (props?: Record<string, any>) => Record<string, any>;
-  openState: OpenState;
   mounted: boolean;
 }

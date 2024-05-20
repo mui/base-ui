@@ -4,7 +4,7 @@ import { UseDialogPopupParameters, UseDialogPopupReturnValue } from './DialogPop
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { OpenState, useTransitionedElement } from '../../Transitions';
+import { useTransitionedElement } from '../../Transitions';
 /**
  *
  * Demos:
@@ -17,7 +17,6 @@ import { OpenState, useTransitionedElement } from '../../Transitions';
  */
 export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogPopupReturnValue {
   const {
-    animated,
     descriptionElementId,
     id: idParam,
     modal,
@@ -35,6 +34,8 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     onOpenChange,
   });
 
+  const popupRef = React.useRef<HTMLElement | null>(null);
+
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
     outsidePress: softClose === true || softClose === 'clickOutside',
@@ -43,13 +44,12 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   const { getFloatingProps } = useInteractions([dismiss]);
 
   const id = useId(idParam);
-  const handleRef = useForkRef(ref, refs.setFloating);
+  const handleRef = useForkRef(ref, popupRef, refs.setFloating);
 
-  const {
-    getRootProps: getTransitionProps,
-    openState,
-    mounted,
-  } = useTransitionedElement({ isRendered: open, enabled: animated });
+  const { getRootProps: getTransitionProps, mounted } = useTransitionedElement({
+    isRendered: open,
+    elementRef: popupRef,
+  });
 
   React.useEffect(() => {
     setPopupElementId(id);
@@ -78,6 +78,5 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     floatingUIContext: context,
     getRootProps,
     mounted,
-    openState: openState as OpenState, // the actual current state
   };
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
-import { useTransitionStatus } from '@base_ui/react/Transitions';
-import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
+// import { useTransitionStatus } from '@base_ui/react/Transitions';
+// import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
 
 interface DemoProps {
@@ -41,6 +41,7 @@ function CssTransitionDialogDemo({ animated, keepMounted }: DemoProps) {
 
         <Dialog.Backdrop
           animated={animated}
+          keepMounted={keepMounted}
           className={`${classes.backdrop} ${animated && classes.withTransitions}`}
         />
 
@@ -68,6 +69,7 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
 
         <Dialog.Backdrop
           animated={animated}
+          keepMounted={keepMounted}
           className={`${classes.backdrop} ${animated && classes.withAnimations}`}
         />
 
@@ -83,6 +85,7 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
   );
 }
 
+/* 
 function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -148,6 +151,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
     </springAnimated.div>
   ) : null;
 }
+*/
 
 export default function DialogExperiment() {
   const [keepMounted, setKeepMounted] = React.useState(false);
@@ -158,7 +162,6 @@ export default function DialogExperiment() {
       <h1>Dialog</h1>
       <CssTransitionDialogDemo keepMounted={keepMounted} animated={isAnimated} />
       <CssAnimationDialogDemo keepMounted={keepMounted} animated={isAnimated} />
-      <ReactSpringDialogDemo keepMounted={keepMounted} animated={isAnimated} />
 
       <h2>Options</h2>
       <label>
