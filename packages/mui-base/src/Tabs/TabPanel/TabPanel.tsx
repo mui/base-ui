@@ -2,11 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTabPanel } from './useTabPanel';
+import { useTabPanelStyleHooks } from './useTabPanelStyleHooks';
 import { TabPanelOwnerState, TabPanelProps } from './TabPanel.types';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useTabPanelStyleHooks } from './useTabPanelStyleHooks';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
 /**

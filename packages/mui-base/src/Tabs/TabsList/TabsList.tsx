@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { TabsListOwnerState, TabsListProps } from './TabsList.types';
 import { useTabsList } from './useTabsList';
 import { TabsListProvider } from './TabsListProvider';
+import { useTabsListStyleHooks } from './useTabsListStyleHooks';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useTabsListStyleHooks } from './useTabsListStyleHooks';
 
 /**
  *

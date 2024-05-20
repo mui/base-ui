@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
 import type { NumberFieldGroupProps } from './NumberFieldGroup.types';
+import { useNumberFieldContext } from '../Root/NumberFieldContext';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';

@@ -1,15 +1,9 @@
 import * as React from 'react';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useControlled } from '../../utils/useControlled';
-import { useLatestRef } from '../../utils/useLatestRef';
 import type {
   UseNumberFieldRootParameters,
   UseNumberFieldRootReturnValue,
 } from './NumberFieldRoot.types';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { useId } from '../../utils/useId';
-import { isIOS } from '../../utils/detectBrowser';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useScrub } from './useScrub';
 import { formatNumber } from '../utils/format';
 import { toValidatedNumber } from '../utils/validate';
 import {
@@ -19,8 +13,6 @@ import {
   getNumberLocaleDetails,
   parseNumber,
 } from '../utils/parse';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import { useScrub } from './useScrub';
 import {
   CHANGE_VALUE_TICK_DELAY,
   DEFAULT_STEP,
@@ -29,7 +21,15 @@ import {
   START_AUTO_CHANGE_DELAY,
   TOUCH_TIMEOUT,
 } from '../utils/constants';
+import { isIOS } from '../../utils/detectBrowser';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { useControlled } from '../../utils/useControlled';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useForcedRerendering } from '../../utils/useForcedRerendering';
+import { useId } from '../../utils/useId';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 /**
  * The basic building block for creating custom number fields.

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { CheckboxContext } from './CheckboxContext';
-import type { CheckboxOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
-import { resolveClassName } from '../../utils/resolveClassName';
 import { useCheckboxRoot } from './useCheckboxRoot';
+import type { CheckboxOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
 import { useCheckboxStyleHooks } from '../utils';
+import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';

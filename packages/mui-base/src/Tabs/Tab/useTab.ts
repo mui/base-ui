@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useTabsContext } from '../Root/TabsContext';
 import { UseTabParameters, UseTabReturnValue } from './Tab.types';
+import { useTabsContext } from '../Root/TabsContext';
+import { TabMetadata } from '../Root/useTabsRoot';
 import { useCompoundItem } from '../../useCompound';
 import { useListItem } from '../../useList';
 import { useButton } from '../../useButton';
-import { TabMetadata } from '../Root/useTabsRoot';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';

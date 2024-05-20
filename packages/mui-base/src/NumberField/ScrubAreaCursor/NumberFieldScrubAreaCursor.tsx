@@ -2,9 +2,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import type { NumberFieldScrubAreaCursorProps } from './NumberFieldScrubAreaCursor.types';
+import { useNumberFieldContext } from '../Root/NumberFieldContext';
 import { isWebKit } from '../../utils/detectBrowser';
 import { resolveClassName } from '../../utils/resolveClassName';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 

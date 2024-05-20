@@ -2,8 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldContext } from './NumberFieldContext';
 import type { NumberFieldRootOwnerState, NumberFieldRootProps } from './NumberFieldRoot.types';
-import { resolveClassName } from '../../utils/resolveClassName';
 import { useNumberFieldRoot } from './useNumberFieldRoot';
+import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 

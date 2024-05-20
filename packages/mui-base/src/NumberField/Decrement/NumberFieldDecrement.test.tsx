@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { fireEvent } from '@testing-library/react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
-import { fireEvent } from '@testing-library/react';
-import { describeConformance } from '../../../test/describeConformance';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
+import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
   getDecrementButtonProps: (externalProps) => externalProps,

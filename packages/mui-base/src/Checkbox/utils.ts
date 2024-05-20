@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
 import type { CheckboxOwnerState } from './Root/CheckboxRoot.types';
+import { getStyleHookProps } from '../utils/getStyleHookProps';
 
 export function useCheckboxStyleHooks(ownerState: CheckboxOwnerState) {
   return React.useMemo(() => {

@@ -2,8 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { SwitchThumbProps } from './SwitchThumb.types';
 import { SwitchContext } from '../Root/SwitchContext';
-import { resolveClassName } from '../../utils/resolveClassName';
 import { useSwitchStyleHooks } from '../Root/useSwitchStyleHooks';
+import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 
