@@ -21,14 +21,14 @@ describe('<Dialog.Popup />', () => {
       [false, false],
       [undefined, false],
     ].forEach(([keepMounted, expectedIsMounted]) => {
-      it(`should ${!expectedIsMounted ? 'not' : ''} keep the dialog mounted when keepMounted=${keepMounted}`, () => {
+      it(`should ${!expectedIsMounted ? 'not ' : ''}keep the dialog mounted when keepMounted=${keepMounted}`, () => {
         const { queryByRole } = render(
           <Dialog.Root open={false}>
             <Dialog.Popup keepMounted={keepMounted} />
           </Dialog.Root>,
         );
 
-        const dialog = queryByRole('dialog');
+        const dialog = queryByRole('dialog', { hidden: true });
         if (expectedIsMounted) {
           expect(dialog).not.to.equal(null);
           expect(dialog).toBeInaccessible();

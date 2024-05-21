@@ -17,7 +17,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 
 {{"demo": "UnstyledDialogIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
-# Installation
+## Installation
 
 Base UI components are all available as a single package.
 
