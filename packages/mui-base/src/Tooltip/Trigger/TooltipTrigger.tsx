@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import type { TooltipTriggerProps } from './TooltipTrigger.types';
-import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useTriggerStyleHooks } from './useStyleHooks';
+import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
+import type { TooltipTriggerProps } from './TooltipTrigger.types';
+import { useStyleHooks } from './useStyleHooks';
+import { resolveClassName } from '../../utils/resolveClassName';
 
 /**
- * Provides props for its child element to trigger the tooltip, anchoring it to the child element.
+ * Renders a trigger element that will open the tooltip.
  *
  * Demos:
  *
@@ -17,38 +18,28 @@ import { useTriggerStyleHooks } from './useStyleHooks';
  *
  * - [TooltipTrigger API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-trigger)
  */
-function TooltipTrigger(props: TooltipTriggerProps) {
-  const { children } = props;
+const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+  props: TooltipTriggerProps,
+  ref: React.ForwardedRef<any>,
+) {
+  const { className, render: renderProp, ...otherProps } = props;
+  // eslint-disable-next-line jsx-a11y/control-has-associated-label
+  const render = renderProp ?? <button type="button" />;
 
   const { open, setTriggerEl, getTriggerProps } = useTooltipRootContext();
 
-  const mergedRef = useRenderPropForkRef(children, setTriggerEl);
-
   const ownerState = React.useMemo(() => ({ open }), [open]);
-
-  const styleHooks = useTriggerStyleHooks(ownerState);
+  const mergedRef = useRenderPropForkRef(render, ref, setTriggerEl);
+  const styleHooks = useStyleHooks(ownerState);
 
   const mergedTriggerProps = getTriggerProps({
     ref: mergedRef,
+    className: resolveClassName(className, ownerState),
     ...styleHooks,
+    ...otherProps,
   });
 
-  if (typeof children === 'function') {
-    return children(mergedTriggerProps);
-  }
-
-  return React.cloneElement(children, mergedTriggerProps);
-}
-
-TooltipTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]).isRequired,
-} as any;
+  return evaluateRenderProp(render, mergedTriggerProps, ownerState);
+});
 
 export { TooltipTrigger };

@@ -12,7 +12,7 @@ import { useTooltipPopup } from './useTooltipPopup';
 import { TooltipPopupContext } from './TooltipPopupContext';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useContentStyleHooks } from './useStyleHooks';
+import { useStyleHooks } from './useStyleHooks';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 /**
@@ -56,7 +56,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     delay,
     delayType,
     closeDelay,
-    transitionStatus,
     setPopupEl,
     getRootPopupProps,
     mounted,
@@ -90,12 +89,11 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   const ownerState: TooltipPopupOwnerState = React.useMemo(
     () => ({
       open,
-      status: transitionStatus,
       instant: instantType,
       side: tooltip.side,
       alignment: tooltip.alignment,
     }),
-    [open, transitionStatus, instantType, tooltip.side, tooltip.alignment],
+    [open, instantType, tooltip.side, tooltip.alignment],
   );
 
   const contextValue: TooltipPopupContextValue = React.useMemo(
@@ -108,7 +106,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [ownerState, tooltip.arrowRef, tooltip.getArrowProps, tooltip.arrowUncentered],
   );
 
-  const styleHooks = useContentStyleHooks(ownerState);
+  const styleHooks = useStyleHooks(ownerState);
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 

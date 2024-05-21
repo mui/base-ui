@@ -7,15 +7,11 @@ export default function UnstyledTooltipDelayGroup() {
     <div style={{ display: 'flex', gap: 12 }}>
       <Tooltip.Group closeDelay={200}>
         <Tooltip.Root>
-          <Tooltip.Trigger>
-            <AnchorButton>Anchor A</AnchorButton>
-          </Tooltip.Trigger>
+          <AnchorButton>Anchor A</AnchorButton>
           <TooltipPopup sideOffset={5}>Tooltip A</TooltipPopup>
         </Tooltip.Root>
         <Tooltip.Root>
-          <Tooltip.Trigger>
-            <AnchorButton>Anchor B</AnchorButton>
-          </Tooltip.Trigger>
+          <AnchorButton>Anchor B</AnchorButton>
           <TooltipPopup sideOffset={5}>Tooltip B</TooltipPopup>
         </Tooltip.Root>
       </Tooltip.Group>
@@ -40,7 +36,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   `}
 `;
 
-export const AnchorButton = styled('button')`
+export const AnchorButton = styled(Tooltip.Trigger)`
   border: none;
   background: ${blue[600]};
   color: white;

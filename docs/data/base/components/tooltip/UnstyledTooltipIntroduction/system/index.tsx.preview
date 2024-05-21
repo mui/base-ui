@@ -1,7 +1,5 @@
 <Tooltip.Root>
-  <Tooltip.Trigger>
-    <AnchorButton>Anchor</AnchorButton>
-  </Tooltip.Trigger>
+  <AnchorButton>Anchor</AnchorButton>
   <TooltipPopup sideOffset={7}>
     Tooltip
     <TooltipArrow />

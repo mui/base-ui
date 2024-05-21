@@ -32,39 +32,19 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     font-size: 95%;
     cursor: default;
     transform-origin: var(--transform-origin);
+    animation: ${scaleIn} 0.2s both;
 
-    &[data-transition] {
-      transition-property: opacity, transform;
-      transition-duration: 0.2s;
-      opacity: 0;
-      transform: scale(0.9);
-
-      &[data-status='closing'] {
-        opacity: 0;
-        transform: scale(0);
-      }
-
-      &[data-status='opening'] {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      &[data-instant] {
-        transition-duration: 0s;
-      }
+    &[data-state='closed'] {
+      animation: ${scaleOut} 0.2s both;
     }
 
-    &[data-animation] {
-      animation: ${scaleIn} 0.2s;
-
-      &[data-status='closing'] {
-        animation: ${scaleOut} 0.2s forwards;
-      }
+    &[data-instant] {
+      animation-duration: 0s;
     }
   `}
 `;
 
-export const AnchorButton = styled('button')`
+export const AnchorButton = styled(Tooltip.Trigger)`
   border: none;
   background: ${blue[600]};
   color: white;
@@ -93,33 +73,23 @@ export default function TooltipTransitionExperiment() {
         fontFamily: '"IBM Plex Sans", sans-serif',
       }}
     >
-      <h2>Transition With Group</h2>
+      <h2>Animation With Group</h2>
       <div style={{ display: 'flex', gap: 5 }}>
         <Tooltip.Group closeDelay={200}>
           <Tooltip.Root>
-            <Tooltip.Trigger>
-              <AnchorButton>Anchor</AnchorButton>
-            </Tooltip.Trigger>
-            <TooltipPopup data-transition sideOffset={7}>
-              Tooltip
-            </TooltipPopup>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup sideOffset={7}>Tooltip</TooltipPopup>
           </Tooltip.Root>
           <Tooltip.Root>
-            <Tooltip.Trigger>
-              <AnchorButton>Anchor</AnchorButton>
-            </Tooltip.Trigger>
-            <TooltipPopup data-transition sideOffset={7}>
-              Tooltip
-            </TooltipPopup>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup sideOffset={7}>Tooltip</TooltipPopup>
           </Tooltip.Root>
         </Tooltip.Group>
       </div>
       <h2>Animation</h2>
       <Tooltip.Root>
-        <Tooltip.Trigger>
-          <AnchorButton>Anchor</AnchorButton>
-        </Tooltip.Trigger>
-        <TooltipPopup data-animation sideOffset={7}>
+        <AnchorButton>Anchor</AnchorButton>
+        <TooltipPopup keepMounted sideOffset={7}>
           Tooltip
         </TooltipPopup>
       </Tooltip.Root>

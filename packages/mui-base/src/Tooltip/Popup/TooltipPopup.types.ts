@@ -1,7 +1,6 @@
 import type { Side, VirtualElement } from '@floating-ui/react';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/BaseUI.types';
 import type { TooltipPopupParameters } from './useTooltipPopup.types';
-import type { TransitionStatus } from '../../useTransitionStatus';
 
 export interface TooltipPopupContextValue {
   open: boolean;
@@ -16,7 +15,6 @@ export type TooltipPopupOwnerState = {
   open: boolean;
   side: Side;
   alignment: 'start' | 'end' | 'center';
-  status: TransitionStatus | undefined;
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
 };
 

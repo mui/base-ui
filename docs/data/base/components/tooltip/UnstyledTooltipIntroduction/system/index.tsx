@@ -5,9 +5,7 @@ import { styled } from '@mui/system';
 export default function UnstyledTooltipIntroduction() {
   return (
     <Tooltip.Root>
-      <Tooltip.Trigger>
-        <AnchorButton>Anchor</AnchorButton>
-      </Tooltip.Trigger>
+      <AnchorButton>Anchor</AnchorButton>
       <TooltipPopup sideOffset={7}>
         Tooltip
         <TooltipArrow />
@@ -33,7 +31,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   `}
 `;
 
-export const AnchorButton = styled('button')`
+export const AnchorButton = styled(Tooltip.Trigger)`
   border: none;
   background: ${blue[600]};
   color: white;

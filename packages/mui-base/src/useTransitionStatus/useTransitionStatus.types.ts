@@ -1,1 +1,1 @@
-export type TransitionStatus = 'opening' | 'closing';
+export type TransitionStatus = 'open' | 'closed';

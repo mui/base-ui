@@ -54,15 +54,13 @@ If critical information is hidden behind a tooltip, you're likely looking for an
 Tooltip is implemented using a collection of related components:
 
 - `<Tooltip.Root />` is a top-level component that wraps all other components.
-- `<Tooltip.Trigger />` contains the trigger element.
-- `<Tooltip.Popup />` contains the tooltip content.
+- `<Tooltip.Trigger />` renders the trigger element.
+- `<Tooltip.Popup />` renders the tooltip popup itself.
 - `<Tooltip.Arrow />` renders an optional pointing arrow, placed inside the popup.
 
 ```tsx
 <Tooltip.Root>
-  <Tooltip.Trigger>
-    <button>Trigger</button>
-  </Tooltip.Trigger>
+  <Tooltip.Trigger />
   <Tooltip.Popup>
     <Tooltip.Arrow />
     Tooltip
@@ -76,10 +74,8 @@ Tooltips are only for sighted users with access to a pointer with hover capabili
 
 ```jsx
 <Tooltip.Root>
-  <Tooltip.Trigger>
-    <button aria-label="Edit">
-      <EditIcon />
-    </button>
+  <Tooltip.Trigger aria-label="Edit">
+    <EditIcon />
   </Tooltip.Trigger>
   <Tooltip.Popup>Edit</Tooltip.Popup>
 </Tooltip.Root>
@@ -95,9 +91,7 @@ By default, the tooltip is placed on the top side of its anchor. To change this,
 
 ```jsx
 <Tooltip.Root>
-  <Tooltip.Trigger>
-    <button>Trigger</button>
-  </Tooltip.Trigger>
+  <Tooltip.Trigger />
   <Tooltip.Popup side="right">Tooltip</Tooltip.Popup>
 </Tooltip.Root>
 ```

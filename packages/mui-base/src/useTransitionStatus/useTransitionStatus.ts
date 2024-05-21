@@ -3,8 +3,7 @@ import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import type { TransitionStatus } from './useTransitionStatus.types';
 
 /**
- * Provides a status string for CSS transitions and animations for conditionally-rendered
- * components.
+ * Provides a status string for CSS animations for conditionally-rendered components.
  * @param isRendered - a boolean that determines if the component is rendered.
  * @ignore - internal hook.
  */
@@ -15,7 +14,7 @@ export function useTransitionStatus(isRendered: boolean) {
   if (isRendered && !mounted) {
     setMounted(true);
 
-    if (transitionStatus === 'closing') {
+    if (transitionStatus === 'closed') {
       setTransitionStatus(undefined);
     }
   }
@@ -23,7 +22,7 @@ export function useTransitionStatus(isRendered: boolean) {
   useEnhancedEffect(() => {
     if (isRendered) {
       const frame = requestAnimationFrame(() => {
-        setTransitionStatus('opening');
+        setTransitionStatus('open');
       });
 
       return () => {
@@ -31,7 +30,7 @@ export function useTransitionStatus(isRendered: boolean) {
       };
     }
 
-    setTransitionStatus('closing');
+    setTransitionStatus('closed');
 
     return undefined;
   }, [isRendered]);

@@ -9,27 +9,13 @@ const waitForPosition = async () => act(async () => {});
 describe('<Tooltip.Root />', () => {
   const { render, clock } = createRenderer();
 
-  it('should render the children', () => {
-    render(
-      <Tooltip.Root>
-        <Tooltip.Trigger>
-          <div>Content</div>
-        </Tooltip.Trigger>
-      </Tooltip.Root>,
-    );
-
-    expect(screen.getByText('Content')).not.to.equal(null);
-  });
-
   describe('uncontrolled open', () => {
     clock.withFakeTimers();
 
     it('should open when the anchor is hovered', async () => {
       render(
         <Tooltip.Root>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -50,9 +36,7 @@ describe('<Tooltip.Root />', () => {
     it('should close when the anchor is unhovered', async () => {
       render(
         <Tooltip.Root>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -80,9 +64,7 @@ describe('<Tooltip.Root />', () => {
 
       render(
         <Tooltip.Root>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -99,9 +81,7 @@ describe('<Tooltip.Root />', () => {
     it('should close when the anchor is blurred', async () => {
       render(
         <Tooltip.Root>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -159,9 +139,7 @@ describe('<Tooltip.Root />', () => {
               setOpen(nextOpen);
             }}
           >
-            <Tooltip.Trigger>
-              <button />
-            </Tooltip.Trigger>
+            <Tooltip.Trigger />
             <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
           </Tooltip.Root>
         );
@@ -204,9 +182,7 @@ describe('<Tooltip.Root />', () => {
               setOpen(nextOpen);
             }}
           >
-            <Tooltip.Trigger>
-              <button />
-            </Tooltip.Trigger>
+            <Tooltip.Trigger />
             <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
           </Tooltip.Root>
         );
@@ -235,9 +211,7 @@ describe('<Tooltip.Root />', () => {
     it('should open when the component is rendered', async () => {
       render(
         <Tooltip.Root defaultOpen>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -250,9 +224,7 @@ describe('<Tooltip.Root />', () => {
     it('should not open when the component is rendered and open is controlled', async () => {
       render(
         <Tooltip.Root defaultOpen open={false}>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -265,9 +237,7 @@ describe('<Tooltip.Root />', () => {
     it('should not close when the component is rendered and open is controlled', async () => {
       render(
         <Tooltip.Root defaultOpen open>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -280,9 +250,7 @@ describe('<Tooltip.Root />', () => {
     it('should remain uncontrolled', async () => {
       render(
         <Tooltip.Root defaultOpen>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -307,9 +275,7 @@ describe('<Tooltip.Root />', () => {
     it('should open after delay with rest type by default', async () => {
       render(
         <Tooltip.Root delay={100}>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -333,9 +299,7 @@ describe('<Tooltip.Root />', () => {
     it('should open after delay with hover type', async () => {
       render(
         <Tooltip.Root delayType="hover">
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );
@@ -363,9 +327,7 @@ describe('<Tooltip.Root />', () => {
     it('should close after delay', async () => {
       render(
         <Tooltip.Root closeDelay={100}>
-          <Tooltip.Trigger>
-            <button />
-          </Tooltip.Trigger>
+          <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
         </Tooltip.Root>,
       );

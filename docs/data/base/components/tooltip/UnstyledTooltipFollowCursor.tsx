@@ -6,9 +6,7 @@ export default function UnstyledTooltipFollowCursor() {
   return (
     <div style={{ display: 'flex', gap: 12 }}>
       <Tooltip.Root followCursorAxis="both">
-        <Tooltip.Trigger>
-          <AnchorButton>Anchor</AnchorButton>
-        </Tooltip.Trigger>
+        <AnchorButton>Anchor</AnchorButton>
         <TooltipPopup sideOffset={5}>Tooltip</TooltipPopup>
       </Tooltip.Root>
     </div>
@@ -32,7 +30,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   `}
 `;
 
-export const AnchorButton = styled('button')`
+export const AnchorButton = styled(Tooltip.Trigger)`
   border: none;
   background: ${blue[600]};
   color: white;

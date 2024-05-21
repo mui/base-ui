@@ -3,7 +3,6 @@ import type {
   OpenChangeReason,
   UseInteractionsReturn,
 } from '@floating-ui/react';
-import type { TransitionStatus } from '../../useTransitionStatus';
 
 export interface UseTooltipRootParameters {
   /**
@@ -79,10 +78,6 @@ export interface UseTooltipRootReturnValue {
    * Sets the mounted state of the tooltip.
    */
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  /**
-   * The transition status of the tooltip.
-   */
-  transitionStatus: TransitionStatus | undefined;
   /**
    * Prop getter to spread props on the trigger element.
    */

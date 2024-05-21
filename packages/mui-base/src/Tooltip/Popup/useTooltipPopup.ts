@@ -185,13 +185,6 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
 
   const getPopupProps: UseTooltipPopupReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
-      function handleTransitionOrAnimationEnd({ target }: React.SyntheticEvent) {
-        const popupElement = refs.floating.current?.firstElementChild;
-        if (target === popupElement && setMounted) {
-          setMounted((prevMounted) => (prevMounted ? false : prevMounted));
-        }
-      }
-
       return mergeReactProps(
         externalProps,
         getRootPopupProps({
@@ -203,8 +196,12 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
             pointerEvents: isHidden || followCursorAxis === 'both' ? 'none' : undefined,
             zIndex: 2147483647, // max z-index
           },
-          onTransitionEnd: handleTransitionOrAnimationEnd,
-          onAnimationEnd: handleTransitionOrAnimationEnd,
+          onAnimationEnd({ target }) {
+            const popupElement = refs.floating.current?.firstElementChild;
+            if (target === popupElement && setMounted) {
+              setMounted((prevMounted) => (prevMounted ? false : prevMounted));
+            }
+          },
         }),
       );
     },

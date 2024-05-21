@@ -5,7 +5,7 @@ import { getStyleHookProps } from '../../utils/getStyleHookProps';
 /**
  * @ignore - internal hook.
  */
-export function useTriggerStyleHooks(ownerState: TooltipTriggerOwnerState) {
+export function useStyleHooks(ownerState: TooltipTriggerOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
       open(value) {

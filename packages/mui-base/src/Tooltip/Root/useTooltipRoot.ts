@@ -61,7 +61,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     [onOpenChange, setOpenUnwrapped],
   );
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted } = useTransitionStatus(open);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerEl, floating: popupEl },
@@ -73,31 +73,37 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
       if (isFocusOpen || isDismissClose) {
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else {
+      } else if (reasonValue === 'hover') {
         setInstantTypeState(undefined);
       }
 
       const popupElement = popupEl?.firstElementChild;
+
       if (!keepMounted && !openValue && popupElement && setMounted) {
-        const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
-        const noTransitionDuration = ['', '0s'].includes(computedStyles.transitionDuration);
-        const noAnimationName = ['', 'none'].includes(computedStyles.animationName);
-        const noAnimation = noTransitionDuration && noAnimationName;
-        if (noAnimation) {
-          setMounted(false);
-        }
+        // Wait for the CSS styles to be applied to determine if the animation has been removed in
+        // the [data-instant] state. This allows the close animation to play if the `delay`
+        // instantType is applying to the same element.
+        requestAnimationFrame(() => {
+          const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
+          const hasNoAnimation =
+            ['', 'none'].includes(computedStyles.animationName) ||
+            ['', '0s'].includes(computedStyles.animationDuration);
+          if (hasNoAnimation) {
+            setMounted(false);
+          }
+        });
       }
 
       setOpen(openValue, eventValue, reasonValue);
     },
   });
 
-  const { delay: groupDelay, isInstantPhase } = useDelayGroup(context);
+  const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
 
-  // TODO: While in the instant phase, if the tooltip is closing and no other tooltip is opening,
-  // the `instantType` should be `undefined`. This ensures the close animation will play. This may
-  // need an internal fix in Floating UI.
-  const instantType = isInstantPhase ? 'delay' : instantTypeState;
+  let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
+  if (!open && context.floatingId === currentId) {
+    instantType = instantTypeState;
+  }
 
   const hover = useHover(context, {
     mouseOnly: true,
@@ -125,22 +131,11 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       setOpen,
       mounted,
       setMounted,
-      transitionStatus,
       getTriggerProps,
       getRootPopupProps,
       rootContext: context,
       instantType,
     }),
-    [
-      mounted,
-      open,
-      setMounted,
-      setOpen,
-      transitionStatus,
-      getTriggerProps,
-      getRootPopupProps,
-      context,
-      instantType,
-    ],
+    [mounted, open, setMounted, setOpen, getTriggerProps, getRootPopupProps, context, instantType],
   );
 }

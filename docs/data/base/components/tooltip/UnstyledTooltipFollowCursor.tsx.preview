@@ -1,6 +1,4 @@
 <Tooltip.Root followCursorAxis="both">
-  <Tooltip.Trigger>
-    <AnchorButton>Anchor</AnchorButton>
-  </Tooltip.Trigger>
+  <AnchorButton>Anchor</AnchorButton>
   <TooltipPopup sideOffset={5}>Tooltip</TooltipPopup>
 </Tooltip.Root>

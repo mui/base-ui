@@ -1,9 +1,7 @@
-import type { GenericHTMLProps } from '../../utils/BaseUI.types';
+import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export type TooltipTriggerOwnerState = {
   open: boolean;
 };
 
-export interface TooltipTriggerProps {
-  children: React.ReactElement | ((htmlProps: GenericHTMLProps) => React.ReactElement);
-}
+export interface TooltipTriggerProps extends BaseUIComponentProps<any, TooltipTriggerOwnerState> {}
