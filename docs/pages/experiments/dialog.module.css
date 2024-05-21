@@ -51,10 +51,14 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
+    translateY(calc(-30px * var(--nested-dialogs)));
+  opacity: calc(pow(0.95, var(--nested-dialogs)));
   padding: 16px;
   z-index: 1;
   font-family: IBM Plex Sans;
+
+  transition: transform 200ms ease-out;
 
   &.withTransitions {
     visibility: hidden;

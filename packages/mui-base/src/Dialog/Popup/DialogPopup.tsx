@@ -13,7 +13,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { render, className, keepMounted = false, id: idProp, animated = false, ...other } = props;
   const rootContext = useDialogRootContext();
-  const { open, modal } = rootContext;
+  const { open, modal, nestedOpenDialogCount } = rootContext;
 
   const { getRootProps, floatingUIContext, mounted } = useDialogPopup({
     id: idProp,
@@ -32,7 +32,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     className,
     ownerState,
     propGetter: getRootProps,
-    extraProps: other,
+    extraProps: {
+      ...other,
+      'data-open-children': nestedOpenDialogCount,
+      style: { '--nested-dialogs': nestedOpenDialogCount },
+    },
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },

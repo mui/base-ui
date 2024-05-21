@@ -35,6 +35,8 @@ export interface UseDialogRootParameters {
    * @default false
    */
   softClose?: SoftCloseOptions;
+  onNestedDialogOpen?: (ownChildrenCount: number) => void;
+  onNestedDialogClose?: (ownChildrenCount: number) => void;
 }
 
 export interface UseDialogRootReturnValue extends DialogRootContextValue {}
@@ -51,4 +53,7 @@ export interface DialogRootContextValue {
   setDescriptionElementId: (elementId: string | undefined) => void;
   popupElementId: string | undefined;
   setPopupElementId: (elementId: string | undefined) => void;
+  onNestedDialogOpen?: (ownChildrenCount: number) => void;
+  onNestedDialogClose?: (ownChildrenCount: number) => void;
+  nestedOpenDialogCount: number;
 }

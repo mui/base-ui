@@ -20,6 +20,8 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     type = 'dialog',
     modal = true,
     softClose = false,
+    onNestedDialogOpen,
+    onNestedDialogClose,
   } = parameters;
 
   const [open, setOpen] = useControlled({
@@ -40,6 +42,60 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
       onOpenChange?.(shouldOpen);
     },
     [onOpenChange, setOpen],
+  );
+
+  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const id = React.useId();
+
+  React.useEffect(() => {
+    if (onNestedDialogOpen && open) {
+      onNestedDialogOpen(ownNestedOpenDialogs);
+    }
+
+    if (onNestedDialogClose && !open) {
+      onNestedDialogClose(ownNestedOpenDialogs);
+    }
+
+    return () => {
+      if (onNestedDialogClose && open) {
+        onNestedDialogClose(ownNestedOpenDialogs);
+      }
+
+      if (onNestedDialogOpen && !open) {
+        onNestedDialogOpen(ownNestedOpenDialogs);
+      }
+    };
+  }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
+
+  const handleNestedDialogOpen = React.useCallback(
+    (ownChildrenCount: number) => {
+      console.log(id + ' nested open', { ownChildrenCount });
+      setOwnNestedOpenDialogs((prev) => {
+        console.log('setting after open', {
+          prev,
+          ownChildrenCount,
+          new: ownChildrenCount + 1,
+        });
+        return ownChildrenCount + 1;
+      });
+    },
+    [id],
+  );
+
+  const handleNestedDialogClose = React.useCallback(
+    (ownChildrenCount: number) => {
+      console.log(id + ' nested close', { ownChildrenCount });
+
+      setOwnNestedOpenDialogs((prev) => {
+        console.log('setting after close', {
+          prev,
+          ownChildrenCount,
+          new: 0,
+        });
+        return 0;
+      });
+    },
+    [id],
   );
 
   if (process.env.NODE_ENV !== 'production') {
@@ -67,6 +123,9 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
       setDescriptionElementId,
       popupElementId,
       setPopupElementId,
+      onNestedDialogOpen: handleNestedDialogOpen,
+      onNestedDialogClose: handleNestedDialogClose,
+      nestedOpenDialogCount: ownNestedOpenDialogs,
     };
   }, [
     modal,
@@ -77,5 +136,8 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     descriptionElementId,
     popupElementId,
     softClose,
+    handleNestedDialogClose,
+    handleNestedDialogOpen,
+    ownNestedOpenDialogs,
   ]);
 }

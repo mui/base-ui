@@ -15,6 +15,8 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     type = 'dialog',
   } = props;
 
+  const dialogRootContext = React.useContext(DialogRootContext);
+
   const contextValue = useDialogRoot({
     open: openProp,
     defaultOpen,
@@ -22,6 +24,8 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     type,
     modal,
     softClose,
+    onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
+    onNestedDialogOpen: dialogRootContext?.onNestedDialogOpen,
   });
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
