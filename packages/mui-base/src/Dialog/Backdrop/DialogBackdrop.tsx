@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { FloatingPortal } from '@floating-ui/react';
 import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBackdrop.types';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
@@ -11,7 +12,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, animated = false, keepMounted = false, ...other } = props;
-  const { open, modal } = useDialogRootContext();
+  const { open, modal, hasParentDialog } = useDialogRootContext();
   const { getRootProps, mounted } = useDialogBackdrop({ animated, open });
 
   const ownerState: DialogBackdropOwnerState = React.useMemo(
@@ -35,7 +36,12 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     return null;
   }
 
-  return renderElement();
+  if (hasParentDialog) {
+    // no need to render nested backdrops
+    return null;
+  }
+
+  return <FloatingPortal>{renderElement()}</FloatingPortal>;
 });
 
 DialogBackdrop.propTypes /* remove-proptypes */ = {

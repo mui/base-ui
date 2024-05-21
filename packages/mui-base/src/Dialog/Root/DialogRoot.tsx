@@ -17,7 +17,7 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
 
   const dialogRootContext = React.useContext(DialogRootContext);
 
-  const contextValue = useDialogRoot({
+  const dialogRoot = useDialogRoot({
     open: openProp,
     defaultOpen,
     onOpenChange,
@@ -27,6 +27,13 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: dialogRootContext?.onNestedDialogOpen,
   });
+
+  const hasParentDialog = Boolean(dialogRootContext);
+
+  const contextValue = React.useMemo(
+    () => ({ ...dialogRoot, hasParentDialog }),
+    [dialogRoot, hasParentDialog],
+  );
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
 };

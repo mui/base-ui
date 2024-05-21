@@ -1,4 +1,18 @@
-@keyframes dialog-opening {
+@keyframes dialog-opening-transform {
+  from {
+    transform: translate(-50%, -35%) scale(0.8) translateY(0);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
+      translateY(calc(-30px * var(--nested-dialogs)));
+  }
+}
+
+@keyframes dialog-opening-opacity {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
   to {
     opacity: 1;
     visibility: visible;
@@ -7,10 +21,16 @@
 
 @keyframes dialog-closing {
   from {
+    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
+      translateY(calc(-30px * var(--nested-dialogs)));
     opacity: 1;
+    visibility: visible;
   }
+
   to {
-    opacity: 0;
+    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
+      translateY(calc(-30px * var(--nested-dialogs)));
+    opacity: 0.5;
     visibility: hidden;
   }
 }
@@ -42,6 +62,8 @@
 }
 
 .dialog {
+  --transition-duration: 150ms;
+
   background: #fff;
   border: 1px solid #f5f5f5;
   min-width: 300px;
@@ -51,45 +73,55 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-    translateY(calc(-30px * var(--nested-dialogs)));
-  opacity: calc(pow(0.95, var(--nested-dialogs)));
   padding: 16px;
-  z-index: 1;
   font-family: IBM Plex Sans;
-
-  transition: transform 200ms ease-out;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  opacity: calc(pow(0.95, var(--nested-dialogs)));
 
   &.withTransitions {
+    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
+      translateY(calc(-30px * var(--nested-dialogs)));
     visibility: hidden;
-    opacity: 0;
+    opacity: 0.5;
     transition:
-      opacity 0.5s ease-in-out,
-      visibility 0.5s step-end;
+      transform var(--transition-duration) ease-in,
+      opacity var(--transition-duration) ease-in,
+      visibility var(--transition-duration) step-end;
 
     &[data-state='open'] {
       @starting-style {
         & {
-          opacity: 0;
+          transform: translate(-50%, -35%) scale(0.8) translateY(0);
+          opacity: 0.5;
         }
       }
 
       visibility: visible;
       opacity: 1;
+      transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
+        translateY(calc(-30px * var(--nested-dialogs)));
       transition:
-        opacity 0.3s ease-in-out,
-        visibility 0.3s step-start;
+        transform var(--transition-duration) ease-out,
+        opacity var(--transition-duration) ease-out,
+        visibility var(--transition-duration) step-start;
     }
   }
 
   &.withAnimations {
-    opacity: 0;
+    transform: translate(-50%, -35%) scale(0.8, 0.9) translateY(0);
+
     &[data-state='open'] {
-      animation: dialog-opening 0.8s ease-out both;
+      animation:
+        dialog-opening-transform var(--transition-duration) ease-out,
+        dialog-opening-opacity var(--transition-duration) ease-out forwards;
+      transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
+        translateY(calc(-30px * var(--nested-dialogs)));
+      transition: transform var(--transition-duration) ease-out;
     }
 
     &[data-state='closed'] {
-      animation: dialog-closing 0.8s ease-in both;
+      animation: dialog-closing var(--transition-duration) ease-in forwards;
     }
   }
 
@@ -112,9 +144,9 @@
     visibility: hidden;
     backdrop-filter: blur(1px);
     transition:
-      backdrop-filter 1s ease-in,
-      opacity 1s ease-in,
-      visibility 1s step-end;
+      backdrop-filter 300ms ease-in,
+      opacity 300ms ease-in,
+      visibility 300ms step-end;
 
     &[data-state='open'] {
       @starting-style {
@@ -128,18 +160,18 @@
       opacity: 1;
       visibility: visible;
       transition:
-        backdrop-filter 2s ease-out,
-        opacity 0.3s ease-out;
+        backdrop-filter 500ms ease-out,
+        opacity 500ms ease-out;
     }
   }
 
   &.withAnimations {
     &[data-state='open'] {
-      animation: backdrop-opening 1s ease-out forwards;
+      animation: backdrop-opening 500ms ease-out forwards;
     }
 
     &[data-state='closed'] {
-      animation: backdrop-closing 1s ease-in forwards;
+      animation: backdrop-closing 500ms ease-in forwards;
     }
   }
 }

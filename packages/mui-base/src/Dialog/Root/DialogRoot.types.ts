@@ -39,9 +39,7 @@ export interface UseDialogRootParameters {
   onNestedDialogClose?: (ownChildrenCount: number) => void;
 }
 
-export interface UseDialogRootReturnValue extends DialogRootContextValue {}
-
-export interface DialogRootContextValue {
+export interface UseDialogRootReturnValue {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   modal: boolean;
@@ -56,4 +54,8 @@ export interface DialogRootContextValue {
   onNestedDialogOpen?: (ownChildrenCount: number) => void;
   onNestedDialogClose?: (ownChildrenCount: number) => void;
   nestedOpenDialogCount: number;
+}
+
+export interface DialogRootContextValue extends UseDialogRootReturnValue {
+  hasParentDialog: boolean;
 }

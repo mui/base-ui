@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
 import { DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../Root/DialogRootContext';
@@ -47,9 +47,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   }
 
   return (
-    <FloatingFocusManager context={floatingUIContext} modal={modal} disabled={!mounted}>
-      {renderElement()}
-    </FloatingFocusManager>
+    <FloatingPortal>
+      <FloatingFocusManager context={floatingUIContext} modal={modal} disabled={!mounted}>
+        {renderElement()}
+      </FloatingFocusManager>
+    </FloatingPortal>
   );
 });
 

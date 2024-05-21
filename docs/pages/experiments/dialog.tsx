@@ -1,13 +1,25 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import * as Dialog from '@base_ui/react/Dialog';
+import { useTransitionStatus } from '@base_ui/react/Transitions';
+import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
 
+const NESTED_DIALOGS = 8;
+
 interface DemoProps {
+  keepMounted: boolean;
   modal: boolean;
   softClose: boolean;
 }
 
-function renderContent(title: string, includeNested: number) {
+function renderContent(
+  title: string,
+  includeNested: number,
+  nestedClassName: string,
+  modal: boolean,
+  softClose: boolean,
+) {
   return (
     <React.Fragment>
       <Dialog.Title className={classes.title}>{title}</Dialog.Title>
@@ -26,18 +38,23 @@ function renderContent(title: string, includeNested: number) {
 
       <div className={classes.controls}>
         {includeNested > 0 ? (
-          <Dialog.Root>
+          <Dialog.Root modal={modal} softClose={softClose}>
             <Dialog.Trigger>
               <button type="button" className={classes.button}>
                 Open nested
               </button>
             </Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Backdrop className={classes.backdrop} />
-              <Dialog.Popup className={classes.dialog}>
-                {renderContent('Nested dialog', includeNested - 1)}
-              </Dialog.Popup>
-            </Dialog.Portal>
+
+            <Dialog.Backdrop className={clsx(classes.backdrop, nestedClassName)} />
+            <Dialog.Popup className={clsx(classes.dialog, nestedClassName)}>
+              {renderContent(
+                `Nested dialog ${NESTED_DIALOGS + 1 - includeNested}`,
+                includeNested - 1,
+                nestedClassName,
+                modal,
+                softClose,
+              )}
+            </Dialog.Popup>
           </Dialog.Root>
         ) : null}
 
@@ -47,56 +64,158 @@ function renderContent(title: string, includeNested: number) {
   );
 }
 
-function UncontrolledDialogDemo(props: DemoProps) {
-  const { modal, softClose } = props;
-
+function CssTransitionDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
   return (
     <span className={classes.demo}>
       <Dialog.Root modal={modal} softClose={softClose}>
         <Dialog.Trigger>
           <button type="button" className={classes.button}>
-            Open uncontrolled
+            Open with CSS transition
           </button>
         </Dialog.Trigger>
-        {modal && <Dialog.Backdrop className={classes.backdrop} />}
-        <Dialog.Popup className={classes.dialog}>
-          {renderContent(`Uncontrolled ${modal ? 'modal' : 'nonmodal'} dialog`, 2)}
+
+        <Dialog.Backdrop
+          keepMounted={keepMounted}
+          className={clsx(classes.backdrop, classes.withTransitions)}
+        />
+
+        <Dialog.Popup
+          keepMounted={keepMounted}
+          className={clsx(classes.dialog, classes.withTransitions)}
+        >
+          {renderContent(
+            'Dialog with CSS transitions',
+            NESTED_DIALOGS,
+            classes.withTransitions,
+            modal,
+            softClose,
+          )}
         </Dialog.Popup>
       </Dialog.Root>
     </span>
   );
 }
 
-function ControlledDialogDemo(props: DemoProps) {
+function CssAnimationDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
+  return (
+    <span className={classes.demo}>
+      <Dialog.Root modal={modal} softClose={softClose}>
+        <Dialog.Trigger>
+          <button type="button" className={classes.button}>
+            Open with CSS animation
+          </button>
+        </Dialog.Trigger>
+
+        <Dialog.Backdrop
+          keepMounted={keepMounted}
+          className={clsx(classes.backdrop, classes.withAnimations)}
+        />
+
+        <Dialog.Popup
+          keepMounted={keepMounted}
+          className={clsx(classes.dialog, classes.withAnimations)}
+        >
+          {renderContent(
+            'Dialog with CSS animations',
+            NESTED_DIALOGS,
+            classes.withAnimations,
+            modal,
+            softClose,
+          )}
+        </Dialog.Popup>
+      </Dialog.Root>
+    </span>
+  );
+}
+
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
   const [open, setOpen] = React.useState(false);
-  const { modal, softClose } = props;
 
   return (
     <span className={classes.demo}>
-      <button type="button" className={classes.button} onClick={() => setOpen(true)}>
-        Open controlled
-      </button>
+      <Dialog.Root softClose open={open} onOpenChange={setOpen}>
+        <Dialog.Trigger>
+          <button type="button" className={classes.button}>
+            Open with React Spring transition
+          </button>
+        </Dialog.Trigger>
 
-      <Dialog.Root open={open} modal={modal} onOpenChange={setOpen} softClose={softClose}>
-        {modal && <Dialog.Backdrop className={classes.backdrop} />}
-        <Dialog.Popup className={classes.dialog}>
-          {renderContent(`Controlled ${modal ? 'modal' : 'nonmodal'} dialog`, 2)}
-        </Dialog.Popup>
+        <Dialog.Backdrop
+          animated={animated}
+          className={`${classes.backdrop} ${animated && classes.withAnimations}`}
+        />
+
+        <ReactSpringTransition open={open}>
+          <Dialog.Popup
+            animated={false}
+            keepMounted={keepMounted}
+            className={`${classes.dialog} ${classes.withReactSpringTransition}`}
+          >
+            {renderContent('Dialog with ReactSpring transitions', 3)}
+          </Dialog.Popup>
+        </ReactSpringTransition>
       </Dialog.Root>
     </span>
   );
 }
 
+function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement }) {
+  const { open, children } = props;
+
+  const api = useSpringRef();
+  const springs = useSpring({
+    ref: api,
+    from: { opacity: 0, transform: 'translateY(-8px) scale(0.95)' },
+  });
+
+  const { mounted, onTransitionEnded } = useTransitionStatus(open);
+
+  React.useEffect(() => {
+    if (open) {
+      api.start({
+        opacity: 1,
+        transform: 'translateY(0) scale(1)',
+        config: { tension: 250, friction: 10 },
+      });
+    } else {
+      api.start({
+        opacity: 0,
+        transform: 'translateY(-8px) scale(0.95)',
+        config: { tension: 170, friction: 26 },
+        onRest: () => onTransitionEnded(),
+      });
+    }
+  }, [api, open, mounted, onTransitionEnded]);
+
+  return mounted ? (
+    <springAnimated.div style={springs} className={classes.springWrapper}>
+      {children}
+    </springAnimated.div>
+  ) : null;
+}
+
 export default function DialogExperiment() {
-  const [modal, setModal] = React.useState(false);
+  const [keepMounted, setKeepMounted] = React.useState(false);
+  const [modal, setModal] = React.useState(true);
   const [softClose, setSoftClose] = React.useState(false);
 
   return (
     <div className={classes.page}>
       <h1>Dialog</h1>
-      <UncontrolledDialogDemo modal={modal} softClose={softClose} />
-      <ControlledDialogDemo modal={modal} softClose={softClose} />
+      <CssTransitionDialogDemo keepMounted={keepMounted} modal={modal} softClose={softClose} />
+      <CssAnimationDialogDemo keepMounted={keepMounted} modal={modal} softClose={softClose} />
+
       <h2>Options</h2>
+      <label>
+        <input
+          type="checkbox"
+          checked={keepMounted}
+          onChange={(event) => setKeepMounted(event.target.checked)}
+        />{' '}
+        Keep mounted
+      </label>
       <label>
         <input
           type="checkbox"

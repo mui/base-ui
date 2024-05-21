@@ -45,7 +45,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
   );
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
-  const id = React.useId();
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
@@ -67,36 +66,13 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 
-  const handleNestedDialogOpen = React.useCallback(
-    (ownChildrenCount: number) => {
-      console.log(id + ' nested open', { ownChildrenCount });
-      setOwnNestedOpenDialogs((prev) => {
-        console.log('setting after open', {
-          prev,
-          ownChildrenCount,
-          new: ownChildrenCount + 1,
-        });
-        return ownChildrenCount + 1;
-      });
-    },
-    [id],
-  );
+  const handleNestedDialogOpen = React.useCallback((ownChildrenCount: number) => {
+    setOwnNestedOpenDialogs(ownChildrenCount + 1);
+  }, []);
 
-  const handleNestedDialogClose = React.useCallback(
-    (ownChildrenCount: number) => {
-      console.log(id + ' nested close', { ownChildrenCount });
-
-      setOwnNestedOpenDialogs((prev) => {
-        console.log('setting after close', {
-          prev,
-          ownChildrenCount,
-          new: 0,
-        });
-        return 0;
-      });
-    },
-    [id],
-  );
+  const handleNestedDialogClose = React.useCallback(() => {
+    setOwnNestedOpenDialogs(0);
+  }, []);
 
   if (process.env.NODE_ENV !== 'production') {
     // the above condition doesn't change at runtime
