@@ -54,6 +54,7 @@
   transform: translate(-50%, -50%);
   padding: 16px;
   z-index: 1;
+  font-family: IBM Plex Sans;
 
   &.withTransitions {
     visibility: hidden;
@@ -63,6 +64,12 @@
       visibility 0.5s step-end;
 
     &[data-state='open'] {
+      @starting-style {
+        & {
+          opacity: 0;
+        }
+      }
+
       visibility: visible;
       opacity: 1;
       transition:
@@ -106,6 +113,13 @@
       visibility 1s step-end;
 
     &[data-state='open'] {
+      @starting-style {
+        & {
+          opacity: 0;
+          backdrop-filter: blur(1px);
+        }
+      }
+
       backdrop-filter: blur(6px);
       opacity: 1;
       visibility: visible;
@@ -124,6 +138,11 @@
       animation: backdrop-closing 1s ease-in forwards;
     }
   }
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .page {
@@ -149,24 +168,6 @@
 
   label + label {
     margin-left: 16px;
-  }
-
-  input[type='text'],
-  input[type='password'],
-  textarea {
-    padding: 8px;
-    border: 1px solid #d8d8d8;
-    border-radius: 4px;
-    font-family: inherit;
-    box-sizing: border-box;
-  }
-
-  textarea {
-    resize: vertical;
-    min-height: 100px;
-    width: 100%;
-    font-family: inherit;
-    box-sizing: border-box;
   }
 }
 
@@ -200,20 +201,44 @@
       outline-color: #cc9922;
     }
   }
-
-  & + &,
-  input + & {
-    margin-left: 8px;
-  }
 }
 
 .form {
   display: flex;
   gap: 16px;
   margin-top: 24px;
+  flex-wrap: wrap;
+
+  input[type='text'],
+  textarea {
+    padding: 8px;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+    width: 100%;
+  }
 
   & > * {
-    flex: 1;
+    flex: 1 0 auto;
+    margin: 0;
+  }
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #d8d8d8;
+  padding-top: 16px;
+
+  & > * {
+    flex: 1 1 50%;
     margin: 0;
   }
 }

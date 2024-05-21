@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
-// import { useTransitionStatus } from '@base_ui/react/Transitions';
-// import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
+import { useTransitionStatus } from '@base_ui/react/Transitions';
+import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
 
 interface DemoProps {
@@ -20,11 +20,15 @@ function renderContent(title: string) {
         diam nec ligula hendrerit dapibus.
       </p>
 
-      <textarea />
-      <input type="text" name="username" />
-      <input type="password" name="password" />
+      <div className={classes.form}>
+        <textarea placeholder="Testing focus" />
+        <input type="text" placeholder="Testing focus" />
+        <input type="text" placeholder="Testing focus" />
+      </div>
 
-      <Dialog.Close className={classes.button}>Close</Dialog.Close>
+      <div className={classes.controls}>
+        <Dialog.Close className={classes.button}>Close</Dialog.Close>
+      </div>
     </React.Fragment>
   );
 }
@@ -85,7 +89,6 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
   );
 }
 
-/* 
 function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -126,7 +129,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
     from: { opacity: 0, transform: 'translateY(-8px) scale(0.95)' },
   });
 
-  const { mounted, notifyTransitionEnded } = useTransitionStatus(open, true);
+  const { mounted, onTransitionEnded } = useTransitionStatus(open);
 
   React.useEffect(() => {
     if (open) {
@@ -140,10 +143,10 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
         opacity: 0,
         transform: 'translateY(-8px) scale(0.95)',
         config: { tension: 170, friction: 26 },
-        onRest: () => notifyTransitionEnded(),
+        onRest: () => onTransitionEnded(),
       });
     }
-  }, [api, open, mounted, notifyTransitionEnded]);
+  }, [api, open, mounted, onTransitionEnded]);
 
   return mounted ? (
     <springAnimated.div style={springs} className={classes.springWrapper}>
@@ -151,7 +154,6 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
     </springAnimated.div>
   ) : null;
 }
-*/
 
 export default function DialogExperiment() {
   const [keepMounted, setKeepMounted] = React.useState(false);

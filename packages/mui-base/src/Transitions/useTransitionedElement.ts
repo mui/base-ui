@@ -23,7 +23,7 @@ export function useTransitionedElement(
     ) {
       onTransitionEnded();
     }
-  });
+  }, [isRendered, elementRef, onTransitionEnded]);
 
   const handleTransitionAndAnimationEnd = React.useCallback(() => {
     if (!isRendered) {
