@@ -39,6 +39,10 @@ module.exports = [
     title: 'DialogPopup',
   },
   {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-portal',
+    title: 'DialogPortal',
+  },
+  {
     pathname: '/base-ui/react-dialog/components-api/#dialog-root',
     title: 'DialogRoot',
   },
@@ -150,20 +154,12 @@ module.exports = [
     title: 'useDialogClose',
   },
   {
-    pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-description',
-    title: 'useDialogDescription',
-  },
-  {
     pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-popup',
     title: 'useDialogPopup',
   },
   {
     pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-root',
     title: 'useDialogRoot',
-  },
-  {
-    pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-title',
-    title: 'useDialogTitle',
   },
   {
     pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-trigger',

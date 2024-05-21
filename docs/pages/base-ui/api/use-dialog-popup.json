@@ -48,8 +48,7 @@
       },
       "required": true
     },
-    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "openState": { "type": { "name": "OpenState", "description": "OpenState" }, "required": true }
+    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
   },
   "name": "useDialogPopup",
   "filename": "/packages/mui-base/src/Dialog/Popup/useDialogPopup.tsx",

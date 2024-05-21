@@ -23,7 +23,6 @@ export interface UseDialogRootParameters {
   modal?: boolean;
   /**
    * Callback invoked when the dialog is being opened or closed.
-   * @param open The new open state.
    */
   onOpenChange?: (open: boolean) => void;
   /**

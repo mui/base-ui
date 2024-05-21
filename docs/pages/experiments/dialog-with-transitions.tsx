@@ -89,6 +89,8 @@ function CssAnimationDialogDemo({ animated, keepMounted }: DemoProps) {
   );
 }
 
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ReactSpringDialogDemo({ animated, keepMounted }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
