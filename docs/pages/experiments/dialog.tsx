@@ -7,22 +7,42 @@ interface DemoProps {
   softClose: boolean;
 }
 
-function renderContent(title: string) {
+function renderContent(title: string, includeNested: number) {
   return (
     <React.Fragment>
       <Dialog.Title className={classes.title}>{title}</Dialog.Title>
-      <Dialog.Description>This is a sample dialog</Dialog.Description>
+      <Dialog.Description>This is a sample dialog.</Dialog.Description>
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget sapien id dolor rutrum
         porta. Sed enim nulla, placerat eu tincidunt non, ultrices in lectus. Curabitur pellentesque
         diam nec ligula hendrerit dapibus.
       </p>
 
-      <textarea />
-      <input type="text" name="username" />
-      <input type="password" name="password" />
+      <div className={classes.form}>
+        <textarea placeholder="Testing focus" />
+        <input type="text" placeholder="Testing focus" />
+        <input type="text" placeholder="Testing focus" />
+      </div>
 
-      <Dialog.Close className={classes.button}>Close</Dialog.Close>
+      <div className={classes.controls}>
+        {includeNested > 0 ? (
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <button type="button" className={classes.button}>
+                Open nested
+              </button>
+            </Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop className={classes.backdrop} />
+              <Dialog.Popup className={classes.dialog}>
+                {renderContent('Nested dialog', includeNested - 1)}
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ) : null}
+
+        <Dialog.Close className={classes.button}>Close</Dialog.Close>
+      </div>
     </React.Fragment>
   );
 }
@@ -40,7 +60,7 @@ function UncontrolledDialogDemo(props: DemoProps) {
         </Dialog.Trigger>
         {modal && <Dialog.Backdrop className={classes.backdrop} />}
         <Dialog.Popup className={classes.dialog}>
-          {renderContent(`Uncontrolled ${modal ? 'modal' : 'nonmodal'} dialog`)}
+          {renderContent(`Uncontrolled ${modal ? 'modal' : 'nonmodal'} dialog`, 2)}
         </Dialog.Popup>
       </Dialog.Root>
     </span>
@@ -60,7 +80,7 @@ function ControlledDialogDemo(props: DemoProps) {
       <Dialog.Root open={open} modal={modal} onOpenChange={setOpen} softClose={softClose}>
         {modal && <Dialog.Backdrop className={classes.backdrop} />}
         <Dialog.Popup className={classes.dialog}>
-          {renderContent(`Controlled ${modal ? 'modal' : 'nonmodal'} dialog`)}
+          {renderContent(`Controlled ${modal ? 'modal' : 'nonmodal'} dialog`, 2)}
         </Dialog.Popup>
       </Dialog.Root>
     </span>

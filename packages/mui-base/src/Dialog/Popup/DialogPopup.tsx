@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { FloatingFocusManager } from '@floating-ui/react';
 import { DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
+import { useDialogRootContext } from '../Root/DialogRootContext';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
-import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps & React.ComponentPropsWithoutRef<'div'>,
@@ -43,12 +43,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   }
 
   return (
-    <FloatingFocusManager
-      context={floatingUIContext}
-      modal={modal}
-      guards={false}
-      disabled={!mounted}
-    >
+    <FloatingFocusManager context={floatingUIContext} modal={modal} disabled={!mounted}>
       {renderElement()}
     </FloatingFocusManager>
   );
