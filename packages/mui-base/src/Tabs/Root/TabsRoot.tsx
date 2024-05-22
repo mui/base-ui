@@ -3,12 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabsRootOwnerState, TabsRootProps } from './TabsRoot.types';
 import { useTabsRoot } from './useTabsRoot';
+import { tabsStyleHookMapping } from './styleHooks';
 import { TabsProvider } from './TabsProvider';
-import { useTabsRootStyleHooks } from './useTabsRootStyleHooks';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
  *
@@ -25,17 +22,15 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    className: classNameProp,
+    className,
     defaultValue,
     direction = 'ltr',
     onValueChange,
     orientation = 'horizontal',
-    render: renderProp,
+    render,
     value,
     ...other
   } = props;
-
-  const render = renderProp ?? defaultRenderFunctions.div;
 
   const { contextValue, getRootProps, tabActivationDirection } = useTabsRoot({
     value,
@@ -51,17 +46,17 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     tabActivationDirection,
   };
 
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useTabsRootStyleHooks(ownerState);
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render: render ?? 'div',
+    className,
+    ownerState,
+    extraProps: other,
+    ref: forwardedRef,
+    customStyleHookMapping: tabsStyleHookMapping,
+  });
 
-  const rootProps = getRootProps({ ...styleHooks, ...other, className, ref: mergedRef });
-
-  return (
-    <TabsProvider value={contextValue}>
-      {evaluateRenderProp(render, rootProps, ownerState)}
-    </TabsProvider>
-  );
+  return <TabsProvider value={contextValue}>{renderElement()}</TabsProvider>;
 });
 
 TabsRoot.propTypes /* remove-proptypes */ = {
