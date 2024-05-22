@@ -2,10 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBackdrop.types';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../Root/DialogRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
@@ -20,8 +19,8 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     [open, modal],
   );
 
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.div,
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'div',
     className,
     ownerState,
     propGetter: getRootProps,

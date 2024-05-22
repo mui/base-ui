@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { useDialogTrigger } from './useDialogTrigger';
 import type { DialogTriggerOwnerState, DialogTriggerProps } from './DialogTrigger.types';
 import { useDialogRootContext } from '../Root/DialogRootContext';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTriggerProps,
@@ -21,8 +20,8 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const ownerState: DialogTriggerOwnerState = React.useMemo(() => ({ open, modal }), [open, modal]);
 
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.button,
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'button',
     className,
     ownerState,
     propGetter: getRootProps,

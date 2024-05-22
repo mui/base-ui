@@ -2,9 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogCloseProps } from './DialogClose.types';
 import { useDialogClose } from './useDialogClose';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
 import { useDialogRootContext } from '../Root/DialogRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogCloseProps,
@@ -19,8 +18,8 @@ const DialogClose = React.forwardRef(function DialogClose(
     modal,
   };
 
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.button,
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'button',
     className,
     ownerState,
     propGetter: getRootProps,

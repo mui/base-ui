@@ -4,8 +4,7 @@ import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
 import { DialogPopupOwnerState, DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../Root/DialogRootContext';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps,
@@ -27,8 +26,8 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     modal,
   };
 
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.div,
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'div',
     className,
     ownerState,
     propGetter: getRootProps,

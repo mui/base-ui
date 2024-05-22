@@ -1,8 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { DialogTitleProps } from './DialogTitle.types';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogTitle = React.forwardRef(function DialogTitle(
@@ -24,8 +23,8 @@ const DialogTitle = React.forwardRef(function DialogTitle(
     };
   }, [id, setTitleElementId]);
 
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.h2,
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'h2',
     className,
     ownerState,
     ref: forwardedRef,

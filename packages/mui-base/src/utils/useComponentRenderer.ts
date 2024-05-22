@@ -4,8 +4,9 @@ import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
 import { useRenderPropForkRef } from './useRenderPropForkRef';
+import { defaultRenderFunctions } from './defaultRenderFunctions';
 
-export interface BaseUIComponentRendererSettings<OwnerState, RenderedElementType extends Element> {
+export interface ComponentRendererSettings<OwnerState, RenderedElementType extends Element> {
   /**
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the owner state and returns a string.
@@ -14,7 +15,10 @@ export interface BaseUIComponentRendererSettings<OwnerState, RenderedElementType
   /**
    * The render prop or React element to override the default element.
    */
-  render: ComponentRenderFn<React.HTMLAttributes<any>, OwnerState> | React.ReactElement;
+  render:
+    | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
+    | React.ReactElement
+    | keyof typeof defaultRenderFunctions;
   /**
    * The owner state of the component.
    */
@@ -45,10 +49,10 @@ export interface BaseUIComponentRendererSettings<OwnerState, RenderedElementType
  *
  * @ignore - internal hook.
  */
-export function useBaseUIComponentRenderer<
+export function useComponentRenderer<
   OwnerState extends Record<string, any>,
   RenderedElementType extends Element,
->(settings: BaseUIComponentRendererSettings<OwnerState, RenderedElementType>) {
+>(settings: ComponentRendererSettings<OwnerState, RenderedElementType>) {
   const {
     render: renderProp,
     className: classNameProp,
@@ -70,13 +74,23 @@ export function useBaseUIComponentRenderer<
     className,
   };
 
+  let resolvedRenderProp:
+    | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
+    | React.ReactElement;
+
+  if (typeof renderProp === 'string') {
+    resolvedRenderProp = defaultRenderFunctions[renderProp];
+  } else {
+    resolvedRenderProp = renderProp;
+  }
+
   const renderedElementProps = propGetter(ownProps);
   const propsWithRef = {
     ...renderedElementProps,
-    ref: useRenderPropForkRef(renderProp, ref as React.Ref<any>, renderedElementProps.ref),
+    ref: useRenderPropForkRef(resolvedRenderProp, ref as React.Ref<any>, renderedElementProps.ref),
   };
 
-  const renderElement = () => evaluateRenderProp(renderProp, propsWithRef, ownerState);
+  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, ownerState);
 
   return {
     renderElement,

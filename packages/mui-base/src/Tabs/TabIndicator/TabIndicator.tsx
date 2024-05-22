@@ -2,24 +2,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTabIndicator } from './useTabIndicator';
-import { useTabIndicatorStyleHooks } from './useTabIndicatorStyleHooks';
-import { TabIndicatorProps } from './TabIndicator.types';
+import { TabIndicatorOwnerState, TabIndicatorProps } from './TabIndicator.types';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { useTabsContext } from '../Root/TabsContext';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+
+const noop = () => null;
 
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
   function TabIndicator(props, forwardedRef) {
-    const {
-      className: classNameProp,
-      render: renderProp,
-      renderBeforeHydration = false,
-      ...other
-    } = props;
-    const render = renderProp ?? defaultRenderFunctions.span;
+    const { className, render, renderBeforeHydration = false, ...other } = props;
+
     const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
     const [isMounted, setIsMounted] = React.useState(false);
     const { value: activeTabValue } = useTabsContext();
@@ -36,33 +30,37 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
       tabActivationDirection,
     } = useTabIndicator();
 
-    const ownerState = {
+    const ownerState: TabIndicatorOwnerState = {
       selectedTabPosition,
       orientation,
       direction,
       tabActivationDirection,
     };
 
-    const className = resolveClassName(classNameProp, ownerState);
-    const styleHooks = useTabIndicatorStyleHooks(ownerState);
-    const mergedRef = useRenderPropForkRef(render, forwardedRef);
+    const { renderElement } = useComponentRenderer({
+      propGetter: getRootProps,
+      render: render ?? 'span',
+      className,
+      ownerState,
+      extraProps: {
+        ...other,
+        'data-instance-id': !(isMounted && renderBeforeHydration) ? instanceId : undefined,
+        suppressHydrationWarning: true,
+      },
+      customStyleHookMapping: {
+        ...tabsStyleHookMapping,
+        selectedTabPosition: noop,
+      },
+      ref: forwardedRef,
+    });
 
     if (activeTabValue == null) {
       return null;
     }
 
-    const rootProps = getRootProps({
-      ...styleHooks,
-      ...other,
-      className,
-      ref: mergedRef,
-      'data-instance-id': !(isMounted && renderBeforeHydration) ? instanceId : undefined,
-      suppressHydrationWarning: true,
-    } as React.ComponentPropsWithRef<'span'>);
-
     return (
       <React.Fragment>
-        {evaluateRenderProp(render, rootProps, ownerState)}
+        {renderElement()}
         {!isMounted && renderBeforeHydration && (
           <script
             // eslint-disable-next-line react/no-danger

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { DialogDescriptionProps } from './DialogDescription.types';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useBaseUIComponentRenderer } from '../../utils/useBaseUIComponentRenderer';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 
 const DialogDescription = React.forwardRef(function DialogDescription(
@@ -23,8 +22,8 @@ const DialogDescription = React.forwardRef(function DialogDescription(
     };
   }, [id, setDescriptionElementId]);
 
-  const { renderElement } = useBaseUIComponentRenderer({
-    render: render ?? defaultRenderFunctions.p,
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'p',
     className,
     ownerState,
     ref: forwardedRef,
