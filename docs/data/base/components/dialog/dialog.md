@@ -160,6 +160,16 @@ return (
 );
 ```
 
+## Nested dialogs
+
+A dialog can open another dialog.
+At times, it may be useful to know how may open sub-dialogs a given dialog has.
+One example of this could be styling the bottom dialog in a way they appear below the top-most one.
+
+The number of open child dialogs is present in the `data-nested-dialogs` attribute and in the `--nested-dialogs` CSS variable on the `<Dialog.Popup>` component.
+
+{{"demo": "NestedDialogs.js"}}
+
 ## Animation
 
 The `<Dialog.Popup>` and `<Dialog.Backdrop>` components support transitions on entry and exit.

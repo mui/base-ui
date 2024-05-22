@@ -22,6 +22,7 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
 export interface DialogPopupOwnerState {
   open: boolean;
   modal: boolean;
+  nestedOpenDialogCount: number;
 }
 
 export interface UseDialogPopupParameters {

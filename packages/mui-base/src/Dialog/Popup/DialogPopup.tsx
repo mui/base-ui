@@ -25,6 +25,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const ownerState: DialogPopupOwnerState = {
     open,
     modal,
+    nestedOpenDialogCount,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -34,11 +35,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      'data-open-children': nestedOpenDialogCount,
       style: { '--nested-dialogs': nestedOpenDialogCount },
     },
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+      nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
     },
   });
 
