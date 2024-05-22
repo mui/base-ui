@@ -14,7 +14,7 @@ import {
 import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useTooltipRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../useTransitionStatus';
-import { ownerWindow } from '../../utils/owner';
+import { useAnimationUnmount } from '../../utils/useAnimationUnmount';
 
 /**
  * Manages the root state for a tooltip.
@@ -63,6 +63,11 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const unmount = useAnimationUnmount(
+    () => popupEl?.firstElementChild,
+    () => setMounted(false),
+  );
+
   const context = useFloatingRootContext({
     elements: { reference: triggerEl, floating: popupEl },
     open,
@@ -77,22 +82,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
         setInstantTypeState(undefined);
       }
 
-      const popupElement = popupEl?.firstElementChild;
-
-      if (!keepMounted && !openValue && popupElement && setMounted) {
-        // Wait for the CSS styles to be applied to determine if the animation has been removed in
-        // the [data-instant] state. This allows the close animation to play if the `delay`
-        // instantType is applying to the same element.
-        requestAnimationFrame(() => {
-          const computedStyles = ownerWindow(popupElement).getComputedStyle(popupElement);
-          const hasNoAnimation =
-            ['', 'none'].includes(computedStyles.animationName) ||
-            ['', '0s'].includes(computedStyles.animationDuration);
-          const hasNoTransition = ['', '0s'].includes(computedStyles.transitionDuration);
-          if (hasNoAnimation && hasNoTransition) {
-            setMounted(false);
-          }
-        });
+      if (!keepMounted && !openValue) {
+        unmount();
       }
 
       setOpen(openValue, eventValue, reasonValue);
