@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent } from '../../utils/PolymorphicComponent';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { getButtonUtilityClass } from './buttonClasses';
 import { ButtonProps, ButtonTypeMap, ButtonRootSlotProps, ButtonOwnerState } from './Button.types';
 import { useButton } from '../../useButton';
 import { WithOptionalOwnerState } from '../../utils/types';
 import { useSlotProps } from '../../utils';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 const useUtilityClasses = (ownerState: ButtonOwnerState) => {
   const { active, disabled, focusVisible } = ownerState;

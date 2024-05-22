@@ -17,7 +17,7 @@ import {
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { Portal } from '../../Portal';
 import { useSlotProps, WithOptionalOwnerState } from '../../utils';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { getPopupUtilityClass } from './popupClasses';
 import { PopupOwnerState, PopupProps, PopupRootSlotProps } from './Popup.types';
 import { useTransitionTrigger, TransitionContext } from '../useTransition';

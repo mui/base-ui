@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent } from '../../utils/PolymorphicComponent';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import { isHostComponent } from '../../utils/isHostComponent';
 import { getInputUtilityClass } from './inputClasses';
 import {
@@ -14,7 +14,7 @@ import {
 import { useInput } from '../useInput';
 import { EventHandlers, useSlotProps, WithOptionalOwnerState } from '../../utils';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 const useUtilityClasses = (ownerState: InputOwnerState) => {
   const { disabled, error, focused, formControlContext, multiline, startAdornment, endAdornment } =

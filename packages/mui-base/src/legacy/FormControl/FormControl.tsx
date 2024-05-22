@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import useControlled from '@mui/utils/useControlled';
-import { PolymorphicComponent } from '../../utils/PolymorphicComponent';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import { FormControlContext } from './FormControlContext';
 import { getFormControlUtilityClass } from './formControlClasses';
 import {
@@ -15,7 +15,7 @@ import {
 } from './FormControl.types';
 import { useSlotProps, WithOptionalOwnerState } from '../../utils';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 function hasValue(value: unknown) {
   return value != null && !(Array.isArray(value) && value.length === 0) && value !== '';

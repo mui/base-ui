@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { HTMLElementType, refType } from '@mui/utils';
-import { PolymorphicComponent } from '../../utils/PolymorphicComponent';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import { MenuOwnerState, MenuProps, MenuRootSlotProps, MenuTypeMap } from './Menu.types';
 import { getMenuUtilityClass } from './menuClasses';
 import { useMenu } from '../useMenu';
 import { MenuProvider } from '../useMenu/MenuProvider';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { Unstable_Popup as Popup } from '../Unstable_Popup';
-import { useSlotProps } from '../../utils/useSlotProps';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useSlotProps } from '../utils/useSlotProps';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { WithOptionalOwnerState } from '../../utils';
 import { ListActionTypes } from '../../useList';
 

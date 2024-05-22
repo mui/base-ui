@@ -21,7 +21,7 @@ import {
   TablePaginationSpacerSlotProps,
 } from './TablePagination.types';
 import { ItemAriaLabelType } from './common.types';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 function defaultLabelDisplayedRows({ from, to, count }: LabelDisplayedRowsArgs) {
   return `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`;

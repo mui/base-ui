@@ -5,7 +5,7 @@ import { MenuButtonOwnerState, MenuButtonProps } from './MenuButton.types';
 import { useSlotProps } from '../../utils';
 import { useMenuButton } from '../useMenuButton';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { getMenuButtonUtilityClass } from './menuButtonClasses';
 
 const useUtilityClasses = (ownerState: MenuButtonOwnerState) => {

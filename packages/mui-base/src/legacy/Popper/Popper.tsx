@@ -24,7 +24,7 @@ import {
   PopperTransitionProps,
   PopperTypeMap,
 } from './Popper.types';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 function flipPlacement(placement?: PopperPlacementType, direction?: 'ltr' | 'rtl') {
   if (direction === 'ltr') {

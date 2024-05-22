@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent } from '../../utils/PolymorphicComponent';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import {
   MenuItemOwnerState,
   MenuItemProps,
@@ -11,8 +11,8 @@ import {
 import { getMenuItemUtilityClass } from './menuItemClasses';
 import { useMenuItem, useMenuItemContextStabilizer } from '../useMenuItem';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { useSlotProps } from '../../utils/useSlotProps';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useSlotProps } from '../utils/useSlotProps';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { WithOptionalOwnerState } from '../../utils';
 import { ListContext } from '../../useList';
 

@@ -7,7 +7,7 @@ import { OptionProps, OptionOwnerState, OptionType, OptionRootSlotProps } from '
 import { getOptionUtilityClass } from './optionClasses';
 import { WithOptionalOwnerState, useSlotProps } from '../../utils';
 import { useOption, useOptionContextStabilizer } from '../useOption';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { ListContext } from '../../useList';
 
 function useUtilityClasses<OptionValue>(ownerState: OptionOwnerState<OptionValue>) {

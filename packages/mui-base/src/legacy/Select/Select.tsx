@@ -16,7 +16,7 @@ import { Popup } from '../Unstable_Popup/Popup';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { getSelectUtilityClass } from './selectClasses';
 import { defaultOptionStringifier } from '../useSelect/defaultOptionStringifier';
-import { useClassNamesOverride } from '../../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { SelectOption } from '../useOption';
 import { SelectProvider } from '../useSelect/SelectProvider';
 
