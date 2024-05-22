@@ -30,13 +30,12 @@
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
-    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
     "build:types": "tsc -b tsconfig.build.json",
     "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
     "release": "pnpm build && pnpm publish",
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/mui-base/**/*.test.{js,ts,tsx}'",
-    "typescript": "tsc -p tsconfig.json",
-    "typescript:module-augmentation": "node scripts/testModuleAugmentation.js"
+    "typescript": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.24.5",
@@ -83,39 +82,5 @@
   },
   "engines": {
     "node": ">=12.0.0"
-  },
-  "files": [
-    "Checkbox/",
-    "ClickAwayListener/",
-    "FocusTrap/",
-    "NoSsr/",
-    "NumberField/",
-    "Portal/",
-    "Switch/",
-    "Tabs/",
-    "Transitions/",
-    "useButton/",
-    "useCompound",
-    "useList/",
-    "useTransition/",
-    "utils/",
-    "index.js",
-    "index.d.ts",
-    "node/Checkbox/",
-    "node/ClickAwayListener/",
-    "node/FocusTrap/",
-    "node/NoSsr/",
-    "node/NumberField/",
-    "node/Portal/",
-    "node/Switch/",
-    "node/Tabs/",
-    "node/Transitions/",
-    "node/useButton/",
-    "node/useCompound/",
-    "node/useList/",
-    "node/utils/",
-    "node/useTransition/",
-    "node/index.js",
-    "node/index.d.ts"
-  ]
+  }
 }

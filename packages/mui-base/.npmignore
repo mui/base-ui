@@ -1,0 +1,3 @@
+# Components with the old API we keep in the repo to maintain history but don't want to publish
+legacy
+node/legacy
