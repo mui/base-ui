@@ -37,7 +37,7 @@
   "themeDefaultProps": true,
   "muiName": "NumberFieldRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/NumberField/NumberFieldRoot.tsx",
+  "filename": "/packages/mui-base/src/NumberField/Root/NumberFieldRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false
