@@ -19,7 +19,7 @@ const axisProps = {
 };
 
 export function TrackFill(props: any) {
-  // does not support inverted range fill !!!
+  // does not support inverted range fill! (yet)
   const { inverted = false, style, ...otherProps } = props;
 
   const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext();
@@ -173,7 +173,7 @@ function useIsDarkMode() {
 export function Styles() {
   const isDarkMode = useIsDarkMode();
   return (
-    <style>{`
+    <style suppressHydrationWarning>{`
     .App {
       font-family: system-ui, sans-serif;
       width: 20rem;
@@ -207,6 +207,14 @@ export function Styles() {
       align-items: center;
       position: relative;
       width: 100%;
+      height: 16px;
+      border-radius: 9999px;
+      touch-action: none;
+    }
+
+    .MySlider-track::before {
+      content: '';
+      width: 100%;
       height: 2px;
       border-radius: 9999px;
       background-color: gainsboro;
@@ -216,7 +224,7 @@ export function Styles() {
     .MySlider-track-fill {
       display: block;
       position: absolute;
-      height: 100%;
+      height: 2px;
       border-radius: 9999px;
       background-color: black;
     }
