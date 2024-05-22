@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';
+import { TextareaAutosize } from '@base_ui/react/legacy/TextareaAutosize';
 
 function LazyRoute() {
   const [isDone, setIsDone] = React.useState(false);
