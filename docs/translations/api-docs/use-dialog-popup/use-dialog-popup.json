@@ -4,8 +4,31 @@
     "animated": {
       "description": "If <code>true</code>, the dialog supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
     },
+    "descriptionElementId": {
+      "description": "The id of the description element associated with the dialog."
+    },
     "id": { "description": "The id of the dialog element." },
-    "ref": { "description": "The ref to the dialog element." }
+    "isTopmost": { "description": "Determines if the dialog is the top-most one." },
+    "modal": { "description": "Determines if the dialog is modal." },
+    "onOpenChange": {
+      "description": "Callback fired when the dialog is requested to be opened or closed."
+    },
+    "open": { "description": "Determines if the dialog is open." },
+    "ref": { "description": "The ref to the dialog element." },
+    "setPopupElementId": { "description": "Callback to set the id of the popup element." },
+    "softClose": {
+      "description": "Determines whether the dialog should close when clicking outside of it or pressing the escape key."
+    },
+    "titleElementId": { "description": "The id of the title element associated with the dialog." },
+    "type": { "description": "Type of the dialog (ordinary dialog or alert dialog)." }
   },
-  "returnValueDescriptions": {}
+  "returnValueDescriptions": {
+    "floatingContext": {
+      "description": "Floating UI context for the dialog&#39;s FloatingFocusManager."
+    },
+    "getRootProps": { "description": "Resolver for the root element props." },
+    "mounted": {
+      "description": "Determines if the dialog should be mounted even if closed (as the exit animation is still in progress)."
+    }
+  }
 }

@@ -23,8 +23,8 @@ export function useDialogTrigger(params: UseDialogTriggerParameters): UseDialogT
   }, [open, onOpenChange]);
 
   const getRootProps = React.useCallback(
-    (otherProps: React.HTMLAttributes<any> = {}) =>
-      mergeReactProps(otherProps, {
+    (externalProps: React.HTMLAttributes<any> = {}) =>
+      mergeReactProps(externalProps, {
         onClick: handleClick,
         'aria-haspopup': 'dialog',
         'aria-controls': popupElementId ?? undefined,

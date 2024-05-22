@@ -14,7 +14,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const rootContext = useDialogRootContext();
   const { open, modal, nestedOpenDialogCount } = rootContext;
 
-  const { getRootProps, floatingUIContext, mounted } = useDialogPopup({
+  const { getRootProps, floatingContext, mounted } = useDialogPopup({
     id: idProp,
     animated,
     ref: forwardedRef,
@@ -48,7 +48,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <FloatingPortal>
-      <FloatingFocusManager context={floatingUIContext} modal={modal} disabled={!mounted}>
+      <FloatingFocusManager context={floatingContext} modal={modal} disabled={!mounted}>
         {renderElement()}
       </FloatingFocusManager>
     </FloatingPortal>

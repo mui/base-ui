@@ -39,10 +39,6 @@ module.exports = [
     title: 'DialogPopup',
   },
   {
-    pathname: '/base-ui/react-dialog/components-api/#dialog-portal',
-    title: 'DialogPortal',
-  },
-  {
     pathname: '/base-ui/react-dialog/components-api/#dialog-root',
     title: 'DialogRoot',
   },

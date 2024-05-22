@@ -2,6 +2,13 @@
   "parameters": {
     "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
     "modal": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
+    "onNestedDialogClose": { "type": { "name": "() =&gt; void", "description": "() =&gt; void" } },
+    "onNestedDialogOpen": {
+      "type": {
+        "name": "(ownChildrenCount: number) =&gt; void",
+        "description": "(ownChildrenCount: number) =&gt; void"
+      }
+    },
     "onOpenChange": {
       "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" }
     },
@@ -18,6 +25,10 @@
       "required": true
     },
     "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "nestedOpenDialogCount": {
+      "type": { "name": "number", "description": "number" },
+      "required": true
+    },
     "onOpenChange": {
       "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
       "required": true
@@ -56,7 +67,14 @@
       "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
-    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true }
+    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true },
+    "onNestedDialogClose": { "type": { "name": "() =&gt; void", "description": "() =&gt; void" } },
+    "onNestedDialogOpen": {
+      "type": {
+        "name": "(ownChildrenCount: number) =&gt; void",
+        "description": "(ownChildrenCount: number) =&gt; void"
+      }
+    }
   },
   "name": "useDialogRoot",
   "filename": "/packages/mui-base/src/Dialog/Root/useDialogRoot.ts",

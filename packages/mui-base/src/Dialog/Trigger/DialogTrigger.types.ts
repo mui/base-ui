@@ -9,11 +9,23 @@ export interface DialogTriggerOwnerState {
 }
 
 export interface UseDialogTriggerParameters {
+  /**
+   * Determines if the dialog is open.
+   */
   open: boolean;
+  /**
+   * Callback to fire when the dialog is requested to be opened or closed.
+   */
   onOpenChange: (open: boolean) => void;
+  /**
+   * The id of the popup element.
+   */
   popupElementId: string | undefined;
 }
 
 export interface UseDialogTriggerReturnValue {
-  getRootProps: (otherProps?: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
+  /**
+   * Resolver for the root element props.
+   */
+  getRootProps: (externalProps?: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
 }

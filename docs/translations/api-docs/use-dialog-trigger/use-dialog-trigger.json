@@ -1,1 +1,13 @@
-{ "hookDescription": "", "parametersDescriptions": {}, "returnValueDescriptions": {} }
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "onOpenChange": {
+      "description": "Callback to fire when the dialog is requested to be opened or closed."
+    },
+    "open": { "description": "Determines if the dialog is open." },
+    "popupElementId": { "description": "The id of the popup element." }
+  },
+  "returnValueDescriptions": {
+    "getRootProps": { "description": "Resolver for the root element props." }
+  }
+}

@@ -8,10 +8,19 @@ export interface DialogCloseOwnerState {
 }
 
 export interface UseDialogCloseParameters {
+  /**
+   * Determines whether the dialog is open.
+   */
   open: boolean;
+  /**
+   * Callback invoked when the dialog is being opened or closed.
+   */
   onOpenChange: (open: boolean) => void;
 }
 
 export interface UseDialogCloseReturnValue {
-  getRootProps: (otherProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
+  /**
+   * Resolver for the root element props.
+   */
+  getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
 }

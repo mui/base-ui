@@ -5,6 +5,7 @@
       "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
+    "isTopmost": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "onOpenChange": {
       "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
@@ -37,14 +38,14 @@
     "id": { "type": { "name": "string", "description": "string" } }
   },
   "returnValue": {
-    "floatingUIContext": {
+    "floatingContext": {
       "type": { "name": "FloatingContext", "description": "FloatingContext" },
       "required": true
     },
     "getRootProps": {
       "type": {
-        "name": "(otherProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
-        "description": "(otherProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
+        "name": "(externalProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
       },
       "required": true
     },

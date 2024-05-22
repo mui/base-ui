@@ -19,8 +19,8 @@ export function useDialogClose(params: UseDialogCloseParameters): UseDialogClose
     }
   }, [open, onOpenChange]);
 
-  const getRootProps = (otherProps: React.HTMLAttributes<any>) =>
-    mergeReactProps(otherProps, { onClick: handleClick });
+  const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
+    mergeReactProps(externalProps, { onClick: handleClick });
 
   return {
     getRootProps,

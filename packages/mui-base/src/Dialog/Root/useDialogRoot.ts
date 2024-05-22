@@ -52,12 +52,12 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     }
 
     if (onNestedDialogClose && !open) {
-      onNestedDialogClose(ownNestedOpenDialogs);
+      onNestedDialogClose();
     }
 
     return () => {
       if (onNestedDialogClose && open) {
-        onNestedDialogClose(ownNestedOpenDialogs);
+        onNestedDialogClose();
       }
 
       if (onNestedDialogOpen && !open) {

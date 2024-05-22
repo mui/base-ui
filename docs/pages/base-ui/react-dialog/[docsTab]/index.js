@@ -7,7 +7,6 @@ import DialogBackdropApiJsonPageContent from '../../api/dialog-backdrop.json';
 import DialogCloseApiJsonPageContent from '../../api/dialog-close.json';
 import DialogDescriptionApiJsonPageContent from '../../api/dialog-description.json';
 import DialogPopupApiJsonPageContent from '../../api/dialog-popup.json';
-import DialogPortalApiJsonPageContent from '../../api/dialog-portal.json';
 import DialogRootApiJsonPageContent from '../../api/dialog-root.json';
 import DialogTitleApiJsonPageContent from '../../api/dialog-title.json';
 import DialogTriggerApiJsonPageContent from '../../api/dialog-trigger.json';
@@ -60,13 +59,6 @@ export const getStaticProps = () => {
     /\.\/dialog-popup.*.json$/,
   );
   const DialogPopupApiDescriptions = mapApiPageTranslations(DialogPopupApiReq);
-
-  const DialogPortalApiReq = require.context(
-    'docs-base/translations/api-docs/dialog-portal',
-    false,
-    /\.\/dialog-portal.*.json$/,
-  );
-  const DialogPortalApiDescriptions = mapApiPageTranslations(DialogPortalApiReq);
 
   const DialogRootApiReq = require.context(
     'docs-base/translations/api-docs/dialog-root',
@@ -124,7 +116,6 @@ export const getStaticProps = () => {
         DialogClose: DialogCloseApiDescriptions,
         DialogDescription: DialogDescriptionApiDescriptions,
         DialogPopup: DialogPopupApiDescriptions,
-        DialogPortal: DialogPortalApiDescriptions,
         DialogRoot: DialogRootApiDescriptions,
         DialogTitle: DialogTitleApiDescriptions,
         DialogTrigger: DialogTriggerApiDescriptions,
@@ -134,7 +125,6 @@ export const getStaticProps = () => {
         DialogClose: DialogCloseApiJsonPageContent,
         DialogDescription: DialogDescriptionApiJsonPageContent,
         DialogPopup: DialogPopupApiJsonPageContent,
-        DialogPortal: DialogPortalApiJsonPageContent,
         DialogRoot: DialogRootApiJsonPageContent,
         DialogTitle: DialogTitleApiJsonPageContent,
         DialogTrigger: DialogTriggerApiJsonPageContent,

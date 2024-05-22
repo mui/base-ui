@@ -59,9 +59,9 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     };
   }, [id, setPopupElementId]);
 
-  const getRootProps = (otherProps: React.HTMLAttributes<any>) =>
+  const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
     mergeReactProps(
-      otherProps,
+      externalProps,
       getTransitionProps({
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,
@@ -76,7 +76,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     );
 
   return {
-    floatingUIContext: context,
+    floatingContext: context,
     getRootProps,
     mounted,
   };

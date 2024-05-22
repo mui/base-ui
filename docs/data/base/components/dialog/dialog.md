@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Dialog component and hook
-components: DialogBackdrop, DialogClose, DialogDescription, DialogPopup, DialogRoot, DialogTitle, DialogTrigger, DialogPortal
+components: DialogBackdrop, DialogClose, DialogDescription, DialogPopup, DialogRoot, DialogTitle, DialogTrigger
 hooks: useDialogClose, useDialogPopup, useDialogRoot, useDialogTrigger
 githubLabel: 'component: dialog'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/

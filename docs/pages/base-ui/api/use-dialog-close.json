@@ -9,8 +9,8 @@
   "returnValue": {
     "getRootProps": {
       "type": {
-        "name": "(otherProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;",
-        "description": "(otherProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;"
+        "name": "(externalProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;",
+        "description": "(externalProps: React.HTMLAttributes&lt;any&gt;) =&gt; React.HTMLAttributes&lt;any&gt;"
       },
       "required": true
     }

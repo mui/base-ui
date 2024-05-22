@@ -58,11 +58,11 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   modal: PropTypes.bool,
   /**
-   * @ignore
+   * Callback to invoke when a nested dialog is closed.
    */
   onNestedDialogClose: PropTypes.func,
   /**
-   * @ignore
+   * Callback to invoke when a nested dialog is opened.
    */
   onNestedDialogOpen: PropTypes.func,
   /**

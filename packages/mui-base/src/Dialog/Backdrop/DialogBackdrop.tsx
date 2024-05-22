@@ -49,7 +49,10 @@ DialogBackdrop.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * @ignore
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default false
    */
   animated: PropTypes.bool,
   /**
@@ -61,7 +64,9 @@ DialogBackdrop.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * If `true`, the backdrop element is kept in the DOM when closed.
+   *
+   * @default false
    */
   keepMounted: PropTypes.bool,
   /**
