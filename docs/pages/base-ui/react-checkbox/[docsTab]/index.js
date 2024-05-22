@@ -5,7 +5,7 @@ import * as pageProps from 'docs-base/data/base/components/checkbox/checkbox.md?
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import CheckboxIndicatorApiJsonPageContent from '../../api/checkbox-indicator.json';
 import CheckboxRootApiJsonPageContent from '../../api/checkbox-root.json';
-import useCheckboxApiJsonPageContent from '../../api/use-checkbox.json';
+import useCheckboxRootApiJsonPageContent from '../../api/use-checkbox-root.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -38,12 +38,12 @@ export const getStaticProps = () => {
   );
   const CheckboxRootApiDescriptions = mapApiPageTranslations(CheckboxRootApiReq);
 
-  const useCheckboxApiReq = require.context(
-    'docs-base/translations/api-docs/use-checkbox',
+  const useCheckboxRootApiReq = require.context(
+    'docs-base/translations/api-docs/use-checkbox-root',
     false,
-    /\.\/use-checkbox.*.json$/,
+    /\.\/use-checkbox-root.*.json$/,
   );
-  const useCheckboxApiDescriptions = mapApiPageTranslations(useCheckboxApiReq);
+  const useCheckboxRootApiDescriptions = mapApiPageTranslations(useCheckboxRootApiReq);
 
   return {
     props: {
@@ -55,8 +55,8 @@ export const getStaticProps = () => {
         CheckboxIndicator: CheckboxIndicatorApiJsonPageContent,
         CheckboxRoot: CheckboxRootApiJsonPageContent,
       },
-      hooksApiDescriptions: { useCheckbox: useCheckboxApiDescriptions },
-      hooksApiPageContents: { useCheckbox: useCheckboxApiJsonPageContent },
+      hooksApiDescriptions: { useCheckboxRoot: useCheckboxRootApiDescriptions },
+      hooksApiPageContents: { useCheckboxRoot: useCheckboxRootApiJsonPageContent },
     },
   };
 };

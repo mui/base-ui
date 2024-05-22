@@ -142,8 +142,8 @@ module.exports = [
   { pathname: '/base-ui/react-badge/hooks-api/#use-badge', title: 'useBadge' },
   { pathname: '/base-ui/react-button/hooks-api/#use-button', title: 'useButton' },
   {
-    pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox',
-    title: 'useCheckbox',
+    pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox-root',
+    title: 'useCheckboxRoot',
   },
   {
     pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-close',
@@ -179,8 +179,8 @@ module.exports = [
   },
   { pathname: '/base-ui/react-modal/hooks-api/#use-modal', title: 'useModal' },
   {
-    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field',
-    title: 'useNumberField',
+    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field-root',
+    title: 'useNumberFieldRoot',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-option', title: 'useOption' },
   {
@@ -193,7 +193,10 @@ module.exports = [
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',
     title: 'useSnackbar',
   },
-  { pathname: '/base-ui/react-switch/hooks-api/#use-switch', title: 'useSwitch' },
+  {
+    pathname: '/base-ui/react-switch/hooks-api/#use-switch-root',
+    title: 'useSwitchRoot',
+  },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab', title: 'useTab' },
   {
     pathname: '/base-ui/react-tabs/hooks-api/#use-tab-indicator',
