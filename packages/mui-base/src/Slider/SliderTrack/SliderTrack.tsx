@@ -23,9 +23,39 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const { disabled, dragging, ownerState } = useSliderContext();
+  const {
+    areValuesEqual,
+    disabled,
+    dragging,
+    getFingerNewValue,
+    handleValueChange,
+    onValueCommitted,
+    max,
+    min,
+    ownerState,
+    setActive,
+    setDragging,
+    setOpen,
+    setValueState,
+    subitems,
+    values,
+  } = useSliderContext();
 
   const { getRootProps } = useSliderTrack({
+    areValuesEqual,
+    disabled,
+    dragging,
+    getFingerNewValue,
+    handleValueChange,
+    onValueCommitted,
+    max,
+    min,
+    setActive,
+    setDragging,
+    setOpen,
+    setValueState,
+    subitems,
+    values,
     rootRef: mergedRef,
   });
 

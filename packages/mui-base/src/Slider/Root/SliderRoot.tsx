@@ -149,6 +149,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * If `true` the marks are spaced according the value of the `step` prop.
    * If an array, it should contain objects with `value` and an optional `label` keys.
    * @default false
+   * @deprecated The Mark and MarkLabel components will be deprecated
    */
   marks: PropTypes.oneOfType([
     PropTypes.arrayOf(
@@ -214,8 +215,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * The granularity with which the slider can step through values. (A "discrete" slider.)
    * The `min` prop serves as the origin for the valid values.
    * We recommend (max - min) to be evenly divisible by the step.
-   *
-   * When step is `null`, the thumb can only be slid onto marks provided with the `marks` prop.
    * @default 1
    */
   step: PropTypes.number,

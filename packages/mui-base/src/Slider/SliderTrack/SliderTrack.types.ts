@@ -1,9 +1,26 @@
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import { SliderRootOwnerState } from '../Root/SliderRoot.types';
+import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
 export interface SliderTrackProps extends BaseUIComponentProps<'span', SliderRootOwnerState> {}
 
-export interface UseSliderTrackParameters {
+export interface UseSliderTrackParameters
+  extends Pick<
+    UseSliderReturnValue,
+    | 'areValuesEqual'
+    | 'disabled'
+    | 'dragging'
+    | 'getFingerNewValue'
+    | 'handleValueChange'
+    | 'onValueCommitted'
+    | 'max'
+    | 'min'
+    | 'setActive'
+    | 'setDragging'
+    | 'setOpen'
+    | 'setValueState'
+    | 'subitems'
+    | 'values'
+  > {
   /**
    * The ref attached to the track of the Slider.
    */

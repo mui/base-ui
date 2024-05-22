@@ -5,7 +5,6 @@ import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompoundItem } from '../../useCompound';
 import { valueToPercent } from '../utils';
-import { useSliderContext } from '../Root/SliderProvider';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 
@@ -30,35 +29,29 @@ function getNewValue(
  */
 export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const {
-    'aria-label': ariaLabel,
-    'aria-valuetext': ariaValuetext,
-    disabled: disabledProp = false,
-    getAriaLabel,
-    getAriaValueText,
-    id: idParam,
-    rootRef: externalRef,
-  } = parameters;
-
-  const {
     active: activeIndex,
+    'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
+    'aria-valuetext': ariaValuetext,
     axis,
     changeValue,
     disabled,
+    getAriaLabel,
+    getAriaValueText,
+    id: idParam,
     isRtl,
     largeStep,
     max,
     min,
     name,
     orientation,
+    rootRef: externalRef,
     scale,
     setOpen,
     step,
     tabIndex,
     values: sliderValues,
-  } = useSliderContext();
-
-  const isThumbDisabled = disabledProp || disabled;
+  } = parameters;
 
   const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
@@ -106,47 +99,45 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           setOpen(-1);
         },
         onKeyDown(event: React.KeyboardEvent) {
-          if (step !== null) {
-            let newValue = null;
-            switch (event.key) {
-              case 'ArrowUp':
-                newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, 1, min, max);
-                break;
-              case 'ArrowRight':
-                newValue = getNewValue(
-                  thumbValue,
-                  event.shiftKey ? largeStep : step,
-                  isRtl ? -1 : 1,
-                  min,
-                  max,
-                );
-                break;
-              case 'ArrowDown':
-                newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, -1, min, max);
-                break;
-              case 'ArrowLeft':
-                newValue = getNewValue(
-                  thumbValue,
-                  event.shiftKey ? largeStep : step,
-                  isRtl ? 1 : -1,
-                  min,
-                  max,
-                );
-                break;
-              case 'PageUp':
-                newValue = getNewValue(thumbValue, largeStep, isRtl ? -1 : 1, min, max);
-                break;
-              case 'PageDown':
-                newValue = getNewValue(thumbValue, largeStep, isRtl ? 1 : -1, min, max);
-                break;
-              default:
-                break;
-            }
+          let newValue = null;
+          switch (event.key) {
+            case 'ArrowUp':
+              newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, 1, min, max);
+              break;
+            case 'ArrowRight':
+              newValue = getNewValue(
+                thumbValue,
+                event.shiftKey ? largeStep : step,
+                isRtl ? -1 : 1,
+                min,
+                max,
+              );
+              break;
+            case 'ArrowDown':
+              newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, -1, min, max);
+              break;
+            case 'ArrowLeft':
+              newValue = getNewValue(
+                thumbValue,
+                event.shiftKey ? largeStep : step,
+                isRtl ? 1 : -1,
+                min,
+                max,
+              );
+              break;
+            case 'PageUp':
+              newValue = getNewValue(thumbValue, largeStep, isRtl ? -1 : 1, min, max);
+              break;
+            case 'PageDown':
+              newValue = getNewValue(thumbValue, largeStep, isRtl ? 1 : -1, min, max);
+              break;
+            default:
+              break;
+          }
 
-            if (newValue !== null) {
-              changeValue(newValue, index, event);
-              event.preventDefault();
-            }
+          if (newValue !== null) {
+            changeValue(newValue, index, event);
+            event.preventDefault();
           }
         },
         onPointerOver() {
@@ -159,7 +150,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         style: {
           ...getThumbStyle(),
         },
-        tabIndex: tabIndex ?? (isThumbDisabled ? undefined : 0),
+        tabIndex: tabIndex ?? (disabled ? undefined : 0),
       });
     },
     [
@@ -169,7 +160,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       idParam,
       index,
       isRtl,
-      isThumbDisabled,
+      disabled,
       largeStep,
       max,
       min,
@@ -203,7 +194,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           changeValue(event.target.valueAsNumber, index, event);
         },
         ref: inputRef,
-        step: step ?? 'any',
+        step,
         style: {
           ...visuallyHidden,
           direction: isRtl ? 'rtl' : 'ltr',
@@ -242,8 +233,8 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       getRootProps,
       getThumbInputProps,
       index,
-      disabled: isThumbDisabled,
+      disabled,
     }),
-    [getRootProps, getThumbInputProps, index, isThumbDisabled],
+    [getRootProps, getThumbInputProps, index, disabled],
   );
 }

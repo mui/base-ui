@@ -50,7 +50,7 @@
       },
       "default": "function Identity(x) {\nreturn x;\n}"
     },
-    "step": { "type": { "name": "number | null", "description": "number | null" }, "default": "1" },
+    "step": { "type": { "name": "number", "description": "number" }, "default": "1" },
     "tabIndex": { "type": { "name": "number", "description": "number" } },
     "value": {
       "type": {
@@ -160,14 +160,14 @@
       "required": true
     },
     "step": {
-      "type": { "name": "number | null", "description": "number | null" },
+      "type": { "name": "number", "description": "number" },
       "default": "1",
       "required": true
     },
     "subitems": {
       "type": {
-        "name": "Map&lt;any, SliderThumbMetadata&gt;",
-        "description": "Map&lt;any, SliderThumbMetadata&gt;"
+        "name": "Map&lt;string, SliderThumbMetadata&gt;",
+        "description": "Map&lt;string, SliderThumbMetadata&gt;"
       },
       "required": true
     },

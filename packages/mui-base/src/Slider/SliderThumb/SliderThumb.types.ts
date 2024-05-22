@@ -1,10 +1,10 @@
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import { SliderRootOwnerState } from '../Root/SliderRoot.types';
+import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
 export interface SliderThumbOwnerState extends SliderRootOwnerState {}
 
 export interface SliderThumbProps
-  extends Omit<UseSliderThumbParameters, 'rootRef'>,
+  extends Partial<Omit<UseSliderThumbParameters, 'rootRef'>>,
     BaseUIComponentProps<'span', SliderThumbOwnerState> {
   onPointerLeave?: React.PointerEventHandler;
   onPointerOver?: React.PointerEventHandler;
@@ -13,7 +13,25 @@ export interface SliderThumbProps
   onKeyDown?: React.KeyboardEventHandler;
 }
 
-export interface UseSliderThumbParameters {
+export interface UseSliderThumbParameters
+  extends Pick<
+    UseSliderReturnValue,
+    | 'active'
+    | 'aria-labelledby'
+    | 'axis'
+    | 'changeValue'
+    | 'isRtl'
+    | 'largeStep'
+    | 'max'
+    | 'min'
+    | 'name'
+    | 'orientation'
+    | 'scale'
+    | 'setOpen'
+    | 'step'
+    | 'tabIndex'
+    | 'values'
+  > {
   /**
    * The label for the input element.
    */

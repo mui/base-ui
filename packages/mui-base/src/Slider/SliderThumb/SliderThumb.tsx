@@ -18,9 +18,13 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 ) {
   const {
     render: renderProp,
+    'aria-label': ariaLabel,
+    'aria-valuetext': ariaValuetext,
     className,
     children,
     disabled: disabledProp = false,
+    getAriaLabel,
+    getAriaValueText,
     id,
     ...otherProps
   } = props;
@@ -29,12 +33,49 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const { ownerState, active: activeIndex } = useSliderContext();
+  const {
+    active: activeIndex,
+    'aria-labelledby': ariaLabelledby,
+    axis,
+    changeValue,
+    disabled: contextDisabled,
+    isRtl,
+    largeStep,
+    max,
+    min,
+    name,
+    orientation,
+    ownerState,
+    scale,
+    setOpen,
+    step,
+    tabIndex,
+    values,
+  } = useSliderContext();
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
-    disabled: disabledProp,
+    active: activeIndex,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledby,
+    'aria-valuetext': ariaValuetext,
+    axis,
+    changeValue,
+    disabled: disabledProp || contextDisabled,
+    getAriaLabel,
+    getAriaValueText,
     id,
+    isRtl,
+    largeStep,
+    max,
+    min,
+    name,
+    orientation,
     rootRef: mergedRef,
+    scale,
+    setOpen,
+    step,
+    tabIndex,
+    values,
   });
 
   const styleHooks = React.useMemo(

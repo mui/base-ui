@@ -14,7 +14,9 @@
         "name": "union",
         "description": "Array&lt;{ label?: node, value: number }&gt;<br>&#124;&nbsp;bool"
       },
-      "default": "false"
+      "default": "false",
+      "deprecated": true,
+      "deprecationInfo": "The Mark and MarkLabel components will be deprecated"
     },
     "max": { "type": { "name": "number" }, "default": "100" },
     "min": { "type": { "name": "number" }, "default": "0" },

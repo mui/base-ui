@@ -21,11 +21,12 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   const render = renderProp ?? defaultRender;
 
-  const { disabled, dragging, ownerState, values } = useSliderContext();
+  const { disabled, dragging, ownerState, subitems, values } = useSliderContext();
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const { getRootProps } = useSliderOutput({
+    subitems,
     rootRef: mergedRef,
   });
 

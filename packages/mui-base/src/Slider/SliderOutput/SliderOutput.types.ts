@@ -1,9 +1,9 @@
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
-import { SliderRootOwnerState } from '../Root/SliderRoot.types';
+import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
 export interface SliderOutputProps extends BaseUIComponentProps<'output', SliderRootOwnerState> {}
 
-export interface UseSliderOutputParameters {
+export interface UseSliderOutputParameters extends Pick<UseSliderReturnValue, 'subitems'> {
   'aria-live'?: React.AriaAttributes['aria-live'];
   /**
    * Ref to the root slot's DOM element.

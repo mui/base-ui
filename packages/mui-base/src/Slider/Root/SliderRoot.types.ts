@@ -38,7 +38,7 @@ export interface SliderRootOwnerState {
    * The component orientation.
    */
   orientation: 'horizontal' | 'vertical';
-  step: number | null;
+  step: number;
   /**
    * The raw number value of the slider.
    */
@@ -98,6 +98,7 @@ export interface UseSliderParameters {
    * If `true` the marks are spaced according the value of the `step` prop.
    * If an array, it should contain objects with `value` and an optional `label` keys.
    * @default false
+   * @deprecated The Mark and MarkLabel components will be deprecated
    */
   marks?: boolean | ReadonlyArray<Mark>;
   /**
@@ -160,11 +161,9 @@ export interface UseSliderParameters {
    * The granularity with which the slider can step through values. (A "discrete" slider.)
    * The `min` prop serves as the origin for the valid values.
    * We recommend (max - min) to be evenly divisible by the step.
-   *
-   * When step is `null`, the thumb can only be slid onto marks provided with the `marks` prop.
    * @default 1
    */
-  step?: number | null;
+  step?: number;
   /**
    * Tab index attribute of the Thumb component's `input` element.
    */
@@ -274,8 +273,11 @@ export interface UseSliderReturnValue {
    * to multiples of this value. Decimal values are supported.
    * @default 1
    */
-  step: number | null;
-  subitems: Map<any, SliderThumbMetadata>;
+  step: number;
+  /**
+   * A map containing all the Thumb components registered to the slider
+   */
+  subitems: Map<string, SliderThumbMetadata>;
   tabIndex?: number;
   /**
    * The value(s) of the slider

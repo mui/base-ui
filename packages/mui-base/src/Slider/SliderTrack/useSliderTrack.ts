@@ -2,7 +2,6 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSliderContext } from '../Root/SliderProvider';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { roundValueToStep, valueToPercent } from '../utils';
 import { focusThumb, trackFinger } from '../Root/useSliderRoot';
@@ -16,7 +15,23 @@ const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
  * - [useSliderTrack API](https://mui.com/base-ui/api/use-slider-track/)
  */
 export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderTrackReturnValue {
-  const { rootRef: externalRef } = parameters;
+  const {
+    areValuesEqual,
+    disabled,
+    dragging,
+    getFingerNewValue,
+    handleValueChange,
+    onValueCommitted,
+    max,
+    min,
+    rootRef: externalRef,
+    setActive,
+    setDragging,
+    setOpen,
+    setValueState,
+    subitems,
+    values,
+  } = parameters;
 
   const trackRef = React.useRef<HTMLElement>(null);
 
@@ -31,23 +46,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
   // 1. pointerDown coordinates and
   // 2. the exact intersection of the center of the thumb and the track
   const offsetRef = React.useRef(0);
-
-  const {
-    areValuesEqual,
-    disabled,
-    dragging,
-    getFingerNewValue,
-    handleValueChange,
-    onValueCommitted,
-    max,
-    min,
-    setActive,
-    setDragging,
-    setOpen,
-    setValueState,
-    subitems,
-    values,
-  } = useSliderContext();
 
   const thumbRefs = React.useMemo(() => {
     return Array.from(subitems).map((subitem) => {
