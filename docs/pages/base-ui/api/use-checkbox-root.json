@@ -47,5 +47,5 @@
   "name": "useCheckboxRoot",
   "filename": "/packages/mui-base/src/Checkbox/Root/useCheckboxRoot.ts",
   "imports": ["import { useCheckboxRoot } from '@base_ui/react/Checkbox';"],
-  "demos": "<ul></ul>"
+  "demos": "<ul><li><a href=\"/base-ui/react-checkbox/#hook\">Checkbox</a></li></ul>"
 }

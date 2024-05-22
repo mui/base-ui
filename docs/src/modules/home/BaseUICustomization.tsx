@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import * as BaseSwitch from '@base_ui/react/Switch';
-import { useSwitch, UseSwitchParameters } from '@base_ui/react/useSwitch';
+import { useSwitchRoot, UseSwitchRootParameters } from '@base_ui/react/Switch';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -17,7 +17,7 @@ import Frame from 'docs/src/components/action/Frame';
 
 const code = `
 import * as Switch from '@base_ui/react/Switch';
-import { useSwitch } from '@base_ui/react/useSwitch';
+import { useSwitchRoot } from '@base_ui/react/Switch';
 import { styled } from '@mui/system';
 
 const StyledSwitchRoot = styled('button')(\`
@@ -82,7 +82,7 @@ const StyledSwitchThumb = styled('span')\`
 \`;
 
 function SwitchFromHook(props) {
-  const { getInputProps, getButtonProps, checked, disabled } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked, disabled } = useSwitchRoot(props);
 
   const stateAttributes = {
     'data-state': checked ? 'checked' : 'unchecked',
@@ -175,8 +175,8 @@ const StyledSwitchThumb = styled('span')`
   }
 `;
 
-function SwitchFromHook(props: UseSwitchParameters) {
-  const { getInputProps, getButtonProps, checked } = useSwitch(props);
+function SwitchFromHook(props: UseSwitchRootParameters) {
+  const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
   const stateAttributes = {
     'data-state': checked ? 'checked' : 'unchecked',

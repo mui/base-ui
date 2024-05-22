@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Switch component and hook
 components: SwitchRoot, SwitchThumb
-hooks: useSwitch
+hooks: useSwitchRoot
 githubLabel: 'component: switch'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
 ---

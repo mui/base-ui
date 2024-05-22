@@ -39,5 +39,5 @@
   "name": "useSwitchRoot",
   "filename": "/packages/mui-base/src/Switch/Root/useSwitchRoot.ts",
   "imports": ["import { useSwitchRoot } from '@base_ui/react/Switch';"],
-  "demos": "<ul></ul>"
+  "demos": "<ul><li><a href=\"/base-ui/react-switch/#hook\">Switch</a></li></ul>"
 }

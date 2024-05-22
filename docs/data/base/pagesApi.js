@@ -113,6 +113,10 @@ module.exports = [
   },
   { pathname: '/base-ui/react-badge/hooks-api/#use-badge', title: 'useBadge' },
   { pathname: '/base-ui/react-button/hooks-api/#use-button', title: 'useButton' },
+  {
+    pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox-root',
+    title: 'useCheckboxRoot',
+  },
   { pathname: '/base-ui/react-menu/hooks-api/#use-dropdown', title: 'useDropdown' },
   {
     pathname: '/base-ui/react-form-control/hooks-api/#use-form-control-context',
@@ -144,6 +148,10 @@ module.exports = [
   {
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',
     title: 'useSnackbar',
+  },
+  {
+    pathname: '/base-ui/react-switch/hooks-api/#use-switch-root',
+    title: 'useSwitchRoot',
   },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab', title: 'useTab' },
   {

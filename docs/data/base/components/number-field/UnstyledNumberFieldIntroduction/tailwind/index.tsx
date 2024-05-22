@@ -57,14 +57,14 @@ export default function NumberFieldIntroduction() {
 }
 
 const NumberField = React.forwardRef(function NumberField(
-  props: BaseNumberField.NumberFieldRootProps,
+  props: BaseNumberField.RootProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return <BaseNumberField.Root {...props} ref={ref} />;
 });
 
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
-  props: BaseNumberField.NumberFieldGroupProps,
+  props: BaseNumberField.GroupProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -87,7 +87,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 });
 
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: BaseNumberField.NumberFieldScrubAreaProps,
+  props: BaseNumberField.ScrubAreaProps,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -107,7 +107,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
 });
 
 const NumberFieldVirtualCursor = React.forwardRef(function NumberFieldVirtualCursor(
-  props: BaseNumberField.NumberFieldScrubAreaCursorProps,
+  props: BaseNumberField.ScrubAreaCursorProps,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -127,7 +127,7 @@ const NumberFieldVirtualCursor = React.forwardRef(function NumberFieldVirtualCur
 });
 
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
-  props: BaseNumberField.NumberFieldInputProps,
+  props: BaseNumberField.InputProps,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   return (
@@ -170,7 +170,7 @@ const buttonStyles = classNames(
 );
 
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
-  props: BaseNumberField.NumberFieldDecrementProps,
+  props: BaseNumberField.DecrementProps,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
@@ -192,7 +192,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
 });
 
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: BaseNumberField.NumberFieldIncrementProps,
+  props: BaseNumberField.IncrementProps,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
