@@ -166,6 +166,9 @@
     "yargs": "^17.7.2"
   },
   "packageManager": "pnpm@9.0.6",
+  "engines": {
+    "pnpm": "9.0.6"
+  },
   "resolutions": {
     "@babel/core": "^7.24.5",
     "@babel/code-frame": "^7.24.2",
