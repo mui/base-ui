@@ -1,5 +1,11 @@
-export interface DialogTriggerProps {
-  children: React.ReactElement;
+import { BaseUIComponentProps } from '@base_ui/react/utils/BaseUI.types';
+
+export interface DialogTriggerProps
+  extends BaseUIComponentProps<'button', DialogTriggerOwnerState> {}
+
+export interface DialogTriggerOwnerState {
+  open: boolean;
+  modal: boolean;
 }
 
 export interface UseDialogTriggerParameters {

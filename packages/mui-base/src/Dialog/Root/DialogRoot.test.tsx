@@ -16,9 +16,7 @@ describe('<Dialog.Root />', () => {
     it('should open the dialog with the trigger', () => {
       const { queryByRole, getByRole } = render(
         <Dialog.Root>
-          <Dialog.Trigger>
-            <button>Open</button>
-          </Dialog.Trigger>
+          <Dialog.Trigger />
           <Dialog.Popup />
         </Dialog.Root>,
       );
@@ -162,9 +160,7 @@ describe('<Dialog.Root />', () => {
         <div>
           <input />
           <Dialog.Root>
-            <Dialog.Trigger>
-              <button>Open</button>
-            </Dialog.Trigger>
+            <Dialog.Trigger>Open</Dialog.Trigger>
             <Dialog.Popup data-testid="dialog">
               <input data-testid="dialog-input" />
               <button>Close</button>

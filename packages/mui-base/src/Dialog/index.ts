@@ -28,9 +28,6 @@ export type {
   UseDialogPopupReturnValue,
 } from './Popup/DialogPopup.types';
 
-export { DialogPortal as Portal } from './Portal/DialogPortal';
-export type { DialogPortalProps as PortalProps } from './Portal/DialogPortal.types';
-
 export { DialogRoot as Root } from './Root/DialogRoot';
 export { useDialogRoot } from './Root/useDialogRoot';
 export type {
@@ -49,6 +46,7 @@ export { DialogTrigger as Trigger } from './Trigger/DialogTrigger';
 export { useDialogTrigger } from './Trigger/useDialogTrigger';
 export type {
   DialogTriggerProps as TriggerProps,
+  DialogTriggerOwnerState as TriggerOwnerState,
   UseDialogTriggerParameters,
   UseDialogTriggerReturnValue,
 } from './Trigger/DialogTrigger.types';
