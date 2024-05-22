@@ -4,37 +4,41 @@ import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import type { TransitionStatus } from './useTransitionStatus.types';
 
 /**
- * Provides a status string for CSS transitions and animations for conditionally-rendered
- * components.
+ * Provides a status string for CSS animations.
  * @param isRendered - a boolean that determines if the component is rendered.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(isRendered: boolean) {
+export function useTransitionStatus(isOpen: boolean) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
-  const [mounted, setMounted] = React.useState(isRendered);
+  const [mounted, setMounted] = React.useState(isOpen);
 
-  if (isRendered && !mounted) {
+  if (isOpen && !mounted) {
     setMounted(true);
+  }
 
-    if (transitionStatus === 'closing') {
-      setTransitionStatus(undefined);
-    }
+  if (!isOpen && mounted && transitionStatus !== 'exiting') {
+    setTransitionStatus('exiting');
+  }
+
+  if (!isOpen && !mounted && transitionStatus === 'exiting') {
+    setTransitionStatus(undefined);
   }
 
   useEnhancedEffect(() => {
-    if (!isRendered) {
-      setTransitionStatus('closing');
+    if (!isOpen) {
       return undefined;
     }
 
+    setTransitionStatus('entering');
+
     const frame = requestAnimationFrame(() => {
-      setTransitionStatus('opening');
+      setTransitionStatus(undefined);
     });
 
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [isRendered]);
+  }, [isOpen]);
 
   return React.useMemo(
     () => ({
