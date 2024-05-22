@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/system/Box';
 import { Portal } from '@base_ui/react/Portal';
-import { FocusTrap } from '@base_ui/react/FocusTrap';
+import { FocusTrap } from '@base_ui/react/legacy/FocusTrap';
 
 export default function PortalFocusTrap() {
   const [open, setOpen] = React.useState(false);

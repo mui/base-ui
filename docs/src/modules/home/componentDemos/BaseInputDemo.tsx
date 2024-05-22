@@ -2,7 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { unstable_useId } from '@mui/material/utils';
 import Box from '@mui/material/Box';
-import { Input } from '@base_ui/react/Input';
+import { Input } from '@base_ui/react/legacy/Input';
 import { styled, GlobalStyles } from '@mui/system';
 
 const fieldStyles = `

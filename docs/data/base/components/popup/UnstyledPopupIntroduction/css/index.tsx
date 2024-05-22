@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Unstable_Popup as BasePopup } from '@base_ui/react/Unstable_Popup';
+import { Unstable_Popup as BasePopup } from '@base_ui/react/legacy/Unstable_Popup';
 import { useTheme } from '@mui/system';
 
 export default function SimplePopup() {

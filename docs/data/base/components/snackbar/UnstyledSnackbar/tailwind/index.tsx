@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useSnackbar } from '@base_ui/react/useSnackbar';
-import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
+import { useSnackbar } from '@base_ui/react/legacy/useSnackbar';
+import { ClickAwayListener } from '@base_ui/react/legacy/ClickAwayListener';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

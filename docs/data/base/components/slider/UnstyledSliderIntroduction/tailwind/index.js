@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/system';
-import { Slider as BaseSlider } from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base_ui/react/legacy/Slider';
 import clsx from 'clsx';
 
 function useIsDarkMode() {

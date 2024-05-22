@@ -1,9 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system';
-import { Unstable_Popup as BasePopup } from '@base_ui/react/Unstable_Popup';
-import { Button as BaseButton } from '@base_ui/react/Button';
-import { CssTransition } from '@base_ui/react/Transitions';
+import { Unstable_Popup as BasePopup } from '@base_ui/react/legacy/Unstable_Popup';
+import { Button as BaseButton } from '@base_ui/react/legacy/Button';
+import { CssTransition } from '@base_ui/react/legacy/Transitions';
 
 const styles = `
   .open {

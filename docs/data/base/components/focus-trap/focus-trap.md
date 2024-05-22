@@ -20,7 +20,7 @@ Focus Trap is a utility component that's useful when implementing an overlay suc
 ## Component
 
 ```jsx
-import { FocusTrap } from '@base_ui/react/FocusTrap';
+import { FocusTrap } from '@base_ui/react/legacy/FocusTrap';
 ```
 
 Focus Trap wraps around the UI elements that should hold the user's focus.

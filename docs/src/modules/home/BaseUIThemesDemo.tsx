@@ -2,18 +2,18 @@ import * as React from 'react';
 import clsx from 'clsx';
 
 // Base UI imports
-import { Badge, badgeClasses } from '@base_ui/react/Badge';
-import { Input, InputProps } from '@base_ui/react/Input';
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { Modal, modalClasses } from '@base_ui/react/Modal';
-import { Option } from '@base_ui/react/Option';
-import { Select } from '@base_ui/react/Select';
-import { Slider, sliderClasses } from '@base_ui/react/Slider';
-import { Snackbar } from '@base_ui/react/Snackbar';
-import { SnackbarCloseReason } from '@base_ui/react/useSnackbar';
+import { Badge, badgeClasses } from '@base_ui/react/legacy/Badge';
+import { Input, InputProps } from '@base_ui/react/legacy/Input';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuItem, menuItemClasses } from '@base_ui/react/legacy/MenuItem';
+import { MenuButton } from '@base_ui/react/legacy/MenuButton';
+import { Modal, modalClasses } from '@base_ui/react/legacy/Modal';
+import { Option } from '@base_ui/react/legacy/Option';
+import { Select } from '@base_ui/react/legacy/Select';
+import { Slider, sliderClasses } from '@base_ui/react/legacy/Slider';
+import { Snackbar } from '@base_ui/react/legacy/Snackbar';
+import { SnackbarCloseReason } from '@base_ui/react/legacy/useSnackbar';
 import * as Tabs from '@base_ui/react/Tabs';
 
 // Other packages

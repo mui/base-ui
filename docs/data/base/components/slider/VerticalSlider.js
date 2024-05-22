@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
+import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/legacy/Slider';
 import { styled, alpha, Box } from '@mui/system';
 
 export default function VerticalSlider() {
@@ -62,7 +62,7 @@ const Slider = styled(BaseSlider)(
     box-sizing: border-box;
     border-radius: 50%;
     outline: 0;
-    background-color: ${theme.palette.mode === 'light' ? blue[500] : blue[400]};  
+    background-color: ${theme.palette.mode === 'light' ? blue[500] : blue[400]};
     left: 50%;
     -webkit-transform: translate(-50%, 50%);
     -moz-transform: translate(-50%, 50%);

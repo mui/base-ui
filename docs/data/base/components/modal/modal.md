@@ -41,7 +41,7 @@ Modal is a lower-level construct that is used in the following Material UI comp
 ## Component
 
 ```jsx
-import { Modal } from '@base_ui/react/Modal';
+import { Modal } from '@base_ui/react/legacy/Modal';
 ```
 
 The following demo shows how to create and style a basic modal.

@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
   Unstable_Popup as BasePopup,
   PopupPlacement,
-} from '@base_ui/react/Unstable_Popup';
+} from '@base_ui/react/legacy/Unstable_Popup';
 import { styled, css, Theme } from '@mui/system';
 
 function Radio({ value, ...props }: JSX.IntrinsicElements['input']) {

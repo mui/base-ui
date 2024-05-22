@@ -3,8 +3,8 @@ import { Transition } from 'react-transition-group';
 import { styled } from '@mui/system';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseIcon from '@mui/icons-material/Close';
-import { Snackbar } from '@base_ui/react/Snackbar';
-import { SnackbarCloseReason } from '@base_ui/react/useSnackbar';
+import { Snackbar } from '@base_ui/react/legacy/Snackbar';
+import { SnackbarCloseReason } from '@base_ui/react/legacy/useSnackbar';
 
 export default function UnstyledSnackbarIntroduction() {
   const [open, setOpen] = React.useState(false);

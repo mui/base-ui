@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Badge as BaseBadge, badgeClasses } from '@base_ui/react/Badge';
+import { Badge as BaseBadge, badgeClasses } from '@base_ui/react/legacy/Badge';
 // Auxiliary demo components
 import { styled, Stack } from '@mui/system';
-import { Button, buttonClasses } from '@base_ui/react/Button';
+import { Button, buttonClasses } from '@base_ui/react/legacy/Button';
 import * as BaseSwitch from '@base_ui/react/Switch';
 import Divider from '@mui/material/Divider';
 // Icons

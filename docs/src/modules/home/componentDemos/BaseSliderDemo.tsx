@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Slider } from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/legacy/Slider';
 import { styled, GlobalStyles } from '@mui/system';
 
 const rootStyles = `

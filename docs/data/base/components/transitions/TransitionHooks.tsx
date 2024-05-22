@@ -3,7 +3,7 @@ import {
   TransitionContext,
   useTransitionStateManager,
   useTransitionTrigger,
-} from '@base_ui/react/useTransition';
+} from '@base_ui/react/legacy/useTransition';
 import { styled } from '@mui/system';
 
 export default function TransitionHooks() {

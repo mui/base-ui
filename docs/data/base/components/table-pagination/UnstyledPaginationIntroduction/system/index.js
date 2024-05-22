@@ -3,7 +3,7 @@ import { styled } from '@mui/system';
 import {
   TablePagination,
   tablePaginationClasses as classes,
-} from '@base_ui/react/TablePagination';
+} from '@base_ui/react/legacy/TablePagination';
 import FirstPageRoundedIcon from '@mui/icons-material/FirstPageRounded';
 import LastPageRoundedIcon from '@mui/icons-material/LastPageRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
@@ -129,7 +129,7 @@ const CustomTablePagination = styled(TablePagination)(
     font-family: 'IBM Plex Sans', sans-serif;
     padding: 2px 0 2px 4px;
     border: 1px solid ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
-    border-radius: 6px; 
+    border-radius: 6px;
     background-color: transparent;
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
     transition: all 100ms ease;
@@ -165,7 +165,7 @@ const CustomTablePagination = styled(TablePagination)(
     align-items: center;
     padding: 0;
     border: transparent;
-    border-radius: 50%; 
+    border-radius: 50%;
     background-color: transparent;
     border: 1px solid ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};

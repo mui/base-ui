@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { MenuItem } from '@base_ui/react/MenuItem';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuButton } from '@base_ui/react/legacy/MenuButton';
+import { MenuItem } from '@base_ui/react/legacy/MenuItem';
 import { styled, GlobalStyles } from '@mui/system';
 import Person from '@mui/icons-material/Person';
 

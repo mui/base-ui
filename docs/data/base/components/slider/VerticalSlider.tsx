@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
+import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/legacy/Slider';
 import { styled, alpha, Box } from '@mui/system';
 
 export default function VerticalSlider() {

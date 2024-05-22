@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Popper } from '@base_ui/react/Popper';
+import { Popper } from '@base_ui/react/legacy/Popper';
 import { styled, Theme } from '@mui/system';
 
 export default function SimplePopper() {

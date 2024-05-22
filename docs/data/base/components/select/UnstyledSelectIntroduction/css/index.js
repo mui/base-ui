@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select, selectClasses } from '@base_ui/react/Select';
-import { Option, optionClasses } from '@base_ui/react/Option';
+import { Select, selectClasses } from '@base_ui/react/legacy/Select';
+import { Option, optionClasses } from '@base_ui/react/legacy/Option';
 import { useTheme } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
-import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/legacy/Transitions';
 
 export default function UnstyledSelectIntroduction() {
   return (
@@ -178,17 +178,17 @@ function Styles() {
           transform: scale(0.95, 0.8);
           transition: opacity 200ms ease-in, transform 200ms ease-in;
         }
-        
+
         .open & {
           opacity: 1;
           transform: scale(1, 1);
           transition: opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
         }
-      
+
         .placement-top & {
           transform-origin: bottom;
         }
-      
+
         .placement-bottom & {
           transform-origin: top;
         }

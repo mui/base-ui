@@ -27,7 +27,7 @@ Sliders are ideal for interface controls that benefit from a visual representati
 ## Component
 
 ```jsx
-import { Slider } from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/legacy/Slider';
 ```
 
 ### Anatomy
@@ -121,7 +121,7 @@ The same applies for props specific to custom primitive elements:
 ## Hook
 
 ```js
-import { useSlider } from '@base_ui/react/useSlider';
+import { useSlider } from '@base_ui/react/legacy/useSlider';
 ```
 
 The `useSlider` hook lets you apply the functionality of a Slider to a fully custom component.

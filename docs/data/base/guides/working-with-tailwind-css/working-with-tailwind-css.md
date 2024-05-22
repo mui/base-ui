@@ -255,7 +255,7 @@ import {
   Slider as BaseSlider,
   SliderThumbSlotProps,
   SliderProps,
-} from '@base_ui/react/Slider';
+} from '@base_ui/react/legacy/Slider';
 
 const Slider = React.forwardRef(function Slider(
   props: SliderProps,
@@ -338,7 +338,7 @@ To do this, it's not enough to just use classes for the thumb—we need also to 
 +++ b/src/Slider.tsx
 @@ -1,6 +1,17 @@
  import * as React from 'react';
- import { Slider as BaseSlider, SliderThumbSlotProps, SliderProps } from '@base_ui/react/Slider';
+ import { Slider as BaseSlider, SliderThumbSlotProps, SliderProps } from '@base_ui/react/legacy/Slider';
 
 +const Thumb = React.forwardRef(function Thumb(
 +  props: SliderThumbSlotProps,
@@ -405,7 +405,7 @@ import {
   Button as BaseButton,
   ButtonOwnerState,
   ButtonProps,
-} from '@base_ui/react/Button';
+} from '@base_ui/react/legacy/Button';
 
 const Button = React.forwardRef(function Button(
   props: ButtonProps,

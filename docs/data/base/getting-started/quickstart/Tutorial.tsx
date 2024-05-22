@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, buttonClasses } from '@base_ui/react/Button';
+import { Button, buttonClasses } from '@base_ui/react/legacy/Button';
 import { styled, alpha } from '@mui/system';
 
 const CustomButton = styled(Button)(

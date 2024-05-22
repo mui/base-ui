@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
 import { Portal } from '@base_ui/react/Portal';
-import { FocusTrap } from '@base_ui/react/FocusTrap';
-import { Button } from '@base_ui/react/Button';
-import { unstable_useModal as useModal } from '@base_ui/react/unstable_useModal';
+import { FocusTrap } from '@base_ui/react/legacy/FocusTrap';
+import { Button } from '@base_ui/react/legacy/Button';
+import { unstable_useModal as useModal } from '@base_ui/react/legacy/unstable_useModal';
 import Fade from '@mui/material/Fade';
 
 export default function UseModal() {

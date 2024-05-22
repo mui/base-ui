@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled, alpha, Box } from '@mui/system';
-import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
+import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/legacy/Slider';
 
 export default function DiscreteSliderValues() {
   return (
@@ -75,7 +75,7 @@ const Slider = styled(BaseSlider)(
   cursor: pointer;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
-  
+
   &.${sliderClasses.disabled} {
     pointer-events: none;
     cursor: default;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Button } from '@base_ui/react/Button';
+import { Button } from '@base_ui/react/legacy/Button';
 import { styled, GlobalStyles } from '@mui/system';
 
 const buttonStyles = `

@@ -28,7 +28,7 @@ The Popup component, once stable, is intended to replace the [Popper](/base-ui/r
 ## Component
 
 ```jsx
-import { Unstable_Popup as Popup } from '@base_ui/react/Unstable_Popup';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 ```
 
 By default, the Popup is mounted to the DOM when its `open` prop is set to `true`, and removed from the DOM when `open` is `false`.
