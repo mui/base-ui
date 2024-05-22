@@ -16,6 +16,15 @@
       }
     },
     "id": { "type": { "name": "string", "description": "string" } },
+    "onBlur": {
+      "type": { "name": "React.FocusEventHandler", "description": "React.FocusEventHandler" }
+    },
+    "onFocus": {
+      "type": { "name": "React.FocusEventHandler", "description": "React.FocusEventHandler" }
+    },
+    "onKeyDown": {
+      "type": { "name": "React.KeyboardEventHandler", "description": "React.KeyboardEventHandler" }
+    },
     "rootRef": {
       "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
     }

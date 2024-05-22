@@ -124,8 +124,6 @@ describe('<Slider.Root />', () => {
 
       expect(input).to.have.attribute('aria-labelledby', 'labelId');
       expect(input).to.have.attribute('aria-valuenow', '30');
-
-      // TODO: aria-label should be somewhere
     });
 
     it('should update aria-valuenow', () => {
@@ -170,6 +168,98 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueChange.args[0][0]).to.equal(80);
       expect(handleValueChange.args[1][0]).to.equal(78);
+    });
+
+    it('increments on ArrowUp', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowUp' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(21);
+
+      fireEvent.keyDown(input!, { key: 'ArrowUp', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(31);
+    });
+
+    it('increments on ArrowLeft', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowLeft' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(21);
+
+      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(31);
+    });
+
+    it('decrements on ArrowDown', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowDown' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(19);
+
+      fireEvent.keyDown(input!, { key: 'ArrowDown', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(9);
+    });
+
+    it('decrements on ArrowRight', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowRight' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(19);
+
+      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
   });
 
@@ -1102,6 +1192,98 @@ describe('<Slider.Root />', () => {
   });
 
   describe('keyboard interactions', () => {
+    it('increments on ArrowUp', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowUp' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(21);
+
+      fireEvent.keyDown(input!, { key: 'ArrowUp', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(31);
+    });
+
+    it('increments on ArrowRight', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowRight' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(21);
+
+      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(31);
+    });
+
+    it('decrements on ArrowDown', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowDown' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(19);
+
+      fireEvent.keyDown(input!, { key: 'ArrowDown', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(9);
+    });
+
+    it('decrements on ArrowLeft', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'ArrowLeft' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(19);
+
+      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal(9);
+    });
+
     it('should support Shift + Left Arrow / Right Arrow keys', () => {
       const handleValueChange = spy();
       const { container } = render(

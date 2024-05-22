@@ -5,7 +5,7 @@ import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderContext } from '../Root/SliderProvider';
 import { SliderTrackProps } from './SliderTrack.types';
 import { useSliderTrack } from './useSliderTrack';
 
@@ -23,7 +23,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const { disabled, dragging, ownerState } = useSliderContext('Track');
+  const { disabled, dragging, ownerState } = useSliderContext();
 
   const { getRootProps } = useSliderTrack({
     rootRef: mergedRef,

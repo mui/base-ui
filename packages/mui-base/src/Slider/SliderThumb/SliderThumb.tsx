@@ -4,15 +4,13 @@ import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderContext } from '../Root/SliderProvider';
 import { SliderThumbProps } from './SliderThumb.types';
 import { useSliderThumb } from './useSliderThumb';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
 }
-
-function NOOP() {}
 
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumbProps,
@@ -24,9 +22,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     children,
     disabled: disabledProp = false,
     id,
-    onFocus = NOOP,
-    onBlur = NOOP,
-    onKeyDown = NOOP,
     ...otherProps
   } = props;
 
@@ -34,7 +29,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
-  const { ownerState, active: activeIndex } = useSliderContext('Thumb');
+  const { ownerState, active: activeIndex } = useSliderContext();
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     disabled: disabledProp,
@@ -53,12 +48,12 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     className: resolveClassName(className, ownerState),
   });
 
-  const inputProps = getThumbInputProps({ disabled, onFocus, onBlur, onKeyDown });
+  const inputProps = getThumbInputProps({ disabled });
 
   return (
     <span {...thumbProps}>
       {children}
-      <input {...inputProps} data-index={index} />
+      <input {...inputProps} />
     </span>
   );
 });

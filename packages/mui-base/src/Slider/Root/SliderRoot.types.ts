@@ -1,6 +1,22 @@
-import { SliderThumbMetadata } from '../SliderThumb/SliderThumb.types';
 import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
 import { CompoundComponentContextValue } from '../../useCompound';
+
+export interface SliderThumbMetadata {
+  inputId: string;
+  ref: React.RefObject<HTMLElement>;
+  inputRef: React.RefObject<HTMLInputElement>;
+}
+
+export type SliderContextValue = Omit<
+  UseSliderReturnValue,
+  'compoundComponentContextValue' | 'getRootProps'
+> & {
+  ownerState: SliderRootOwnerState;
+};
+
+export type SliderProviderValue = SliderContextValue & {
+  compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
+};
 
 export interface SliderRootOwnerState {
   /**

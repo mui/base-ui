@@ -22,7 +22,7 @@ export function TrackFill(props: any) {
   // does not support inverted range fill !!!
   const { inverted = false, style, ...otherProps } = props;
 
-  const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext('TrackFill');
+  const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext();
 
   const isRange = percentageValues.length > 1;
 
@@ -236,16 +236,16 @@ export function Styles() {
       transform: translateX(50%);
     }
 
-    .MySlider-thumb:focus-within {
+    .MySlider-thumb:focus-visible {
       outline: 2px solid black;
       outline-offset: 2px;
     }
 
-    .MySlider-thumb[data-active] {
+    .MySlider-thumb[data-dragging] {
       background-color: pink;
     }
 
-    .MySlider-thumb:has(input:disabled) {
+    .MySlider-thumb[data-disabled] {
       background-color: ${isDarkMode ? grey[600] : grey[300]};
     }
 
@@ -302,12 +302,12 @@ export function Styles() {
       transform: translateY(50%);
     }
 
-    .VerticalSlider-thumb:focus-within {
+    .VerticalSlider-thumb:focus-visible {
       outline: 2px solid black;
       outline-offset: 2px;
     }
 
-    .VerticalSlider-thumb[data-active] {
+    .VerticalSlider-thumb[data-dragging] {
       background-color: pink;
     }
 

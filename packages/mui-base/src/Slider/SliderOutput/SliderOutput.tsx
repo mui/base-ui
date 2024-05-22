@@ -5,7 +5,7 @@ import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderContext } from '../Root/SliderProvider';
 import { SliderOutputProps } from './SliderOutput.types';
 import { useSliderOutput } from './useSliderOutput';
 
@@ -21,7 +21,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   const render = renderProp ?? defaultRender;
 
-  const { disabled, dragging, ownerState, values } = useSliderContext('Output');
+  const { disabled, dragging, ownerState, values } = useSliderContext();
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 

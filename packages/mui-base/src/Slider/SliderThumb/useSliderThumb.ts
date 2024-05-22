@@ -5,15 +5,22 @@ import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompoundItem } from '../../useCompound';
 import { valueToPercent } from '../utils';
-import { useSliderContext } from '../Root/SliderContext';
-import {
-  SliderThumbMetadata,
-  UseSliderThumbParameters,
-  UseSliderThumbReturnValue,
-} from './SliderThumb.types';
+import { useSliderContext } from '../Root/SliderProvider';
+import { SliderThumbMetadata } from '../Root/SliderRoot.types';
+import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
+}
+
+function getNewValue(
+  thumbValue: number,
+  step: number,
+  direction: 1 | -1,
+  min: number,
+  max: number,
+): number {
+  return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
 }
 /**
  *
@@ -49,7 +56,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     step,
     tabIndex,
     values: sliderValues,
-  } = useSliderContext('Thumb');
+  } = useSliderContext();
 
   const isThumbDisabled = disabledProp || disabled;
 
@@ -92,8 +99,57 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: idParam,
-        onPointerOver(/* event: React.PointerEvent<HTMLSpanElement> */) {
-          // const index = Number(event.currentTarget.getAttribute('data-index'));
+        onFocus() {
+          setOpen(index);
+        },
+        onBlur() {
+          setOpen(-1);
+        },
+        onKeyDown(event: React.KeyboardEvent) {
+          if (step !== null) {
+            let newValue = null;
+            switch (event.key) {
+              case 'ArrowUp':
+                newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, 1, min, max);
+                break;
+              case 'ArrowRight':
+                newValue = getNewValue(
+                  thumbValue,
+                  event.shiftKey ? largeStep : step,
+                  isRtl ? -1 : 1,
+                  min,
+                  max,
+                );
+                break;
+              case 'ArrowDown':
+                newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, -1, min, max);
+                break;
+              case 'ArrowLeft':
+                newValue = getNewValue(
+                  thumbValue,
+                  event.shiftKey ? largeStep : step,
+                  isRtl ? 1 : -1,
+                  min,
+                  max,
+                );
+                break;
+              case 'PageUp':
+                newValue = getNewValue(thumbValue, largeStep, isRtl ? -1 : 1, min, max);
+                break;
+              case 'PageDown':
+                newValue = getNewValue(thumbValue, largeStep, isRtl ? 1 : -1, min, max);
+                break;
+              default:
+                break;
+            }
+
+            if (newValue !== null) {
+              changeValue(newValue, index, event);
+              event.preventDefault();
+            }
+          }
+        },
+        onPointerOver() {
           setOpen(index);
         },
         onPointerLeave() {
@@ -103,14 +159,30 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         style: {
           ...getThumbStyle(),
         },
+        tabIndex: tabIndex ?? (isThumbDisabled ? undefined : 0),
       });
     },
-    [getThumbStyle, idParam, index, handleRef, setOpen],
+    [
+      changeValue,
+      getThumbStyle,
+      handleRef,
+      idParam,
+      index,
+      isRtl,
+      isThumbDisabled,
+      largeStep,
+      max,
+      min,
+      setOpen,
+      step,
+      tabIndex,
+      thumbValue,
+    ],
   );
 
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'input'>(externalProps, {
+      return mergeReactProps(externalProps, {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
         'aria-orientation': orientation,
@@ -120,6 +192,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(scale(thumbValue), index)
           : ariaValuetext,
+        'data-index': index,
         disabled,
         id: compoundItemId,
         max,
@@ -128,35 +201,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         onChange(event: React.ChangeEvent) {
           // @ts-ignore
           changeValue(event.target.valueAsNumber, index, event);
-        },
-        onFocus() {
-          setOpen(index);
-        },
-        onBlur() {
-          setOpen(-1);
-        },
-        onKeyDown(event: React.KeyboardEvent) {
-          // The Shift + Up/Down keyboard shortcuts for moving the slider makes sense to be supported
-          // only if the step is defined. If the step is null, this means tha the marks are used for specifying the valid values.
-          if (step !== null) {
-            let newValue = null;
-            if (
-              ((event.key === 'ArrowLeft' || event.key === 'ArrowDown') && event.shiftKey) ||
-              event.key === 'PageDown'
-            ) {
-              newValue = Math.max(thumbValue - largeStep, min);
-            } else if (
-              ((event.key === 'ArrowRight' || event.key === 'ArrowUp') && event.shiftKey) ||
-              event.key === 'PageUp'
-            ) {
-              newValue = Math.min(thumbValue + largeStep, max);
-            }
-
-            if (newValue !== null) {
-              changeValue(newValue, index, event);
-              event.preventDefault();
-            }
-          }
         },
         ref: inputRef,
         step: step ?? 'any',
@@ -167,7 +211,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           width: '100%',
           height: '100%',
         },
-        tabIndex,
+        tabIndex: -1,
         type: 'range',
         value: thumbValue ?? '',
       });
@@ -183,15 +227,12 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       getAriaValueText,
       index,
       isRtl,
-      largeStep,
       max,
       min,
       name,
       orientation,
-      setOpen,
       scale,
       step,
-      tabIndex,
       thumbValue,
     ],
   );

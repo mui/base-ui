@@ -1,6 +1,7 @@
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { SliderRootOwnerState } from '../Root/SliderRoot.types';
 
-export type SliderThumbOwnerState = {};
+export interface SliderThumbOwnerState extends SliderRootOwnerState {}
 
 export interface SliderThumbProps
   extends Omit<UseSliderThumbParameters, 'rootRef'>,
@@ -37,6 +38,9 @@ export interface UseSliderThumbParameters {
   getAriaValueText?: (value: number, index: number) => string;
   id?: string;
   disabled?: boolean;
+  onBlur?: React.FocusEventHandler;
+  onFocus?: React.FocusEventHandler;
+  onKeyDown?: React.KeyboardEventHandler;
   rootRef?: React.Ref<Element>;
 }
 
@@ -54,10 +58,4 @@ export interface UseSliderThumbReturnValue {
    */
   getThumbStyle: (index: number) => Record<string, unknown>;
   index: number;
-}
-
-export interface SliderThumbMetadata {
-  inputId: string;
-  ref: React.RefObject<HTMLElement>;
-  inputRef: React.RefObject<HTMLInputElement>;
 }

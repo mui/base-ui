@@ -9,8 +9,12 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useCompoundParent } from '../../useCompound';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
-import { Mark, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
-import { SliderThumbMetadata } from '../SliderThumb/SliderThumb.types';
+import {
+  Mark,
+  SliderThumbMetadata,
+  UseSliderParameters,
+  UseSliderReturnValue,
+} from './SliderRoot.types';
 
 function asc(a: number, b: number) {
   return a - b;

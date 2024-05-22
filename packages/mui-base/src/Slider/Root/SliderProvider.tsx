@@ -1,17 +1,26 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
-import { SliderThumbMetadata } from '../SliderThumb/SliderThumb.types';
-import { SliderContext, type SliderContextValue } from './SliderContext';
-
-export type SliderProviderValue = SliderContextValue & {
-  compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
-};
+import { CompoundComponentContext } from '../../useCompound';
+import { SliderContextValue, SliderProviderValue } from './SliderRoot.types';
 
 export interface SliderProviderProps {
   value: SliderProviderValue;
   children: React.ReactNode;
+}
+
+export const SliderContext = React.createContext<SliderContextValue | undefined>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  SliderContext.displayName = 'SliderContext';
+}
+
+export function useSliderContext() {
+  const context = React.useContext(SliderContext);
+  if (context === undefined) {
+    throw new Error('useSliderContext must be used inside a Slider component');
+  }
+  return context;
 }
 
 /**

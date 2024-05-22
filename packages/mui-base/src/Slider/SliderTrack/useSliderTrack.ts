@@ -2,7 +2,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderContext } from '../Root/SliderProvider';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { roundValueToStep, valueToPercent } from '../utils';
 import { focusThumb, trackFinger } from '../Root/useSliderRoot';
@@ -47,7 +47,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     setValueState,
     subitems,
     values,
-  } = useSliderContext('Track');
+  } = useSliderContext();
 
   const thumbRefs = React.useMemo(() => {
     return Array.from(subitems).map((subitem) => {

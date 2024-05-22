@@ -8,7 +8,7 @@ function Label(props: any) {
   const defaultId = React.useId();
   const labelId = idProp ?? defaultId;
 
-  const { subitems } = useSliderContext('Label');
+  const { subitems } = useSliderContext();
 
   const htmlFor = Array.from(subitems.values())
     .reduce((acc, item) => {

@@ -4,14 +4,12 @@ export {
   SliderRootProps as RootProps,
   UseSliderParameters,
   UseSliderReturnValue,
+  SliderContextValue,
+  SliderProviderValue,
+  SliderThumbMetadata,
 } from './Root/SliderRoot.types';
 export { useSliderRoot } from './Root/useSliderRoot';
-export { SliderContext, type SliderContextValue, useSliderContext } from './Root/SliderContext';
-export {
-  SliderProvider,
-  type SliderProviderValue,
-  type SliderProviderProps,
-} from './Root/SliderProvider';
+export * from './Root/SliderProvider';
 
 export { SliderThumb as Thumb } from './SliderThumb/SliderThumb';
 export type {
@@ -19,7 +17,6 @@ export type {
   SliderThumbProps as ThumbProps,
   UseSliderThumbParameters,
   UseSliderThumbReturnValue,
-  SliderThumbMetadata as ThumbMetadata,
 } from './SliderThumb/SliderThumb.types';
 export { useSliderThumb } from './SliderThumb/useSliderThumb';
 
