@@ -4,11 +4,8 @@ import PropTypes from 'prop-types';
 import { TabsListOwnerState, TabsListProps } from './TabsList.types';
 import { useTabsList } from './useTabsList';
 import { TabsListProvider } from './TabsListProvider';
-import { useTabsListStyleHooks } from './useTabsListStyleHooks';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
  *
@@ -24,16 +21,9 @@ const TabsList = React.forwardRef(function TabsList(
   props: TabsListProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    activateOnFocus = true,
-    className: classNameProp,
-    loop = true,
-    render: renderProp,
-    ...other
-  } = props;
+  const { activateOnFocus = true, className, loop = true, render, ...other } = props;
 
-  const render = renderProp ?? defaultRenderFunctions.div;
-  const { direction, orientation, getRootProps, contextValue, rootRef, tabActivationDirection } =
+  const { direction, orientation, getRootProps, contextValue, tabActivationDirection } =
     useTabsList({
       rootRef: forwardedRef,
       loop,
@@ -49,22 +39,16 @@ const TabsList = React.forwardRef(function TabsList(
     [direction, orientation, tabActivationDirection],
   );
 
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useTabsListStyleHooks(ownerState);
-  const mergedRef = useRenderPropForkRef(render, rootRef);
-
-  const rootProps = getRootProps({
-    ...styleHooks,
-    ...other,
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render: render ?? 'div',
     className,
-    ref: mergedRef,
+    ownerState,
+    extraProps: other,
+    customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return (
-    <TabsListProvider value={contextValue}>
-      {evaluateRenderProp(render, rootProps, ownerState)}
-    </TabsListProvider>
-  );
+  return <TabsListProvider value={contextValue}>{renderElement()}</TabsListProvider>;
 });
 
 TabsList.propTypes /* remove-proptypes */ = {
