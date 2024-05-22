@@ -30,5 +30,11 @@ module.exports = {
         'no-console': 'off',
       },
     },
+    {
+      files: ['packages/mui-base/src/legacy/**/*.*'],
+      rules: {
+        'no-restricted-imports': 'off',
+      },
+    },
   ],
 };
