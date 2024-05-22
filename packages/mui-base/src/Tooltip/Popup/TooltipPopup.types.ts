@@ -16,6 +16,8 @@ export type TooltipPopupOwnerState = {
   side: Side;
   alignment: 'start' | 'end' | 'center';
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  entering: boolean;
+  exiting: boolean;
 };
 
 export interface TooltipPopupProps
@@ -23,9 +25,8 @@ export interface TooltipPopupProps
     TooltipPopupParameters {
   /**
    * The container element to which the tooltip content will be appended to.
-   * @default document.body
    */
-  container?: Element | null | (() => Element | null);
+  container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   /**
    * If `true`, the tooltip content will be kept mounted in the DOM.
    * @default false

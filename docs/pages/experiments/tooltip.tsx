@@ -1,18 +1,19 @@
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import { styled, keyframes, css } from '@mui/system';
+import { styled, keyframes } from '@mui/system';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const scaleIn = keyframes`
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.8);
   }
 `;
 
 const scaleOut = keyframes`
   to {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0);
   }
 `;
 
@@ -23,25 +24,99 @@ const blue = {
 };
 
 export const TooltipPopup = styled(Tooltip.Popup)`
-  ${({ theme }) => css`
-    font-family: 'IBM Plex Sans', sans-serif;
-    background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
-    color: ${theme.palette.mode === 'dark' ? 'black' : 'white'};
-    padding: 4px 6px;
-    border-radius: 4px;
-    font-size: 95%;
-    cursor: default;
-    transform-origin: var(--transform-origin);
-    animation: ${scaleIn} 0.2s both;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: black;
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 95%;
+  cursor: default;
+  transform-origin: var(--transform-origin);
 
-    &[data-state='closed'] {
-      animation: ${scaleOut} 0.2s both;
+  &[data-instant] {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+
+  &[data-type='css-animation'] {
+    &[data-state='open'] {
+      visibility: visible;
+      animation: ${scaleIn} 0.2s forwards;
     }
 
-    &[data-instant] {
-      animation-duration: 0s;
+    &[data-exiting] {
+      animation: ${scaleOut} 0.2s forwards;
     }
-  `}
+  }
+
+  &[data-type='css-animation-keep-mounted'] {
+    visibility: hidden;
+
+    &[data-state='open'] {
+      visibility: visible;
+      animation: ${scaleIn} 0.2s forwards;
+    }
+
+    &[data-exiting] {
+      visibility: visible;
+      animation: ${scaleOut} 0.2s forwards;
+    }
+  }
+
+  &[data-type='css-transition'] {
+    transition-property: opacity, transform, visibility;
+    transition-duration: 0.2s;
+    opacity: 0;
+    transform: scale(0);
+
+    &[data-state='open'] {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    &[data-entering] {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+  }
+
+  &[data-type='css-transition-keep-mounted'] {
+    transition-property: opacity, transform, visibility;
+    transition-duration: 0.2s;
+    opacity: 0;
+    transform: scale(0.8);
+    visibility: hidden;
+
+    &[data-state='open'] {
+      opacity: 1;
+      transform: scale(1);
+      visibility: visible;
+    }
+
+    &[data-exiting] {
+      opacity: 0;
+      transform: scale(0);
+    }
+  }
+
+  &[data-type='css-transition-starting-style'] {
+    transition-property: opacity, transform, visibility;
+    transition-duration: 0.2s;
+    opacity: 0;
+    transform: scale(0);
+
+    &[data-state='open'] {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @starting-style {
+      &[data-state='open'] {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+  }
 `;
 
 export const AnchorButton = styled(Tooltip.Trigger)`
@@ -73,26 +148,154 @@ export default function TooltipTransitionExperiment() {
         fontFamily: '"IBM Plex Sans", sans-serif',
       }}
     >
-      <h2>Animation With Group</h2>
+      <h1>Base UI Popup Animations</h1>
+      <hr />
+
+      <h2>Conditional Rendering</h2>
+
+      <h3>CSS Animation Group</h3>
       <div style={{ display: 'flex', gap: 5 }}>
         <Tooltip.Group closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <TooltipPopup sideOffset={7}>Tooltip</TooltipPopup>
+            <TooltipPopup data-type="css-animation" sideOffset={7}>
+              Tooltip
+            </TooltipPopup>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <TooltipPopup sideOffset={7}>Tooltip</TooltipPopup>
+            <TooltipPopup data-type="css-animation" sideOffset={7}>
+              Tooltip
+            </TooltipPopup>
           </Tooltip.Root>
         </Tooltip.Group>
       </div>
-      <h2>Animation</h2>
+      <h3>CSS Animation</h3>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
-        <TooltipPopup keepMounted sideOffset={7}>
+        <TooltipPopup data-type="css-animation" sideOffset={7}>
           Tooltip
         </TooltipPopup>
       </Tooltip.Root>
+
+      <h3>CSS Transition Group</h3>
+      <div style={{ display: 'flex', gap: 5 }}>
+        <Tooltip.Group closeDelay={200}>
+          <Tooltip.Root>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup data-type="css-transition" sideOffset={7}>
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup data-type="css-transition" sideOffset={7}>
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Root>
+        </Tooltip.Group>
+      </div>
+      <h3>CSS Transition</h3>
+      <Tooltip.Root>
+        <AnchorButton>Anchor</AnchorButton>
+        <TooltipPopup data-type="css-transition" sideOffset={7}>
+          Tooltip
+        </TooltipPopup>
+      </Tooltip.Root>
+
+      <h3>CSS Transition with `@starting-style`</h3>
+      <Tooltip.Root>
+        <AnchorButton>Anchor</AnchorButton>
+        <TooltipPopup data-type="css-transition-starting-style" sideOffset={7}>
+          Tooltip
+        </TooltipPopup>
+      </Tooltip.Root>
+
+      <hr />
+
+      <h2>Keep Mounted</h2>
+
+      <h3>CSS Animation Group</h3>
+      <div style={{ display: 'flex', gap: 5 }}>
+        <Tooltip.Group closeDelay={200}>
+          <Tooltip.Root>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup data-type="css-animation-keep-mounted" sideOffset={7} keepMounted>
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup data-type="css-animation-keep-mounted" sideOffset={7} keepMounted>
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Root>
+        </Tooltip.Group>
+      </div>
+      <h3>CSS Animation</h3>
+      <Tooltip.Root>
+        <AnchorButton>Anchor</AnchorButton>
+        <TooltipPopup data-type="css-animation-keep-mounted" sideOffset={7} keepMounted>
+          Tooltip
+        </TooltipPopup>
+      </Tooltip.Root>
+
+      <h3>CSS Transition Group</h3>
+      <div style={{ display: 'flex', gap: 5 }}>
+        <Tooltip.Group closeDelay={200}>
+          <Tooltip.Root>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup data-type="css-transition-keep-mounted" sideOffset={7} keepMounted>
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <AnchorButton>Anchor</AnchorButton>
+            <TooltipPopup data-type="css-transition-keep-mounted" sideOffset={7} keepMounted>
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Root>
+        </Tooltip.Group>
+      </div>
+      <h3>CSS Transition</h3>
+      <Tooltip.Root>
+        <AnchorButton>Anchor</AnchorButton>
+        <TooltipPopup data-type="css-transition-keep-mounted" sideOffset={7} keepMounted>
+          Tooltip
+        </TooltipPopup>
+      </Tooltip.Root>
+
+      <hr />
+
+      <h2>JavaScript Animation (`framer-motion`)</h2>
+      <FramerMotion />
     </div>
+  );
+}
+
+function FramerMotion() {
+  const [isOpen, setIsOpen] = React.useState(false);
+  return (
+    <Tooltip.Root open={isOpen} onOpenChange={setIsOpen}>
+      <AnchorButton>Anchor</AnchorButton>
+      <AnimatePresence>
+        {isOpen && (
+          <TooltipPopup
+            keepMounted
+            sideOffset={7}
+            data-type="framer-motion"
+            render={
+              <motion.div
+                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                exit={{ opacity: 0, scale: 0 }}
+              />
+            }
+          >
+            Tooltip
+          </TooltipPopup>
+        )}
+      </AnimatePresence>
+    </Tooltip.Root>
   );
 }

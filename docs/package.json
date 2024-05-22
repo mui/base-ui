@@ -88,6 +88,7 @@
     "@types/stylis": "^4.2.5",
     "chai": "^4.4.1",
     "cross-fetch": "^4.0.0",
+    "framer-motion": "^11.2.5",
     "marked": "^12.0.2",
     "playwright": "^1.43.1",
     "prettier": "^3.2.5",

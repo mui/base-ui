@@ -13,26 +13,30 @@ export function useTransitionStatus(isRendered: boolean) {
 
   if (isRendered && !mounted) {
     setMounted(true);
+  }
 
-    if (transitionStatus === 'closed') {
-      setTransitionStatus(undefined);
-    }
+  if (!isRendered && mounted && transitionStatus !== 'exiting') {
+    setTransitionStatus('exiting');
+  }
+
+  if (!isRendered && !mounted && transitionStatus === 'exiting') {
+    setTransitionStatus(undefined);
   }
 
   useEnhancedEffect(() => {
-    if (isRendered) {
-      const frame = requestAnimationFrame(() => {
-        setTransitionStatus('open');
-      });
-
-      return () => {
-        cancelAnimationFrame(frame);
-      };
+    if (!isRendered) {
+      return undefined;
     }
 
-    setTransitionStatus('closed');
+    setTransitionStatus('entering');
 
-    return undefined;
+    const frame = requestAnimationFrame(() => {
+      setTransitionStatus(undefined);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
   }, [isRendered]);
 
   return React.useMemo(

@@ -76,6 +76,10 @@
         "description": "(value: boolean, event?: Event, reason?: OpenChangeReason) =&gt; void"
       },
       "required": true
+    },
+    "transitionStatus": {
+      "type": { "name": "TransitionStatus", "description": "TransitionStatus" },
+      "required": true
     }
   },
   "name": "useTooltipRoot",

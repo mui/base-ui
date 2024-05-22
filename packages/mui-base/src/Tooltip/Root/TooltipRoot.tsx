@@ -37,6 +37,7 @@ function TooltipRoot(props: TooltipRootProps) {
     getTriggerProps,
     getRootPopupProps,
     rootContext,
+    transitionStatus,
   } = useTooltipRoot({
     popupEl,
     triggerEl,
@@ -68,6 +69,7 @@ function TooltipRoot(props: TooltipRootProps) {
       getRootPopupProps,
       rootContext,
       followCursorAxis,
+      transitionStatus,
     }),
     [
       delay,
@@ -84,6 +86,7 @@ function TooltipRoot(props: TooltipRootProps) {
       getRootPopupProps,
       rootContext,
       followCursorAxis,
+      transitionStatus,
     ],
   );
 

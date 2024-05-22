@@ -35,6 +35,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
  */
 export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPopupReturnValue {
   const {
+    open,
     anchor,
     side = 'top',
     sideOffset = 0,
@@ -111,12 +112,15 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
         });
       },
     }),
-    arrow(() => ({
-      // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
-      // we'll create a fake element.
-      element: arrowRef.current || document.createElement('div'),
-      padding: arrowPadding,
-    })),
+    arrow(
+      () => ({
+        // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
+        // we'll create a fake element.
+        element: arrowRef.current || document.createElement('div'),
+        padding: arrowPadding,
+      }),
+      [arrowPadding],
+    ),
     hideWhenDetached && hide(),
     {
       name: 'transformOrigin',
@@ -185,27 +189,52 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
 
   const getPopupProps: UseTooltipPopupReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
+      function handleEnd({ target }: React.SyntheticEvent) {
+        const popupElement = refs.floating.current?.firstElementChild;
+        if (target === popupElement && setMounted) {
+          setMounted((prevMounted) => (prevMounted ? false : prevMounted));
+        }
+      }
+
+      const hiddenStyles: React.CSSProperties = {};
+
+      if (isHidden) {
+        hiddenStyles.visibility = 'hidden';
+      }
+
+      if ((keepMounted && !open) || isHidden) {
+        hiddenStyles.pointerEvents = 'none';
+      }
+
+      if (followCursorAxis === 'both') {
+        hiddenStyles.pointerEvents = 'none';
+      }
+
       return mergeReactProps(
         externalProps,
         getRootPopupProps({
           style: {
             ...floatingStyles,
+            ...hiddenStyles,
             maxWidth: 'var(--available-width)',
             maxHeight: 'var(--available-height)',
-            visibility: isHidden ? 'hidden' : undefined,
-            pointerEvents: isHidden || followCursorAxis === 'both' ? 'none' : undefined,
             zIndex: 2147483647, // max z-index
           },
-          onAnimationEnd({ target }) {
-            const popupElement = refs.floating.current?.firstElementChild;
-            if (target === popupElement && setMounted) {
-              setMounted((prevMounted) => (prevMounted ? false : prevMounted));
-            }
-          },
+          onTransitionEnd: handleEnd,
+          onAnimationEnd: handleEnd,
         }),
       );
     },
-    [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, setMounted, refs],
+    [
+      getRootPopupProps,
+      floatingStyles,
+      isHidden,
+      followCursorAxis,
+      setMounted,
+      refs,
+      open,
+      keepMounted,
+    ],
   );
 
   const getArrowProps: UseTooltipPopupReturnValue['getArrowProps'] = React.useCallback(

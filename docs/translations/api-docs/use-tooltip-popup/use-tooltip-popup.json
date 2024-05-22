@@ -34,6 +34,7 @@
       "description": "If <code>true</code>, the tooltip will be mounted, including CSS transitions or animations."
     },
     "mounted": { "description": "Determines if the tooltip is mounted." },
+    "open": { "description": "If <code>true</code>, the tooltip is open." },
     "rootContext": { "description": "The tooltip root context." },
     "setMounted": { "description": "Callback fired when the mounted state changes." },
     "side": {

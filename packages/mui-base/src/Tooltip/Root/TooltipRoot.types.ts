@@ -3,6 +3,7 @@ import type {
   OpenChangeReason,
   UseInteractionsReturn,
 } from '@floating-ui/react';
+import type { TransitionStatus } from '../../useTransitionStatus';
 
 export interface TooltipRootContextValue {
   open: boolean;
@@ -21,6 +22,7 @@ export interface TooltipRootContextValue {
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   rootContext: FloatingRootContext;
   followCursorAxis: 'none' | 'x' | 'y' | 'both';
+  transitionStatus: TransitionStatus;
 }
 
 export interface TooltipRootProps {

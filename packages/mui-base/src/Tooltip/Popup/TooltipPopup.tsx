@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { FloatingPortal } from '@floating-ui/react';
 import type {
   TooltipPopupContextValue,
   TooltipPopupOwnerState,
   TooltipPopupProps,
 } from './TooltipPopup.types';
 import { resolveClassName } from '../../utils/resolveClassName';
-import { Portal } from '../../Portal';
 import { useTooltipPopup } from './useTooltipPopup';
 import { TooltipPopupContext } from './TooltipPopupContext';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
@@ -62,11 +62,13 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     setMounted,
     rootContext,
     instantType,
+    transitionStatus,
   } = useTooltipRootContext();
 
   const tooltip = useTooltipPopup({
     anchor: anchor || triggerEl,
     rootContext,
+    open,
     mounted,
     setMounted,
     getRootPopupProps,
@@ -92,8 +94,10 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
       instant: instantType,
       side: tooltip.side,
       alignment: tooltip.alignment,
+      entering: transitionStatus === 'entering',
+      exiting: transitionStatus === 'exiting',
     }),
-    [open, instantType, tooltip.side, tooltip.alignment],
+    [open, instantType, tooltip.side, tooltip.alignment, transitionStatus],
   );
 
   const contextValue: TooltipPopupContextValue = React.useMemo(
@@ -131,11 +135,11 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   return (
     <TooltipPopupContext.Provider value={contextValue}>
-      <Portal container={container}>
+      <FloatingPortal root={container}>
         <div role="presentation" ref={setPopupEl} {...tooltip.getPopupProps()}>
           {evaluateRenderProp(render, popupProps, ownerState)}
         </div>
-      </Portal>
+      </FloatingPortal>
     </TooltipPopupContext.Provider>
   );
 });
@@ -193,7 +197,6 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
   ]),
   /**
    * The container element to which the tooltip content will be appended to.
-   * @default document.body
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.any,
   /**

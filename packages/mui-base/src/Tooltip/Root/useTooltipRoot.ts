@@ -61,7 +61,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     [onOpenChange, setOpenUnwrapped],
   );
 
-  const { mounted, setMounted } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerEl, floating: popupEl },
@@ -88,7 +88,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
           const hasNoAnimation =
             ['', 'none'].includes(computedStyles.animationName) ||
             ['', '0s'].includes(computedStyles.animationDuration);
-          if (hasNoAnimation) {
+          const hasNoTransition = ['', '0s'].includes(computedStyles.transitionDuration);
+          if (hasNoAnimation && hasNoTransition) {
             setMounted(false);
           }
         });
@@ -135,7 +136,18 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       getRootPopupProps,
       rootContext: context,
       instantType,
+      transitionStatus,
     }),
-    [mounted, open, setMounted, setOpen, getTriggerProps, getRootPopupProps, context, instantType],
+    [
+      mounted,
+      open,
+      setMounted,
+      setOpen,
+      getTriggerProps,
+      getRootPopupProps,
+      context,
+      instantType,
+      transitionStatus,
+    ],
   );
 }

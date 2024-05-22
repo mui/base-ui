@@ -1,1 +1,1 @@
-export type TransitionStatus = 'open' | 'closed';
+export type TransitionStatus = 'entering' | 'exiting' | undefined;

@@ -19,7 +19,7 @@
       },
       "default": "5"
     },
-    "container": { "type": { "name": "any" }, "default": "document.body" },
+    "container": { "type": { "name": "any" } },
     "followCursorAxis": {
       "type": {
         "name": "enum",

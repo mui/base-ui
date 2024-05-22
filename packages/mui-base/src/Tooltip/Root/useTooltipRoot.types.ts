@@ -3,6 +3,7 @@ import type {
   OpenChangeReason,
   UseInteractionsReturn,
 } from '@floating-ui/react';
+import type { TransitionStatus } from '../../useTransitionStatus';
 
 export interface UseTooltipRootParameters {
   /**
@@ -94,4 +95,8 @@ export interface UseTooltipRootReturnValue {
    * The type of instant phase the tooltip is in to remove animations.
    */
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+  /**
+   * The transition status of the tooltip.
+   */
+  transitionStatus: TransitionStatus;
 }

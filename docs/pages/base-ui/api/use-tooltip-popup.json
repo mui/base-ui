@@ -49,6 +49,7 @@
     "instant": { "type": { "name": "boolean", "description": "boolean" } },
     "keepMounted": { "type": { "name": "boolean", "description": "boolean" } },
     "mounted": { "type": { "name": "boolean", "description": "boolean" } },
+    "open": { "type": { "name": "boolean", "description": "boolean" } },
     "rootContext": {
       "type": { "name": "FloatingRootContext", "description": "FloatingRootContext" }
     },

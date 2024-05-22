@@ -266,16 +266,15 @@ By default, `maxWidth` and `maxHeight` are already specified using `--available-
 
 ## Animations
 
-CSS transitions or animations can be used to animate the tooltip opening or closing.
+The tooltip can animate when opening or closing with either:
 
-`Tooltip.Popup` receives a `data-status` attribute in one of four states:
+- CSS transitions
+- CSS animations
+- JavaScript animations
 
-- `unmounted`, indicating the tooltip is not mounted on the DOM.
-- `initial`, indicating the tooltip has been inserted into the DOM.
-- `opening`, indicating the tooltip is transitioning into the open state, immediately after insertion.
-- `closing`, indicating the tooltip is transitioning into the closed state.
+### CSS transitions
 
-Here is an example of how to apply a symmetric scale and fade transition:
+Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
 
 ```jsx
 <Tooltip.Popup className="TooltipPopup">Tooltip</Tooltip.Popup>
@@ -283,22 +282,56 @@ Here is an example of how to apply a symmetric scale and fade transition:
 
 ```css
 .TooltipPopup {
+  transform-origin: var(--transform-origin);
   transition-property: opacity, transform;
   transition-duration: 0.2s;
+  /* Represents the final styles once exited */
   opacity: 0;
   transform: scale(0.9);
-  transform-origin: var(--transform-origin);
 }
 
-.TooltipPopup[data-status='opening'] {
+/* Represents the final styles once entered */
+.TooltipPopup[data-state='open'] {
   opacity: 1;
   transform: scale(1);
 }
+
+/* Represents the initial styles when entering */
+.TooltipPopup[data-entering] {
+  opacity: 0;
+  transform: scale(0.9);
+}
 ```
+
+Styles need to be applied in three states:
+
+- The exiting styles, placed on the base element class
+- The open styles, placed on the base element class with `[data-state="open"]`
+- The entering styles, placed on the base element class with `[data-entering]`
 
 {{"demo": "UnstyledTooltipTransition.js", "defaultCodeOpen": false}}
 
-CSS animations can also be used—useful for more complex animations with differing property durations:
+In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
+
+```css
+/* Base UI API - Polyfill */
+.TooltipPopup[data-entering] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Official Browser API - no Firefox support as of May 2024 */
+@starting-style {
+  .TooltipPopup[data-state='open'] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+```
+
+### CSS animations
+
+CSS animations can also be used, requiring only two separate declarations:
 
 ```css
 @keyframes scale-in {
@@ -316,13 +349,44 @@ CSS animations can also be used—useful for more complex animations with differ
 }
 
 .TooltipPopup {
-  animation: scale-in 0.2s;
+  animation: scale-in 0.2s forwards;
 }
 
-.TooltipPopup[data-status='closing'] {
+.TooltipPopup[data-exiting] {
   animation: scale-out 0.2s forwards;
 }
 ```
+
+### JavaScript animations
+
+The `keepMounted` prop lets an external library control the mounting, for example `framer-motion`'s `AnimatePresence` component.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Tooltip.Root open={open} onOpenChange={setOpen}>
+      <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Tooltip.Popup keepMounted render={<motion.div /* motion props */ />}>
+            Tooltip
+          </Tooltip.Popup>
+        )}
+      </AnimatePresence>
+    </Tooltip.Root>
+  );
+}
+```
+
+### Animation states
+
+Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
+
+- `[data-state="open"]` - `open` state is `true`.
+- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
+- `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
 
 ### Instant animation
 

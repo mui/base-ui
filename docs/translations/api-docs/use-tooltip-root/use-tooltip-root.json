@@ -41,6 +41,7 @@
     "open": { "description": "If <code>true</code>, the tooltip is open." },
     "rootContext": { "description": "The root context object." },
     "setMounted": { "description": "Sets the mounted state of the tooltip." },
-    "setOpen": { "description": "Sets the open state of the tooltip." }
+    "setOpen": { "description": "Sets the open state of the tooltip." },
+    "transitionStatus": { "description": "The transition status of the tooltip." }
   }
 }

@@ -4,6 +4,10 @@ import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 export interface TooltipPopupParameters {
   /**
+   * If `true`, the tooltip is open.
+   */
+  open?: boolean;
+  /**
    * The side of the anchor element that the tooltip element should align to.
    * @default 'top'
    */
