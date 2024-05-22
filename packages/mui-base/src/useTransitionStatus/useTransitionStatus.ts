@@ -5,7 +5,7 @@ import type { TransitionStatus } from './useTransitionStatus.types';
 
 /**
  * Provides a status string for CSS animations.
- * @param isRendered - a boolean that determines if the component is rendered.
+ * @param isOpen - a boolean that determines if the element is open.
  * @ignore - internal hook.
  */
 export function useTransitionStatus(isOpen: boolean) {
