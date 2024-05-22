@@ -27,6 +27,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     softClose,
     titleElementId,
     type,
+    isTopmost,
   } = parameters;
 
   const { refs, context } = useFloating({
@@ -38,7 +39,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
 
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
-    outsidePress: softClose === true || softClose === 'clickOutside',
+    outsidePress: isTopmost && (softClose === true || softClose === 'clickOutside'),
     escapeKey: softClose === true || softClose === 'escapeKey',
   });
   const { getFloatingProps } = useInteractions([dismiss]);

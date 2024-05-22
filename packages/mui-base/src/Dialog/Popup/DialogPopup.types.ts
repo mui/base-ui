@@ -46,6 +46,7 @@ export interface UseDialogPopupParameters {
   setPopupElementId: (id: string | undefined) => void;
   type: DialogType;
   softClose: SoftCloseOptions;
+  isTopmost: boolean;
 }
 
 export interface UseDialogPopupReturnValue {

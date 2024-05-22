@@ -18,6 +18,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     id: idProp,
     animated,
     ref: forwardedRef,
+    isTopmost: nestedOpenDialogCount === 0,
     ...rootContext,
   });
 
