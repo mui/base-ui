@@ -4,13 +4,10 @@ import { useEventCallback } from './useEventCallback';
 import { ownerWindow } from './owner';
 
 /**
- * Executes the supplied function only if the given element has no CSS animations or transitions.
+ * Executes a function only if the given element has no CSS animations or transitions.
  * @ignore - internal hook.
  */
-export function useExecuteIfNotAnimated(
-  fn: () => void,
-  getElement: () => Element | null | undefined,
-) {
+export function useExecuteIfNotAnimated(getElement: () => Element | null | undefined) {
   const frame1Ref = React.useRef(-1);
   const frame2Ref = React.useRef(-1);
 
@@ -21,7 +18,7 @@ export function useExecuteIfNotAnimated(
 
   React.useEffect(() => cancelFrames, [cancelFrames]);
 
-  const unmount = useEventCallback(() => {
+  return useEventCallback((fnToExecute: () => void) => {
     cancelFrames();
 
     const element = getElement();
@@ -44,11 +41,9 @@ export function useExecuteIfNotAnimated(
           ['', '0s'].includes(computedStyles.animationDuration);
         const hasNoTransition = ['', '0s'].includes(computedStyles.transitionDuration);
         if (hasNoAnimation && hasNoTransition) {
-          fn();
+          fnToExecute();
         }
       });
     });
   });
-
-  return unmount;
 }
