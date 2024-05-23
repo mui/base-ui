@@ -94,6 +94,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
   });
 
   const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
+  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : groupDelay;
 
   let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
   if (!open && context.floatingId === currentId) {
@@ -104,7 +105,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     mouseOnly: true,
     move: false,
     handleClose: hoverable && followCursorAxis !== 'both' ? safePolygon() : null,
-    restMs: delayType === 'rest' ? delay : undefined,
+    restMs: delayType === 'rest' ? openGroupDelay || delay : undefined,
     delay: groupDelay || {
       open: delayType === 'hover' ? delay : 0,
       close: closeDelay,
