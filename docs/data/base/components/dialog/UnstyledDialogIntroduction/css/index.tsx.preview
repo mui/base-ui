@@ -1,0 +1,15 @@
+<React.Fragment>
+  <Dialog.Root softClose>
+    <Dialog.Trigger className="trigger">Open dialog</Dialog.Trigger>
+    <Dialog.Backdrop className="backdrop" />
+    <Dialog.Popup className="popup">
+      <Dialog.Title className="title">Confirm</Dialog.Title>
+      <Dialog.Description>Are you sure you want to do this?</Dialog.Description>
+      <div className="controls">
+        <Dialog.Close className="close">Yes</Dialog.Close>
+        <Dialog.Close className="close">No</Dialog.Close>
+      </div>
+    </Dialog.Popup>
+  </Dialog.Root>
+  <Styles />
+</React.Fragment>

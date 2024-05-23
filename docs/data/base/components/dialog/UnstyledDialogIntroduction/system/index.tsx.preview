@@ -1,0 +1,12 @@
+<Dialog.Root softClose>
+  <TriggerButton>Open dialog</TriggerButton>
+  <Backdrop />
+  <Popup>
+    <Title>Confirm</Title>
+    <Description>Are you sure you want to do this?</Description>
+    <Controls>
+      <CloseButton>Yes</CloseButton>
+      <CloseButton>No</CloseButton>
+    </Controls>
+  </Popup>
+</Dialog.Root>
