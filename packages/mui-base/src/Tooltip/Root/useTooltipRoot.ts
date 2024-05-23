@@ -36,6 +36,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     triggerEl = null,
     popupEl = null,
     hoverable = true,
+    animated = true,
     followCursorAxis = 'none',
     delayType = 'rest',
     delay = 200,
@@ -63,7 +64,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const unmount = useAnimationUnmount(
+  const unmountOnlyIfNotAnimated = useAnimationUnmount(
     () => popupEl?.firstElementChild,
     () => setMounted(false),
   );
@@ -83,7 +84,11 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       }
 
       if (!keepMounted && !openValue) {
-        unmount();
+        if (animated) {
+          unmountOnlyIfNotAnimated();
+        } else {
+          setMounted(false);
+        }
       }
 
       setOpen(openValue, eventValue, reasonValue);

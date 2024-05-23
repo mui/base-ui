@@ -101,6 +101,11 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * Whether the tooltip can animate. Useful to disable in tests.
+   * @default true
+   */
+  animated: PropTypes.bool,
+  /**
    * @ignore
    */
   children: PropTypes.node,

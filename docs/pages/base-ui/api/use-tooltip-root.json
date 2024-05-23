@@ -1,5 +1,6 @@
 {
   "parameters": {
+    "animated": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
     "closeDelay": { "type": { "name": "number", "description": "number" }, "default": "0" },
     "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
     "delay": { "type": { "name": "number", "description": "number" }, "default": "200" },

@@ -34,6 +34,11 @@ export interface UseTooltipRootParameters {
    */
   hoverable?: boolean;
   /**
+   * Whether the tooltip can animate. Useful to disable in tests.
+   * @default true
+   */
+  animated?: boolean;
+  /**
    * Determines which axis the tooltip should follow the cursor on.
    * @default 'none'
    */

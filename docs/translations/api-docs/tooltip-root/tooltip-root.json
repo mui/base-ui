@@ -1,6 +1,7 @@
 {
   "componentDescription": "The foundation for building custom-styled tooltips.",
   "propDescriptions": {
+    "animated": { "description": "Whether the tooltip can animate. Useful to disable in tests." },
     "closeDelay": {
       "description": "The delay in milliseconds until the tooltip content is closed."
     },
