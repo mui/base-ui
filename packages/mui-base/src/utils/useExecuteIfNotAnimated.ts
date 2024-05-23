@@ -4,12 +4,12 @@ import { useEventCallback } from './useEventCallback';
 import { ownerWindow } from './owner';
 
 /**
- * Unmounts the supplied element only if it has no animations or transitions.
+ * Executes the supplied function only if the given element has no CSS animations or transitions.
  * @ignore - internal hook.
  */
-export function useAnimationUnmount(
+export function useExecuteIfNotAnimated(
+  fn: () => void,
   getElement: () => Element | null | undefined,
-  onUnmount: () => void,
 ) {
   const frame1Ref = React.useRef(-1);
   const frame2Ref = React.useRef(-1);
@@ -43,9 +43,8 @@ export function useAnimationUnmount(
           ['', 'none'].includes(computedStyles.animationName) ||
           ['', '0s'].includes(computedStyles.animationDuration);
         const hasNoTransition = ['', '0s'].includes(computedStyles.transitionDuration);
-
         if (hasNoAnimation && hasNoTransition) {
-          onUnmount();
+          fn();
         }
       });
     });
