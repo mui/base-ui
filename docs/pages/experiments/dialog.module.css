@@ -11,7 +11,6 @@
 @keyframes dialog-opening-opacity {
   from {
     opacity: 0;
-    visibility: hidden;
   }
   to {
     opacity: 1;
