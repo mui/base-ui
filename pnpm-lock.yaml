@@ -575,26 +575,14 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.24.5
-      '@floating-ui/react-dom':
-        specifier: ^2.1.0
-        version: 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-        specifier: ^7.24.4
-        version: 7.24.4
       '@floating-ui/react':
-        specifier: ^0.26.16
+        specifier: ^0.26.12
         version: 0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/react-dom':
-<<<<<<< HEAD
         specifier: ^2.0.8
-        version: 2.0.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-=======
-        specifier: ^2.1.0
         version: 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
->>>>>>> e4a29ac9 (Refactor animations)
       '@floating-ui/utils':
         specifier: ^0.2.1
-        version: 0.2.1
-        specifier: ^0.2.2
         version: 0.2.2
       '@mui/types':
         specifier: ^7.2.14
@@ -1807,15 +1795,6 @@ packages:
   '@floating-ui/dom@1.6.5':
     resolution: {integrity: sha512-Nsdud2X65Dz+1RHjAIP0t8z5e2ff/IRbei6BqFrl1urT8sDVzM1HMQ+R0XcU5ceRfyO3I6ayeqIfh+6Wb8LGTw==}
 
-<<<<<<< HEAD
-  '@floating-ui/react-dom@2.1.0':
-    resolution: {integrity: sha512-lNzj5EQmEKn5FFKc04+zasr09h/uX8RtJRNj5gUXsSQIXHVWTVh+hVAg1vOMCexkX8EgvemMvIFpQfkosnVNyA==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-
-=======
->>>>>>> e4a29ac9 (Refactor animations)
   '@floating-ui/react-dom@2.1.0':
     resolution: {integrity: sha512-lNzj5EQmEKn5FFKc04+zasr09h/uX8RtJRNj5gUXsSQIXHVWTVh+hVAg1vOMCexkX8EgvemMvIFpQfkosnVNyA==}
     peerDependencies:
@@ -9946,15 +9925,6 @@ snapshots:
       '@floating-ui/core': 1.6.0
       '@floating-ui/utils': 0.2.2
 
-<<<<<<< HEAD
-  '@floating-ui/react-dom@2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
-    dependencies:
-      '@floating-ui/dom': 1.6.5
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-
-=======
->>>>>>> e4a29ac9 (Refactor animations)
   '@floating-ui/react-dom@2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@floating-ui/dom': 1.6.5
