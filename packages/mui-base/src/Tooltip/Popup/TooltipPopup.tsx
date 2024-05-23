@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import type {
   TooltipPopupContextValue,
   TooltipPopupOwnerState,
@@ -10,6 +9,7 @@ import type {
 import { useTooltipPopup } from './useTooltipPopup';
 import { TooltipPopupContext } from './TooltipPopupContext';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
+import { TooltipPopupRoot } from '../PopupRoot/TooltipPopupRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { tooltipPopupStyleHookMapping } from './styleHooks';
 import type { GenericHTMLProps } from '../../utils/BaseUI.types';
@@ -32,6 +32,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   const {
     className,
     render,
+    renderRoot: renderRootProp,
     anchor,
     side = 'top',
     alignment = 'center',
@@ -47,6 +48,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     container,
     ...otherProps
   } = props;
+  const renderRoot = renderRootProp ?? <TooltipPopupRoot />;
 
   const {
     open,
@@ -134,11 +136,9 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   return (
     <TooltipPopupContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>
-        <div role="presentation" ref={setPopupEl} {...tooltip.getPopupProps()}>
-          {renderElement()}
-        </div>
-      </FloatingPortal>
+      <TooltipPopupRoot render={renderRoot} ref={setPopupEl} {...tooltip.getPopupProps()}>
+        {renderElement()}
+      </TooltipPopupRoot>
     </TooltipPopupContext.Provider>
   );
 });
@@ -218,6 +218,10 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * Customize the positioned root element.
+   */
+  renderRoot: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The side of the anchor element that the tooltip element should align to.
    * @default 'top'

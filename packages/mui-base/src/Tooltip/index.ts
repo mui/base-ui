@@ -1,5 +1,6 @@
 export { TooltipRoot as Root } from './Root/TooltipRoot';
 export { TooltipTrigger as Trigger } from './Trigger/TooltipTrigger';
+export { TooltipPopupRoot as PopupRoot } from './PopupRoot/TooltipPopupRoot';
 export { TooltipPopup as Popup } from './Popup/TooltipPopup';
 export { TooltipArrow as Arrow } from './Arrow/TooltipArrow';
 export { TooltipGroup as Group } from './Group/TooltipGroup';
@@ -11,6 +12,10 @@ export type {
   TooltipTriggerProps as TriggerProps,
   TooltipTriggerOwnerState as TriggerOwnerState,
 } from './Trigger/TooltipTrigger.types';
+export type {
+  TooltipPopupRootProps as PopupRootProps,
+  TooltipPopupRootOwnerState as PopupRootOwnerState,
+} from './PopupRoot/TooltipPopupRoot.types';
 export type {
   TooltipPopupProps as PopupProps,
   TooltipPopupOwnerState as PopupOwnerState,

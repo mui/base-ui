@@ -120,6 +120,10 @@ module.exports = [
     title: 'TooltipPopup',
   },
   {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-popup-root',
+    title: 'TooltipPopupRoot',
+  },
+  {
     pathname: '/base-ui/react-tooltip/components-api/#tooltip-root',
     title: 'TooltipRoot',
   },

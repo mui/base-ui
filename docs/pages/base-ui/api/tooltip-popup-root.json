@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "container": { "type": { "name": "any" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "TooltipPopupRoot",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipPopupRoot = Tooltip.PopupRoot;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TooltipPopupRoot",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Tooltip/PopupRoot/TooltipPopupRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

@@ -33,6 +33,7 @@
       "description": "If <code>true</code>, the tooltip content will be kept mounted in the DOM."
     },
     "render": { "description": "A function to customize rendering of the component." },
+    "renderRoot": { "description": "Customize the positioned root element." },
     "side": {
       "description": "The side of the anchor element that the tooltip element should align to."
     },

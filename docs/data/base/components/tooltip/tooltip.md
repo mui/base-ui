@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Tooltip component
-components: TooltipRoot, TooltipPopup, TooltipTrigger, TooltipGroup, TooltipArrow
+components: TooltipRoot, TooltipTrigger, TooltipPopupRoot, TooltipPopup, TooltipGroup, TooltipArrow
 hooks: useTooltipRoot, useTooltipPopup
 githubLabel: 'component: tooltip'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/

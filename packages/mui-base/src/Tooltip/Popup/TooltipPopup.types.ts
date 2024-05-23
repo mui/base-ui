@@ -1,6 +1,7 @@
 import type { Side, VirtualElement } from '@floating-ui/react';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/BaseUI.types';
 import type { TooltipPopupParameters } from './useTooltipPopup.types';
+import type { TooltipPopupRootOwnerState } from '../PopupRoot/TooltipPopupRoot.types';
 
 export interface TooltipPopupContextValue {
   open: boolean;
@@ -41,4 +42,8 @@ export interface TooltipPopupProps
     | VirtualElement
     | React.MutableRefObject<Element | null>
     | (() => Element | VirtualElement | null);
+  /**
+   * Customize the positioned root element.
+   */
+  renderRoot?: BaseUIComponentProps<'div', TooltipPopupRootOwnerState>['render'];
 }
