@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import type { TooltipTriggerProps } from './TooltipTrigger.types';
-import { useStyleHooks } from './useStyleHooks';
-import { resolveClassName } from '../../utils/resolveClassName';
+import { tooltipTriggerStyleHookMapping } from './styleHooks';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * Renders a trigger element that will open the tooltip.
@@ -21,26 +20,26 @@ import { resolveClassName } from '../../utils/resolveClassName';
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTriggerProps,
-  ref: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { className, render: renderProp, ...otherProps } = props;
-  // eslint-disable-next-line jsx-a11y/control-has-associated-label
-  const render = renderProp ?? <button type="button" />;
+  const { className, render, ...otherProps } = props;
 
   const { open, setTriggerEl, getTriggerProps } = useTooltipRootContext();
 
   const ownerState = React.useMemo(() => ({ open }), [open]);
-  const mergedRef = useRenderPropForkRef(render, ref, setTriggerEl);
-  const styleHooks = useStyleHooks(ownerState);
+  const mergedRef = useForkRef(setTriggerEl, forwardedRef);
 
-  const mergedTriggerProps = getTriggerProps({
+  const { renderElement } = useComponentRenderer({
+    propGetter: getTriggerProps,
+    render: render ?? 'button',
+    className,
+    ownerState,
+    extraProps: otherProps,
     ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...styleHooks,
-    ...otherProps,
+    customStyleHookMapping: tooltipTriggerStyleHookMapping,
   });
 
-  return evaluateRenderProp(render, mergedTriggerProps, ownerState);
+  return renderElement();
 });
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {

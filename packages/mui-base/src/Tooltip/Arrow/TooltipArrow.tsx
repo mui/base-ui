@@ -2,11 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { TooltipArrowOwnerState, TooltipArrowProps } from './TooltipArrow.types';
-import { resolveClassName } from '../../utils/resolveClassName';
 import { useTooltipPopupContext } from '../Popup/TooltipPopupContext';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useStyleHooks } from './useStyleHooks';
+import { tooltipArrowStyleHookMapping } from './styleHooks';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
+import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 /**
  * The tooltip arrow caret element.
@@ -23,8 +23,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrowProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render: renderProp, hideWhenUncentered = false, className, ...otherProps } = props;
-  const render = renderProp ?? <div />;
+  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open, arrowRef, side, alignment, arrowUncentered, getArrowProps } =
     useTooltipPopupContext();
@@ -38,22 +37,26 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     [open, side, alignment],
   );
 
-  const mergedRef = useRenderPropForkRef(render, arrowRef, forwardedRef);
+  const mergedRef = useForkRef(arrowRef, forwardedRef);
 
-  const styleHooks = useStyleHooks(ownerState);
-
-  const arrowProps = getArrowProps({
+  const { renderElement } = useComponentRenderer({
+    propGetter: (externalProps: GenericHTMLProps = {}) =>
+      getArrowProps({
+        ...externalProps,
+        style: {
+          ...(hideWhenUncentered && arrowUncentered && { visibility: 'hidden' }),
+          ...externalProps.style,
+        },
+      }),
+    render: render ?? 'div',
+    ownerState,
+    className,
     ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...styleHooks,
-    ...otherProps,
-    style: {
-      ...(hideWhenUncentered && arrowUncentered && { visibility: 'hidden' }),
-      ...otherProps.style,
-    },
+    extraProps: otherProps,
+    customStyleHookMapping: tooltipArrowStyleHookMapping,
   });
 
-  return evaluateRenderProp(render, arrowProps, ownerState);
+  return renderElement();
 });
 
 TooltipArrow.propTypes /* remove-proptypes */ = {
@@ -78,10 +81,6 @@ TooltipArrow.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
 } as any;
 
 export { TooltipArrow };

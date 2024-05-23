@@ -7,13 +7,12 @@ import type {
   TooltipPopupOwnerState,
   TooltipPopupProps,
 } from './TooltipPopup.types';
-import { resolveClassName } from '../../utils/resolveClassName';
 import { useTooltipPopup } from './useTooltipPopup';
 import { TooltipPopupContext } from './TooltipPopupContext';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useStyleHooks } from './useStyleHooks';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { tooltipPopupStyleHookMapping } from './styleHooks';
+import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 /**
  * The tooltip popup element.
@@ -31,9 +30,9 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    anchor,
     className,
-    render: renderProp,
+    render,
+    anchor,
     side = 'top',
     alignment = 'center',
     sideOffset = 0,
@@ -48,7 +47,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     container,
     ...otherProps
   } = props;
-  const render = renderProp ?? <div />;
 
   const {
     open,
@@ -110,34 +108,35 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [ownerState, tooltip.arrowRef, tooltip.getArrowProps, tooltip.arrowUncentered],
   );
 
-  const styleHooks = useStyleHooks(ownerState);
-
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+  const { renderElement } = useComponentRenderer({
+    // The content element needs to be a child of a wrapper floating element in order to avoid
+    // conflicts with CSS transitions and the positioning transform.
+    propGetter: (externalProps: GenericHTMLProps = {}) => ({
+      ...externalProps,
+      style: {
+        // <Tooltip.Arrow> must be relative to the inner popup element.
+        position: 'relative',
+        ...externalProps.style,
+      },
+    }),
+    render: render ?? 'div',
+    className,
+    ownerState,
+    extraProps: otherProps,
+    ref: forwardedRef,
+    customStyleHookMapping: tooltipPopupStyleHookMapping,
+  });
 
   const shouldRender = keepMounted || tooltip.mounted;
   if (!shouldRender) {
     return null;
   }
 
-  // The content element needs to be a child of a wrapper floating element in order to avoid
-  // conflicts with CSS transitions and the positioning transform.
-  const popupProps = {
-    ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...styleHooks,
-    ...otherProps,
-    style: {
-      // <Tooltip.Arrow> must be relative to the inner popup element.
-      position: 'relative',
-      ...otherProps.style,
-    },
-  } as const;
-
   return (
     <TooltipPopupContext.Provider value={contextValue}>
       <FloatingPortal root={container}>
         <div role="presentation" ref={setPopupEl} {...tooltip.getPopupProps()}>
-          {evaluateRenderProp(render, popupProps, ownerState)}
+          {renderElement()}
         </div>
       </FloatingPortal>
     </TooltipPopupContext.Provider>
@@ -235,10 +234,6 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    * @default false
    */
   sticky: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
 } as any;
 
 export { TooltipPopup };
