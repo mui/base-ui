@@ -10,13 +10,13 @@ function Root(props: Tooltip.RootProps) {
   return <Tooltip.Root animated={false} {...props} />;
 }
 
-describe('<Root />', () => {
+describe('<Tooltip.Root />', () => {
   const { render, clock } = createRenderer();
 
   describe('uncontrolled open', () => {
     clock.withFakeTimers();
 
-    it('should open when the anchor is hovered', async () => {
+    it('should open when the trigger is hovered', async () => {
       render(
         <Root>
           <Tooltip.Trigger />
@@ -24,11 +24,11 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.pointerDown(anchor, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(200);
 
@@ -37,7 +37,7 @@ describe('<Root />', () => {
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
-    it('should close when the anchor is unhovered', async () => {
+    it('should close when the trigger is unhovered', async () => {
       render(
         <Root>
           <Tooltip.Trigger />
@@ -45,22 +45,22 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.pointerDown(anchor, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(200);
 
       await waitForPosition();
 
-      fireEvent.mouseLeave(anchor);
+      fireEvent.mouseLeave(trigger);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should open when the anchor is focused', async () => {
+    it('should open when the trigger is focused', async () => {
       if (!/jsdom/.test(window.navigator.userAgent)) {
         // Ignore due to `:focus-visible` being required in the browser.
         return;
@@ -73,16 +73,16 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      act(() => anchor.focus());
+      act(() => trigger.focus());
 
       await waitForPosition();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
-    it('should close when the anchor is blurred', async () => {
+    it('should close when the trigger is blurred', async () => {
       render(
         <Root>
           <Tooltip.Trigger />
@@ -90,15 +90,15 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      act(() => anchor.focus());
+      act(() => trigger.focus());
 
       clock.tick(200);
 
       await waitForPosition();
 
-      act(() => anchor.blur());
+      act(() => trigger.blur());
 
       clock.tick(200);
 
@@ -129,7 +129,7 @@ describe('<Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should call onChange when the open state changes', async () => {
+    it('should call onOpenChange when the open state changes', async () => {
       const handleChange = spy();
 
       function App() {
@@ -144,7 +144,7 @@ describe('<Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
+            <Tooltip.Popup>Content</Tooltip.Popup>
           </Root>
         );
       }
@@ -153,10 +153,10 @@ describe('<Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(200);
 
@@ -164,7 +164,7 @@ describe('<Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
-      fireEvent.mouseLeave(anchor);
+      fireEvent.mouseLeave(trigger);
 
       expect(screen.queryByText('Content')).to.equal(null);
       expect(handleChange.callCount).to.equal(2);
@@ -196,10 +196,10 @@ describe('<Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(200);
 
@@ -263,9 +263,9 @@ describe('<Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.mouseLeave(anchor);
+      fireEvent.mouseLeave(trigger);
 
       await waitForPosition();
 
@@ -284,10 +284,10 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       await waitForPosition();
 
@@ -308,9 +308,9 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(anchor);
+      fireEvent.mouseEnter(trigger);
       clock.tick(100);
 
       await waitForPosition();
@@ -336,10 +336,10 @@ describe('<Root />', () => {
         </Root>,
       );
 
-      const anchor = screen.getByRole('button');
+      const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(200);
 
@@ -347,7 +347,7 @@ describe('<Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
-      fireEvent.mouseLeave(anchor);
+      fireEvent.mouseLeave(trigger);
 
       expect(screen.getByText('Content')).not.to.equal(null);
 

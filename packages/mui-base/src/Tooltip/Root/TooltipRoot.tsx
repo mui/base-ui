@@ -22,6 +22,7 @@ function TooltipRoot(props: TooltipRootProps) {
     delay = 200,
     closeDelay = 0,
     hoverable = true,
+    animated = true,
     followCursorAxis = 'none',
   } = props;
 
@@ -42,6 +43,7 @@ function TooltipRoot(props: TooltipRootProps) {
     popupEl,
     triggerEl,
     hoverable,
+    animated,
     followCursorAxis,
     delay,
     delayType,
