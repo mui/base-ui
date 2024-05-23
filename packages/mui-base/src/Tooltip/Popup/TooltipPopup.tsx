@@ -34,6 +34,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     render,
     renderRoot: renderRootProp,
     anchor,
+    positionStrategy = 'absolute',
     side = 'top',
     alignment = 'center',
     sideOffset = 0,
@@ -68,6 +69,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   const tooltip = useTooltipPopup({
     anchor: anchor || triggerEl,
     rootContext,
+    positionStrategy,
     open,
     mounted,
     setMounted,
@@ -214,6 +216,11 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    * @default false
    */
   keepMounted: PropTypes.bool,
+  /**
+   * The CSS position strategy for positioning the tooltip popup element.
+   * @default 'absolute'
+   */
+  positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
   /**
    * A function to customize rendering of the component.
    */

@@ -32,6 +32,9 @@
     "keepMounted": {
       "description": "If <code>true</code>, the tooltip content will be kept mounted in the DOM."
     },
+    "positionStrategy": {
+      "description": "The CSS position strategy for positioning the tooltip popup element."
+    },
     "render": { "description": "A function to customize rendering of the component." },
     "renderRoot": { "description": "Customize the positioned root element." },
     "side": {

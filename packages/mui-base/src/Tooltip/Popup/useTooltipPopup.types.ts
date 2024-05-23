@@ -8,6 +8,11 @@ export interface TooltipPopupParameters {
    */
   open?: boolean;
   /**
+   * The CSS position strategy for positioning the tooltip popup element.
+   * @default 'absolute'
+   */
+  positionStrategy?: 'absolute' | 'fixed';
+  /**
    * The side of the anchor element that the tooltip element should align to.
    * @default 'top'
    */

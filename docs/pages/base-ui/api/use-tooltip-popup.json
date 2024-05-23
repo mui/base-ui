@@ -50,6 +50,13 @@
     "keepMounted": { "type": { "name": "boolean", "description": "boolean" } },
     "mounted": { "type": { "name": "boolean", "description": "boolean" } },
     "open": { "type": { "name": "boolean", "description": "boolean" } },
+    "positionStrategy": {
+      "type": {
+        "name": "&#39;absolute&#39; | &#39;fixed&#39;",
+        "description": "&#39;absolute&#39; | &#39;fixed&#39;"
+      },
+      "default": "'absolute'"
+    },
     "rootContext": {
       "type": { "name": "FloatingRootContext", "description": "FloatingRootContext" }
     },

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import {
   autoUpdate,
@@ -37,6 +38,7 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
   const {
     open,
     anchor,
+    positionStrategy = 'absolute',
     side = 'top',
     sideOffset = 0,
     alignment = 'center',
@@ -158,6 +160,7 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
   } = useFloating({
     rootContext,
     placement,
+    strategy: positionStrategy,
     middleware,
     whileElementsMounted: keepMounted ? undefined : autoUpdate,
   });

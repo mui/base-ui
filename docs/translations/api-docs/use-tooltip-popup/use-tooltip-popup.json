@@ -35,6 +35,9 @@
     },
     "mounted": { "description": "Determines if the tooltip is mounted." },
     "open": { "description": "If <code>true</code>, the tooltip is open." },
+    "positionStrategy": {
+      "description": "The CSS position strategy for positioning the tooltip popup element."
+    },
     "rootContext": { "description": "The tooltip root context." },
     "setMounted": { "description": "Callback fired when the mounted state changes." },
     "side": {
