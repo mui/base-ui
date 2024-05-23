@@ -6,7 +6,11 @@ import { spy } from 'sinon';
 
 const waitForPosition = async () => act(async () => {});
 
-describe('<Tooltip.Root />', () => {
+function Root(props: Tooltip.RootProps) {
+  return <Tooltip.Root animated={false} {...props} />;
+}
+
+describe('<Root />', () => {
   const { render, clock } = createRenderer();
 
   describe('uncontrolled open', () => {
@@ -14,10 +18,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should open when the anchor is hovered', async () => {
       render(
-        <Tooltip.Root>
+        <Root>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -35,10 +39,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should close when the anchor is unhovered', async () => {
       render(
-        <Tooltip.Root>
+        <Root>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -63,10 +67,10 @@ describe('<Tooltip.Root />', () => {
       }
 
       render(
-        <Tooltip.Root>
+        <Root>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -80,10 +84,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should close when the anchor is blurred', async () => {
       render(
-        <Tooltip.Root>
+        <Root>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -107,9 +111,9 @@ describe('<Tooltip.Root />', () => {
 
     it('should open when controlled open is true', async () => {
       render(
-        <Tooltip.Root open>
+        <Root open>
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -117,9 +121,9 @@ describe('<Tooltip.Root />', () => {
 
     it('should close when controlled open is false', async () => {
       render(
-        <Tooltip.Root open={false}>
+        <Root open={false}>
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       expect(screen.queryByText('Content')).to.equal(null);
@@ -132,7 +136,7 @@ describe('<Tooltip.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Tooltip.Root
+          <Root
             open={open}
             onOpenChange={(nextOpen) => {
               handleChange(open);
@@ -141,7 +145,7 @@ describe('<Tooltip.Root />', () => {
           >
             <Tooltip.Trigger />
             <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
-          </Tooltip.Root>
+          </Root>
         );
       }
 
@@ -175,7 +179,7 @@ describe('<Tooltip.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Tooltip.Root
+          <Root
             open={open}
             onOpenChange={(nextOpen) => {
               handleChange(open);
@@ -184,7 +188,7 @@ describe('<Tooltip.Root />', () => {
           >
             <Tooltip.Trigger />
             <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
-          </Tooltip.Root>
+          </Root>
         );
       }
 
@@ -210,10 +214,10 @@ describe('<Tooltip.Root />', () => {
   describe('prop: defaultOpen', () => {
     it('should open when the component is rendered', async () => {
       render(
-        <Tooltip.Root defaultOpen>
+        <Root defaultOpen>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       await waitForPosition();
@@ -223,10 +227,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should not open when the component is rendered and open is controlled', async () => {
       render(
-        <Tooltip.Root defaultOpen open={false}>
+        <Root defaultOpen open={false}>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       await waitForPosition();
@@ -236,10 +240,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should not close when the component is rendered and open is controlled', async () => {
       render(
-        <Tooltip.Root defaultOpen open>
+        <Root defaultOpen open>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       await waitForPosition();
@@ -249,10 +253,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should remain uncontrolled', async () => {
       render(
-        <Tooltip.Root defaultOpen>
+        <Root defaultOpen>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       await waitForPosition();
@@ -274,10 +278,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should open after delay with rest type by default', async () => {
       render(
-        <Tooltip.Root delay={100}>
+        <Root delay={100}>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -298,10 +302,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should open after delay with hover type', async () => {
       render(
-        <Tooltip.Root delayType="hover">
+        <Root delayType="hover">
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -326,10 +330,10 @@ describe('<Tooltip.Root />', () => {
 
     it('should close after delay', async () => {
       render(
-        <Tooltip.Root closeDelay={100}>
+        <Root closeDelay={100}>
           <Tooltip.Trigger />
           <Tooltip.Popup>Content</Tooltip.Popup>
-        </Tooltip.Root>,
+        </Root>,
       );
 
       const anchor = screen.getByRole('button');
