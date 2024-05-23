@@ -1,31 +1,32 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
-import type { TransitionStatus } from './useTransitionStatus.types';
+import { useEnhancedEffect } from './useEnhancedEffect';
+
+export type TransitionStatus = 'entering' | 'exiting' | undefined;
 
 /**
  * Provides a status string for CSS animations.
- * @param isOpen - a boolean that determines if the element is open.
+ * @param open - a boolean that determines if the element is open.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(isOpen: boolean) {
+export function useTransitionStatus(open: boolean) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
-  const [mounted, setMounted] = React.useState(isOpen);
+  const [mounted, setMounted] = React.useState(open);
 
-  if (isOpen && !mounted) {
+  if (open && !mounted) {
     setMounted(true);
   }
 
-  if (!isOpen && mounted && transitionStatus !== 'exiting') {
+  if (!open && mounted && transitionStatus !== 'exiting') {
     setTransitionStatus('exiting');
   }
 
-  if (!isOpen && !mounted && transitionStatus === 'exiting') {
+  if (!open && !mounted && transitionStatus === 'exiting') {
     setTransitionStatus(undefined);
   }
 
   useEnhancedEffect(() => {
-    if (!isOpen) {
+    if (!open) {
       return undefined;
     }
 
@@ -38,7 +39,7 @@ export function useTransitionStatus(isOpen: boolean) {
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [isOpen]);
+  }, [open]);
 
   return React.useMemo(
     () => ({
