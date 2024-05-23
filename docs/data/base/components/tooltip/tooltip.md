@@ -21,7 +21,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 
 ## Installation
 
-Base UI components are all available as a single package.
+Base UI components are all available as a single package.
 
 <codeblock storageKey="package-manager">
 
