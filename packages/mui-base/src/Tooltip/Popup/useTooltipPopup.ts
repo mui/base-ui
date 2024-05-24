@@ -24,7 +24,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useLatestRef } from '../../utils/useLatestRef';
 
 /**
- * The basic building block for creating custom tooltips.
+ * Manages the popup state for a tooltip including positioning.
  *
  * Demos:
  *

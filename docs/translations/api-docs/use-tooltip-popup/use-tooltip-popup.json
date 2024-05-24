@@ -1,5 +1,5 @@
 {
-  "hookDescription": "The basic building block for creating custom tooltips.",
+  "hookDescription": "Manages the popup state for a tooltip including positioning.",
   "parametersDescriptions": {},
   "returnValueDescriptions": {}
 }

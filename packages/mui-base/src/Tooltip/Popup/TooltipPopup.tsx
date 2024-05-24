@@ -238,6 +238,10 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
 
 export { TooltipPopup };
