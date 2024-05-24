@@ -55,9 +55,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   const {
     open,
     triggerElement,
-    delay,
-    delayType,
-    closeDelay,
     setPopupElement,
     getRootPopupProps,
     mounted,
@@ -85,9 +82,6 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     hideWhenDetached,
     sticky,
     followCursorAxis,
-    delay,
-    delayType,
-    closeDelay,
     arrowPadding,
   });
 
@@ -162,7 +156,7 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    */
   alignmentOffset: PropTypes.number,
   /**
-   * The anchor element to which the tooltip content will be placed at.
+   * The anchor element of the tooltip popup.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.any,
   /**
@@ -213,7 +207,7 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, the tooltip content will be kept mounted in the DOM.
+   * If `true`, the tooltip will be mounted, including CSS transitions or animations.
    * @default false
    */
   keepMounted: PropTypes.bool,

@@ -4,6 +4,15 @@ import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 export interface TooltipPopupParameters {
   /**
+   * The anchor element of the tooltip popup.
+   */
+  anchor?:
+    | Element
+    | null
+    | VirtualElement
+    | React.MutableRefObject<Element | null>
+    | (() => Element | VirtualElement | null);
+  /**
    * If `true`, the tooltip is open.
    */
   open?: boolean;
@@ -61,42 +70,18 @@ export interface TooltipPopupParameters {
    */
   arrowPadding?: number;
   /**
-   * Determines if the tooltip is in an instant phase.
-   */
-  instant?: boolean;
-  /**
-   * Determines if the tooltip is mounted.
-   */
-  mounted?: boolean;
-  /**
-   * Callback fired when the mounted state changes.
-   */
-  setMounted?: React.Dispatch<React.SetStateAction<boolean>>;
-  /**
-   * The tooltip root context.
-   */
-  rootContext?: FloatingRootContext;
-  /**
    * Determines which axis the tooltip should follow the cursor on.
    * @default 'none'
    */
   followCursorAxis?: 'both' | 'none' | 'x' | 'y';
+  /**
+   * If `true`, the tooltip will be mounted, including CSS transitions or animations.
+   * @default false
+   */
+  keepMounted?: boolean;
 }
 
 export interface UseTooltipPopupParameters extends TooltipPopupParameters {
-  /**
-   * The anchor element of the tooltip popup.
-   */
-  anchor?:
-    | Element
-    | null
-    | VirtualElement
-    | React.MutableRefObject<Element | null>
-    | (() => Element | VirtualElement | null);
-  /**
-   * If `true`, the tooltip will be mounted, including CSS transitions or animations.
-   */
-  keepMounted?: boolean;
   /**
    * The type of open delay.
    */
@@ -115,6 +100,22 @@ export interface UseTooltipPopupParameters extends TooltipPopupParameters {
    * The props to spread on the tooltip popup element.
    */
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  /**
+   * Determines if the tooltip is in an instant phase.
+   */
+  instant?: boolean;
+  /**
+   * Determines if the tooltip is mounted.
+   */
+  mounted?: boolean;
+  /**
+   * Callback fired when the mounted state changes.
+   */
+  setMounted?: React.Dispatch<React.SetStateAction<boolean>>;
+  /**
+   * The tooltip root context.
+   */
+  rootContext?: FloatingRootContext;
 }
 
 export interface UseTooltipPopupReturnValue {

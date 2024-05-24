@@ -7,9 +7,7 @@
     "alignmentOffset": {
       "description": "The offset of the tooltip element along its alignment axis."
     },
-    "anchor": {
-      "description": "The anchor element to which the tooltip content will be placed at."
-    },
+    "anchor": { "description": "The anchor element of the tooltip popup." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the tooltip content. Useful when the tooltip has rounded corners via <code>border-radius</code>."
     },
@@ -30,7 +28,7 @@
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
     "keepMounted": {
-      "description": "If <code>true</code>, the tooltip content will be kept mounted in the DOM."
+      "description": "If <code>true</code>, the tooltip will be mounted, including CSS transitions or animations."
     },
     "positionStrategy": {
       "description": "The CSS position strategy for positioning the tooltip popup element."
