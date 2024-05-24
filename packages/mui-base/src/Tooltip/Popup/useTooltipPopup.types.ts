@@ -75,7 +75,7 @@ export interface TooltipPopupParameters {
    */
   followCursorAxis?: 'both' | 'none' | 'x' | 'y';
   /**
-   * If `true`, the tooltip will be mounted, including CSS transitions or animations.
+   * If `true`, the tooltip popup remains mounted in the DOM even when closed.
    * @default false
    */
   keepMounted?: boolean;
@@ -84,6 +84,7 @@ export interface TooltipPopupParameters {
 export interface UseTooltipPopupParameters extends TooltipPopupParameters {
   /**
    * The type of open delay.
+   * @default 'rest'
    */
   delayType?: 'rest' | 'hover';
   /**
@@ -101,11 +102,11 @@ export interface UseTooltipPopupParameters extends TooltipPopupParameters {
    */
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * Determines if the tooltip is in an instant phase.
+   * If `true`, the tooltip is in an instant phase where animations should be removed.
    */
   instant?: boolean;
   /**
-   * Determines if the tooltip is mounted.
+   * If `true`, the tooltip is mounted.
    */
   mounted?: boolean;
   /**
@@ -128,19 +129,19 @@ export interface UseTooltipPopupReturnValue {
    */
   getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * The ref of the arrow element.
+   * The ref for the arrow element.
    */
   arrowRef: React.MutableRefObject<Element | null>;
   /**
-   * Determines if the arrow can not be centered.
+   * Determines if the arrow cannot be centered.
    */
   arrowUncentered: boolean;
   /**
-   * The rendered side of the tooltip element.
+   * The rendered side of the tooltip popup element.
    */
   side: 'top' | 'right' | 'bottom' | 'left';
   /**
-   * The rendered alignment of the tooltip element.
+   * The rendered alignment of the tooltip popup element.
    */
   alignment: 'start' | 'end' | 'center';
   /**

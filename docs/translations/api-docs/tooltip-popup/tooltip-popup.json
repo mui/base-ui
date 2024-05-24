@@ -28,7 +28,7 @@
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
     "keepMounted": {
-      "description": "If <code>true</code>, the tooltip will be mounted, including CSS transitions or animations."
+      "description": "If <code>true</code>, the tooltip popup remains mounted in the DOM even when closed."
     },
     "positionStrategy": {
       "description": "The CSS position strategy for positioning the tooltip popup element."

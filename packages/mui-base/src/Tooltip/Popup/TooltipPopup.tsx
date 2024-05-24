@@ -207,7 +207,7 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, the tooltip will be mounted, including CSS transitions or animations.
+   * If `true`, the tooltip popup remains mounted in the DOM even when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
