@@ -13,7 +13,6 @@ import { TooltipPopupRoot } from '../PopupRoot/TooltipPopupRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { tooltipPopupStyleHookMapping } from './styleHooks';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 /**
  * The tooltip popup element.
@@ -107,21 +106,20 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [ownerState, tooltip.arrowRef, tooltip.getArrowProps, tooltip.arrowUncentered],
   );
 
+  // The content element needs to be a child of a wrapper floating element in order to avoid
+  // conflicts with CSS transitions and the positioning transform.
   const { renderElement } = useComponentRenderer({
-    // The content element needs to be a child of a wrapper floating element in order to avoid
-    // conflicts with CSS transitions and the positioning transform.
-    propGetter: (externalProps: GenericHTMLProps = {}) => ({
-      ...externalProps,
-      style: {
-        // <Tooltip.Arrow> must be relative to the inner popup element.
-        position: 'relative',
-        ...externalProps.style,
-      },
-    }),
     render: render ?? 'div',
     className,
     ownerState,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      style: {
+        // <Tooltip.Arrow> must be relative to the inner popup element.
+        position: 'relative',
+        ...otherProps.style,
+      },
+    },
     ref: forwardedRef,
     customStyleHookMapping: tooltipPopupStyleHookMapping,
   });
