@@ -23,7 +23,7 @@ export type TooltipPopupOwnerState = {
 
 export interface TooltipPopupProps
   extends BaseUIComponentProps<'div', TooltipPopupOwnerState>,
-    TooltipPopupParameters {
+    Omit<TooltipPopupParameters, 'mounted' | 'rootContext' | 'instant' | 'setMounted'> {
   /**
    * The container element to which the tooltip content will be appended to.
    */
