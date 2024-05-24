@@ -37,9 +37,7 @@ const TriggerButton = styled(Dialog.Trigger)(
   padding: 8px 16px;
   border-radius: 4px;
   border: none;
-  font-family:
-    IBM Plex Sans,
-    sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 
   &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[200] : grey[700]};
@@ -57,7 +55,7 @@ const Popup = styled(Dialog.Popup)(
   position: fixed;
   top: 50%;
   left: 50%;
-  font-family: IBM Plex Sans;
+  font-family: "IBM Plex Sans", sans-serif;
   transform: translate(-50%, -50%);
   padding: 16px;
   z-index: 2100;
@@ -82,7 +80,7 @@ const CloseButton = styled(Dialog.Close)(
   color: ${theme.palette.mode === 'dark' ? grey[50] : grey[900]};
   padding: 8px 16px;
   border-radius: 4px;
-  font-family: IBM Plex Sans, sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   min-width: 80px;
 
   &:hover {
@@ -98,7 +96,7 @@ const Title = styled(Dialog.Title)`
 const Description = styled(Dialog.Description)``;
 
 const Backdrop = styled(Dialog.Backdrop)`
-  background: rgba(0, 0, 0, 0.35);
+  background: rgb(0 0 0 / 0.35);
   position: fixed;
   inset: 0;
   backdrop-filter: blur(4px);

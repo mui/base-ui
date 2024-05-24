@@ -38,7 +38,7 @@ const TriggerButton = styled(Dialog.Trigger)(
   border-radius: 4px;
   border: none;
   font-family:
-    IBM Plex Sans,
+    "IBM Plex Sans",
     sans-serif;
 
   &:hover {
@@ -57,7 +57,7 @@ const Popup = styled(Dialog.Popup)(
   position: fixed;
   top: 50%;
   left: 50%;
-  font-family: IBM Plex Sans;
+  font-family: "IBM Plex Sans", sans-serif;
   transform: translate(-50%, -50%);
   padding: 16px;
   z-index: 2100;
@@ -98,7 +98,7 @@ const Title = styled(Dialog.Title)`
 const Description = styled(Dialog.Description)``;
 
 const Backdrop = styled(Dialog.Backdrop)`
-  background: rgba(0, 0, 0, 0.35);
+  background: rgb(0 0 0 / 0.35);
   position: fixed;
   inset: 0;
   backdrop-filter: blur(4px);

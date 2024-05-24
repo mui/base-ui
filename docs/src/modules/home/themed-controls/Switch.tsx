@@ -20,7 +20,7 @@ const StyledSwitch = styled(BaseSwitch.Root)(css`
     cursor: not-allowed;
   }
 
-  $:hover {
+  &:hover {
     background: var(--Switch-hoverBackground, var(--muidocs-palette-grey-400));
   }
 
