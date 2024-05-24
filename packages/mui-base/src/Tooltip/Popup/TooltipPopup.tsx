@@ -12,6 +12,7 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import { TooltipPopupRoot } from '../PopupRoot/TooltipPopupRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { tooltipPopupStyleHookMapping } from './styleHooks';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 /**
@@ -49,15 +50,15 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     container,
     ...otherProps
   } = props;
-  const renderRoot = renderRootProp ?? <TooltipPopupRoot />;
+  const renderRoot = renderRootProp ?? defaultRenderFunctions.div;
 
   const {
     open,
-    triggerEl,
+    triggerElement,
     delay,
     delayType,
     closeDelay,
-    setPopupEl,
+    setPopupElement,
     getRootPopupProps,
     mounted,
     setMounted,
@@ -67,7 +68,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   } = useTooltipRootContext();
 
   const tooltip = useTooltipPopup({
-    anchor: anchor || triggerEl,
+    anchor: anchor || triggerElement,
     rootContext,
     positionStrategy,
     open,
@@ -138,7 +139,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   return (
     <TooltipPopupContext.Provider value={contextValue}>
-      <TooltipPopupRoot render={renderRoot} ref={setPopupEl} {...tooltip.getPopupProps()}>
+      <TooltipPopupRoot render={renderRoot} ref={setPopupElement} {...tooltip.getPopupProps()}>
         {renderElement()}
       </TooltipPopupRoot>
     </TooltipPopupContext.Provider>

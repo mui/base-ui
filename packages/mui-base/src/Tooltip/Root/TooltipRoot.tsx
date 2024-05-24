@@ -26,8 +26,8 @@ function TooltipRoot(props: TooltipRootProps) {
     followCursorAxis = 'none',
   } = props;
 
-  const [triggerEl, setTriggerEl] = React.useState<Element | null>(null);
-  const [popupEl, setPopupEl] = React.useState<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const {
     open,
@@ -40,8 +40,8 @@ function TooltipRoot(props: TooltipRootProps) {
     rootContext,
     transitionStatus,
   } = useTooltipRoot({
-    popupEl,
-    triggerEl,
+    popupElement,
+    triggerElement,
     hoverable,
     animated,
     followCursorAxis,
@@ -60,10 +60,10 @@ function TooltipRoot(props: TooltipRootProps) {
       closeDelay,
       open,
       setOpen,
-      triggerEl,
-      setTriggerEl,
-      popupEl,
-      setPopupEl,
+      triggerElement,
+      setTriggerElement,
+      popupElement,
+      setPopupElement,
       mounted,
       setMounted,
       instantType,
@@ -79,8 +79,8 @@ function TooltipRoot(props: TooltipRootProps) {
       closeDelay,
       open,
       setOpen,
-      triggerEl,
-      popupEl,
+      triggerElement,
+      popupElement,
       mounted,
       setMounted,
       instantType,

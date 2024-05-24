@@ -14,7 +14,7 @@ import {
 } from '@floating-ui/react';
 import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useTooltipRoot.types';
 import { useControlled } from '../../utils/useControlled';
-import { useTransitionStatus } from '../../useTransitionStatus';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useExecuteIfNotAnimated } from '../../utils/useExecuteIfNotAnimated';
 
 /**
@@ -34,8 +34,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
     keepMounted = false,
-    triggerEl = null,
-    popupEl = null,
+    triggerElement = null,
+    popupElement = null,
     hoverable = true,
     animated = true,
     followCursorAxis = 'none',
@@ -63,12 +63,12 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     [onOpenChange, setOpenUnwrapped],
   );
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const runIfNotAnimated = useExecuteIfNotAnimated(() => popupEl?.firstElementChild);
+  const runIfNotAnimated = useExecuteIfNotAnimated(() => popupElement?.firstElementChild);
 
   const context = useFloatingRootContext({
-    elements: { reference: triggerEl, floating: popupEl },
+    elements: { reference: triggerElement, floating: popupElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
       const isFocusOpen = openValue && reasonValue === 'focus';

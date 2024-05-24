@@ -6,7 +6,6 @@ import { useTooltipPopupContext } from '../Popup/TooltipPopupContext';
 import { tooltipArrowStyleHookMapping } from './styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
 /**
  * The tooltip arrow caret element.
@@ -40,19 +39,18 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const mergedRef = useForkRef(arrowRef, forwardedRef);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: (externalProps: GenericHTMLProps = {}) =>
-      getArrowProps({
-        ...externalProps,
-        style: {
-          ...(hideWhenUncentered && arrowUncentered && { visibility: 'hidden' }),
-          ...externalProps.style,
-        },
-      }),
+    propGetter: getArrowProps,
     render: render ?? 'div',
     ownerState,
     className,
     ref: mergedRef,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      style: {
+        ...(hideWhenUncentered && arrowUncentered && { visibility: 'hidden' }),
+        ...otherProps.style,
+      },
+    },
     customStyleHookMapping: tooltipArrowStyleHookMapping,
   });
 
@@ -81,6 +79,10 @@ TooltipArrow.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
 
 export { TooltipArrow };

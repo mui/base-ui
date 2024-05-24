@@ -24,10 +24,10 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, setTriggerEl, getTriggerProps } = useTooltipRootContext();
+  const { open, setTriggerElement, getTriggerProps } = useTooltipRootContext();
 
   const ownerState = React.useMemo(() => ({ open }), [open]);
-  const mergedRef = useForkRef(setTriggerEl, forwardedRef);
+  const mergedRef = useForkRef(setTriggerElement, forwardedRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getTriggerProps,

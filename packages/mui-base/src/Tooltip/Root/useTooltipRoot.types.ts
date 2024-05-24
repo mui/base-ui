@@ -3,38 +3,39 @@ import type {
   OpenChangeReason,
   UseInteractionsReturn,
 } from '@floating-ui/react';
-import type { TransitionStatus } from '../../useTransitionStatus';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface UseTooltipRootParameters {
   /**
-   * If `true`, the tooltip will be open by default. Use when uncontrolled.
+   * If `true`, the tooltip popup will be open by default. Use when uncontrolled.
    */
   defaultOpen?: boolean;
   /**
-   * If `true`, the tooltip will be open. Use when controlled.
+   * If `true`, the tooltip popup will be open. Use when controlled.
    */
   open?: boolean;
   /**
-   * Callback fired when the tooltip is requested to be opened or closed.
+   * Callback fired when the tooltip popup is requested to be opened or closed.
    */
   onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   /**
    * The trigger element. Store in state.
    * @default null
    */
-  triggerEl?: Element | null;
+  triggerElement?: Element | null;
   /**
    * The popup element. Store in state.
    * @default null
    */
-  popupEl?: HTMLElement | null;
+  popupElement?: HTMLElement | null;
   /**
-   * Whether you can move from the trigger to the tooltip without it closing.
+   * If `true`, the user can move from the trigger toward the tooltip without it closing.
    * @default true
    */
   hoverable?: boolean;
   /**
-   * Whether the tooltip can animate. Useful to disable in tests.
+   * If `true`, the tooltip waits for animations and sets animation-related attributes. Useful to
+   * disable animation-related logic in tests to remove async behavior.
    * @default true
    */
   animated?: boolean;
@@ -44,24 +45,24 @@ export interface UseTooltipRootParameters {
    */
   followCursorAxis?: 'none' | 'x' | 'y' | 'both';
   /**
-   * The delay in milliseconds until the tooltip content is opened.
+   * The delay in milliseconds until the tooltip popup is opened.
    * @default 200
    */
   delay?: number;
   /**
-   * The delay in milliseconds until the tooltip content is closed.
+   * The delay in milliseconds until the tooltip popup is closed.
    * @default 0
    */
   closeDelay?: number;
   /**
    * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the trigger before the tooltip content is opened. `hover` means the `delay` represents
+   * rest on the trigger before the tooltip popup is opened. `hover` means the `delay` represents
    * how long to wait once the user's cursor has entered the trigger.
    * @default 'rest'
    */
   delayType?: 'rest' | 'hover';
   /**
-   * If `true`, the tooltip will remain mounted in the DOM.
+   * If `true`, the tooltip popup will remain mounted in the DOM.
    * @default false
    */
   keepMounted?: boolean;

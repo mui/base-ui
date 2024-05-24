@@ -3,15 +3,15 @@ import type {
   OpenChangeReason,
   UseInteractionsReturn,
 } from '@floating-ui/react';
-import type { TransitionStatus } from '../../useTransitionStatus';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface TooltipRootContextValue {
   open: boolean;
   setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  triggerEl: Element | null;
-  setTriggerEl: (el: Element | null) => void;
-  popupEl: HTMLElement | null;
-  setPopupEl: (el: HTMLElement | null) => void;
+  triggerElement: Element | null;
+  setTriggerElement: (el: Element | null) => void;
+  popupElement: HTMLElement | null;
+  setPopupElement: (el: HTMLElement | null) => void;
   delay: number;
   closeDelay: number;
   delayType: 'rest' | 'hover';

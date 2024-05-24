@@ -39,7 +39,7 @@ const pages: readonly MuiPage[] = [
         pathname: '/base-ui/components/data-display',
         subheader: 'data-display',
         children: [
-          { pathname: '/base-ui/react-badge', title: 'Badge' },
+          //  { pathname: '/base-ui/react-badge', title: 'Badge' },
           { pathname: '/base-ui/react-tooltip', title: 'Tooltip' },
         ],
       },
