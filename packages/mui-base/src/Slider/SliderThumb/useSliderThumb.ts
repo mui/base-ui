@@ -84,6 +84,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       [offsetCssProperty]: `${percent}%`,
       // So the non active thumb doesn't show its label on hover.
       pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
+      zIndex: activeIndex === index ? 1 : undefined,
     };
   }, [activeIndex, offsetCssProperty, percent, index]);
 
