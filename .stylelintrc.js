@@ -8,11 +8,6 @@ delete baseline.rules['value-list-comma-newline-after'];
 
 module.exports = {
   ...baseline,
-  // TODO remove. In theory, deleting these lines should just work.
-  ignoreFiles: [
-    '**/*.d.ts',
-    'docs/.next/**/*',
-    'docs/export/**/*',
-    '**/node_modules/**/*',
-  ],
+  // TODO remove. In theory, deleting the "ignoreFiles" key should just work.
+  ignoreFiles: ['**/*.d.ts', 'docs/.next/**/*', 'docs/export/**/*', '**/node_modules/**/*'],
 };
