@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from './useEventCallback';
-import { ownerWindow } from './owner';
 
 /**
- * Executes a function only if the given element has no CSS animations or transitions.
+ * Executes a function once all animations have finished on the provided element.
  * @ignore - internal hook.
  */
-export function useExecuteIfNotAnimated(getElement: () => Element | null | undefined) {
+export function useAnimationsFinished(getElement: () => Element | null | undefined) {
   const frame1Ref = React.useRef(-1);
   const frame2Ref = React.useRef(-1);
 
@@ -18,7 +17,7 @@ export function useExecuteIfNotAnimated(getElement: () => Element | null | undef
 
   React.useEffect(() => cancelFrames, [cancelFrames]);
 
-  return useEventCallback((fnToExecute: () => void) => {
+  return useEventCallback(async (fnToExecute: () => void) => {
     cancelFrames();
 
     const element = getElement();
@@ -34,15 +33,9 @@ export function useExecuteIfNotAnimated(getElement: () => Element | null | undef
     // - A single `requestAnimationFrame` is sometimes unreliable.
     // - `queueMicrotask` does not work.
     frame1Ref.current = requestAnimationFrame(() => {
-      frame2Ref.current = requestAnimationFrame(() => {
-        const computedStyles = ownerWindow(element).getComputedStyle(element);
-        const hasNoAnimation =
-          ['', 'none'].includes(computedStyles.animationName) ||
-          ['', '0s'].includes(computedStyles.animationDuration);
-        const hasNoTransition = ['', '0s'].includes(computedStyles.transitionDuration);
-        if (hasNoAnimation && hasNoTransition) {
-          fnToExecute();
-        }
+      frame2Ref.current = requestAnimationFrame(async () => {
+        await Promise.allSettled(element.getAnimations().map((animation) => animation.finished));
+        fnToExecute();
       });
     });
   });

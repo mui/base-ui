@@ -15,7 +15,7 @@ import {
 import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useTooltipRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useExecuteIfNotAnimated } from '../../utils/useExecuteIfNotAnimated';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 
 /**
  * Manages the root state for a tooltip.
@@ -65,7 +65,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const runIfNotAnimated = useExecuteIfNotAnimated(() => popupElement?.firstElementChild);
+  const runOnceAnimationsFinish = useAnimationsFinished(() => popupElement?.firstElementChild);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
@@ -83,7 +83,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
       if (!keepMounted && !openValue) {
         if (animated) {
-          runIfNotAnimated(() => setMounted(false));
+          runOnceAnimationsFinish(() => setMounted(false));
         } else {
           setMounted(false);
         }

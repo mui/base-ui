@@ -50,7 +50,6 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
     keepMounted = false,
     arrowPadding = 5,
     mounted = true,
-    setMounted,
     getRootPopupProps,
     rootContext,
     followCursorAxis = 'none',
@@ -192,13 +191,6 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
 
   const getPopupProps: UseTooltipPopupReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
-      function handleEnd({ target }: React.SyntheticEvent) {
-        const popupElement = refs.floating.current?.firstElementChild;
-        if (target === popupElement && setMounted) {
-          setMounted((prevMounted) => (prevMounted ? false : prevMounted));
-        }
-      }
-
       const hiddenStyles: React.CSSProperties = {};
 
       if (isHidden) {
@@ -223,21 +215,10 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
             maxHeight: 'var(--available-height)',
             zIndex: 2147483647, // max z-index
           },
-          onTransitionEnd: handleEnd,
-          onAnimationEnd: handleEnd,
         }),
       );
     },
-    [
-      getRootPopupProps,
-      floatingStyles,
-      isHidden,
-      followCursorAxis,
-      setMounted,
-      refs,
-      open,
-      keepMounted,
-    ],
+    [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, open, keepMounted],
   );
 
   const getArrowProps: UseTooltipPopupReturnValue['getArrowProps'] = React.useCallback(
