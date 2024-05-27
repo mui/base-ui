@@ -155,7 +155,7 @@ export default function TooltipTransitionExperiment() {
 
       <h3>CSS Animation Group</h3>
       <div style={{ display: 'flex', gap: 5 }}>
-        <Tooltip.Group closeDelay={200}>
+        <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <TooltipPopup data-type="css-animation" sideOffset={7}>
@@ -168,7 +168,7 @@ export default function TooltipTransitionExperiment() {
               Tooltip
             </TooltipPopup>
           </Tooltip.Root>
-        </Tooltip.Group>
+        </Tooltip.Provider>
       </div>
       <h3>CSS Animation</h3>
       <Tooltip.Root>
@@ -180,7 +180,7 @@ export default function TooltipTransitionExperiment() {
 
       <h3>CSS Transition Group</h3>
       <div style={{ display: 'flex', gap: 5 }}>
-        <Tooltip.Group closeDelay={200}>
+        <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <TooltipPopup data-type="css-transition" sideOffset={7}>
@@ -193,7 +193,7 @@ export default function TooltipTransitionExperiment() {
               Tooltip
             </TooltipPopup>
           </Tooltip.Root>
-        </Tooltip.Group>
+        </Tooltip.Provider>
       </div>
       <h3>CSS Transition</h3>
       <Tooltip.Root>
@@ -217,7 +217,7 @@ export default function TooltipTransitionExperiment() {
 
       <h3>CSS Animation Group</h3>
       <div style={{ display: 'flex', gap: 5 }}>
-        <Tooltip.Group closeDelay={200}>
+        <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <TooltipPopup data-type="css-animation-keep-mounted" sideOffset={7} keepMounted>
@@ -230,7 +230,7 @@ export default function TooltipTransitionExperiment() {
               Tooltip
             </TooltipPopup>
           </Tooltip.Root>
-        </Tooltip.Group>
+        </Tooltip.Provider>
       </div>
       <h3>CSS Animation</h3>
       <Tooltip.Root>
@@ -242,7 +242,7 @@ export default function TooltipTransitionExperiment() {
 
       <h3>CSS Transition Group</h3>
       <div style={{ display: 'flex', gap: 5 }}>
-        <Tooltip.Group closeDelay={200}>
+        <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <TooltipPopup data-type="css-transition-keep-mounted" sideOffset={7} keepMounted>
@@ -255,7 +255,7 @@ export default function TooltipTransitionExperiment() {
               Tooltip
             </TooltipPopup>
           </Tooltip.Root>
-        </Tooltip.Group>
+        </Tooltip.Provider>
       </div>
       <h3>CSS Transition</h3>
       <Tooltip.Root>

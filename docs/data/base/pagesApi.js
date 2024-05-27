@@ -112,16 +112,16 @@ module.exports = [
     title: 'TooltipArrow',
   },
   {
-    pathname: '/base-ui/react-tooltip/components-api/#tooltip-group',
-    title: 'TooltipGroup',
-  },
-  {
     pathname: '/base-ui/react-tooltip/components-api/#tooltip-popup',
     title: 'TooltipPopup',
   },
   {
     pathname: '/base-ui/react-tooltip/components-api/#tooltip-popup-root',
     title: 'TooltipPopupRoot',
+  },
+  {
+    pathname: '/base-ui/react-tooltip/components-api/#tooltip-provider',
+    title: 'TooltipProvider',
   },
   {
     pathname: '/base-ui/react-tooltip/components-api/#tooltip-root',

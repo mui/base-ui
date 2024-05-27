@@ -1,4 +1,4 @@
-<Tooltip.Group closeDelay={200}>
+<Tooltip.Provider closeDelay={200}>
   <Tooltip.Root>
     <AnchorButton>Anchor A</AnchorButton>
     <TooltipPopup sideOffset={5}>Tooltip A</TooltipPopup>
@@ -7,4 +7,4 @@
     <AnchorButton>Anchor B</AnchorButton>
     <TooltipPopup sideOffset={5}>Tooltip B</TooltipPopup>
   </Tooltip.Root>
-</Tooltip.Group>
+</Tooltip.Provider>

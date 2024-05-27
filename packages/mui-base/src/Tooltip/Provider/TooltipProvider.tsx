@@ -2,11 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingDelayGroup } from '@floating-ui/react';
-import type { TooltipGroupProps } from './TooltipGroup.types';
+import type { TooltipProviderProps } from './TooltipProvider.types';
 
 /**
- * Groups tooltips' delays together so that once one of the tooltips opens, subsequent tooltips will
- * not open with a delay.
+ * Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in
+ * the group will not wait for the delay before showing.
  *
  * Demos:
  *
@@ -14,9 +14,9 @@ import type { TooltipGroupProps } from './TooltipGroup.types';
  *
  * API:
  *
- * - [TooltipGroup API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-group)
+ * - [TooltipProvider API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-provider)
  */
-function TooltipGroup(props: TooltipGroupProps) {
+function TooltipProvider(props: TooltipProviderProps) {
   const { delay = 0, closeDelay = 0, timeout = 400 } = props;
   return (
     <FloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
@@ -25,7 +25,7 @@ function TooltipGroup(props: TooltipGroupProps) {
   );
 }
 
-TooltipGroup.propTypes /* remove-proptypes */ = {
+TooltipProvider.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -52,4 +52,4 @@ TooltipGroup.propTypes /* remove-proptypes */ = {
   timeout: PropTypes.number,
 } as any;
 
-export { TooltipGroup };
+export { TooltipProvider };

@@ -6,7 +6,7 @@ import { fireEvent, screen } from '@testing-library/react';
 
 const waitForPosition = async () => act(async () => {});
 
-describe('<Tooltip.Group />', () => {
+describe('<Tooltip.Provider />', () => {
   const { render, clock } = createRenderer();
 
   describe('prop: delay', () => {
@@ -14,12 +14,12 @@ describe('<Tooltip.Group />', () => {
 
     it('waits for the delay before showing the tooltip', async () => {
       render(
-        <Tooltip.Group delay={10_000}>
+        <Tooltip.Provider delay={10_000}>
           <Tooltip.Root animated={false}>
             <Tooltip.Trigger />
             <Tooltip.Popup>Content</Tooltip.Popup>
           </Tooltip.Root>
-        </Tooltip.Group>,
+        </Tooltip.Provider>,
       );
 
       const trigger = document.querySelector('button')!;
@@ -46,12 +46,12 @@ describe('<Tooltip.Group />', () => {
 
     it('waits for the closeDelay before hiding the tooltip', async () => {
       render(
-        <Tooltip.Group closeDelay={400}>
+        <Tooltip.Provider closeDelay={400}>
           <Tooltip.Root animated={false}>
             <Tooltip.Trigger />
             <Tooltip.Popup>Content</Tooltip.Popup>
           </Tooltip.Root>
-        </Tooltip.Group>,
+        </Tooltip.Provider>,
       );
 
       const trigger = document.querySelector('button')!;

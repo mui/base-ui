@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Tooltip component
-components: TooltipRoot, TooltipTrigger, TooltipPopupRoot, TooltipPopup, TooltipGroup, TooltipArrow
+components: TooltipProvider, TooltipRoot, TooltipTrigger, TooltipPopupRoot, TooltipPopup, TooltipArrow
 hooks: useTooltipRoot, useTooltipPopup
 githubLabel: 'component: tooltip'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
@@ -45,10 +45,6 @@ Once you have the package installed, import the component.
 import * as Tooltip from '@base_ui/react/Tooltip';
 ```
 
-:::info
-If critical information is hidden behind a tooltip, you're likely looking for an infotip instead. These are created by using the `Popover` component and enabling the hover trigger. Infotips are floating elements that anchor themselves to an icon designed only to display information, not a button ("tool") that performs an action. All inputs, including touch, can see an infotip.
-:::
-
 ## Anatomy
 
 Tooltip is implemented using a collection of related components:
@@ -68,6 +64,18 @@ Tooltip is implemented using a collection of related components:
 </Tooltip.Root>
 ```
 
+## Provider
+
+`Tooltip.Provider` provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in the group will not wait for the delay before showing. You can wrap this globally, or around an individual group of tooltips anywhere in your React tree (or both).
+
+```tsx
+<Tooltip.Provider>
+  <App />
+</Tooltip.Provider>
+```
+
+{{"demo": "UnstyledTooltipDelayGroup.js"}}
+
 ## Accessibility
 
 Tooltips are only for sighted users with access to a pointer with hover capability or keyboard focus. This means you must supply an accessible name via `aria-label` to trigger elements that don't contain text content, such as an icon button.
@@ -83,11 +91,11 @@ Tooltips are only for sighted users with access to a pointer with hover capabili
 
 Your `aria-label` and tooltip content should closely match or be identical so that screen reader users and sighted users receive the same information.
 
-Tooltips should ideally also be secondary in nature, because touch users cannot see them. They are most useful as progressive enhancement in high-density desktop applications that have many icon buttons where visual labels are impractical to use. They are also useful for things like thumbnail tooltips when hovering over a progress bar when using a mouse.
+Tooltips should ideally also be secondary in nature, because touch users cannot see them. They are most useful as progressive enhancement in high-density desktop applications that have many icon buttons where visual labels are impractical to use.
 
 ## Placement
 
-By default, the tooltip is placed on the top side of its anchor. To change this, use the `side` prop on `Tooltip.Popup`:
+By default, the tooltip is placed on the top side of its trigger, the default anchor. To change this, use the `side` prop:
 
 ```jsx
 <Tooltip.Root>
@@ -104,8 +112,6 @@ You can also change the alignment of the tooltip in relation to its anchor. By d
 </Tooltip.Popup>
 ```
 
-Possible alignment values are `center`, `start`, and `end`. The latter two are logical values that adapt to the writing direction (LTR or RTL).
-
 Due to collision detection, the tooltip may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
 
 To access the true rendered values, which may change as the result of a collision, the content element receives data attributes:
@@ -119,53 +125,27 @@ To access the true rendered values, which may change as the result of a collisio
 
 This allows you to conditionally style the tooltip based on its rendered side or alignment.
 
-## Offsets
+## Offset
 
-### Side
-
-To offset the side position, use the `sideOffset` prop:
+The `sideOffset` prop creates a gap between the anchor and tooltip popup, while `alignmentOffset` slides the tooltip popup from its alignment, acting logically for `start` and `end` alignments.
 
 ```jsx
-<Tooltip.Popup sideOffset={10}>
+<Tooltip.Popup sideOffset={10} alignmentOffset={10}>
 ```
-
-This creates a gap between the anchor and its tooltip content.
-
-### Alignment
-
-To offset the alignment position, use the `alignmentOffset` prop:
-
-```jsx
-<Tooltip.Popup alignmentOffset={10}>
-```
-
-This prop acts logically for the `start` and `end` alignments.
 
 ## Delay
 
-By default, the tooltip waits until the user's cursor is at rest over the anchor element before it is opened. To change this timeout, use the `delay` prop, which represents how long the tooltip waits after the cursor rests to open in milliseconds:
+To change how long the tooltip waits until it opens or closes, use the `delay` and `closeDelay` props, which represent how long the tooltip waits after the cursor rests on the trigger to open, or moves away from the trigger to close, in milliseconds:
 
 ```jsx
-<Tooltip.Root delay={200}>
+<Tooltip.Root delay={200} closeDelay={200}>
 ```
 
-The close delay can also be configured:
-
-```jsx
-<Tooltip.Root closeDelay={200}>
-```
-
-The delay type can be changed from `"rest"` (user's cursor is static for the given timeout in milliseconds) to `"hover"`:
+The delay type can be changed from `"rest"` (user's cursor is static over the trigger for the given timeout in milliseconds) to `"hover"` (the user's cursor has entered the trigger):
 
 ```jsx
 <Tooltip.Root delayType="hover">
 ```
-
-## Grouping
-
-To ensure nearby trigger elements' delays become `0` once one of the tooltips of the group opens, use the `Tooltip.Group` component, wrapping the `Tooltip.Root`s with it.
-
-{{"demo": "UnstyledTooltipDelayGroup.js"}}
 
 ## Controlled
 
@@ -182,26 +162,6 @@ function App() {
 }
 ```
 
-## Default open
-
-To show the tooltip initially while leaving it uncontrolled, use the `defaultOpen` prop:
-
-```jsx
-<Tooltip.Root defaultOpen>
-```
-
-## Hoverable content
-
-To prevent the content inside from being hoverable, use the `hoverable` prop on `Tooltip.Root`:
-
-```jsx
-<Tooltip.Root hoverable={false}>
-```
-
-:::info
-This has accessibility consequences and should only be disabled when necessary, such as in high-density UIs where tooltips can block other nearby controls.
-:::
-
 ## Arrow
 
 To add an arrow (caret or triangle) inside the tooltip content that points toward the center of the anchor element, use the `Tooltip.Arrow` component:
@@ -217,7 +177,7 @@ It automatically positions a wrapper element that can be styled or contain a cus
 
 ## Cursor following
 
-The tooltip can follow the cursor on both axes or one axis using the `followCursorAxis` prop on `Tooltip.Popup`. Possible values are: `none` (default), `both`, `x`, or `y`.
+The tooltip can follow the cursor on both axes or one axis using the `followCursorAxis` prop on `Tooltip.Root`. Possible values are: `none` (default), `both`, `x`, or `y`.
 
 {{"demo": "UnstyledTooltipFollowCursor.js"}}
 
@@ -250,17 +210,6 @@ The `Tooltip.Popup` element receives the following CSS variables:
 - `--available-width`: Specifies the available width of the popup element before it overflows the viewport.
 - `--available-height`: Specifies the available height of the popup element before it overflows the viewport.
 - `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
-
-```jsx
-<Tooltip.Popup
-  style={{
-    width: 'var(--anchor-width)',
-    height: 'var(--anchor-height)',
-  }}
->
-  Content
-</Tooltip.Popup>
-```
 
 By default, `maxWidth` and `maxHeight` are already specified using `--available-{width,height}` to prevent the tooltip from being too big to fit on the screen.
 

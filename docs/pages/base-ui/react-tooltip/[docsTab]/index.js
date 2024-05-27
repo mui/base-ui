@@ -4,9 +4,9 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/tooltip/tooltip.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import TooltipArrowApiJsonPageContent from '../../api/tooltip-arrow.json';
-import TooltipGroupApiJsonPageContent from '../../api/tooltip-group.json';
 import TooltipPopupApiJsonPageContent from '../../api/tooltip-popup.json';
 import TooltipPopupRootApiJsonPageContent from '../../api/tooltip-popup-root.json';
+import TooltipProviderApiJsonPageContent from '../../api/tooltip-provider.json';
 import TooltipRootApiJsonPageContent from '../../api/tooltip-root.json';
 import TooltipTriggerApiJsonPageContent from '../../api/tooltip-trigger.json';
 import useTooltipPopupApiJsonPageContent from '../../api/use-tooltip-popup.json';
@@ -36,13 +36,6 @@ export const getStaticProps = () => {
   );
   const TooltipArrowApiDescriptions = mapApiPageTranslations(TooltipArrowApiReq);
 
-  const TooltipGroupApiReq = require.context(
-    'docs-base/translations/api-docs/tooltip-group',
-    false,
-    /\.\/tooltip-group.*.json$/,
-  );
-  const TooltipGroupApiDescriptions = mapApiPageTranslations(TooltipGroupApiReq);
-
   const TooltipPopupApiReq = require.context(
     'docs-base/translations/api-docs/tooltip-popup',
     false,
@@ -56,6 +49,13 @@ export const getStaticProps = () => {
     /\.\/tooltip-popup-root.*.json$/,
   );
   const TooltipPopupRootApiDescriptions = mapApiPageTranslations(TooltipPopupRootApiReq);
+
+  const TooltipProviderApiReq = require.context(
+    'docs-base/translations/api-docs/tooltip-provider',
+    false,
+    /\.\/tooltip-provider.*.json$/,
+  );
+  const TooltipProviderApiDescriptions = mapApiPageTranslations(TooltipProviderApiReq);
 
   const TooltipRootApiReq = require.context(
     'docs-base/translations/api-docs/tooltip-root',
@@ -89,17 +89,17 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         TooltipArrow: TooltipArrowApiDescriptions,
-        TooltipGroup: TooltipGroupApiDescriptions,
         TooltipPopup: TooltipPopupApiDescriptions,
         TooltipPopupRoot: TooltipPopupRootApiDescriptions,
+        TooltipProvider: TooltipProviderApiDescriptions,
         TooltipRoot: TooltipRootApiDescriptions,
         TooltipTrigger: TooltipTriggerApiDescriptions,
       },
       componentsApiPageContents: {
         TooltipArrow: TooltipArrowApiJsonPageContent,
-        TooltipGroup: TooltipGroupApiJsonPageContent,
         TooltipPopup: TooltipPopupApiJsonPageContent,
         TooltipPopupRoot: TooltipPopupRootApiJsonPageContent,
+        TooltipProvider: TooltipProviderApiJsonPageContent,
         TooltipRoot: TooltipRootApiJsonPageContent,
         TooltipTrigger: TooltipTriggerApiJsonPageContent,
       },

@@ -1,4 +1,4 @@
-export interface TooltipGroupProps {
+export interface TooltipProviderProps {
   children?: React.ReactNode;
   /**
    * The delay in milliseconds until tooltips within the group are open.

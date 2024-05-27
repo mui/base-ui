@@ -3,7 +3,7 @@ export { TooltipTrigger as Trigger } from './Trigger/TooltipTrigger';
 export { TooltipPopupRoot as PopupRoot } from './PopupRoot/TooltipPopupRoot';
 export { TooltipPopup as Popup } from './Popup/TooltipPopup';
 export { TooltipArrow as Arrow } from './Arrow/TooltipArrow';
-export { TooltipGroup as Group } from './Group/TooltipGroup';
+export { TooltipProvider as Provider } from './Provider/TooltipProvider';
 export { useTooltipRoot as useRoot } from './Root/useTooltipRoot';
 export { useTooltipPopup as usePopup } from './Popup/useTooltipPopup';
 
@@ -24,7 +24,7 @@ export type {
   TooltipArrowProps as ArrowProps,
   TooltipArrowOwnerState as ArrowOwnerState,
 } from './Arrow/TooltipArrow.types';
-export type { TooltipGroupProps as GroupProps } from './Group/TooltipGroup.types';
+export type { TooltipProviderProps as ProviderProps } from './Provider/TooltipProvider.types';
 export type {
   UseTooltipRootParameters as UseRootParameters,
   UseTooltipRootReturnValue as UseRootReturnValue,

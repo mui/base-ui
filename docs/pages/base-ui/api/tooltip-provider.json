@@ -4,15 +4,15 @@
     "delay": { "type": { "name": "number" }, "default": "0" },
     "timeout": { "type": { "name": "number" }, "default": "400" }
   },
-  "name": "TooltipGroup",
+  "name": "TooltipProvider",
   "imports": [
-    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipGroup = Tooltip.Group;"
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipProvider = Tooltip.Provider;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
-  "muiName": "TooltipGroup",
-  "filename": "/packages/mui-base/src/Tooltip/Group/TooltipGroup.tsx",
+  "muiName": "TooltipProvider",
+  "filename": "/packages/mui-base/src/Tooltip/Provider/TooltipProvider.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false
