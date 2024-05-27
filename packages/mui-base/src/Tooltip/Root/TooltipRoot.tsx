@@ -19,12 +19,15 @@ import { useTooltipRoot } from './useTooltipRoot';
 function TooltipRoot(props: TooltipRootProps) {
   const {
     delayType = 'rest',
-    delay = 200,
-    closeDelay = 0,
+    delay,
+    closeDelay,
     hoverable = true,
     animated = true,
     followCursorAxis = 'none',
   } = props;
+
+  const delayWithDefault = delay ?? 200;
+  const closeDelayWithDefault = closeDelay ?? 0;
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
@@ -55,9 +58,9 @@ function TooltipRoot(props: TooltipRootProps) {
 
   const contextValue = React.useMemo(
     () => ({
-      delay,
+      delay: delayWithDefault,
       delayType,
-      closeDelay,
+      closeDelay: closeDelayWithDefault,
       open,
       setOpen,
       triggerElement,
@@ -74,9 +77,9 @@ function TooltipRoot(props: TooltipRootProps) {
       transitionStatus,
     }),
     [
-      delay,
+      delayWithDefault,
       delayType,
-      closeDelay,
+      closeDelayWithDefault,
       open,
       setOpen,
       triggerElement,

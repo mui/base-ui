@@ -40,9 +40,12 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     animated = true,
     followCursorAxis = 'none',
     delayType = 'rest',
-    delay = 200,
-    closeDelay = 0,
+    delay,
+    closeDelay,
   } = params;
+
+  const delayWithDefault = delay ?? 200;
+  const closeDelayWithDefault = closeDelay ?? 0;
 
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
@@ -95,20 +98,42 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
   const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : groupDelay;
+  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : groupDelay;
 
   let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
   if (!open && context.floatingId === currentId) {
     instantType = instantTypeState;
   }
 
+  const computedRestMs = delayType === 'rest' ? openGroupDelay || delayWithDefault : undefined;
+  let computedOpenDelay: number | undefined = delayWithDefault;
+  let computedCloseDelay: number | undefined = closeDelayWithDefault;
+
+  if (delay == null) {
+    if (groupDelay === 0) {
+      // No provider is present.
+      computedOpenDelay = delayType === 'hover' ? delayWithDefault : undefined;
+    } else {
+      // A provider is present.
+      computedOpenDelay = openGroupDelay;
+    }
+  } else {
+    computedOpenDelay = delay;
+  }
+
+  // A provider is present and the close delay is not set.
+  if (closeDelay == null && groupDelay !== 0) {
+    computedCloseDelay = closeGroupDelay;
+  }
+
   const hover = useHover(context, {
     mouseOnly: true,
     move: false,
     handleClose: hoverable && followCursorAxis !== 'both' ? safePolygon() : null,
-    restMs: delayType === 'rest' ? openGroupDelay || delay : undefined,
-    delay: groupDelay || {
-      open: delayType === 'hover' ? delay : 0,
-      close: closeDelay,
+    restMs: computedRestMs,
+    delay: {
+      open: computedOpenDelay,
+      close: computedCloseDelay,
     },
   });
   const focus = useFocus(context);
