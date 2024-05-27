@@ -17,7 +17,7 @@ export function useAnimationsFinished(getElement: () => Element | null | undefin
 
   React.useEffect(() => cancelFrames, [cancelFrames]);
 
-  return useEventCallback(async (fnToExecute: () => void) => {
+  return useEventCallback((fnToExecute: () => void) => {
     cancelFrames();
 
     const element = getElement();
