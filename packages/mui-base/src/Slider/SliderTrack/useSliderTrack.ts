@@ -3,7 +3,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { roundValueToStep, valueToPercent } from '../utils';
 import { focusThumb, trackFinger } from '../Root/useSliderRoot';
 import { UseSliderTrackParameters, UseSliderTrackReturnValue } from './SliderTrack.types';
 
@@ -22,15 +21,13 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     getFingerNewValue,
     handleValueChange,
     onValueCommitted,
-    max,
-    min,
+    percentageValues,
     rootRef: externalRef,
     setActive,
     setDragging,
     setOpen,
     setValueState,
     subitems,
-    values,
   } = parameters;
 
   const trackRef = React.useRef<HTMLElement>(null);
@@ -202,29 +199,23 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
           event.preventDefault();
           const finger = trackFinger(event, touchId);
           if (finger !== false) {
-            const { newValue, activeIndex, newValuePercent } = getFingerNewValue({
+            const { newValue, activeIndex, newPercentageValue } = getFingerNewValue({
               finger,
               boundary: trackRef.current?.getBoundingClientRect(),
             });
+
             focusThumb({ sliderRef: trackRef, activeIndex, setActive });
 
-            const eventLandedOnThumb = thumbRefs.includes(event.target as HTMLElement);
-
-            if (eventLandedOnThumb) {
+            // if the event lands on a thumb, don't change the value, just get the
+            // percentageValue difference represented by the distance between the click origin
+            // and the coordinates of the value on the track area
+            if (thumbRefs.includes(event.target as HTMLElement)) {
               const targetThumbIndex = (event.target as HTMLElement).getAttribute('data-index');
-              const oldValuePercent = valueToPercent(
-                values[Number(targetThumbIndex) ?? 0],
-                min,
-                max,
-              );
 
-              const offset = oldValuePercent - roundValueToStep(newValuePercent * 100, 1, 0);
+              const offset = percentageValues[Number(targetThumbIndex)] / 100 - newPercentageValue;
 
               offsetRef.current = offset;
-            }
-
-            // do not change the value and shift the thumb if the event lands on a thumb
-            if (!eventLandedOnThumb) {
+            } else {
               setValueState(newValue);
 
               if (handleValueChange && !areValuesEqual(newValue)) {
@@ -249,12 +240,10 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       handleTouchMove,
       handleTouchEnd,
       handleValueChange,
-      max,
-      min,
+      percentageValues,
       setActive,
       setValueState,
       thumbRefs,
-      values,
     ],
   );
 

@@ -30,15 +30,13 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     getFingerNewValue,
     handleValueChange,
     onValueCommitted,
-    max,
-    min,
     ownerState,
+    percentageValues,
     setActive,
     setDragging,
     setOpen,
     setValueState,
     subitems,
-    values,
   } = useSliderContext();
 
   const { getRootProps } = useSliderTrack({
@@ -48,15 +46,13 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     getFingerNewValue,
     handleValueChange,
     onValueCommitted,
-    max,
-    min,
+    percentageValues,
+    rootRef: mergedRef,
     setActive,
     setDragging,
     setOpen,
     setValueState,
     subitems,
-    values,
-    rootRef: mergedRef,
   });
 
   const styleHooks = React.useMemo(

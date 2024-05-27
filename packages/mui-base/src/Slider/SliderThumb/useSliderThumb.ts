@@ -4,7 +4,6 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompoundItem } from '../../useCompound';
-import { valueToPercent } from '../utils';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 
@@ -50,6 +49,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     setOpen,
     step,
     tabIndex,
+    percentageValues,
     values: sliderValues,
   } = parameters;
 
@@ -71,22 +71,20 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
   const thumbValue = sliderValues[index];
 
-  const percent = valueToPercent(thumbValue, min, max);
-
-  const offsetCssProperty = {
-    horizontal: 'left',
-    'horizontal-reverse': 'right',
-    vertical: 'bottom',
-  }[axis];
+  const percent = percentageValues[index];
 
   const getThumbStyle = React.useCallback(() => {
     return {
-      [offsetCssProperty]: `${percent}%`,
+      [{
+        horizontal: 'left',
+        'horizontal-reverse': 'right',
+        vertical: 'bottom',
+      }[axis]]: `${percent}%`,
       // So the non active thumb doesn't show its label on hover.
       pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
       zIndex: activeIndex === index ? 1 : undefined,
     };
-  }, [activeIndex, offsetCssProperty, percent, index]);
+  }, [activeIndex, axis, percent, index]);
 
   const getRootProps: UseSliderThumbReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {

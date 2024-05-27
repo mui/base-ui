@@ -301,9 +301,9 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       let percent;
 
       if (axis.indexOf('vertical') === 0) {
-        percent = (bottom - finger.y + offset) / height;
+        percent = (bottom - finger.y) / height + offset;
       } else {
-        percent = (finger.x - left + offset) / width;
+        percent = (finger.x - left) / width + offset;
       }
 
       if (axis.indexOf('-reverse') !== -1) {
@@ -352,7 +352,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         }
       }
 
-      return { newValue, activeIndex, newValuePercent: percent };
+      return { newValue, activeIndex, newPercentageValue: percent };
     },
     [axis, disableSwap, marksValues, max, min, range, step, values],
   );

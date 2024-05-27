@@ -12,14 +12,12 @@ export interface UseSliderTrackParameters
     | 'getFingerNewValue'
     | 'handleValueChange'
     | 'onValueCommitted'
-    | 'max'
-    | 'min'
+    | 'percentageValues'
     | 'setActive'
     | 'setDragging'
     | 'setOpen'
     | 'setValueState'
     | 'subitems'
-    | 'values'
   > {
   /**
    * The ref attached to the track of the Slider.

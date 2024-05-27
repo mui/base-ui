@@ -26,6 +26,7 @@ export interface UseSliderThumbParameters
     | 'min'
     | 'name'
     | 'orientation'
+    | 'percentageValues'
     | 'scale'
     | 'setOpen'
     | 'step'

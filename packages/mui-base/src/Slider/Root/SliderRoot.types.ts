@@ -227,7 +227,7 @@ export interface UseSliderReturnValue {
     move?: boolean;
     offset?: number;
     boundary?: Partial<DOMRect>;
-  }) => { newValue: number | number[]; activeIndex: number; newValuePercent: number };
+  }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number };
   handleValueChange: (
     value: number | number[],
     activeThumb: number,

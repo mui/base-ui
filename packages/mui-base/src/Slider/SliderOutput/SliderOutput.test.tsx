@@ -25,7 +25,7 @@ describe('<Slider.Output />', () => {
     getFingerNewValue: () => ({
       newValue: 0,
       activeIndex: 0,
-      newValuePercent: 0,
+      newPercentageValue: 0,
     }),
     handleValueChange: NOOP,
     isRtl: false,
