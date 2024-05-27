@@ -4,7 +4,7 @@ const fse = require('fs-extra');
 const errorCodesPath = path.resolve(__dirname, './public/static/error-codes.json');
 
 const { version: transformRuntimeVersion } = fse.readJSONSync(
-  require.resolve('@babel/runtime-corejs2/package.json'),
+  require.resolve('@babel/runtime-corejs3/package.json'),
 );
 
 module.exports = {
@@ -17,7 +17,7 @@ module.exports = {
       'next/babel',
       {
         'preset-react': { runtime: 'automatic' },
-        'transform-runtime': { corejs: 2, version: transformRuntimeVersion },
+        'transform-runtime': { corejs: 3, version: transformRuntimeVersion },
       },
     ],
   ],

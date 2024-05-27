@@ -17,7 +17,7 @@
   "dependencies": {
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
-    "@babel/runtime-corejs2": "^7.24.5",
+    "@babel/runtime-corejs3": "^7.24.6",
     "@base_ui/react": "workspace:*",
     "@docsearch/react": "^3.6.0",
     "@emotion/cache": "^11.11.0",
@@ -45,7 +45,7 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
-    "core-js": "^2.6.11",
+    "core-js": "^3.37.1",
     "cross-env": "^7.0.3",
     "fg-loadcss": "^3.1.0",
     "fs-extra": "^11.2.0",

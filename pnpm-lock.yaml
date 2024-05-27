@@ -328,9 +328,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.24.5
-      '@babel/runtime-corejs2':
-        specifier: ^7.24.5
-        version: 7.24.5
+      '@babel/runtime-corejs3':
+        specifier: ^7.24.6
+        version: 7.24.6
       '@base_ui/react':
         specifier: workspace:*
         version: link:../packages/mui-base/build
@@ -413,8 +413,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       core-js:
-        specifier: ^2.6.11
-        version: 2.6.12
+        specifier: ^3.37.1
+        version: 3.37.1
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1488,8 +1488,8 @@ packages:
   '@babel/regjsgen@0.8.0':
     resolution: {integrity: sha512-x/rqGMdzj+fWZvCOYForTghzbtqPDZ5gPwaoNGHdgDfF2QA/XZbCBp4Moo5scrkAMPhB7z26XM/AaHuIJdgauA==}
 
-  '@babel/runtime-corejs2@7.24.5':
-    resolution: {integrity: sha512-cC9jiO6s/IN+xwCHYy1AGrcFJ4bwgIwb8HX1KaoEpRsznLlO4x9eBP6AX7RIeMSWlQqEj2WHox637OS8cDq6Ew==}
+  '@babel/runtime-corejs3@7.24.6':
+    resolution: {integrity: sha512-tbC3o8uHK9xMgMsvUm9qGqxVpbv6yborMBLbDteHIc7JDNHsTV0vDMQ5j1O1NXvO+BDELtL9KgoWYaUVIVGt8w==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.24.5':
@@ -4001,12 +4001,11 @@ packages:
   core-js-compat@3.37.0:
     resolution: {integrity: sha512-vYq4L+T8aS5UuFg4UwDhc7YNRWVeVZwltad9C/jV3R2LgVOpS9BDr7l/WL6BN0dbV3k1XejPTHqqEzJgsa0frA==}
 
-  core-js@2.6.12:
-    resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
-    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+  core-js-pure@3.37.1:
+    resolution: {integrity: sha512-J/r5JTHSmzTxbiYYrzXg9w1VpqrYt+gexenBE9pugeyhwPZTAEJddyiReJWsLO6uNQ8xJZFbod6XC7KKwatCiA==}
 
-  core-js@3.37.0:
-    resolution: {integrity: sha512-fu5vHevQ8ZG4og+LXug8ulUtVxjOcEYvifJr7L5Bfq9GOztVqsKd9/59hUk2ZSbCrS3BqUr3EpaYGIYzq7g3Ug==}
+  core-js@3.37.1:
+    resolution: {integrity: sha512-Xn6qmxrQZyB0FFY8E3bgRXei3lWDJHhvI+u0q9TKIYM49G8pAr0FgnnrFRAmsbptZL1yxRADVXn+x5AGsbBfyw==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -9058,7 +9057,7 @@ snapshots:
       '@babel/core': 7.24.5
       '@babel/register': 7.23.7(@babel/core@7.24.5)
       commander: 4.1.1
-      core-js: 3.37.0
+      core-js: 3.37.1
       node-environment-flags: 1.0.6
       regenerator-runtime: 0.14.1
       v8flags: 3.2.0
@@ -9656,9 +9655,9 @@ snapshots:
 
   '@babel/regjsgen@0.8.0': {}
 
-  '@babel/runtime-corejs2@7.24.5':
+  '@babel/runtime-corejs3@7.24.6':
     dependencies:
-      core-js: 2.6.12
+      core-js-pure: 3.37.1
       regenerator-runtime: 0.14.1
 
   '@babel/runtime@7.24.5':
@@ -12622,9 +12621,9 @@ snapshots:
     dependencies:
       browserslist: 4.23.0
 
-  core-js@2.6.12: {}
+  core-js-pure@3.37.1: {}
 
-  core-js@3.37.0: {}
+  core-js@3.37.1: {}
 
   core-util-is@1.0.3: {}
 
@@ -12758,7 +12757,7 @@ snapshots:
       async-retry: 1.2.3
       chalk: 2.4.2
       commander: 2.20.3
-      core-js: 3.37.0
+      core-js: 3.37.1
       debug: 4.3.4(supports-color@8.1.1)
       fast-json-patch: 3.1.1
       get-stdin: 6.0.0
