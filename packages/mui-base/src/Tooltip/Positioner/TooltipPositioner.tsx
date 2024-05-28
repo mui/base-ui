@@ -144,8 +144,8 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.any,
   /**
-   * Determines the padding between the arrow and the tooltip content. Useful when the tooltip
-   * has rounded corners via `border-radius`.
+   * Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip
+   * popup has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -176,7 +176,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the tooltip content will be appended to.
+   * The container element to which the tooltip positioner is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.any,
   /**

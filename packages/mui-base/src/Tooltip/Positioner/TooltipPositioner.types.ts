@@ -21,7 +21,7 @@ export interface TooltipPositionerProps
   extends TooltipPositionerParameters,
     BaseUIComponentProps<'div', TooltipPositionerOwnerState> {
   /**
-   * The container element to which the tooltip content will be appended to.
+   * The container element to which the tooltip positioner is appended to.
    */
   container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
 }

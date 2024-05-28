@@ -2,15 +2,13 @@
   "componentDescription": "The foundation for building custom-styled tooltips.",
   "propDescriptions": {
     "animated": { "description": "Whether the tooltip can animate. Useful to disable in tests." },
-    "closeDelay": {
-      "description": "The delay in milliseconds until the tooltip content is closed."
-    },
+    "closeDelay": { "description": "The delay in milliseconds until the tooltip popup is closed." },
     "defaultOpen": {
       "description": "Specifies whether the tooltip is open initially when uncontrolled."
     },
-    "delay": { "description": "The delay in milliseconds until the tooltip content is opened." },
+    "delay": { "description": "The delay in milliseconds until the tooltip popup is opened." },
     "delayType": {
-      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip content is opened. <code>hover</code> means the <code>delay</code> represents how long to wait once the user&#39;s cursor has entered the trigger."
+      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
     },
     "followCursorAxis": {
       "description": "Determines which axis the tooltip should follow the cursor on."
@@ -19,10 +17,10 @@
       "description": "Whether you can move from the trigger to the tooltip without it closing."
     },
     "onOpenChange": {
-      "description": "Callback fired when the tooltip content is requested to be opened or closed. Use when controlled."
+      "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."
     },
     "open": {
-      "description": "If <code>true</code>, the tooltip content is open. Use when controlled."
+      "description": "If <code>true</code>, the tooltip popup is open. Use when controlled."
     }
   },
   "classDescriptions": {}

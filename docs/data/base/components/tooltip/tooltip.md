@@ -71,7 +71,7 @@ Tooltip is implemented using a collection of related components:
 
 ## Provider
 
-`Tooltip.Provider` provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in the group will not wait for the delay before showing. You can wrap this globally, or around an individual group of tooltips anywhere in your React tree (or both).
+`Tooltip.Provider` provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in the group don't wait for the delay before showing. You can wrap this globally, or around an individual group of tooltips anywhere in your React tree (or both).
 
 ```tsx
 <Tooltip.Provider>

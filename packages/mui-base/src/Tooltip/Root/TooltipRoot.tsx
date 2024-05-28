@@ -115,7 +115,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the tooltip content is closed.
+   * The delay in milliseconds until the tooltip popup is closed.
    * @default 0
    */
   closeDelay: PropTypes.number,
@@ -124,14 +124,14 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the tooltip content is opened.
+   * The delay in milliseconds until the tooltip popup is opened.
    * @default 300
    */
   delay: PropTypes.number,
   /**
    * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the trigger before the tooltip content is opened. `hover` means the `delay` represents
-   * how long to wait once the user's cursor has entered the trigger.
+   * rest on the trigger before the tooltip popup is opened. `hover` means the `delay` represents
+   * how long to wait as soon as the user's cursor has entered the trigger.
    * @default 'rest'
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
@@ -146,12 +146,12 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   hoverable: PropTypes.bool,
   /**
-   * Callback fired when the tooltip content is requested to be opened or closed. Use when
+   * Callback fired when the tooltip popup is requested to be opened or closed. Use when
    * controlled.
    */
   onOpenChange: PropTypes.func,
   /**
-   * If `true`, the tooltip content is open. Use when controlled.
+   * If `true`, the tooltip popup is open. Use when controlled.
    */
   open: PropTypes.bool,
 } as any;

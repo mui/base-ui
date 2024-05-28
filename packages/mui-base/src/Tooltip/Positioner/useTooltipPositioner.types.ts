@@ -64,8 +64,8 @@ export interface TooltipPositionerParameters {
    */
   sticky?: boolean;
   /**
-   * Determines the padding between the arrow and the tooltip content. Useful when the tooltip
-   * has rounded corners via `border-radius`.
+   * Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip
+   * popup has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding?: number;

@@ -1,9 +1,7 @@
 {
   "componentDescription": "Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in\nthe group will not wait for the delay before showing.",
   "propDescriptions": {
-    "closeDelay": {
-      "description": "The delay in milliseconds until the tooltip content is closed."
-    },
+    "closeDelay": { "description": "The delay in milliseconds until the tooltip popup is closed." },
     "delay": {
       "description": "The delay in milliseconds until tooltips within the group are open."
     },

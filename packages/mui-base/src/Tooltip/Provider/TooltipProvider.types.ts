@@ -6,7 +6,7 @@ export interface TooltipProviderProps {
    */
   delay?: number;
   /**
-   * The delay in milliseconds until the tooltip content is closed.
+   * The delay in milliseconds until the tooltip popup is closed.
    * @default 0
    */
   closeDelay?: number;
