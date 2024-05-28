@@ -5,6 +5,7 @@ components: CheckboxRoot, CheckboxIndicator
 hooks: useCheckboxRoot
 githubLabel: 'component: checkbox'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
+packageName: '@base_ui/react'
 ---
 
 # Checkbox

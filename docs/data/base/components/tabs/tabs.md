@@ -5,6 +5,7 @@ components: TabsRoot, TabPanel, Tab, TabsList, TabIndicator
 hooks: useTabsRoot, useTabPanel, useTab, useTabsList, useTabIndicator
 githubLabel: 'component: tabs'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+packageName: '@base_ui/react'
 ---
 
 # Tabs
