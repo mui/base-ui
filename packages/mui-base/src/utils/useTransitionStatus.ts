@@ -7,26 +7,31 @@ export type TransitionStatus = 'entering' | 'exiting' | undefined;
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
+ * @param enabled - a boolean that determines if the logic is enabled.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(open: boolean) {
+export function useTransitionStatus(open: boolean, enabled = true) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
   const [mounted, setMounted] = React.useState(open);
 
-  if (open && !mounted) {
-    setMounted(true);
-  }
+  const derivedMounted = enabled ? mounted : open;
 
-  if (!open && mounted && transitionStatus !== 'exiting') {
-    setTransitionStatus('exiting');
-  }
+  if (enabled) {
+    if (open && !mounted) {
+      setMounted(true);
+    }
 
-  if (!open && !mounted && transitionStatus === 'exiting') {
-    setTransitionStatus(undefined);
+    if (!open && mounted && transitionStatus !== 'exiting') {
+      setTransitionStatus('exiting');
+    }
+
+    if (!open && !mounted && transitionStatus === 'exiting') {
+      setTransitionStatus(undefined);
+    }
   }
 
   useEnhancedEffect(() => {
-    if (!open) {
+    if (!enabled || !open) {
       return undefined;
     }
 
@@ -39,14 +44,14 @@ export function useTransitionStatus(open: boolean) {
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [open]);
+  }, [enabled, open]);
 
   return React.useMemo(
     () => ({
-      mounted,
+      mounted: derivedMounted,
       setMounted,
       transitionStatus,
     }),
-    [mounted, transitionStatus],
+    [derivedMounted, transitionStatus],
   );
 }
