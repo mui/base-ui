@@ -11,7 +11,9 @@ describe('<Tooltip.Arrow />', () => {
     render(node) {
       return render(
         <Tooltip.Root open>
-          <Tooltip.Popup>{node}</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>{node}</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Tooltip.Root>,
       );
     },
