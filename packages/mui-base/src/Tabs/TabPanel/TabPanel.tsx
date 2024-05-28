@@ -3,11 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTabPanel } from './useTabPanel';
 import { TabPanelOwnerState, TabPanelProps } from './TabPanel.types';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useTabPanelStyleHooks } from './useTabPanelStyleHooks';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
  *
@@ -23,21 +20,12 @@ const TabPanel = React.forwardRef(function TabPanel(
   props: TabPanelProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    children,
-    className: classNameProp,
-    value,
-    render: renderProp,
-    keepMounted = false,
-    ...other
-  } = props;
-  const render = renderProp ?? defaultRenderFunctions.div;
+  const { children, className, value, render, keepMounted = false, ...other } = props;
 
-  const { hidden, getRootProps, rootRef, orientation, direction, tabActivationDirection } =
-    useTabPanel({
-      ...props,
-      rootRef: forwardedRef,
-    });
+  const { hidden, getRootProps, orientation, direction, tabActivationDirection } = useTabPanel({
+    ...props,
+    rootRef: forwardedRef,
+  });
 
   const ownerState: TabPanelOwnerState = {
     hidden,
@@ -46,19 +34,16 @@ const TabPanel = React.forwardRef(function TabPanel(
     tabActivationDirection,
   };
 
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useTabPanelStyleHooks(ownerState);
-  const mergedRef = useRenderPropForkRef(render, rootRef);
-
-  const rootProps = getRootProps({
-    ...styleHooks,
-    ...other,
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render: render ?? 'div',
     className,
-    ref: mergedRef,
-    children: hidden && !keepMounted ? undefined : children,
+    ownerState,
+    extraProps: { ...other, children: hidden && !keepMounted ? undefined : children },
+    customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return evaluateRenderProp(render, rootProps, ownerState);
+  return renderElement();
 });
 
 TabPanel.propTypes /* remove-proptypes */ = {

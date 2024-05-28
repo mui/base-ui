@@ -3,27 +3,21 @@ const fse = require('fs-extra');
 
 const errorCodesPath = path.resolve(__dirname, './public/static/error-codes.json');
 
-const alias = {
-  docs: '../node_modules/@mui/monorepo/docs',
-  'docs-base': './',
-};
-
 const { version: transformRuntimeVersion } = fse.readJSONSync(
-  require.resolve('@babel/runtime-corejs2/package.json'),
+  require.resolve('@babel/runtime-corejs3/package.json'),
 );
 
 module.exports = {
-  // TODO: Enable once nextjs uses babel 7.13
-  // assumptions: {
-  //   noDocumentAll: true,
-  // },
+  assumptions: {
+    noDocumentAll: true,
+  },
   presets: [
     // backport of https://github.com/vercel/next.js/pull/9511
     [
       'next/babel',
       {
         'preset-react': { runtime: 'automatic' },
-        'transform-runtime': { corejs: 2, version: transformRuntimeVersion },
+        'transform-runtime': { corejs: 3, version: transformRuntimeVersion },
       },
     ],
   ],
@@ -34,13 +28,6 @@ module.exports = {
         muiError: {
           errorCodesPath,
         },
-      },
-    ],
-    [
-      'babel-plugin-module-resolver',
-      {
-        alias,
-        transformFunctions: ['require', 'require.context'],
       },
     ],
     'babel-plugin-optimize-clsx',

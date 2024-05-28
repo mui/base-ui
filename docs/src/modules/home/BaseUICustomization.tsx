@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import * as BaseSwitch from '@base_ui/react/Switch';
-import { useSwitch, UseSwitchParameters } from '@base_ui/react/useSwitch';
+import { useSwitchRoot, UseSwitchRootParameters } from '@base_ui/react/Switch';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
+import { HighlightedCode } from '@mui/docs/HighlightedCode';
 import SvgTwinkle from 'docs/src/icons/SvgTwinkle';
 import Section from 'docs/src/layouts/Section';
 import Highlighter from 'docs/src/components/action/Highlighter';
@@ -13,12 +14,10 @@ import GradientText from 'docs/src/components/typography/GradientText';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import FlashCode from 'docs/src/components/animation/FlashCode';
 import Frame from 'docs/src/components/action/Frame';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 
 const code = `
 import * as Switch from '@base_ui/react/Switch';
-import { useSwitch } from '@base_ui/react/useSwitch';
+import { useSwitchRoot } from '@base_ui/react/Switch';
 import { styled } from '@mui/system';
 
 const StyledSwitchRoot = styled('button')(\`
@@ -83,7 +82,7 @@ const StyledSwitchThumb = styled('span')\`
 \`;
 
 function SwitchFromHook(props) {
-  const { getInputProps, getButtonProps, checked, disabled } = useSwitch(props);
+  const { getInputProps, getButtonProps, checked, disabled } = useSwitchRoot(props);
 
   const stateAttributes = {
     'data-state': checked ? 'checked' : 'unchecked',
@@ -176,8 +175,8 @@ const StyledSwitchThumb = styled('span')`
   }
 `;
 
-function SwitchFromHook(props: UseSwitchParameters) {
-  const { getInputProps, getButtonProps, checked } = useSwitch(props);
+function SwitchFromHook(props: UseSwitchRootParameters) {
+  const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
   const stateAttributes = {
     'data-state': checked ? 'checked' : 'unchecked',
@@ -276,12 +275,7 @@ export default function BaseUICustomization() {
             >
               <Box sx={{ position: 'relative', '&& pre': { bgcolor: 'transparent' } }}>
                 <Box sx={{ position: 'relative', zIndex: 1 }}>
-                  <HighlightedCode
-                    copyButtonHidden
-                    component={MarkdownElement}
-                    code={code}
-                    language="jsx"
-                  />
+                  <HighlightedCode copyButtonHidden plainStyle code={code} language="jsx" />
                 </Box>
                 <FlashCode startLine={startLine[index]} endLine={endLine[index]} sx={{ mx: -1 }} />
               </Box>

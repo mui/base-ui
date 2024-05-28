@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Checkbox component and hook
 components: CheckboxRoot, CheckboxIndicator
-hooks: useCheckbox
+hooks: useCheckboxRoot
 githubLabel: 'component: checkbox'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
 ---
