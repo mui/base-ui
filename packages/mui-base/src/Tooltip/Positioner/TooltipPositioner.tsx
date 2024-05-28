@@ -45,7 +45,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     hideWhenDetached = false,
     keepMounted = false,
     sticky = false,
-    followCursorAxis = 'none',
     ...otherProps
   } = props;
 
@@ -57,6 +56,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     mounted,
     setMounted,
     rootContext,
+    followCursorAxis,
   } = useTooltipRootContext();
 
   const positioner = useTooltipPositioner({
@@ -197,11 +197,6 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
   /**
    * If `true`, the tooltip will be hidden if it is detached from its anchor element due to
    * differing clipping contexts.

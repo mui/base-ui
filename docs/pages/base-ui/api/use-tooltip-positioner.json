@@ -38,8 +38,8 @@
     },
     "followCursorAxis": {
       "type": {
-        "name": "&#39;both&#39; | &#39;none&#39; | &#39;x&#39; | &#39;y&#39;",
-        "description": "&#39;both&#39; | &#39;none&#39; | &#39;x&#39; | &#39;y&#39;"
+        "name": "&#39;none&#39; | &#39;x&#39; | &#39;y&#39; | &#39;both&#39;",
+        "description": "&#39;none&#39; | &#39;x&#39; | &#39;y&#39; | &#39;both&#39;"
       },
       "default": "'none'"
     },

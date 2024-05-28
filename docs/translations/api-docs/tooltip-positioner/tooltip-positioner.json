@@ -21,9 +21,6 @@
     "container": {
       "description": "The container element to which the tooltip positioner is appended to."
     },
-    "followCursorAxis": {
-      "description": "Determines which axis the tooltip should follow the cursor on."
-    },
     "hideWhenDetached": {
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },

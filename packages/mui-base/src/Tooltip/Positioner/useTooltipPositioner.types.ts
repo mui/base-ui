@@ -70,11 +70,6 @@ export interface TooltipPositionerParameters {
    */
   arrowPadding?: number;
   /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis?: 'both' | 'none' | 'x' | 'y';
-  /**
    * If `true`, the tooltip popup remains mounted in the DOM even when closed.
    * @default false
    */
@@ -117,6 +112,11 @@ export interface UseTooltipPositionerParameters extends TooltipPositionerParamet
    * The tooltip root context.
    */
   rootContext?: FloatingRootContext;
+  /**
+   * Determines which axis the tooltip should follow the cursor on.
+   * @default 'none'
+   */
+  followCursorAxis?: 'none' | 'x' | 'y' | 'both';
 }
 
 export interface UseTooltipPositionerReturnValue {
