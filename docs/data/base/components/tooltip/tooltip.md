@@ -1,8 +1,8 @@
 ---
 productId: base-ui
 title: React Tooltip component
-components: TooltipProvider, TooltipRoot, TooltipTrigger, TooltipPopupRoot, TooltipPopup, TooltipArrow
-hooks: useTooltipRoot, useTooltipPopup
+components: TooltipProvider, TooltipRoot, TooltipTrigger, TooltipPositioner, TooltipPopup, TooltipArrow
+hooks: useTooltipRoot, useTooltipPositioner
 githubLabel: 'component: tooltip'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 ---
@@ -49,19 +49,24 @@ import * as Tooltip from '@base_ui/react/Tooltip';
 
 Tooltip is implemented using a collection of related components:
 
-- `<Tooltip.Root />` is a top-level component that wraps all other components.
+- `<Tooltip.Provider />` wraps around `<App />` or a group of `<Tooltip.Root>`s.
+- `<Tooltip.Root />` is a top-level component that wraps the other components.
 - `<Tooltip.Trigger />` renders the trigger element.
+- `<Tooltip.Positioner />` renders the tooltip's positioning element.
 - `<Tooltip.Popup />` renders the tooltip popup itself.
 - `<Tooltip.Arrow />` renders an optional pointing arrow, placed inside the popup.
 
 ```tsx
-<Tooltip.Root>
-  <Tooltip.Trigger />
-  <Tooltip.Popup>
-    <Tooltip.Arrow />
-    Tooltip
-  </Tooltip.Popup>
-</Tooltip.Root>
+<Tooltip.Provider>
+  <Tooltip.Root>
+    <Tooltip.Trigger />
+    <Tooltip.Positioner>
+      <Tooltip.Popup>
+        <Tooltip.Arrow />
+      </Tooltip.Popup>
+    </Tooltip.Positioner>
+  </Tooltip.Root>
+</Tooltip.Provider>
 ```
 
 ## Provider
@@ -100,16 +105,18 @@ By default, the tooltip is placed on the top side of its trigger, the default an
 ```jsx
 <Tooltip.Root>
   <Tooltip.Trigger />
-  <Tooltip.Popup side="right">Tooltip</Tooltip.Popup>
+  <Tooltip.Positioner side="right">
+    <Tooltip.Popup>Tooltip</Tooltip.Popup>
+  </Tooltip.Positioner>
 </Tooltip.Root>
 ```
 
 You can also change the alignment of the tooltip in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `alignment` prop:
 
 ```jsx
-<Tooltip.Popup side="right" alignment="start">
-  Tooltip
-</Tooltip.Popup>
+<Tooltip.Positioner side="right" alignment="start">
+  <Tooltip.Popup>Tooltip</Tooltip.Popup>
+</Tooltip.Positioner>
 ```
 
 Due to collision detection, the tooltip may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
@@ -117,9 +124,11 @@ Due to collision detection, the tooltip may change its placement to avoid overfl
 To access the true rendered values, which may change as the result of a collision, the content element receives data attributes:
 
 ```jsx
-// Rendered HTML
-<div data-side="left" data-alignment="end">
-  Content
+// Rendered HTML (simplified)
+<div>
+  <div data-side="left" data-alignment="end">
+    Tooltip
+  </div>
 </div>
 ```
 
@@ -130,7 +139,7 @@ This allows you to conditionally style the tooltip based on its rendered side or
 The `sideOffset` prop creates a gap between the anchor and tooltip popup, while `alignmentOffset` slides the tooltip popup from its alignment, acting logically for `start` and `end` alignments.
 
 ```jsx
-<Tooltip.Popup sideOffset={10} alignmentOffset={10}>
+<Tooltip.Positioner sideOffset={10} alignmentOffset={10}>
 ```
 
 ## Delay
@@ -167,10 +176,12 @@ function App() {
 To add an arrow (caret or triangle) inside the tooltip content that points toward the center of the anchor element, use the `Tooltip.Arrow` component:
 
 ```js
-<Tooltip.Popup>
-  Tooltip
-  <Tooltip.Arrow />
-</Tooltip.Popup>
+<Tooltip.Positioner>
+  <Tooltip.Popup>
+    Tooltip
+    <Tooltip.Arrow />
+  </Tooltip.Popup>
+</Tooltip.Positioner>
 ```
 
 It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
@@ -186,7 +197,7 @@ The tooltip can follow the cursor on both axes or one axis using the `followCurs
 By default, the `Trigger` acts as the anchor. This can be changed to another element, either virtual or real:
 
 ```js
-<Tooltip.Popup
+<Tooltip.Positioner
   // Element
   anchor={domElement}
   // React ref
@@ -197,13 +208,13 @@ By default, the `Trigger` acts as the anchor. This can be changed to another ele
     contextElement: domElement, // optional
   }}
 >
-  Content
-</Tooltip.Popup>
+  {/* ... */}
+</Tooltip.Positioner>
 ```
 
 ## Styling
 
-The `Tooltip.Popup` element receives the following CSS variables:
+The `Tooltip.Positioner` element receives the following CSS variables, which can be used by `Tooltip.Popup`:
 
 - `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the tooltip with its anchor.
 - `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the tooltip with its anchor.
@@ -211,7 +222,7 @@ The `Tooltip.Popup` element receives the following CSS variables:
 - `--available-height`: Specifies the available height of the popup element before it overflows the viewport.
 - `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
-By default, `maxWidth` and `maxHeight` are already specified using `--available-{width,height}` to prevent the tooltip from being too big to fit on the screen.
+By default, `maxWidth` and `maxHeight` are already specified on the positioner using `--available-{width,height}` to prevent the tooltip from being too big to fit on the screen.
 
 ## Animations
 
@@ -318,9 +329,19 @@ function App() {
       <Tooltip.Trigger>Trigger</Tooltip.Trigger>
       <AnimatePresence>
         {open && (
-          <Tooltip.Popup keepMounted render={<motion.div /* motion props */ />}>
-            Tooltip
-          </Tooltip.Popup>
+          <Tooltip.Positioner keepMounted>
+            <Tooltip.Popup
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              Tooltip
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
         )}
       </AnimatePresence>
     </Tooltip.Root>

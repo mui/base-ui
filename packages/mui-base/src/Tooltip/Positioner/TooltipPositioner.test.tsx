@@ -3,10 +3,10 @@ import * as Tooltip from '@base_ui/react/Tooltip';
 import { createRenderer } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Tooltip.PopupRoot />', () => {
+describe('<Tooltip.Positioner />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Tooltip.PopupRoot />, () => ({
+  describeConformance(<Tooltip.Positioner />, () => ({
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {

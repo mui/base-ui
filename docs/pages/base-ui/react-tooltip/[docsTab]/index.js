@@ -5,11 +5,11 @@ import * as pageProps from 'docs-base/data/base/components/tooltip/tooltip.md?@m
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import TooltipArrowApiJsonPageContent from '../../api/tooltip-arrow.json';
 import TooltipPopupApiJsonPageContent from '../../api/tooltip-popup.json';
-import TooltipPopupRootApiJsonPageContent from '../../api/tooltip-popup-root.json';
+import TooltipPositionerApiJsonPageContent from '../../api/tooltip-positioner.json';
 import TooltipProviderApiJsonPageContent from '../../api/tooltip-provider.json';
 import TooltipRootApiJsonPageContent from '../../api/tooltip-root.json';
 import TooltipTriggerApiJsonPageContent from '../../api/tooltip-trigger.json';
-import useTooltipPopupApiJsonPageContent from '../../api/use-tooltip-popup.json';
+import useTooltipPositionerApiJsonPageContent from '../../api/use-tooltip-positioner.json';
 import useTooltipRootApiJsonPageContent from '../../api/use-tooltip-root.json';
 
 export default function Page(props) {
@@ -43,12 +43,12 @@ export const getStaticProps = () => {
   );
   const TooltipPopupApiDescriptions = mapApiPageTranslations(TooltipPopupApiReq);
 
-  const TooltipPopupRootApiReq = require.context(
-    'docs-base/translations/api-docs/tooltip-popup-root',
+  const TooltipPositionerApiReq = require.context(
+    'docs-base/translations/api-docs/tooltip-positioner',
     false,
-    /\.\/tooltip-popup-root.*.json$/,
+    /\.\/tooltip-positioner.*.json$/,
   );
-  const TooltipPopupRootApiDescriptions = mapApiPageTranslations(TooltipPopupRootApiReq);
+  const TooltipPositionerApiDescriptions = mapApiPageTranslations(TooltipPositionerApiReq);
 
   const TooltipProviderApiReq = require.context(
     'docs-base/translations/api-docs/tooltip-provider',
@@ -71,12 +71,12 @@ export const getStaticProps = () => {
   );
   const TooltipTriggerApiDescriptions = mapApiPageTranslations(TooltipTriggerApiReq);
 
-  const useTooltipPopupApiReq = require.context(
-    'docs-base/translations/api-docs/use-tooltip-popup',
+  const useTooltipPositionerApiReq = require.context(
+    'docs-base/translations/api-docs/use-tooltip-positioner',
     false,
-    /\.\/use-tooltip-popup.*.json$/,
+    /\.\/use-tooltip-positioner.*.json$/,
   );
-  const useTooltipPopupApiDescriptions = mapApiPageTranslations(useTooltipPopupApiReq);
+  const useTooltipPositionerApiDescriptions = mapApiPageTranslations(useTooltipPositionerApiReq);
 
   const useTooltipRootApiReq = require.context(
     'docs-base/translations/api-docs/use-tooltip-root',
@@ -90,7 +90,7 @@ export const getStaticProps = () => {
       componentsApiDescriptions: {
         TooltipArrow: TooltipArrowApiDescriptions,
         TooltipPopup: TooltipPopupApiDescriptions,
-        TooltipPopupRoot: TooltipPopupRootApiDescriptions,
+        TooltipPositioner: TooltipPositionerApiDescriptions,
         TooltipProvider: TooltipProviderApiDescriptions,
         TooltipRoot: TooltipRootApiDescriptions,
         TooltipTrigger: TooltipTriggerApiDescriptions,
@@ -98,17 +98,17 @@ export const getStaticProps = () => {
       componentsApiPageContents: {
         TooltipArrow: TooltipArrowApiJsonPageContent,
         TooltipPopup: TooltipPopupApiJsonPageContent,
-        TooltipPopupRoot: TooltipPopupRootApiJsonPageContent,
+        TooltipPositioner: TooltipPositionerApiJsonPageContent,
         TooltipProvider: TooltipProviderApiJsonPageContent,
         TooltipRoot: TooltipRootApiJsonPageContent,
         TooltipTrigger: TooltipTriggerApiJsonPageContent,
       },
       hooksApiDescriptions: {
-        useTooltipPopup: useTooltipPopupApiDescriptions,
+        useTooltipPositioner: useTooltipPositionerApiDescriptions,
         useTooltipRoot: useTooltipRootApiDescriptions,
       },
       hooksApiPageContents: {
-        useTooltipPopup: useTooltipPopupApiJsonPageContent,
+        useTooltipPositioner: useTooltipPositionerApiJsonPageContent,
         useTooltipRoot: useTooltipRootApiJsonPageContent,
       },
     },

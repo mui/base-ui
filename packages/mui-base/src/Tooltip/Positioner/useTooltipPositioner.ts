@@ -17,9 +17,9 @@ import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type {
-  UseTooltipPopupParameters,
-  UseTooltipPopupReturnValue,
-} from './useTooltipPopup.types';
+  UseTooltipPositionerParameters,
+  UseTooltipPositionerReturnValue,
+} from './useTooltipPositioner.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useLatestRef } from '../../utils/useLatestRef';
 
@@ -32,9 +32,11 @@ import { useLatestRef } from '../../utils/useLatestRef';
  *
  * API:
  *
- * - [useTooltipPopup API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-popup)
+ * - [useTooltipPositioner API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-positioner)
  */
-export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPopupReturnValue {
+export function useTooltipPositioner(
+  params: UseTooltipPositionerParameters,
+): UseTooltipPositionerReturnValue {
   const {
     open,
     anchor,
@@ -189,39 +191,40 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
   const renderedAlignment = getAlignment(renderedPlacement) || 'center';
   const isHidden = hideWhenDetached && middlewareData.hide?.referenceHidden;
 
-  const getPopupProps: UseTooltipPopupReturnValue['getPopupProps'] = React.useCallback(
-    (externalProps = {}) => {
-      const hiddenStyles: React.CSSProperties = {};
+  const getPositionerProps: UseTooltipPositionerReturnValue['getPositionerProps'] =
+    React.useCallback(
+      (externalProps = {}) => {
+        const hiddenStyles: React.CSSProperties = {};
 
-      if (isHidden) {
-        hiddenStyles.visibility = 'hidden';
-      }
+        if (isHidden) {
+          hiddenStyles.visibility = 'hidden';
+        }
 
-      if ((keepMounted && !open) || isHidden) {
-        hiddenStyles.pointerEvents = 'none';
-      }
+        if ((keepMounted && !open) || isHidden) {
+          hiddenStyles.pointerEvents = 'none';
+        }
 
-      if (followCursorAxis === 'both') {
-        hiddenStyles.pointerEvents = 'none';
-      }
+        if (followCursorAxis === 'both') {
+          hiddenStyles.pointerEvents = 'none';
+        }
 
-      return mergeReactProps(
-        externalProps,
-        getRootPopupProps({
-          style: {
-            ...floatingStyles,
-            ...hiddenStyles,
-            maxWidth: 'var(--available-width)',
-            maxHeight: 'var(--available-height)',
-            zIndex: 2147483647, // max z-index
-          },
-        }),
-      );
-    },
-    [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, open, keepMounted],
-  );
+        return mergeReactProps(
+          externalProps,
+          getRootPopupProps({
+            style: {
+              ...floatingStyles,
+              ...hiddenStyles,
+              maxWidth: 'var(--available-width)',
+              maxHeight: 'var(--available-height)',
+              zIndex: 2147483647, // max z-index
+            },
+          }),
+        );
+      },
+      [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, open, keepMounted],
+    );
 
-  const getArrowProps: UseTooltipPopupReturnValue['getArrowProps'] = React.useCallback(
+  const getArrowProps: UseTooltipPositionerReturnValue['getArrowProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
         style: {
@@ -239,13 +242,13 @@ export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPo
   return React.useMemo(
     () => ({
       mounted,
-      getPopupProps,
+      getPositionerProps,
       getArrowProps,
       arrowRef,
       arrowUncentered,
       side: renderedSide,
       alignment: renderedAlignment,
     }),
-    [mounted, getPopupProps, getArrowProps, arrowUncentered, renderedSide, renderedAlignment],
+    [mounted, getPositionerProps, getArrowProps, arrowUncentered, renderedSide, renderedAlignment],
   );
 }

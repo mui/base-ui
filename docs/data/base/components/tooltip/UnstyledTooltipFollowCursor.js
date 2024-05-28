@@ -7,7 +7,9 @@ export default function UnstyledTooltipFollowCursor() {
     <div style={{ display: 'flex', gap: 12 }}>
       <Tooltip.Root followCursorAxis="both">
         <AnchorButton>Anchor</AnchorButton>
-        <TooltipPopup sideOffset={5}>Tooltip</TooltipPopup>
+        <Tooltip.Positioner sideOffset={5}>
+          <TooltipPopup>Tooltip</TooltipPopup>
+        </Tooltip.Positioner>
       </Tooltip.Root>
     </div>
   );

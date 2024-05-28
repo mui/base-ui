@@ -42,7 +42,7 @@ export interface TooltipRootProps {
   defaultOpen?: boolean;
   /**
    * The delay in milliseconds until the tooltip content is opened.
-   * @default 200
+   * @default 300
    */
   delay?: number;
   /**

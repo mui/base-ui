@@ -46,7 +46,7 @@ export interface UseTooltipRootParameters {
   followCursorAxis?: 'none' | 'x' | 'y' | 'both';
   /**
    * The delay in milliseconds until the tooltip popup is opened.
-   * @default 200
+   * @default 300
    */
   delay?: number;
   /**

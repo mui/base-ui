@@ -4,13 +4,37 @@ import { styled } from '@mui/system';
 
 export default function UnstyledTooltipIntroduction() {
   return (
-    <Tooltip.Root>
-      <AnchorButton>Anchor</AnchorButton>
-      <TooltipPopup sideOffset={7}>
-        Tooltip
-        <TooltipArrow />
-      </TooltipPopup>
-    </Tooltip.Root>
+    <div style={{ display: 'flex', gap: 10 }}>
+      <Tooltip.Provider closeDelay={100}>
+        <Tooltip.Root>
+          <AnchorButton aria-label="bold">B</AnchorButton>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup>
+              Bold
+              <TooltipArrow />
+            </TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <AnchorButton aria-label="italic">I</AnchorButton>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup>
+              Italic
+              <TooltipArrow />
+            </TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <AnchorButton aria-label="underline">U</AnchorButton>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup>
+              Underline
+              <TooltipArrow />
+            </TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+    </div>
   );
 }
 
@@ -47,6 +71,18 @@ export const AnchorButton = styled(Tooltip.Trigger)`
   &:hover,
   &[data-state='open'] {
     background: ${blue[800]};
+  }
+
+  &[aria-label='bold'] {
+    font-weight: bold;
+  }
+
+  &[aria-label='italics'] {
+    font-style: italic;
+  }
+
+  &[aria-label='underline'] {
+    text-decoration: underline;
   }
 `;
 

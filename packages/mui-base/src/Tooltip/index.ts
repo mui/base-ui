@@ -1,11 +1,11 @@
 export { TooltipRoot as Root } from './Root/TooltipRoot';
 export { TooltipTrigger as Trigger } from './Trigger/TooltipTrigger';
-export { TooltipPopupRoot as PopupRoot } from './PopupRoot/TooltipPopupRoot';
+export { TooltipPositioner as Positioner } from './Positioner/TooltipPositioner';
 export { TooltipPopup as Popup } from './Popup/TooltipPopup';
 export { TooltipArrow as Arrow } from './Arrow/TooltipArrow';
 export { TooltipProvider as Provider } from './Provider/TooltipProvider';
 export { useTooltipRoot as useRoot } from './Root/useTooltipRoot';
-export { useTooltipPopup as usePopup } from './Popup/useTooltipPopup';
+export { useTooltipPositioner as usePositioner } from './Positioner/useTooltipPositioner';
 
 export type { TooltipRootProps as RootProps } from './Root/TooltipRoot.types';
 export type {
@@ -13,9 +13,9 @@ export type {
   TooltipTriggerOwnerState as TriggerOwnerState,
 } from './Trigger/TooltipTrigger.types';
 export type {
-  TooltipPopupRootProps as PopupRootProps,
-  TooltipPopupRootOwnerState as PopupRootOwnerState,
-} from './PopupRoot/TooltipPopupRoot.types';
+  TooltipPositionerProps as PositionerProps,
+  TooltipPositionerOwnerState as PositionerOwnerState,
+} from './Positioner/TooltipPositioner.types';
 export type {
   TooltipPopupProps as PopupProps,
   TooltipPopupOwnerState as PopupOwnerState,
@@ -30,6 +30,6 @@ export type {
   UseTooltipRootReturnValue as UseRootReturnValue,
 } from './Root/useTooltipRoot.types';
 export type {
-  UseTooltipPopupParameters as UsePopupParameters,
-  UseTooltipPopupReturnValue as UsePopupReturnValue,
-} from './Popup/useTooltipPopup.types';
+  UseTooltipPositionerParameters as UsePositionerParameters,
+  UseTooltipPositionerReturnValue as UsePositionerReturnValue,
+} from './Positioner/useTooltipPositioner.types';

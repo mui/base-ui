@@ -26,7 +26,7 @@ function TooltipRoot(props: TooltipRootProps) {
     followCursorAxis = 'none',
   } = props;
 
-  const delayWithDefault = delay ?? 200;
+  const delayWithDefault = delay ?? 300;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
@@ -125,7 +125,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the tooltip content is opened.
-   * @default 200
+   * @default 300
    */
   delay: PropTypes.number,
   /**

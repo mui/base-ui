@@ -2,7 +2,7 @@ import type * as React from 'react';
 import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/BaseUI.types';
 
-export interface TooltipPopupParameters {
+export interface TooltipPositionerParameters {
   /**
    * The anchor element of the tooltip popup.
    */
@@ -81,7 +81,7 @@ export interface TooltipPopupParameters {
   keepMounted?: boolean;
 }
 
-export interface UseTooltipPopupParameters extends TooltipPopupParameters {
+export interface UseTooltipPositionerParameters extends TooltipPositionerParameters {
   /**
    * The type of open delay.
    * @default 'rest'
@@ -119,13 +119,13 @@ export interface UseTooltipPopupParameters extends TooltipPopupParameters {
   rootContext?: FloatingRootContext;
 }
 
-export interface UseTooltipPopupReturnValue {
+export interface UseTooltipPositionerReturnValue {
   /**
-   * Props to spread on the tooltip content element.
+   * Props to spread on the positioner element.
    */
-  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * Props to spread on the arrow element.
+   * Props to spread on the popup arrow element.
    */
   getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**

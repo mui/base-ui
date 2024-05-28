@@ -44,7 +44,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     closeDelay,
   } = params;
 
-  const delayWithDefault = delay ?? 200;
+  const delayWithDefault = delay ?? 300;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
@@ -106,19 +106,20 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
   }
 
   const computedRestMs = delayType === 'rest' ? openGroupDelay || delayWithDefault : undefined;
-  let computedOpenDelay: number | undefined = delayWithDefault;
+  let computedOpenDelay: number | undefined = delayType === 'hover' ? delayWithDefault : undefined;
   let computedCloseDelay: number | undefined = closeDelayWithDefault;
 
-  if (delay == null) {
-    if (groupDelay === 0) {
-      // No provider is present.
-      computedOpenDelay = delayType === 'hover' ? delayWithDefault : undefined;
+  if (delayType === 'hover') {
+    if (delay == null) {
+      computedOpenDelay =
+        groupDelay === 0
+          ? // A provider is not present.
+            delayWithDefault
+          : // A provider is present.
+            openGroupDelay;
     } else {
-      // A provider is present.
-      computedOpenDelay = openGroupDelay;
+      computedOpenDelay = delay;
     }
-  } else {
-    computedOpenDelay = delay;
   }
 
   // A provider is present and the close delay is not set.

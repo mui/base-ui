@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { TooltipArrowOwnerState, TooltipArrowProps } from './TooltipArrow.types';
-import { useTooltipPopupContext } from '../Popup/TooltipPopupContext';
 import { tooltipArrowStyleHookMapping } from './styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
+import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
 
 /**
  * The tooltip arrow caret element.
@@ -25,7 +25,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open, arrowRef, side, alignment, arrowUncentered, getArrowProps } =
-    useTooltipPopupContext();
+    useTooltipPositionerContext();
 
   const ownerState: TooltipArrowOwnerState = React.useMemo(
     () => ({

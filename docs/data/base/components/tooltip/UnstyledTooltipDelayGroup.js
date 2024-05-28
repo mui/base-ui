@@ -8,11 +8,15 @@ export default function UnstyledTooltipDelayGroup() {
       <Tooltip.Provider delay={1000} closeDelay={500}>
         <Tooltip.Root>
           <AnchorButton>Anchor A</AnchorButton>
-          <TooltipPopup sideOffset={5}>Tooltip A</TooltipPopup>
+          <Tooltip.Positioner sideOffset={5}>
+            <TooltipPopup>Tooltip A</TooltipPopup>
+          </Tooltip.Positioner>
         </Tooltip.Root>
         <Tooltip.Root>
           <AnchorButton>Anchor B</AnchorButton>
-          <TooltipPopup sideOffset={5}>Tooltip B</TooltipPopup>
+          <Tooltip.Positioner sideOffset={5}>
+            <TooltipPopup>Tooltip B</TooltipPopup>
+          </Tooltip.Positioner>
         </Tooltip.Root>
       </Tooltip.Provider>
     </div>
