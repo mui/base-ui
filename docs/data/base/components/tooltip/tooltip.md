@@ -216,7 +216,10 @@ By default, the `Trigger` acts as the anchor, but this can be changed to another
 <Tooltip.Positioner
   anchor={{
     getBoundingClientRect: () => DOMRect,
-    contextElement: domNode, // optional
+    // `contextElement` is an optional but recommended property when `getBoundingClientRect` is
+    // derived from a real element, to ensure collision detection and position updates work as
+    // expected in certain DOM trees.
+    contextElement: domNode,
   }}
 >
 ```
