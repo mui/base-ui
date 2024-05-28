@@ -77,7 +77,7 @@ export const AnchorButton = styled(Tooltip.Trigger)`
     font-weight: bold;
   }
 
-  &[aria-label='italics'] {
+  &[aria-label='italic'] {
     font-style: italic;
   }
 
