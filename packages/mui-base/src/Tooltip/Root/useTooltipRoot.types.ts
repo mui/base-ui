@@ -92,7 +92,7 @@ export interface UseTooltipRootReturnValue {
   /**
    * Prop getter to spread root props on the popup element.
    */
-  getRootPopupProps: UseInteractionsReturn['getFloatingProps'];
+  getRootPositionerProps: UseInteractionsReturn['getFloatingProps'];
   /**
    * The root context object.
    */

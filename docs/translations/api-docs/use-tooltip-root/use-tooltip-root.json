@@ -31,7 +31,7 @@
     "triggerElement": { "description": "The trigger element. Store in state." }
   },
   "returnValueDescriptions": {
-    "getRootPopupProps": {
+    "getRootPositionerProps": {
       "description": "Prop getter to spread root props on the popup element."
     },
     "getTriggerProps": { "description": "Prop getter to spread props on the trigger element." },

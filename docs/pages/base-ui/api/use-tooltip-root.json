@@ -37,7 +37,7 @@
     }
   },
   "returnValue": {
-    "getRootPopupProps": {
+    "getRootPositionerProps": {
       "type": {
         "name": "UseInteractionsReturn[&#39;getFloatingProps&#39;]",
         "description": "UseInteractionsReturn[&#39;getFloatingProps&#39;]"

@@ -144,7 +144,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     axis: followCursorAxis === 'none' ? undefined : followCursorAxis,
   });
 
-  const { getReferenceProps: getTriggerProps, getFloatingProps: getRootPopupProps } =
+  const { getReferenceProps: getTriggerProps, getFloatingProps: getRootPositionerProps } =
     useInteractions([hover, focus, dismiss, clientPoint]);
 
   return React.useMemo(
@@ -154,7 +154,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       mounted,
       setMounted,
       getTriggerProps,
-      getRootPopupProps,
+      getRootPositionerProps,
       rootContext: context,
       instantType,
       transitionStatus,
@@ -165,7 +165,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       setMounted,
       setOpen,
       getTriggerProps,
-      getRootPopupProps,
+      getRootPositionerProps,
       context,
       instantType,
       transitionStatus,

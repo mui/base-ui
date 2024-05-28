@@ -52,7 +52,7 @@ export function useTooltipPositioner(
     keepMounted = false,
     arrowPadding = 5,
     mounted = true,
-    getRootPopupProps,
+    getRootPositionerProps,
     rootContext,
     followCursorAxis = 'none',
   } = params;
@@ -210,7 +210,7 @@ export function useTooltipPositioner(
 
         return mergeReactProps(
           externalProps,
-          getRootPopupProps({
+          getRootPositionerProps({
             style: {
               ...floatingStyles,
               ...hiddenStyles,
@@ -221,7 +221,7 @@ export function useTooltipPositioner(
           }),
         );
       },
-      [getRootPopupProps, floatingStyles, isHidden, followCursorAxis, open, keepMounted],
+      [getRootPositionerProps, floatingStyles, isHidden, followCursorAxis, open, keepMounted],
     );
 
   const getArrowProps: UseTooltipPositionerReturnValue['getArrowProps'] = React.useCallback(

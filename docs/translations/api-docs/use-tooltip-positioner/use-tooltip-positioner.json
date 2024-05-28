@@ -25,7 +25,9 @@
     "followCursorAxis": {
       "description": "Determines which axis the tooltip should follow the cursor on."
     },
-    "getRootPopupProps": { "description": "The props to spread on the tooltip popup element." },
+    "getRootPositionerProps": {
+      "description": "The props to spread on the tooltip popup element."
+    },
     "hideWhenDetached": {
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },

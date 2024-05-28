@@ -18,7 +18,7 @@ export interface TooltipRootContextValue {
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   getTriggerProps: UseInteractionsReturn['getReferenceProps'];
-  getRootPopupProps: UseInteractionsReturn['getFloatingProps'];
+  getRootPositionerProps: UseInteractionsReturn['getFloatingProps'];
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   rootContext: FloatingRootContext;
   followCursorAxis: 'none' | 'x' | 'y' | 'both';

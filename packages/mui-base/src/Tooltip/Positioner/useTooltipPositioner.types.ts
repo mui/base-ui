@@ -95,7 +95,7 @@ export interface UseTooltipPositionerParameters extends TooltipPositionerParamet
   /**
    * The props to spread on the tooltip popup element.
    */
-  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
    * If `true`, the tooltip is in an instant phase where animations should be removed.
    */

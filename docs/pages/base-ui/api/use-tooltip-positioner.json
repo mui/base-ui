@@ -1,6 +1,6 @@
 {
   "parameters": {
-    "getRootPopupProps": {
+    "getRootPositionerProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
         "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
