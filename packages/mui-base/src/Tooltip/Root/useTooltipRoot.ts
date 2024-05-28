@@ -74,6 +74,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     elements: { reference: triggerElement, floating: popupElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
+      setOpen(openValue, eventValue, reasonValue);
+
       const isFocusOpen = openValue && reasonValue === 'focus';
       const isDismissClose =
         !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
@@ -91,8 +93,6 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
           setMounted(false);
         }
       }
-
-      setOpen(openValue, eventValue, reasonValue);
     },
   });
 
