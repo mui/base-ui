@@ -16,7 +16,7 @@
       "description": "Determines which axis the tooltip should follow the cursor on."
     },
     "hoverable": {
-      "description": "Whether you can move from the trigger to the tooltip without it closing."
+      "description": "Whether the user can move their cursor from the trigger to the tooltip popup without it closing."
     },
     "onOpenChange": {
       "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."

@@ -22,20 +22,11 @@
       }
     },
     "arrowPadding": { "type": { "name": "number", "description": "number" }, "default": "5" },
-    "closeDelay": { "type": { "name": "number", "description": "number" }, "default": "0" },
     "collisionBoundary": {
       "type": { "name": "Boundary", "description": "Boundary" },
       "default": "'clippingAncestors'"
     },
     "collisionPadding": { "type": { "name": "Padding", "description": "Padding" }, "default": "5" },
-    "delay": { "type": { "name": "number", "description": "number" }, "default": "0" },
-    "delayType": {
-      "type": {
-        "name": "&#39;rest&#39; | &#39;hover&#39;",
-        "description": "&#39;rest&#39; | &#39;hover&#39;"
-      },
-      "default": "'rest'"
-    },
     "followCursorAxis": {
       "type": {
         "name": "&#39;none&#39; | &#39;x&#39; | &#39;y&#39; | &#39;both&#39;",

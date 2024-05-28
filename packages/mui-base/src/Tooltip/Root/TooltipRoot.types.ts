@@ -58,7 +58,8 @@ export interface TooltipRootProps {
    */
   delayType?: 'rest' | 'hover';
   /**
-   * Whether you can move from the trigger to the tooltip without it closing.
+   * Whether the user can move their cursor from the trigger to the tooltip popup without it
+   * closing.
    * @default true
    */
   hoverable?: boolean;

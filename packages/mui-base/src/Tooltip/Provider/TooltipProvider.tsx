@@ -35,7 +35,7 @@ TooltipProvider.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the tooltip popup is closed.
+   * he delay in milliseconds until tooltips within the group are closed.
    * @default 0
    */
   closeDelay: PropTypes.number,

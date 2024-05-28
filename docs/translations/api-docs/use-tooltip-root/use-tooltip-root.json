@@ -2,7 +2,7 @@
   "hookDescription": "Manages the root state for a tooltip.",
   "parametersDescriptions": {
     "animated": {
-      "description": "If <code>true</code>, the tooltip waits for animations and sets animation-related attributes. Useful to disable animation-related logic in tests to remove async behavior."
+      "description": "Whether the tooltip can animate, adding animation-related attributes and allowing for exit animations to play. Useful to disable in tests to remove async behavior."
     },
     "closeDelay": { "description": "The delay in milliseconds until the tooltip popup is closed." },
     "defaultOpen": {
@@ -10,7 +10,7 @@
     },
     "delay": { "description": "The delay in milliseconds until the tooltip popup is opened." },
     "delayType": {
-      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait once the user&#39;s cursor has entered the trigger."
+      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
     },
     "followCursorAxis": {
       "description": "Determines which axis the tooltip should follow the cursor on."
@@ -19,7 +19,7 @@
       "description": "If <code>true</code>, the user can move from the trigger toward the tooltip without it closing."
     },
     "keepMounted": {
-      "description": "If <code>true</code>, the tooltip popup will remain mounted in the DOM."
+      "description": "If <code>true</code>, the tooltip popup remains mounted in the DOM even when closed."
     },
     "onOpenChange": {
       "description": "Callback fired when the tooltip popup is requested to be opened or closed."
@@ -32,7 +32,7 @@
   },
   "returnValueDescriptions": {
     "getRootPositionerProps": {
-      "description": "Prop getter to spread root props on the popup element."
+      "description": "Prop getter to spread root props on the positioner element."
     },
     "getTriggerProps": { "description": "Prop getter to spread props on the trigger element." },
     "instantType": {

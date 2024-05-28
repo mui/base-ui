@@ -34,8 +34,8 @@ export interface UseTooltipRootParameters {
    */
   hoverable?: boolean;
   /**
-   * If `true`, the tooltip waits for animations and sets animation-related attributes. Useful to
-   * disable animation-related logic in tests to remove async behavior.
+   * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
+   * animations to play. Useful to disable in tests to remove async behavior.
    * @default true
    */
   animated?: boolean;
@@ -57,12 +57,12 @@ export interface UseTooltipRootParameters {
   /**
    * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
    * rest on the trigger before the tooltip popup is opened. `hover` means the `delay` represents
-   * how long to wait once the user's cursor has entered the trigger.
+   * how long to wait as soon as the user's cursor has entered the trigger.
    * @default 'rest'
    */
   delayType?: 'rest' | 'hover';
   /**
-   * If `true`, the tooltip popup will remain mounted in the DOM.
+   * If `true`, the tooltip popup remains mounted in the DOM even when closed.
    * @default false
    */
   keepMounted?: boolean;
@@ -90,7 +90,7 @@ export interface UseTooltipRootReturnValue {
    */
   getTriggerProps: UseInteractionsReturn['getReferenceProps'];
   /**
-   * Prop getter to spread root props on the popup element.
+   * Prop getter to spread root props on the positioner element.
    */
   getRootPositionerProps: UseInteractionsReturn['getFloatingProps'];
   /**

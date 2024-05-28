@@ -178,7 +178,8 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * The padding of the collision boundary to add whitespace between the tooltip popup and the
+   * boundary edges to prevent them from touching.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -218,7 +219,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the tooltip element should align to.
+   * The side of the anchor element that the tooltip element should be placed at.
    * @default 'top'
    */
   side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
@@ -228,7 +229,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the tooltip to remain in stuck view while the anchor element is scrolled out
+   * If `true`, allow the tooltip to remain stuck in view while the anchor element is scrolled out
    * of view.
    * @default false
    */

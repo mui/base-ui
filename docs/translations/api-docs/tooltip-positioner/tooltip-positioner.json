@@ -17,7 +17,9 @@
     "collisionBoundary": {
       "description": "The boundary that the tooltip element should be constrained to."
     },
-    "collisionPadding": { "description": "The padding of the collision boundary." },
+    "collisionPadding": {
+      "description": "The padding of the collision boundary to add whitespace between the tooltip popup and the boundary edges to prevent them from touching."
+    },
     "container": {
       "description": "The container element to which the tooltip positioner is appended to."
     },
@@ -32,11 +34,11 @@
     },
     "render": { "description": "A function to customize rendering of the component." },
     "side": {
-      "description": "The side of the anchor element that the tooltip element should align to."
+      "description": "The side of the anchor element that the tooltip element should be placed at."
     },
     "sideOffset": { "description": "The gap between the anchor element and the tooltip element." },
     "sticky": {
-      "description": "If <code>true</code>, allow the tooltip to remain in stuck view while the anchor element is scrolled out of view."
+      "description": "If <code>true</code>, allow the tooltip to remain stuck in view while the anchor element is scrolled out of view."
     }
   },
   "classDescriptions": {}

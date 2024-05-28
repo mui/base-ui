@@ -11,22 +11,17 @@
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip popup has rounded corners via <code>border-radius</code>."
     },
-    "closeDelay": {
-      "description": "The delay in milliseconds before the tooltip closes after the trigger element is unhovered."
-    },
     "collisionBoundary": {
       "description": "The boundary that the tooltip element should be constrained to."
     },
-    "collisionPadding": { "description": "The padding of the collision boundary." },
-    "delay": {
-      "description": "The delay in milliseconds before the tooltip opens after the trigger element is hovered."
+    "collisionPadding": {
+      "description": "The padding of the collision boundary to add whitespace between the tooltip popup and the boundary edges to prevent them from touching."
     },
-    "delayType": { "description": "The type of open delay." },
     "followCursorAxis": {
       "description": "Determines which axis the tooltip should follow the cursor on."
     },
     "getRootPositionerProps": {
-      "description": "The props to spread on the tooltip popup element."
+      "description": "Root props to spread on the tooltip positioner element."
     },
     "hideWhenDetached": {
       "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
@@ -45,11 +40,11 @@
     "rootContext": { "description": "The tooltip root context." },
     "setMounted": { "description": "Callback fired when the mounted state changes." },
     "side": {
-      "description": "The side of the anchor element that the tooltip element should align to."
+      "description": "The side of the anchor element that the tooltip element should be placed at."
     },
     "sideOffset": { "description": "The gap between the anchor element and the tooltip element." },
     "sticky": {
-      "description": "If <code>true</code>, allow the tooltip to remain in stuck view while the anchor element is scrolled out of view."
+      "description": "If <code>true</code>, allow the tooltip to remain stuck in view while the anchor element is scrolled out of view."
     }
   },
   "returnValueDescriptions": {

@@ -22,7 +22,7 @@ export interface TooltipPositionerParameters {
    */
   positionStrategy?: 'absolute' | 'fixed';
   /**
-   * The side of the anchor element that the tooltip element should align to.
+   * The side of the anchor element that the tooltip element should be placed at.
    * @default 'top'
    */
   side?: 'top' | 'right' | 'bottom' | 'left';
@@ -47,7 +47,8 @@ export interface TooltipPositionerParameters {
    */
   collisionBoundary?: Boundary;
   /**
-   * The padding of the collision boundary.
+   * The padding of the collision boundary to add whitespace between the tooltip popup and the
+   * boundary edges to prevent them from touching.
    * @default 5
    */
   collisionPadding?: Padding;
@@ -58,7 +59,7 @@ export interface TooltipPositionerParameters {
    */
   hideWhenDetached?: boolean;
   /**
-   * If `true`, allow the tooltip to remain in stuck view while the anchor element is scrolled out
+   * If `true`, allow the tooltip to remain stuck in view while the anchor element is scrolled out
    * of view.
    * @default false
    */
@@ -78,22 +79,7 @@ export interface TooltipPositionerParameters {
 
 export interface UseTooltipPositionerParameters extends TooltipPositionerParameters {
   /**
-   * The type of open delay.
-   * @default 'rest'
-   */
-  delayType?: 'rest' | 'hover';
-  /**
-   * The delay in milliseconds before the tooltip opens after the trigger element is hovered.
-   * @default 0
-   */
-  delay?: number;
-  /**
-   * The delay in milliseconds before the tooltip closes after the trigger element is unhovered.
-   * @default 0
-   */
-  closeDelay?: number;
-  /**
-   * The props to spread on the tooltip popup element.
+   * Root props to spread on the tooltip positioner element.
    */
   getRootPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
