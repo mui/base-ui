@@ -227,6 +227,7 @@ export function useTooltipPositioner(
   const getArrowProps: UseTooltipPositionerReturnValue['getArrowProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
+        'aria-hidden': true,
         style: {
           position: 'absolute',
           top: middlewareData.arrow?.y,
