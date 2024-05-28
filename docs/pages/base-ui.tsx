@@ -1,15 +1,9 @@
 import * as React from 'react';
-import Divider from '@mui/material/Divider';
 import Head from 'docs/src/modules/components/Head';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
-import BaseUIHero from 'docs-base/src/modules/home/BaseUIHero';
-import BaseUISummary from 'docs-base/src/modules/home/BaseUISummary';
-import BaseUICustomization from 'docs-base/src/modules/home/BaseUICustomization';
-import BaseUIEnd from 'docs-base/src/modules/home/BaseUIEnd';
-import BaseUITestimonial from 'docs-base/src/modules/home/BaseUITestimonial';
 
 export default function BaseUI() {
   return (
@@ -28,15 +22,7 @@ export default function BaseUI() {
       <AppHeaderBanner />
       <AppHeader gitHubRepository="https://github.com/mui/base-ui" />
       <main id="main-content">
-        <BaseUIHero />
-        <BaseUISummary />
-        <Divider />
-        <BaseUICustomization />
-        <Divider />
-        <BaseUITestimonial />
-        <Divider />
-        <BaseUIEnd />
-        <Divider />
+        See mui/material-ui for the source
       </main>
       <AppFooter />
     </BrandingCssVarsProvider>
