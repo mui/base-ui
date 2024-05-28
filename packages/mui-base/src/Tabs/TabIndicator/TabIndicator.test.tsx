@@ -4,11 +4,11 @@ import { createRenderer } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
 import { describeConformance } from '../../../test/describeConformance';
 
-async function waitForNextEventCycle() {
+async function wait(timeout: number) {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
-    });
+    }, timeout);
   });
 }
 
@@ -168,8 +168,10 @@ describe('<Tabs.Indicator />', () => {
         style: { width: '800px' },
       });
 
-      // wait for the resize observer to trigger
-      await waitForNextEventCycle();
+      // Wait for the resize observer to trigger.
+      // Safari on BrowserStack needs a bit more time to update the layout.
+      await wait(50);
+
       assertBubblePositionVariables(bubble, tabList, activeTab);
     });
   });
