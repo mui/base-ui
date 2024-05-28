@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { HTMLElementType } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import type {
   TooltipPositionerContextValue,
@@ -142,7 +143,11 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   /**
    * The anchor element of the tooltip popup.
    */
-  anchor: PropTypes /* @typescript-to-proptypes-ignore */.any,
+  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.object,
+    PropTypes.func,
+  ]),
   /**
    * Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip
    * popup has rounded corners via `border-radius`.
@@ -161,7 +166,17 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    * The boundary that the tooltip element should be constrained to.
    * @default 'clippingAncestors'
    */
-  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.any,
+  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.arrayOf(HTMLElementType),
+    PropTypes.string,
+    PropTypes.shape({
+      height: PropTypes.number,
+      width: PropTypes.number,
+      x: PropTypes.number,
+      y: PropTypes.number,
+    }),
+  ]),
   /**
    * The padding of the collision boundary.
    * @default 5
@@ -178,7 +193,10 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   /**
    * The container element to which the tooltip positioner is appended to.
    */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.any,
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.func,
+  ]),
   /**
    * Determines which axis the tooltip should follow the cursor on.
    * @default 'none'

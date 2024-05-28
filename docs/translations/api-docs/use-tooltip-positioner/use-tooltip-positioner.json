@@ -1,5 +1,64 @@
 {
   "hookDescription": "Manages the popup state for a tooltip including positioning.",
-  "parametersDescriptions": {},
-  "returnValueDescriptions": {}
+  "parametersDescriptions": {
+    "alignment": {
+      "description": "The alignment of the tooltip element to the anchor element along its cross axis."
+    },
+    "alignmentOffset": {
+      "description": "The offset of the tooltip element along its alignment axis."
+    },
+    "anchor": { "description": "The anchor element of the tooltip popup." },
+    "arrowPadding": {
+      "description": "Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip popup has rounded corners via <code>border-radius</code>."
+    },
+    "closeDelay": {
+      "description": "The delay in milliseconds before the tooltip closes after the trigger element is unhovered."
+    },
+    "collisionBoundary": {
+      "description": "The boundary that the tooltip element should be constrained to."
+    },
+    "collisionPadding": { "description": "The padding of the collision boundary." },
+    "delay": {
+      "description": "The delay in milliseconds before the tooltip opens after the trigger element is hovered."
+    },
+    "delayType": { "description": "The type of open delay." },
+    "followCursorAxis": {
+      "description": "Determines which axis the tooltip should follow the cursor on."
+    },
+    "getRootPopupProps": { "description": "The props to spread on the tooltip popup element." },
+    "hideWhenDetached": {
+      "description": "If <code>true</code>, the tooltip will be hidden if it is detached from its anchor element due to differing clipping contexts."
+    },
+    "instant": {
+      "description": "If <code>true</code>, the tooltip is in an instant phase where animations should be removed."
+    },
+    "keepMounted": {
+      "description": "If <code>true</code>, the tooltip popup remains mounted in the DOM even when closed."
+    },
+    "mounted": { "description": "If <code>true</code>, the tooltip is mounted." },
+    "open": { "description": "If <code>true</code>, the tooltip is open." },
+    "positionStrategy": {
+      "description": "The CSS position strategy for positioning the tooltip popup element."
+    },
+    "rootContext": { "description": "The tooltip root context." },
+    "setMounted": { "description": "Callback fired when the mounted state changes." },
+    "side": {
+      "description": "The side of the anchor element that the tooltip element should align to."
+    },
+    "sideOffset": { "description": "The gap between the anchor element and the tooltip element." },
+    "sticky": {
+      "description": "If <code>true</code>, allow the tooltip to remain in stuck view while the anchor element is scrolled out of view."
+    }
+  },
+  "returnValueDescriptions": {
+    "alignment": { "description": "The rendered alignment of the tooltip popup element." },
+    "arrowRef": { "description": "The ref for the arrow element." },
+    "arrowUncentered": { "description": "Determines if the arrow cannot be centered." },
+    "getArrowProps": { "description": "Props to spread on the popup arrow element." },
+    "getPositionerProps": { "description": "Props to spread on the positioner element." },
+    "mounted": {
+      "description": "Whether the tooltip is mounted, including CSS transitions or animations."
+    },
+    "side": { "description": "The rendered side of the tooltip popup element." }
+  }
 }

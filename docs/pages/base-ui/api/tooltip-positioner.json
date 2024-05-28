@@ -8,10 +8,21 @@
       "default": "'center'"
     },
     "alignmentOffset": { "type": { "name": "number" }, "default": "0" },
-    "anchor": { "type": { "name": "any" } },
+    "anchor": {
+      "type": {
+        "name": "union",
+        "description": "HTML element<br>&#124;&nbsp;object<br>&#124;&nbsp;func"
+      }
+    },
     "arrowPadding": { "type": { "name": "number" }, "default": "5" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "collisionBoundary": { "type": { "name": "any" }, "default": "'clippingAncestors'" },
+    "collisionBoundary": {
+      "type": {
+        "name": "union",
+        "description": "HTML element<br>&#124;&nbsp;Array&lt;HTML element&gt;<br>&#124;&nbsp;string<br>&#124;&nbsp;{ height?: number, width?: number, x?: number, y?: number }"
+      },
+      "default": "'clippingAncestors'"
+    },
     "collisionPadding": {
       "type": {
         "name": "union",
@@ -19,7 +30,7 @@
       },
       "default": "5"
     },
-    "container": { "type": { "name": "any" } },
+    "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" } },
     "followCursorAxis": {
       "type": {
         "name": "enum",
