@@ -1284,6 +1284,44 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
+    it('sets value to max on Home', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'Home' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(77);
+    });
+
+    it('sets value to min on End', () => {
+      const handleValueChange = spy();
+      const { container } = render(
+        <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
+      );
+
+      const input = container.querySelector('input');
+
+      fireEvent.keyDown(document.body, { key: 'TAB' });
+
+      act(() => {
+        (input as HTMLInputElement).focus();
+      });
+
+      fireEvent.keyDown(input!, { key: 'End' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal(17);
+    });
+
     it('should support Shift + Left Arrow / Right Arrow keys', () => {
       const handleValueChange = spy();
       const { container } = render(

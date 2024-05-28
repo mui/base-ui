@@ -125,10 +125,16 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
               );
               break;
             case 'PageUp':
-              newValue = getNewValue(thumbValue, largeStep, isRtl ? -1 : 1, min, max);
+              newValue = getNewValue(thumbValue, largeStep, 1, min, max);
               break;
             case 'PageDown':
-              newValue = getNewValue(thumbValue, largeStep, isRtl ? 1 : -1, min, max);
+              newValue = getNewValue(thumbValue, largeStep, -1, min, max);
+              break;
+            case 'Home':
+              newValue = max;
+              break;
+            case 'End':
+              newValue = min;
               break;
             default:
               break;
