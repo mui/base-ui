@@ -5,7 +5,7 @@ import { styled } from '@mui/system';
 export default function UnstyledTooltipDelayGroup() {
   return (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Tooltip.Provider delay={1000} closeDelay={500}>
+      <Tooltip.Provider delay={500} closeDelay={500}>
         <Tooltip.Root>
           <AnchorButton>Anchor A</AnchorButton>
           <Tooltip.Positioner sideOffset={5}>

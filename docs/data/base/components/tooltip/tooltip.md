@@ -90,7 +90,9 @@ Tooltips are only for sighted users with access to a pointer with hover capabili
   <Tooltip.Trigger aria-label="Edit">
     <EditIcon />
   </Tooltip.Trigger>
-  <Tooltip.Popup>Edit</Tooltip.Popup>
+  <Tooltip.Positioner>
+    <Tooltip.Popup>Edit</Tooltip.Popup>
+  </Tooltip.Positioner>
 </Tooltip.Root>
 ```
 
@@ -194,22 +196,29 @@ The tooltip can follow the cursor on both axes or one axis using the `followCurs
 
 ## Anchoring
 
-By default, the `Trigger` acts as the anchor. This can be changed to another element, either virtual or real:
+By default, the `Trigger` acts as the anchor, but this can be changed to another element.
 
-```js
+- A DOM element (stored in React state):
+
+```jsx
+<Tooltip.Positioner anchor={anchorNode}>
+```
+
+- A React ref:
+
+```jsx
+<Tooltip.Positioner anchor={anchorRef}>
+```
+
+- A virtual element object, consisting of a `getBoundingClientRect` method and an optional `contextElement` property:
+
+```jsx
 <Tooltip.Positioner
-  // Element
-  anchor={domElement}
-  // React ref
-  anchor={anchorRef}
-  // VirtualElement
   anchor={{
     getBoundingClientRect: () => DOMRect,
-    contextElement: domElement, // optional
+    contextElement: domNode, // optional
   }}
 >
-  {/* ... */}
-</Tooltip.Positioner>
 ```
 
 ## Styling
