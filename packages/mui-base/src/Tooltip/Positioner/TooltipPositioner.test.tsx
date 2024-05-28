@@ -10,7 +10,7 @@ describe('<Tooltip.Positioner />', () => {
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<Tooltip.Root>{node}</Tooltip.Root>);
+      return render(<Tooltip.Root open>{node}</Tooltip.Root>);
     },
     skip: ['reactTestRenderer'],
   }));

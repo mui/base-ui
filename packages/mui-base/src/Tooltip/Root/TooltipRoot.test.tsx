@@ -20,7 +20,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -30,7 +32,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 
@@ -41,7 +43,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -51,7 +55,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 
@@ -69,7 +73,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -86,7 +92,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -94,13 +102,13 @@ describe('<Tooltip.Root />', () => {
 
       act(() => trigger.focus());
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 
       act(() => trigger.blur());
 
-      clock.tick(200);
+      clock.tick(300);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -112,7 +120,9 @@ describe('<Tooltip.Root />', () => {
     it('should open when controlled open is true', async () => {
       render(
         <Root open>
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -122,7 +132,9 @@ describe('<Tooltip.Root />', () => {
     it('should close when controlled open is false', async () => {
       render(
         <Root open={false}>
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -144,7 +156,9 @@ describe('<Tooltip.Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Popup>Content</Tooltip.Popup>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
           </Root>
         );
       }
@@ -158,7 +172,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 
@@ -187,7 +201,9 @@ describe('<Tooltip.Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
           </Root>
         );
       }
@@ -201,7 +217,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 
@@ -216,7 +232,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root defaultOpen>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -229,7 +247,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root defaultOpen open={false}>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -242,7 +262,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root defaultOpen open>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -255,7 +277,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root defaultOpen>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -280,7 +304,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root delay={100}>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -304,14 +330,16 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root delayType="hover">
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
       const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
-      clock.tick(100);
+      clock.tick(200);
 
       await waitForPosition();
 
@@ -332,7 +360,9 @@ describe('<Tooltip.Root />', () => {
       render(
         <Root closeDelay={100}>
           <Tooltip.Trigger />
-          <Tooltip.Popup>Content</Tooltip.Popup>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
         </Root>,
       );
 
@@ -341,7 +371,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 

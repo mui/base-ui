@@ -17,7 +17,9 @@ describe('<Tooltip.Provider />', () => {
         <Tooltip.Provider delay={10_000}>
           <Tooltip.Root animated={false}>
             <Tooltip.Trigger />
-            <Tooltip.Popup>Content</Tooltip.Popup>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
           </Tooltip.Root>
         </Tooltip.Provider>,
       );
@@ -49,7 +51,9 @@ describe('<Tooltip.Provider />', () => {
         <Tooltip.Provider closeDelay={400}>
           <Tooltip.Root animated={false}>
             <Tooltip.Trigger />
-            <Tooltip.Popup>Content</Tooltip.Popup>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
           </Tooltip.Root>
         </Tooltip.Provider>,
       );
@@ -59,7 +63,7 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       await waitForPosition();
 
@@ -67,11 +71,11 @@ describe('<Tooltip.Provider />', () => {
 
       fireEvent.mouseLeave(trigger);
 
-      clock.tick(200);
+      clock.tick(300);
 
       expect(screen.queryByText('Content')).not.to.equal(null);
 
-      clock.tick(200);
+      clock.tick(300);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
