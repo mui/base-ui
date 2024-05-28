@@ -21,9 +21,7 @@ export default function BaseUI() {
       </Head>
       <AppHeaderBanner />
       <AppHeader gitHubRepository="https://github.com/mui/base-ui" />
-      <main id="main-content">
-        See mui/material-ui for the source
-      </main>
+      <main id="main-content">See mui/material-ui for the source</main>
       <AppFooter />
     </BrandingCssVarsProvider>
   );
