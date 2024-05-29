@@ -37,9 +37,7 @@ const TriggerButton = styled(Dialog.Trigger)(
   padding: 8px 16px;
   border-radius: 4px;
   border: none;
-  font-family:
-    "IBM Plex Sans",
-    sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 
   &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[200] : grey[700]};
@@ -82,7 +80,7 @@ const CloseButton = styled(Dialog.Close)(
   color: ${theme.palette.mode === 'dark' ? grey[50] : grey[900]};
   padding: 8px 16px;
   border-radius: 4px;
-  font-family: IBM Plex Sans, sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   min-width: 80px;
 
   &:hover {
