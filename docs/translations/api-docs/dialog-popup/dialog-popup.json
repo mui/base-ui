@@ -7,6 +7,7 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
+    "container": { "description": "The container element to which the popup is appended to." },
     "keepMounted": {
       "description": "If <code>true</code>, the dialog element is kept in the DOM when closed."
     },

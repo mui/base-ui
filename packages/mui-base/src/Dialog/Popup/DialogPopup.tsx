@@ -10,7 +10,15 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, id: idProp, animated = false, ...other } = props;
+  const {
+    animated = false,
+    className,
+    container,
+    id: idProp,
+    keepMounted = false,
+    render,
+    ...other
+  } = props;
   const rootContext = useDialogRootContext();
   const { open, modal, nestedOpenDialogCount } = rootContext;
 
@@ -48,7 +56,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   }
 
   return (
-    <FloatingPortal>
+    <FloatingPortal root={container}>
       <FloatingFocusManager context={floatingContext} modal={modal} disabled={!mounted}>
         {renderElement()}
       </FloatingFocusManager>
@@ -76,6 +84,27 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * The container element to which the popup is appended to.
+   */
+  container: PropTypes.oneOfType([
+    function (props, propName) {
+      if (props[propName] == null) {
+        return new Error("Prop '" + propName + "' is required but wasn't specified");
+      } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error("Expected prop '" + propName + "' to be of type Element");
+      }
+    },
+    PropTypes.shape({
+      current: function (props, propName) {
+        if (props[propName] == null) {
+          return null;
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
+        }
+      },
+    }),
+  ]),
   /**
    * @ignore
    */

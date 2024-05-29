@@ -12,6 +12,10 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    */
   animated?: boolean;
   /**
+   * The container element to which the popup is appended to.
+   */
+  container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  /**
    * If `true`, the dialog element is kept in the DOM when closed.
    *
    * @default false
