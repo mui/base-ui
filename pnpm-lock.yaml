@@ -576,13 +576,13 @@ importers:
         specifier: ^7.24.5
         version: 7.24.5
       '@floating-ui/react':
-        specifier: ^0.26.12
+        specifier: ^0.26.16
         version: 0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/react-dom':
-        specifier: ^2.0.8
+        specifier: ^2.1.0
         version: 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/utils':
-        specifier: ^0.2.1
+        specifier: ^0.2.2
         version: 0.2.2
       '@mui/types':
         specifier: ^7.2.14

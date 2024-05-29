@@ -39,10 +39,10 @@
     "typescript:module-augmentation": "node scripts/testModuleAugmentation.js"
   },
   "dependencies": {
-    "@babel/runtime": "^7.24.5",
-    "@floating-ui/react": "^0.26.12",
-    "@floating-ui/react-dom": "^2.0.8",
-    "@floating-ui/utils": "^0.2.1",
+    "@babel/runtime": "^7.24.6",
+    "@floating-ui/react": "^0.26.16",
+    "@floating-ui/react-dom": "^2.1.0",
+    "@floating-ui/utils": "^0.2.2",
     "@mui/types": "^7.2.14",
     "@mui/utils": "^5.15.14",
     "@popperjs/core": "^2.11.8",
