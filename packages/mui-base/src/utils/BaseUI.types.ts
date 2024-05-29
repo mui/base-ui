@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+export type GenericHTMLProps = React.HTMLAttributes<any> & { ref?: React.Ref<any> | undefined };
+
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
 };
