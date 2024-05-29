@@ -1,4 +1,3 @@
-'use client';
 export { NumberFieldRoot } from './Root/NumberFieldRoot';
 export { NumberFieldContext } from './Root/NumberFieldContext';
 export { useNumberFieldRoot } from './Root/useNumberFieldRoot';
