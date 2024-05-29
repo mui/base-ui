@@ -1,4 +1,13 @@
-export { CheckboxRoot as Root } from './CheckboxRoot';
-export { CheckboxIndicator as Indicator } from './CheckboxIndicator';
+export { CheckboxRoot as Root } from './Root/CheckboxRoot';
+export { useCheckboxRoot } from './Root/useCheckboxRoot';
+export { CheckboxContext } from './Root/CheckboxContext';
+export type {
+  CheckboxRootProps as RootProps,
+  CheckboxOwnerState as OwnerState,
+  CheckboxContextValue,
+  UseCheckboxRootParameters,
+  UseCheckboxRootReturnValue,
+} from './Root/CheckboxRoot.types';
 
-export * from './Checkbox.types';
+export { CheckboxIndicator as Indicator } from './Indicator/CheckboxIndicator';
+export type { CheckboxIndicatorProps as IndicatorProps } from './Indicator/CheckboxIndicator.types';

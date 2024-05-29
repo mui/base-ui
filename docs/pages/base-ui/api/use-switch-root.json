@@ -1,0 +1,43 @@
+{
+  "parameters": {
+    "checked": { "type": { "name": "boolean", "description": "boolean" } },
+    "defaultChecked": { "type": { "name": "boolean", "description": "boolean" } },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "inputRef": {
+      "type": {
+        "name": "React.Ref&lt;HTMLInputElement&gt;",
+        "description": "React.Ref&lt;HTMLInputElement&gt;"
+      }
+    },
+    "name": { "type": { "name": "string", "description": "string" } },
+    "onChange": {
+      "type": {
+        "name": "React.ChangeEventHandler&lt;HTMLInputElement&gt;",
+        "description": "React.ChangeEventHandler&lt;HTMLInputElement&gt;"
+      }
+    },
+    "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "required": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" }
+  },
+  "returnValue": {
+    "checked": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "getButtonProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;button&#39;&gt;"
+      },
+      "required": true
+    },
+    "getInputProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
+      },
+      "required": true
+    }
+  },
+  "name": "useSwitchRoot",
+  "filename": "/packages/mui-base/src/Switch/Root/useSwitchRoot.ts",
+  "imports": ["import { useSwitchRoot } from '@base_ui/react/Switch';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-switch/#hook\">Switch</a></li></ul>"
+}

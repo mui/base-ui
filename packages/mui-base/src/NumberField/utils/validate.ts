@@ -1,5 +1,5 @@
-import { clamp } from '../../utils/clamp';
 import { getFormatter } from './format';
+import { clamp } from '../../utils/clamp';
 
 export function removeFloatingPointErrors(value: number, format: Intl.NumberFormatOptions = {}) {
   return parseFloat(

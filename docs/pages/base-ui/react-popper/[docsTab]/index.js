@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs/data/base/components/popper/popper.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/popper/popper.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import PopperApiJsonPageContent from '../../api/popper.json';
 
@@ -23,9 +23,9 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = () => {
   const PopperApiReq = require.context(
-    'docs/translations/api-docs-base/popper',
+    'docs-base/translations/api-docs/popper',
     false,
-    /popper.*.json$/,
+    /\.\/popper.*.json$/,
   );
   const PopperApiDescriptions = mapApiPageTranslations(PopperApiReq);
 

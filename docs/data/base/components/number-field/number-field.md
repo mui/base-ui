@@ -3,15 +3,16 @@ productId: base-ui
 title: React NumberField component and hook
 githubLabel: 'component: number-field'
 components: NumberFieldRoot, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement, NumberFieldScrubArea, NumberFieldScrubAreaCursor
-hooks: useNumberField
+hooks: useNumberFieldRoot
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
+packageName: '@base_ui/react'
 ---
 
 # Number Field
 
 <p class="description">The Number Field component provides users with a field for number values, with stepper buttons and a scrub area to increment or decrement the value.</p>
 
-{{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
+{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
@@ -217,7 +218,7 @@ To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScru
 ## Hook
 
 ```js
-import { useNumberField } from '@mui/base/useNumberField';
+import { useNumberField } from '@base_ui/react/useNumberField';
 ```
 
 The `useNumberField` hook lets you apply the functionality of a Number Field to a fully custom component.

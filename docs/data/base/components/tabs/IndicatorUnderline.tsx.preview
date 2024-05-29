@@ -1,0 +1,10 @@
+<Tabs>
+  <TabsList>
+    <Tab>Code</Tab>
+    <Tab>Issues</Tab>
+    <Tab>Pull Requests</Tab>
+    <Tab>Discussions</Tab>
+    <Tab>Actions</Tab>
+    <Indicator />
+  </TabsList>
+</Tabs>

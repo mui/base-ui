@@ -1,36 +1,32 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
-import { TabsList } from '@base_ui/react/TabsList';
-import { TabPanel } from '@base_ui/react/TabPanel';
-import { buttonClasses } from '@base_ui/react/Button';
-import { Tab, tabClasses } from '@base_ui/react/Tab';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export default function UnstyledTabsIntroduction() {
   return (
     <React.Fragment>
-      <Tabs defaultValue={0}>
-        <TabsList className="CustomTabsListIntroduction">
-          <Tab className="CustomTabIntroduction" value={0}>
+      <Tabs.Root defaultValue={0}>
+        <Tabs.List className="CustomTabsListIntroduction" aria-label="Settings">
+          <Tabs.Tab className="CustomTabIntroduction" value={0}>
             My account
-          </Tab>
-          <Tab className="CustomTabIntroduction" value={1}>
+          </Tabs.Tab>
+          <Tabs.Tab className="CustomTabIntroduction" value={1}>
             Profile
-          </Tab>
-          <Tab className="CustomTabIntroduction" value={2}>
+          </Tabs.Tab>
+          <Tabs.Tab className="CustomTabIntroduction" value={2}>
             Language
-          </Tab>
-        </TabsList>
-        <TabPanel className="CustomTabPanelIntroduction" value={0}>
+          </Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel className="CustomTabPanelIntroduction" value={0}>
           My account page
-        </TabPanel>
-        <TabPanel className="CustomTabPanelIntroduction" value={1}>
+        </Tabs.Panel>
+        <Tabs.Panel className="CustomTabPanelIntroduction" value={1}>
           Profile page
-        </TabPanel>
-        <TabPanel className="CustomTabPanelIntroduction" value={2}>
+        </Tabs.Panel>
+        <Tabs.Panel className="CustomTabPanelIntroduction" value={2}>
           Language page
-        </TabPanel>
-      </Tabs>
+        </Tabs.Panel>
+      </Tabs.Root>
       <Styles />
     </React.Fragment>
   );
@@ -110,12 +106,12 @@ function Styles() {
         outline: 3px solid ${cyan[200]};
       }
 
-      .CustomTabIntroduction.${tabClasses.selected} {
+      .CustomTabIntroduction[data-selected='true'] {
         background-color: #fff;
         color: ${cyan[600]};
       }
 
-      .CustomTabIntroduction.${buttonClasses.disabled} {
+      .CustomTabIntroduction[data-disabled='true'] {
         opacity: 0.5;
         cursor: not-allowed;
       }

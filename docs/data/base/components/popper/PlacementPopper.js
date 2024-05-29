@@ -107,7 +107,7 @@ export default function PlacementPopper() {
       <PlacementForm setPlacement={setPlacement} />
       <div style={{ padding: '4rem 0', textAlign: 'center' }}>
         <span
-          ref={(elm) => setAnchorEl(elm)}
+          ref={setAnchorEl}
           aria-describedby="placement-popper"
           style={{
             display: 'inline-block',

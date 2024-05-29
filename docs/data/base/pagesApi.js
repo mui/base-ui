@@ -92,13 +92,17 @@ module.exports = [
     title: 'SwitchThumb',
   },
   { pathname: '/base-ui/react-tabs/components-api/#tab', title: 'Tab' },
+  {
+    pathname: '/base-ui/react-tabs/components-api/#tab-indicator',
+    title: 'TabIndicator',
+  },
   { pathname: '/base-ui/react-tabs/components-api/#tab-panel', title: 'TabPanel' },
   {
     pathname: '/base-ui/react-table-pagination/components-api/#table-pagination',
     title: 'TablePagination',
   },
-  { pathname: '/base-ui/react-tabs/components-api/#tabs', title: 'Tabs' },
   { pathname: '/base-ui/react-tabs/components-api/#tabs-list', title: 'TabsList' },
+  { pathname: '/base-ui/react-tabs/components-api/#tabs-root', title: 'TabsRoot' },
   {
     pathname: '/base-ui/react-textarea-autosize/components-api/#textarea-autosize',
     title: 'TextareaAutosize',
@@ -110,8 +114,8 @@ module.exports = [
   { pathname: '/base-ui/react-badge/hooks-api/#use-badge', title: 'useBadge' },
   { pathname: '/base-ui/react-button/hooks-api/#use-button', title: 'useButton' },
   {
-    pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox',
-    title: 'useCheckbox',
+    pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox-root',
+    title: 'useCheckboxRoot',
   },
   { pathname: '/base-ui/react-menu/hooks-api/#use-dropdown', title: 'useDropdown' },
   {
@@ -131,8 +135,8 @@ module.exports = [
   },
   { pathname: '/base-ui/react-modal/hooks-api/#use-modal', title: 'useModal' },
   {
-    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field',
-    title: 'useNumberField',
+    pathname: '/base-ui/react-number-field/hooks-api/#use-number-field-root',
+    title: 'useNumberFieldRoot',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-option', title: 'useOption' },
   {
@@ -145,11 +149,18 @@ module.exports = [
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',
     title: 'useSnackbar',
   },
-  { pathname: '/base-ui/react-switch/hooks-api/#use-switch', title: 'useSwitch' },
+  {
+    pathname: '/base-ui/react-switch/hooks-api/#use-switch-root',
+    title: 'useSwitchRoot',
+  },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab', title: 'useTab' },
+  {
+    pathname: '/base-ui/react-tabs/hooks-api/#use-tab-indicator',
+    title: 'useTabIndicator',
+  },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tab-panel', title: 'useTabPanel' },
-  { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs', title: 'useTabs' },
   { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-list', title: 'useTabsList' },
+  { pathname: '/base-ui/react-tabs/hooks-api/#use-tabs-root', title: 'useTabsRoot' },
   {
     pathname: '/base-ui/react-transitions/hooks-api/#use-transition-state-manager',
     title: 'useTransitionStateManager',
