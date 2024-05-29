@@ -10,7 +10,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, animated = false, keepMounted = false, ...other } = props;
+  const { render, className, animated = true, keepMounted = false, ...other } = props;
   const { open, modal, hasParentDialog } = useDialogRootContext();
   const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
     animated,

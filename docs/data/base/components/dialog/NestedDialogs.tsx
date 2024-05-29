@@ -57,7 +57,6 @@ const Popup = styled(BaseDialog.Popup)(
   top: 50%;
   left: 50%;
   font-family: IBM Plex Sans;
-  transform: translate(-50%, -50%);
   padding: 16px;
   z-index: 2100;
   transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))

@@ -77,7 +77,7 @@ Dialogs can be either modal (rendering the rest of the page inert) or non-modal.
 A non-modal dialog can be used to implement tool windows.
 
 The `modal` prop of the `<Dialog.Root>` controls this.
-By default the dialogs are modal.
+By default Dialogs are modal.
 
 ```tsx
 <Dialog.Root modal={false}>{/* ... */}</Dialog.Root>
@@ -85,7 +85,7 @@ By default the dialogs are modal.
 
 ## Alert dialog
 
-The Dialog component can be used to implement the Alert Dialog component.
+The Dialog component can be used to implement an alert dialog.
 Setting the `type` prop to `"alertdialog"` will cause the component to be announced by screen readers differently.
 
 ```tsx
@@ -174,13 +174,138 @@ The number of open child dialogs is present in the `data-nested-dialogs` attribu
 
 The `<Dialog.Popup>` and `<Dialog.Backdrop>` components support transitions on entry and exit.
 
-If you wish to use CSS animations or transitions, add the `animated` prop to these components.
-This will make them wait for the animation/transition to finish before they are unmounted.
+CSS animations and transitions are supported out of the box.
+If a component has a transition or animation applied to it when it closes, it will be unmounted only after the animation finishes.
+
+As this detection of exit animations requires an extra render, you may opt out of it by setting the `animated` prop on Popup and Backdrop to `false`.
+We also recommend doing so in automated tests, to avoid asynchronous behavior and make testing easier.
 
 Alternatively, you can use JS-based animations with a library like framer-motion, React Spring, or similar.
-With this approach do not set the `animated` prop but set the `keepMounted` to `true` and let the library control mounting and unmounting.
+With this approach set the `keepMounted` to `true` and let the animation library control mounting and unmounting.
 
-TODO: demos
+### CSS transitions
+
+Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
+
+```jsx
+<Tooltip.Popup className="TooltipPopup">Tooltip</Tooltip.Popup>
+```
+
+```css
+.DialogPopup {
+  transition-property: opacity, transform;
+  transition-duration: 0.2s;
+  /* Represents the final styles once exited */
+  opacity: 0;
+  transform: translate(-50%, -35%) scale(0.8);
+}
+
+/* Represents the final styles once entered */
+.DialogPopup[data-state='open'] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Represents the initial styles when entering */
+.DialogPopup[data-entering] {
+  opacity: 0;
+  transform: translate(-50%, -35%) scale(0.8);
+}
+```
+
+Styles need to be applied in three states:
+
+- The exiting styles, placed on the base element class
+- The open styles, placed on the base element class with `[data-state="open"]`
+- The entering styles, placed on the base element class with `[data-entering]`
+
+{{"demo": "DialogWithTransitions.js"}}
+
+In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
+
+```css
+/* Base UI API - Polyfill */
+.DialogPopup[data-entering] {
+  opacity: 0;
+  transform: translate(-50%, -35%) scale(0.8);
+}
+
+/* Official Browser API - no Firefox support as of May 2024 */
+@starting-style {
+  .DialogPopup[data-state='open'] {
+    opacity: 0;
+    transform: translate(-50%, -35%) scale(0.8);
+  }
+}
+```
+
+### CSS animations
+
+CSS animations can also be used, requiring only two separate declarations:
+
+```css
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -35%) scale(0.8);
+  }
+}
+
+@keyframes scale-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -35%) scale(0.8);
+  }
+}
+
+.DialogPopup {
+  animation: scale-in 0.2s forwards;
+}
+
+.DialogPopup[data-exiting] {
+  animation: scale-out 0.2s forwards;
+}
+```
+
+### JavaScript animations
+
+The `keepMounted` prop lets an external library control the mounting, for example `framer-motion`'s `AnimatePresence` component.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger>Trigger</Dialog.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Dialog.Popup
+            keepMounted
+            render={
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              />
+            }
+          >
+            Dialog
+          </Dialog.Popup>
+        )}
+      </AnimatePresence>
+    </Dialog.Root>
+  );
+}
+```
+
+### Animation states
+
+Four states are available as data attributes to animate the dialog, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
+
+- `[data-state="open"]` - `open` state is `true`.
+- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
+- `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
 
 ## Composing a custom React component
 

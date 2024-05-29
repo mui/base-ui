@@ -2,34 +2,18 @@ import * as React from 'react';
 import * as BaseDialog from '@base_ui/react/Dialog';
 import { styled } from '@mui/system';
 
-export default function NestedDialogs() {
+export default function DialogWithTransitions() {
   return (
     <BaseDialog.Root softClose>
       <Trigger>Open</Trigger>
       <Popup>
-        <Title>Dialog 1</Title>
+        <Title>Animated dialog</Title>
+        <BaseDialog.Description>This dialog uses CSS transitions on entry and exit.</BaseDialog.Description>
         <Controls>
-          <BaseDialog.Root softClose>
-            <Trigger>Open Nested</Trigger>
-            <Popup>
-              <Title>Dialog 2</Title>
-              <Controls>
-                <BaseDialog.Root softClose>
-                  <Trigger>Open Nested</Trigger>
-                  <Popup>
-                    <Title>Dialog 3</Title>
-                    <Controls>
-                      <Close>Close</Close>
-                    </Controls>
-                  </Popup>
-                </BaseDialog.Root>
-                <Close>Close</Close>
-              </Controls>
-            </Popup>
-          </BaseDialog.Root>
           <Close>Close</Close>
         </Controls>
       </Popup>
+      <Backdrop />
     </BaseDialog.Root>
   );
 }
@@ -47,7 +31,6 @@ const grey = {
 
 const Popup = styled(BaseDialog.Popup)(
   ({ theme }) => `
-  --transition-duration: 150ms;
   background: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[100]};
   min-width: 400px;
@@ -59,34 +42,47 @@ const Popup = styled(BaseDialog.Popup)(
   font-family: IBM Plex Sans;
   padding: 16px;
   z-index: 2100;
-  transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
-    translateY(calc(-30px * var(--nested-dialogs)));
-  visibility: hidden;
-  opacity: 0.5;
-  transition:
-    transform var(--transition-duration) ease-in,
-    opacity var(--transition-duration) ease-in,
-    visibility var(--transition-duration) step-end;
+  transition-property: opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in;
+  opacity: 0;
+  transform: translate(-50%, -35%) scale(0.8);
 
   &[data-state='open'] {
-    @starting-style {
-      & {
-        transform: translate(-50%, -35%) scale(0.8) translateY(0);
-        opacity: 0.5;
-      }
-    }
-
-    visibility: visible;
     opacity: 1;
-    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
-    transition:
-      transform var(--transition-duration) ease-out,
-      opacity var(--transition-duration) ease-out,
-      visibility var(--transition-duration) step-start;
+    transform: translate(-50%, -50%) scale(1);
+    transition-timing-function: ease-out;
+  }
+
+  &[data-entering] {
+    opacity: 0;
+    transform: translate(-50%, -35%) scale(0.8);
   }
 `,
 );
+
+const Backdrop = styled(BaseDialog.Backdrop)`
+  background-color: rgba(0, 0, 0, 0.2);
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  backdrop-filter: blur(0px);
+  opacity: 0;
+  transition-property: opacity, backdrop-filter;
+  transition-duration: 250ms;
+  transition-timing-function: ease-in;
+
+  &[data-state='open'] {
+    backdrop-filter: blur(6px);
+    opacity: 1;
+    transition-timing-function: ease-out;
+  }
+
+  &[data-entering] {
+    backdrop-filter: blur(0px);
+    opacity: 0;
+  }
+`;
 
 const Title = styled(BaseDialog.Title)`
   font-size: 1.25rem;
