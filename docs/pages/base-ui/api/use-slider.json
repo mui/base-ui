@@ -2,7 +2,7 @@
   "parameters": {},
   "returnValue": {},
   "name": "useSlider",
-  "filename": "/packages/mui-base/src/legacy/useSlider/useSlider.ts",
+  "filename": "/packages/mui-base/src/useSlider/useSlider.ts",
   "imports": ["import { useSlider } from '@base_ui/react/useSlider';"],
   "demos": "<ul><li><a href=\"/base-ui/react-slider/#hook\">Slider</a></li></ul>"
 }
