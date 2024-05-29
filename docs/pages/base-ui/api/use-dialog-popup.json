@@ -49,7 +49,11 @@
       },
       "required": true
     },
-    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
+    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "transitionStatus": {
+      "type": { "name": "TransitionStatus", "description": "TransitionStatus" },
+      "required": true
+    }
   },
   "name": "useDialogPopup",
   "filename": "/packages/mui-base/src/Dialog/Popup/useDialogPopup.tsx",

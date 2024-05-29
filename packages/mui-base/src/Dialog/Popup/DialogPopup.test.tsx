@@ -7,7 +7,7 @@ import { describeConformance } from '../../../test/describeConformance';
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Dialog.Popup />, () => ({
+  describeConformance(<Dialog.Popup animated={false} />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(<Dialog.Root open>{node}</Dialog.Root>);

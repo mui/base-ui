@@ -17,7 +17,7 @@ describe('<Dialog.Root />', () => {
       const { queryByRole, getByRole } = render(
         <Dialog.Root>
           <Dialog.Trigger />
-          <Dialog.Popup />
+          <Dialog.Popup animated={false} />
         </Dialog.Root>,
       );
 
@@ -36,7 +36,7 @@ describe('<Dialog.Root />', () => {
     it('should open and close the dialog with the `open` prop', () => {
       const { queryByRole, setProps } = render(
         <Dialog.Root open={false}>
-          <Dialog.Popup />
+          <Dialog.Popup animated={false} />
         </Dialog.Root>,
       );
 
@@ -90,7 +90,7 @@ describe('<Dialog.Root />', () => {
 
         const { getByTestId, queryByRole } = render(
           <Dialog.Root defaultOpen onOpenChange={handleOpenChange} softClose={softClose}>
-            <Dialog.Popup>
+            <Dialog.Popup animated={false}>
               <div tabIndex={0} data-testid="content" />
             </Dialog.Popup>
           </Dialog.Root>,
@@ -129,7 +129,7 @@ describe('<Dialog.Root />', () => {
         const { getByTestId, queryByRole } = render(
           <div data-testid="outside">
             <Dialog.Root defaultOpen onOpenChange={handleOpenChange} softClose={softClose}>
-              <Dialog.Popup />
+              <Dialog.Popup animated={false} />
             </Dialog.Root>
           </div>,
         );
@@ -161,7 +161,7 @@ describe('<Dialog.Root />', () => {
           <input />
           <Dialog.Root>
             <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Popup data-testid="dialog">
+            <Dialog.Popup data-testid="dialog" animated={false}>
               <input data-testid="dialog-input" />
               <button>Close</button>
             </Dialog.Popup>

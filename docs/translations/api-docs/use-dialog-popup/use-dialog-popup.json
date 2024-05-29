@@ -29,6 +29,7 @@
     "getRootProps": { "description": "Resolver for the root element props." },
     "mounted": {
       "description": "Determines if the dialog should be mounted even if closed (as the exit animation is still in progress)."
-    }
+    },
+    "transitionStatus": { "description": "The current transition status of the dialog." }
   }
 }

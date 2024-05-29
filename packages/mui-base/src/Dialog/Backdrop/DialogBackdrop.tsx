@@ -33,7 +33,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
       transitionStatus: (value) => {
         if (value === 'entering') {
-          return { 'data-entering': '' };
+          return { 'data-entering': '' } as Record<string, string>;
         }
         if (value === 'exiting') {
           return { 'data-exiting': '' };

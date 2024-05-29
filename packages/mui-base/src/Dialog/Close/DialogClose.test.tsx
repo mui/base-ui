@@ -11,7 +11,7 @@ describe('<Dialog.Close />', () => {
     render: (node) => {
       return render(
         <Dialog.Root open>
-          <Dialog.Popup>{node}</Dialog.Popup>
+          <Dialog.Popup animated={false}>{node}</Dialog.Popup>
         </Dialog.Root>,
       );
     },

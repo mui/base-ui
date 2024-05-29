@@ -52,7 +52,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
       transitionStatus: (value) => {
         if (value === 'entering') {
-          return { 'data-entering': '' };
+          return { 'data-entering': '' } as Record<string, string>;
         }
         if (value === 'exiting') {
           return { 'data-exiting': '' };
