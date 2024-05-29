@@ -536,6 +536,9 @@ importers:
       cross-fetch:
         specifier: ^4.0.0
         version: 4.0.0(encoding@0.1.13)
+      framer-motion:
+        specifier: ^11.2.5
+        version: 11.2.5(@emotion/is-prop-valid@1.2.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       marked:
         specifier: ^12.0.2
         version: 12.0.2
@@ -574,10 +577,13 @@ importers:
         version: 7.24.5
       '@floating-ui/react':
         specifier: ^0.26.13
-        version: 0.26.13(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/react-dom':
         specifier: ^2.1.0
         version: 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@floating-ui/utils':
+        specifier: ^0.2.1
+        version: 0.2.2
       '@mui/types':
         specifier: ^7.2.14
         version: 7.2.14(@types/react@18.3.1)
@@ -1786,8 +1792,8 @@ packages:
   '@floating-ui/core@1.6.0':
     resolution: {integrity: sha512-PcF++MykgmTj3CIyOQbKA/hDzOAiqI3mhuoN44WRCopIs1sgoDoU4oty4Jtqaj/y3oDU6fnVSm4QG0a3t5i0+g==}
 
-  '@floating-ui/dom@1.6.3':
-    resolution: {integrity: sha512-RnDthu3mzPlQ31Ss/BTwQ1zjzIhr3lk1gZB1OC56h/1vEtaXkESrOqL5fQVMfXpwGtRwX+YsZBdyHtJMQnkArw==}
+  '@floating-ui/dom@1.6.5':
+    resolution: {integrity: sha512-Nsdud2X65Dz+1RHjAIP0t8z5e2ff/IRbei6BqFrl1urT8sDVzM1HMQ+R0XcU5ceRfyO3I6ayeqIfh+6Wb8LGTw==}
 
   '@floating-ui/react-dom@2.1.0':
     resolution: {integrity: sha512-lNzj5EQmEKn5FFKc04+zasr09h/uX8RtJRNj5gUXsSQIXHVWTVh+hVAg1vOMCexkX8EgvemMvIFpQfkosnVNyA==}
@@ -1795,14 +1801,14 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.26.13':
-    resolution: {integrity: sha512-kBa9wntpugzrZ8t/4yWelvSmEKZdeTXTJzrxqyrLmcU/n1SM4nvse8yQh2e1b37rJGvtu0EplV9+IkBrCJ1vkw==}
+  '@floating-ui/react@0.26.16':
+    resolution: {integrity: sha512-HEf43zxZNAI/E781QIVpYSF3K2VH4TTYZpqecjdsFkjsaU1EbaWcM++kw0HXFffj7gDUcBFevX8s0rQGQpxkow==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/utils@0.2.1':
-    resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
+  '@floating-ui/utils@0.2.2':
+    resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
 
   '@gitbeaker/core@38.12.1':
     resolution: {integrity: sha512-8XMVcBIdVAAoxn7JtqmZ2Ee8f+AZLcCPmqEmPFOXY2jPS84y/DERISg/+sbhhb18iRy+ZsZhpWgQ/r3CkYNJOQ==}
@@ -3244,6 +3250,7 @@ packages:
 
   airbnb-prop-types@2.16.0:
     resolution: {integrity: sha512-7WHOFolP/6cS96PhKNrslCLMYAI8yB1Pp6u6XmxozQOiZbsI5ycglZr5cHhBFfuRcQQjzCMith5ZPZdYiJCxUg==}
+    deprecated: This package has been renamed to 'prop-types-tools'
     peerDependencies:
       react: ^0.14 || ^15.0.0 || ^16.0.0-alpha
 
@@ -4888,6 +4895,20 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
+  framer-motion@11.2.5:
+    resolution: {integrity: sha512-X22i42hWY423wx2C1TlQlC4UnWonD+udND0qX1Fkt0dDlreSmuNY76obO6Y2d/UdJPhqVd5Zn6g1jAIwF6Xx9A==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
@@ -5061,10 +5082,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@9.3.5:
     resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
@@ -5350,6 +5373,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -7557,14 +7581,17 @@ packages:
 
   rimraf@2.5.4:
     resolution: {integrity: sha512-Lw7SHMjssciQb/rRz7JyPIy9+bbUshEucPoLRvWqy09vC5zQixl8Uet+Zl+SROBB/JMWHJRdCk1qdxNWHNMvlQ==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@4.4.1:
@@ -9897,28 +9924,28 @@ snapshots:
 
   '@floating-ui/core@1.6.0':
     dependencies:
-      '@floating-ui/utils': 0.2.1
+      '@floating-ui/utils': 0.2.2
 
-  '@floating-ui/dom@1.6.3':
+  '@floating-ui/dom@1.6.5':
     dependencies:
       '@floating-ui/core': 1.6.0
-      '@floating-ui/utils': 0.2.1
+      '@floating-ui/utils': 0.2.2
 
   '@floating-ui/react-dom@2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@floating-ui/dom': 1.6.3
+      '@floating-ui/dom': 1.6.5
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@floating-ui/react@0.26.13(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@floating-ui/react@0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@floating-ui/utils': 0.2.1
+      '@floating-ui/utils': 0.2.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       tabbable: 6.2.0
 
-  '@floating-ui/utils@0.2.1': {}
+  '@floating-ui/utils@0.2.2': {}
 
   '@gitbeaker/core@38.12.1':
     dependencies:
@@ -13811,6 +13838,14 @@ snapshots:
   forwarded@0.2.0: {}
 
   fraction.js@4.3.7: {}
+
+  framer-motion@11.2.5(@emotion/is-prop-valid@1.2.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      tslib: 2.6.2
+    optionalDependencies:
+      '@emotion/is-prop-valid': 1.2.2
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
 
   fresh@0.5.2: {}
 

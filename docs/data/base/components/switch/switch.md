@@ -5,13 +5,14 @@ components: SwitchRoot, SwitchThumb
 hooks: useSwitchRoot
 githubLabel: 'component: switch'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+packageName: '@base_ui/react'
 ---
 
 # Switch
 
 <p class="description">Switches are UI elements that let users choose between two states—most commonly on/off.</p>
 
-{{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
+{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
