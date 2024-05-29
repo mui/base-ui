@@ -89,7 +89,7 @@ commands:
                   corepack enable
             - run:
                 name: Prepare playwright hash
-                command: pnpm list --json --filter playwright > /tmp/playwright_info.json
+                command: pnpm list --recursive --json --filter @mui-internal/tests playwright > /tmp/playwright_info.json
             - store_artifacts:
                 name: Debug playwright hash
                 path: /tmp/playwright_info.json
@@ -402,6 +402,9 @@ jobs:
       - checkout
       - install_js:
           browsers: true
+      - run:
+          name: install Playwright browsers
+          command: pnpm exec playwright install
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e

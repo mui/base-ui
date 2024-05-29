@@ -86,8 +86,8 @@ importers:
         specifier: ^20.1.0
         version: 20.1.0
       '@playwright/test':
-        specifier: 1.43.1
-        version: 1.43.1
+        specifier: 1.44.1
+        version: 1.44.1
       '@types/enzyme':
         specifier: ^3.10.18
         version: 3.10.18
@@ -351,7 +351,7 @@ importers:
         version: 11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       '@mui/docs':
         specifier: 6.0.0-alpha.8
-        version: 6.0.0-alpha.8(@mui/base@5.0.0-beta.46(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.8(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 6.0.0-alpha.8(@mui/base@5.0.0-beta.46(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.8(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@mui/icons-material':
         specifier: 6.0.0-alpha.8
         version: 6.0.0-alpha.8(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
@@ -369,7 +369,7 @@ importers:
         version: 6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/material-nextjs':
         specifier: 6.0.0-alpha.1
-        version: 6.0.0-alpha.1(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 6.0.0-alpha.1(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@mui/styles':
         specifier: 6.0.0-alpha.8
         version: 6.0.0-alpha.8(@types/react@18.3.1)(react@18.2.0)
@@ -441,7 +441,7 @@ importers:
         version: 1.5.0
       next:
         specifier: ^14.2.3
-        version: 14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       nprogress:
         specifier: ^0.2.0
         version: 0.2.0
@@ -539,9 +539,6 @@ importers:
       marked:
         specifier: ^12.0.2
         version: 12.0.2
-      playwright:
-        specifier: ^1.43.1
-        version: 1.44.1
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -668,8 +665,8 @@ importers:
         specifier: 6.0.0-alpha.8
         version: 6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@playwright/test':
-        specifier: 1.43.1
-        version: 1.43.1
+        specifier: 1.44.1
+        version: 1.44.1
       '@testing-library/dom':
         specifier: ^10.1.0
         version: 10.1.0
@@ -707,7 +704,7 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       playwright:
-        specifier: ^1.43.1
+        specifier: ^1.44.1
         version: 1.44.1
       prop-types:
         specifier: ^15.8.1
@@ -2636,8 +2633,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.43.1':
-    resolution: {integrity: sha512-HgtQzFgNEEo4TE22K/X7sYTYNqEMMTZmFS8kTq6m8hXj+m1D8TgwgIbumHddJa9h4yl4GkKb8/bgAl2+g7eDgA==}
+  '@playwright/test@1.44.1':
+    resolution: {integrity: sha512-1hZ4TNvD5z9VuhNJ/walIjvMVvYkZKf71axoF/uiAqpntQJXpG64dlXhoDXE3OczPuTuvjf/M5KWFg5VAVUS3Q==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -7002,18 +6999,8 @@ packages:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
 
-  playwright-core@1.43.1:
-    resolution: {integrity: sha512-EI36Mto2Vrx6VF7rm708qSnesVQKbxEWvPrfA1IPY6HgczBplDx7ENtx+K2n4kJ41sLLkuGfmb0ZLSSXlDhqPg==}
-    engines: {node: '>=16'}
-    hasBin: true
-
   playwright-core@1.44.1:
     resolution: {integrity: sha512-wh0JWtYTrhv1+OSsLPgFzGzt67Y7BE/ZS3jEqgGBlp2ppp1ZDj8c+9IARNW4dwf1poq5MgHreEM2KV/GuR4cFA==}
-    engines: {node: '>=16'}
-    hasBin: true
-
-  playwright@1.43.1:
-    resolution: {integrity: sha512-V7SoH0ai2kNt1Md9E3Gwas5B9m8KR2GVvwZnAI6Pg0m3sh7UvgiYhRrhsziCmqMJNouPckiOhk8T+9bSAK0VIA==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -10184,7 +10171,7 @@ snapshots:
 
   '@mui/core-downloads-tracker@6.0.0-dev.240424162023-9968b4889d': {}
 
-  ? '@mui/docs@6.0.0-alpha.8(@mui/base@5.0.0-beta.46(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.8(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)'
+  ? '@mui/docs@6.0.0-alpha.8(@mui/base@5.0.0-beta.46(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/icons-material@6.0.0-alpha.8(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)'
   : dependencies:
       '@babel/runtime': 7.24.5
       '@mui/base': 5.0.0-beta.46(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -10194,7 +10181,7 @@ snapshots:
       '@mui/system': 6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       clipboard-copy: 4.0.1
       clsx: 2.1.1
-      next: 14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      next: 14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       nprogress: 0.2.0
       prop-types: 15.8.1
       react: 18.2.0
@@ -10311,11 +10298,11 @@ snapshots:
       '@emotion/styled': 11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       '@types/react': 18.3.1
 
-  '@mui/material-nextjs@6.0.0-alpha.1(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)':
+  '@mui/material-nextjs@6.0.0-alpha.1(@emotion/cache@11.11.0)(@emotion/server@11.11.0)(@mui/material@6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.1)(next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.24.5
       '@mui/material': 6.0.0-alpha.8(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      next: 14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      next: 14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
     optionalDependencies:
       '@emotion/cache': 11.11.0
@@ -10918,9 +10905,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.43.1':
+  '@playwright/test@1.44.1':
     dependencies:
-      playwright: 1.43.1
+      playwright: 1.44.1
 
   '@polka/url@1.0.0-next.25': {}
 
@@ -15538,7 +15525,7 @@ snapshots:
 
   nested-error-stacks@2.1.1: {}
 
-  next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.43.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+  next@14.2.3(@babel/core@7.24.5)(@opentelemetry/api@1.8.0)(@playwright/test@1.44.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       '@next/env': 14.2.3
       '@swc/helpers': 0.5.5
@@ -15560,7 +15547,7 @@ snapshots:
       '@next/swc-win32-ia32-msvc': 14.2.3
       '@next/swc-win32-x64-msvc': 14.2.3
       '@opentelemetry/api': 1.8.0
-      '@playwright/test': 1.43.1
+      '@playwright/test': 1.44.1
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -16263,15 +16250,7 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  playwright-core@1.43.1: {}
-
   playwright-core@1.44.1: {}
-
-  playwright@1.43.1:
-    dependencies:
-      playwright-core: 1.43.1
-    optionalDependencies:
-      fsevents: 2.3.2
 
   playwright@1.44.1:
     dependencies:
