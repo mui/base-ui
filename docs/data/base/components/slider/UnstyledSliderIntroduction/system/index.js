@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled, alpha, Box } from '@mui/system';
-import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/legacy/Slider';
+import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
 
 export default function UnstyledSliderIntroduction() {
   return (
@@ -48,7 +48,7 @@ const Slider = styled(BaseSlider)(
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
 
-  &.${sliderClasses.disabled} { 
+  &.${sliderClasses.disabled} {
     pointer-events: none;
     cursor: default;
     color: ${theme.palette.mode === 'light' ? grey[300] : grey[600]};
@@ -113,7 +113,7 @@ const Slider = styled(BaseSlider)(
       outline: none;
       transform: scale(1.2);
     }
-    
+
     &.${sliderClasses.disabled} {
       background-color: ${theme.palette.mode === 'light' ? grey[300] : grey[600]};
     }

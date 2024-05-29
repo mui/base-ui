@@ -11,7 +11,7 @@ import { MenuButton } from '@base_ui/react/legacy/MenuButton';
 import { Modal, modalClasses } from '@base_ui/react/legacy/Modal';
 import { Option } from '@base_ui/react/legacy/Option';
 import { Select } from '@base_ui/react/legacy/Select';
-import { Slider, sliderClasses } from '@base_ui/react/legacy/Slider';
+import { Slider, sliderClasses } from '@base_ui/react/Slider';
 import { Snackbar } from '@base_ui/react/legacy/Snackbar';
 import { SnackbarCloseReason } from '@base_ui/react/legacy/useSnackbar';
 import * as Tabs from '@base_ui/react/Tabs';

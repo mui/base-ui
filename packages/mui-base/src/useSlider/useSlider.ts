@@ -18,7 +18,7 @@ import {
   UseSliderRootSlotProps,
   UseSliderThumbSlotProps,
 } from './useSlider.types';
-import { areArraysEqual, EventHandlers, extractEventHandlers } from '../../utils';
+import { areArraysEqual, EventHandlers, extractEventHandlers } from '../utils';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 

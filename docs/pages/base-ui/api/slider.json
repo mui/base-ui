@@ -87,7 +87,7 @@
     }
   },
   "name": "Slider",
-  "imports": ["import { Slider } from '@base_ui/react/legacy/Slider';"],
+  "imports": ["import { Slider } from '@base_ui/react/Slider';"],
   "classes": [],
   "spread": true,
   "muiName": "Slider",

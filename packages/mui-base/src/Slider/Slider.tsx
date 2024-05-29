@@ -3,15 +3,15 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { chainPropTypes } from '@mui/utils';
-import { PolymorphicComponent } from '../utils/PolymorphicComponent';
-import { isHostComponent } from '../../utils/isHostComponent';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
+import { PolymorphicComponent } from '../legacy/utils/PolymorphicComponent';
+import { isHostComponent } from '../utils/isHostComponent';
+import { unstable_composeClasses as composeClasses } from '../legacy/composeClasses';
 import { getSliderUtilityClass } from './sliderClasses';
 import { useSlider, valueToPercent } from '../useSlider';
-import { useSlotProps } from '../utils/useSlotProps';
-import { resolveComponentProps } from '../utils/resolveComponentProps';
+import { useSlotProps } from '../legacy/utils/useSlotProps';
+import { resolveComponentProps } from '../legacy/utils/resolveComponentProps';
 import { SliderOwnerState, SliderProps, SliderTypeMap } from './Slider.types';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
+import { useClassNamesOverride } from '../legacy/utils/ClassNameConfigurator';
 
 // @ts-ignore
 function Identity(x) {

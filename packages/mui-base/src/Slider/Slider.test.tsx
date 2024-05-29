@@ -7,8 +7,8 @@ import {
   sliderClasses as classes,
   SliderRootSlotProps,
   SliderValueLabelSlotProps,
-} from '@base_ui/react/legacy/Slider';
-import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
+} from '@base_ui/react/Slider';
+import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 

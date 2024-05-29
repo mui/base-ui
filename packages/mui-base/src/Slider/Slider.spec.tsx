@@ -10,7 +10,7 @@ import {
   SliderThumbSlotProps,
   SliderTrackSlotProps,
   SliderValueLabelSlotProps,
-} from '@base_ui/react/legacy/Slider';
+} from '@base_ui/react/Slider';
 
 const Root = React.forwardRef(function Root(
   props: SliderRootSlotProps,
