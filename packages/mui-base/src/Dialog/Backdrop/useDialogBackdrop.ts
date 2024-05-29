@@ -1,7 +1,9 @@
 import * as React from 'react';
 import type { UseDialogBackdropParams, UseDialogBackdropReturnValue } from './DialogBackdrop.types';
-import { useTransitionedElement } from '../../Transitions';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useAnimatedElement } from '../../utils/useAnimatedElement';
+import { useForkRef } from '../../utils/useForkRef';
+
 /**
  *
  * API:
@@ -9,29 +11,29 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useDialogBackdrop API](https://mui.com/base-ui/api/use-dialog-backdrop/)
  */
 export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBackdropReturnValue {
-  const { open } = params;
+  const { animated, open, ref } = params;
 
-  const ref = React.useRef<HTMLElement | null>(null);
+  const backdropRef = React.useRef<HTMLElement | null>(null);
+  const handleRef = useForkRef(ref, backdropRef);
 
-  const { getRootProps: getTransitionProps, mounted } = useTransitionedElement({
-    isRendered: open,
-    elementRef: ref,
+  const { mounted, transitionStatus } = useAnimatedElement({
+    open,
+    ref: backdropRef,
+    enabled: animated,
   });
 
   const getRootProps = React.useCallback(
     (externalProps: React.ComponentPropsWithRef<any>) =>
-      mergeReactProps(
-        externalProps,
-        getTransitionProps({
-          role: 'presentation',
-          ref,
-        }),
-      ),
-    [getTransitionProps],
+      mergeReactProps(externalProps, {
+        role: 'presentation',
+        ref: handleRef,
+      }),
+    [handleRef],
   );
 
   return {
     getRootProps,
     mounted,
+    transitionStatus,
   };
 }

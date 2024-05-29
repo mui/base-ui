@@ -1,4 +1,5 @@
-import { BaseUIComponentProps } from '@base_ui/react/utils/BaseUI.types';
+import { TransitionStatus } from '../../utils/useTransitionStatus';
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdropOwnerState> {
   /**
@@ -19,6 +20,7 @@ export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogB
 export interface DialogBackdropOwnerState {
   open: boolean;
   modal: boolean;
+  transitionStatus: TransitionStatus;
 }
 
 export interface UseDialogBackdropParams {
@@ -31,6 +33,10 @@ export interface UseDialogBackdropParams {
    * Determines if the dialog is open.
    */
   open: boolean;
+  /**
+   * The ref to the background element.
+   */
+  ref: React.Ref<HTMLElement>;
 }
 
 export interface UseDialogBackdropReturnValue {
@@ -42,4 +48,8 @@ export interface UseDialogBackdropReturnValue {
    * Determines if the dialog should be mounted even if closed (as the exit animation is still in progress).
    */
   mounted: boolean;
+  /**
+   * The current transition status of the dialog.
+   */
+  transitionStatus: TransitionStatus;
 }

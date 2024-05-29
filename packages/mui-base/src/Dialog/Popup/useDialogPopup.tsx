@@ -4,7 +4,8 @@ import { UseDialogPopupParameters, UseDialogPopupReturnValue } from './DialogPop
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useTransitionedElement } from '../../Transitions';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 /**
  *
  * Demos:
@@ -17,6 +18,7 @@ import { useTransitionedElement } from '../../Transitions';
  */
 export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogPopupReturnValue {
   const {
+    animated,
     descriptionElementId,
     id: idParam,
     modal,
@@ -47,10 +49,20 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   const id = useId(idParam);
   const handleRef = useForkRef(ref, popupRef, refs.setFloating);
 
-  const { getRootProps: getTransitionProps, mounted } = useTransitionedElement({
-    isRendered: open,
-    elementRef: popupRef,
-  });
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const runOnceAnimationsFinish = useAnimationsFinished(() => popupRef.current);
+
+  React.useEffect(() => {
+    if (!open) {
+      if (animated) {
+        runOnceAnimationsFinish(() => {
+          setMounted(false);
+        });
+      } else {
+        setMounted(false);
+      }
+    }
+  }, [animated, open, runOnceAnimationsFinish, setMounted]);
 
   React.useEffect(() => {
     setPopupElementId(id);
@@ -60,20 +72,18 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   }, [id, setPopupElementId]);
 
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps(
-      externalProps,
-      getTransitionProps({
-        'aria-labelledby': titleElementId ?? undefined,
-        'aria-describedby': descriptionElementId ?? undefined,
-        'aria-hidden': !open || undefined,
-        'aria-modal': open && modal ? true : undefined,
-        role: type,
-        tabIndex: -1,
-        ...getFloatingProps(),
-        id,
-        ref: handleRef,
-      }),
-    );
+    mergeReactProps(externalProps, {
+      'aria-labelledby': titleElementId ?? undefined,
+      'aria-describedby': descriptionElementId ?? undefined,
+      'aria-hidden': !open || undefined,
+      'aria-modal': open && modal ? true : undefined,
+      role: type,
+      tabIndex: -1,
+      ...getFloatingProps(),
+      id,
+      ref: handleRef,
+      'data-transition-status': transitionStatus,
+    });
 
   return {
     floatingContext: context,

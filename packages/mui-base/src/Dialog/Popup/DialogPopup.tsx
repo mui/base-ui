@@ -5,13 +5,14 @@ import { DialogPopupOwnerState, DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { refType, HTMLElementType } from '../../utils/proptypes';
 
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated = false,
+    animated = true,
     className,
     container,
     id: idProp,
@@ -73,7 +74,7 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * If `true`, the dialog supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.
    *
-   * @default false
+   * @default true
    */
   animated: PropTypes.bool,
   /**
@@ -87,24 +88,7 @@ DialogPopup.propTypes /* remove-proptypes */ = {
   /**
    * The container element to which the popup is appended to.
    */
-  container: PropTypes.oneOfType([
-    function (props, propName) {
-      if (props[propName] == null) {
-        return new Error("Prop '" + propName + "' is required but wasn't specified");
-      } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error("Expected prop '" + propName + "' to be of type Element");
-      }
-    },
-    PropTypes.shape({
-      current: function (props, propName) {
-        if (props[propName] == null) {
-          return null;
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
-        }
-      },
-    }),
-  ]),
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
   /**
    * @ignore
    */

@@ -8,7 +8,7 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    * If `true`, the dialog supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.
    *
-   * @default false
+   * @default true
    */
   animated?: boolean;
   /**

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import * as Dialog from '@base_ui/react/Dialog';
-import { useTransitionStatus } from '@base_ui/react/Transitions';
+// eslint-disable-next-line no-restricted-imports
+import { useTransitionStatus } from '@base_ui/react/utils/useTransitionStatus';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import classes from './dialog.module.css';
 
@@ -161,7 +162,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
     from: { opacity: 0, transform: 'translateY(-8px) scale(0.95)' },
   });
 
-  const { mounted, onTransitionEnded } = useTransitionStatus(open);
+  const { mounted, setMounted } = useTransitionStatus(open);
 
   React.useEffect(() => {
     if (open) {
@@ -175,10 +176,10 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
         opacity: 0,
         transform: 'translateY(-8px) scale(0.95)',
         config: { tension: 170, friction: 26 },
-        onRest: () => onTransitionEnded(),
+        onRest: () => setMounted(false),
       });
     }
-  }, [api, open, mounted, onTransitionEnded]);
+  }, [api, open, mounted, setMounted]);
 
   return mounted ? (
     <springAnimated.div style={springs} className={classes.springWrapper}>

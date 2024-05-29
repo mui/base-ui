@@ -82,7 +82,7 @@
     transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
       translateY(calc(-30px * var(--nested-dialogs)));
     visibility: hidden;
-    opacity: 0.5;
+    opacity: 0;
     transition:
       transform var(--transition-duration) ease-in,
       opacity var(--transition-duration) ease-in,
@@ -92,7 +92,7 @@
       @starting-style {
         & {
           transform: translate(-50%, -35%) scale(0.8) translateY(0);
-          opacity: 0.5;
+          opacity: 0;
         }
       }
 
