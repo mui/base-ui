@@ -64,11 +64,11 @@ const Popup = styled(BaseDialog.Popup)(
 );
 
 const Backdrop = styled(BaseDialog.Backdrop)`
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgb(0 0 0 / 0.2);
   position: fixed;
   inset: 0;
   z-index: 2000;
-  backdrop-filter: blur(0px);
+  backdrop-filter: blur(0);
   opacity: 0;
   transition-property: opacity, backdrop-filter;
   transition-duration: 250ms;
@@ -81,7 +81,7 @@ const Backdrop = styled(BaseDialog.Backdrop)`
   }
 
   &[data-entering] {
-    backdrop-filter: blur(0px);
+    backdrop-filter: blur(0);
     opacity: 0;
   }
 `;

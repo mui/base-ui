@@ -65,7 +65,7 @@ describe('<Dialog.Root />', () => {
       expect(() => {
         render(
           <Dialog.Root open type="alertdialog" modal={false}>
-            <Dialog.Popup />
+            <Dialog.Popup animated={false} />
           </Dialog.Root>,
         );
       }).toWarnDev([
