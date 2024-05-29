@@ -23,7 +23,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const rootContext = useDialogRootContext();
   const { open, modal, nestedOpenDialogCount } = rootContext;
 
-  const { getRootProps, floatingContext, mounted } = useDialogPopup({
+  const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
     id: idProp,
     animated,
     ref: forwardedRef,
@@ -35,6 +35,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     open,
     modal,
     nestedOpenDialogCount,
+    transitionStatus,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -49,6 +50,15 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
       nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
+      transitionStatus: (value) => {
+        if (value === 'entering') {
+          return { 'data-entering': '' };
+        }
+        if (value === 'exiting') {
+          return { 'data-exiting': '' };
+        }
+        return null;
+      },
     },
   });
 

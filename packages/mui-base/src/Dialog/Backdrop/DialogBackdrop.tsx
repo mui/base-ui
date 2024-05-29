@@ -31,8 +31,15 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     extraProps: other,
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      transitionStatus: (value) =>
-        value !== undefined ? { 'data-transition-status': value } : null,
+      transitionStatus: (value) => {
+        if (value === 'entering') {
+          return { 'data-entering': '' };
+        }
+        if (value === 'exiting') {
+          return { 'data-exiting': '' };
+        }
+        return null;
+      },
     },
   });
 

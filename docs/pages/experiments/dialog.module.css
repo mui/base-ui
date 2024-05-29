@@ -109,6 +109,8 @@
 
   &.withAnimations {
     transform: translate(-50%, -35%) scale(0.8, 0.9) translateY(0);
+    visibility: hidden;
+    opacity: 0;
 
     &[data-state='open'] {
       animation:
@@ -119,7 +121,7 @@
       transition: transform var(--transition-duration) ease-out;
     }
 
-    &[data-state='closed'] {
+    &[data-exiting] {
       animation: dialog-closing var(--transition-duration) ease-in forwards;
     }
   }
@@ -137,11 +139,11 @@
   z-index: 0;
   position: fixed;
   inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(1px);
 
   &.withTransitions {
-    opacity: 0;
-    visibility: hidden;
-    backdrop-filter: blur(1px);
     transition:
       backdrop-filter 300ms ease-in,
       opacity 300ms ease-in,
@@ -169,7 +171,7 @@
       animation: backdrop-opening 500ms ease-out forwards;
     }
 
-    &[data-state='closed'] {
+    &[data-exiting] {
       animation: backdrop-closing 500ms ease-in forwards;
     }
   }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { type FloatingContext } from '@floating-ui/react';
 import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
 import { DialogType, SoftCloseOptions } from '../Root/DialogRoot.types';
+import { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupOwnerState> {
   /**
@@ -27,6 +28,7 @@ export interface DialogPopupOwnerState {
   open: boolean;
   modal: boolean;
   nestedOpenDialogCount: number;
+  transitionStatus: TransitionStatus;
 }
 
 export interface UseDialogPopupParameters {
@@ -96,4 +98,8 @@ export interface UseDialogPopupReturnValue {
    * Determines if the dialog should be mounted even if closed (as the exit animation is still in progress).
    */
   mounted: boolean;
+  /**
+   * The current transition status of the dialog.
+   */
+  transitionStatus: TransitionStatus;
 }

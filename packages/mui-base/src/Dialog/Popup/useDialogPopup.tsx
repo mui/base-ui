@@ -4,8 +4,7 @@ import { UseDialogPopupParameters, UseDialogPopupReturnValue } from './DialogPop
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useAnimatedElement } from '../../utils/useAnimatedElement';
 /**
  *
  * Demos:
@@ -49,20 +48,11 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   const id = useId(idParam);
   const handleRef = useForkRef(ref, popupRef, refs.setFloating);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
-  const runOnceAnimationsFinish = useAnimationsFinished(() => popupRef.current);
-
-  React.useEffect(() => {
-    if (!open) {
-      if (animated) {
-        runOnceAnimationsFinish(() => {
-          setMounted(false);
-        });
-      } else {
-        setMounted(false);
-      }
-    }
-  }, [animated, open, runOnceAnimationsFinish, setMounted]);
+  const { mounted, transitionStatus } = useAnimatedElement({
+    open,
+    ref: popupRef,
+    enabled: animated,
+  });
 
   React.useEffect(() => {
     setPopupElementId(id);
@@ -82,12 +72,12 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
       ...getFloatingProps(),
       id,
       ref: handleRef,
-      'data-transition-status': transitionStatus,
     });
 
   return {
     floatingContext: context,
     getRootProps,
     mounted,
+    transitionStatus,
   };
 }
