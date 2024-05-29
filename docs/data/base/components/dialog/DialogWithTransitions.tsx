@@ -8,7 +8,9 @@ export default function DialogWithTransitions() {
       <Trigger>Open</Trigger>
       <Popup>
         <Title>Animated dialog</Title>
-        <BaseDialog.Description>This dialog uses CSS transitions on entry and exit.</BaseDialog.Description>
+        <BaseDialog.Description>
+          This dialog uses CSS transitions on entry and exit.
+        </BaseDialog.Description>
         <Controls>
           <Close>Close</Close>
         </Controls>
