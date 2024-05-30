@@ -52,7 +52,7 @@ NumberField is implemented using a collection of related components:
 - `<NumberField.Input />` is the input itself.
 - `<NumberField.Increment />` is an optional button for incrementing the input value.
 - `<NumberField.Decrement />` is an optional button for decrementing the input value.
-- `<NumberField.ScrubArea />` can wrap a area, icon, or `<label/>` to make it scrubbable.
+- `<NumberField.ScrubArea />` can wrap an area, icon, or `<label/>` to make it scrubbable.
 - `<NumberField.ScrubAreaCursor />` is an optional component for rendering a virtual cursor while scrubbing.
 
 ```tsx
@@ -156,7 +156,7 @@ The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozill
 
 ## Scrubbing
 
-The `ScrubArea` subcomponent lets users scrub the value with their pointer as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `ScrubArea` component.
+The `ScrubArea` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `ScrubArea` component.
 
 {{"demo": "UnstyledNumberFieldScrub.js"}}
 
