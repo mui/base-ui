@@ -45,7 +45,7 @@ import * as NumberField from '@base_ui/react/NumberField';
 
 ## Anatomy
 
-NumberField is implemented using a collection of related components:
+Number Field is implemented using a collection of related components:
 
 - `<NumberField.Root />` is a top-level component that wraps all other components.
 - `<NumberField.Group />` semantically groups the input with the buttons.
@@ -72,7 +72,7 @@ NumberField is implemented using a collection of related components:
 
 ### Default value
 
-When the number field is uncontrolled, the `defaultValue` prop sets the initial value of the input.
+When Number Field is uncontrolled, the `defaultValue` prop sets the initial value of the input.
 
 ```jsx
 <NumberField.Root defaultValue={10}>
@@ -225,4 +225,4 @@ All subcomponents accept the `render` prop.
 
 ## Accessibility
 
-Ensure the number field has an accessible name via a `<label>` element.
+Ensure the Number Field has an accessible name via a `<label>` element.
