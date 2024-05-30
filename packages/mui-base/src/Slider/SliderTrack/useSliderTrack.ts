@@ -22,8 +22,8 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     getFingerNewValue,
     handleValueChange,
     onValueCommitted,
-    percentageValues,
     registerSliderTrack,
+    unsortedPercentageValues,
     rootRef: externalRef,
     setActive,
     setDragging,
@@ -231,7 +231,8 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
             if (thumbRefs.includes(event.target as HTMLElement)) {
               const targetThumbIndex = (event.target as HTMLElement).getAttribute('data-index');
 
-              const offset = percentageValues[Number(targetThumbIndex)] / 100 - newPercentageValue;
+              const offset =
+                unsortedPercentageValues[Number(targetThumbIndex)] / 100 - newPercentageValue;
 
               offsetRef.current = offset;
             } else {
@@ -259,7 +260,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       handleTouchMove,
       handleTouchEnd,
       handleValueChange,
-      percentageValues,
+      unsortedPercentageValues,
       setActive,
       setValueState,
       thumbRefs,

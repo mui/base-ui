@@ -19,11 +19,13 @@
     "max": { "description": "The maximum allowed value of the slider." },
     "min": { "description": "The minimum allowed value of the slider." },
     "orientation": { "description": "The component orientation." },
-    "percentageValues": { "description": "The value(s) of the slider as percentages" },
     "step": {
       "description": "The step value of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
     },
-    "values": { "description": "The value(s) of the slider" }
+    "unsortedPercentageValues": {
+      "description": "The internal unsorted percentage value(s) of the slider"
+    },
+    "unsortedValues": { "description": "The internal unsorted value(s) of the slider." }
   },
   "returnValueDescriptions": {
     "getThumbStyle": { "description": "Resolver for the thumb slot&#39;s style prop." }

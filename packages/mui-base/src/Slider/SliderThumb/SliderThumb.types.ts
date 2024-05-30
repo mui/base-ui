@@ -26,12 +26,12 @@ export interface UseSliderThumbParameters
     | 'min'
     | 'name'
     | 'orientation'
-    | 'percentageValues'
+    | 'unsortedPercentageValues'
     | 'scale'
     | 'setOpen'
     | 'step'
     | 'tabIndex'
-    | 'values'
+    | 'unsortedValues'
   > {
   /**
    * The label for the input element.

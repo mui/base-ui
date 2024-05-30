@@ -16,10 +16,6 @@ import {
   UseSliderReturnValue,
 } from './SliderRoot.types';
 
-// function asc(a: number, b: number) {
-//   return a - b;
-// }
-
 function findClosest(values: readonly number[], currentValue: number) {
   const { index: closestIndex } =
     values.reduce<{ distance: number; index: number } | null>(
@@ -107,6 +103,17 @@ export function trackFinger(
 }
 
 export const Identity = (x: any) => x;
+
+function sortValues(unsortedValues: readonly number[], sortType: 'asc' | 'off') {
+  const output = unsortedValues.slice();
+  return output.sort((a, b) => {
+    if (sortType === 'asc') {
+      return a - b;
+    }
+
+    return 0;
+  });
+}
 /**
  *
  * API:
@@ -130,6 +137,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     orientation = 'horizontal',
     rootRef,
     scale = Identity,
+    sort = 'asc',
     step = 1,
     tabIndex,
     value: valueProp,
@@ -175,20 +183,26 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       // @ts-ignore The nativeEvent is function, not object
       const clonedEvent = new nativeEvent.constructor(nativeEvent.type, nativeEvent);
 
+      let newValue = value;
+
+      if (Array.isArray(value)) {
+        newValue = sortValues(value, sort);
+      }
+
       Object.defineProperty(clonedEvent, 'target', {
         writable: true,
-        value: { value, name },
+        value: { value: newValue, name },
       });
 
-      onValueChange(value, thumbIndex, clonedEvent);
+      onValueChange(newValue, thumbIndex, clonedEvent);
     },
-    [name, onValueChange],
+    [name, onValueChange, sort],
   );
 
   const range = Array.isArray(valueState);
 
-  const values = React.useMemo(() => {
-    return (range ? valueState.slice() /* .sort(asc) */ : [valueState]).map((val) =>
+  const unsortedValues = React.useMemo(() => {
+    return (range ? valueState.slice() : [valueState]).map((val) =>
       val == null ? min : clamp(val, min, max),
     );
   }, [max, min, range, valueState]);
@@ -215,6 +229,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         return newValue === valueState;
       }
       if (typeof newValue === 'object' && typeof valueState === 'object') {
+        // console.log('comparing newValue vs valueState', newValue, valueState);
         return areArraysEqual(newValue, valueState);
       }
       return false;
@@ -224,7 +239,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const changeValue = React.useCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
-      const value = values[index];
+      const value = unsortedValues[index];
       const marksIndex = marksValues.indexOf(value);
       let newValue: number | number[] = valueInput;
 
@@ -244,12 +259,16 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       if (range) {
         // Bound the new value to the thumb's neighbours.
         if (disableSwap) {
-          newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
+          newValue = clamp(
+            newValue,
+            unsortedValues[index - 1] || -Infinity,
+            unsortedValues[index + 1] || Infinity,
+          );
         }
 
         // const previousValue = newValue;
         newValue = setValueIndex({
-          values,
+          values: unsortedValues,
           newValue,
           index,
         });
@@ -271,7 +290,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       }
 
       if (onValueCommitted) {
-        onValueCommitted(newValue, event);
+        if (Array.isArray(newValue)) {
+          onValueCommitted(sortValues(newValue, sort), event);
+        } else {
+          onValueCommitted(newValue, event);
+        }
       }
     },
     [
@@ -285,8 +308,9 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       onValueCommitted,
       range,
       setValueState,
+      sort,
       step,
-      values,
+      unsortedValues,
     ],
   );
 
@@ -343,7 +367,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         //   activeIndex = previousIndex.current!;
         // }
 
-        derivedIndex = activeIndex ?? findClosest(values, newValue) ?? 0;
+        derivedIndex = activeIndex ?? findClosest(unsortedValues, newValue) ?? 0;
 
         // if (!activeIndex) {
         //   activeIndex = findClosest(values, newValue);
@@ -353,15 +377,15 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         if (disableSwap) {
           newValue = clamp(
             newValue,
-            values[derivedIndex - 1] || -Infinity,
-            values[derivedIndex + 1] || Infinity,
+            unsortedValues[derivedIndex - 1] || -Infinity,
+            unsortedValues[derivedIndex + 1] || Infinity,
           );
         }
 
         // const previousValue = newValue;
         // console.log('newValue1', newValue);
         newValue = setValueIndex({
-          values,
+          values: unsortedValues,
           newValue,
           index: derivedIndex,
         });
@@ -382,7 +406,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         newPercentageValue: percent,
       };
     },
-    [axis, disableSwap, marksValues, max, min, range, step, values],
+    [axis, disableSwap, marksValues, max, min, range, step, unsortedValues],
   );
 
   useEnhancedEffect(() => {
@@ -410,6 +434,10 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     [handleRootRef, isRtl],
   );
 
+  const sortedValues = React.useMemo(() => {
+    return sortValues(unsortedValues, sort);
+  }, [unsortedValues, sort]);
+
   return React.useMemo(
     () => ({
       getRootProps,
@@ -431,8 +459,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       onValueCommitted,
       open,
       orientation,
-      percentageValues: values.map((v) => valueToPercent(v, min, max)),
       registerSliderTrack,
+      unsortedPercentageValues: unsortedValues.map((v) => valueToPercent(v, min, max)),
       scale,
       setActive,
       setDragging,
@@ -441,7 +469,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       step,
       subitems,
       tabIndex,
-      values,
+      unsortedValues,
+      values: sortedValues,
     }),
     [
       getRootProps,
@@ -469,10 +498,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       setDragging,
       setOpen,
       setValueState,
+      sortedValues,
       step,
       subitems,
       tabIndex,
-      values,
+      unsortedValues,
     ],
   );
 }

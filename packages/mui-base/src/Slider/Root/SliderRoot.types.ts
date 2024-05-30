@@ -40,9 +40,9 @@ export interface SliderRootOwnerState {
   orientation: 'horizontal' | 'vertical';
   step: number;
   /**
-   * The raw number value of the slider.
+   * The sorted values(s) of the slider.
    */
-  values: ReadonlyArray<number>;
+  values: readonly number[];
 }
 
 export interface SliderRootProps
@@ -158,6 +158,10 @@ export interface UseSliderParameters {
    */
   largeStep?: number;
   /**
+   * @default 'asc'
+   */
+  sort?: 'asc' | 'off';
+  /**
    * The granularity with which the slider can step through values. (A "discrete" slider.)
    * The `min` prop serves as the origin for the valid values.
    * We recommend (max - min) to be evenly divisible by the step.
@@ -170,7 +174,7 @@ export interface UseSliderParameters {
   tabIndex?: number;
   /**
    * The value of the slider.
-   * For ranged sliders, provide an array with two values.
+   * For ranged sliders, provide an array with multiple values
    */
   value?: number | ReadonlyArray<number>;
 }
@@ -264,9 +268,9 @@ export interface UseSliderReturnValue {
   orientation: 'horizontal' | 'vertical';
   registerSliderTrack: (element: HTMLElement | null) => void;
   /**
-   * The value(s) of the slider as percentages
+   * The internal unsorted percentage value(s) of the slider
    */
-  percentageValues: readonly number[];
+  unsortedPercentageValues: readonly number[];
   scale: (value: number) => number;
   setActive: (activeIndex: number) => void;
   setDragging: (isDragging: boolean) => void;
@@ -284,7 +288,11 @@ export interface UseSliderReturnValue {
   subitems: Map<string, SliderThumbMetadata>;
   tabIndex?: number;
   /**
-   * The value(s) of the slider
+   * The internal unsorted value(s) of the slider.
+   */
+  unsortedValues: readonly number[];
+  /**
+   * The sorted values(s) of the slider.
    */
   values: readonly number[];
 }
