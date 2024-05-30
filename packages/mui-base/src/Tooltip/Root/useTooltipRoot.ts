@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import useEventCallback from '@mui/utils/useEventCallback';
 import {
   safePolygon,
