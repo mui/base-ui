@@ -45,10 +45,10 @@ import * as Switch from '@base_ui/react/Switch';
 
 ## Anatomy
 
-Switch is composed of two components.
+Switch is composed of two components:
 
 - `<Switch.Root />` renders a `<button>`.
-- `<Switch.Thumbs />` renders a `<span>` for providing a visual indicator.
+- `<Switch.Thumb />` renders a `<span>` for providing a visual indicator.
 
 ```tsx
 <Switch.Root>

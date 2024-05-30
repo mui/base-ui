@@ -9,7 +9,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
 
 # Checkbox
 
-<p class="description">Checkbox give users a binary choice between multiple options in a series.</p>
+<p class="description">Checkbox gives users a binary choice between multiple options in a series.</p>
 
 {{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
 
@@ -45,7 +45,7 @@ import * as Checkbox from '@base_ui/react/Checkbox';
 
 ## Anatomy
 
-Checkbox is composed of two components.
+Checkbox is composed of two components:
 
 - `<Checkbox.Root />` renders a `<button>`.
 - `<Checkbox.Indicator />` renders a `<span>` for providing a visual indicator. You could place an icon inside this component.
@@ -58,7 +58,7 @@ Checkbox is composed of two components.
 
 ## Indeterminate state
 
-To make the checkbox indeterminate, add the `indeterminate` prop to override the appearance of the checkbox. The checkbox remains in an indeterminate state regardless of user interaction until set back to `false`.
+To make the Checkbox indeterminate, add the `indeterminate` prop to override the appearance of the Checkbox. The Checkbox remains in an indeterminate state regardless of user interaction until set back to `false`.
 
 {{"demo": "UnstyledCheckboxIndeterminate.js"}}
 
