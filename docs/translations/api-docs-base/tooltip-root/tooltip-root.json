@@ -1,0 +1,22 @@
+{
+  "componentDescription": "The foundation for building custom-styled tooltips.",
+  "propDescriptions": {
+    "closeDelay": {
+      "description": "The delay in milliseconds until the tooltip content is closed."
+    },
+    "defaultOpen": {
+      "description": "Specifies whether the tooltip is open initially when uncontrolled."
+    },
+    "delay": { "description": "The delay in milliseconds until the tooltip content is opened." },
+    "delayType": {
+      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the anchor before the tooltip content is opened. <code>hover</code> means the <code>delay</code> represents how long to wait once the user&#39;s cursor has entered the anchor."
+    },
+    "onOpenChange": {
+      "description": "Callback fired when the tooltip content is requested to be opened or closed. Use when controlled."
+    },
+    "open": {
+      "description": "If <code>true</code>, the tooltip content is open. Use when controlled."
+    }
+  },
+  "classDescriptions": {}
+}

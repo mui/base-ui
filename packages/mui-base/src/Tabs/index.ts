@@ -1,4 +1,4 @@
-export { Tabs as Root } from './Root/TabsRoot';
+export { TabsRoot as Root } from './Root/TabsRoot';
 export type {
   TabsRootOwnerState as RootOwnerState,
   TabsRootProps as RootProps,

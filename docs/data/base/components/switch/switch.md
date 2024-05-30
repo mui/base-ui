@@ -2,16 +2,17 @@
 productId: base-ui
 title: React Switch component and hook
 components: SwitchRoot, SwitchThumb
-hooks: useSwitch
+hooks: useSwitchRoot
 githubLabel: 'component: switch'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+packageName: '@base_ui/react'
 ---
 
 # Switch
 
 <p class="description">Switch is a UI element that let users choose between two states.</p>
 
-{{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
+{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 

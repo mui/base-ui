@@ -1,10 +1,10 @@
-interface Stringifyable {
-  toString(): string;
-}
+export type CustomStyleHookMapping<State> = {
+  [Property in keyof State]?: (state: State[Property]) => Record<string, string> | null;
+};
 
-export function getStyleHookProps<State extends Record<string, Stringifyable>>(
+export function getStyleHookProps<State extends Record<string, any>>(
   state: State,
-  customMapping?: Partial<Record<keyof State, (s: Stringifyable) => Record<string, string> | null>>,
+  customMapping?: CustomStyleHookMapping<State>,
 ) {
   let props: Record<string, string> = {};
 
@@ -18,7 +18,7 @@ export function getStyleHookProps<State extends Record<string, Stringifyable>>(
       return;
     }
 
-    if (value !== false) {
+    if (value !== false && value !== undefined) {
       props[`data-${key.toLowerCase()}`] = value.toString();
     }
   });

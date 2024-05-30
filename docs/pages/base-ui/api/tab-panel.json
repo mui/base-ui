@@ -6,7 +6,7 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "TabPanel",
-  "imports": ["import { TabPanel } from '@base_ui/react/Tabs';"],
+  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst TabPanel = Tabs.Panel;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

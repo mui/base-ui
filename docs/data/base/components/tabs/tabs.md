@@ -5,13 +5,14 @@ components: TabsRoot, TabPanel, Tab, TabsList, TabIndicator
 hooks: useTabsRoot, useTabPanel, useTab, useTabsList, useTabIndicator
 githubLabel: 'component: tabs'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+packageName: '@base_ui/react'
 ---
 
 # Tabs
 
 <p class="description">Tabs organize groups of related content and let users navigate between them.</p>
 
-{{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
+{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
@@ -19,7 +20,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 
 ## Installation
 
-Base UI components are all available as a single package.
+Base UI components are all available as a single package.
 
 <codeblock storageKey="package-manager">
 
@@ -164,16 +165,16 @@ If you provide a non-interactive element such as a `<span>`, the Tab components 
 
 ## Accessibility
 
-Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
 ### Keyboard navigation
 
-| Key                                                        | Function                                                                                                        |
-| :--------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
-| <kbd class="key">Left arrow</kbd>                          | Moves focus to the previous tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set. |
-| <kbd class="key">Right arrow</kbd>                         | Moves focus to the next tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set.     |
-| <kbd class="key">Up arrow</kbd>                            | Moves focus to the previous tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.   |
-| <kbd class="key">Down arrow</kbd>                          | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
+|                                                       Keys | Descriptions                                                                                                    |
+| ---------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------- |
+|                          <kbd class="key">Left Arrow</kbd> | Moves focus to the previous tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set. |
+|                         <kbd class="key">Right Arrow</kbd> | Moves focus to the next tab (when `orientation="horizontal"`) and activates it if `activateOnFocus` is set.     |
+|                            <kbd class="key">Up Arrow</kbd> | Moves focus to the previous tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.   |
+|                          <kbd class="key">Down Arrow</kbd> | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
 | <kbd class="key">Space</kbd>, <kbd class="key">Enter</kbd> | Activates the focused tab.                                                                                      |
 
 ### Labeling

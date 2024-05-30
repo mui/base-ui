@@ -10,7 +10,7 @@ import NumberFieldInputApiJsonPageContent from '../../api/number-field-input.jso
 import NumberFieldRootApiJsonPageContent from '../../api/number-field-root.json';
 import NumberFieldScrubAreaApiJsonPageContent from '../../api/number-field-scrub-area.json';
 import NumberFieldScrubAreaCursorApiJsonPageContent from '../../api/number-field-scrub-area-cursor.json';
-import useNumberFieldApiJsonPageContent from '../../api/use-number-field.json';
+import useNumberFieldRootApiJsonPageContent from '../../api/use-number-field-root.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -80,12 +80,12 @@ export const getStaticProps = () => {
     NumberFieldScrubAreaCursorApiReq,
   );
 
-  const useNumberFieldApiReq = require.context(
-    'docs-base/translations/api-docs/use-number-field',
+  const useNumberFieldRootApiReq = require.context(
+    'docs-base/translations/api-docs/use-number-field-root',
     false,
-    /\.\/use-number-field.*.json$/,
+    /\.\/use-number-field-root.*.json$/,
   );
-  const useNumberFieldApiDescriptions = mapApiPageTranslations(useNumberFieldApiReq);
+  const useNumberFieldRootApiDescriptions = mapApiPageTranslations(useNumberFieldRootApiReq);
 
   return {
     props: {
@@ -107,8 +107,8 @@ export const getStaticProps = () => {
         NumberFieldScrubArea: NumberFieldScrubAreaApiJsonPageContent,
         NumberFieldScrubAreaCursor: NumberFieldScrubAreaCursorApiJsonPageContent,
       },
-      hooksApiDescriptions: { useNumberField: useNumberFieldApiDescriptions },
-      hooksApiPageContents: { useNumberField: useNumberFieldApiJsonPageContent },
+      hooksApiDescriptions: { useNumberFieldRoot: useNumberFieldRootApiDescriptions },
+      hooksApiPageContents: { useNumberFieldRoot: useNumberFieldRootApiJsonPageContent },
     },
   };
 };

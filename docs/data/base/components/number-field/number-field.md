@@ -3,15 +3,16 @@ productId: base-ui
 title: React NumberField component and hook
 githubLabel: 'component: number-field'
 components: NumberFieldRoot, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement, NumberFieldScrubArea, NumberFieldScrubAreaCursor
-hooks: useNumberField
+hooks: useNumberFieldRoot
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
+packageName: '@base_ui/react'
 ---
 
 # Number Field
 
 <p class="description">Number Field provides users with a numeric input, with buttons and a scrub area to increment or decrement its value.</p>
 
-{{"component": "modules/components/ComponentLinkHeader.js", "design": false}}
+{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
