@@ -224,10 +224,13 @@ export interface UseSliderReturnValue {
   disabled: boolean;
   getFingerNewValue: (args: {
     finger: { x: number; y: number };
-    move?: boolean;
     offset?: number;
     activeIndex?: number;
-  }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number };
+  }) => {
+    newValue: number | number[];
+    activeIndex: number;
+    newPercentageValue: number;
+  };
   handleValueChange: (
     value: number | number[],
     activeThumb: number,

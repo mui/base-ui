@@ -24,13 +24,15 @@ export function TrackFill(props: any) {
 
   const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext();
 
-  const isRange = percentageValues.length > 1;
+  const values = percentageValues.slice().sort((a, b) => a - b);
+
+  const isRange = values.length > 1;
 
   let internalStyles;
 
   if (isRange) {
-    const trackOffset = percentageValues[0];
-    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
+    const trackOffset = values[0];
+    const trackLeap = values[values.length - 1] - trackOffset;
 
     internalStyles = {
       ...axisProps[axis].offset(trackOffset),
@@ -39,11 +41,11 @@ export function TrackFill(props: any) {
   } else if (orientation === 'vertical') {
     internalStyles = {
       [inverted ? 'top' : 'bottom']: 0,
-      height: `${inverted ? 100 - percentageValues[0] : percentageValues[0]}%`,
+      height: `${inverted ? 100 - values[0] : values[0]}%`,
     };
   } else {
     internalStyles = {
-      width: `${inverted ? 100 - percentageValues[0] : percentageValues[0]}%`,
+      width: `${inverted ? 100 - values[0] : values[0]}%`,
       [(isRtl || inverted) && isRtl !== inverted ? 'right' : 'left']: 0,
     };
   }

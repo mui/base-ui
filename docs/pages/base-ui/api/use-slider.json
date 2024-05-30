@@ -87,8 +87,8 @@
     "dragging": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getFingerNewValue": {
       "type": {
-        "name": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number }",
-        "description": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number }"
+        "name": "(args: { finger: { x: number; y: number }; offset?: number; activeIndex?: number }) =&gt; {\n  newValue: number | number[]\n  activeIndex: number\n  newPercentageValue: number\n}",
+        "description": "(args: { finger: { x: number; y: number }; offset?: number; activeIndex?: number }) =&gt; {\n  newValue: number | number[]\n  activeIndex: number\n  newPercentageValue: number\n}"
       },
       "required": true
     },
