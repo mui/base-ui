@@ -80,7 +80,7 @@
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/chai": "^4.3.14",
-    "@types/node": "^18.19.31",
+    "@types/node": "^18.19.33",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
