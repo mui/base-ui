@@ -68,7 +68,7 @@
     "react-simple-code-editor": "^0.13.1",
     "react-transition-group": "^4.4.5",
     "rimraf": "^5.0.5",
-    "styled-components": "^6.1.9",
+    "styled-components": "^6.1.11",
     "stylis": "4.3.2",
     "stylis-plugin-rtl": "^2.1.1",
     "webpack-bundle-analyzer": "^4.10.2"
