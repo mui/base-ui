@@ -95,8 +95,8 @@ importers:
         specifier: ^11.0.4
         version: 11.0.4
       '@types/lodash':
-        specifier: ^4.17.0
-        version: 4.17.0
+        specifier: ^4.17.4
+        version: 4.17.4
       '@types/mocha':
         specifier: ^10.0.6
         version: 10.0.6
@@ -2913,8 +2913,8 @@ packages:
   '@types/jsonwebtoken@8.5.9':
     resolution: {integrity: sha512-272FMnFGzAVMGtu9tkr29hRL6bZj4Zs1KZNeHLnKqAvp06tAIcarTMwOh8/8bz4FmKRcMxZhZNeUAQsNLoiPhg==}
 
-  '@types/lodash@4.17.0':
-    resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
+  '@types/lodash@4.17.4':
+    resolution: {integrity: sha512-wYCP26ZLxaT3R39kiN2+HcJ4kTd3U1waI/cY7ivWYqFP6pW3ZNpvi6Wd6PHZx7T/t8z0vlkXMg3QYLa7DZ/IJQ==}
 
   '@types/mdast@3.0.15':
     resolution: {integrity: sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==}
@@ -11313,7 +11313,7 @@ snapshots:
     dependencies:
       '@types/node': 18.19.31
 
-  '@types/lodash@4.17.0': {}
+  '@types/lodash@4.17.4': {}
 
   '@types/mdast@3.0.15':
     dependencies:
