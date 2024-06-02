@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mui/base-ui/blob/HEAD/LICENSE)
 [![npm latest package](https://img.shields.io/npm/v/@base_ui/react/latest.svg)](https://www.npmjs.com/package/@base_ui/react)
 [![npm downloads](https://img.shields.io/npm/dm/@base_ui/react.svg)](https://www.npmjs.com/package/@base_ui/react)
-[![GitHub branch status](https://img.shields.io/github/checks-status/mui/base-ui)](https://github.com/mui/base-ui/commits/HEAD/)
+[![GitHub branch status](https://img.shields.io/github/checks-status/mui/base-ui/HEAD)](https://github.com/mui/base-ui/commits/HEAD/)
 [![Coverage status](https://img.shields.io/codecov/c/github/mui/base-ui.svg)](https://app.codecov.io/gh/mui/base-ui/)
 [![Follow on X](https://img.shields.io/twitter/follow/Base_UI.svg?label=follow+Base+UI)](https://x.com/Base_UI)
 [![Renovate status](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/mui/base-ui/issues/2)
