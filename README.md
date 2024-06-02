@@ -1,4 +1,8 @@
 <!-- markdownlint-disable-next-line -->
+<p align="center">
+  <a href="https://mui.com/base-ui/" rel="noopener" target="_blank"><img width="150" height="133" src="https://mui.com/static/logo.svg" alt="Base UI logo"></a>
+</p>
+
 <h1 align="center">Base UI</h1>
 
 [Base UI](https://mui.com/base-ui/) is a library of unstyled React UI components and hooks. With Base UI, you gain complete control over your app's CSS and accessibility features.
