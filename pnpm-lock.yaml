@@ -275,8 +275,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       recast:
-        specifier: ^0.23.6
-        version: 0.23.6
+        specifier: ^0.23.9
+        version: 0.23.9
       remark:
         specifier: ^13.0.0
         version: 13.0.0
@@ -7435,8 +7435,8 @@ packages:
     resolution: {integrity: sha512-gNva8/6UAe8QYepIQH/jQ2qn91Qj0B9sYjMBBs3QOB8F2CXcKgLxQaJRP76sWVRQt+QU+8fAkCbCvjjMFu7Ycw==}
     engines: {node: '>= 0.8.0'}
 
-  recast@0.23.6:
-    resolution: {integrity: sha512-9FHoNjX1yjuesMwuthAmPKabxYQdOgihFYmT5ebXfYGBcnqXZf3WOVz+5foEZ8Y83P4ZY6yQD5GMmtV+pgCCAQ==}
+  recast@0.23.9:
+    resolution: {integrity: sha512-Hx/BGIbwj+Des3+xy5uAtAbdCyqK9y9wbBcDFDYanLS9JnMqf7OeF87HQwUimE87OEc72mr6tkKUKMBBL+hF9Q==}
     engines: {node: '>= 4'}
 
   rechoir@0.8.0:
@@ -16766,7 +16766,7 @@ snapshots:
 
   readline-sync@1.4.10: {}
 
-  recast@0.23.6:
+  recast@0.23.9:
     dependencies:
       ast-types: 0.16.1
       esprima: 4.0.1
