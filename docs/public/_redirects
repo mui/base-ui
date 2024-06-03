@@ -1,4 +1,5 @@
-/ /base-ui/ 301
+/ /base-ui/getting-started/ 301
+/base-ui/ https://mui.com/base-ui/ 302
 # Avoid conflicts with the other Next.js apps hosted under https://mui.com/
 /base-ui/_next/* /_next/:splat 200
 
