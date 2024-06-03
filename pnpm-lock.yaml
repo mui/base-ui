@@ -467,8 +467,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-router-dom:
-        specifier: ^6.23.0
-        version: 6.23.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^6.23.1
+        version: 6.23.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-runner:
         specifier: ^1.0.3
         version: 1.0.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -731,8 +731,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-router-dom:
-        specifier: ^6.23.0
-        version: 6.23.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^6.23.1
+        version: 6.23.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       sinon:
         specifier: ^17.0.1
         version: 17.0.1
@@ -2684,8 +2684,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  '@remix-run/router@1.16.0':
-    resolution: {integrity: sha512-Quz1KOffeEf/zwkCBM3kBtH4ZoZ+pT3xIXBG4PPW/XFtDP7EGhtTiC2+gpL9GnR7+Qdet5Oa6cYSvwKYg6kN9Q==}
+  '@remix-run/router@1.16.1':
+    resolution: {integrity: sha512-es2g3dq6Nb07iFxGk5GuHN20RwBZOsuDQN7izWIisUcv9r+d2C5jQxqmgkdebXgReWfiyUabcki6Fg77mSNrig==}
     engines: {node: '>=14.0.0'}
 
   '@sigstore/bundle@1.1.0':
@@ -7318,15 +7318,15 @@ packages:
     peerDependencies:
       react: ^18.2.0
 
-  react-router-dom@6.23.0:
-    resolution: {integrity: sha512-Q9YaSYvubwgbal2c9DJKfx6hTNoBp3iJDsl+Duva/DwxoJH+OTXkxGpql4iUK2sla/8z4RpjAm6EWx1qUDuopQ==}
+  react-router-dom@6.23.1:
+    resolution: {integrity: sha512-utP+K+aSTtEdbWpC+4gxhdlPFwuEfDKq8ZrPFU65bbRJY+l706qjR7yaidBpo3MSeA/fzwbXWbKBI6ftOnP3OQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  react-router@6.23.0:
-    resolution: {integrity: sha512-wPMZ8S2TuPadH0sF5irFGjkNLIcRvOSaEe7v+JER8508dyJumm6XZB1u5kztlX0RVq6AzRVndzqcUh6sFIauzA==}
+  react-router@6.23.1:
+    resolution: {integrity: sha512-fzcOaRF69uvqbbM7OhvQyBTFDVrrGlsFdS3AL+1KfIBtGETibHzi3FkoTRyiDJnWNc2VxrfvR+657ROHjaNjqQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -10982,7 +10982,7 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@remix-run/router@1.16.0': {}
+  '@remix-run/router@1.16.1': {}
 
   '@sigstore/bundle@1.1.0':
     dependencies:
@@ -16608,16 +16608,16 @@ snapshots:
       react: 18.2.0
       scheduler: 0.23.0
 
-  react-router-dom@6.23.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+  react-router-dom@6.23.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@remix-run/router': 1.16.0
+      '@remix-run/router': 1.16.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-router: 6.23.0(react@18.2.0)
+      react-router: 6.23.1(react@18.2.0)
 
-  react-router@6.23.0(react@18.2.0):
+  react-router@6.23.1(react@18.2.0):
     dependencies:
-      '@remix-run/router': 1.16.0
+      '@remix-run/router': 1.16.1
       react: 18.2.0
 
   react-runner@1.0.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
