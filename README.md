@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-next-line -->
-
 <p align="center">
   <a href="https://mui.com/base-ui/" target="_blank">
     <picture>
