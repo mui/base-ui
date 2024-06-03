@@ -54,7 +54,7 @@
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.5.2",
-    "@types/chai": "^4.3.14",
+    "@types/chai": "^4.3.16",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.3.1",
