@@ -12,7 +12,8 @@ import {
   BadgeRootSlotProps,
   BadgeBadgeSlotProps,
 } from './Badge.types';
-import { WithOptionalOwnerState, useSlotProps } from '../../utils';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 const useUtilityClasses = (ownerState: BadgeOwnerState) => {

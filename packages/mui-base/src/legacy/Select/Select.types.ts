@@ -3,7 +3,8 @@ import { Simplify } from '@mui/types';
 import { SelectValue, UseSelectButtonSlotProps, UseSelectListboxSlotProps } from '../useSelect';
 import { SelectOption } from '../useOption';
 import { PopupProps } from '../Unstable_Popup';
-import { PolymorphicProps, SlotComponentProps } from '../../utils';
+import { PolymorphicProps } from '../utils/PolymorphicComponent'
+import { SlotComponentProps } from '../utils/types';
 
 export interface SelectRootSlotPropsOverrides {}
 export interface SelectListboxSlotPropsOverrides {}

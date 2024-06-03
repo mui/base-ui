@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Simplify } from '@mui/types';
 import { UseButtonParameters, UseButtonRootSlotProps } from '../../useButton';
-import { SlotComponentProps } from '../../utils';
+import { SlotComponentProps } from '../utils/types';
 import { PolymorphicProps } from '../utils/PolymorphicComponent';
 
 export interface ButtonActions {

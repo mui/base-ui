@@ -12,8 +12,10 @@ import {
   InputTypeMap,
 } from './Input.types';
 import { useInput } from '../useInput';
-import { EventHandlers, useSlotProps, WithOptionalOwnerState } from '../../utils';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
+import { EventHandlers } from '../../utils/types';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 const useUtilityClasses = (ownerState: InputOwnerState) => {

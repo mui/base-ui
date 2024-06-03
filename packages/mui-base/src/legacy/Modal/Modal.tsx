@@ -2,7 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { elementAcceptingRef, HTMLElementType } from '@mui/utils';
-import { EventHandlers, useSlotProps } from '../../utils';
+import { EventHandlers } from '../../utils/types';
+import { useSlotProps } from '../utils/useSlotProps';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import { ModalOwnerState, ModalProps, ModalTypeMap } from './Modal.types';

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuButtonOwnerState, MenuButtonProps } from './MenuButton.types';
-import { useSlotProps } from '../../utils';
+import { useSlotProps } from '../utils/useSlotProps';
 import { useMenuButton } from '../useMenuButton';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';

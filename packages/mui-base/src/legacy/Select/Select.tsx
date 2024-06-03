@@ -11,7 +11,8 @@ import {
   SelectType,
 } from './Select.types';
 import { useSelect, SelectValue } from '../useSelect';
-import { useSlotProps, WithOptionalOwnerState } from '../../utils';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import { Popup } from '../Unstable_Popup/Popup';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { getSelectUtilityClass } from './selectClasses';

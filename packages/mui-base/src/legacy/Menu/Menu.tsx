@@ -11,7 +11,7 @@ import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { Unstable_Popup as Popup } from '../Unstable_Popup';
 import { useSlotProps } from '../utils/useSlotProps';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
-import { WithOptionalOwnerState } from '../../utils';
+import { WithOptionalOwnerState } from '../utils/types';
 import { ListActionTypes } from '../../useList';
 
 function useUtilityClasses(ownerState: MenuOwnerState) {

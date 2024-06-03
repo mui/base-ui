@@ -13,7 +13,9 @@ import PropTypes from 'prop-types';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { Portal } from '../Portal';
 import { getPopperUtilityClass } from './popperClasses';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../../utils';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import {
   PopperPlacementType,
   PopperTooltipProps,

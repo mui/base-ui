@@ -12,7 +12,9 @@ import {
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { getSnackbarUtilityClass } from './snackbarClasses';
 import { useSnackbar } from '../useSnackbar';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../../utils';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 const useUtilityClasses = () => {

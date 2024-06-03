@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../../utils';
+import { PolymorphicComponent } from '../utils/PolymorphicComponent';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import {
   TablePaginationActionsButtonSlotProps,
   TablePaginationActionsProps,

@@ -16,7 +16,8 @@ import {
 } from '@mui/utils';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { Portal } from '../Portal';
-import { useSlotProps, WithOptionalOwnerState } from '../../utils';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { getPopupUtilityClass } from './popupClasses';
 import { PopupOwnerState, PopupProps, PopupRootSlotProps } from './Popup.types';

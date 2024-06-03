@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Simplify } from '@mui/types';
 import { UseOptionRootSlotProps } from '../useOption';
-import { PolymorphicProps, SlotComponentProps } from '../../utils';
+import { PolymorphicProps } from '../utils/PolymorphicComponent'
+import { SlotComponentProps } from '../utils/types';
 
 export interface OptionRootSlotPropsOverrides {}
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { PolymorphicProps, SlotComponentProps } from '../../utils';
+import { PolymorphicProps } from '../utils/PolymorphicComponent'
+import { SlotComponentProps } from '../utils/types';
 import { TablePaginationActions } from './TablePaginationActions';
 import { ItemAriaLabelType } from './common.types';
 

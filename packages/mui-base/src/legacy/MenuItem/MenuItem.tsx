@@ -13,7 +13,7 @@ import { useMenuItem, useMenuItemContextStabilizer } from '../useMenuItem';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { useSlotProps } from '../utils/useSlotProps';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
-import { WithOptionalOwnerState } from '../../utils';
+import { WithOptionalOwnerState } from '../utils/types';
 import { ListContext } from '../../useList';
 
 function useUtilityClasses(ownerState: MenuItemOwnerState) {

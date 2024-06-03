@@ -11,7 +11,8 @@ import {
   OptionGroupRootSlotProps,
   OptionGroupTypeMap,
 } from './OptionGroup.types';
-import { useSlotProps, WithOptionalOwnerState } from '../../utils';
+import { useSlotProps } from '../utils/useSlotProps';
+import { WithOptionalOwnerState } from '../utils/types';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 function useUtilityClasses(disabled: boolean) {

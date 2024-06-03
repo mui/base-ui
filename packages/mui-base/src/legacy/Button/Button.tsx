@@ -6,8 +6,8 @@ import { unstable_composeClasses as composeClasses } from '../composeClasses';
 import { getButtonUtilityClass } from './buttonClasses';
 import { ButtonProps, ButtonTypeMap, ButtonRootSlotProps, ButtonOwnerState } from './Button.types';
 import { useButton } from '../../useButton';
-import { WithOptionalOwnerState } from '../../utils/types';
-import { useSlotProps } from '../../utils';
+import { WithOptionalOwnerState } from '../utils/types';
+import { useSlotProps } from '../utils/useSlotProps';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 
 const useUtilityClasses = (ownerState: ButtonOwnerState) => {
