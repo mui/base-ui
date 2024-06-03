@@ -15,7 +15,7 @@ import {
   unstable_useForkRef as useForkRef,
 } from '@mui/utils';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { Portal } from '../../Portal';
+import { Portal } from '../Portal';
 import { useSlotProps, WithOptionalOwnerState } from '../../utils';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { getPopupUtilityClass } from './popupClasses';

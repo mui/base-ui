@@ -1,4 +1,4 @@
-import { PortalProps } from '../../Portal';
+import { PortalProps } from '../Portal';
 import { EventHandlers } from '../../utils';
 
 export interface UseModalRootSlotOwnProps {

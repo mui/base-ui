@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Portal, PortalProps } from '@base_ui/react/Portal';
+import { Portal, PortalProps } from '@base_ui/react/legacy/Portal';
 
 describe('<Portal />', () => {
   const { render, renderToString } = createRenderer();

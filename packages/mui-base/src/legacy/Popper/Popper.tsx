@@ -11,7 +11,7 @@ import {
 import { createPopper, Instance, Modifier, Placement, State, VirtualElement } from '@popperjs/core';
 import PropTypes from 'prop-types';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { Portal } from '../../Portal';
+import { Portal } from '../Portal';
 import { getPopperUtilityClass } from './popperClasses';
 import { PolymorphicComponent, useSlotProps, WithOptionalOwnerState } from '../../utils';
 import {

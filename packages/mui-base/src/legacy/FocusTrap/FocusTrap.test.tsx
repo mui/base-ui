@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { expect } from 'chai';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { FocusTrap } from '@base_ui/react/legacy/FocusTrap';
-import { Portal } from '@base_ui/react/Portal';
+import { Portal } from '@base_ui/react/legacy/Portal';
 
 interface GenericProps {
   [index: string]: any;

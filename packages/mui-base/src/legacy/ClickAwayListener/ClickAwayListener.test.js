@@ -9,7 +9,7 @@ import {
   fireDiscreteEvent,
   screen,
 } from '@mui/internal-test-utils';
-import { Portal } from '@base_ui/react/Portal';
+import { Portal } from '@base_ui/react/legacy/Portal';
 import { ClickAwayListener } from '@base_ui/react/legacy/ClickAwayListener';
 
 describe('<ClickAwayListener />', () => {

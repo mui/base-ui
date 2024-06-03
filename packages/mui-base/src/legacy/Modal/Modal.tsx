@@ -7,7 +7,7 @@ import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { PolymorphicComponent } from '../utils/PolymorphicComponent';
 import { ModalOwnerState, ModalProps, ModalTypeMap } from './Modal.types';
 import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { Portal } from '../../Portal';
+import { Portal } from '../Portal';
 import { unstable_useModal as useModal } from '../unstable_useModal';
 import { FocusTrap } from '../FocusTrap';
 import { getModalUtilityClass } from './modalClasses';
