@@ -45,6 +45,7 @@ describe('<Slider.Track />', () => {
       values: [0],
     },
     percentageValues: [0],
+    registerSliderTrack: NOOP,
     scale: (val) => val,
     setActive: NOOP,
     setDragging: NOOP,

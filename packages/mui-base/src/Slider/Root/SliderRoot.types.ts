@@ -226,7 +226,7 @@ export interface UseSliderReturnValue {
     finger: { x: number; y: number };
     move?: boolean;
     offset?: number;
-    boundary?: Partial<DOMRect>;
+    activeIndex?: number;
   }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number };
   handleValueChange: (
     value: number | number[],
@@ -259,6 +259,7 @@ export interface UseSliderReturnValue {
    * @default 'horizontal'
    */
   orientation: 'horizontal' | 'vertical';
+  registerSliderTrack: (element: HTMLElement | null) => void;
   /**
    * The value(s) of the slider as percentages
    */

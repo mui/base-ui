@@ -13,6 +13,7 @@ export interface UseSliderTrackParameters
     | 'handleValueChange'
     | 'onValueCommitted'
     | 'percentageValues'
+    | 'registerSliderTrack'
     | 'setActive'
     | 'setDragging'
     | 'setOpen'

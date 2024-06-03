@@ -22,6 +22,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     handleValueChange,
     onValueCommitted,
     percentageValues,
+    registerSliderTrack,
     rootRef: externalRef,
     setActive,
     setDragging,
@@ -32,7 +33,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
 
   const trackRef = React.useRef<HTMLElement>(null);
 
-  const handleRootRef = useForkRef(externalRef, trackRef);
+  const handleRootRef = useForkRef(externalRef, registerSliderTrack, trackRef);
 
   // A number that uniquely identifies the current finger in the touch session.
   const touchId = React.useRef<number>();
@@ -72,8 +73,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       finger,
       move: true,
       offset: offsetRef.current,
-      // TODO: getBoundingClientRect adjust for padding/border?
-      boundary: trackRef.current?.getBoundingClientRect(),
     });
 
     focusThumb({ sliderRef: trackRef, activeIndex, setActive });
@@ -99,7 +98,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     const { newValue } = getFingerNewValue({
       finger,
       move: true,
-      boundary: trackRef.current?.getBoundingClientRect(),
     });
 
     setActive(-1);
@@ -133,7 +131,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     if (finger !== false) {
       const { newValue, activeIndex } = getFingerNewValue({
         finger,
-        boundary: trackRef.current?.getBoundingClientRect(),
       });
       focusThumb({ sliderRef: trackRef, activeIndex, setActive });
 
@@ -201,7 +198,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
           if (finger !== false) {
             const { newValue, activeIndex, newPercentageValue } = getFingerNewValue({
               finger,
-              boundary: trackRef.current?.getBoundingClientRect(),
             });
 
             focusThumb({ sliderRef: trackRef, activeIndex, setActive });
