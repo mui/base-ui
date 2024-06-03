@@ -1,11 +1,18 @@
 <!-- markdownlint-disable-next-line -->
+
 <p align="center">
-  <a href="https://mui.com/base-ui/" rel="noopener" target="_blank"><img width="150" height="133" src="https://mui.com/static/logo.svg" alt="Base UI logo"></a>
+  <a href="https://mui.com/base-ui/" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
+      <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
+    </picture>
+  </a>
 </p>
 
-<h1 align="center">Base UI</h1>
-
-[Base UI](https://mui.com/base-ui/) is a library of unstyled React UI components and hooks. With Base UI, you gain complete control over your app's CSS and accessibility features.
+<p align="center">
+Base UI is an unstyled UI component library for building accessible user interfaces while maintaining complete control over styling.
+</p>
 
 <div align="center">
 
@@ -22,12 +29,14 @@
 
 </div>
 
+---
+
 ## Documentation
 
-Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full documentation.
+Visit [mui.com/base-ui/getting-started](https://mui.com/base-ui/getting-started/) to view the full documentation.
 
-**Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
-Learn more about plans for Base UI in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
+> **Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
+> Learn more about the roadmap in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
 
 ## Sponsors
 
@@ -43,8 +52,6 @@ Diamond sponsors are those who have pledged \$1,500/month or more to MUI.
 
 ### Gold 🏆
 
-via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](https://www.patreon.com/oliviertassinari)
-
 <p>
   <a href="https://tidelift.com/subscription/pkg/npm-material-ui?utm_source=npm-material-ui&utm_medium=referral&utm_campaign=homepage" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://avatars.githubusercontent.com/u/30204434?s=288" alt="tidelift.com" title="Tidelift: Enterprise-ready open-source software." loading="lazy" /></a>
   <a href="https://open.spotify.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://avatars.githubusercontent.com/u/251374?s=288" alt="Spotify" title="Spotify: Music service for accessing millions of songs." loading="lazy" /></a>
@@ -57,6 +64,7 @@ via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](http
 </p>
 
 Gold sponsors are those who have pledged \$500/month or more to MUI.
+Via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](https://www.patreon.com/oliviertassinari).
 
 ### More backers
 
