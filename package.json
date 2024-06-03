@@ -82,7 +82,7 @@
     "@mui/internal-scripts": "^1.0.8",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/fb183624/@mui/internal-test-utils",
     "@mui/material": "6.0.0-alpha.8",
-    "@mui/monorepo": "github:mui/material-ui#v6.0.0-alpha.8",
+    "@mui/monorepo": "github:danilo-leal/material-ui#add-base-ui-logo-navbars",
     "@mui/utils": "6.0.0-alpha.8",
     "@next/eslint-plugin-next": "^14.2.3",
     "@octokit/rest": "^20.1.0",
