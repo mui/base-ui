@@ -210,7 +210,7 @@ This specifies the `px` distance the cursor can travel from the center of the sc
 
 ### Wheel scrubbing
 
-To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop.
+To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop. The input must be focused and the pointer must be hovering over it.
 
 {{"demo": "UnstyledNumberFieldWheelScrub.js"}}
 
