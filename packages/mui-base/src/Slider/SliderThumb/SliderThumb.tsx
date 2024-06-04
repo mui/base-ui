@@ -46,12 +46,12 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     name,
     orientation,
     ownerState,
-    unsortedPercentageValues,
+    percentageValues,
     scale,
     setOpen,
     step,
     tabIndex,
-    unsortedValues,
+    values,
   } = useSliderContext();
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
@@ -71,13 +71,13 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     min,
     name,
     orientation,
-    unsortedPercentageValues,
+    percentageValues,
     rootRef: mergedRef,
     scale,
     setOpen,
     step,
     tabIndex,
-    unsortedValues,
+    values,
   });
 
   const styleHooks = React.useMemo(

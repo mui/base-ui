@@ -212,10 +212,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   scale: PropTypes.func,
   /**
-   * @default 'asc'
-   */
-  sort: PropTypes.oneOf(['asc', 'off']),
-  /**
    * The granularity with which the slider can step through values. (A "discrete" slider.)
    * The `min` prop serves as the origin for the valid values.
    * We recommend (max - min) to be evenly divisible by the step.

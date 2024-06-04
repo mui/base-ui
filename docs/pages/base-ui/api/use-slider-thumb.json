@@ -25,6 +25,10 @@
       "default": "'horizontal'",
       "required": true
     },
+    "percentageValues": {
+      "type": { "name": "readonly number[]", "description": "readonly number[]" },
+      "required": true
+    },
     "scale": {
       "type": {
         "name": "(value: number) =&gt; number",
@@ -41,11 +45,7 @@
       "default": "1",
       "required": true
     },
-    "unsortedPercentageValues": {
-      "type": { "name": "readonly number[]", "description": "readonly number[]" },
-      "required": true
-    },
-    "unsortedValues": {
+    "values": {
       "type": { "name": "readonly number[]", "description": "readonly number[]" },
       "required": true
     },

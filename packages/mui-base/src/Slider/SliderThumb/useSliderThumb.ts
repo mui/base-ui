@@ -49,8 +49,8 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     setOpen,
     step,
     tabIndex,
-    unsortedPercentageValues,
-    unsortedValues = [],
+    percentageValues,
+    values: sliderValues,
   } = parameters;
 
   const thumbId = useId(idParam);
@@ -69,9 +69,9 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     thumbMetadata,
   );
 
-  const thumbValue = unsortedValues[index];
+  const thumbValue = sliderValues[index];
 
-  const percent = unsortedPercentageValues[index];
+  const percent = percentageValues[index];
 
   const getThumbStyle = React.useCallback(() => {
     return {

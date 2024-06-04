@@ -43,7 +43,7 @@
       "description": "Tab index attribute of the Thumb component&#39;s <code>input</code> element."
     },
     "value": {
-      "description": "The value of the slider. For ranged sliders, provide an array with multiple values"
+      "description": "The value of the slider. For ranged sliders, provide an array with two values."
     }
   },
   "returnValueDescriptions": {
@@ -59,16 +59,13 @@
     "min": { "description": "The minimum allowed value of the slider." },
     "open": { "description": "The thumb index for the current value when in hover state." },
     "orientation": { "description": "The component orientation." },
+    "percentageValues": { "description": "The value(s) of the slider as percentages" },
     "step": {
       "description": "The step value of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
     },
     "subitems": {
       "description": "A map containing all the Thumb components registered to the slider"
     },
-    "unsortedPercentageValues": {
-      "description": "The internal unsorted percentage value(s) of the slider"
-    },
-    "unsortedValues": { "description": "The internal unsorted value(s) of the slider." },
-    "values": { "description": "The sorted values(s) of the slider." }
+    "values": { "description": "The value(s) of the slider" }
   }
 }

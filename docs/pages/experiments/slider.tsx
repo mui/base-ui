@@ -22,9 +22,9 @@ export function TrackFill(props: any) {
   // does not support inverted range fill! (yet)
   const { inverted = false, style, ...otherProps } = props;
 
-  const { axis, disabled, isRtl, orientation, unsortedPercentageValues } = useSliderContext();
+  const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext();
 
-  const values = unsortedPercentageValues.slice().sort((a, b) => a - b);
+  const values = percentageValues.slice().sort((a, b) => a - b);
 
   const isRange = values.length > 1;
 

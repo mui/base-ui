@@ -3,7 +3,7 @@ import * as Slider from '@base_ui/react/Slider';
 import { useSliderContext } from '@base_ui/react/Slider';
 import { Styles, TrackFill } from './slider';
 
-export function Label(props: any) {
+function Label(props: any) {
   const { id: idProp, ...otherProps } = props;
   const defaultId = React.useId();
   const labelId = idProp ?? defaultId;
@@ -19,7 +19,7 @@ export function Label(props: any) {
   return <label id={labelId} htmlFor={htmlFor} {...otherProps} />;
 }
 
-export function LabelRange(props: any) {
+function LabelRange(props: any) {
   const { id: idProp, ...otherProps } = props;
 
   const defaultId = React.useId();

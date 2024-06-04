@@ -50,13 +50,6 @@
       },
       "default": "function Identity(x) {\nreturn x;\n}"
     },
-    "sort": {
-      "type": {
-        "name": "&#39;asc&#39; | &#39;off&#39;",
-        "description": "&#39;asc&#39; | &#39;off&#39;"
-      },
-      "default": "'asc'"
-    },
     "step": { "type": { "name": "number", "description": "number" }, "default": "1" },
     "tabIndex": { "type": { "name": "number", "description": "number" } },
     "value": {
@@ -130,6 +123,10 @@
       "default": "'horizontal'",
       "required": true
     },
+    "percentageValues": {
+      "type": { "name": "readonly number[]", "description": "readonly number[]" },
+      "required": true
+    },
     "registerSliderTrack": {
       "type": {
         "name": "(element: HTMLElement | null) =&gt; void",
@@ -179,14 +176,6 @@
         "name": "Map&lt;string, SliderThumbMetadata&gt;",
         "description": "Map&lt;string, SliderThumbMetadata&gt;"
       },
-      "required": true
-    },
-    "unsortedPercentageValues": {
-      "type": { "name": "readonly number[]", "description": "readonly number[]" },
-      "required": true
-    },
-    "unsortedValues": {
-      "type": { "name": "readonly number[]", "description": "readonly number[]" },
       "required": true
     },
     "values": {
