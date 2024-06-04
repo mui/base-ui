@@ -165,9 +165,9 @@
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
   },
-  "packageManager": "pnpm@9.0.6",
+  "packageManager": "pnpm@9.1.4",
   "engines": {
-    "pnpm": "9.0.6"
+    "pnpm": "9.1.4"
   },
   "resolutions": {
     "@babel/core": "^7.24.6",
