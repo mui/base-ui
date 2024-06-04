@@ -134,10 +134,10 @@ The `step` prop snaps the input value to multiples of the given number. In the b
 </NumberField.Root>
 ```
 
-The `largeStep` and `smallStep` props can be specified to change the step when a modifier key is held.
+You can specify the `largeStep` and `smallStep` props to change the step when the user holds a modifier key:
 
-- `largeStep` applies when <kbd>shift</kbd> is held, snapping to multiples of `10` by default.
-- `smallStep` applies when <kbd>alt</kbd> is held, snapping to multiples of `0.1` by default.
+- `largeStep` applies when <kbd>shift</kbd> is held, snapping to multiples of 10 by default.
+- `smallStep` applies when <kbd>alt</kbd> is held, snapping to multiples of 0.1 by default.
 
 ```jsx
 <NumberField.Root step={5} largeStep={50} smallStep={0.5}>
@@ -157,11 +157,11 @@ The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozill
 
 ## Scrubbing
 
-The `ScrubArea` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `ScrubArea` component.
+The `<ScrubArea />` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `<ScrubArea />` component.
 
 {{"demo": "UnstyledNumberFieldScrub.js"}}
 
-The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `NumberField.ScrubAreaCursor` subcomponent, which automatically loops around the boundary.
+The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `<NumberField.ScrubAreaCursor />` subcomponent, which automatically loops around the boundary.
 
 ```jsx
 <NumberField.ScrubArea direction="horizontal" style={{ cursor: 'ew-resize' }}>
@@ -190,7 +190,7 @@ The pointer is locked while scrubbing, allowing the user to scrub infinitely wit
 </NumberField.ScrubArea>
 ```
 
-In your CSS, ensure any `<label>` elements inside the `ScrubArea` specify `cursor: unset`. You can rotate the above macOS-style cursor 90 degrees using a `transform` style.
+In your CSS, ensure any `<label>` elements inside `<ScrubArea />` specify `cursor: unset`. You can rotate the above macOS-style cursor 90 degrees using a `transform` style.
 
 :::info
 In Safari, the pointer is not locked. However, this doesn't affect the ability to scrub infinitely.
