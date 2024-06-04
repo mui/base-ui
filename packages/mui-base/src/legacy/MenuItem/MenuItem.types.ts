@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Simplify } from '@mui/types';
-import { PolymorphicProps } from '../utils/PolymorphicComponent'
+import { PolymorphicProps } from '../utils/PolymorphicComponent';
 import { SlotComponentProps } from '../utils/types';
 import { UseMenuItemRootSlotProps } from '../useMenuItem';
 

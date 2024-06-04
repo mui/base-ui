@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PolymorphicProps } from '../utils/PolymorphicComponent'
+import { PolymorphicProps } from '../utils/PolymorphicComponent';
 import { SlotComponentProps } from '../utils/types';
 
 export interface TablePaginationActionsRootSlotPropsOverrides {}

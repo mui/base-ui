@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
-import { Portal } from '@base_ui/react/Portal';
+import { Portal } from '@base_ui/react/legacy/Portal';
 import { FocusTrap } from '@base_ui/react/legacy/FocusTrap';
 import { Button } from '@base_ui/react/legacy/Button';
 import { unstable_useModal as useModal } from '@base_ui/react/legacy/unstable_useModal';

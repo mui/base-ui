@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ClickAwayListener, ClickAwayListenerProps } from '../ClickAwayListener';
 import { UseSnackbarParameters } from '../useSnackbar';
-import { PolymorphicProps } from '../utils/PolymorphicComponent'
+import { PolymorphicProps } from '../utils/PolymorphicComponent';
 import { SlotComponentProps } from '../utils/types';
 
 export interface SnackbarRootSlotPropsOverrides {}
