@@ -16,11 +16,11 @@ import {
   UseSliderReturnValue,
 } from './SliderRoot.types';
 
-// function asc(a: number, b: number) {
-//   return a - b;
-// }
+function asc(a: number, b: number) {
+  return a - b;
+}
 
-function findClosest(values: readonly number[], currentValue: number) {
+function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
     values.reduce<{ distance: number; index: number } | null>(
       (acc, value: number, index: number) => {
@@ -50,7 +50,6 @@ export function focusThumb({
   setActive?: (num: number) => void;
 }) {
   const doc = ownerDocument(sliderRef.current);
-  // console.log('focusThumb activeIndex', activeIndex);
   if (
     !sliderRef.current?.contains(doc.activeElement) ||
     Number(doc?.activeElement?.getAttribute('data-index')) !== activeIndex
@@ -72,11 +71,9 @@ function setValueIndex({
   newValue: number;
   index: number;
 }) {
-  // console.log('setValueIndex activeIndex', index);
   const output = values.slice();
   output[index] = newValue;
-  return output;
-  // return output.sort(asc);
+  return output.sort(asc);
 }
 
 export function trackFinger(
@@ -188,7 +185,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const range = Array.isArray(valueState);
 
   const values = React.useMemo(() => {
-    return (range ? valueState.slice() /* .sort(asc) */ : [valueState]).map((val) =>
+    return (range ? valueState.slice().sort(asc) : [valueState]).map((val) =>
       val == null ? min : clamp(val, min, max),
     );
   }, [max, min, range, valueState]);
@@ -247,21 +244,21 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
           newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
         }
 
-        // const previousValue = newValue;
+        const previousValue = newValue;
         newValue = setValueIndex({
           values,
           newValue,
           index,
         });
 
-        /* let activeIndex = index;
+        let activeIndex = index;
 
         // Potentially swap the index if needed.
         if (!disableSwap) {
           activeIndex = newValue.indexOf(previousValue);
-        } */
+        }
 
-        focusThumb({ sliderRef, activeIndex: index });
+        focusThumb({ sliderRef, activeIndex });
       }
 
       setValueState(newValue);
@@ -290,7 +287,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     ],
   );
 
-  // const previousIndex = React.useRef<number>();
+  const previousIndex = React.useRef<number>();
   let axis = orientation;
   if (isRtl && orientation === 'horizontal') {
     axis += '-reverse';
@@ -299,12 +296,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const getFingerNewValue = React.useCallback(
     ({
       finger,
+      move = false,
       offset = 0,
-      activeIndex,
     }: {
       finger: { x: number; y: number };
+      move?: boolean;
       offset?: number;
-      activeIndex?: number;
     }) => {
       const { current: track } = trackRef;
       const { width, height, bottom, left } = track!.getBoundingClientRect();
@@ -330,57 +327,39 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       }
 
       newValue = clamp(newValue, min, max);
-      // let activeIndex = 0;
-      // console.log('there newValue', newValue);
-      // const singleValue = newValue;
-
-      let derivedIndex = 0;
+      let activeIndex = 0;
 
       if (range) {
-        // if (!move) {
-        //   activeIndex = findClosest(values, newValue)!;
-        // } else {
-        //   activeIndex = previousIndex.current!;
-        // }
-
-        derivedIndex = activeIndex ?? findClosest(values, newValue) ?? 0;
-
-        // if (!activeIndex) {
-        //   activeIndex = findClosest(values, newValue);
-        // }
+        if (!move) {
+          activeIndex = findClosest(values, newValue)!;
+        } else {
+          activeIndex = previousIndex.current!;
+        }
 
         // Bound the new value to the thumb's neighbours.
         if (disableSwap) {
           newValue = clamp(
             newValue,
-            values[derivedIndex - 1] || -Infinity,
-            values[derivedIndex + 1] || Infinity,
+            values[activeIndex - 1] || -Infinity,
+            values[activeIndex + 1] || Infinity,
           );
         }
 
-        // const previousValue = newValue;
-        // console.log('newValue1', newValue);
+        const previousValue = newValue;
         newValue = setValueIndex({
           values,
           newValue,
-          index: derivedIndex,
+          index: activeIndex,
         });
-        // console.log('newValue2', newValue);
 
         // Potentially swap the index if needed.
-        // if (!disableSwap && !move) {
-        //   activeIndex = newValue.indexOf(previousValue);
-        //   previousIndex.current = activeIndex;
-        // }
+        if (!(disableSwap && move)) {
+          activeIndex = newValue.indexOf(previousValue);
+          previousIndex.current = activeIndex;
+        }
       }
-      // console.log('xxxxxx', newValue, 'activeIndex', activeIndex);
-      // console.log('here singleValue', singleValue);
 
-      return {
-        newValue,
-        activeIndex: activeIndex ?? derivedIndex,
-        newPercentageValue: percent,
-      };
+      return { newValue, activeIndex, newPercentageValue: percent };
     },
     [axis, disableSwap, marksValues, max, min, range, step, values],
   );

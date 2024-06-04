@@ -7,7 +7,6 @@ import { focusThumb, trackFinger } from '../Root/useSliderRoot';
 import { UseSliderTrackParameters, UseSliderTrackReturnValue } from './SliderTrack.types';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
-
 /**
  *
  * API:
@@ -53,8 +52,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     });
   }, [subitems]);
 
-  const activeIndexRef = React.useRef(-1);
-
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const finger = trackFinger(nativeEvent, touchId);
 
@@ -72,15 +69,13 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       return;
     }
 
-    const activeIndex = activeIndexRef.current;
-
-    const { newValue } = getFingerNewValue({
+    const { newValue, activeIndex } = getFingerNewValue({
       finger,
+      move: true,
       offset: offsetRef.current,
-      activeIndex,
     });
 
-    // focusThumb({ sliderRef: trackRef, activeIndex, setActive });
+    focusThumb({ sliderRef: trackRef, activeIndex, setActive });
     setValueState(newValue);
 
     if (!dragging && moveCount.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
@@ -102,10 +97,10 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
 
     const { newValue } = getFingerNewValue({
       finger,
+      move: true,
     });
 
     setActive(-1);
-    activeIndexRef.current = -1;
     if (nativeEvent.type === 'touchend') {
       setOpen(-1);
     }
@@ -137,9 +132,6 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       const { newValue, activeIndex } = getFingerNewValue({
         finger,
       });
-
-      activeIndexRef.current = activeIndex;
-
       focusThumb({ sliderRef: trackRef, activeIndex, setActive });
 
       setValueState(newValue);
@@ -202,28 +194,13 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
 
           // Avoid text selection
           event.preventDefault();
-
           const finger = trackFinger(event, touchId);
-
           if (finger !== false) {
-            const {
-              newValue,
-              newPercentageValue,
-              activeIndex: returnedActiveIndex,
-            } = getFingerNewValue({
+            const { newValue, activeIndex, newPercentageValue } = getFingerNewValue({
               finger,
             });
-            // console.log('here newValue/singleValue', newValue, singleValue);
 
-            // const activeIndex = Array.isArray(newValue) ? newValue.indexOf(singleValue) : 0;
-            // console.log('returnedActiveIndex activeIndex', returnedActiveIndex);
-            // console.log('derived activeIndex', activeIndex);
-
-            // const activeIndex = findActiveIndex({ isRange, move: false });
-
-            activeIndexRef.current = returnedActiveIndex;
-
-            focusThumb({ sliderRef: trackRef, activeIndex: returnedActiveIndex, setActive });
+            focusThumb({ sliderRef: trackRef, activeIndex, setActive });
 
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
@@ -238,7 +215,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
               setValueState(newValue);
 
               if (handleValueChange && !areValuesEqual(newValue)) {
-                handleValueChange(newValue, returnedActiveIndex, event);
+                handleValueChange(newValue, activeIndex, event);
               }
             }
           }
