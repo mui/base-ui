@@ -157,7 +157,7 @@ The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozill
 
 ## Scrubbing
 
-The `<ScrubArea />` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `<ScrubArea />` component.
+The `NumberField.ScrubArea` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `NumberField.ScrubArea` component.
 
 {{"demo": "UnstyledNumberFieldScrub.js"}}
 
