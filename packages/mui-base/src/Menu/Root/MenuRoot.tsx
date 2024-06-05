@@ -3,8 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { exactProp } from '@mui/utils';
 import { MenuRootProps } from './MenuRoot.types';
-import { DropdownContext } from '../../useDropdown/DropdownContext';
-import { useDropdown } from '../../useDropdown/useDropdown';
+import { MenuRootContext } from './MenuRootContext';
+import { useMenuRoot } from './useMenuRoot';
 
 /**
  *
@@ -19,13 +19,13 @@ import { useDropdown } from '../../useDropdown/useDropdown';
 function MenuRoot(props: MenuRootProps) {
   const { children, open, defaultOpen, onOpenChange } = props;
 
-  const { contextValue } = useDropdown({
+  const { contextValue } = useMenuRoot({
     defaultOpen,
     onOpenChange,
     open,
   });
 
-  return <DropdownContext.Provider value={contextValue}>{children}</DropdownContext.Provider>;
+  return <MenuRootContext.Provider value={contextValue}>{children}</MenuRootContext.Provider>;
 }
 
 MenuRoot.propTypes /* remove-proptypes */ = {

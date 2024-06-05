@@ -8,7 +8,7 @@ import {
   RenderOptions,
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { DropdownContext } from '@base_ui/react/useDropdown';
+import { MenuRootContext } from '@base_ui/react/Menu';
 import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
 import { Unstable_Popup as Popup } from '@base_ui/react/Unstable_Popup';
 
@@ -26,7 +26,7 @@ describe('<Dropdown />', () => {
 
   it('registers a popup id correctly', async () => {
     function TestComponent() {
-      const { registerPopup, popupId } = React.useContext(DropdownContext)!;
+      const { registerPopup, popupId } = React.useContext(MenuRootContext)!;
       expect(context).not.to.equal(null);
 
       React.useEffect(() => {
@@ -50,7 +50,7 @@ describe('<Dropdown />', () => {
     trigger.setAttribute('data-testid', 'test-button');
 
     function TestComponent() {
-      const { registerTrigger, triggerElement } = React.useContext(DropdownContext)!;
+      const { registerTrigger, triggerElement } = React.useContext(MenuRootContext)!;
       expect(context).not.to.equal(null);
 
       React.useEffect(() => {

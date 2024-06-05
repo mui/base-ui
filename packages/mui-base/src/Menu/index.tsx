@@ -11,7 +11,10 @@ export type {
 } from './Popup/MenuPopup.types';
 
 export { MenuRoot as Root } from './Root/MenuRoot';
+export { MenuRootContext } from './Root/MenuRootContext';
+export { useMenuRoot } from './Root/useMenuRoot';
 export type { MenuRootProps as RootProps } from './Root/MenuRoot.types';
+export type { UseMenuRootParameters, UseMenuRootReturnValue } from './Root/useMenuRoot.types';
 
 export { MenuTrigger as Trigger } from './Trigger/MenuTrigger';
 export type {

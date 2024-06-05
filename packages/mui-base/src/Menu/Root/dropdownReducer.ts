@@ -1,4 +1,4 @@
-import { DropdownAction, DropdownActionTypes, DropdownState } from './useDropdown.types';
+import { DropdownAction, DropdownActionTypes, DropdownState } from './useMenuRoot.types';
 
 export function dropdownReducer(state: DropdownState, action: DropdownAction): DropdownState {
   switch (action.type) {

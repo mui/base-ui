@@ -1,6 +1,6 @@
-import type { DropdownContextValue } from './DropdownContext';
+import type { MenuRootContextValue } from './MenuRootContext';
 
-export interface UseDropdownParameters {
+export interface UseMenuRootParameters {
   /**
    * If `true`, the dropdown is initially open.
    */
@@ -25,11 +25,11 @@ export interface UseDropdownParameters {
   componentName?: string;
 }
 
-export interface UseDropdownReturnValue {
+export interface UseMenuRootReturnValue {
   /**
    * The value to be passed into the DropdownContext provider.
    */
-  contextValue: DropdownContextValue;
+  contextValue: MenuRootContextValue;
   /**
    * If `true`, the dropdown is open.
    */

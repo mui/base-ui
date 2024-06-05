@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { DropdownContextValue } from './DropdownContext';
-import { useControllableReducer } from '../utils/useControllableReducer';
-import { StateChangeCallback } from '../utils/useControllableReducer.types';
-import { DropdownActionTypes, DropdownState, UseDropdownParameters } from './useDropdown.types';
+import type { MenuRootContextValue } from './MenuRootContext';
+import { useControllableReducer } from '../../utils/useControllableReducer';
+import { StateChangeCallback } from '../../utils/useControllableReducer.types';
+import { DropdownActionTypes, DropdownState, UseMenuRootParameters } from './useMenuRoot.types';
 import { dropdownReducer } from './dropdownReducer';
 
 /**
@@ -16,7 +16,7 @@ import { dropdownReducer } from './dropdownReducer';
  *
  * - [useDropdown API](https://mui.com/base-ui/react-menu/hooks-api/#use-dropdown)
  */
-export function useDropdown(parameters: UseDropdownParameters = {}) {
+export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
   const { defaultOpen, onOpenChange, open: openProp, componentName = 'useDropdown' } = parameters;
   const [popupId, setPopupId] = React.useState<string>('');
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -61,7 +61,7 @@ export function useDropdown(parameters: UseDropdownParameters = {}) {
     }
   }, [state.open, triggerElement]);
 
-  const contextValue: DropdownContextValue = {
+  const contextValue: MenuRootContextValue = {
     state,
     dispatch,
     popupId,

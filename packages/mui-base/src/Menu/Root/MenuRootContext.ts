@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { DropdownAction, DropdownState } from './useDropdown.types';
+import { DropdownAction, DropdownState } from './useMenuRoot.types';
 
-export interface DropdownContextValue {
+export interface MenuRootContextValue {
   dispatch: React.Dispatch<DropdownAction>;
   popupId: string;
   registerPopup: (popupId: string) => void;
@@ -10,6 +10,6 @@ export interface DropdownContextValue {
   triggerElement: HTMLElement | null;
 }
 
-const DropdownContext = React.createContext<DropdownContextValue | null>(null);
+const MenuRootContext = React.createContext<MenuRootContextValue | null>(null);
 
-export { DropdownContext };
+export { MenuRootContext };
