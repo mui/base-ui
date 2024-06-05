@@ -5,14 +5,21 @@ import { styled } from '@mui/system';
 export default function UnstyledDialogIntroduction() {
   return (
     <Dialog.Root softClose>
-      <TriggerButton>Open dialog</TriggerButton>
+      <TriggerButton>Subscribe</TriggerButton>
       <Backdrop />
       <Popup>
-        <Title>Confirm</Title>
-        <Description>Are you sure you want to do this?</Description>
+        <Title>Subscribe</Title>
+        <Description>
+          Enter your email address to subscribe to our newsletter.
+        </Description>
+        <TextField
+          type="email"
+          aria-label="Email address"
+          placeholder="name@example.com"
+        />
         <Controls>
-          <CloseButton>Yes</CloseButton>
-          <CloseButton>No</CloseButton>
+          <CloseButton>Subscribe</CloseButton>
+          <CloseButton>Cancel</CloseButton>
         </Controls>
       </Popup>
     </Dialog.Root>
@@ -101,4 +108,14 @@ const Backdrop = styled(Dialog.Backdrop)`
   inset: 0;
   backdrop-filter: blur(4px);
   z-index: 2000;
+`;
+
+const TextField = styled('input')`
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid ${grey[300]};
+  font-family: 'IBM Plex Sans', sans-serif;
+  margin: 16px 0;
+  width: 100%;
+  box-sizing: border-box;
 `;

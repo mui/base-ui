@@ -6,14 +6,22 @@ export default function UnstyledDialogIntroduction() {
   return (
     <React.Fragment>
       <Dialog.Root softClose>
-        <Dialog.Trigger className="trigger">Open dialog</Dialog.Trigger>
+        <Dialog.Trigger className="trigger">Subscribe</Dialog.Trigger>
         <Dialog.Backdrop className="backdrop" />
         <Dialog.Popup className="popup">
-          <Dialog.Title className="title">Confirm</Dialog.Title>
-          <Dialog.Description>Are you sure you want to do this?</Dialog.Description>
+          <Dialog.Title className="title">Subscribe</Dialog.Title>
+          <Dialog.Description>
+            Enter your email address to subscribe to our newsletter.
+          </Dialog.Description>
+          <input
+            className="textfield"
+            type="email"
+            aria-label="Email address"
+            placeholder="name@example.com"
+          />
           <div className="controls">
-            <Dialog.Close className="close">Yes</Dialog.Close>
-            <Dialog.Close className="close">No</Dialog.Close>
+            <Dialog.Close className="close">Subscribe</Dialog.Close>
+            <Dialog.Close className="close">Cancel</Dialog.Close>
           </div>
         </Dialog.Popup>
       </Dialog.Root>
@@ -108,6 +116,16 @@ function Styles() {
           inset: 0;
           backdrop-filter: blur(4px);
           z-index: 2000;
+        }
+
+        .textfield {
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid ${grey[300]};
+          font-family: "IBM Plex Sans", sans-serif;
+          margin: 16px 0;
+          width: 100%;
+          box-sizing: border-box;
         }
     `}
     </style>

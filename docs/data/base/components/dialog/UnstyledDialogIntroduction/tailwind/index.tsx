@@ -4,14 +4,21 @@ import * as Dialog from '@base_ui/react/Dialog';
 export default function UnstyledDialogIntroduction() {
   return (
     <Dialog.Root softClose>
-      <TriggerButton>Open dialog</TriggerButton>
+      <TriggerButton>Subscribe</TriggerButton>
       <Backdrop />
       <Popup>
-        <Title>Confirm</Title>
-        <Description>Are you sure you want to do this?</Description>
+        <Title>Subscribe</Title>
+        <Description>
+          Enter your email address to subscribe to our newsletter.
+        </Description>
+        <TextField
+          type="email"
+          aria-label="Email address"
+          placeholder="name@example.com"
+        />
         <Controls>
-          <CloseButton>Yes</CloseButton>
-          <CloseButton>No</CloseButton>
+          <CloseButton>Subscribe</CloseButton>
+          <CloseButton>Cancel</CloseButton>
         </Controls>
       </Popup>
     </Dialog.Root>
@@ -69,4 +76,12 @@ function Backdrop(props: Dialog.BackdropProps) {
       className="bg-black/35 fixed inset-0 backdrop-blur-sm z-[2000]"
     />
   );
+}
+
+function TextField(props: React.ComponentPropsWithoutRef<'input'>) {
+  const className = `
+    w-full p-2 mt-4 font-sans
+    border-[1px] border-solid border-slate-300 dark:border-slate-700 rounded
+  `;
+  return <input {...props} className={className} />;
 }
