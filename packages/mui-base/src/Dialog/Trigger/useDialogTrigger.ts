@@ -32,7 +32,10 @@ export function useDialogTrigger(params: UseDialogTriggerParameters): UseDialogT
     [open, onOpenChange, popupElementId],
   );
 
-  return React.useMemo(() => ({
-    getRootProps,
-  }), [getRootProps]);
+  return React.useMemo(
+    () => ({
+      getRootProps,
+    }),
+    [getRootProps],
+  );
 }

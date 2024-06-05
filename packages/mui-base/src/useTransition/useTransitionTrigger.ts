@@ -1,13 +1,6 @@
 'use client';
 import * as React from 'react';
-import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import { TransitionContextValue } from './TransitionContext';
-
-enum TransitionState {
-  NotStarted,
-  InProgress,
-  Finished,
-}
 
 /**
  * Allows child elements to be transitioned in and out.
@@ -21,38 +14,32 @@ enum TransitionState {
  * - [useTransitionTrigger API](https://mui.com/base-ui/react-transitions/hooks-api/#use-transition-trigger)
  */
 export function useTransitionTrigger(requestEnter: boolean): UseTransitionTriggerReturnValue {
-  const [exitTransitionState, setExitTransitionState] = React.useState<TransitionState>(
-    TransitionState.NotStarted,
-  );
+  const [exitTransitionFinished, setExitTransitionFinished] = React.useState(true);
+  const hasPendingExitTransition = React.useRef(false);
 
   const registeredTransitions = React.useRef(0);
-  const runningTransitions = React.useRef(0);
-
   const [hasTransition, setHasTransition] = React.useState(false);
 
   const previousRequestEnter = React.useRef(requestEnter);
 
-  useEnhancedEffect(() => {
-    if (requestEnter) {
-      setExitTransitionState(TransitionState.NotStarted);
-    } else if (
+  React.useEffect(() => {
+    if (
+      !requestEnter &&
       // checking registeredTransitions.current instead of hasTransition to avoid this effect re-firing whenever hasTransition changes
       registeredTransitions.current > 0 &&
       // prevents waiting for a pending transition right after mounting
       previousRequestEnter.current !== requestEnter
     ) {
-      setExitTransitionState(TransitionState.InProgress);
-      runningTransitions.current = registeredTransitions.current;
+      hasPendingExitTransition.current = true;
+      setExitTransitionFinished(false);
     }
 
     previousRequestEnter.current = requestEnter;
   }, [requestEnter]);
 
   const handleExited = React.useCallback(() => {
-    runningTransitions.current -= 1;
-    if (runningTransitions.current === 0) {
-      setExitTransitionState(TransitionState.Finished);
-    }
+    hasPendingExitTransition.current = false;
+    setExitTransitionFinished(true);
   }, []);
 
   const registerTransition = React.useCallback(() => {
@@ -73,12 +60,7 @@ export function useTransitionTrigger(requestEnter: boolean): UseTransitionTrigge
   } else if (requestEnter) {
     hasExited = false;
   } else {
-    const hasPendingExitTransition =
-      registeredTransitions.current > 0 &&
-      exitTransitionState !== TransitionState.Finished &&
-      previousRequestEnter.current !== requestEnter;
-
-    hasExited = exitTransitionState !== TransitionState.InProgress && !hasPendingExitTransition;
+    hasExited = !hasPendingExitTransition.current && exitTransitionFinished;
   }
 
   const contextValue: TransitionContextValue = React.useMemo(
