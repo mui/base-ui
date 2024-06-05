@@ -50,16 +50,14 @@ Dialogs are implemented using a collection of related components:
 - `<Dialog.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
 - `<Dialog.Popup />` is the dialog panel itself.
 - `<Dialog.Backdrop />` is the optional background element appearing when a popup is visible. Use it to indicate that the page is inert when using a modal dialog. The Backdrop must be a sibling of the Popup component.
-- `<Dialog.Trigger />` hosts a component (preferably a button) that, when clicked, shows the popup. This component does not render anything by itself but add functionality to its child. When it's not provided, the visibility of the Dialog can be controlled with its `open` prop (see [Controlled vs. uncontrolled behavior](#controlled-vs-uncontrolled-behavior)).
+- `<Dialog.Trigger />` is the component (a button by default) that, when clicked, shows the popup. When it's not provided, the visibility of the Dialog can be controlled with its `open` prop (see [Controlled vs. uncontrolled behavior](#controlled-vs-uncontrolled-behavior)).
 - `<Dialog.Close />` renders a button that closes the popup. You can attach your own click handlers to it to perform additional actions.
 - `<Dialog.Title />` is an header element displaying the title of the dialog. It is referenced in the Dialog's ARIA attributes to properly announce the dialog.
 - `<Dialog.Description />` is an element describing of the dialog. It is referenced in the Dialog's ARIA attributes to properly announce the dialog.
 
 ```tsx
 <Dialog.Root>
-  <Dialog.Trigger>
-    <button />
-  </Dialog.Trigger>
+  <Dialog.Trigger />
 
   <Dialog.Backdrop />
 
@@ -129,9 +127,7 @@ You can set the initial state with the `defaultOpen` prop.
 
 ```tsx
 <Dialog.Root>
-  <Dialog.Trigger>
-    <button>Open</button>
-  </Dialog.Trigger>
+  <Dialog.Trigger>Open</Dialog.Trigger>
   <Dialog.Popup>
     <Dialog.Title>Demo dialog</Dialog.Title>
     <Dialog.Close>Close</Dialog.Close>
@@ -149,9 +145,7 @@ const [open, setOpen] = React.useState(false);
 
 return (
   <Dialog.Root open={open} onOpenChange={setOpen}>
-    <Dialog.Trigger>
-      <button>Open</button>
-    </Dialog.Trigger>
+    <Dialog.Trigger>Open</Dialog.Trigger>
     <Dialog.Popup>
       <Dialog.Title>Demo dialog</Dialog.Title>
       <Dialog.Close>Close</Dialog.Close>
