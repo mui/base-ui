@@ -4,6 +4,15 @@ import { isIOS } from './detectBrowser';
 
 const activeLocks = new Set<string>();
 
+/**
+ * Locks the scroll of the document when enabled.
+ *
+ * @param enabled - Whether to enable the scroll lock.
+ *
+ * API:
+ *
+ * - [useScrollLock API](https://mui.com/base-ui/api/use-scroll-lock/)
+ */
 export function useScrollLock(enabled: boolean = true) {
   // Based on Floating UI's FloatingOverlay
 
