@@ -83,7 +83,7 @@ const Popup = React.forwardRef(function Popup<RootComponentType extends React.El
     placement: finalPlacement,
   } = useFloating({
     elements: {
-      reference: resolveAnchor(anchorProp) || null,
+      reference: resolveAnchor(anchorProp),
     },
     open,
     middleware: middleware ?? [offset(offsetProp ?? 0), flip(), shift()],
