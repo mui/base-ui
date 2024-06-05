@@ -1,4 +1,4 @@
-import { EventHandlers } from './types';
+import { EventHandlers } from '../../utils/types';
 
 /**
  * Combines the two get*Props functions from Base UI hooks into one.

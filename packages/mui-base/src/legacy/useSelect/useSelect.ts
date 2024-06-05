@@ -27,7 +27,7 @@ import { useCompoundParent } from '../../useCompound';
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
 import { SelectOption } from '../useOption/useOption.types';
 import { selectReducer } from './selectReducer';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 
 function defaultFormValueProvider<OptionValue>(

@@ -11,7 +11,7 @@ import type {
 import { useListItem } from '../../useList';
 import { DropdownActionTypes } from '../useDropdown';
 import { DropdownContext, DropdownContextValue } from '../useDropdown/DropdownContext';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { useCompoundItem } from '../../useCompound';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 import { EventHandlers } from '../../utils/types';

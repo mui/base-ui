@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { combineHooksSlotProps } from './combineHooksSlotProps';
-import { EventHandlers } from './types';
+import { EventHandlers } from '../../utils/types';
 
 describe('combineHooksSlotProps', () => {
   let log: string[];

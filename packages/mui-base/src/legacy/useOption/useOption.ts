@@ -6,7 +6,7 @@ import { extractEventHandlers } from '../../utils/extractEventHandlers';
 import { useListItem } from '../../useList';
 import { useCompoundItem } from '../../useCompound';
 import { useButton } from '../../useButton';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 import { EventHandlers } from '../../utils/types';
 

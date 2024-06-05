@@ -49,4 +49,3 @@ export type BaseUIComponentProps<
    */
   render?: ComponentRenderFn<RenderFunctionProps, OwnerState> | React.ReactElement<ElementType>;
 };
-

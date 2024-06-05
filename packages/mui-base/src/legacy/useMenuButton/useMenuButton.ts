@@ -7,7 +7,7 @@ import { DropdownActionTypes } from '../useDropdown/useDropdown.types';
 import { useButton } from '../../useButton/useButton';
 import { EventHandlers } from '../../utils/types';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
 
 /**
