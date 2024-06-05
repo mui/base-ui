@@ -6,7 +6,7 @@ import {
   TabsRootOwnerState,
 } from '../Root/TabsRoot.types';
 import { ListAction } from '../../useList';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export type TabsListOwnerState = TabsRootOwnerState;
 
