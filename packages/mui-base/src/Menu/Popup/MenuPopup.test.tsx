@@ -10,12 +10,11 @@ import {
   RenderOptions,
   flushMicrotasks,
 } from '@mui/internal-test-utils';
-import { Menu, menuClasses } from '@base_ui/react/Menu';
-import { MenuItem, MenuItemRootSlotProps } from '@base_ui/react/MenuItem';
+import * as Menu from '@base_ui/react/Menu';
 import { DropdownContext, DropdownContextValue } from '@base_ui/react/useDropdown';
 import { Popper } from '@base_ui/react/Popper';
 import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 function createAnchor() {
   const anchor = document.createElement('div');
@@ -45,7 +44,7 @@ describe('<Menu />', () => {
     return rendered;
   }
 
-  describeConformanceUnstyled(<Menu />, () => ({
+  describeConformanceUnstyled(<Menu.Popup />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       return render(
@@ -59,14 +58,6 @@ describe('<Menu />', () => {
       return wrapper.childAt(0);
     },
     refInstanceof: window.HTMLDivElement,
-    slots: {
-      root: {
-        expectedClassName: menuClasses.root,
-      },
-      listbox: {
-        expectedClassName: menuClasses.listbox,
-      },
-    },
     skip: ['reactTestRenderer', 'componentProp', 'slotsProp'],
   }));
 
@@ -74,11 +65,11 @@ describe('<Menu />', () => {
     function Test() {
       return (
         <DropdownContext.Provider value={testContext}>
-          <Menu>
-            <MenuItem>1</MenuItem>
-            <MenuItem>2</MenuItem>
-            <MenuItem>3</MenuItem>
-          </Menu>
+          <Menu.Popup>
+            <Menu.Item>1</Menu.Item>
+            <Menu.Item>2</Menu.Item>
+            <Menu.Item>3</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>
       );
     }
@@ -107,11 +98,11 @@ describe('<Menu />', () => {
       };
       const { getAllByRole } = await render(
         <DropdownContext.Provider value={context}>
-          <Menu>
-            <MenuItem>1</MenuItem>
-            <MenuItem>2</MenuItem>
-            <MenuItem>3</MenuItem>
-          </Menu>
+          <Menu.Popup>
+            <Menu.Item>1</Menu.Item>
+            <Menu.Item>2</Menu.Item>
+            <Menu.Item>3</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
       const [firstItem, ...otherItems] = getAllByRole('menuitem');
@@ -136,11 +127,11 @@ describe('<Menu />', () => {
       };
       const { getAllByRole } = await render(
         <DropdownContext.Provider value={context}>
-          <Menu>
-            <MenuItem>1</MenuItem>
-            <MenuItem>2</MenuItem>
-            <MenuItem>3</MenuItem>
-          </Menu>
+          <Menu.Popup>
+            <Menu.Item>1</Menu.Item>
+            <Menu.Item>2</Menu.Item>
+            <Menu.Item>3</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
 
@@ -189,9 +180,9 @@ describe('<Menu />', () => {
       const { getAllByRole } = await render(
         <DropdownContext.Provider value={context}>
           <CustomMenu>
-            <MenuItem>1</MenuItem>
-            <MenuItem>2</MenuItem>
-            <MenuItem disabled>3</MenuItem>
+            <Menu.Item>1</Menu.Item>
+            <Menu.Item>2</Menu.Item>
+            <Menu.Item disabled>3</Menu.Item>
           </CustomMenu>
         </DropdownContext.Provider>,
       );
@@ -208,11 +199,11 @@ describe('<Menu />', () => {
     it('changes the highlighted item using the arrow keys', async () => {
       const { getByTestId } = await render(
         <DropdownContext.Provider value={testContext}>
-          <Menu>
-            <MenuItem data-testid="item-1">1</MenuItem>
-            <MenuItem data-testid="item-2">2</MenuItem>
-            <MenuItem data-testid="item-3">3</MenuItem>
-          </Menu>
+          <Menu.Popup>
+            <Menu.Item data-testid="item-1">1</Menu.Item>
+            <Menu.Item data-testid="item-2">2</Menu.Item>
+            <Menu.Item data-testid="item-3">3</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
 
@@ -237,11 +228,11 @@ describe('<Menu />', () => {
     it('changes the highlighted item using the Home and End keys', async () => {
       const { getByTestId } = await render(
         <DropdownContext.Provider value={testContext}>
-          <Menu>
-            <MenuItem data-testid="item-1">1</MenuItem>
-            <MenuItem data-testid="item-2">2</MenuItem>
-            <MenuItem data-testid="item-3">3</MenuItem>
-          </Menu>
+          <Menu.Popup>
+            <Menu.Item data-testid="item-1">1</Menu.Item>
+            <Menu.Item data-testid="item-2">2</Menu.Item>
+            <Menu.Item data-testid="item-3">3</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
 
@@ -262,12 +253,12 @@ describe('<Menu />', () => {
     it('includes disabled items during keyboard navigation', async () => {
       const { getByTestId } = await render(
         <DropdownContext.Provider value={testContext}>
-          <Menu>
-            <MenuItem data-testid="item-1">1</MenuItem>
-            <MenuItem disabled data-testid="item-2">
+          <Menu.Popup>
+            <Menu.Item data-testid="item-1">1</Menu.Item>
+            <Menu.Item disabled data-testid="item-2">
               2
-            </MenuItem>
-          </Menu>
+            </Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
 
@@ -294,14 +285,14 @@ describe('<Menu />', () => {
 
         const { getByText, getAllByRole } = await render(
           <DropdownContext.Provider value={testContext}>
-            <Menu>
-              <MenuItem>Aa</MenuItem>
-              <MenuItem>Ba</MenuItem>
-              <MenuItem>Bb</MenuItem>
-              <MenuItem>Ca</MenuItem>
-              <MenuItem>Cb</MenuItem>
-              <MenuItem>Cd</MenuItem>
-            </Menu>
+            <Menu.Popup>
+              <Menu.Item>Aa</Menu.Item>
+              <Menu.Item>Ba</Menu.Item>
+              <Menu.Item>Bb</Menu.Item>
+              <Menu.Item>Ca</Menu.Item>
+              <Menu.Item>Cb</Menu.Item>
+              <Menu.Item>Cd</Menu.Item>
+            </Menu.Popup>
           </DropdownContext.Provider>,
         );
 
@@ -329,12 +320,12 @@ describe('<Menu />', () => {
 
         const { getByText, getAllByRole } = await render(
           <DropdownContext.Provider value={testContext}>
-            <Menu>
-              <MenuItem>Aa</MenuItem>
-              <MenuItem>Ba</MenuItem>
-              <MenuItem>Bb</MenuItem>
-              <MenuItem>Ca</MenuItem>
-            </Menu>
+            <Menu.Popup>
+              <Menu.Item>Aa</Menu.Item>
+              <Menu.Item>Ba</Menu.Item>
+              <Menu.Item>Bb</Menu.Item>
+              <Menu.Item>Ca</Menu.Item>
+            </Menu.Popup>
           </DropdownContext.Provider>,
         );
 
@@ -360,12 +351,12 @@ describe('<Menu />', () => {
       it('changes the highlighted item using text navigation on label prop', async () => {
         const { getAllByRole } = await render(
           <DropdownContext.Provider value={testContext}>
-            <Menu>
-              <MenuItem label="Aa">1</MenuItem>
-              <MenuItem label="Ba">2</MenuItem>
-              <MenuItem label="Bb">3</MenuItem>
-              <MenuItem label="Ca">4</MenuItem>
-            </Menu>
+            <Menu.Popup>
+              <Menu.Item label="Aa">1</Menu.Item>
+              <Menu.Item label="Ba">2</Menu.Item>
+              <Menu.Item label="Bb">3</Menu.Item>
+              <Menu.Item label="Ca">4</Menu.Item>
+            </Menu.Popup>
           </DropdownContext.Provider>,
         );
 
@@ -397,17 +388,17 @@ describe('<Menu />', () => {
 
         const { getByText, getAllByRole } = await render(
           <DropdownContext.Provider value={testContext}>
-            <Menu>
-              <MenuItem>Aa</MenuItem>
-              <MenuItem>Ba</MenuItem>
-              <MenuItem />
-              <MenuItem>
+            <Menu.Popup>
+              <Menu.Item>Aa</Menu.Item>
+              <Menu.Item>Ba</Menu.Item>
+              <Menu.Item />
+              <Menu.Item>
                 <div>Nested Content</div>
-              </MenuItem>
-              <MenuItem>{undefined}</MenuItem>
-              <MenuItem>{null}</MenuItem>
-              <MenuItem>Bc</MenuItem>
-            </Menu>
+              </Menu.Item>
+              <Menu.Item>{undefined}</Menu.Item>
+              <Menu.Item>{null}</Menu.Item>
+              <Menu.Item>Bc</Menu.Item>
+            </Menu.Popup>
           </DropdownContext.Provider>,
         );
 
@@ -439,12 +430,12 @@ describe('<Menu />', () => {
 
         const { getByText, getAllByRole } = await render(
           <DropdownContext.Provider value={testContext}>
-            <Menu>
-              <MenuItem>Aa</MenuItem>
-              <MenuItem>Ba</MenuItem>
-              <MenuItem>Bb</MenuItem>
-              <MenuItem>Bą</MenuItem>
-            </Menu>
+            <Menu.Popup>
+              <Menu.Item>Aa</Menu.Item>
+              <Menu.Item>Ba</Menu.Item>
+              <Menu.Item>Bb</Menu.Item>
+              <Menu.Item>Bą</Menu.Item>
+            </Menu.Popup>
           </DropdownContext.Provider>,
         );
 
@@ -474,12 +465,12 @@ describe('<Menu />', () => {
 
         const { getByText, getAllByRole } = await render(
           <DropdownContext.Provider value={testContext}>
-            <Menu>
-              <MenuItem>Aa</MenuItem>
-              <MenuItem>ąa</MenuItem>
-              <MenuItem>ąb</MenuItem>
-              <MenuItem>ąc</MenuItem>
-            </Menu>
+            <Menu.Popup>
+              <Menu.Item>Aa</Menu.Item>
+              <Menu.Item>ąa</Menu.Item>
+              <Menu.Item>ąb</Menu.Item>
+              <Menu.Item>ąc</Menu.Item>
+            </Menu.Popup>
           </DropdownContext.Provider>,
         );
 
@@ -516,10 +507,10 @@ describe('<Menu />', () => {
 
       const { setProps } = await render(
         <DropdownContext.Provider value={testContext}>
-          <Menu onItemsChange={handleItemsChange}>
-            <MenuItem key="1">1</MenuItem>
-            <MenuItem key="2">2</MenuItem>
-          </Menu>
+          <Menu.Popup onItemsChange={handleItemsChange}>
+            <Menu.Item key="1">1</Menu.Item>
+            <Menu.Item key="2">2</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
 
@@ -528,10 +519,10 @@ describe('<Menu />', () => {
 
       setProps({
         children: (
-          <Menu onItemsChange={handleItemsChange}>
-            <MenuItem key="1">1</MenuItem>
-            <MenuItem key="3">3</MenuItem>
-          </Menu>
+          <Menu.Popup onItemsChange={handleItemsChange}>
+            <Menu.Item key="1">1</Menu.Item>
+            <Menu.Item key="3">3</Menu.Item>
+          </Menu.Popup>
         ),
       });
 
@@ -551,13 +542,13 @@ describe('<Menu />', () => {
         return (
           <div>
             <DropdownContext.Provider value={testContext}>
-              <Menu
+              <Menu.Popup
                 anchor={anchor}
                 slotProps={{ root: { 'data-testid': 'popup', placement: 'bottom-start' } as any }}
               >
-                <MenuItem>1</MenuItem>
-                <MenuItem>2</MenuItem>
-              </Menu>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
             </DropdownContext.Provider>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={setAnchor} />
           </div>
@@ -603,13 +594,13 @@ describe('<Menu />', () => {
 
       const { getByTestId } = await render(
         <DropdownContext.Provider value={testContext}>
-          <Menu
+          <Menu.Popup
             anchor={virtualElement}
             slotProps={{ root: { 'data-testid': 'popup', placement: 'bottom-start' } as any }}
           >
-            <MenuItem>1</MenuItem>
-            <MenuItem>2</MenuItem>
-          </Menu>
+            <Menu.Item>1</Menu.Item>
+            <Menu.Item>2</Menu.Item>
+          </Menu.Popup>
         </DropdownContext.Provider>,
       );
       const popup = getByTestId('popup');
@@ -631,7 +622,7 @@ describe('<Menu />', () => {
     const renderItem4Spy = spy();
 
     const LoggingRoot = React.forwardRef(function LoggingRoot(
-      props: MenuItemRootSlotProps & { renderSpy: () => void },
+      props: any & { renderSpy: () => void },
       ref: React.ForwardedRef<HTMLLIElement>,
     ) {
       const { renderSpy, ownerState, ...other } = props;
@@ -641,36 +632,36 @@ describe('<Menu />', () => {
 
     const { getAllByRole } = await render(
       <DropdownContext.Provider value={testContext}>
-        <Menu>
-          <MenuItem
+        <Menu.Popup>
+          <Menu.Item
             slots={{ root: LoggingRoot }}
             slotProps={{ root: { renderSpy: renderItem1Spy } as any }}
             id="item-1"
           >
             1
-          </MenuItem>
-          <MenuItem
+          </Menu.Item>
+          <Menu.Item
             slots={{ root: LoggingRoot }}
             slotProps={{ root: { renderSpy: renderItem2Spy } as any }}
             id="item-2"
           >
             2
-          </MenuItem>
-          <MenuItem
+          </Menu.Item>
+          <Menu.Item
             slots={{ root: LoggingRoot }}
             slotProps={{ root: { renderSpy: renderItem3Spy } as any }}
             id="item-3"
           >
             3
-          </MenuItem>
-          <MenuItem
+          </Menu.Item>
+          <Menu.Item
             slots={{ root: LoggingRoot }}
             slotProps={{ root: { renderSpy: renderItem4Spy } as any }}
             id="item-4"
           >
             4
-          </MenuItem>
-        </Menu>
+          </Menu.Item>
+        </Menu.Popup>
       </DropdownContext.Provider>,
     );
 

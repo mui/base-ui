@@ -1,22 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { MenuButtonOwnerState, MenuButtonProps } from './MenuButton.types';
-import { useSlotProps } from '../utils';
-import { useMenuButton } from '../useMenuButton';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
-import { getMenuButtonUtilityClass } from './menuButtonClasses';
-
-const useUtilityClasses = (ownerState: MenuButtonOwnerState) => {
-  const { active, disabled, open } = ownerState;
-
-  const slots = {
-    root: ['root', disabled && 'disabled', active && 'active', open && 'expanded'],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getMenuButtonUtilityClass));
-};
+import { MenuTriggerOwnerState, MenuTriggerProps } from './MenuTrigger.types';
+import { useMenuButton } from '../../useMenuButton';
+import { useSlotProps } from '../../utils';
 
 /**
  *
@@ -28,19 +15,11 @@ const useUtilityClasses = (ownerState: MenuButtonOwnerState) => {
  *
  * - [MenuButton API](https://mui.com/base-ui/react-menu/components-api/#menu-button)
  */
-const MenuButton = React.forwardRef(function MenuButton(
-  props: MenuButtonProps,
+const MenuTrigger = React.forwardRef(function MenuTrigger(
+  props: MenuTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    children,
-    disabled = false,
-    label,
-    slots = {},
-    slotProps = {},
-    focusableWhenDisabled = false,
-    ...other
-  } = props;
+  const { children, disabled = false, label, focusableWhenDisabled = false, ...other } = props;
 
   const { getRootProps, open, active } = useMenuButton({
     disabled,
@@ -48,7 +27,7 @@ const MenuButton = React.forwardRef(function MenuButton(
     rootRef: forwardedRef,
   });
 
-  const ownerState: MenuButtonOwnerState = {
+  const ownerState: MenuTriggerOwnerState = {
     ...props,
     open,
     active,
@@ -56,26 +35,23 @@ const MenuButton = React.forwardRef(function MenuButton(
     focusableWhenDisabled,
   };
 
-  const classes = useUtilityClasses(ownerState);
-
-  const Root = slots.root || 'button';
+  const Root = 'button';
   const rootProps = useSlotProps({
     elementType: Root,
     getSlotProps: getRootProps,
     externalForwardedProps: other,
-    externalSlotProps: slotProps.root,
+    externalSlotProps: {},
     additionalProps: {
       ref: forwardedRef,
-      type: 'button',
+      type: 'button' as const,
     },
     ownerState,
-    className: classes.root,
   });
 
   return <Root {...rootProps}>{children}</Root>;
 });
 
-MenuButton.propTypes /* remove-proptypes */ = {
+MenuTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -102,21 +78,6 @@ MenuButton.propTypes /* remove-proptypes */ = {
    * Label of the button
    */
   label: PropTypes.string,
-  /**
-   * The components used for each slot inside the MenuButton.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-  /**
-   * The props used for each slot inside the MenuButton.
-   * @default {}
-   */
-  slots: PropTypes.shape({
-    root: PropTypes.elementType,
-  }),
 } as any;
 
-export { MenuButton };
+export { MenuTrigger };

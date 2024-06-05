@@ -2,9 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { exactProp } from '@mui/utils';
-import { DropdownProps } from './Dropdown.types';
+import { MenuRootProps } from './MenuRoot.types';
 import { DropdownContext } from '../../useDropdown/DropdownContext';
 import { useDropdown } from '../../useDropdown/useDropdown';
+
 /**
  *
  * Demos:
@@ -15,7 +16,7 @@ import { useDropdown } from '../../useDropdown/useDropdown';
  *
  * - [Dropdown API](https://mui.com/base-ui/react-menu/components-api/#dropdown)
  */
-function Dropdown(props: DropdownProps) {
+function MenuRoot(props: MenuRootProps) {
   const { children, open, defaultOpen, onOpenChange } = props;
 
   const { contextValue } = useDropdown({
@@ -27,7 +28,7 @@ function Dropdown(props: DropdownProps) {
   return <DropdownContext.Provider value={contextValue}>{children}</DropdownContext.Provider>;
 }
 
-Dropdown.propTypes /* remove-proptypes */ = {
+MenuRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -53,7 +54,7 @@ Dropdown.propTypes /* remove-proptypes */ = {
 
 if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line
-  (Dropdown as any)['propTypes' + ''] = exactProp(Dropdown.propTypes);
+  (MenuRoot as any)['propTypes' + ''] = exactProp(MenuRoot.propTypes);
 }
 
-export { Dropdown };
+export { MenuRoot };

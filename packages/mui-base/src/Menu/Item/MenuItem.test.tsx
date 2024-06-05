@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
-import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import * as Menu from '@base_ui/react/Menu';
 import { MenuProvider } from '@base_ui/react/useMenu';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 const dummyGetItemState = () => ({
   disabled: false,
@@ -22,11 +22,11 @@ const testContext = {
   totalSubitemCount: 0,
 };
 
-describe('<MenuItem />', () => {
+describe('<Menu.Item />', () => {
   const mount = createMount();
   const { render } = createRenderer();
 
-  describeConformanceUnstyled(<MenuItem />, () => ({
+  describeConformanceUnstyled(<Menu.Item />, () => ({
     inheritComponent: 'li',
     render: (node) => {
       return render(<MenuProvider value={testContext}>{node}</MenuProvider>);
@@ -37,11 +37,6 @@ describe('<MenuItem />', () => {
     },
     refInstanceof: window.HTMLLIElement,
     testComponentPropWith: 'span',
-    slots: {
-      root: {
-        expectedClassName: menuItemClasses.root,
-      },
-    },
     skip: [
       'componentProp',
       'reactTestRenderer', // Need to be wrapped in MenuContext

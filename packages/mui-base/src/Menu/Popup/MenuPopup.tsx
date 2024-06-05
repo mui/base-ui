@@ -2,27 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { HTMLElementType, refType } from '@mui/utils';
-import { PolymorphicComponent } from '../utils/PolymorphicComponent';
-import { MenuOwnerState, MenuProps, MenuRootSlotProps, MenuTypeMap } from './Menu.types';
-import { getMenuUtilityClass } from './menuClasses';
-import { useMenu } from '../useMenu';
-import { MenuProvider } from '../useMenu/MenuProvider';
-import { unstable_composeClasses as composeClasses } from '../composeClasses';
-import { Unstable_Popup as Popup } from '../Unstable_Popup';
-import { useSlotProps } from '../utils/useSlotProps';
-import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
-import { WithOptionalOwnerState } from '../utils';
-import { ListActionTypes } from '../useList';
-
-function useUtilityClasses(ownerState: MenuOwnerState) {
-  const { open } = ownerState;
-  const slots = {
-    root: ['root', open && 'expanded'],
-    listbox: ['listbox', open && 'expanded'],
-  };
-
-  return composeClasses(slots, useClassNamesOverride(getMenuUtilityClass));
-}
+import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
+import { useMenu } from '../../useMenu';
+import { MenuProvider } from '../../useMenu/MenuProvider';
+import { Unstable_Popup as Popup } from '../../Unstable_Popup';
+import { useSlotProps } from '../../utils/useSlotProps';
+import { ListActionTypes } from '../../useList';
 
 /**
  *
@@ -34,19 +19,11 @@ function useUtilityClasses(ownerState: MenuOwnerState) {
  *
  * - [Menu API](https://mui.com/base-ui/react-menu/components-api/#menu)
  */
-const Menu = React.forwardRef(function Menu<RootComponentType extends React.ElementType>(
-  props: MenuProps<RootComponentType>,
+const MenuPopup = React.forwardRef(function MenuPopup(
+  props: MenuPopupProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const {
-    actions,
-    anchor: anchorProp,
-    children,
-    onItemsChange,
-    slotProps = {},
-    slots = {},
-    ...other
-  } = props;
+  const { actions, anchor: anchorProp, children, onItemsChange, ...other } = props;
 
   const { contextValue, getListboxProps, dispatch, open, triggerElement } = useMenu({
     onItemsChange,
@@ -64,29 +41,25 @@ const Menu = React.forwardRef(function Menu<RootComponentType extends React.Elem
     [dispatch],
   );
 
-  const ownerState: MenuOwnerState = { ...props, open };
+  const ownerState: MenuPopupOwnerState = { ...props, open };
 
-  const classes = useUtilityClasses(ownerState);
-
-  const Root = slots.root ?? 'div';
+  const Root = 'div';
   const rootProps = useSlotProps({
     elementType: Root,
-    externalSlotProps: slotProps.root,
+    externalSlotProps: {},
     externalForwardedProps: other,
     additionalProps: {
       ref: forwardedRef,
       role: undefined,
     },
-    className: classes.root,
     ownerState,
   });
 
-  const Listbox = slots.listbox ?? 'ul';
-  const listboxProps: WithOptionalOwnerState<MenuRootSlotProps> = useSlotProps({
+  const Listbox = 'ul';
+  const listboxProps = useSlotProps({
     elementType: Listbox,
     getSlotProps: getListboxProps,
-    externalSlotProps: slotProps.listbox,
-    className: classes.listbox,
+    externalSlotProps: {},
     ownerState,
   });
 
@@ -107,9 +80,9 @@ const Menu = React.forwardRef(function Menu<RootComponentType extends React.Elem
       </Listbox>
     </Popup>
   );
-}) as PolymorphicComponent<MenuTypeMap>;
+});
 
-Menu.propTypes /* remove-proptypes */ = {
+MenuPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -157,4 +130,4 @@ Menu.propTypes /* remove-proptypes */ = {
   }),
 } as any;
 
-export { Menu };
+export { MenuPopup };

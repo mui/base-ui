@@ -1,4 +1,4 @@
-export interface DropdownProps {
+export interface MenuRootProps {
   children: React.ReactNode;
   /**
    * If `true`, the dropdown is initially open.

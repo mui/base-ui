@@ -7,11 +7,8 @@ import {
   MuiRenderResult,
   RenderOptions,
 } from '@mui/internal-test-utils';
-import { Dropdown } from '@base_ui/react/Menu/Dropdown';
+import * as Menu from '@base_ui/react/Menu';
 import { DropdownContext } from '@base_ui/react/useDropdown';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { MenuItem } from '@base_ui/react/MenuItem';
-import { Menu } from '@base_ui/react/Menu';
 import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
 import { Unstable_Popup as Popup } from '@base_ui/react/Unstable_Popup';
 
@@ -40,9 +37,9 @@ describe('<Dropdown />', () => {
     }
 
     const { container } = await render(
-      <Dropdown>
+      <Menu.Root>
         <TestComponent />
-      </Dropdown>,
+      </Menu.Root>,
     );
 
     expect(container.innerHTML).to.equal('<p>test-popup</p>');
@@ -64,9 +61,9 @@ describe('<Dropdown />', () => {
     }
 
     const { container } = await render(
-      <Dropdown>
+      <Menu.Root>
         <TestComponent />
-      </Dropdown>,
+      </Menu.Root>,
     );
 
     expect(container.innerHTML).to.equal('<p>test-button</p>');
@@ -75,14 +72,14 @@ describe('<Dropdown />', () => {
   it('focuses the first item after the menu is opened', async () => {
     const { getByRole, getAllByRole } = await render(
       <div>
-        <Dropdown>
-          <MenuButton>Toggle</MenuButton>
-          <Menu>
-            <MenuItem>One</MenuItem>
-            <MenuItem>Two</MenuItem>
-            <MenuItem>Three</MenuItem>
-          </Menu>
-        </Dropdown>
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Popup>
+            <Menu.Item>One</Menu.Item>
+            <Menu.Item>Two</Menu.Item>
+            <Menu.Item>Three</Menu.Item>
+          </Menu.Popup>
+        </Menu.Root>
       </div>,
     );
 
@@ -121,14 +118,14 @@ describe('<Dropdown />', () => {
 
     const { getByRole, getAllByRole } = await render(
       <div>
-        <Dropdown>
-          <MenuButton>Toggle</MenuButton>
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
           <CustomMenu>
-            <MenuItem disabled>One</MenuItem>
-            <MenuItem>Two</MenuItem>
-            <MenuItem>Three</MenuItem>
+            <Menu.Item disabled>One</Menu.Item>
+            <Menu.Item>Two</Menu.Item>
+            <Menu.Item>Three</Menu.Item>
           </CustomMenu>
-        </Dropdown>
+        </Menu.Root>
       </div>,
     );
 
@@ -148,12 +145,12 @@ describe('<Dropdown />', () => {
     const { getByRole } = await render(
       <div>
         <input type="text" />
-        <Dropdown>
-          <MenuButton>Toggle</MenuButton>
-          <Menu>
-            <MenuItem>Close</MenuItem>
-          </Menu>
-        </Dropdown>
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Popup>
+            <Menu.Item>Close</Menu.Item>
+          </Menu.Popup>
+        </Menu.Root>
         <input type="text" />
       </div>,
     );

@@ -3,13 +3,13 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 import { act, createMount, createRenderer } from '@mui/internal-test-utils';
-import { MenuButton, menuButtonClasses } from '@base_ui/react/MenuButton';
+import * as Menu from '@base_ui/react/Menu';
 import {
   DropdownContext,
   DropdownContextValue,
   DropdownActionTypes,
 } from '@base_ui/react/useDropdown';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 const testContext: DropdownContextValue = {
   dispatch: () => {},
@@ -20,11 +20,11 @@ const testContext: DropdownContextValue = {
   triggerElement: null,
 };
 
-describe('<MenuButton />', () => {
+describe('<Menu.Trigger />', () => {
   const mount = createMount();
   const { render } = createRenderer();
 
-  describeConformanceUnstyled(<MenuButton />, () => ({
+  describeConformanceUnstyled(<Menu.Trigger />, () => ({
     inheritComponent: 'button',
     render: (node) => {
       return render(
@@ -38,12 +38,6 @@ describe('<MenuButton />', () => {
       return wrapper.childAt(0);
     },
     refInstanceof: window.HTMLButtonElement,
-    slots: {
-      root: {
-        expectedClassName: menuButtonClasses.root,
-        testWithElement: null,
-      },
-    },
     skip: ['componentProp', 'reactTestRenderer'],
   }));
 
@@ -51,7 +45,7 @@ describe('<MenuButton />', () => {
     it('should render a disabled button', () => {
       const { getByRole } = render(
         <DropdownContext.Provider value={testContext}>
-          <MenuButton disabled />
+          <Menu.Trigger disabled />
         </DropdownContext.Provider>,
       );
 
@@ -69,7 +63,7 @@ describe('<MenuButton />', () => {
 
       const { getByRole } = render(
         <DropdownContext.Provider value={context}>
-          <MenuButton disabled />
+          <Menu.Trigger disabled />
         </DropdownContext.Provider>,
       );
 
@@ -84,7 +78,7 @@ describe('<MenuButton />', () => {
     it('has the aria-disabled instead of disabled attribute when disabled', () => {
       const { getByRole } = render(
         <DropdownContext.Provider value={testContext}>
-          <MenuButton disabled focusableWhenDisabled />
+          <Menu.Trigger disabled focusableWhenDisabled />
         </DropdownContext.Provider>,
       );
 
@@ -96,7 +90,7 @@ describe('<MenuButton />', () => {
     it('can receive focus when focusableWhenDisabled is set', () => {
       const { getByRole } = render(
         <DropdownContext.Provider value={testContext}>
-          <MenuButton disabled focusableWhenDisabled />
+          <Menu.Trigger disabled focusableWhenDisabled />
         </DropdownContext.Provider>,
       );
 
@@ -119,7 +113,7 @@ describe('<MenuButton />', () => {
 
     const { getByRole } = render(
       <DropdownContext.Provider value={context}>
-        <MenuButton />
+        <Menu.Trigger />
       </DropdownContext.Provider>,
     );
 
@@ -131,7 +125,7 @@ describe('<MenuButton />', () => {
   });
 
   describe('keyboard navigation', () => {
-    [<MenuButton />, <MenuButton slots={{ root: 'span' }} />].forEach((buttonComponent) => {
+    [<Menu.Trigger />, <Menu.Trigger slots={{ root: 'span' }} />].forEach((buttonComponent) => {
       const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
       ['ArrowUp', 'ArrowDown'].forEach((key) =>
         it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
@@ -193,7 +187,7 @@ describe('<MenuButton />', () => {
     it('has the aria-haspopup attribute', () => {
       const { getByRole } = render(
         <DropdownContext.Provider value={testContext}>
-          <MenuButton />
+          <Menu.Trigger />
         </DropdownContext.Provider>,
       );
 
@@ -209,7 +203,7 @@ describe('<MenuButton />', () => {
 
       const { getByRole } = render(
         <DropdownContext.Provider value={context}>
-          <MenuButton />
+          <Menu.Trigger />
         </DropdownContext.Provider>,
       );
       const button = getByRole('button');
@@ -224,7 +218,7 @@ describe('<MenuButton />', () => {
 
       const { getByRole } = render(
         <DropdownContext.Provider value={context}>
-          <MenuButton />
+          <Menu.Trigger />
         </DropdownContext.Provider>,
       );
       const button = getByRole('button');
@@ -234,7 +228,7 @@ describe('<MenuButton />', () => {
     it('has the aria-controls attribute', () => {
       const { getByRole } = render(
         <DropdownContext.Provider value={testContext}>
-          <MenuButton />
+          <Menu.Trigger />
         </DropdownContext.Provider>,
       );
       const button = getByRole('button');
