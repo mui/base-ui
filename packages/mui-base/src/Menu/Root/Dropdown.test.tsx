@@ -7,7 +7,7 @@ import {
   MuiRenderResult,
   RenderOptions,
 } from '@mui/internal-test-utils';
-import { Dropdown } from '@base_ui/react/Dropdown';
+import { Dropdown } from '@base_ui/react/Menu/Dropdown';
 import { DropdownContext } from '@base_ui/react/useDropdown';
 import { MenuButton } from '@base_ui/react/MenuButton';
 import { MenuItem } from '@base_ui/react/MenuItem';

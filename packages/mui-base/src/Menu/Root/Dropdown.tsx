@@ -3,8 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { exactProp } from '@mui/utils';
 import { DropdownProps } from './Dropdown.types';
-import { DropdownContext } from '../useDropdown/DropdownContext';
-import { useDropdown } from '../useDropdown/useDropdown';
+import { DropdownContext } from '../../useDropdown/DropdownContext';
+import { useDropdown } from '../../useDropdown/useDropdown';
 /**
  *
  * Demos:
