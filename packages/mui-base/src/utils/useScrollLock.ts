@@ -21,14 +21,9 @@ export function useScrollLock(enabled: boolean = true) {
       Math.round(document.documentElement.getBoundingClientRect().left) +
       document.documentElement.scrollLeft;
     const paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
-    const scrollbarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
-    const scrollX = rootStyle.left
-      ? parseFloat(rootStyle.left)
-      : window.scrollX;
-    const scrollY = rootStyle.top
-      ? parseFloat(rootStyle.top)
-      : window.scrollY;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
+    const scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
 
     rootStyle.overflow = 'hidden';
 

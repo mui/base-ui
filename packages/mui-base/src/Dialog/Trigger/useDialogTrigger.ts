@@ -4,6 +4,7 @@ import type {
   UseDialogTriggerParameters,
   UseDialogTriggerReturnValue,
 } from './DialogTrigger.types';
+
 /**
  *
  * Demos:
@@ -16,23 +17,22 @@ import type {
  */
 export function useDialogTrigger(params: UseDialogTriggerParameters): UseDialogTriggerReturnValue {
   const { open, onOpenChange, popupElementId } = params;
-  const handleClick = React.useCallback(() => {
-    if (!open) {
-      onOpenChange?.(true);
-    }
-  }, [open, onOpenChange]);
 
   const getRootProps = React.useCallback(
     (externalProps: React.HTMLAttributes<any> = {}) =>
       mergeReactProps(externalProps, {
-        onClick: handleClick,
+        onClick: () => {
+          if (!open) {
+            onOpenChange?.(true);
+          }
+        },
         'aria-haspopup': 'dialog',
         'aria-controls': popupElementId ?? undefined,
       }),
-    [handleClick, popupElementId],
+    [open, onOpenChange, popupElementId],
   );
 
-  return {
+  return React.useMemo(() => ({
     getRootProps,
-  };
+  }), [getRootProps]);
 }
