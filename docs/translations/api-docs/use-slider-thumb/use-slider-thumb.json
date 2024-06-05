@@ -18,10 +18,13 @@
     },
     "max": { "description": "The maximum allowed value of the slider." },
     "min": { "description": "The minimum allowed value of the slider." },
+    "minDistanceBetweenValues": {
+      "description": "The minimum difference between values in a range slider."
+    },
     "orientation": { "description": "The component orientation." },
     "percentageValues": { "description": "The value(s) of the slider as percentages" },
     "step": {
-      "description": "The step value of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
+      "description": "The step increment of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
     },
     "values": { "description": "The value(s) of the slider" }
   },

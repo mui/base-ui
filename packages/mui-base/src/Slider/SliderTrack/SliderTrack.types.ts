@@ -11,6 +11,7 @@ export interface UseSliderTrackParameters
     | 'dragging'
     | 'getFingerNewValue'
     | 'handleValueChange'
+    | 'minDistanceBetweenValues'
     | 'onValueCommitted'
     | 'percentageValues'
     | 'registerSliderTrack'

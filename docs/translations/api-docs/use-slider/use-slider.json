@@ -26,6 +26,9 @@
     "min": {
       "description": "The minimum allowed value of the slider. Should not be equal to max."
     },
+    "minDistanceBetweenValues": {
+      "description": "The minimum difference between values in a range slider."
+    },
     "name": { "description": "Name attribute of the hidden <code>input</code> element." },
     "onValueChange": {
       "description": "Callback function that is fired when the slider&#39;s value changed."
@@ -57,11 +60,14 @@
     },
     "max": { "description": "The maximum allowed value of the slider." },
     "min": { "description": "The minimum allowed value of the slider." },
+    "minDistanceBetweenValues": {
+      "description": "The minimum difference between values in a range slider."
+    },
     "open": { "description": "The thumb index for the current value when in hover state." },
     "orientation": { "description": "The component orientation." },
     "percentageValues": { "description": "The value(s) of the slider as percentages" },
     "step": {
-      "description": "The step value of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
+      "description": "The step increment of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
     },
     "subitems": {
       "description": "A map containing all the Thumb components registered to the slider"

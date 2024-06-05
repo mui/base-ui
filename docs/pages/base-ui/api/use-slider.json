@@ -20,6 +20,10 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "default": "100" },
     "min": { "type": { "name": "number", "description": "number" }, "default": "0" },
+    "minDistanceBetweenValues": {
+      "type": { "name": "number", "description": "number" },
+      "default": "1"
+    },
     "name": { "type": { "name": "string", "description": "string" } },
     "onValueChange": {
       "type": {
@@ -114,6 +118,10 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "required": true },
     "min": { "type": { "name": "number", "description": "number" }, "required": true },
+    "minDistanceBetweenValues": {
+      "type": { "name": "number", "description": "number" },
+      "required": true
+    },
     "open": { "type": { "name": "number", "description": "number" }, "required": true },
     "orientation": {
       "type": {

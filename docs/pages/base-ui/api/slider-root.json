@@ -20,6 +20,7 @@
     },
     "max": { "type": { "name": "number" }, "default": "100" },
     "min": { "type": { "name": "number" }, "default": "0" },
+    "minDistanceBetweenValues": { "type": { "name": "number" }, "default": "1" },
     "name": { "type": { "name": "string" } },
     "onValueChange": {
       "type": { "name": "func" },

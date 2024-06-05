@@ -76,6 +76,27 @@ function setValueIndex({
   return output.sort(asc);
 }
 
+export function validateMinimumDistance(
+  values: number | readonly number[],
+  minDistanceBetweenValues: number,
+) {
+  if (!Array.isArray(values)) {
+    return true;
+  }
+
+  const distances = values.reduce((acc: number[], val, index, vals) => {
+    if (index === vals.length - 1) {
+      return acc;
+    }
+
+    acc.push(Math.abs(val - vals[index + 1]));
+
+    return acc;
+  }, []);
+
+  return Math.min(...distances) >= minDistanceBetweenValues;
+}
+
 export function trackFinger(
   event: TouchEvent | PointerEvent | React.PointerEvent,
   touchId: React.RefObject<any>,
@@ -115,12 +136,13 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     'aria-labelledby': ariaLabelledby,
     defaultValue,
     disabled = false,
-    disableSwap = false,
+    disableSwap = true,
     isRtl = false,
     largeStep = 10,
     marks: marksProp,
     max = 100,
     min = 0,
+    minDistanceBetweenValues = 1,
     name,
     onValueChange,
     onValueCommitted,
@@ -261,14 +283,16 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         focusThumb({ sliderRef, activeIndex });
       }
 
-      setValueState(newValue);
+      if (validateMinimumDistance(newValue, minDistanceBetweenValues)) {
+        setValueState(newValue);
 
-      if (handleValueChange && !areValuesEqual(newValue)) {
-        handleValueChange(newValue, index, event);
-      }
+        if (handleValueChange && !areValuesEqual(newValue)) {
+          handleValueChange(newValue, index, event);
+        }
 
-      if (onValueCommitted) {
-        onValueCommitted(newValue, event);
+        if (onValueCommitted) {
+          onValueCommitted(newValue, event);
+        }
       }
     },
     [
@@ -279,6 +303,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       marksValues,
       max,
       min,
+      minDistanceBetweenValues,
       onValueCommitted,
       range,
       setValueState,
@@ -300,6 +325,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       offset = 0,
     }: {
       finger: { x: number; y: number };
+      // `move` is used to distinguish between when this is called by touchstart vs touchmove/end
       move?: boolean;
       offset?: number;
     }) => {
@@ -313,6 +339,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         percent = (finger.x - left) / width + offset;
       }
 
+      percent = Math.min(percent, 1);
+
       if (axis.indexOf('-reverse') !== -1) {
         percent = 1 - percent;
       }
@@ -322,6 +350,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       if (step) {
         newValue = roundValueToStep(newValue, step, min);
       } else {
+        // will be deprecated by restricted values redesign
         const closestIndex = findClosest(marksValues, newValue);
         newValue = marksValues[closestIndex!];
       }
@@ -329,39 +358,41 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       newValue = clamp(newValue, min, max);
       let activeIndex = 0;
 
-      if (range) {
-        if (!move) {
-          activeIndex = findClosest(values, newValue)!;
-        } else {
-          activeIndex = previousIndex.current!;
-        }
+      if (!range) {
+        return { newValue, activeIndex, newPercentageValue: percent };
+      }
 
-        // Bound the new value to the thumb's neighbours.
-        if (disableSwap) {
-          newValue = clamp(
-            newValue,
-            values[activeIndex - 1] || -Infinity,
-            values[activeIndex + 1] || Infinity,
-          );
-        }
+      if (!move) {
+        activeIndex = findClosest(values, newValue)!;
+      } else {
+        activeIndex = previousIndex.current!;
+      }
 
-        const previousValue = newValue;
-        newValue = setValueIndex({
-          values,
+      // Bound the new value to the thumb's neighbours.
+      if (disableSwap) {
+        newValue = clamp(
           newValue,
-          index: activeIndex,
-        });
+          values[activeIndex - 1] + minDistanceBetweenValues || -Infinity,
+          values[activeIndex + 1] - minDistanceBetweenValues || Infinity,
+        );
+      }
 
-        // Potentially swap the index if needed.
-        if (!(disableSwap && move)) {
-          activeIndex = newValue.indexOf(previousValue);
-          previousIndex.current = activeIndex;
-        }
+      const previousValue = newValue;
+      newValue = setValueIndex({
+        values,
+        newValue,
+        index: activeIndex,
+      });
+
+      // Potentially swap the index if needed.
+      if (!(disableSwap && move)) {
+        activeIndex = newValue.indexOf(previousValue);
+        previousIndex.current = activeIndex;
       }
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [axis, disableSwap, marksValues, max, min, range, step, values],
+    [axis, disableSwap, marksValues, max, min, minDistanceBetweenValues, range, step, values],
   );
 
   useEnhancedEffect(() => {
@@ -406,6 +437,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       largeStep,
       max,
       min,
+      minDistanceBetweenValues,
       name,
       onValueCommitted,
       open,
@@ -438,6 +470,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       largeStep,
       max,
       min,
+      minDistanceBetweenValues,
       name,
       onValueCommitted,
       open,

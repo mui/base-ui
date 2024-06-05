@@ -3,7 +3,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { focusThumb, trackFinger } from '../Root/useSliderRoot';
+import { focusThumb, trackFinger, validateMinimumDistance } from '../Root/useSliderRoot';
 import { UseSliderTrackParameters, UseSliderTrackReturnValue } from './SliderTrack.types';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
@@ -21,6 +21,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     getFingerNewValue,
     handleValueChange,
     onValueCommitted,
+    minDistanceBetweenValues,
     percentageValues,
     registerSliderTrack,
     rootRef: externalRef,
@@ -76,14 +77,17 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     });
 
     focusThumb({ sliderRef: trackRef, activeIndex, setActive });
-    setValueState(newValue);
 
-    if (!dragging && moveCount.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
-      setDragging(true);
-    }
+    if (validateMinimumDistance(newValue, minDistanceBetweenValues)) {
+      setValueState(newValue);
 
-    if (handleValueChange && !areValuesEqual(newValue)) {
-      handleValueChange(newValue, activeIndex, nativeEvent);
+      if (!dragging && moveCount.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
+        setDragging(true);
+      }
+
+      if (handleValueChange && !areValuesEqual(newValue)) {
+        handleValueChange(newValue, activeIndex, nativeEvent);
+      }
     }
   });
 

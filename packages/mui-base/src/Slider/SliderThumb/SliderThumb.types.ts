@@ -24,6 +24,7 @@ export interface UseSliderThumbParameters
     | 'largeStep'
     | 'max'
     | 'min'
+    | 'minDistanceBetweenValues'
     | 'name'
     | 'orientation'
     | 'percentageValues'

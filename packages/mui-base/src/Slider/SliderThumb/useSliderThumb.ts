@@ -42,6 +42,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     largeStep,
     max,
     min,
+    minDistanceBetweenValues,
     name,
     orientation,
     rootRef: externalRef,
@@ -99,6 +100,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
+          const isRange = sliderValues.length > 1;
           switch (event.key) {
             case 'ArrowUp':
               newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, 1, min, max);
@@ -132,9 +134,21 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
               break;
             case 'Home':
               newValue = max;
+
+              if (isRange) {
+                newValue = Number.isFinite(sliderValues[index + 1])
+                  ? sliderValues[index + 1] - minDistanceBetweenValues
+                  : max;
+              }
               break;
             case 'End':
               newValue = min;
+
+              if (isRange) {
+                newValue = Number.isFinite(sliderValues[index - 1])
+                  ? sliderValues[index - 1] + minDistanceBetweenValues
+                  : min;
+              }
               break;
             default:
               break;
@@ -169,7 +183,9 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       largeStep,
       max,
       min,
+      minDistanceBetweenValues,
       setOpen,
+      sliderValues,
       step,
       tabIndex,
       thumbValue,

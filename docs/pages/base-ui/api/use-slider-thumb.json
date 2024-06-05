@@ -17,6 +17,10 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "required": true },
     "min": { "type": { "name": "number", "description": "number" }, "required": true },
+    "minDistanceBetweenValues": {
+      "type": { "name": "number", "description": "number" },
+      "required": true
+    },
     "orientation": {
       "type": {
         "name": "&#39;horizontal&#39; | &#39;vertical&#39;",

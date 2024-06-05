@@ -613,7 +613,7 @@ describe('<Slider.Root />', () => {
         document.body,
         createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
       );
-      expect(slider).to.have.attribute('aria-valuenow', '108');
+      expect(slider).to.have.attribute('aria-valuenow', '106');
 
       fireEvent.touchMove(
         document.body,
@@ -665,6 +665,45 @@ describe('<Slider.Root />', () => {
 
       fireEvent.change(slider, { target: { value: String(MIN - 100) } });
       expect(slider).to.have.attribute('aria-valuenow', String(MIN));
+    });
+  });
+
+  describe('prop: minDistanceBetweenValues', () => {
+    it('should enforce a minimum distance between range slider values', () => {
+      const handleValueChange = spy();
+
+      const { getByTestId } = render(
+        <TestRangeSlider
+          onValueChange={handleValueChange}
+          defaultValue={[47, 50]}
+          minDistanceBetweenValues={2}
+        />,
+      );
+
+      const thumbOne = getByTestId('thumb-0');
+      const thumbTwo = getByTestId('thumb-1');
+
+      act(() => {
+        thumbOne.focus();
+      });
+
+      fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.deep.equal([48, 50]);
+      fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
+      expect(handleValueChange.callCount).to.equal(1);
+
+      act(() => {
+        thumbTwo.focus();
+      });
+
+      fireEvent.keyDown(thumbTwo, { key: 'ArrowUp' });
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[1][0]).to.deep.equal([48, 51]);
+      fireEvent.keyDown(thumbTwo, { key: 'ArrowDown' });
+      fireEvent.keyDown(thumbTwo, { key: 'ArrowDown' });
+      expect(handleValueChange.callCount).to.equal(3);
+      expect(handleValueChange.args[2][0]).to.deep.equal([48, 50]);
     });
   });
 
@@ -1151,8 +1190,8 @@ describe('<Slider.Root />', () => {
         // pixel:  0   20  40  60  80  100
         // slider: |---|---|---|---|---|
         // values: 0   1   2   3   4   5
-        // value:      â†‘   â†‘
-        // mouse:           â†‘
+        // value:      ¡ü   ¡ü
+        // mouse:           ¡ü
 
         fireEvent.pointerDown(sliderTrack, {
           buttons: 1,
@@ -1284,42 +1323,102 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
-    it('sets value to max on Home', () => {
-      const handleValueChange = spy();
-      const { container } = render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
-      );
+    describe('key: Home', () => {
+      it('sets value to max in a single value slider', () => {
+        const handleValueChange = spy();
+        const { container } = render(
+          <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
+        );
 
-      const input = container.querySelector('input');
+        const input = container.querySelector('input');
 
-      fireEvent.keyDown(document.body, { key: 'TAB' });
+        fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
-        (input as HTMLInputElement).focus();
+        act(() => {
+          (input as HTMLInputElement).focus();
+        });
+
+        fireEvent.keyDown(input!, { key: 'Home' });
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.args[0][0]).to.deep.equal(77);
       });
 
-      fireEvent.keyDown(input!, { key: 'Home' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(77);
+      it('sets value to the maximum possible value in a range slider', () => {
+        const handleValueChange = spy();
+        const { getByTestId } = render(
+          <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} max={77} />,
+        );
+
+        const thumbOne = getByTestId('thumb-0');
+        const thumbTwo = getByTestId('thumb-1');
+
+        act(() => {
+          thumbOne.focus();
+        });
+
+        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.args[0][0]).to.deep.equal([49, 50]);
+        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        expect(handleValueChange.callCount).to.equal(1);
+
+        act(() => {
+          thumbTwo.focus();
+        });
+
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
+        expect(handleValueChange.callCount).to.equal(2);
+        expect(handleValueChange.args[1][0]).to.deep.equal([49, 77]);
+      });
     });
 
-    it('sets value to min on End', () => {
-      const handleValueChange = spy();
-      const { container } = render(
-        <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
-      );
+    describe('key: End', () => {
+      it('sets value to min on End', () => {
+        const handleValueChange = spy();
+        const { container } = render(
+          <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
+        );
 
-      const input = container.querySelector('input');
+        const input = container.querySelector('input');
 
-      fireEvent.keyDown(document.body, { key: 'TAB' });
+        fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
-        (input as HTMLInputElement).focus();
+        act(() => {
+          (input as HTMLInputElement).focus();
+        });
+
+        fireEvent.keyDown(input!, { key: 'End' });
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.args[0][0]).to.deep.equal(17);
       });
 
-      fireEvent.keyDown(input!, { key: 'End' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(17);
+      it('sets value to the minimum possible value in a range slider', () => {
+        const handleValueChange = spy();
+        const { getByTestId } = render(
+          <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} min={7} />,
+        );
+
+        const thumbOne = getByTestId('thumb-0');
+        const thumbTwo = getByTestId('thumb-1');
+
+        act(() => {
+          thumbTwo.focus();
+        });
+
+        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.args[0][0]).to.deep.equal([20, 21]);
+        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        expect(handleValueChange.callCount).to.equal(1);
+
+        act(() => {
+          thumbOne.focus();
+        });
+
+        fireEvent.keyDown(thumbOne, { key: 'End' });
+        expect(handleValueChange.callCount).to.equal(2);
+        expect(handleValueChange.args[1][0]).to.deep.equal([7, 21]);
+      });
     });
 
     it('should support Shift + Left Arrow / Right Arrow keys', () => {

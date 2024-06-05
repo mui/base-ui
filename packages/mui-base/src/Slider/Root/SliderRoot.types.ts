@@ -35,9 +35,19 @@ export interface SliderRootOwnerState {
   max: number;
   min: number;
   /**
+   * The minimum difference between values in a range slider.
+   * @default 1
+   */
+  minDistanceBetweenValues: number;
+  /**
    * The component orientation.
    */
   orientation: 'horizontal' | 'vertical';
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
   step: number;
   /**
    * The raw number value of the slider.
@@ -113,6 +123,11 @@ export interface UseSliderParameters {
    * @default 0
    */
   min?: number;
+  /**
+   * The minimum difference between values in a range slider.
+   * @default 1
+   */
+  minDistanceBetweenValues?: number;
   /**
    * Name attribute of the hidden `input` element.
    */
@@ -248,6 +263,10 @@ export interface UseSliderReturnValue {
    * The minimum allowed value of the slider.
    */
   min: number;
+  /**
+   * The minimum difference between values in a range slider.
+   */
+  minDistanceBetweenValues: number;
   name?: string;
   onValueCommitted?: (value: number | number[], event: React.SyntheticEvent | Event) => void;
   /**
@@ -270,7 +289,7 @@ export interface UseSliderReturnValue {
   setOpen: (index: number) => void;
   setValueState: (newValue: number | number[]) => void;
   /**
-   * The step value of the slider when incrementing or decrementing. It will snap
+   * The step increment of the slider when incrementing or decrementing. It will snap
    * to multiples of this value. Decimal values are supported.
    * @default 1
    */
