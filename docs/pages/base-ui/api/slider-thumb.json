@@ -14,14 +14,14 @@
         "describedArgs": ["value", "index"]
       }
     },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "render": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;node" } }
   },
   "name": "SliderThumb",
   "imports": [
     "import * as Slider from '@base_ui/react/Slider';\nconst SliderThumb = Slider.Thumb;"
   ],
   "classes": [],
-  "spread": false,
+  "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderThumb",
   "forwardsRefTo": "HTMLSpanElement",

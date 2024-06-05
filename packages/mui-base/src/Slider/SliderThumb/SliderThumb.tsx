@@ -1,15 +1,26 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 import { resolveClassName } from '../../utils/resolveClassName';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useForkRef } from '../../utils/useForkRef';
 import { useSliderContext } from '../Root/SliderProvider';
 import { SliderThumbProps } from './SliderThumb.types';
 import { useSliderThumb } from './useSliderThumb';
 
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
+function defaultRender(
+  props: React.ComponentPropsWithRef<'span'>,
+  inputProps: React.ComponentPropsWithRef<'input'>,
+) {
+  const { children, ...thumbProps } = props;
+  return (
+    <span {...thumbProps}>
+      {children}
+      <input {...inputProps} />
+    </span>
+  );
 }
 
 const SliderThumb = React.forwardRef(function SliderThumb(
@@ -21,7 +32,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-label': ariaLabel,
     'aria-valuetext': ariaValuetext,
     className,
-    children,
     disabled: disabledProp = false,
     getAriaLabel,
     getAriaValueText,
@@ -29,9 +39,10 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     ...otherProps
   } = props;
 
-  const render = renderProp ?? defaultRender;
-
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+  const render =
+    typeof renderProp === 'string'
+      ? defaultRenderFunctions[renderProp]
+      : renderProp ?? defaultRender;
 
   const {
     active: activeIndex,
@@ -54,6 +65,8 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     tabIndex,
     values,
   } = useSliderContext();
+
+  const mergedRef = useForkRef(typeof render === 'function' ? null : render.ref, forwardedRef);
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     active: activeIndex,
@@ -95,11 +108,23 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const inputProps = getThumbInputProps({ disabled });
 
-  return (
-    <span {...thumbProps}>
-      {children}
-      <input {...inputProps} />
-    </span>
+  if (typeof render === 'function') {
+    return render(thumbProps, inputProps, ownerState);
+  }
+
+  const { children, ...otherRenderProps } = render.props;
+
+  return React.cloneElement(
+    render,
+    mergeReactProps(otherRenderProps, {
+      ...thumbProps,
+      children: (
+        <React.Fragment>
+          {typeof children === 'function' ? children() : children}
+          <input {...inputProps} />
+        </React.Fragment>
+      ),
+    }),
   );
 });
 
@@ -169,7 +194,10 @@ SliderThumb.propTypes /* remove-proptypes */ = {
   /**
    * A function to customize rendering of the component.
    */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  render: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    PropTypes.func,
+    PropTypes.node,
+  ]),
 } as any;
 
 export { SliderThumb };

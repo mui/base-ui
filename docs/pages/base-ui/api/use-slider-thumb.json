@@ -88,8 +88,8 @@
   "returnValue": {
     "getRootProps": {
       "type": {
-        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
-        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;React.ElementType&gt;) =&gt; React.ComponentPropsWithRef&lt;React.ElementType&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;React.ElementType&gt;) =&gt; React.ComponentPropsWithRef&lt;React.ElementType&gt;"
       },
       "required": true
     },

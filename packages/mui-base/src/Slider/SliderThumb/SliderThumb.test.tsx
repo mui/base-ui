@@ -70,8 +70,6 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLSpanElement,
     skip: [
       'reactTestRenderer', // Need to be wrapped with SliderProvider
-      'propsSpread', // TODO: fix after relocating the <input/>
-      'renderProp', // TODO: fix after relocating the <input/>
     ],
   }));
 });

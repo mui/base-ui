@@ -1,16 +1,28 @@
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { BaseUIComponentProps } from '../../utils/types';
 import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
 export interface SliderThumbOwnerState extends SliderRootOwnerState {}
 
 export interface SliderThumbProps
   extends Partial<Omit<UseSliderThumbParameters, 'rootRef'>>,
-    BaseUIComponentProps<'span', SliderThumbOwnerState> {
+    Omit<BaseUIComponentProps<'span', SliderThumbOwnerState>, 'render'> {
   onPointerLeave?: React.PointerEventHandler;
   onPointerOver?: React.PointerEventHandler;
   onBlur?: React.FocusEventHandler;
   onFocus?: React.FocusEventHandler;
   onKeyDown?: React.KeyboardEventHandler;
+  /**
+   * A function to customize rendering of the component.
+   */
+  render?:
+    | ((
+        props: React.ComponentPropsWithRef<'span'>,
+        inputProps: React.ComponentPropsWithRef<'input'>,
+        state: SliderThumbOwnerState,
+      ) => React.ReactElement)
+    | (React.ReactElement & { ref: React.Ref<Element> })
+    | keyof typeof defaultRenderFunctions;
 }
 
 export interface UseSliderThumbParameters
@@ -66,8 +78,8 @@ export interface UseSliderThumbParameters
 
 export interface UseSliderThumbReturnValue {
   getRootProps: (
-    externalProps?: React.ComponentPropsWithRef<'span'>,
-  ) => React.ComponentPropsWithRef<'span'>;
+    externalProps?: React.ComponentPropsWithRef<React.ElementType>,
+  ) => React.ComponentPropsWithRef<React.ElementType>;
   getThumbInputProps: (
     externalProps?: React.ComponentPropsWithRef<'input'>,
   ) => React.ComponentPropsWithRef<'input'>;
