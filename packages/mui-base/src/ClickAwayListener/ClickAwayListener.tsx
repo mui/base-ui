@@ -9,11 +9,10 @@ import {
   unstable_useEventCallback as useEventCallback,
 } from '@mui/utils';
 
-function mapEventPropToEvent<
-  EventHandlerName extends ClickAwayMouseEventHandler | ClickAwayTouchEventHandler,
->(
-  eventProp: EventHandlerName,
-): EventHandlerName extends `on${infer EventName}` ? Lowercase<EventName> : never {
+// TODO: return `EventHandlerName extends `on${infer EventName}` ? Lowercase<EventName> : never` once generatePropTypes runs with TS 4.1
+function mapEventPropToEvent(
+  eventProp: ClickAwayMouseEventHandler | ClickAwayTouchEventHandler,
+): 'click' | 'mousedown' | 'mouseup' | 'touchstart' | 'touchend' | 'pointerdown' | 'pointerup' {
   return eventProp.substring(2).toLowerCase() as any;
 }
 
