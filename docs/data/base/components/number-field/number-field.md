@@ -5,6 +5,7 @@ githubLabel: 'component: number-field'
 components: NumberFieldRoot, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement, NumberFieldScrubArea, NumberFieldScrubAreaCursor
 hooks: useNumberFieldRoot
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
+packageName: '@base_ui/react'
 ---
 
 # Number Field

@@ -1,0 +1,34 @@
+{
+  "props": {
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "closeDelay": { "type": { "name": "number" }, "default": "0" },
+    "defaultOpen": { "type": { "name": "bool" } },
+    "delay": { "type": { "name": "number" }, "default": "300" },
+    "delayType": {
+      "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
+      "default": "'rest'"
+    },
+    "followCursorAxis": {
+      "type": {
+        "name": "enum",
+        "description": "'both'<br>&#124;&nbsp;'none'<br>&#124;&nbsp;'x'<br>&#124;&nbsp;'y'"
+      },
+      "default": "'none'"
+    },
+    "hoverable": { "type": { "name": "bool" }, "default": "true" },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } }
+  },
+  "name": "TooltipRoot",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipRoot = Tooltip.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "TooltipRoot",
+  "filename": "/packages/mui-base/src/Tooltip/Root/TooltipRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

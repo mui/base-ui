@@ -5,6 +5,7 @@ components: SwitchRoot, SwitchThumb
 hooks: useSwitchRoot
 githubLabel: 'component: switch'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+packageName: '@base_ui/react'
 ---
 
 # Switch

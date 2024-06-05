@@ -88,6 +88,7 @@
     },
     {
       "matchDepTypes": ["engines"],
+      "matchFileNames": ["packages/*/package.json"],
       "enabled": false
     },
     {
