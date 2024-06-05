@@ -5,6 +5,7 @@ import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnimatedElement } from '../../utils/useAnimatedElement';
+import { useScrollLock } from '../../utils/useScrollLock';
 /**
  *
  * Demos:
@@ -37,6 +38,8 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   });
 
   const popupRef = React.useRef<HTMLElement | null>(null);
+
+  useScrollLock(modal && open);
 
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
