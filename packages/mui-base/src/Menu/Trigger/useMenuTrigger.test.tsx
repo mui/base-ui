@@ -2,10 +2,9 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { DropdownContext, DropdownContextValue } from '@base_ui/react/useDropdown';
-import { useMenuButton } from './useMenuButton';
+import { MenuRootContext, MenuRootContextValue, useMenuTrigger } from '@base_ui/react/Menu';
 
-const testContext: DropdownContextValue = {
+const testContext: MenuRootContextValue = {
   dispatch: () => {},
   popupId: 'menu-popup',
   registerPopup: () => {},
@@ -20,15 +19,15 @@ describe('useMenuButton', () => {
   describe('getRootProps', () => {
     it('returns props for root slot', () => {
       function TestMenuButton() {
-        const { getRootProps } = useMenuButton();
+        const { getRootProps } = useMenuTrigger();
         return <div {...getRootProps()} />;
       }
 
       function Test() {
         return (
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <TestMenuButton />
-          </DropdownContext.Provider>
+          </MenuRootContext.Provider>
         );
       }
 
@@ -42,7 +41,7 @@ describe('useMenuButton', () => {
       const handleClick = spy();
 
       function TestMenuButton() {
-        const { getRootProps } = useMenuButton();
+        const { getRootProps } = useMenuTrigger();
         return (
           <div {...getRootProps({ 'data-testid': 'test-menu-button', onClick: handleClick })} />
         );
@@ -50,9 +49,9 @@ describe('useMenuButton', () => {
 
       function Test() {
         return (
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <TestMenuButton />
-          </DropdownContext.Provider>
+          </MenuRootContext.Provider>
         );
       }
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { Menu } from '../Menu';
+import * as Menu from '@base_ui/react/Menu';
 import { useMenuItem } from './useMenuItem';
 
 describe('useMenuItem', () => {
@@ -18,9 +18,11 @@ describe('useMenuItem', () => {
 
       function Test() {
         return (
-          <Menu>
-            <TestMenuItem />
-          </Menu>
+          <Menu.Root>
+            <Menu.Popup>
+              <TestMenuItem />
+            </Menu.Popup>
+          </Menu.Root>
         );
       }
 
@@ -41,9 +43,11 @@ describe('useMenuItem', () => {
 
       function Test() {
         return (
-          <Menu>
-            <TestMenuItem />
-          </Menu>
+          <Menu.Root>
+            <Menu.Popup>
+              <TestMenuItem />
+            </Menu.Popup>
+          </Menu.Root>
         );
       }
 

@@ -11,9 +11,13 @@ import {
   flushMicrotasks,
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { DropdownContext, DropdownContextValue } from '@base_ui/react/useDropdown';
+import {
+  MenuRootContext,
+  MenuRootContextValue,
+  MenuPopupProvider,
+  useMenuPopup,
+} from '@base_ui/react/Menu';
 import { Popper } from '@base_ui/react/Popper';
-import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 function createAnchor() {
@@ -22,7 +26,7 @@ function createAnchor() {
   return anchor;
 }
 
-const testContext: DropdownContextValue = {
+const testContext: MenuRootContextValue = {
   dispatch: () => {},
   popupId: 'menu-popup',
   registerPopup: () => {},
@@ -48,12 +52,12 @@ describe('<Menu />', () => {
     inheritComponent: 'div',
     render: (node) => {
       return render(
-        <DropdownContext.Provider value={testContext}>{node}</DropdownContext.Provider>,
+        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
       );
     },
     mount: (node: React.ReactNode) => {
       const wrapper = mount(
-        <DropdownContext.Provider value={testContext}>{node}</DropdownContext.Provider>,
+        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
       );
       return wrapper.childAt(0);
     },
@@ -64,13 +68,13 @@ describe('<Menu />', () => {
   describe('after initialization', () => {
     function Test() {
       return (
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Popup>
             <Menu.Item>1</Menu.Item>
             <Menu.Item>2</Menu.Item>
             <Menu.Item>3</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>
+        </MenuRootContext.Provider>
       );
     }
 
@@ -85,7 +89,7 @@ describe('<Menu />', () => {
     });
 
     it('highlights first item when down arrow key opens the menu', async () => {
-      const context: DropdownContextValue = {
+      const context: MenuRootContextValue = {
         ...testContext,
         state: {
           ...testContext.state,
@@ -97,13 +101,13 @@ describe('<Menu />', () => {
         },
       };
       const { getAllByRole } = await render(
-        <DropdownContext.Provider value={context}>
+        <MenuRootContext.Provider value={context}>
           <Menu.Popup>
             <Menu.Item>1</Menu.Item>
             <Menu.Item>2</Menu.Item>
             <Menu.Item>3</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
       const [firstItem, ...otherItems] = getAllByRole('menuitem');
 
@@ -114,7 +118,7 @@ describe('<Menu />', () => {
     });
 
     it('highlights last item when up arrow key opens the menu', async () => {
-      const context: DropdownContextValue = {
+      const context: MenuRootContextValue = {
         ...testContext,
         state: {
           ...testContext.state,
@@ -126,13 +130,13 @@ describe('<Menu />', () => {
         },
       };
       const { getAllByRole } = await render(
-        <DropdownContext.Provider value={context}>
+        <MenuRootContext.Provider value={context}>
           <Menu.Popup>
             <Menu.Item>1</Menu.Item>
             <Menu.Item>2</Menu.Item>
             <Menu.Item>3</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const [firstItem, secondItem, lastItem] = getAllByRole('menuitem');
@@ -150,7 +154,7 @@ describe('<Menu />', () => {
       ) {
         const { children, ...other } = props;
 
-        const { open, triggerElement, contextValue, getListboxProps } = useMenu({
+        const { open, triggerElement, contextValue, getListboxProps } = useMenuPopup({
           listboxRef: ref,
           disabledItemsFocusable: false,
         });
@@ -160,13 +164,13 @@ describe('<Menu />', () => {
         return (
           <Popper open={open} anchorEl={anchorEl}>
             <ul className="menu-root" {...other} {...getListboxProps()}>
-              <MenuProvider value={contextValue}>{children}</MenuProvider>
+              <MenuPopupProvider value={contextValue}>{children}</MenuPopupProvider>
             </ul>
           </Popper>
         );
       });
 
-      const context: DropdownContextValue = {
+      const context: MenuRootContextValue = {
         ...testContext,
         state: {
           ...testContext.state,
@@ -178,13 +182,13 @@ describe('<Menu />', () => {
         },
       };
       const { getAllByRole } = await render(
-        <DropdownContext.Provider value={context}>
+        <MenuRootContext.Provider value={context}>
           <CustomMenu>
             <Menu.Item>1</Menu.Item>
             <Menu.Item>2</Menu.Item>
             <Menu.Item disabled>3</Menu.Item>
           </CustomMenu>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
       const [firstItem, secondItem, lastItem] = getAllByRole('menuitem');
 
@@ -198,13 +202,13 @@ describe('<Menu />', () => {
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
       const { getByTestId } = await render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Popup>
             <Menu.Item data-testid="item-1">1</Menu.Item>
             <Menu.Item data-testid="item-2">2</Menu.Item>
             <Menu.Item data-testid="item-3">3</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const item1 = getByTestId('item-1');
@@ -227,13 +231,13 @@ describe('<Menu />', () => {
 
     it('changes the highlighted item using the Home and End keys', async () => {
       const { getByTestId } = await render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Popup>
             <Menu.Item data-testid="item-1">1</Menu.Item>
             <Menu.Item data-testid="item-2">2</Menu.Item>
             <Menu.Item data-testid="item-3">3</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const item1 = getByTestId('item-1');
@@ -252,14 +256,14 @@ describe('<Menu />', () => {
 
     it('includes disabled items during keyboard navigation', async () => {
       const { getByTestId } = await render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Popup>
             <Menu.Item data-testid="item-1">1</Menu.Item>
             <Menu.Item disabled data-testid="item-2">
               2
             </Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const item1 = getByTestId('item-1');
@@ -278,13 +282,13 @@ describe('<Menu />', () => {
     describe('text navigation', () => {
       it('changes the highlighted item', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
-          // useMenu Text navigation match menu items using HTMLElement.innerText
+          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JsDom
           this.skip();
         }
 
         const { getByText, getAllByRole } = await render(
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <Menu.Popup>
               <Menu.Item>Aa</Menu.Item>
               <Menu.Item>Ba</Menu.Item>
@@ -293,7 +297,7 @@ describe('<Menu />', () => {
               <Menu.Item>Cb</Menu.Item>
               <Menu.Item>Cd</Menu.Item>
             </Menu.Popup>
-          </DropdownContext.Provider>,
+          </MenuRootContext.Provider>,
         );
 
         const items = getAllByRole('menuitem');
@@ -313,20 +317,20 @@ describe('<Menu />', () => {
 
       it('repeated keys circulate all items starting with that letter', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
-          // useMenu Text navigation match menu items using HTMLElement.innerText
+          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JsDom
           this.skip();
         }
 
         const { getByText, getAllByRole } = await render(
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <Menu.Popup>
               <Menu.Item>Aa</Menu.Item>
               <Menu.Item>Ba</Menu.Item>
               <Menu.Item>Bb</Menu.Item>
               <Menu.Item>Ca</Menu.Item>
             </Menu.Popup>
-          </DropdownContext.Provider>,
+          </MenuRootContext.Provider>,
         );
 
         const items = getAllByRole('menuitem');
@@ -350,14 +354,14 @@ describe('<Menu />', () => {
 
       it('changes the highlighted item using text navigation on label prop', async () => {
         const { getAllByRole } = await render(
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <Menu.Popup>
               <Menu.Item label="Aa">1</Menu.Item>
               <Menu.Item label="Ba">2</Menu.Item>
               <Menu.Item label="Bb">3</Menu.Item>
               <Menu.Item label="Ca">4</Menu.Item>
             </Menu.Popup>
-          </DropdownContext.Provider>,
+          </MenuRootContext.Provider>,
         );
 
         const items = getAllByRole('menuitem');
@@ -381,13 +385,13 @@ describe('<Menu />', () => {
 
       it('skips the non-stringifiable items', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
-          // useMenu Text navigation match menu items using HTMLElement.innerText
+          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JsDom
           this.skip();
         }
 
         const { getByText, getAllByRole } = await render(
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <Menu.Popup>
               <Menu.Item>Aa</Menu.Item>
               <Menu.Item>Ba</Menu.Item>
@@ -399,7 +403,7 @@ describe('<Menu />', () => {
               <Menu.Item>{null}</Menu.Item>
               <Menu.Item>Bc</Menu.Item>
             </Menu.Popup>
-          </DropdownContext.Provider>,
+          </MenuRootContext.Provider>,
         );
 
         const items = getAllByRole('menuitem');
@@ -423,20 +427,20 @@ describe('<Menu />', () => {
 
       it('navigate to options with diacritic characters', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
-          // useMenu Text navigation match menu items using HTMLElement.innerText
+          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JsDom
           this.skip();
         }
 
         const { getByText, getAllByRole } = await render(
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <Menu.Popup>
               <Menu.Item>Aa</Menu.Item>
               <Menu.Item>Ba</Menu.Item>
               <Menu.Item>Bb</Menu.Item>
               <Menu.Item>Bą</Menu.Item>
             </Menu.Popup>
-          </DropdownContext.Provider>,
+          </MenuRootContext.Provider>,
         );
 
         const items = getAllByRole('menuitem');
@@ -458,20 +462,20 @@ describe('<Menu />', () => {
 
       it('navigate to next options with beginning diacritic characters', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
-          // useMenu Text navigation match menu items using HTMLElement.innerText
+          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JsDom
           this.skip();
         }
 
         const { getByText, getAllByRole } = await render(
-          <DropdownContext.Provider value={testContext}>
+          <MenuRootContext.Provider value={testContext}>
             <Menu.Popup>
               <Menu.Item>Aa</Menu.Item>
               <Menu.Item>ąa</Menu.Item>
               <Menu.Item>ąb</Menu.Item>
               <Menu.Item>ąc</Menu.Item>
             </Menu.Popup>
-          </DropdownContext.Provider>,
+          </MenuRootContext.Provider>,
         );
 
         const items = getAllByRole('menuitem');
@@ -506,12 +510,12 @@ describe('<Menu />', () => {
       const handleItemsChange = spy();
 
       const { setProps } = await render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Popup onItemsChange={handleItemsChange}>
             <Menu.Item key="1">1</Menu.Item>
             <Menu.Item key="2">2</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       // The first call is the initial render.
@@ -541,7 +545,7 @@ describe('<Menu />', () => {
 
         return (
           <div>
-            <DropdownContext.Provider value={testContext}>
+            <MenuRootContext.Provider value={testContext}>
               <Menu.Popup
                 anchor={anchor}
                 slotProps={{ root: { 'data-testid': 'popup', placement: 'bottom-start' } as any }}
@@ -549,7 +553,7 @@ describe('<Menu />', () => {
                 <Menu.Item>1</Menu.Item>
                 <Menu.Item>2</Menu.Item>
               </Menu.Popup>
-            </DropdownContext.Provider>
+            </MenuRootContext.Provider>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={setAnchor} />
           </div>
         );
@@ -593,7 +597,7 @@ describe('<Menu />', () => {
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
       const { getByTestId } = await render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Popup
             anchor={virtualElement}
             slotProps={{ root: { 'data-testid': 'popup', placement: 'bottom-start' } as any }}
@@ -601,7 +605,7 @@ describe('<Menu />', () => {
             <Menu.Item>1</Menu.Item>
             <Menu.Item>2</Menu.Item>
           </Menu.Popup>
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
       const popup = getByTestId('popup');
 
@@ -631,7 +635,7 @@ describe('<Menu />', () => {
     });
 
     const { getAllByRole } = await render(
-      <DropdownContext.Provider value={testContext}>
+      <MenuRootContext.Provider value={testContext}>
         <Menu.Popup>
           <Menu.Item
             slots={{ root: LoggingRoot }}
@@ -662,7 +666,7 @@ describe('<Menu />', () => {
             4
           </Menu.Item>
         </Menu.Popup>
-      </DropdownContext.Provider>,
+      </MenuRootContext.Provider>,
     );
 
     const menuItems = getAllByRole('menuitem');

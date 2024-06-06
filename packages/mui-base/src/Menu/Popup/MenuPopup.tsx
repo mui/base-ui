@@ -3,8 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { HTMLElementType, refType } from '@mui/utils';
 import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
-import { useMenu } from '../../useMenu';
-import { MenuProvider } from '../../useMenu/MenuProvider';
+import { useMenuPopup } from './useMenuPopup';
+import { MenuPopupProvider } from './MenuPopupProvider';
 import { Unstable_Popup as Popup } from '../../Unstable_Popup';
 import { useSlotProps } from '../../utils/useSlotProps';
 import { ListActionTypes } from '../../useList';
@@ -25,7 +25,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { actions, anchor: anchorProp, children, onItemsChange, ...other } = props;
 
-  const { contextValue, getListboxProps, dispatch, open, triggerElement } = useMenu({
+  const { contextValue, getListboxProps, dispatch, open, triggerElement } = useMenuPopup({
     onItemsChange,
     componentName: 'Menu',
   });
@@ -67,7 +67,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     return (
       <Root {...rootProps}>
         <Listbox {...listboxProps}>
-          <MenuProvider value={contextValue}>{children}</MenuProvider>
+          <MenuPopupProvider value={contextValue}>{children}</MenuPopupProvider>
         </Listbox>
       </Root>
     );
@@ -76,7 +76,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   return (
     <Popup keepMounted {...rootProps} open={open} anchor={anchor} slots={{ root: Root }}>
       <Listbox {...listboxProps}>
-        <MenuProvider value={contextValue}>{children}</MenuProvider>
+        <MenuPopupProvider value={contextValue}>{children}</MenuPopupProvider>
       </Listbox>
     </Popup>
   );

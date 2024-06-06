@@ -2,7 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
-import { useMenuItem, useMenuItemContextStabilizer } from '../../useMenuItem';
+import { useMenuItem } from './useMenuItem';
+import { useMenuItemContextStabilizer } from './useMenuItemContextStabilizer';
 import { useSlotProps } from '../../utils/useSlotProps';
 import { ListContext } from '../../useList';
 

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuTriggerOwnerState, MenuTriggerProps } from './MenuTrigger.types';
-import { useMenuButton } from '../../useMenuButton';
+import { useMenuTrigger } from './useMenuTrigger';
 import { useSlotProps } from '../../utils';
 
 /**
@@ -21,7 +21,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 ) {
   const { children, disabled = false, label, focusableWhenDisabled = false, ...other } = props;
 
-  const { getRootProps, open, active } = useMenuButton({
+  const { getRootProps, open, active } = useMenuTrigger({
     disabled,
     focusableWhenDisabled,
     rootRef: forwardedRef,

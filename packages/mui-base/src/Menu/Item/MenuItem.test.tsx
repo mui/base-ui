@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuProvider } from '@base_ui/react/useMenu';
+import { MenuPopupProvider } from '@base_ui/react/Menu';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 const dummyGetItemState = () => ({
@@ -29,10 +29,10 @@ describe('<Menu.Item />', () => {
   describeConformanceUnstyled(<Menu.Item />, () => ({
     inheritComponent: 'li',
     render: (node) => {
-      return render(<MenuProvider value={testContext}>{node}</MenuProvider>);
+      return render(<MenuPopupProvider value={testContext}>{node}</MenuPopupProvider>);
     },
     mount: (node: React.ReactNode) => {
-      const wrapper = mount(<MenuProvider value={testContext}>{node}</MenuProvider>);
+      const wrapper = mount(<MenuPopupProvider value={testContext}>{node}</MenuPopupProvider>);
       return wrapper.childAt(0);
     },
     refInstanceof: window.HTMLLIElement,

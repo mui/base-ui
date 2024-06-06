@@ -1,27 +1,27 @@
 'use client';
 import * as React from 'react';
 import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
-import { useButton } from '../useButton';
+import { useButton } from '../../useButton';
 import type {
   MenuItemMetadata,
   UseMenuItemParameters,
   UseMenuItemReturnValue,
   UseMenuItemRootSlotProps,
 } from './useMenuItem.types';
-import { useListItem } from '../useList';
-import { DropdownActionTypes } from '../useDropdown';
-import { DropdownContext, DropdownContextValue } from '../useDropdown/DropdownContext';
-import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
-import { useCompoundItem } from '../useCompound';
-import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-import { EventHandlers } from '../utils/types';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
+import { useListItem } from '../../useList';
+import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
+import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { useCompoundItem } from '../../useCompound';
+import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { EventHandlers } from '../../utils/types';
+import { extractEventHandlers } from '../../utils/extractEventHandlers';
 
 function idGenerator(existingKeys: Set<string>) {
   return `menu-item-${existingKeys.size}`;
 }
 
-const FALLBACK_MENU_CONTEXT: DropdownContextValue = {
+const FALLBACK_MENU_CONTEXT: MenuRootContextValue = {
   dispatch: () => {},
   popupId: '',
   registerPopup: () => {},
@@ -57,7 +57,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     [disabled, id, label],
   );
 
-  const { dispatch } = React.useContext(DropdownContext) ?? FALLBACK_MENU_CONTEXT;
+  const { dispatch } = React.useContext(MenuRootContext) ?? FALLBACK_MENU_CONTEXT;
 
   const { getRootProps: getListRootProps, highlighted } = useListItem({
     item: id,

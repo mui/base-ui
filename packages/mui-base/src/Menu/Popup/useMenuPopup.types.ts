@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { ListAction, ListState, UseListRootSlotProps } from '../useList';
-import { MenuItemMetadata } from '../useMenuItem';
-import { MenuProviderValue } from './MenuProvider';
+import { ListAction, ListState } from '../../useList';
+import { MenuItemMetadata } from '../Item/useMenuItem.types';
+import { MenuPopupProviderValue } from './MenuPopupProvider';
+import { GenericHTMLProps } from '../../utils/BaseUI.types';
 
-export interface UseMenuParameters {
+export interface UseMenuPopupParameters {
   /**
    * If `true` (Default) will focus the highligted item. If you set this prop to `false`
    * the focus will not be moved inside the Menu component. This has severe accessibility implications
@@ -41,11 +42,11 @@ export interface UseMenuParameters {
   componentName?: string;
 }
 
-export interface UseMenuReturnValue {
+export interface UseMenuPopupReturnValue {
   /**
    * The value to be passed into the MenuProvider.
    */
-  contextValue: MenuProviderValue;
+  contextValue: MenuPopupProviderValue;
   /**
    * Action dispatcher for the menu component.
    * Allows to programmatically control the menu.
@@ -58,7 +59,7 @@ export interface UseMenuReturnValue {
    */
   getListboxProps: <ExternalProps extends Record<string, unknown> = {}>(
     externalProps?: ExternalProps,
-  ) => UseMenuListboxSlotProps;
+  ) => GenericHTMLProps;
   /**
    * The highlighted option in the menu listbox.
    */
@@ -80,17 +81,5 @@ export interface UseMenuReturnValue {
    */
   triggerElement: HTMLElement | null;
 }
-
-interface UseMenuListboxSlotEventHandlers {
-  onBlur: React.FocusEventHandler;
-  onKeyDown: React.KeyboardEventHandler;
-}
-
-export type UseMenuListboxSlotProps<ExternalProps = {}> = UseListRootSlotProps<
-  Omit<ExternalProps, keyof UseMenuListboxSlotEventHandlers> & UseMenuListboxSlotEventHandlers
-> & {
-  ref: React.RefCallback<Element> | null;
-  role: React.AriaRole;
-};
 
 export interface MenuInternalState extends ListState<string> {}

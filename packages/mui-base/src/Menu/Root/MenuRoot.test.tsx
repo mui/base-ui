@@ -8,8 +8,7 @@ import {
   RenderOptions,
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuRootContext } from '@base_ui/react/Menu';
-import { MenuProvider, useMenu } from '@base_ui/react/useMenu';
+import { MenuRootContext, MenuPopupProvider, useMenuPopup } from '@base_ui/react/Menu';
 import { Unstable_Popup as Popup } from '@base_ui/react/Unstable_Popup';
 
 describe('<Dropdown />', () => {
@@ -102,7 +101,7 @@ describe('<Dropdown />', () => {
     ) {
       const { children, ...other } = props;
 
-      const { open, triggerElement, contextValue, getListboxProps } = useMenu({
+      const { open, triggerElement, contextValue, getListboxProps } = useMenuPopup({
         listboxRef: ref,
         disabledItemsFocusable: false,
       });
@@ -110,7 +109,7 @@ describe('<Dropdown />', () => {
       return (
         <Popup open={open} anchor={triggerElement}>
           <ul className="menu-root" {...other} {...getListboxProps()}>
-            <MenuProvider value={contextValue}>{children}</MenuProvider>
+            <MenuPopupProvider value={contextValue}>{children}</MenuPopupProvider>
           </ul>
         </Popup>
       );

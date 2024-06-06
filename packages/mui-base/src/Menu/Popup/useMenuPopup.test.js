@@ -2,17 +2,17 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { MenuItem } from '../MenuItem';
-import { useMenu } from './useMenu';
+import { MenuItem } from '../Item/MenuItem';
+import { useMenuPopup } from './useMenuPopup';
 
-describe('useMenu', () => {
+describe('useMenuPopup', () => {
   const { render } = createRenderer();
 
   describe('getListboxProps', () => {
     it('returns props for root slot', () => {
       function TestMenu() {
         const listboxRef = React.createRef();
-        const { getListboxProps } = useMenu({ listboxRef });
+        const { getListboxProps } = useMenuPopup({ listboxRef });
         return <div {...getListboxProps()} />;
       }
 
@@ -35,7 +35,7 @@ describe('useMenu', () => {
 
       function TestMenu() {
         const listboxRef = React.createRef();
-        const { getListboxProps } = useMenu({ listboxRef });
+        const { getListboxProps } = useMenuPopup({ listboxRef });
         return (
           <div {...getListboxProps({ 'data-testid': 'test-listbox', onClick: handleClick })} />
         );

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { ListContext, ListContextValue } from '../useList/ListContext';
-import { MenuItemMetadata } from '../useMenuItem';
-import { CompoundComponentContext, CompoundComponentContextValue } from '../useCompound';
+import { ListContext, ListContextValue } from '../../useList/ListContext';
+import { MenuItemMetadata } from '../Item/useMenuItem.types';
+import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
 
-export type MenuProviderValue = CompoundComponentContextValue<string, MenuItemMetadata> &
+export type MenuPopupProviderValue = CompoundComponentContextValue<string, MenuItemMetadata> &
   ListContextValue<string>;
 
 export interface MenuProviderProps {
-  value: MenuProviderValue;
+  value: MenuPopupProviderValue;
   children: React.ReactNode;
 }
 
@@ -17,7 +17,7 @@ export interface MenuProviderProps {
  *
  * @ignore - do not document.
  */
-export function MenuProvider(props: MenuProviderProps) {
+export function MenuPopupProvider(props: MenuProviderProps) {
   const { value, children } = props;
   const { dispatch, getItemIndex, getItemState, registerItem, totalSubitemCount } = value;
 

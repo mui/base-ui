@@ -10,6 +10,4 @@ export interface MenuRootContextValue {
   triggerElement: HTMLElement | null;
 }
 
-const MenuRootContext = React.createContext<MenuRootContextValue | null>(null);
-
-export { MenuRootContext };
+export const MenuRootContext = React.createContext<MenuRootContextValue | null>(null);

@@ -5,19 +5,19 @@ import {
   unstable_useId as useId,
   unstable_useEnhancedEffect as useEnhancedEffect,
 } from '@mui/utils';
-import { UseMenuListboxSlotProps, UseMenuParameters, UseMenuReturnValue } from './useMenu.types';
+import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
 import { menuReducer } from './menuReducer';
-import { DropdownContext, DropdownContextValue } from '../useDropdown/DropdownContext';
-import { ListActionTypes, useList } from '../useList';
-import { MenuItemMetadata } from '../useMenuItem';
-import { DropdownActionTypes } from '../useDropdown';
-import { EventHandlers } from '../utils/types';
-import { useCompoundParent } from '../useCompound';
-import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
+import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
+import { ListActionTypes, useList } from '../../useList';
+import { MenuItemMetadata } from '../Item/useMenuItem.types';
+import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { EventHandlers } from '../../utils/types';
+import { useCompoundParent } from '../../useCompound';
+import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { extractEventHandlers } from '../../utils/extractEventHandlers';
 
-const FALLBACK_MENU_CONTEXT: DropdownContextValue = {
+const FALLBACK_MENU_CONTEXT: MenuRootContextValue = {
   dispatch: () => {},
   popupId: '',
   registerPopup: () => {},
@@ -36,7 +36,7 @@ const FALLBACK_MENU_CONTEXT: DropdownContextValue = {
  *
  * - [useMenu API](https://mui.com/base-ui/react-menu/hooks-api/#use-menu)
  */
-export function useMenu(parameters: UseMenuParameters = {}): UseMenuReturnValue {
+export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPopupReturnValue {
   const {
     listboxRef: listboxRefProp,
     onItemsChange,
@@ -57,7 +57,7 @@ export function useMenu(parameters: UseMenuParameters = {}): UseMenuReturnValue 
     dispatch: menuDispatch,
     triggerElement,
     registerPopup,
-  } = React.useContext(DropdownContext) ?? FALLBACK_MENU_CONTEXT;
+  } = React.useContext(MenuRootContext) ?? FALLBACK_MENU_CONTEXT;
 
   // store the initial open state to prevent focus stealing
   // (the first menu items gets focued only when the menu is opened by the user)
@@ -191,7 +191,7 @@ export function useMenu(parameters: UseMenuParameters = {}): UseMenuReturnValue 
 
   const getListboxProps = <ExternalProps extends Record<string, unknown>>(
     externalProps: ExternalProps = {} as ExternalProps,
-  ): UseMenuListboxSlotProps => {
+  ) => {
     const getCombinedRootProps = combineHooksSlotProps(getOwnListboxHandlers, getListRootProps);
     const externalEventHandlers = extractEventHandlers(externalProps);
     return {

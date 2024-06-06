@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
-import { UseMenuButtonParameters, UseMenuButtonReturnValue } from './useMenuButton.types';
-import { DropdownContext } from '../useDropdown/DropdownContext';
-import { DropdownActionTypes } from '../useDropdown/useDropdown.types';
-import { useButton } from '../useButton/useButton';
-import { EventHandlers } from '../utils/types';
-import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
-import { extractEventHandlers } from '../utils';
+import { UseMenuTriggerParameters, UseMenuTriggerReturnValue } from './useMenuTrigger.types';
+import { MenuRootContext } from '../Root/MenuRootContext';
+import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { useButton } from '../../useButton/useButton';
+import { EventHandlers } from '../../utils/types';
+import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { extractEventHandlers } from '../../utils';
 
 /**
  *
@@ -20,10 +20,12 @@ import { extractEventHandlers } from '../utils';
  *
  * - [useMenuButton API](https://mui.com/base-ui/react-menu/hooks-api/#use-menu-button)
  */
-export function useMenuButton(parameters: UseMenuButtonParameters = {}): UseMenuButtonReturnValue {
+export function useMenuTrigger(
+  parameters: UseMenuTriggerParameters = {},
+): UseMenuTriggerReturnValue {
   const { disabled = false, focusableWhenDisabled, rootRef: externalRef } = parameters;
 
-  const menuContext = React.useContext(DropdownContext);
+  const menuContext = React.useContext(MenuRootContext);
   if (menuContext === null) {
     throw new Error('useMenuButton: no menu context available.');
   }

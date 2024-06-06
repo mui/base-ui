@@ -1,4 +1,6 @@
-export interface UseMenuButtonParameters {
+import { GenericHTMLProps } from '../../utils/BaseUI.types';
+
+export interface UseMenuTriggerParameters {
   /**
    * If `true`, the component is disabled.
    * @default false
@@ -15,23 +17,7 @@ export interface UseMenuButtonParameters {
   rootRef?: React.Ref<HTMLElement>;
 }
 
-type UseMenuButtonRootSlotProps<ExternalProps = {}> = ExternalProps & UseMenuButtonRootSlotOwnProps;
-
-interface UseMenuButtonRootSlotOwnProps {
-  'aria-haspopup': 'menu';
-  'aria-expanded': boolean;
-  'aria-controls': string;
-  /**
-   * Callback fired when the button is clicked.
-   */
-  onClick: React.MouseEventHandler;
-  /**
-   * The ref to the button element.
-   */
-  ref: React.RefCallback<Element> | null;
-}
-
-export interface UseMenuButtonReturnValue {
+export interface UseMenuTriggerReturnValue {
   /**
    * If `true`, the component is active (pressed).
    */
@@ -43,7 +29,7 @@ export interface UseMenuButtonReturnValue {
    */
   getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
     externalProps?: ExternalProps,
-  ) => UseMenuButtonRootSlotProps<ExternalProps>;
+  ) => GenericHTMLProps;
   /*
    * If `true`, the menu is open.
    */
