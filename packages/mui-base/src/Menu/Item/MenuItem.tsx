@@ -4,35 +4,34 @@ import PropTypes from 'prop-types';
 import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
 import { useMenuItemContextStabilizer } from './useMenuItemContextStabilizer';
-import { useSlotProps } from '../../utils/useSlotProps';
 import { ListContext } from '../../useList';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function MenuItem(
     props: MenuItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
-    const { children, disabled: disabledProp = false, label, id, ...other } = props;
+    const { render, className, disabled: disabledProp = false, label, id, ...other } = props;
 
-    const { getRootProps, disabled, focusVisible, highlighted } = useMenuItem({
+    const { getRootProps, disabled, highlighted } = useMenuItem({
       id,
       disabled: disabledProp,
       rootRef: forwardedRef,
       label,
     });
 
-    const ownerState: MenuItemOwnerState = { ...props, disabled, focusVisible, highlighted };
+    const ownerState: MenuItemOwnerState = { disabled, highlighted };
 
-    const Root = 'li';
-    const rootProps = useSlotProps({
-      elementType: Root,
-      getSlotProps: getRootProps,
-      externalSlotProps: {},
-      externalForwardedProps: other,
+    const { renderElement } = useComponentRenderer({
+      render: render || 'div',
+      className,
       ownerState,
+      propGetter: getRootProps,
+      extraProps: other,
     });
 
-    return <Root {...rootProps}>{children}</Root>;
+    return renderElement();
   }),
 );
 

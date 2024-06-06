@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuTriggerOwnerState, MenuTriggerProps } from './MenuTrigger.types';
 import { useMenuTrigger } from './useMenuTrigger';
-import { useSlotProps } from '../../utils';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
  *
@@ -19,36 +19,37 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { children, disabled = false, label, focusableWhenDisabled = false, ...other } = props;
+  const {
+    render,
+    className,
+    disabled = false,
+    label,
+    focusableWhenDisabled = false,
+    ...other
+  } = props;
 
-  const { getRootProps, open, active } = useMenuTrigger({
+  const { getRootProps, open } = useMenuTrigger({
     disabled,
     focusableWhenDisabled,
     rootRef: forwardedRef,
   });
 
   const ownerState: MenuTriggerOwnerState = {
-    ...props,
     open,
-    active,
-    disabled,
-    focusableWhenDisabled,
   };
 
-  const Root = 'button';
-  const rootProps = useSlotProps({
-    elementType: Root,
-    getSlotProps: getRootProps,
-    externalForwardedProps: other,
-    externalSlotProps: {},
-    additionalProps: {
-      ref: forwardedRef,
-      type: 'button' as const,
-    },
+  const { renderElement } = useComponentRenderer({
+    render: render || 'button',
+    className,
     ownerState,
+    propGetter: getRootProps,
+    customStyleHookMapping: {
+      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+    },
+    extraProps: other,
   });
 
-  return <Root {...rootProps}>{children}</Root>;
+  return renderElement();
 });
 
 MenuTrigger.propTypes /* remove-proptypes */ = {

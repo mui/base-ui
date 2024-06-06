@@ -1,13 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { HTMLElementType, refType } from '@mui/utils';
 import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
 import { MenuPopupProvider } from './MenuPopupProvider';
-import { Unstable_Popup as Popup } from '../../Unstable_Popup';
-import { useSlotProps } from '../../utils/useSlotProps';
-import { ListActionTypes } from '../../useList';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
  *
@@ -23,63 +20,28 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopupProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { actions, anchor: anchorProp, children, onItemsChange, ...other } = props;
+  const { render, className, onItemsChange, ...other } = props;
 
-  const { contextValue, getListboxProps, dispatch, open, triggerElement } = useMenuPopup({
+  const { contextValue, getListboxProps, open } = useMenuPopup({
     onItemsChange,
     componentName: 'Menu',
+    listboxRef: forwardedRef,
   });
 
-  const anchor = anchorProp ?? triggerElement;
+  const ownerState: MenuPopupOwnerState = { open };
 
-  React.useImperativeHandle(
-    actions,
-    () => ({
-      dispatch,
-      resetHighlight: () => dispatch({ type: ListActionTypes.resetHighlight, event: null }),
-    }),
-    [dispatch],
-  );
-
-  const ownerState: MenuPopupOwnerState = { ...props, open };
-
-  const Root = 'div';
-  const rootProps = useSlotProps({
-    elementType: Root,
-    externalSlotProps: {},
-    externalForwardedProps: other,
-    additionalProps: {
-      ref: forwardedRef,
-      role: undefined,
+  const { renderElement } = useComponentRenderer({
+    render: render || 'div',
+    className,
+    ownerState,
+    propGetter: getListboxProps,
+    customStyleHookMapping: {
+      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },
-    ownerState,
+    extraProps: other,
   });
 
-  const Listbox = 'ul';
-  const listboxProps = useSlotProps({
-    elementType: Listbox,
-    getSlotProps: getListboxProps,
-    externalSlotProps: {},
-    ownerState,
-  });
-
-  if (open === true && anchor == null) {
-    return (
-      <Root {...rootProps}>
-        <Listbox {...listboxProps}>
-          <MenuPopupProvider value={contextValue}>{children}</MenuPopupProvider>
-        </Listbox>
-      </Root>
-    );
-  }
-
-  return (
-    <Popup keepMounted {...rootProps} open={open} anchor={anchor} slots={{ root: Root }}>
-      <Listbox {...listboxProps}>
-        <MenuPopupProvider value={contextValue}>{children}</MenuPopupProvider>
-      </Listbox>
-    </Popup>
-  );
+  return open && <MenuPopupProvider value={contextValue}>{renderElement()}</MenuPopupProvider>;
 });
 
 MenuPopup.propTypes /* remove-proptypes */ = {
@@ -87,18 +49,6 @@ MenuPopup.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A ref with imperative actions that can be performed on the menu.
-   */
-  actions: refType,
-  /**
-   * The element based on which the menu is positioned.
-   */
-  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.object,
-    PropTypes.func,
-  ]),
   /**
    * @ignore
    */
@@ -111,23 +61,6 @@ MenuPopup.propTypes /* remove-proptypes */ = {
    * Function called when the items displayed in the menu change.
    */
   onItemsChange: PropTypes.func,
-  /**
-   * The props used for each slot inside the Menu.
-   * @default {}
-   */
-  slotProps: PropTypes.shape({
-    listbox: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-  /**
-   * The components used for each slot inside the Menu.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slots: PropTypes.shape({
-    listbox: PropTypes.elementType,
-    root: PropTypes.elementType,
-  }),
 } as any;
 
 export { MenuPopup };

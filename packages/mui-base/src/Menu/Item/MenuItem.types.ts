@@ -1,17 +1,13 @@
 import * as React from 'react';
-import { Simplify } from '@mui/types';
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
-export type MenuItemOwnerState = Simplify<
-  MenuItemProps & {
-    disabled: boolean;
-    focusVisible: boolean;
-    highlighted: boolean;
-  }
->;
+export type MenuItemOwnerState = {
+  disabled: boolean;
+  highlighted: boolean;
+};
 
-export interface MenuItemProps {
+export interface MenuItemProps extends BaseUIComponentProps<'div', MenuItemOwnerState> {
   children?: React.ReactNode;
-  className?: string;
   onClick?: React.MouseEventHandler<HTMLElement>;
   /**
    * If `true`, the menu item will be disabled.
@@ -30,9 +26,4 @@ export interface MenuItemProps {
    */
   disableFocusOnHover?: boolean;
   id?: string;
-}
-
-export interface MenuItemState {
-  disabled: boolean;
-  highlighted: boolean;
 }

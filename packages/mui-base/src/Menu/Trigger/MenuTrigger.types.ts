@@ -1,9 +1,7 @@
-export interface MenuTriggerProps {
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+
+export interface MenuTriggerProps extends BaseUIComponentProps<'button', MenuTriggerOwnerState> {
   children?: React.ReactNode;
-  /**
-   * Class name applied to the root element.
-   */
-  className?: string;
   /**
    * If `true`, the component is disabled.
    * @default false
@@ -20,8 +18,6 @@ export interface MenuTriggerProps {
   label?: string;
 }
 
-export type MenuTriggerOwnerState = MenuTriggerProps & {
-  active: boolean;
-  focusableWhenDisabled: boolean;
+export type MenuTriggerOwnerState = {
   open: boolean;
 };

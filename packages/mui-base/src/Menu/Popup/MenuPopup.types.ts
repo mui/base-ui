@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Simplify } from '@mui/types';
 import { ListAction } from '../../useList';
 import { PopupProps } from '../../Unstable_Popup';
+import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export interface MenuRootSlotPropsOverrides {}
 export interface MenuListboxSlotPropsOverrides {}
@@ -17,7 +17,7 @@ export interface MenuActions {
   resetHighlight: () => void;
 }
 
-export interface MenuPopupProps {
+export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupOwnerState> {
   /**
    * A ref with imperative actions that can be performed on the menu.
    */
@@ -27,15 +27,12 @@ export interface MenuPopupProps {
    */
   anchor?: PopupProps['anchor'];
   children?: React.ReactNode;
-  className?: string;
   /**
    * Function called when the items displayed in the menu change.
    */
   onItemsChange?: (items: string[]) => void;
 }
 
-export type MenuPopupOwnerState = Simplify<
-  MenuPopupProps & {
-    open: boolean;
-  }
->;
+export type MenuPopupOwnerState = {
+  open: boolean;
+};
