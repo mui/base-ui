@@ -1,4 +1,3 @@
-'use client';
 export { CheckboxRoot } from './Root/CheckboxRoot';
 export { useCheckboxRoot } from './Root/useCheckboxRoot';
 export { CheckboxContext } from './Root/CheckboxContext';
