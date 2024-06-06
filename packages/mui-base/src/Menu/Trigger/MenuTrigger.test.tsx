@@ -4,14 +4,11 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 import { act, createMount, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import {
-  DropdownContext,
-  DropdownContextValue,
-  DropdownActionTypes,
-} from '@base_ui/react/useDropdown';
+import { MenuRootContext, MenuRootContextValue } from '@base_ui/react/Menu';
+import { DropdownActionTypes } from '../Root/useMenuRoot.types';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
-const testContext: DropdownContextValue = {
+const testContext: MenuRootContextValue = {
   dispatch: () => {},
   popupId: 'menu-popup',
   registerPopup: () => {},
@@ -28,12 +25,12 @@ describe('<Menu.Trigger />', () => {
     inheritComponent: 'button',
     render: (node) => {
       return render(
-        <DropdownContext.Provider value={testContext}>{node}</DropdownContext.Provider>,
+        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
       );
     },
     mount: (node: React.ReactNode) => {
       const wrapper = mount(
-        <DropdownContext.Provider value={testContext}>{node}</DropdownContext.Provider>,
+        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
       );
       return wrapper.childAt(0);
     },
@@ -44,9 +41,9 @@ describe('<Menu.Trigger />', () => {
   describe('prop: disabled', () => {
     it('should render a disabled button', () => {
       const { getByRole } = render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Trigger disabled />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const button = getByRole('button');
@@ -62,9 +59,9 @@ describe('<Menu.Trigger />', () => {
       };
 
       const { getByRole } = render(
-        <DropdownContext.Provider value={context}>
+        <MenuRootContext.Provider value={context}>
           <Menu.Trigger disabled />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const button = getByRole('button');
@@ -77,9 +74,9 @@ describe('<Menu.Trigger />', () => {
   describe('prop: focusableWhenDisabled', () => {
     it('has the aria-disabled instead of disabled attribute when disabled', () => {
       const { getByRole } = render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Trigger disabled focusableWhenDisabled />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const button = getByRole('button');
@@ -89,9 +86,9 @@ describe('<Menu.Trigger />', () => {
 
     it('can receive focus when focusableWhenDisabled is set', () => {
       const { getByRole } = render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Trigger disabled focusableWhenDisabled />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const button = getByRole('button');
@@ -112,9 +109,9 @@ describe('<Menu.Trigger />', () => {
     };
 
     const { getByRole } = render(
-      <DropdownContext.Provider value={context}>
+      <MenuRootContext.Provider value={context}>
         <Menu.Trigger />
-      </DropdownContext.Provider>,
+      </MenuRootContext.Provider>,
     );
 
     const button = getByRole('button');
@@ -125,7 +122,7 @@ describe('<Menu.Trigger />', () => {
   });
 
   describe('keyboard navigation', () => {
-    [<Menu.Trigger />, <Menu.Trigger slots={{ root: 'span' }} />].forEach((buttonComponent) => {
+    [<Menu.Trigger />, <Menu.Trigger render={<span />} />].forEach((buttonComponent) => {
       const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
       ['ArrowUp', 'ArrowDown'].forEach((key) =>
         it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
@@ -139,7 +136,7 @@ describe('<Menu.Trigger />', () => {
           const user = userEvent.setup();
 
           const { getByRole } = render(
-            <DropdownContext.Provider value={context}>{buttonComponent}</DropdownContext.Provider>,
+            <MenuRootContext.Provider value={context}>{buttonComponent}</MenuRootContext.Provider>,
           );
 
           const button = getByRole('button');
@@ -166,7 +163,7 @@ describe('<Menu.Trigger />', () => {
           const user = userEvent.setup();
 
           const { getByRole } = render(
-            <DropdownContext.Provider value={context}>{buttonComponent}</DropdownContext.Provider>,
+            <MenuRootContext.Provider value={context}>{buttonComponent}</MenuRootContext.Provider>,
           );
 
           const button = getByRole('button');
@@ -186,9 +183,9 @@ describe('<Menu.Trigger />', () => {
   describe('accessibility attributes', () => {
     it('has the aria-haspopup attribute', () => {
       const { getByRole } = render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Trigger />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
 
       const button = getByRole('button');
@@ -202,9 +199,9 @@ describe('<Menu.Trigger />', () => {
       };
 
       const { getByRole } = render(
-        <DropdownContext.Provider value={context}>
+        <MenuRootContext.Provider value={context}>
           <Menu.Trigger />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'false');
@@ -217,9 +214,9 @@ describe('<Menu.Trigger />', () => {
       };
 
       const { getByRole } = render(
-        <DropdownContext.Provider value={context}>
+        <MenuRootContext.Provider value={context}>
           <Menu.Trigger />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'true');
@@ -227,9 +224,9 @@ describe('<Menu.Trigger />', () => {
 
     it('has the aria-controls attribute', () => {
       const { getByRole } = render(
-        <DropdownContext.Provider value={testContext}>
+        <MenuRootContext.Provider value={testContext}>
           <Menu.Trigger />
-        </DropdownContext.Provider>,
+        </MenuRootContext.Provider>,
       );
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-controls', 'menu-popup');

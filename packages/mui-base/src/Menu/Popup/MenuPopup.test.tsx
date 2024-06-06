@@ -637,32 +637,16 @@ describe('<Menu />', () => {
     const { getAllByRole } = await render(
       <MenuRootContext.Provider value={testContext}>
         <Menu.Popup>
-          <Menu.Item
-            slots={{ root: LoggingRoot }}
-            slotProps={{ root: { renderSpy: renderItem1Spy } as any }}
-            id="item-1"
-          >
+          <Menu.Item render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
             1
           </Menu.Item>
-          <Menu.Item
-            slots={{ root: LoggingRoot }}
-            slotProps={{ root: { renderSpy: renderItem2Spy } as any }}
-            id="item-2"
-          >
+          <Menu.Item render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
             2
           </Menu.Item>
-          <Menu.Item
-            slots={{ root: LoggingRoot }}
-            slotProps={{ root: { renderSpy: renderItem3Spy } as any }}
-            id="item-3"
-          >
+          <Menu.Item render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
             3
           </Menu.Item>
-          <Menu.Item
-            slots={{ root: LoggingRoot }}
-            slotProps={{ root: { renderSpy: renderItem4Spy } as any }}
-            id="item-4"
-          >
+          <Menu.Item render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
             4
           </Menu.Item>
         </Menu.Popup>
