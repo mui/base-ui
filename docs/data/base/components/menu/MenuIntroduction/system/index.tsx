@@ -1,11 +1,6 @@
 import * as React from 'react';
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { Menu, MenuListboxSlotProps } from '@base_ui/react/Menu';
-import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import * as Menu from '@base_ui/react/Menu';
 import { styled } from '@mui/system';
-import { CssTransition } from '@base_ui/react/Transitions';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem: string) => {
@@ -15,16 +10,16 @@ export default function MenuIntroduction() {
   };
 
   return (
-    <Dropdown>
+    <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <Menu slots={{ listbox: AnimatedListbox }}>
+      <MenuPopup>
         <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
         <MenuItem onClick={createHandleMenuClick('Language settings')}>
           Language settings
         </MenuItem>
         <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
-      </Menu>
-    </Dropdown>
+      </MenuPopup>
+    </Menu.Root>
   );
 }
 
@@ -54,7 +49,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Listbox = styled('ul')(
+const MenuPopup = styled(Menu.Popup)(
   ({ theme }) => `
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
@@ -93,33 +88,7 @@ const Listbox = styled('ul')(
   `,
 );
 
-const AnimatedListbox = React.forwardRef(function AnimatedListbox(
-  props: MenuListboxSlotProps,
-  ref: React.ForwardedRef<HTMLUListElement>,
-) {
-  const { ownerState, ...other } = props;
-  const popupContext = React.useContext(PopupContext);
-
-  if (popupContext == null) {
-    throw new Error(
-      'The `AnimatedListbox` component cannot be rendered outside a `Popup` component',
-    );
-  }
-
-  const verticalPlacement = popupContext.placement.split('-')[0];
-
-  return (
-    <CssTransition
-      className={`placement-${verticalPlacement}`}
-      enterClassName="open"
-      exitClassName="closed"
-    >
-      <Listbox {...other} ref={ref} />
-    </CssTransition>
-  );
-});
-
-const MenuItem = styled(BaseMenuItem)(
+const MenuItem = styled(Menu.Item)(
   ({ theme }) => `
   list-style: none;
   padding: 8px;
@@ -137,13 +106,13 @@ const MenuItem = styled(BaseMenuItem)(
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
 
-  &.${menuItemClasses.disabled} {
+  &.[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
   `,
 );
 
-const MenuButton = styled(BaseMenuButton)(
+const MenuButton = styled(Menu.Trigger)(
   ({ theme }) => `
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 600;

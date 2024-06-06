@@ -39,7 +39,7 @@ The demo below shows how to create and style a Dropdown Menu.
 Click **Dashboard** to view the menu.
 Note that it uses the built-in [Popper](/base-ui/react-popper/) component to visually break out of its parent container:
 
-{{"demo": "MenuSimple"}}
+`{{"demo": "MenuSimple"}}`
 
 The `<Dropdown />` should be the outermost component—all other Menu-related components must be placed as its children (but not necessarily as direct ones).
 If you need to control the open state of the Menu or react to its changes, place `open`/`onOpenChange` props on the `<Dropdown />`.
@@ -107,7 +107,7 @@ The same applies to props specific to custom primitive elements:
 The Menu component supports the [Transitions API](/base-ui/react-transitions/), so it's possible to animate the appearing and disappearing Listbox.
 To do this, override the Listbox slot of the Menu and wrap it with a transition component ([CssTransition](/base-ui/react-transitions/#css-transition), [CssAnimation](/base-ui/react-transitions/#css-animation), or a custom-built one).
 
-{{"demo": "MenuTransitions.js", "defaultCodeOpen": false}}
+`{{"demo": "MenuTransitions.js", "defaultCodeOpen": false}}`
 
 ## Hooks
 
@@ -132,7 +132,7 @@ You may not need to use hooks unless you find that you're limited by the customi
 
 The following demo shows how to build a Dropdown Menu using hooks:
 
-{{"demo": "UseMenu.js"}}
+`{{"demo": "UseMenu.js"}}`
 
 Components and their corresponding hooks work interchangeably with one another—for example, you can create a Menu component that contains custom menu items built with the `useMenuItem` hook.
 
@@ -178,4 +178,4 @@ In addition to Menu Item components, the Menu component can also contain non-int
 
 The following demo shows an example of a Dropdown Menu with Items grouped under non-interactive headers, along with helper text that displays the **Current zoom level**:
 
-{{"demo": "WrappedMenuItems.js"}}
+`{{"demo": "WrappedMenuItems.js"}}`

@@ -62,7 +62,7 @@ const pages: readonly MuiPage[] = [
         subheader: 'navigation',
         children: [
           // { pathname: '/base-ui/react-drawer', title: 'Drawer', planned: true },
-          // { pathname: '/base-ui/react-menu', title: 'Menu' },
+          { pathname: '/base-ui/react-menu', title: 'Menu' },
           // { pathname: '/base-ui/react-pagination', title: 'Pagination', planned: true },
           // { pathname: '/base-ui/react-table-pagination', title: 'Table Pagination' },
           { pathname: '/base-ui/react-tabs', title: 'Tabs' },

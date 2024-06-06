@@ -1,12 +1,6 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { Dropdown } from '@base_ui/react/Dropdown';
+import * as Menu from '@base_ui/react/Menu';
 import { useTheme } from '@mui/system';
-import { CssTransition } from '@base_ui/react/Transitions';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem) => {
@@ -16,68 +10,33 @@ export default function MenuIntroduction() {
   };
 
   return (
-    <Dropdown>
-      <MenuButton className="TriggerButtonIntroduction">My account</MenuButton>
+    <Menu.Root>
+      <Menu.Trigger className="TriggerButtonIntroduction">My account</Menu.Trigger>
 
-      <Menu
-        className="CustomMenuIntroduction"
-        slots={{
-          listbox: Listbox,
-        }}
-        slotProps={{
-          listbox: { className: 'CustomMenuIntroduction--listbox' },
-        }}
-      >
-        <MenuItem
+      <Menu.Popup className="CustomMenuIntroduction CustomMenuIntroduction--listbox">
+        <Menu.Item
           className="CustomMenuIntroduction--item"
           onClick={createHandleMenuClick('Profile')}
         >
           Profile
-        </MenuItem>
-        <MenuItem
+        </Menu.Item>
+        <Menu.Item
           className="CustomMenuIntroduction--item"
           onClick={createHandleMenuClick('Language settings')}
         >
           Language settings
-        </MenuItem>
-        <MenuItem
+        </Menu.Item>
+        <Menu.Item
           className="CustomMenuIntroduction--item"
           onClick={createHandleMenuClick('Log out')}
         >
           Log out
-        </MenuItem>
-      </Menu>
+        </Menu.Item>
+      </Menu.Popup>
       <Styles />
-    </Dropdown>
+    </Menu.Root>
   );
 }
-
-const Listbox = React.forwardRef(function Listbox(props, ref) {
-  const { ownerState, ...other } = props;
-  const popupContext = React.useContext(PopupContext);
-
-  if (popupContext == null) {
-    throw new Error(
-      'The `Listbox` component cannot be rendered outside a `Popup` component',
-    );
-  }
-
-  const verticalPlacement = popupContext.placement.split('-')[0];
-
-  return (
-    <CssTransition
-      className={`placement-${verticalPlacement}`}
-      enterClassName="open"
-      exitClassName="closed"
-    >
-      <ul {...other} ref={ref} />
-    </CssTransition>
-  );
-});
-
-Listbox.propTypes = {
-  ownerState: PropTypes.object.isRequired,
-};
 
 const cyan = {
   50: '#E9F8FC',
@@ -170,7 +129,7 @@ function Styles() {
       color: ${isDarkMode ? grey[300] : grey[900]};
     }
 
-    .CustomMenuIntroduction--item.${menuItemClasses.disabled} {
+    .CustomMenuIntroduction--item.[data-disabled] {
       color: ${isDarkMode ? grey[700] : grey[400]};
     }
 
