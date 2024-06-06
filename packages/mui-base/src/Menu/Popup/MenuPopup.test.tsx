@@ -546,13 +546,12 @@ describe('<Menu />', () => {
         return (
           <div>
             <MenuRootContext.Provider value={testContext}>
-              <Menu.Popup
-                anchor={anchor}
-                slotProps={{ root: { 'data-testid': 'popup', placement: 'bottom-start' } as any }}
-              >
-                <Menu.Item>1</Menu.Item>
-                <Menu.Item>2</Menu.Item>
-              </Menu.Popup>
+              <Menu.Positioner side="bottom" alignment="start" anchor={anchor}>
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                  <Menu.Item>2</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
             </MenuRootContext.Provider>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={setAnchor} />
           </div>
@@ -598,13 +597,12 @@ describe('<Menu />', () => {
 
       const { getByTestId } = await render(
         <MenuRootContext.Provider value={testContext}>
-          <Menu.Popup
-            anchor={virtualElement}
-            slotProps={{ root: { 'data-testid': 'popup', placement: 'bottom-start' } as any }}
-          >
-            <Menu.Item>1</Menu.Item>
-            <Menu.Item>2</Menu.Item>
-          </Menu.Popup>
+          <Menu.Positioner side="bottom" alignment="start" anchor={virtualElement}>
+            <Menu.Popup>
+              <Menu.Item>1</Menu.Item>
+              <Menu.Item>2</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
         </MenuRootContext.Provider>,
       );
       const popup = getByTestId('popup');

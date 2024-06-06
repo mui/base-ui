@@ -12,13 +12,15 @@ export default function MenuIntroduction() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <MenuPopup>
-        <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-        <MenuItem onClick={createHandleMenuClick('Language settings')}>
-          Language settings
-        </MenuItem>
-        <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
-      </MenuPopup>
+      <Menu.Positioner>
+        <MenuPopup>
+          <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+          <MenuItem onClick={createHandleMenuClick('Language settings')}>
+            Language settings
+          </MenuItem>
+          <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+        </MenuPopup>
+      </Menu.Positioner>
     </Menu.Root>
   );
 }

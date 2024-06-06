@@ -15,6 +15,12 @@ export type {
 } from './Popup/MenuPopup.types';
 export type { UseMenuPopupParameters, UseMenuPopupReturnValue } from './Popup/useMenuPopup.types';
 
+export { MenuPositioner as Positioner } from './Positioner/MenuPositioner';
+export type {
+  MenuPositionerProps as PositionerProps,
+  MenuPositionerOwnerState as PositionerOwnerState,
+} from './Positioner/MenuPositioner.types';
+
 export { MenuRoot as Root } from './Root/MenuRoot';
 export { MenuRootContext, type MenuRootContextValue } from './Root/MenuRootContext';
 export { useMenuRoot } from './Root/useMenuRoot';

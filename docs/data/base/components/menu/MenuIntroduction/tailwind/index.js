@@ -61,9 +61,9 @@ const MenuButton = React.forwardRef((props, ref) => {
 
 MenuButton.propTypes = {
   /**
-   * Class name applied to the root element.
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className: PropTypes.string,
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
 
 const MenuItem = React.forwardRef((props, ref) => {
@@ -81,5 +81,8 @@ const MenuItem = React.forwardRef((props, ref) => {
 });
 
 MenuItem.propTypes = {
-  className: PropTypes.string,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };

@@ -41,7 +41,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     extraProps: other,
   });
 
-  return open && <MenuPopupProvider value={contextValue}>{renderElement()}</MenuPopupProvider>;
+  return <MenuPopupProvider value={contextValue}>{renderElement()}</MenuPopupProvider>;
 });
 
 MenuPopup.propTypes /* remove-proptypes */ = {

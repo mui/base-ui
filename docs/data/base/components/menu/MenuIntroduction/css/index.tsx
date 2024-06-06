@@ -13,26 +13,28 @@ export default function MenuIntroduction() {
     <Menu.Root>
       <Menu.Trigger className="TriggerButtonIntroduction">My account</Menu.Trigger>
 
-      <Menu.Popup className="CustomMenuIntroduction CustomMenuIntroduction--listbox">
-        <Menu.Item
-          className="CustomMenuIntroduction--item"
-          onClick={createHandleMenuClick('Profile')}
-        >
-          Profile
-        </Menu.Item>
-        <Menu.Item
-          className="CustomMenuIntroduction--item"
-          onClick={createHandleMenuClick('Language settings')}
-        >
-          Language settings
-        </Menu.Item>
-        <Menu.Item
-          className="CustomMenuIntroduction--item"
-          onClick={createHandleMenuClick('Log out')}
-        >
-          Log out
-        </Menu.Item>
-      </Menu.Popup>
+      <Menu.Positioner className="CustomMenuIntroduction">
+        <Menu.Popup className="CustomMenuIntroduction--listbox">
+          <Menu.Item
+            className="CustomMenuIntroduction--item"
+            onClick={createHandleMenuClick('Profile')}
+          >
+            Profile
+          </Menu.Item>
+          <Menu.Item
+            className="CustomMenuIntroduction--item"
+            onClick={createHandleMenuClick('Language settings')}
+          >
+            Language settings
+          </Menu.Item>
+          <Menu.Item
+            className="CustomMenuIntroduction--item"
+            onClick={createHandleMenuClick('Log out')}
+          >
+            Log out
+          </Menu.Item>
+        </Menu.Popup>
+      </Menu.Positioner>
       <Styles />
     </Menu.Root>
   );

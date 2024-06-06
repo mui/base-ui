@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ListAction } from '../../useList';
-import { PopupProps } from '../../Unstable_Popup';
 import { BaseUIComponentProps } from '../../utils/BaseUI.types';
 
 export interface MenuRootSlotPropsOverrides {}
@@ -22,10 +21,6 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupOwn
    * A ref with imperative actions that can be performed on the menu.
    */
   actions?: React.Ref<MenuActions>;
-  /**
-   * The element based on which the menu is positioned.
-   */
-  anchor?: PopupProps['anchor'];
   children?: React.ReactNode;
   /**
    * Function called when the items displayed in the menu change.
