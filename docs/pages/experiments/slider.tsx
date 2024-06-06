@@ -18,7 +18,10 @@ const axisProps = {
   },
 };
 
-export function TrackFill(props: any) {
+export const TrackFill = React.forwardRef(function TrackFill(
+  props: any,
+  ref: React.ForwardedRef<any>,
+) {
   // does not support inverted range fill! (yet)
   const { inverted = false, style, ...otherProps } = props;
 
@@ -52,6 +55,7 @@ export function TrackFill(props: any) {
     <span
       data-disabled={disabled}
       data-inverted={inverted}
+      ref={ref}
       {...otherProps}
       style={{
         ...internalStyles,
@@ -59,7 +63,7 @@ export function TrackFill(props: any) {
       }}
     />
   );
-}
+});
 
 export default function App() {
   const [val1, setVal1] = React.useState(50);

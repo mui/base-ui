@@ -7,6 +7,7 @@ export {
   SliderContextValue,
   SliderProviderValue,
   SliderThumbMetadata,
+  Axis,
 } from './Root/SliderRoot.types';
 export { useSliderRoot } from './Root/useSliderRoot';
 export * from './Root/SliderProvider';

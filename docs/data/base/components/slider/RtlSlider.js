@@ -1,42 +1,42 @@
 import * as React from 'react';
-import { styled, useTheme, Box } from '@mui/system';
+import PropTypes from 'prop-types';
 import * as BaseSlider from '@base_ui/react/Slider';
+import { styled, useTheme, Box } from '@mui/system';
 
-export default function RangeSlider() {
+export default function RtlSlider() {
   // Replace this with your app logic for determining dark mode
   const isDarkMode = useIsDarkMode();
-  const [value, setValue] = React.useState([20, 37]);
-
   return (
-    <Box
-      className={isDarkMode ? 'dark' : ''}
-      sx={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
-    >
-      {/* controlled: */}
-      <Slider
-        value={value}
-        onValueChange={setValue}
-        aria-labelledby="ControlledRangeLabel"
-      >
-        <Label id="ControlledRangeLabel">Controlled Range</Label>
+    <Box className={isDarkMode ? 'dark' : ''} sx={{ width: 320, margin: '32px' }}>
+      <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel" isRtl>
+        <Label id="VolumeSliderLabel">Volume (RTL)</Label>
         <SliderOutput />
         <SliderTrack>
-          <SliderThumb />
-          <SliderThumb />
-        </SliderTrack>
-      </Slider>
-      {/* uncontrolled: */}
-      <Slider defaultValue={[20, 37]} aria-labelledby="UncontrolledRangeLabel">
-        <Label id="UncontrolledRangeLabel">Uncontrolled Range</Label>
-        <SliderOutput />
-        <SliderTrack>
-          <SliderThumb />
           <SliderThumb />
         </SliderTrack>
       </Slider>
     </Box>
   );
 }
+
+function BaseLabel(props) {
+  const { id, ...otherProps } = props;
+  const { subitems, disabled } = BaseSlider.useSliderContext();
+
+  const htmlFor = Array.from(subitems.values())
+    .reduce((acc, item) => {
+      return `${acc} ${item.inputId}`;
+    }, '')
+    .trim();
+
+  return (
+    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
+  );
+}
+
+BaseLabel.propTypes = {
+  id: PropTypes.string,
+};
 
 const grey = {
   50: '#F3F6F9',
@@ -69,7 +69,7 @@ const Slider = styled(BaseSlider.Root)`
 `;
 
 const SliderOutput = styled(BaseSlider.Output)`
-  text-align: right;
+  text-align: left;
 `;
 
 const SliderTrack = styled(BaseSlider.Track)`
@@ -107,7 +107,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
   box-sizing: border-box;
   border-radius: 50%;
   background-color: black;
-  transform: translateX(-50%);
+  transform: translateX(50%);
   touch-action: none;
 
   &:focus-visible {
@@ -139,10 +139,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
   }
 `;
 
-// we can't use a <label> element in a range slider since the `for` attribute
-// cannot reference more than one <input> element
-// instead we use a span and rely on
-const Label = styled('span')`
+const Label = styled(BaseLabel)`
   cursor: unset;
   font-weight: bold;
 

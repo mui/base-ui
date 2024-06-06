@@ -112,5 +112,5 @@
   "name": "useSliderThumb",
   "filename": "/packages/mui-base/src/Slider/SliderThumb/useSliderThumb.ts",
   "imports": ["import { useSliderThumb } from '@base_ui/react/Slider';"],
-  "demos": "<ul></ul>"
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
 }

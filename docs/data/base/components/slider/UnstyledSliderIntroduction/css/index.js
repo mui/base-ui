@@ -1,45 +1,66 @@
 import * as React from 'react';
-import { useTheme, alpha } from '@mui/system';
-import { Slider, sliderClasses } from '@base_ui/react/v5_Slider';
+import PropTypes from 'prop-types';
+import { useTheme } from '@mui/system';
+import * as Slider from '@base_ui/react/Slider';
 
 export default function UnstyledSliderIntroduction() {
+  // Replace this with your app logic for determining dark mode
+  const isDarkMode = useIsDarkMode();
   return (
-    <div style={{ width: 320 }}>
-      <Slider
-        slotProps={{
-          root: { className: 'CustomSlider' },
-          rail: { className: 'CustomSlider-rail' },
-          track: { className: 'CustomSlider-track' },
-          thumb: { className: 'CustomSlider-thumb' },
-        }}
+    <div
+      className={isDarkMode ? 'dark' : ''}
+      style={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
+    >
+      <Slider.Root
+        className="Slider"
         defaultValue={50}
-      />
-      <Slider
-        slotProps={{
-          root: { className: 'CustomSlider' },
-          rail: { className: 'CustomSlider-rail' },
-          track: { className: 'CustomSlider-track' },
-          thumb: { className: 'CustomSlider-thumb' },
-        }}
+        aria-labelledby="VolumeSliderLabel"
+      >
+        <Label id="VolumeSliderLabel" className="Slider-label">
+          Volume
+        </Label>
+        <Slider.Output className="Slider-output" />
+        <Slider.Track className="Slider-track">
+          <Slider.Thumb className="Slider-thumb" />
+        </Slider.Track>
+      </Slider.Root>
+
+      <Slider.Root
+        className="Slider"
         defaultValue={30}
+        aria-labelledby="BrightnessSliderLabel"
         disabled
-      />
+      >
+        <Label id="BrightnessSliderLabel" className="Slider-label">
+          Brightness
+        </Label>
+        <Slider.Output className="Slider-output" />
+        <Slider.Track className="Slider-track">
+          <Slider.Thumb className="Slider-thumb" />
+        </Slider.Track>
+      </Slider.Root>
       <Styles />
     </div>
   );
 }
 
-const cyan = {
-  50: '#E9F8FC',
-  100: '#BDEBF4',
-  200: '#99D8E5',
-  300: '#66BACC',
-  400: '#1F94AD',
-  500: '#0D5463',
-  600: '#094855',
-  700: '#063C47',
-  800: '#043039',
-  900: '#022127',
+function Label(props) {
+  const { id, ...otherProps } = props;
+  const { subitems, disabled } = Slider.useSliderContext();
+
+  const htmlFor = Array.from(subitems.values())
+    .reduce((acc, item) => {
+      return `${acc} ${item.inputId}`;
+    }, '')
+    .trim();
+
+  return (
+    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
+  );
+}
+
+Label.propTypes = {
+  id: PropTypes.string,
 };
 
 const grey = {
@@ -61,84 +82,79 @@ function useIsDarkMode() {
 }
 
 function Styles() {
-  // Replace this with your app logic for determining dark mode
-  const isDarkMode = useIsDarkMode();
   return (
-    <style>{`
-    .CustomSlider {
-      color: ${isDarkMode ? cyan[300] : cyan[500]};
-      height: 4px;
+    <style suppressHydrationWarning>{`
+    .Slider {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 1rem;
       width: 100%;
-      padding: 16px 0;
-      display: inline-flex;
       align-items: center;
       position: relative;
-      cursor: pointer;
-      touch-action: none;
       -webkit-tap-highlight-color: transparent;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 1rem;
     }
 
-    .CustomSlider.${sliderClasses.disabled} {
-      pointer-events: none;
-      cursor: default;
-      color: ${isDarkMode ? grey[600] : grey[300]};
-      opacity: 0.4;
-      outline: none;
+    .Slider-output {
+      text-align: right;
     }
 
-    .CustomSlider-rail {
-      display: block;
-      position: absolute;
-      width: 100%;
-      height: 4px;
-      border-radius: 6px;
-      background-color: currentColor;
-      opacity: 0.3;
-    }
-
-    .CustomSlider-track {
-      display: block;
-      position: absolute;
-      height: 4px;
-      border-radius: 6px;
-      background-color: currentColor;
-    }
-
-    .CustomSlider-thumb {
+    .Slider-track {
+      grid-column: 1/3;
       display: flex;
       align-items: center;
-      justify-content: center;
+      position: relative;
+      width: 100%;
+      height: 16px;
+      border-radius: 9999px;
+      touch-action: none;
+    }
+
+    .Slider-track::before {
+      content: '';
+      width: 100%;
+      height: 2px;
+      border-radius: 9999px;
+      background-color: gainsboro;
+      touch-action: none;
+    }
+
+    .Slider-track[data-disabled] {
+      cursor: not-allowed;
+    }
+
+    .Slider-thumb {
       position: absolute;
-      width: 20px;
-      height: 20px;
-      margin-left: -6px;
+      width: 16px;
+      height: 16px;
       box-sizing: border-box;
       border-radius: 50%;
-      outline: 0;
-      background-color: ${isDarkMode ? cyan[300] : cyan[500]};
-      transition-property: box-shadow, transform;
-      transition-timing-function: ease;
-      transition-duration: 120ms;
-      transform-origin: center;
+      background-color: black;
+      transform: translateX(-50%);
+      touch-action: none;
+
+      &:focus-visible {
+        outline: 2px solid black;
+        outline-offset: 2px;
+      }
+
+      &[data-dragging] {
+        background-color: pink;
+      }
+
+      &[data-disabled] {
+        background-color: ${grey[300]};
+      }
     }
 
-    .CustomSlider-thumb:hover {
-      box-shadow: 0 0 0 6px ${alpha(isDarkMode ? cyan[300] : cyan[200], 0.3)};
+    .Slider-label {
+      cursor: unset;
+      font-weight: bold;
     }
 
-    .CustomSlider-thumb.${sliderClasses.focusVisible} {
-      box-shadow: 0 0 0 8px ${alpha(isDarkMode ? cyan[400] : cyan[200], 0.5)};
-      outline: none;
-    }
-
-    .CustomSlider-thumb.${sliderClasses.active} {
-      box-shadow: 0 0 0 8px ${alpha(isDarkMode ? cyan[400] : cyan[200], 0.5)};
-      outline: none;
-      transform: scale(1.2);
-    }
-
-    .CustomSlider-thumb.${sliderClasses.disabled} {
-      background-color: ${isDarkMode ? grey[600] : grey[300]};
+    .Slider-label[data-disabled='true'] {
+      color: ${grey[600]};
     }
     `}</style>
   );

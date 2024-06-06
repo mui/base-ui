@@ -1,193 +1,245 @@
 ---
 productId: base-ui
-title: React Slider component and hook
+title: React Slider components
 components: Slider, SliderRoot, SliderOutput, SliderThumb, SliderTrack
-hooks: useSlider
+hooks: useSlider, useSliderRoot, useSliderOutput, useSliderThumb, useSliderTrack
 githubLabel: 'component: slider'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb/
+packageName: '@base_ui/react'
 ---
 
 # Slider
 
-<p class="description">A slider is a UI element that lets users select a single value or a range of values along a bar.
+<p class="description">The Slider component provides users with an input for a one or more numerical values within a given range.
 </p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
-## Introduction
-
-The Slider component lets users make selections from a range of values along a horizontal or vertical bar.
-
-Sliders are ideal for interface controls that benefit from a visual representation of adjustable content, such as volume or brightness settings, or for applying image filters such as gradients or saturation.
-
 {{"demo": "UnstyledSliderIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
-## Component
+## Installation
+
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
+```
+
+```bash yarn
+yarn add @base_ui/react
+```
+
+```bash pnpm
+pnpm add @base_ui/react
+```
+
+</codeblock>
+
+Once you have the package installed, import the component.
 
 ```jsx
-import { Slider } from '@base_ui/react/v5_Slider';
+import * as Slider from '@base_ui/react/Slider';
 ```
 
 ### Anatomy
 
-The Slider component is composed of a root `<span>` that houses several interior `<span>` elements:
+Sliders are implemented using a collection of related components:
 
-- rail: the full length of the slider
-- track: the section of the slider that's active
-- thumb: the button that the user moves across the slider
-- mark: optional pre-defined stops along the track
-- markLabel: optional label to display the mark's value
-- valueLabel: optional label to display the values on a range slider
-
-```html
-<span class="base-Slider-root">
-  <span class="base-Slider-rail"></span>
-  <span class="base-Slider-track"></span>
-  <span
-    data-index="0"
-    class="base-Slider-mark base-Slider-markActive"
-    style="left: 0%;"
-  ></span>
-  <span
-    aria-hidden="true"
-    data-index="0"
-    class="base-Slider-markLabel base-Slider-markLabelActive"
-    style="left: 0%;"
-    >0</span
-  >
-  <span data-index="1" class="base-Slider-mark" style="left: 50%;"></span>
-  <span
-    aria-hidden="true"
-    data-index="1"
-    class="base-Slider-markLabel"
-    style="left: 50%;"
-    >50</span
-  >
-  <span data-index="2" class="base-Slider-mark" style="left: 100%;"></span>
-  <span
-    aria-hidden="true"
-    data-index="2"
-    class="base-Slider-markLabel"
-    style="left: 100%;"
-    >100</span
-  >
-  <span class="base-Slider-thumb">
-    <input />
-  </span>
-</span>
-```
-
-:::info
-Both the `mark` and `markLabel` slots have corresponding `*Active` classes that are applied conditionally.
-:::
-
-### Custom structure
-
-Use the `slots` prop to override the root or any other interior slot:
-
-```jsx
-<Slider slots={{ root: 'div', thumb: 'div' }} />
-```
-
-:::info
-The `slots` prop is available on all non-utility Base components.
-See [Overriding component structure](/base-ui/guides/overriding-component-structure/) for full details.
-:::
-
-Use the `slotProps` prop to pass custom props to internal slots.
-The following code snippet applies a CSS class called `my-rail` to the rail slot:
-
-```jsx
-<Slider slotProps={{ rail: { className: 'my-rail' } }} />
-```
-
-### Usage with TypeScript
-
-In TypeScript, you can specify the custom component type used in the `slots.root` as a generic parameter of the unstyled component.
-This way, you can safely provide the custom root's props directly on the component:
+- `<Slider.Root />` is a top-level component that wraps the other components.
+- `<Slider.Output />` renders the value of the slider.
+- `<Slider.Track />` renders the track area along which the thumb(s) can be moved.
+- `<Slider.Thumb />` renders the element that can be moved along the track to change the value.
 
 ```tsx
-<Slider<typeof CustomComponent> slots={{ root: CustomComponent }} customProp />
+<Slider.Root>
+  <Slider.Output />
+  <Slider.Track>
+    <Slider.Thumb />
+  </Slider.Track>
+</Slider.Root>
 ```
 
-The same applies for props specific to custom primitive elements:
+## Value
+
+### Default value
+
+When Slider is uncontrolled, the `defaultValue` prop sets the initial value of the component.
 
 ```tsx
-<Slider<'input'> slots={{ root: 'input' }} autoFocus={true} />
+function App() {
+  return (
+    <Slider.Root defaultValue={50}>
+      <Slider.Output />
+      <Slider.Track>
+        <Slider.Thumb />
+      </Slider.Track>
+    </Slider.Root>
+  );
+}
 ```
 
-## Hook
+### Controlled
 
-```js
-import { useSlider } from '@base_ui/react/useSlider';
+When Slider is uncontrolled, the `value` prop holds the numerical value(s), and two callbacks are provided for when the value changes:
+
+- `onValueChange` is called when the value is changing while the thumb is being moved along the track
+- `onValueCommitted` is called when thumb stops moving and `pointerup` is triggered
+
+```tsx
+function App() {
+  const [value, setValue] = useState(50);
+  return (
+    <Slider.Root value={value} onValueChange={setValue}>
+      <Slider.Output />
+      <Slider.Track>
+        <Slider.Thumb />
+      </Slider.Track>
+    </Slider.Root>
+  );
+}
 ```
 
-The `useSlider` hook lets you apply the functionality of a Slider to a fully custom component.
-It returns props to be placed on the custom component, along with fields representing the component's internal state.
+## Validation
 
-Hooks _do not_ support [slot props](#custom-structure), but they do support [customization props](#customization).
+### Min and max
 
-:::info
-Hooks give you the most room for customization, but require more work to implement.
-With hooks, you can take full control over how your component is rendered, and define all the custom props and CSS classes you need.
+The `min` and `max` props can be used to restrict the value(s) within a range.
 
-You may not need to use hooks unless you find that you're limited by the customization options of their component counterparts—for instance, if your component requires significantly different [structure](#anatomy).
-:::
+```tsx
+<Slider.Root min={1} max={9}>
+  <Slider.Output />
+  <Slider.Track>
+    <Slider.Thumb />
+  </Slider.Track>
+</Slider.Root>
+```
 
-## Customization
+### Step
 
-### Vertical
+The `step` prop snaps the each value to multiples of the given number. In the below example, the input value snaps to increments of `4` starting from the initial `defaultValue`: `3`, `7`, `11`, `15`, and so on.
 
-Slider components can be arranged vertically as well as horizontally.
+```tsx
+<Slider.Root step={4} defaultValue={3}>
+  <Slider.Output />
+  <Slider.Track>
+    <Slider.Thumb />
+  </Slider.Track>
+</Slider.Root>
+```
 
-When vertical, you must set `orientation="vertical"` on the Slider so the user can navigate with the up and down arrow keys (rather than the default left-to-right behavior for horizontal sliders).
+You can specify the `largeStep` prop to change the step when the user holds the <kbd>shift</kbd> key, snapping to multiples of 10 by default.
 
-{{"demo": "VerticalSlider.js"}}
+## Range Sliders
 
-### Discrete sliders
+To let users set the start and end of a range on a Slider, provide an array of values to the `value` or `defaultValue` prop, and place a `<Slider.Thumb />` for each value in the array:
 
-The most basic Slider is _continuous_, which means it does not have pre-defined (_discrete_) values for the user to select from.
-This is suitable for situations in which an approximate value is good enough for the user, such as brightness or volume.
-
-But if your users need more precise options, you can create a discrete Slider that snaps the thumb to pre-defined stops along the bar.
-Make sure to adjust the `shiftStep` prop (the granularity with which the slider can step when using Page Up/Down or Shift + Arrow Up/Down) to a value divadable with the `step`.
-
-To generate a mark for each stop, use `marks={true}`:
-
-{{"demo": "DiscreteSlider.js"}}
-
-#### Custom marks
-
-You can create custom marks by providing a rich array to the `marks` prop:
-
-{{"demo": "DiscreteSliderMarks.js"}}
-
-#### Restricted values
-
-If the user should only be able to select from the values provided with the `marks` prop, add `step={null}` to disable all other options:
-
-{{"demo": "DiscreteSliderValues.js"}}
-
-### Range slider
-
-To let users set the start and end of a range on a Slider, provide an array of values to the `value` or `defaultValue` prop:
+```tsx
+<Slider.Root defaultValue={[45, 70]}>
+  <Slider.Output />
+  <Slider.Track>
+    <Slider.Thumb />
+    <Slider.Thumb />
+  </Slider.Track>
+</Slider.Root>
+```
 
 {{"demo": "RangeSlider.js"}}
 
-### Value label
+### Overlapping values
 
-A label for the value can be rendered around the thumb by using the optional `slots` prop with the `valueLabel` slot.
-These are typical use cases for showing the value label:
+The `minDistanceBetweenValues` prop can be used to to set the mininum difference between values in a range slider, so thumbs do not overlap in the same position. In the below example, the thumbs cannot be moved further towards each other as the difference between values would exceed `minDistanceBetweenValues`:
 
-- always
-- only when hovering over the thumb (using CSS)
-- while interacting with the thumb (hovering or dragging)
+```tsx
+<Slider.Root minDistanceBetweenValues={5} defaultValue={[15, 20]}>
+  {/* Subcomponents */}
+</Slider.Root>
+```
 
-The following demo shows how to render the value label when the mouse is hovering over the thumb:
+## Vertical
 
-{{"demo": "LabeledValuesSlider.js"}}
+To create vertical sliders, set the `orientation` prop to `"vertical"`. This will track thumb movements vertically instead of horizontally.
+
+```jsx
+<Slider.Root orientation="vertical">{/* Subcomponents */}</Slider.Root>
+```
+
+{{"demo": "VerticalSlider.js"}}
+
+## RTL
+
+Use the `isRtl` prop to set the slider's direction to RTL:
+
+```jsx
+<Slider.Root isRtl>{/* Subcomponents */}</Slider.Root>
+```
+
+In a RTL Slider, <kbd class="key">Left Arrow</kbd> increases the value while <kbd class="key">Right Arrow</kbd> decreases the value.
+
+{{"demo": "RtlSlider.js"}}
+
+## Overriding default components
+
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+<Slider.Track render={(props) => <MyCustomTrack {...props} />}> />
+```
+
+All subcomponents accept the `render` prop.
+
+The `Slider.Thumb` component's `render` prop contains an additional `inputProps` argument for rendering an `input` element attached to the thumb:
+
+```jsx
+<Slider.Thumb
+  render={(props, inputProps) => {
+    const { children, ...rest } = props;
+    return (
+      <MyCustomThumb {...rest}>
+        {children}
+        <input {...inputProps}>
+      <MyCustomThumb/>
+    )
+  }}>
+/>
+```
+
+## Custom subcomponents
+
+A `useSliderContext` hook is provided to create custom subcomponents, such as marks or the filled portion of the track:
+
+```jsx
+import { useSliderContext } from '@base_ui/react/Slider';
+
+export const TrackFill = React.forwardRef(function TrackFill(
+  props: React.HTMLAttributes<any>,
+  ref: React.ForwardedRef<any>,
+) {
+  const { style, ...otherProps } = props;
+
+  const { disabled, percentageValues } = useSliderContext();
+
+  return (
+    <span
+      data-disabled={disabled}
+      ref={ref}
+      style={{
+        width: `${percentageValues[0]}%`,
+        left: 0,
+        ...style,
+      }}
+      {...otherProps}
+    />
+  );
+})
+```
+
+Here's a complete demo of a Material Design style slider that uses custom subcomponents and Base UI's Tooltip:
+
+{{"demo": "CustomSubcomponents.js"}}
 
 ## Accessibility
 

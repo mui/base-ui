@@ -1,0 +1,7 @@
+<Slider defaultValue={50} aria-labelledby="VolumeSliderLabel" isRtl>
+  <Label id="VolumeSliderLabel">Volume (RTL)</Label>
+  <SliderOutput />
+  <SliderTrack>
+    <SliderThumb />
+  </SliderTrack>
+</Slider>

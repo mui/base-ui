@@ -258,6 +258,22 @@ module.exports = [
   { pathname: '/base-ui/react-select/hooks-api/#use-select', title: 'useSelect' },
   { pathname: '/base-ui/react-slider/hooks-api/#use-slider', title: 'useSlider' },
   {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-output',
+    title: 'useSliderOutput',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-root',
+    title: 'useSliderRoot',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-thumb',
+    title: 'useSliderThumb',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-track',
+    title: 'useSliderTrack',
+  },
+  {
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',
     title: 'useSnackbar',
   },

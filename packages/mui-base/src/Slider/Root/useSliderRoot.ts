@@ -127,9 +127,13 @@ export function trackFinger(
 export const Identity = (x: any) => x;
 /**
  *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
  * API:
  *
- * - [useSliderRoot API](https://mui.com/base-ui/api/use-slider-root/)
+ * - [useSliderRoot API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-root)
  */
 function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {

@@ -1,13 +1,5 @@
 export { Slider } from './Root/SliderRoot';
-export type {
-  SliderRootOwnerState,
-  SliderRootProps,
-  UseSliderParameters,
-  UseSliderReturnValue,
-  SliderContextValue,
-  SliderProviderValue,
-  SliderThumbMetadata,
-} from './Root/SliderRoot.types';
+export type * from './Root/SliderRoot.types';
 export { useSliderRoot } from './Root/useSliderRoot';
 export * from './Root/SliderProvider';
 

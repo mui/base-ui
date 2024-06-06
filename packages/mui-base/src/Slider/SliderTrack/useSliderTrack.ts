@@ -9,9 +9,13 @@ import { UseSliderTrackParameters, UseSliderTrackReturnValue } from './SliderTra
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 /**
  *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
  * API:
  *
- * - [useSliderTrack API](https://mui.com/base-ui/api/use-slider-track/)
+ * - [useSliderTrack API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-track)
  */
 export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderTrackReturnValue {
   const {

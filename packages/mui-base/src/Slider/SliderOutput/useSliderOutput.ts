@@ -4,9 +4,13 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { UseSliderOutputParameters, UseSliderOutputReturnValue } from './SliderOutput.types';
 /**
  *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
  * API:
  *
- * - [useSliderOutput API](https://mui.com/base-ui/api/use-slider-output/)
+ * - [useSliderOutput API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-output)
  */
 function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutputReturnValue {
   const { 'aria-live': ariaLive = 'off', rootRef, subitems } = parameters;

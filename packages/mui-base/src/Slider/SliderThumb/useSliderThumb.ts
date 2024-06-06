@@ -22,9 +22,13 @@ function getNewValue(
 }
 /**
  *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
  * API:
  *
- * - [useSliderThumb API](https://mui.com/base-ui/api/use-slider-thumb/)
+ * - [useSliderThumb API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-thumb)
  */
 export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const {

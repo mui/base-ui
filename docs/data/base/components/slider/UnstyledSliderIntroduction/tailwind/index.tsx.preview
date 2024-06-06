@@ -1,2 +1,15 @@
-<Slider defaultValue={50} />
-<Slider defaultValue={30} disabled />
+<Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
+  <Label id="VolumeSliderLabel">Volume</Label>
+  <SliderOutput />
+  <SliderTrack>
+    <SliderThumb />
+  </SliderTrack>
+</Slider>
+
+<Slider defaultValue={30} disabled aria-labelledby="BrightnessSliderLabel">
+  <Label id="BrightnessSliderLabel">Brightness</Label>
+  <SliderOutput />
+  <SliderTrack>
+    <SliderThumb />
+  </SliderTrack>
+</Slider>
