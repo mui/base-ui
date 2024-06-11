@@ -25,7 +25,7 @@ Click-Away Listener also supports the [Portal](/base-ui/react-portal/) component
 ## Component
 
 ```jsx
-import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
+import { ClickAwayListener } from '@base_ui/react/legacy/ClickAwayListener';
 ```
 
 The demo below shows how to hide a menu dropdown when users click anywhere else on the page:

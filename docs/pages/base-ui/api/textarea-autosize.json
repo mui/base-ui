@@ -7,12 +7,12 @@
     }
   },
   "name": "TextareaAutosize",
-  "imports": ["import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';"],
+  "imports": ["import { TextareaAutosize } from '@base_ui/react/legacy/TextareaAutosize';"],
   "classes": [],
   "spread": false,
   "muiName": "TextareaAutosize",
   "forwardsRefTo": "HTMLTextAreaElement",
-  "filename": "/packages/mui-base/src/TextareaAutosize/TextareaAutosize.tsx",
+  "filename": "/packages/mui-base/src/legacy/TextareaAutosize/TextareaAutosize.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-textarea-autosize/\">Textarea Autosize</a></li></ul>",
   "cssComponent": false

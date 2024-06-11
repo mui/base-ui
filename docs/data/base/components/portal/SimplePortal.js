@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Portal } from '@base_ui/react/Portal';
+import { Portal } from '@base_ui/react/legacy/Portal';
 import { Box } from '@mui/system';
 
 export default function SimplePortal() {

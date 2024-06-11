@@ -1,5 +1,5 @@
 import { CheckboxOwnerState } from '../Root/CheckboxRoot.types';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface CheckboxIndicatorProps extends BaseUIComponentProps<'span', CheckboxOwnerState> {
   /**

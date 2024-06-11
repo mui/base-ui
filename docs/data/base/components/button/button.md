@@ -24,7 +24,7 @@ The Button component replaces the native HTML `<button>` element, and offers exp
 ## Component
 
 ```jsx
-import { Button } from '@base_ui/react/Button';
+import { Button } from '@base_ui/react/legacy/Button';
 ```
 
 The Button behaves similar to the native HTML `<button>`, so it wraps around the text that will be displayed on its surface.

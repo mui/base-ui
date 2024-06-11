@@ -14,12 +14,12 @@
     }
   },
   "name": "Option",
-  "imports": ["import { Option } from '@base_ui/react/Option';"],
+  "imports": ["import { Option } from '@base_ui/react/legacy/Option';"],
   "classes": [],
   "spread": true,
   "muiName": "Option",
   "forwardsRefTo": "HTMLLIElement",
-  "filename": "/packages/mui-base/src/Option/Option.tsx",
+  "filename": "/packages/mui-base/src/legacy/Option/Option.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false

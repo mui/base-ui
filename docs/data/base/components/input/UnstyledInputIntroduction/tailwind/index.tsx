@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input as BaseInput, InputProps } from '@base_ui/react/Input';
+import { Input as BaseInput, InputProps } from '@base_ui/react/legacy/Input';
 import { useTheme } from '@mui/system';
 import clsx from 'clsx';
 

@@ -48,12 +48,12 @@
     "transition": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "Popper",
-  "imports": ["import { Popper } from '@base_ui/react/Popper';"],
+  "imports": ["import { Popper } from '@base_ui/react/legacy/Popper';"],
   "classes": [],
   "spread": true,
   "muiName": "Popper",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popper/Popper.tsx",
+  "filename": "/packages/mui-base/src/legacy/Popper/Popper.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-popper/\">Popper</a></li></ul>",
   "cssComponent": false

@@ -24,7 +24,7 @@ The height of the Textarea Autosize component automatically adjusts as a respons
 ## Component
 
 ```jsx
-import { TextareaAutosize } from '@base_ui/react/TextareaAutosize';
+import { TextareaAutosize } from '@base_ui/react/legacy/TextareaAutosize';
 ```
 
 Textarea Autosize behaves similarly to the native HTML`<textarea>`.

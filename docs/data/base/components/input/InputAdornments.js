@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Box, styled } from '@mui/system';
-import { Button } from '@base_ui/react/Button';
-import { Input as BaseInput, inputClasses } from '@base_ui/react/Input';
+import { Button } from '@base_ui/react/legacy/Button';
+import { Input as BaseInput, inputClasses } from '@base_ui/react/legacy/Input';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
