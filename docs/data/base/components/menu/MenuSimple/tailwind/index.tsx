@@ -1,12 +1,15 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Menu as BaseMenu, MenuProps } from '@base_ui/react/Menu';
+import { Menu as BaseMenu, MenuProps } from '@base_ui/react/legacy/Menu';
 import {
   MenuButton as BaseMenuButton,
   MenuButtonProps,
-} from '@base_ui/react/MenuButton';
-import { MenuItem as BaseMenuItem, MenuItemProps } from '@base_ui/react/MenuItem';
-import { Dropdown } from '@base_ui/react/Dropdown';
+} from '@base_ui/react/legacy/MenuButton';
+import {
+  MenuItem as BaseMenuItem,
+  MenuItemProps,
+} from '@base_ui/react/legacy/MenuItem';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

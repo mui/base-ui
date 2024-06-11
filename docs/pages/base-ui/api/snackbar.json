@@ -26,12 +26,12 @@
     }
   },
   "name": "Snackbar",
-  "imports": ["import { Snackbar } from '@base_ui/react/Snackbar';"],
+  "imports": ["import { Snackbar } from '@base_ui/react/legacy/Snackbar';"],
   "classes": [],
   "spread": true,
   "muiName": "Snackbar",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Snackbar/Snackbar.tsx",
+  "filename": "/packages/mui-base/src/legacy/Snackbar/Snackbar.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-snackbar/\">Snackbar</a></li></ul>",
   "cssComponent": false

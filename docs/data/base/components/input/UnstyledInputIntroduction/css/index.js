@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input } from '@base_ui/react/Input';
+import { Input } from '@base_ui/react/legacy/Input';
 import { useTheme } from '@mui/system';
 
 export default function UnstyledInputIntroduction() {

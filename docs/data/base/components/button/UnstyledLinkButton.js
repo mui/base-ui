@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button as BaseButton, buttonClasses } from '@base_ui/react/Button';
+import { Button as BaseButton, buttonClasses } from '@base_ui/react/legacy/Button';
 import { prepareForSlot } from '@base_ui/react/utils';
 import { styled } from '@mui/system';
 import Stack from '@mui/material/Stack';

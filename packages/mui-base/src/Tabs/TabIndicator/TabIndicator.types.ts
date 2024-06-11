@@ -1,4 +1,4 @@
-import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type {
   TabActivationDirection,
   TabsDirection,

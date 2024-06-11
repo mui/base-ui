@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TabsOrientation } from '../Root/TabsRoot.types';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export type TabOwnerState = {
   disabled: boolean;

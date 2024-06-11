@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuItem, menuItemClasses } from '@base_ui/react/legacy/MenuItem';
+import { MenuButton } from '@base_ui/react/legacy/MenuButton';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
 import { useTheme } from '@mui/system';
 
 export default function MenuSimple() {
