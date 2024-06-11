@@ -1,12 +1,6 @@
-export type DialogType = 'dialog' | 'alertdialog';
-
 export type SoftCloseOptions = boolean | 'clickOutside' | 'escapeKey';
 
-export interface DialogRootProps extends UseDialogRootParameters {
-  children?: React.ReactNode;
-}
-
-export interface UseDialogRootParameters {
+interface DialogRootParameters {
   /**
    * Determines whether the dialog is open.
    */
@@ -26,15 +20,17 @@ export interface UseDialogRootParameters {
    */
   onOpenChange?: (open: boolean) => void;
   /**
-   * The type of the dialog - either 'dialog' or 'alertdialog'.
-   * @default 'dialog'
-   */
-  type?: DialogType;
-  /**
    * Determines whether the dialog should close when clicking outside of it or pressing the escape key.
    * @default false
    */
   softClose?: SoftCloseOptions;
+}
+
+export interface DialogRootProps extends DialogRootParameters {
+  children?: React.ReactNode;
+}
+
+export interface UseDialogRootParameters extends DialogRootParameters {
   /**
    * Callback to invoke when a nested dialog is opened.
    */
@@ -98,10 +94,6 @@ export interface UseDialogRootReturnValue {
    * The id of the title element associated with the dialog.
    */
   titleElementId: string | undefined;
-  /**
-   * Type of the dialog (ordinary dialog or alert dialog).
-   */
-  type: DialogType;
 }
 
 export interface DialogRootContextValue extends UseDialogRootReturnValue {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { type FloatingContext } from '@floating-ui/react';
 import { type BaseUIComponentProps } from '../../utils/types';
-import { DialogType, SoftCloseOptions } from '../Root/DialogRoot.types';
+import { SoftCloseOptions } from '../Root/DialogRoot.types';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupOwnerState> {
@@ -69,10 +69,6 @@ export interface UseDialogPopupParameters {
    * Callback to set the id of the popup element.
    */
   setPopupElementId: (id: string | undefined) => void;
-  /**
-   * Type of the dialog (ordinary dialog or alert dialog).
-   */
-  type: DialogType;
   /**
    * Determines whether the dialog should close when clicking outside of it or pressing the escape key.
    */

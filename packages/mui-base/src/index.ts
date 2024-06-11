@@ -1,3 +1,4 @@
+export * from './AlertDialog/index.barrel';
 export * from './Checkbox/index.barrel';
 export * from './Dialog/index.barrel';
 export * from './NumberField/index.barrel';

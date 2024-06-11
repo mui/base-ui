@@ -1,12 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import {
-  act,
-  createRenderer,
-  fireEvent,
-  strictModeDoubleLoggingSuppressed,
-} from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
 
 describe('<Dialog.Root />', () => {
@@ -47,32 +42,6 @@ describe('<Dialog.Root />', () => {
 
       setProps({ open: false });
       expect(queryByRole('dialog')).to.equal(null);
-    });
-  });
-
-  describe('prop: type', () => {
-    it('should render an alert dialog when type="alertdialog"', () => {
-      const { getByTestId } = render(
-        <Dialog.Root open type="alertdialog">
-          <Dialog.Popup data-testid="dialog" />
-        </Dialog.Root>,
-      );
-
-      expect(getByTestId('dialog')).to.have.attribute('role', 'alertdialog');
-    });
-
-    it('should warn when type="alertdialog" and modal=false', () => {
-      expect(() => {
-        render(
-          <Dialog.Root open type="alertdialog" modal={false}>
-            <Dialog.Popup animated={false} />
-          </Dialog.Root>,
-        );
-      }).toWarnDev([
-        'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
-        !strictModeDoubleLoggingSuppressed &&
-          'Base UI: The `type="alertdialog"` prop is only valid when `modal={true}`. Alert dialogs must be modal according to WAI-ARIA.',
-      ]);
     });
   });
 

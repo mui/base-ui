@@ -5,15 +5,7 @@ import { DialogRootContext } from './DialogRootContext';
 import { useDialogRoot } from './useDialogRoot';
 
 const DialogRoot = function DialogRoot(props: DialogRootProps) {
-  const {
-    children,
-    defaultOpen,
-    modal = true,
-    onOpenChange,
-    open: openProp,
-    softClose,
-    type = 'dialog',
-  } = props;
+  const { children, defaultOpen, modal = true, onOpenChange, open: openProp, softClose } = props;
 
   const dialogRootContext = React.useContext(DialogRootContext);
 
@@ -21,7 +13,6 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     open: openProp,
     defaultOpen,
     onOpenChange,
-    type,
     modal,
     softClose,
     onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
@@ -58,14 +49,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   modal: PropTypes.bool,
   /**
-   * Callback to invoke when a nested dialog is closed.
-   */
-  onNestedDialogClose: PropTypes.func,
-  /**
-   * Callback to invoke when a nested dialog is opened.
-   */
-  onNestedDialogOpen: PropTypes.func,
-  /**
    * Callback invoked when the dialog is being opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -78,11 +61,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   softClose: PropTypes.oneOfType([PropTypes.oneOf(['clickOutside', 'escapeKey']), PropTypes.bool]),
-  /**
-   * The type of the dialog - either 'dialog' or 'alertdialog'.
-   * @default 'dialog'
-   */
-  type: PropTypes.oneOf(['alertdialog', 'dialog']),
 } as any;
 
 export { DialogRoot };

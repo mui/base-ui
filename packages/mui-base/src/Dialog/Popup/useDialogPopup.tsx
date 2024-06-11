@@ -6,6 +6,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useScrollLock } from '../../utils/useScrollLock';
+
 /**
  *
  * Demos:
@@ -28,7 +29,6 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     setPopupElementId,
     softClose,
     titleElementId,
-    type,
     isTopmost,
   } = parameters;
 
@@ -70,7 +70,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
       'aria-describedby': descriptionElementId ?? undefined,
       'aria-hidden': !open || undefined,
       'aria-modal': open && modal ? true : undefined,
-      role: type,
+      role: 'dialog',
       tabIndex: -1,
       ...getFloatingProps(),
       id,
