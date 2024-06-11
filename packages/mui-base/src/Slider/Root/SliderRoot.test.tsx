@@ -35,6 +35,7 @@ function createTouches(touches: Touches) {
 function TestSlider(props: SliderRootProps) {
   return (
     <Slider.Root data-testid="root" {...props}>
+      <Slider.Output data-testid="output" />
       <Slider.Track data-testid="track">
         <Slider.Thumb data-testid="thumb" />
       </Slider.Track>
@@ -45,6 +46,7 @@ function TestSlider(props: SliderRootProps) {
 function TestRangeSlider(props: SliderRootProps) {
   return (
     <Slider.Root data-testid="root" {...props}>
+      <Slider.Output data-testid="output" />
       <Slider.Track data-testid="track">
         <Slider.Thumb data-testid="thumb-0" />
         <Slider.Thumb data-testid="thumb-1" />
@@ -374,6 +376,17 @@ describe('<Slider.Root />', () => {
 
       const sliderRoot = screen.getByRole('slider');
       expect(sliderRoot).to.have.attribute('aria-orientation', 'vertical');
+    });
+
+    it('sets the data-orientation attribute', () => {
+      const { getByTestId } = render(<TestSlider />);
+
+      const sliderRoot = screen.getByRole('group');
+      expect(sliderRoot).to.have.attribute('data-orientation', 'horizontal');
+      const sliderTrack = getByTestId('track');
+      expect(sliderTrack).to.have.attribute('data-orientation', 'horizontal');
+      const sliderOutput = getByTestId('output');
+      expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
     it('does not set the orientation via appearance for WebKit browsers', function test() {

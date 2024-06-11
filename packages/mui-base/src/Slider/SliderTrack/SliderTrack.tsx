@@ -31,6 +31,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     handleValueChange,
     minDistanceBetweenValues,
     onValueCommitted,
+    orientation,
     ownerState,
     percentageValues,
     registerSliderTrack,
@@ -60,8 +61,8 @@ const SliderTrack = React.forwardRef(function SliderTrack(
   });
 
   const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging }),
-    [disabled, dragging],
+    () => getStyleHookProps({ disabled, dragging, orientation }),
+    [disabled, dragging, orientation],
   );
 
   const trackProps = getRootProps({

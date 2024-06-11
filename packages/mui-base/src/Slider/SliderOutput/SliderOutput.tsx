@@ -21,7 +21,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   const render = renderProp ?? defaultRender;
 
-  const { disabled, dragging, ownerState, subitems, values } = useSliderContext();
+  const { disabled, dragging, orientation, ownerState, subitems, values } = useSliderContext();
 
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
@@ -31,8 +31,8 @@ const SliderOutput = React.forwardRef(function SliderOutput(
   });
 
   const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging }),
-    [disabled, dragging],
+    () => getStyleHookProps({ disabled, dragging, orientation }),
+    [disabled, dragging, orientation],
   );
 
   const outputProps = getRootProps({

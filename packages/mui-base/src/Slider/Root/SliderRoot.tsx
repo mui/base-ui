@@ -80,8 +80,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   );
 
   const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging: slider.dragging }),
-    [disabled, slider.dragging],
+    () => getStyleHookProps({ disabled, dragging: slider.dragging, orientation }),
+    [disabled, slider.dragging, orientation],
   );
 
   const rootProps = getRootProps({
