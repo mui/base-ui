@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { fireEvent, screen } from '@testing-library/react';
 
 const waitForPosition = async () => act(async () => {});
 

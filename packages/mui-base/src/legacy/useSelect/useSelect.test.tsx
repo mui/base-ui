@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook } from '@mui/internal-test-utils';
 import { useSelect } from './useSelect';
 
 describe('useSelect', () => {
