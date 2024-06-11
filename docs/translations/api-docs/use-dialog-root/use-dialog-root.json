@@ -13,9 +13,6 @@
     "open": { "description": "Determines whether the dialog is open." },
     "softClose": {
       "description": "Determines whether the dialog should close when clicking outside of it or pressing the escape key."
-    },
-    "type": {
-      "description": "The type of the dialog - either &#39;dialog&#39; or &#39;alertdialog&#39;."
     }
   },
   "returnValueDescriptions": {
@@ -39,7 +36,6 @@
     "softClose": {
       "description": "Determines whether the dialog should close when clicking outside of it or pressing the escape key."
     },
-    "titleElementId": { "description": "The id of the title element associated with the dialog." },
-    "type": { "description": "Type of the dialog (ordinary dialog or alert dialog)." }
+    "titleElementId": { "description": "The id of the title element associated with the dialog." }
   }
 }

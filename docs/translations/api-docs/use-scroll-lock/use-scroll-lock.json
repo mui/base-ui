@@ -1,5 +1,5 @@
 {
-  "hookDescription": "Locks the scroll of the document when enabled.\n\n@param enabled - Whether to enable the scroll lock.",
+  "hookDescription": "Locks the scroll of the document when enabled.",
   "parametersDescriptions": {},
   "returnValueDescriptions": {}
 }

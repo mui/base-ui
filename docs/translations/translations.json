@@ -226,6 +226,7 @@
     "data-display": "Data display",
     "/base-ui/react-tooltip": "Tooltip",
     "feedback": "Feedback",
+    "/base-ui/react-alert-dialog": "Alert Dialog",
     "/base-ui/react-dialog": "Dialog",
     "navigation": "Navigation",
     "/base-ui/react-tabs": "Tabs",

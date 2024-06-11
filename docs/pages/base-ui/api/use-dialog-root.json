@@ -16,8 +16,7 @@
     "softClose": {
       "type": { "name": "SoftCloseOptions", "description": "SoftCloseOptions" },
       "default": "false"
-    },
-    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "default": "'dialog'" }
+    }
   },
   "returnValue": {
     "descriptionElementId": {
@@ -67,7 +66,6 @@
       "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
-    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true },
     "onNestedDialogClose": { "type": { "name": "() =&gt; void", "description": "() =&gt; void" } },
     "onNestedDialogOpen": {
       "type": {

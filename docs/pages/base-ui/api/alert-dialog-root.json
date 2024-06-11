@@ -1,0 +1,15 @@
+{
+  "props": {},
+  "name": "AlertDialogRoot",
+  "imports": [
+    "import * as AlertDialog from '@base_ui/react/AlertDialog';\nconst AlertDialogRoot = AlertDialog.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "AlertDialogRoot",
+  "filename": "/packages/mui-base/src/AlertDialog/Root/AlertDialogRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-alert-dialog/\">Alert Dialog</a></li></ul>",
+  "cssComponent": false
+}

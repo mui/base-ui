@@ -22,8 +22,8 @@ export type {
   DialogPopupOwnerState as PopupOwnerState,
 } from '../Dialog/Popup/DialogPopup.types';
 
-export { DialogRoot as Root } from '../Dialog/Root/DialogRoot';
-export type { DialogRootProps as RootProps } from '../Dialog/Root/DialogRoot.types';
+export { AlertDialogRoot as Root } from './Root/AlertDialogRoot';
+export type { AlertDialogRootProps as RootProps } from './Root/AlertDialogRoot.types';
 
 export { DialogTitle as Title } from '../Dialog/Title/DialogTitle';
 export type {

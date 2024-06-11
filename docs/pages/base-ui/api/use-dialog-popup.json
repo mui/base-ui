@@ -34,7 +34,6 @@
       "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
-    "type": { "type": { "name": "DialogType", "description": "DialogType" }, "required": true },
     "id": { "type": { "name": "string", "description": "string" } }
   },
   "returnValue": {
