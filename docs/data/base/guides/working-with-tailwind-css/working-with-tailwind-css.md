@@ -405,7 +405,7 @@ import {
   Button as BaseButton,
   ButtonOwnerState,
   ButtonProps,
-} from '@base_ui/react/Button';
+} from '@base_ui/react/legacy/Button';
 
 const Button = React.forwardRef(function Button(
   props: ButtonProps,

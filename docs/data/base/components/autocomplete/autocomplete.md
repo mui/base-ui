@@ -36,7 +36,7 @@ To learn more about implementing a custom Autocomplete, you can explore the [`us
 ## Hook
 
 ```jsx
-import { useAutocomplete } from '@base_ui/react/useAutocomplete';
+import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
 ```
 
 The `useAutocomplete` hook requires a list of `options` to be displayed when the textbox receives focus.
@@ -107,8 +107,8 @@ Base UI provides a [Popper](/base-ui/react-popper/) component built around Reac
 To render the listbox in Base UI's Popper, the `ref`s must be merged as follows:
 
 ```jsx
-import { useAutocomplete } from '@base_ui/react/useAutocomplete';
-import { Popper } from '@base_ui/react/Popper';
+import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
+import { Popper } from '@base_ui/react/legacy/Popper';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 
 export default function App(props) {

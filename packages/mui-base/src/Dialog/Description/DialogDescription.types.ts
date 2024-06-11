@@ -1,4 +1,4 @@
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface DialogDescriptionProps
   extends BaseUIComponentProps<'p', DialogDescriptionOwnerState> {}

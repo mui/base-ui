@@ -1,5 +1,5 @@
-import { generateUtilityClasses } from '../generateUtilityClasses';
-import { generateUtilityClass } from '../generateUtilityClass';
+import { generateUtilityClasses } from '../legacy/generateUtilityClasses';
+import { generateUtilityClass } from '../legacy/generateUtilityClass';
 
 const COMPONENT_NAME = 'Slider';
 

@@ -13,7 +13,7 @@ import {
   testComponentProp,
   testReactTestRenderer,
 } from '@mui/internal-test-utils';
-import { ClassNameConfigurator } from '@base_ui/react/utils';
+import { ClassNameConfigurator } from '@base_ui/react/legacy/utils/ClassNameConfigurator';
 
 export interface UnstyledConformanceOptions
   extends Omit<Partial<ConformanceOptions>, 'render' | 'skip' | 'classes'> {

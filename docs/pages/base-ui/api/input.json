@@ -42,12 +42,12 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "Input",
-  "imports": ["import { Input } from '@base_ui/react/Input';"],
+  "imports": ["import { Input } from '@base_ui/react/legacy/Input';"],
   "classes": [],
   "spread": true,
   "muiName": "Input",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Input/Input.tsx",
+  "filename": "/packages/mui-base/src/legacy/Input/Input.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-input/\">Input</a></li></ul>",
   "cssComponent": false

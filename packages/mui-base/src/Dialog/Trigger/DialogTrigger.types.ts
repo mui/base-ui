@@ -1,4 +1,4 @@
-import { BaseUIComponentProps } from '@base_ui/react/utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface DialogTriggerProps
   extends BaseUIComponentProps<'button', DialogTriggerOwnerState> {}

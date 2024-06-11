@@ -22,19 +22,17 @@ async function addLicense(packageData) {
  */
 `;
   await Promise.all(
-    ['./index.js', './legacy/index.js', './modern/index.js', './node/index.js'].map(
-      async (file) => {
-        try {
-          await prepend(path.resolve(buildPath, file), license);
-        } catch (err) {
-          if (err.code === 'ENOENT') {
-            console.log(`Skipped license for ${file}`);
-          } else {
-            throw err;
-          }
+    ['./index.js', './node/index.js'].map(async (file) => {
+      try {
+        await prepend(path.resolve(buildPath, file), license);
+      } catch (err) {
+        if (err.code === 'ENOENT') {
+          console.log(`Skipped license for ${file}`);
+        } else {
+          throw err;
         }
-      },
-    ),
+      }
+    }),
   );
 }
 
@@ -47,9 +45,10 @@ async function run() {
     const packageData = await createPackageFile();
 
     await Promise.all(
-      ['./README.md', '../../CHANGELOG.md', '../../LICENSE', ...extraFiles].map((file) =>
-        includeFileInBuild(file),
-      ),
+      ['./README.md', '../../CHANGELOG.md', '../../LICENSE', ...extraFiles].map(async (file) => {
+        const [sourcePath, targetPath] = file.split(':');
+        await includeFileInBuild(sourcePath, targetPath);
+      }),
     );
 
     await addLicense(packageData);

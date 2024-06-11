@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { Box, styled } from '@mui/system';
-import { Button } from '@base_ui/react/Button';
-import { Input as BaseInput, InputProps, inputClasses } from '@base_ui/react/Input';
+import { Button } from '@base_ui/react/legacy/Button';
+import {
+  Input as BaseInput,
+  InputProps,
+  inputClasses,
+} from '@base_ui/react/legacy/Input';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 

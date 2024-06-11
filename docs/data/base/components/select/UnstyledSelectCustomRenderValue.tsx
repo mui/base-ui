@@ -4,9 +4,9 @@ import {
   SelectProps,
   selectClasses,
   SelectRootSlotProps,
-} from '@base_ui/react/Select';
-import { SelectOption } from '@base_ui/react/useOption';
-import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
+} from '@base_ui/react/legacy/Select';
+import { SelectOption } from '@base_ui/react/legacy/useOption';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/legacy/Option';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 

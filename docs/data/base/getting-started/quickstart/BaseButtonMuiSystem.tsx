@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, buttonClasses } from '@base_ui/react/Button';
+import { Button, buttonClasses } from '@base_ui/react/legacy/Button';
 import { useButton } from '@base_ui/react/useButton';
 import { styled, alpha, Theme } from '@mui/system';
 import Stack from '@mui/material/Stack';

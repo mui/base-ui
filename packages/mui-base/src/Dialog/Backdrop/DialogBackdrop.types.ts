@@ -1,5 +1,5 @@
 import { TransitionStatus } from '../../utils/useTransitionStatus';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdropOwnerState> {
   /**

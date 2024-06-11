@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { type FloatingContext } from '@floating-ui/react';
-import { type BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { type BaseUIComponentProps } from '../../utils/types';
 import { DialogType, SoftCloseOptions } from '../Root/DialogRoot.types';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 

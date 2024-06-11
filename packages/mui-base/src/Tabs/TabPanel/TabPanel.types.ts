@@ -4,7 +4,7 @@ import type {
   TabsOrientation,
   TabsRootOwnerState,
 } from '../Root/TabsRoot.types';
-import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 export type TabPanelOwnerState = TabsRootOwnerState & {
   hidden: boolean;

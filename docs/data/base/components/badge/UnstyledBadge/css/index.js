@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Badge } from '@base_ui/react/Badge';
+import { Badge } from '@base_ui/react/legacy/Badge';
 import { useTheme } from '@mui/system';
 
 export default function UnstyledBadge() {

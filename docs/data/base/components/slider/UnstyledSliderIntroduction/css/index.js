@@ -78,7 +78,7 @@ function Styles() {
       -webkit-tap-highlight-color: transparent;
     }
 
-    .CustomSlider.${sliderClasses.disabled} { 
+    .CustomSlider.${sliderClasses.disabled} {
       pointer-events: none;
       cursor: default;
       color: ${isDarkMode ? grey[600] : grey[300]};

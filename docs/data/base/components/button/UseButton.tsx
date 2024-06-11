@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { styled } from '@mui/system';
 import Stack from '@mui/material/Stack';
 import { useButton } from '@base_ui/react/useButton';
-import { ButtonProps } from '@base_ui/react/Button';
+import { ButtonProps } from '@base_ui/react/legacy/Button';
 
 const CustomButton = React.forwardRef(function CustomButton(
   props: ButtonProps,
