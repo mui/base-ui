@@ -20,6 +20,17 @@ function getNewValue(
 ): number {
   return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
 }
+
+function getDefaultAriaLabel(values: readonly number[], index: number): string | undefined {
+  if (values.length === 2) {
+    if (index === 0) {
+      return 'start';
+    }
+
+    return 'end';
+  }
+  return undefined;
+}
 /**
  *
  * Demos:
@@ -199,7 +210,9 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
-        'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
+        'aria-label': getAriaLabel
+          ? getAriaLabel(index)
+          : ariaLabel ?? getDefaultAriaLabel(sliderValues, index),
         'aria-labelledby': ariaLabelledby,
         'aria-orientation': orientation,
         'aria-valuemax': scale(max),
@@ -248,6 +261,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       name,
       orientation,
       scale,
+      sliderValues,
       step,
       thumbValue,
     ],
