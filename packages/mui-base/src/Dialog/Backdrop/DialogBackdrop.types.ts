@@ -37,6 +37,14 @@ export interface UseDialogBackdropParams {
    * The ref to the background element.
    */
   ref: React.Ref<HTMLElement>;
+  /**
+   * Callback to invoke when the backdrop is mounted.
+   */
+  onMount: () => void;
+  /**
+   * Callback to invoke when the backdrop is unmounted.
+   */
+  onUnmount: () => void;
 }
 
 export interface UseDialogBackdropReturnValue {

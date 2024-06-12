@@ -75,6 +75,10 @@ export interface UseDialogRootReturnValue {
    */
   popupElementId: string | undefined;
   /**
+   * Callback to notify the dialog that the backdrop is present.
+   */
+  setBackdropPresent: (present: boolean) => void;
+  /**
    * Callback to set the id of the description element associated with the dialog.
    */
   setDescriptionElementId: (elementId: string | undefined) => void;

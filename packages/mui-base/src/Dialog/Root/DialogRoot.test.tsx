@@ -45,6 +45,42 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe('prop: modal', () => {
+    it('warns when the dialog is modal but no backdrop is present', () => {
+      expect(() =>
+        render(
+          <Dialog.Root modal>
+            <Dialog.Popup animated={false} />
+          </Dialog.Root>,
+        ),
+      ).toWarnDev([
+        'Base UI: The Dialog is modal but no backdrop is present. Add the backdrop component to prevent interacting with the rest of the page.',
+        'Base UI: The Dialog is modal but no backdrop is present. Add the backdrop component to prevent interacting with the rest of the page.',
+      ]);
+    });
+
+    it('does not warn when the dialog is not modal and no backdrop is present', () => {
+      expect(() =>
+        render(
+          <Dialog.Root modal={false}>
+            <Dialog.Popup animated={false} />
+          </Dialog.Root>,
+        ),
+      ).not.toWarnDev();
+    });
+
+    it('does not warn when the dialog is modal and backdrop is present', () => {
+      expect(() =>
+        render(
+          <Dialog.Root modal>
+            <Dialog.Backdrop />
+            <Dialog.Popup animated={false} />
+          </Dialog.Root>,
+        ),
+      ).not.toWarnDev();
+    });
+  });
+
   describe('prop: softClose', () => {
     (
       [

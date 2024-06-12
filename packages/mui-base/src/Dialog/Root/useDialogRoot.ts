@@ -34,6 +34,18 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     undefined,
   );
   const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
+  const hasBackdrop = React.useRef(false);
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (modal && !hasBackdrop.current) {
+        console.warn(
+          'Base UI: The Dialog is modal but no backdrop is present. Add the backdrop component to prevent interacting with the rest of the page.',
+        );
+      }
+    }, [modal]);
+  }
 
   const handleOpenChange = React.useCallback(
     (shouldOpen: boolean) => {
@@ -73,6 +85,10 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     setOwnNestedOpenDialogs(0);
   }, []);
 
+  const setBackdropPresent = React.useCallback((present: boolean) => {
+    hasBackdrop.current = present;
+  }, []);
+
   return React.useMemo(() => {
     return {
       modal,
@@ -88,6 +104,7 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
       onNestedDialogOpen: handleNestedDialogOpen,
       onNestedDialogClose: handleNestedDialogClose,
       nestedOpenDialogCount: ownNestedOpenDialogs,
+      setBackdropPresent,
     };
   }, [
     modal,
@@ -100,5 +117,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     handleNestedDialogClose,
     handleNestedDialogOpen,
     ownNestedOpenDialogs,
+    setBackdropPresent,
   ]);
 }
