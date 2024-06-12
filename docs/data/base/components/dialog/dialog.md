@@ -49,7 +49,7 @@ Dialogs are implemented using a collection of related components:
 
 - `<Dialog.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
 - `<Dialog.Popup />` is the dialog panel itself.
-- `<Dialog.Backdrop />` is the optional background element appearing when a popup is visible. Use it to indicate that the page is inert when using a modal dialog. The Backdrop must be a sibling of the Popup component.
+- `<Dialog.Backdrop />` is the background element appearing when a popup is visible. Use it to indicate that the page is inert when using a modal dialog. The Backdrop must be a sibling of the Popup component. It is mandatory for modal dialogs.
 - `<Dialog.Trigger />` is the component (a button by default) that, when clicked, shows the popup. When it's not provided, the visibility of the Dialog can be controlled with its `open` prop (see [Controlled vs. uncontrolled behavior](#controlled-vs-uncontrolled-behavior)).
 - `<Dialog.Close />` renders a button that closes the popup. You can attach your own click handlers to it to perform additional actions.
 - `<Dialog.Title />` is an header element displaying the title of the dialog. It is referenced in the Dialog's ARIA attributes to properly announce the dialog.
@@ -80,6 +80,11 @@ By default Dialogs are modal.
 ```tsx
 <Dialog.Root modal={false}>{/* ... */}</Dialog.Root>
 ```
+
+:::warning
+To make the Dialog fully modal, you must have a Backdrop component and style it so it covers the entire viewport, blocking pointer interaction with other elements on the page.
+:::
+
 
 ## Closing the dialog
 
@@ -167,7 +172,7 @@ With this approach set the `keepMounted` to `true` and let the animation library
 Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
 
 ```jsx
-<Tooltip.Popup className="TooltipPopup">Tooltip</Tooltip.Popup>
+<Dialog.Popup className="DialogPopup">Dialog</Dialog.Popup>
 ```
 
 ```css

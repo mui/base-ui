@@ -7,17 +7,17 @@ export default function NestedAlertDialogs() {
     <BaseAlertDialog.Root>
       <Trigger>Open</Trigger>
       <Popup>
-        <Title>Dialog 1</Title>
+        <Title>Alert Dialog 1</Title>
         <Controls>
           <BaseAlertDialog.Root softClose>
             <Trigger>Open Nested</Trigger>
             <Popup>
-              <Title>Dialog 2</Title>
+              <Title>Alert Dialog 2</Title>
               <Controls>
                 <BaseAlertDialog.Root softClose>
                   <Trigger>Open Nested</Trigger>
                   <Popup>
-                    <Title>Dialog 3</Title>
+                    <Title>Alert Dialog 3</Title>
                     <Controls>
                       <Close>Close</Close>
                     </Controls>
