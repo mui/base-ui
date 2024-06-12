@@ -85,7 +85,6 @@ By default Dialogs are modal.
 To make the Dialog fully modal, you must have a Backdrop component and style it so it covers the entire viewport, blocking pointer interaction with other elements on the page.
 :::
 
-
 ## Closing the dialog
 
 The default way to close the dialog is clicking on the `<Dialog.Close>` component.
@@ -107,7 +106,9 @@ The `keyboardDismissible` prop works similarly, but for the <kbd className="key"
 You can combine the above props to make the Dialog close only by interacting with its Close button (or programmatically):
 
 ```tsx
-<Dialog.Root dismissible={false} keyboardDismissible={false}>{/* ... */}</Dialog.Root>
+<Dialog.Root dismissible={false} keyboardDismissible={false}>
+  {/* ... */}
+</Dialog.Root>
 ```
 
 ## Controlled vs. uncontrolled behavior
