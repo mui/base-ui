@@ -155,7 +155,10 @@ The `minDistanceBetweenValues` prop can be used to to set the mininum difference
 
 ```tsx
 <Slider.Root minDistanceBetweenValues={5} defaultValue={[15, 20]}>
-  {/* Subcomponents */}
+  <Slider.Track>
+    <Slider.Thumb />
+    <Slider.Thumb />
+  </Slider.Track>
 </Slider.Root>
 ```
 
@@ -206,40 +209,6 @@ The `Slider.Thumb` component's `render` prop contains an additional `inputProps`
   }}>
 />
 ```
-
-## Custom subcomponents
-
-A `useSliderContext` hook is provided to create custom subcomponents, such as marks or the filled portion of the track:
-
-```jsx
-import { useSliderContext } from '@base_ui/react/Slider';
-
-export const TrackFill = React.forwardRef(function TrackFill(
-  props: React.HTMLAttributes<any>,
-  ref: React.ForwardedRef<any>,
-) {
-  const { style, ...otherProps } = props;
-
-  const { disabled, percentageValues } = useSliderContext();
-
-  return (
-    <span
-      data-disabled={disabled}
-      ref={ref}
-      style={{
-        width: `${percentageValues[0]}%`,
-        left: 0,
-        ...style,
-      }}
-      {...otherProps}
-    />
-  );
-})
-```
-
-Here's a complete demo of a Material Design style slider that uses custom subcomponents and Base UI's Tooltip:
-
-{{"demo": "CustomSubcomponents.js"}}
 
 ## Accessibility
 

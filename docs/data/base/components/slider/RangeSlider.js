@@ -141,7 +141,8 @@ const SliderThumb = styled(BaseSlider.Thumb)`
 
 // we can't use a <label> element in a range slider since the `for` attribute
 // cannot reference more than one <input> element
-// instead we use a span and rely on
+// the html spec doesn't forbid <label> without `for` https://html.spec.whatwg.org/multipage/forms.html#the-label-element
+// but eslint complains by default and a11y validators may complain e.g. WAVE
 const Label = styled('span')`
   cursor: unset;
   font-weight: bold;

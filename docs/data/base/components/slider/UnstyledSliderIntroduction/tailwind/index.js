@@ -57,6 +57,13 @@ const Slider = React.forwardRef(function Slider(props, ref) {
   );
 });
 
+Slider.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const SliderOutput = React.forwardRef(function SliderOutput(props, ref) {
   return (
     <BaseSlider.Output
@@ -73,6 +80,13 @@ const SliderOutput = React.forwardRef(function SliderOutput(props, ref) {
     />
   );
 });
+
+SliderOutput.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
 
 const SliderTrack = React.forwardRef(function SliderTrack(props, ref) {
   return (
@@ -92,6 +106,13 @@ const SliderTrack = React.forwardRef(function SliderTrack(props, ref) {
   );
 });
 
+SliderTrack.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const SliderThumb = React.forwardRef(function SliderThumb(props, ref) {
   return (
     <BaseSlider.Thumb
@@ -110,6 +131,13 @@ const SliderThumb = React.forwardRef(function SliderThumb(props, ref) {
     />
   );
 });
+
+SliderThumb.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
 
 function Label(props) {
   const { id, ...otherProps } = props;

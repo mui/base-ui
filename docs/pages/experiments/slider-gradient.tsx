@@ -6,7 +6,7 @@ import { percentToValue, roundValueToStep } from '@base_ui/react/Slider/utils';
 // eslint-disable-next-line no-restricted-imports
 import { clamp } from '@base_ui/react/utils/clamp';
 // eslint-disable-next-line no-restricted-imports
-import { BaseUIEvent } from '@base_ui/react/utils/BaseUI.types';
+import { BaseUIEvent } from '@base_ui/react/utils/types';
 
 type Stop = {
   color: string;

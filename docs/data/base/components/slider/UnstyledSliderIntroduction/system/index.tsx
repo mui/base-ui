@@ -17,14 +17,6 @@ export default function UnstyledSliderIntroduction() {
           <SliderThumb />
         </SliderTrack>
       </Slider>
-
-      <Slider defaultValue={30} aria-labelledby="BrightnessSliderLabel" disabled>
-        <Label id="BrightnessSliderLabel">Brightness</Label>
-        <SliderOutput />
-        <SliderTrack>
-          <SliderThumb />
-        </SliderTrack>
-      </Slider>
     </Box>
   );
 }
