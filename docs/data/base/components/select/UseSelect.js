@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { useSelect, SelectProvider } from '@base_ui/react/useSelect';
-import { useOption } from '@base_ui/react/useOption';
+import { useSelect, SelectProvider } from '@base_ui/react/legacy/useSelect';
+import { useOption } from '@base_ui/react/legacy/useOption';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
@@ -99,7 +99,7 @@ const Listbox = styled('ul')(
   width: 100%;
   overflow: auto;
   z-index: 1;
-  outline: 0px;
+  outline: 0;
   list-style: none;
   box-shadow: 0px 2px 6px ${
     theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'

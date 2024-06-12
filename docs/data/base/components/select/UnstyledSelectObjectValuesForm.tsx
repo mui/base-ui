@@ -4,9 +4,9 @@ import {
   SelectProps,
   selectClasses,
   SelectRootSlotProps,
-} from '@base_ui/react/Select';
-import { SelectOption } from '@base_ui/react/useOption';
-import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
+} from '@base_ui/react/legacy/Select';
+import { SelectOption } from '@base_ui/react/legacy/useOption';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/legacy/Option';
 import { styled, Box } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
@@ -208,7 +208,7 @@ const Listbox = styled('ul')(
   border-radius: 8px;
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   overflow: auto;
-  outline: 0px;
+  outline: 0;
   box-shadow: 0px 2px 6px ${
     theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'
   };

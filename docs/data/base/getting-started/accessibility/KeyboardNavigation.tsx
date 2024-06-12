@@ -4,12 +4,15 @@ import {
   SelectProps,
   SelectRootSlotProps,
   selectClasses,
-} from '@base_ui/react/Select';
-import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+} from '@base_ui/react/legacy/Select';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/legacy/Option';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuButton as BaseMenuButton } from '@base_ui/react/legacy/MenuButton';
+import {
+  MenuItem as BaseMenuItem,
+  menuItemClasses,
+} from '@base_ui/react/legacy/MenuItem';
 import { styled, alpha } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
@@ -149,7 +152,7 @@ const Listbox = styled('ul')(
   min-width: 200px;
   border-radius: 12px;
   overflow: auto;
-  outline: 0px;
+  outline: 0;
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { useMenu, MenuProvider } from '@base_ui/react/useMenu';
-import { useMenuItem } from '@base_ui/react/useMenuItem';
-import { Popper } from '@base_ui/react/Popper';
-import { useDropdown, DropdownContext } from '@base_ui/react/useDropdown';
-import { useMenuButton } from '@base_ui/react/useMenuButton';
+import { useMenu, MenuProvider } from '@base_ui/react/legacy/useMenu';
+import { useMenuItem } from '@base_ui/react/legacy/useMenuItem';
+import { Popper } from '@base_ui/react/legacy/Popper';
+import { useDropdown, DropdownContext } from '@base_ui/react/legacy/useDropdown';
+import { useMenuButton } from '@base_ui/react/legacy/useMenuButton';
 import { useTheme } from '@mui/system';
 
 const Menu = React.forwardRef(function Menu(
@@ -136,7 +136,7 @@ function Styles() {
       border-radius: 0.75em;
       color: ${grey[900]};
       overflow: auto;
-      outline: 0px;
+      outline: 0;
       box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.05);
     }
 

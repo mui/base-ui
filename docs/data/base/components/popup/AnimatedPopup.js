@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system';
-import { Unstable_Popup as BasePopup } from '@base_ui/react/Unstable_Popup';
-import { useTransitionStateManager } from '@base_ui/react/useTransition';
+import { Unstable_Popup as BasePopup } from '@base_ui/react/legacy/Unstable_Popup';
+import { useTransitionStateManager } from '@base_ui/react/legacy/useTransition';
 
 export default function AnimatedPopup() {
   const [anchor, setAnchor] = React.useState(null);

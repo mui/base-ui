@@ -1,6 +1,6 @@
 import type * as React from 'react';
 import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
-import type { GenericHTMLProps } from '../../utils/BaseUI.types';
+import type { GenericHTMLProps } from '../../utils/types';
 
 export interface TooltipPositionerParameters {
   /**

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select, selectClasses } from '@base_ui/react/Select';
-import { Option, optionClasses } from '@base_ui/react/Option';
+import { Select, selectClasses } from '@base_ui/react/legacy/Select';
+import { Option, optionClasses } from '@base_ui/react/legacy/Option';
 import { useTheme } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
@@ -135,7 +135,7 @@ function Styles() {
         min-width: 320px;
         border-radius: 12px;
         overflow: auto;
-        outline: 0px;
+        outline: 0;
         background: ${isDarkMode ? grey[900] : '#fff'};
         border: 1px solid ${isDarkMode ? grey[700] : grey[200]};
         color: ${isDarkMode ? grey[300] : grey[900]};

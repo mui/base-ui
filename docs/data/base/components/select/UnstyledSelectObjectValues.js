@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select as BaseSelect, selectClasses } from '@base_ui/react/Select';
-import { Option as BaseOption, optionClasses } from '@base_ui/react/Option';
+import { Select as BaseSelect, selectClasses } from '@base_ui/react/legacy/Select';
+import { Option as BaseOption, optionClasses } from '@base_ui/react/legacy/Option';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
@@ -145,7 +145,7 @@ const Listbox = styled('ul')(
   min-width: 320px;
   border-radius: 12px;
   overflow: auto;
-  outline: 0px;
+  outline: 0;
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};

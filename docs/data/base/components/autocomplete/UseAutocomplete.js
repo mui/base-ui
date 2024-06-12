@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useAutocomplete } from '@base_ui/react/useAutocomplete';
+import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
 import { styled } from '@mui/system';
 
 export default function UseAutocomplete() {
@@ -127,7 +127,7 @@ const Listbox = styled('ul')(
   width: 320px;
   border-radius: 12px;
   overflow: auto;
-  outline: 0px;
+  outline: 0;
   max-height: 300px;
   z-index: 1;
   position: absolute;

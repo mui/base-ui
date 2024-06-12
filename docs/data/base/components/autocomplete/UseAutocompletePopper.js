@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useAutocomplete } from '@base_ui/react/useAutocomplete';
-import { Popper } from '@base_ui/react/Popper';
+import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
+import { Popper } from '@base_ui/react/legacy/Popper';
 import { styled } from '@mui/system';
 import useForkRef from '@mui/utils/useForkRef';
 
@@ -152,7 +152,7 @@ const Listbox = styled('ul')(
   min-width: 320px;
   border-radius: 12px;
   overflow: auto;
-  outline: 0px;
+  outline: 0;
   max-height: 300px;
   z-index: 1;
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};

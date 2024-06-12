@@ -19,12 +19,12 @@
     }
   },
   "name": "OptionGroup",
-  "imports": ["import { OptionGroup } from '@base_ui/react/OptionGroup';"],
+  "imports": ["import { OptionGroup } from '@base_ui/react/legacy/OptionGroup';"],
   "classes": [],
   "spread": true,
   "muiName": "OptionGroup",
   "forwardsRefTo": "HTMLLIElement",
-  "filename": "/packages/mui-base/src/OptionGroup/OptionGroup.tsx",
+  "filename": "/packages/mui-base/src/legacy/OptionGroup/OptionGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false

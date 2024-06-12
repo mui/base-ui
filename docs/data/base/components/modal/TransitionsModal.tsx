@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { styled, css } from '@mui/system';
-import { Modal as BaseModal } from '@base_ui/react/Modal';
+import { Modal as BaseModal } from '@base_ui/react/legacy/Modal';
 import Fade from '@mui/material/Fade';
-import { Button } from '@base_ui/react/Button';
+import { Button } from '@base_ui/react/legacy/Button';
 
 export default function TransitionsModal() {
   const [open, setOpen] = React.useState(false);

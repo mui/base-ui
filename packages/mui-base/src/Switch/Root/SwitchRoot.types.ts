@@ -1,4 +1,4 @@
-import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 export type SwitchOwnerState = {
   checked: boolean;

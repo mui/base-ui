@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button } from '@base_ui/react/Button';
+import { Button } from '@base_ui/react/legacy/Button';
 import { useButton } from '@base_ui/react/useButton';
 import Stack from '@mui/material/Stack';
 

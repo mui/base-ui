@@ -4,17 +4,17 @@ import {
   SelectRootSlotProps,
   SelectProps,
   SelectListboxSlotProps,
-} from '@base_ui/react/Select';
+} from '@base_ui/react/legacy/Select';
 import {
   Option as BaseOption,
   OptionProps,
   OptionOwnerState,
-} from '@base_ui/react/Option';
+} from '@base_ui/react/legacy/Option';
 import { useTheme } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 import clsx from 'clsx';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
-import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/legacy/Transitions';
 
 function useIsDarkMode() {
   const theme = useTheme();

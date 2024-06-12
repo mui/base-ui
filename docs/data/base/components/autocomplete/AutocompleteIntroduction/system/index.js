@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useAutocomplete } from '@base_ui/react/useAutocomplete';
-import { Button } from '@base_ui/react/Button';
-import { Popper } from '@base_ui/react/Popper';
+import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
+import { Button } from '@base_ui/react/legacy/Button';
+import { Popper } from '@base_ui/react/legacy/Popper';
 import { styled } from '@mui/system';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -205,7 +205,7 @@ const StyledListbox = styled('ul')(
   min-width: 320px;
   border-radius: 12px;
   overflow: auto;
-  outline: 0px;
+  outline: 0;
   max-height: 300px;
   z-index: 1;
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};

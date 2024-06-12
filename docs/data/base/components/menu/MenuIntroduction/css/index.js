@@ -1,12 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { Dropdown } from '@base_ui/react/Dropdown';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuItem, menuItemClasses } from '@base_ui/react/legacy/MenuItem';
+import { MenuButton } from '@base_ui/react/legacy/MenuButton';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
 import { useTheme } from '@mui/system';
-import { CssTransition } from '@base_ui/react/Transitions';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/legacy/Transitions';
+import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem) => {
@@ -125,7 +125,7 @@ function Styles() {
       min-width: 200px;
       border-radius: 12px;
       overflow: auto;
-      outline: 0px;
+      outline: 0;
       background: ${isDarkMode ? grey[900] : '#fff'};
       border: 1px solid ${isDarkMode ? grey[700] : grey[200]};
       color: ${isDarkMode ? grey[300] : grey[900]};

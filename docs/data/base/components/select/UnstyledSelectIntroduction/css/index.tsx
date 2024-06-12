@@ -4,12 +4,12 @@ import {
   selectClasses,
   SelectListboxSlotProps,
   SelectRootSlotProps,
-} from '@base_ui/react/Select';
-import { Option, optionClasses } from '@base_ui/react/Option';
+} from '@base_ui/react/legacy/Select';
+import { Option, optionClasses } from '@base_ui/react/legacy/Option';
 import { useTheme } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
-import { CssTransition } from '@base_ui/react/Transitions';
+import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/legacy/Transitions';
 
 export default function UnstyledSelectIntroduction() {
   return (
@@ -172,7 +172,7 @@ function Styles() {
         min-width: 320px;
         border-radius: 12px;
         overflow: auto;
-        outline: 0px;
+        outline: 0;
         background: ${isDarkMode ? grey[900] : '#fff'};
         border: 1px solid ${isDarkMode ? grey[700] : grey[200]};
         color: ${isDarkMode ? grey[300] : grey[900]};
