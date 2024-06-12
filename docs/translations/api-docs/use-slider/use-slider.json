@@ -26,7 +26,7 @@
     "min": {
       "description": "The minimum allowed value of the slider. Should not be equal to max."
     },
-    "minDistanceBetweenValues": {
+    "minDifferenceBetweenValues": {
       "description": "The minimum difference between values in a range slider."
     },
     "name": { "description": "Name attribute of the hidden <code>input</code> element." },
@@ -60,7 +60,7 @@
     },
     "max": { "description": "The maximum allowed value of the slider." },
     "min": { "description": "The minimum allowed value of the slider." },
-    "minDistanceBetweenValues": {
+    "minDifferenceBetweenValues": {
       "description": "The minimum difference between values in a range slider."
     },
     "open": { "description": "The thumb index for the current value when in hover state." },

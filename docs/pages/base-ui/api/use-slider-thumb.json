@@ -17,7 +17,7 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "required": true },
     "min": { "type": { "name": "number", "description": "number" }, "required": true },
-    "minDistanceBetweenValues": {
+    "minDifferenceBetweenValues": {
       "type": { "name": "number", "description": "number" },
       "required": true
     },

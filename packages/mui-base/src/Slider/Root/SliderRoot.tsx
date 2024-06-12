@@ -25,7 +25,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     isRtl = false,
     largeStep,
     render: renderProp,
-    minDistanceBetweenValues,
+    minDifferenceBetweenValues,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
@@ -43,7 +43,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     disabled,
     isRtl,
     largeStep,
-    minDistanceBetweenValues,
+    minDifferenceBetweenValues,
     onValueChange,
     onValueCommitted,
     orientation,
@@ -61,7 +61,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       orientation,
       max: slider.max,
       min: slider.min,
-      minDistanceBetweenValues: slider.minDistanceBetweenValues,
+      minDifferenceBetweenValues: slider.minDifferenceBetweenValues,
       step: slider.step,
       values: slider.values,
     }),
@@ -73,7 +73,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       slider.dragging,
       slider.max,
       slider.min,
-      slider.minDistanceBetweenValues,
+      slider.minDifferenceBetweenValues,
       slider.step,
       slider.values,
     ],
@@ -178,9 +178,9 @@ SliderRoot.propTypes /* remove-proptypes */ = {
   min: PropTypes.number,
   /**
    * The minimum difference between values in a range slider.
-   * @default 1
+   * @default 0
    */
-  minDistanceBetweenValues: PropTypes.number,
+  minDifferenceBetweenValues: PropTypes.number,
   /**
    * Name attribute of the hidden `input` element.
    */

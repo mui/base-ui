@@ -151,10 +151,10 @@ To let users set the start and end of a range on a Slider, provide an array of v
 
 ### Overlapping values
 
-The `minDistanceBetweenValues` prop can be used to to set the mininum difference between values in a range slider, so thumbs do not overlap in the same position. In the below example, the thumbs cannot be moved further towards each other as the difference between values would exceed `minDistanceBetweenValues`:
+The `minDifferenceBetweenValues` prop can be used to to set the mininum difference between values in a range slider, so thumbs do not overlap in the same position. In the below example, the thumbs cannot be moved further towards each other as the difference between values would exceed `minDifferenceBetweenValues`:
 
 ```tsx
-<Slider.Root minDistanceBetweenValues={5} defaultValue={[15, 20]}>
+<Slider.Root minDifferenceBetweenValues={5} defaultValue={[15, 20]}>
   <Slider.Track>
     <Slider.Thumb />
     <Slider.Thumb />

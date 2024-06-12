@@ -36,7 +36,7 @@ export interface UseSliderThumbParameters
     | 'largeStep'
     | 'max'
     | 'min'
-    | 'minDistanceBetweenValues'
+    | 'minDifferenceBetweenValues'
     | 'name'
     | 'orientation'
     | 'percentageValues'

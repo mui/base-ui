@@ -18,7 +18,7 @@
     },
     "max": { "description": "The maximum allowed value of the slider." },
     "min": { "description": "The minimum allowed value of the slider." },
-    "minDistanceBetweenValues": {
+    "minDifferenceBetweenValues": {
       "description": "The minimum difference between values in a range slider."
     },
     "orientation": { "description": "The component orientation." },

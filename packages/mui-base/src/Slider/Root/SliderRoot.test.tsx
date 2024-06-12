@@ -681,7 +681,7 @@ describe('<Slider.Root />', () => {
     });
   });
 
-  describe('prop: minDistanceBetweenValues', () => {
+  describe('prop: minDifferenceBetweenValues', () => {
     it('should enforce a minimum distance between range slider values', () => {
       const handleValueChange = spy();
 
@@ -689,7 +689,7 @@ describe('<Slider.Root />', () => {
         <TestRangeSlider
           onValueChange={handleValueChange}
           defaultValue={[47, 50]}
-          minDistanceBetweenValues={2}
+          minDifferenceBetweenValues={2}
         />,
       );
 
@@ -1371,7 +1371,7 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(thumbOne, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
-        expect(handleValueChange.args[0][0]).to.deep.equal([49, 50]);
+        expect(handleValueChange.args[0][0]).to.deep.equal([50, 50]);
         fireEvent.keyDown(thumbOne, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
 
@@ -1381,7 +1381,7 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(2);
-        expect(handleValueChange.args[1][0]).to.deep.equal([49, 77]);
+        expect(handleValueChange.args[1][0]).to.deep.equal([50, 77]);
       });
     });
 
@@ -1420,7 +1420,7 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(thumbTwo, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
-        expect(handleValueChange.args[0][0]).to.deep.equal([20, 21]);
+        expect(handleValueChange.args[0][0]).to.deep.equal([20, 20]);
         fireEvent.keyDown(thumbTwo, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
 
@@ -1430,7 +1430,7 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(2);
-        expect(handleValueChange.args[1][0]).to.deep.equal([7, 21]);
+        expect(handleValueChange.args[1][0]).to.deep.equal([7, 20]);
       });
     });
 

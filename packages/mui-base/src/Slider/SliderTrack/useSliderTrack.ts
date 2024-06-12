@@ -25,7 +25,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     getFingerNewValue,
     handleValueChange,
     onValueCommitted,
-    minDistanceBetweenValues,
+    minDifferenceBetweenValues,
     percentageValues,
     registerSliderTrack,
     rootRef: externalRef,
@@ -82,7 +82,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
 
     focusThumb({ sliderRef: trackRef, activeIndex, setActive });
 
-    if (validateMinimumDistance(newValue, minDistanceBetweenValues)) {
+    if (validateMinimumDistance(newValue, minDifferenceBetweenValues)) {
       setValueState(newValue);
 
       if (!dragging && moveCount.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {

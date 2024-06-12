@@ -78,7 +78,7 @@ function setValueIndex({
 
 export function validateMinimumDistance(
   values: number | readonly number[],
-  minDistanceBetweenValues: number,
+  minDifferenceBetweenValues: number,
 ) {
   if (!Array.isArray(values)) {
     return true;
@@ -94,7 +94,7 @@ export function validateMinimumDistance(
     return acc;
   }, []);
 
-  return Math.min(...distances) >= minDistanceBetweenValues;
+  return Math.min(...distances) >= minDifferenceBetweenValues;
 }
 
 export function trackFinger(
@@ -146,7 +146,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     marks: marksProp,
     max = 100,
     min = 0,
-    minDistanceBetweenValues = 1,
+    minDifferenceBetweenValues = 0,
     name,
     onValueChange,
     onValueCommitted,
@@ -287,7 +287,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         focusThumb({ sliderRef, activeIndex });
       }
 
-      if (validateMinimumDistance(newValue, minDistanceBetweenValues)) {
+      if (validateMinimumDistance(newValue, minDifferenceBetweenValues)) {
         setValueState(newValue);
 
         if (handleValueChange && !areValuesEqual(newValue)) {
@@ -307,7 +307,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       marksValues,
       max,
       min,
-      minDistanceBetweenValues,
+      minDifferenceBetweenValues,
       onValueCommitted,
       range,
       setValueState,
@@ -376,8 +376,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       if (disableSwap) {
         newValue = clamp(
           newValue,
-          values[activeIndex - 1] + minDistanceBetweenValues || -Infinity,
-          values[activeIndex + 1] - minDistanceBetweenValues || Infinity,
+          values[activeIndex - 1] + minDifferenceBetweenValues || -Infinity,
+          values[activeIndex + 1] - minDifferenceBetweenValues || Infinity,
         );
       }
 
@@ -396,7 +396,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [axis, disableSwap, marksValues, max, min, minDistanceBetweenValues, range, step, values],
+    [axis, disableSwap, marksValues, max, min, minDifferenceBetweenValues, range, step, values],
   );
 
   useEnhancedEffect(() => {
@@ -442,7 +442,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       largeStep,
       max,
       min,
-      minDistanceBetweenValues,
+      minDifferenceBetweenValues,
       name,
       onValueCommitted,
       open,
@@ -475,7 +475,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       largeStep,
       max,
       min,
-      minDistanceBetweenValues,
+      minDifferenceBetweenValues,
       name,
       onValueCommitted,
       open,
