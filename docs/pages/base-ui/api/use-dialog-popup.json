@@ -26,15 +26,16 @@
       },
       "required": true
     },
-    "softClose": {
-      "type": { "name": "SoftCloseOptions", "description": "SoftCloseOptions" },
-      "required": true
-    },
     "titleElementId": {
       "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
-    "id": { "type": { "name": "string", "description": "string" } }
+    "dismissible": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
+    "id": { "type": { "name": "string", "description": "string" } },
+    "keyboardDismissible": {
+      "type": { "name": "boolean", "description": "boolean" },
+      "default": "true"
+    }
   },
   "returnValue": {
     "floatingContext": {

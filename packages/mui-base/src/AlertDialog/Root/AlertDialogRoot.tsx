@@ -4,7 +4,7 @@ import { AlertDialogRootProps } from './AlertDialogRoot.types';
 import { DialogRoot } from '../../Dialog/Root/DialogRoot';
 
 function AlertDialogRoot(props: AlertDialogRootProps) {
-  return <DialogRoot {...props} modal softClose={false} />;
+  return <DialogRoot {...props} modal dismissible={false} keyboardDismissible={false} />;
 }
 
 AlertDialogRoot.propTypes /* remove-proptypes */ = {

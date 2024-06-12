@@ -1,16 +1,11 @@
 {
   "props": {
     "defaultOpen": { "type": { "name": "bool" } },
+    "dismissible": { "type": { "name": "bool" }, "default": "true" },
+    "keyboardDismissible": { "type": { "name": "bool" }, "default": "true" },
     "modal": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
-    "open": { "type": { "name": "bool" } },
-    "softClose": {
-      "type": {
-        "name": "union",
-        "description": "'clickOutside'<br>&#124;&nbsp;'escapeKey'<br>&#124;&nbsp;bool"
-      },
-      "default": "false"
-    }
+    "open": { "type": { "name": "bool" } }
   },
   "name": "DialogRoot",
   "imports": ["import * as Dialog from '@base_ui/react/Dialog';\nconst DialogRoot = Dialog.Root;"],

@@ -1,4 +1,4 @@
-<BaseDialog.Root softClose>
+<BaseDialog.Root>
   <Trigger>Open</Trigger>
   <Popup>
     <Title>Animated dialog</Title>

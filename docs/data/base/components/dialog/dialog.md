@@ -89,25 +89,26 @@ To make the Dialog fully modal, you must have a Backdrop component and style it 
 ## Closing the dialog
 
 The default way to close the dialog is clicking on the `<Dialog.Close>` component.
-It is also possible to implement a soft-close functionality so the dialog closes when the <kbd className="key">Esc</kbd> key is pressed or when users click outside of it.
+Dialogs also close when the user clicks outside of them or presses the <kbd className="key">Esc</kbd> key.
+This behavior can be change by props on the `Dialog.Root`:
 
-Set `softClose` to `true` to support both the <kbd className="key">Esc</kbd> key and clicking outside:
-
-```tsx
-<Dialog.Root softClose>{/* ... */}</Dialog.Root>
-```
-
-Setting the prop to `"clickOutside"` or `"escapeKey"` enables closing the dialog via one of these methods:
+Setting the `dismissible` prop to `false` disables closing by clicking outside:
 
 ```tsx
-<Dialog.Root softClose="clickOutside">{/* ... */}</Dialog.Root>
+<Dialog.Root dismissible={false}>{/* ... */}</Dialog.Root>
 ```
+
+The `keyboardDismissible` prop works similarly, but for the <kbd className="key">Esc</kbd> key:
 
 ```tsx
-<Dialog.Root softClose="escapeKey">{/* ... */}</Dialog.Root>
+<Dialog.Root keyboardDismissible={false}>{/* ... */}</Dialog.Root>
 ```
 
-By default dialogs don't enable soft-closing.
+You can combine the above props to make the Dialog close only by interacting with its Close button (or programmatically):
+
+```tsx
+<Dialog.Root dismissible={false} keyboardDismissible={false}>{/* ... */}</Dialog.Root>
+```
 
 ## Controlled vs. uncontrolled behavior
 

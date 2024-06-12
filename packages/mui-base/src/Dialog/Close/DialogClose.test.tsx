@@ -10,7 +10,7 @@ describe('<Dialog.Close />', () => {
     refInstanceof: window.HTMLButtonElement,
     render: (node) => {
       return render(
-        <Dialog.Root open>
+        <Dialog.Root open modal={false}>
           <Dialog.Popup animated={false}>{node}</Dialog.Popup>
         </Dialog.Root>,
       );

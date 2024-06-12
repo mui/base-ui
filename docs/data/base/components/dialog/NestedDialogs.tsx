@@ -4,17 +4,17 @@ import { styled } from '@mui/system';
 
 export default function NestedDialogs() {
   return (
-    <BaseDialog.Root softClose>
+    <BaseDialog.Root>
       <Trigger>Open</Trigger>
       <Popup>
         <Title>Dialog 1</Title>
         <Controls>
-          <BaseDialog.Root softClose>
+          <BaseDialog.Root>
             <Trigger>Open Nested</Trigger>
             <Popup>
               <Title>Dialog 2</Title>
               <Controls>
-                <BaseDialog.Root softClose>
+                <BaseDialog.Root>
                   <Trigger>Open Nested</Trigger>
                   <Popup>
                     <Title>Dialog 3</Title>

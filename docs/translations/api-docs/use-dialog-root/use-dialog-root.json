@@ -4,16 +4,19 @@
     "defaultOpen": {
       "description": "Determines whether the dialog is initally open. This is an uncontrolled equivalent of the <code>open</code> prop."
     },
+    "dismissible": {
+      "description": "Determines whether the dialog should close when clicking outside of it."
+    },
+    "keyboardDismissible": {
+      "description": "Determines whether the dialog should close when pressing the escape key."
+    },
     "modal": { "description": "Determines whether the dialog is modal." },
     "onNestedDialogClose": { "description": "Callback to invoke when a nested dialog is closed." },
     "onNestedDialogOpen": { "description": "Callback to invoke when a nested dialog is opened." },
     "onOpenChange": {
       "description": "Callback invoked when the dialog is being opened or closed."
     },
-    "open": { "description": "Determines whether the dialog is open." },
-    "softClose": {
-      "description": "Determines whether the dialog should close when clicking outside of it or pressing the escape key."
-    }
+    "open": { "description": "Determines whether the dialog is open." }
   },
   "returnValueDescriptions": {
     "descriptionElementId": {
@@ -28,14 +31,14 @@
     },
     "open": { "description": "Determines if the dialog is open." },
     "popupElementId": { "description": "The id of the popup element." },
+    "setBackdropPresent": {
+      "description": "Callback to notify the dialog that the backdrop is present."
+    },
     "setDescriptionElementId": {
       "description": "Callback to set the id of the description element associated with the dialog."
     },
     "setPopupElementId": { "description": "Callback to set the id of the popup element." },
     "setTitleElementId": { "description": "Callback to set the id of the title element." },
-    "softClose": {
-      "description": "Determines whether the dialog should close when clicking outside of it or pressing the escape key."
-    },
     "titleElementId": { "description": "The id of the title element associated with the dialog." }
   }
 }

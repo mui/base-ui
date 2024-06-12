@@ -1,5 +1,3 @@
-export type SoftCloseOptions = boolean | 'clickOutside' | 'escapeKey';
-
 interface DialogRootParameters {
   /**
    * Determines whether the dialog is open.
@@ -20,10 +18,15 @@ interface DialogRootParameters {
    */
   onOpenChange?: (open: boolean) => void;
   /**
-   * Determines whether the dialog should close when clicking outside of it or pressing the escape key.
-   * @default false
+   * Determines whether the dialog should close when clicking outside of it.
+   * @default true
    */
-  softClose?: SoftCloseOptions;
+  dismissible?: boolean;
+  /**
+   * Determines whether the dialog should close when pressing the escape key.
+   * @default true
+   */
+  keyboardDismissible?: boolean;
 }
 
 export interface DialogRootProps extends DialogRootParameters {
@@ -91,10 +94,6 @@ export interface UseDialogRootReturnValue {
    */
   setTitleElementId: (elementId: string | undefined) => void;
   /**
-   * Determines whether the dialog should close when clicking outside of it or pressing the escape key.
-   */
-  softClose: SoftCloseOptions;
-  /**
    * The id of the title element associated with the dialog.
    */
   titleElementId: string | undefined;
@@ -105,4 +104,14 @@ export interface DialogRootContextValue extends UseDialogRootReturnValue {
    * Determines if the dialog is nested within a parent dialog.
    */
   hasParentDialog: boolean;
+  /**
+   * Determines whether the dialog should close when clicking outside of it.
+   * @default true
+   */
+  dismissible?: boolean;
+  /**
+   * Determines whether the dialog should close when pressing the escape key.
+   * @default true
+   */
+  keyboardDismissible?: boolean;
 }

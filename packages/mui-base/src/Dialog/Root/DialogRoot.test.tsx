@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, createRenderer, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
+import { createRenderer } from '../../../test';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
 
   describe('uncontrolled mode', () => {
-    it('should open the dialog with the trigger', () => {
-      const { queryByRole, getByRole } = render(
-        <Dialog.Root>
+    it('should open the dialog with the trigger', async () => {
+      const { queryByRole, getByRole } = await render(
+        <Dialog.Root modal={false}>
           <Dialog.Trigger />
           <Dialog.Popup animated={false} />
         </Dialog.Root>,
@@ -28,9 +29,9 @@ describe('<Dialog.Root />', () => {
   });
 
   describe('controlled mode', () => {
-    it('should open and close the dialog with the `open` prop', () => {
-      const { queryByRole, setProps } = render(
-        <Dialog.Root open={false}>
+    it('should open and close the dialog with the `open` prop', async () => {
+      const { queryByRole, setProps } = await render(
+        <Dialog.Root open={false} modal={false}>
           <Dialog.Popup animated={false} />
         </Dialog.Root>,
       );
@@ -46,8 +47,8 @@ describe('<Dialog.Root />', () => {
   });
 
   describe('prop: modal', () => {
-    it('warns when the dialog is modal but no backdrop is present', () => {
-      expect(() =>
+    it('warns when the dialog is modal but no backdrop is present', async () => {
+      await expect(() =>
         render(
           <Dialog.Root modal>
             <Dialog.Popup animated={false} />
@@ -81,20 +82,24 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: softClose', () => {
+  describe('prop: keyboardDismissible', () => {
     (
       [
         [true, true],
-        ['escapeKey', true],
-        ['clickOutside', false],
         [false, false],
+        [undefined, true],
       ] as const
-    ).forEach(([softClose, expectClosed]) => {
-      it(`${expectClosed ? 'closes' : 'does not close'} the dialog when pressing Esc if softClose=${softClose}`, () => {
+    ).forEach(([keyboardDismissible, expectDismissed]) => {
+      it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when pressing Esc if keyboardDismissible=${keyboardDismissible}`, async () => {
         const handleOpenChange = spy();
 
-        const { getByTestId, queryByRole } = render(
-          <Dialog.Root defaultOpen onOpenChange={handleOpenChange} softClose={softClose}>
+        const { getByTestId, queryByRole } = await render(
+          <Dialog.Root
+            defaultOpen
+            onOpenChange={handleOpenChange}
+            keyboardDismissible={keyboardDismissible}
+            modal={false}
+          >
             <Dialog.Popup animated={false}>
               <div tabIndex={0} data-testid="content" />
             </Dialog.Popup>
@@ -110,9 +115,9 @@ describe('<Dialog.Root />', () => {
         // keyDown not targetted at anything specific
         // eslint-disable-next-line material-ui/disallow-active-element-as-key-event-target
         fireEvent.keyDown(document.activeElement!, { key: 'Esc' });
-        expect(handleOpenChange.calledOnce).to.equal(expectClosed);
+        expect(handleOpenChange.calledOnce).to.equal(expectDismissed);
 
-        if (expectClosed) {
+        if (expectDismissed) {
           expect(queryByRole('dialog')).to.equal(null);
         } else {
           expect(queryByRole('dialog')).not.to.equal(null);
@@ -123,17 +128,21 @@ describe('<Dialog.Root />', () => {
     (
       [
         [true, true],
-        ['clickOutside', true],
-        ['escapeKey', false],
         [false, false],
+        [undefined, true],
       ] as const
-    ).forEach(([softClose, expectClosed]) => {
-      it(`${expectClosed ? 'closes' : 'does not close'} the dialog when clicking outside if softClose=${softClose}`, () => {
+    ).forEach(([dismissible, expectDismissed]) => {
+      it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when clicking outside if dismissible=${dismissible}`, async () => {
         const handleOpenChange = spy();
 
-        const { getByTestId, queryByRole } = render(
+        const { getByTestId, queryByRole } = await render(
           <div data-testid="outside">
-            <Dialog.Root defaultOpen onOpenChange={handleOpenChange} softClose={softClose}>
+            <Dialog.Root
+              defaultOpen
+              onOpenChange={handleOpenChange}
+              dismissible={dismissible}
+              modal={false}
+            >
               <Dialog.Popup animated={false} />
             </Dialog.Root>
           </div>,
@@ -142,9 +151,9 @@ describe('<Dialog.Root />', () => {
         const outside = getByTestId('outside');
 
         fireEvent.mouseDown(outside);
-        expect(handleOpenChange.calledOnce).to.equal(expectClosed);
+        expect(handleOpenChange.calledOnce).to.equal(expectDismissed);
 
-        if (expectClosed) {
+        if (expectDismissed) {
           expect(queryByRole('dialog')).to.equal(null);
         } else {
           expect(queryByRole('dialog')).not.to.equal(null);
@@ -161,10 +170,10 @@ describe('<Dialog.Root />', () => {
     });
 
     it('should focus the first focusable element within the popup', async () => {
-      const { getByText, getByTestId } = render(
+      const { getByText, getByTestId } = await render(
         <div>
           <input />
-          <Dialog.Root>
+          <Dialog.Root modal={false}>
             <Dialog.Trigger>Open</Dialog.Trigger>
             <Dialog.Popup data-testid="dialog" animated={false}>
               <input data-testid="dialog-input" />

@@ -7,8 +7,14 @@
     "descriptionElementId": {
       "description": "The id of the description element associated with the dialog."
     },
+    "dismissible": {
+      "description": "Determines whether the dialog should close when clicking outside of it."
+    },
     "id": { "description": "The id of the dialog element." },
     "isTopmost": { "description": "Determines if the dialog is the top-most one." },
+    "keyboardDismissible": {
+      "description": "Determines whether the dialog should close when pressing the escape key."
+    },
     "modal": { "description": "Determines if the dialog is modal." },
     "onOpenChange": {
       "description": "Callback fired when the dialog is requested to be opened or closed."
@@ -16,9 +22,6 @@
     "open": { "description": "Determines if the dialog is open." },
     "ref": { "description": "The ref to the dialog element." },
     "setPopupElementId": { "description": "Callback to set the id of the popup element." },
-    "softClose": {
-      "description": "Determines whether the dialog should close when clicking outside of it or pressing the escape key."
-    },
     "titleElementId": { "description": "The id of the title element associated with the dialog." }
   },
   "returnValueDescriptions": {

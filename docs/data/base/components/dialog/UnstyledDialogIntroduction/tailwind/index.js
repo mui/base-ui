@@ -3,7 +3,7 @@ import * as Dialog from '@base_ui/react/Dialog';
 
 export default function UnstyledDialogIntroduction() {
   return (
-    <Dialog.Root softClose>
+    <Dialog.Root>
       <TriggerButton>Subscribe</TriggerButton>
       <Backdrop />
       <Popup>

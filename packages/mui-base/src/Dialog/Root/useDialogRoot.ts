@@ -18,7 +18,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     defaultOpen = false,
     onOpenChange,
     modal = true,
-    softClose = false,
     onNestedDialogOpen,
     onNestedDialogClose,
   } = parameters;
@@ -94,7 +93,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
       modal,
       onOpenChange: handleOpenChange,
       open,
-      softClose,
       titleElementId,
       setTitleElementId,
       descriptionElementId,
@@ -113,7 +111,6 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     titleElementId,
     descriptionElementId,
     popupElementId,
-    softClose,
     handleNestedDialogClose,
     handleNestedDialogOpen,
     ownNestedOpenDialogs,

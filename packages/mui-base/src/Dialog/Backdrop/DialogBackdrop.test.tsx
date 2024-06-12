@@ -10,7 +10,11 @@ describe('<Dialog.Backdrop />', () => {
   describeConformance(<Dialog.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
-      return render(<Dialog.Root open>{node}</Dialog.Root>);
+      return render(
+        <Dialog.Root open modal={false}>
+          {node}
+        </Dialog.Root>,
+      );
     },
     skip: ['reactTestRenderer'],
   }));

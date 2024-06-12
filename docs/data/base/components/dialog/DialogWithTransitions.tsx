@@ -4,7 +4,7 @@ import { styled } from '@mui/system';
 
 export default function DialogWithTransitions() {
   return (
-    <BaseDialog.Root softClose>
+    <BaseDialog.Root>
       <Trigger>Open</Trigger>
       <Popup>
         <Title>Animated dialog</Title>

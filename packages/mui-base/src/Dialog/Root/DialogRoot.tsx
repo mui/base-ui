@@ -5,7 +5,15 @@ import { DialogRootContext } from './DialogRootContext';
 import { useDialogRoot } from './useDialogRoot';
 
 const DialogRoot = function DialogRoot(props: DialogRootProps) {
-  const { children, defaultOpen, modal = true, onOpenChange, open: openProp, softClose } = props;
+  const {
+    children,
+    defaultOpen,
+    modal = true,
+    onOpenChange,
+    open: openProp,
+    dismissible,
+    keyboardDismissible,
+  } = props;
 
   const dialogRootContext = React.useContext(DialogRootContext);
 
@@ -14,7 +22,8 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     defaultOpen,
     onOpenChange,
     modal,
-    softClose,
+    dismissible,
+    keyboardDismissible,
     onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: dialogRootContext?.onNestedDialogOpen,
   });
@@ -22,8 +31,8 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
   const hasParentDialog = Boolean(dialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog }),
-    [dialogRoot, hasParentDialog],
+    () => ({ ...dialogRoot, hasParentDialog, dismissible, keyboardDismissible }),
+    [dialogRoot, hasParentDialog, dismissible, keyboardDismissible],
   );
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
@@ -44,6 +53,16 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
+   * Determines whether the dialog should close when clicking outside of it.
+   * @default true
+   */
+  dismissible: PropTypes.bool,
+  /**
+   * Determines whether the dialog should close when pressing the escape key.
+   * @default true
+   */
+  keyboardDismissible: PropTypes.bool,
+  /**
    * Determines whether the dialog is modal.
    * @default true
    */
@@ -56,11 +75,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * Determines whether the dialog is open.
    */
   open: PropTypes.bool,
-  /**
-   * Determines whether the dialog should close when clicking outside of it or pressing the escape key.
-   * @default false
-   */
-  softClose: PropTypes.oneOfType([PropTypes.oneOf(['clickOutside', 'escapeKey']), PropTypes.bool]),
 } as any;
 
 export { DialogRoot };

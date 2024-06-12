@@ -11,7 +11,7 @@ const NESTED_DIALOGS = 8;
 interface DemoProps {
   keepMounted: boolean;
   modal: boolean;
-  softClose: boolean;
+  dismissible: boolean;
 }
 
 function renderContent(
@@ -19,7 +19,7 @@ function renderContent(
   includeNested: number,
   nestedClassName: string,
   modal: boolean,
-  softClose: boolean,
+  dismissible: boolean,
 ) {
   return (
     <React.Fragment>
@@ -39,7 +39,7 @@ function renderContent(
 
       <div className={classes.controls}>
         {includeNested > 0 ? (
-          <Dialog.Root modal={modal} softClose={softClose}>
+          <Dialog.Root modal={modal} dismissible={dismissible}>
             <Dialog.Trigger className={classes.button}>Open nested</Dialog.Trigger>
             <Dialog.Backdrop className={clsx(classes.backdrop, nestedClassName)} />
             <Dialog.Popup className={clsx(classes.dialog, nestedClassName)}>
@@ -48,7 +48,7 @@ function renderContent(
                 includeNested - 1,
                 nestedClassName,
                 modal,
-                softClose,
+                dismissible,
               )}
             </Dialog.Popup>
           </Dialog.Root>
@@ -60,10 +60,10 @@ function renderContent(
   );
 }
 
-function CssTransitionDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
+function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} softClose={softClose}>
+      <Dialog.Root modal={modal} dismissible={dismissible}>
         <Dialog.Trigger className={classes.button}>Open with CSS transition</Dialog.Trigger>
 
         <Dialog.Backdrop
@@ -80,7 +80,7 @@ function CssTransitionDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
             NESTED_DIALOGS,
             classes.withTransitions,
             modal,
-            softClose,
+            dismissible,
           )}
         </Dialog.Popup>
       </Dialog.Root>
@@ -88,10 +88,10 @@ function CssTransitionDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
   );
 }
 
-function CssAnimationDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
+function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} softClose={softClose}>
+      <Dialog.Root modal={modal} dismissible={dismissible}>
         <Dialog.Trigger className={classes.button}>Open with CSS animation</Dialog.Trigger>
 
         <Dialog.Backdrop
@@ -108,7 +108,7 @@ function CssAnimationDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
             NESTED_DIALOGS,
             classes.withAnimations,
             modal,
-            softClose,
+            dismissible,
           )}
         </Dialog.Popup>
       </Dialog.Root>
@@ -118,12 +118,12 @@ function CssAnimationDialogDemo({ keepMounted, modal, softClose }: DemoProps) {
 
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ReactSpringDialogDemo({ animated, keepMounted, modal, softClose }: DemoProps) {
+function ReactSpringDialogDemo({ animated, keepMounted, modal, dismissible }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root softClose open={open} onOpenChange={setOpen}>
+      <Dialog.Root dismissible open={open} onOpenChange={setOpen}>
         <Dialog.Trigger className={classes.button}>
           Open with React Spring transition
         </Dialog.Trigger>
@@ -144,7 +144,7 @@ function ReactSpringDialogDemo({ animated, keepMounted, modal, softClose }: Demo
               3,
               classes.withReactSpringTransition,
               modal,
-              softClose,
+              dismissible,
             )}
           </Dialog.Popup>
         </ReactSpringTransition>
@@ -191,13 +191,13 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
 export default function DialogExperiment() {
   const [keepMounted, setKeepMounted] = React.useState(false);
   const [modal, setModal] = React.useState(true);
-  const [softClose, setSoftClose] = React.useState(false);
+  const [dismissible, setDismissible] = React.useState(false);
 
   return (
     <div className={classes.page}>
       <h1>Dialog</h1>
-      <CssTransitionDialogDemo keepMounted={keepMounted} modal={modal} softClose={softClose} />
-      <CssAnimationDialogDemo keepMounted={keepMounted} modal={modal} softClose={softClose} />
+      <CssTransitionDialogDemo keepMounted={keepMounted} modal={modal} dismissible={dismissible} />
+      <CssAnimationDialogDemo keepMounted={keepMounted} modal={modal} dismissible={dismissible} />
 
       <h2>Options</h2>
       <label>
@@ -219,8 +219,8 @@ export default function DialogExperiment() {
       <label>
         <input
           type="checkbox"
-          checked={softClose}
-          onChange={(event) => setSoftClose(event.target.checked)}
+          checked={dismissible}
+          onChange={(event) => setDismissible(event.target.checked)}
         />{' '}
         Soft-close
       </label>

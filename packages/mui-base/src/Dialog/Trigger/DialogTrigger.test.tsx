@@ -9,7 +9,11 @@ describe('<Dialog.Trigger />', () => {
   describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render: (node) => {
-      return render(<Dialog.Root open>{node}</Dialog.Root>);
+      return render(
+        <Dialog.Root open modal={false}>
+          {node}
+        </Dialog.Root>,
+      );
     },
     skip: ['reactTestRenderer'],
   }));

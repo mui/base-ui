@@ -5,7 +5,7 @@ import { useTheme } from '@mui/system';
 export default function UnstyledDialogIntroduction() {
   return (
     <React.Fragment>
-      <Dialog.Root softClose>
+      <Dialog.Root>
         <Dialog.Trigger className="trigger">Subscribe</Dialog.Trigger>
         <Dialog.Backdrop className="backdrop" />
         <Dialog.Popup className="popup">

@@ -4,7 +4,7 @@ import { styled } from '@mui/system';
 
 export default function UnstyledDialogIntroduction() {
   return (
-    <Dialog.Root softClose>
+    <Dialog.Root>
       <TriggerButton>Subscribe</TriggerButton>
       <Backdrop />
       <Popup>
