@@ -70,9 +70,9 @@ describe('<Slider.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Slider.Root defaultValue={50} />, () => ({
-    inheritComponent: 'span',
+    inheritComponent: 'div',
     render,
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 
   it('renders a slider', () => {

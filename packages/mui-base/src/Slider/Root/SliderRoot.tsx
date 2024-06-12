@@ -9,8 +9,8 @@ import { useSliderRoot } from './useSliderRoot';
 import { SliderProvider } from './SliderProvider';
 import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
 
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
+function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
+  return <div {...props} />;
 }
 
 const SliderRoot = React.forwardRef(function SliderRoot(

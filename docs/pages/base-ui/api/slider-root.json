@@ -58,7 +58,7 @@
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderRoot",
-  "forwardsRefTo": "HTMLSpanElement",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/Slider/Root/SliderRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-slider/\">Slider</a></li></ul>",
