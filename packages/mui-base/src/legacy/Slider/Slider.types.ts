@@ -1,7 +1,7 @@
 import { Simplify } from '@mui/types';
 import * as React from 'react';
-import { PolymorphicProps } from '../legacy/utils/PolymorphicComponent';
-import { SlotComponentProps, SlotComponentPropsWithSlotState } from '../legacy/utils/types';
+import { PolymorphicProps } from '../utils/PolymorphicComponent';
+import { SlotComponentProps, SlotComponentPropsWithSlotState } from '../utils/types';
 import {
   UseSliderHiddenInputProps,
   UseSliderParameters,

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTheme, alpha } from '@mui/system';
-import { Slider, sliderClasses } from '@base_ui/react/v5_Slider';
+import { Slider, sliderClasses } from '@base_ui/react/legacy/Slider';
 
 export default function App() {
   return (

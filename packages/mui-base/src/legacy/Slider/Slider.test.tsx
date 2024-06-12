@@ -8,7 +8,7 @@ import {
   SliderRootSlotProps,
   SliderValueLabelSlotProps,
 } from './index';
-import { describeConformanceUnstyled } from '../../test/describeConformanceUnstyled';
+import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 

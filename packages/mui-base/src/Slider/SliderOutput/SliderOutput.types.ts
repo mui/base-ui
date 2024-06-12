@@ -1,4 +1,4 @@
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
 export interface SliderOutputProps extends BaseUIComponentProps<'output', SliderRootOwnerState> {}
