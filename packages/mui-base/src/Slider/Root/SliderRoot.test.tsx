@@ -117,7 +117,7 @@ describe('<Slider.Root />', () => {
       const slider = getByRole('slider');
       const input = container.querySelector('input');
 
-      expect(root).not.to.have.attribute('aria-labelledby');
+      expect(root).to.have.attribute('aria-labelledby', 'labelId');
 
       expect(slider).to.have.attribute('aria-valuenow', '30');
       expect(slider).to.have.attribute('aria-valuemin', '0');

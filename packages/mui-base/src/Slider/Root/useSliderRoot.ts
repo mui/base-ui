@@ -416,12 +416,13 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const getRootProps: UseSliderReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
+        'aria-labelledby': ariaLabelledby,
+        dir: isRtl ? 'rtl' : 'ltr',
         ref: handleRootRef,
         role: 'group',
-        dir: isRtl ? 'rtl' : 'ltr',
         ...externalProps,
       }),
-    [handleRootRef, isRtl],
+    [ariaLabelledby, handleRootRef, isRtl],
   );
 
   return React.useMemo(
