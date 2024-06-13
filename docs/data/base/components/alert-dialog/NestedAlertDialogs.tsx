@@ -6,16 +6,19 @@ export default function NestedAlertDialogs() {
   return (
     <BaseAlertDialog.Root>
       <Trigger>Open</Trigger>
+      <Backdrop />
       <Popup>
         <Title>Alert Dialog 1</Title>
         <Controls>
           <BaseAlertDialog.Root>
             <Trigger>Open Nested</Trigger>
+            <Backdrop />
             <Popup>
               <Title>Alert Dialog 2</Title>
               <Controls>
                 <BaseAlertDialog.Root>
                   <Trigger>Open Nested</Trigger>
+                  <Backdrop />
                   <Popup>
                     <Title>Alert Dialog 3</Title>
                     <Controls>
@@ -108,6 +111,29 @@ const Trigger = styled(BaseAlertDialog.Trigger)(
   }
 `,
 );
+
+const Backdrop = styled(BaseAlertDialog.Backdrop)`
+  background-color: rgb(0 0 0 / 0.2);
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  backdrop-filter: blur(0);
+  opacity: 0;
+  transition-property: opacity, backdrop-filter;
+  transition-duration: 250ms;
+  transition-timing-function: ease-in;
+
+  &[data-state='open'] {
+    backdrop-filter: blur(6px);
+    opacity: 1;
+    transition-timing-function: ease-out;
+  }
+
+  &[data-entering] {
+    backdrop-filter: blur(0);
+    opacity: 0;
+  }
+`;
 
 const Close = styled(BaseAlertDialog.Close)(
   ({ theme }) => `

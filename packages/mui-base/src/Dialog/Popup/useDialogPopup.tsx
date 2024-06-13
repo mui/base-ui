@@ -40,8 +40,6 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
 
   const popupRef = React.useRef<HTMLElement | null>(null);
 
-  useScrollLock(modal && open);
-
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
     outsidePress: isTopmost && dismissible,
@@ -57,6 +55,8 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     ref: popupRef,
     enabled: animated,
   });
+
+  useScrollLock(modal && mounted);
 
   React.useEffect(() => {
     setPopupElementId(id);

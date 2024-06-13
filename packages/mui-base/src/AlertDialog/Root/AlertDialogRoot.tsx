@@ -14,8 +14,6 @@ function AlertDialogRoot(props: AlertDialogRootProps) {
     defaultOpen,
     onOpenChange,
     modal: true,
-    dismissible: false,
-    keyboardDismissible: false,
     onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: dialogRootContext?.onNestedDialogOpen,
   });

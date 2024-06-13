@@ -119,6 +119,8 @@ The number of open child dialogs is present in the `data-nested-dialogs` attribu
 
 {{"demo": "NestedAlertDialogs.js"}}
 
+Note that when dialogs are nested, only the bottom-most backdrop is rendered.
+
 ## Animation
 
 The `<AlertDialog.Popup>` and `<AlertDialog.Backdrop>` components support transitions on entry and exit.

@@ -6,16 +6,19 @@ export default function NestedDialogs() {
   return (
     <BaseDialog.Root>
       <Trigger>Open</Trigger>
+      <Backdrop />
       <Popup>
         <Title>Dialog 1</Title>
         <Controls>
           <BaseDialog.Root>
             <Trigger>Open Nested</Trigger>
+            <Backdrop />
             <Popup>
               <Title>Dialog 2</Title>
               <Controls>
                 <BaseDialog.Root>
                   <Trigger>Open Nested</Trigger>
+                  <Backdrop />
                   <Popup>
                     <Title>Dialog 3</Title>
                     <Controls>
@@ -124,6 +127,29 @@ const Close = styled(BaseDialog.Close)(
   }
 `,
 );
+
+const Backdrop = styled(BaseDialog.Backdrop)`
+  background-color: rgb(0 0 0 / 0.2);
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  backdrop-filter: blur(0);
+  opacity: 0;
+  transition-property: opacity, backdrop-filter;
+  transition-duration: 250ms;
+  transition-timing-function: ease-in;
+
+  &[data-state='open'] {
+    backdrop-filter: blur(6px);
+    opacity: 1;
+    transition-timing-function: ease-out;
+  }
+
+  &[data-entering] {
+    backdrop-filter: blur(0);
+    opacity: 0;
+  }
+`;
 
 const Controls = styled('div')(
   ({ theme }) => `
