@@ -7,17 +7,11 @@ import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderOutputProps } from './SliderOutput.types';
 import { useSliderOutput } from './useSliderOutput';
 
-function defaultRender(props: React.ComponentPropsWithRef<'output'>) {
-  return <output {...props} />;
-}
-
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutputProps,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
-  const { render: renderProp, className, ...otherProps } = props;
-
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...otherProps } = props;
 
   const { ownerState, subitems, values } = useSliderContext();
 
@@ -28,7 +22,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render,
+    render: render ?? 'output',
     ownerState,
     className,
     ref: forwardedRef,
