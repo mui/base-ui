@@ -5,6 +5,14 @@ import { act, fireEvent } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
 import { createRenderer } from '../../../test';
 
+async function wait(timeout: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, timeout);
+  });
+}
+
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
 
@@ -147,7 +155,9 @@ describe('<Dialog.Root />', () => {
         trigger.click();
       });
 
-      await act(() => async () => {});
+      // wait for the focus to be settled (takes some time on CI)
+      await wait(50);
+
       const dialogInput = getByTestId('dialog-input');
       expect(dialogInput).to.toHaveFocus();
     });
