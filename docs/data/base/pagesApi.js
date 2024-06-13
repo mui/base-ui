@@ -1,11 +1,31 @@
 module.exports = [
   {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-backdrop',
+    title: 'AlertDialogBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-close',
+    title: 'AlertDialogClose',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-description',
+    title: 'AlertDialogDescription',
+  },
+  {
     pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-popup',
     title: 'AlertDialogPopup',
   },
   {
     pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-root',
     title: 'AlertDialogRoot',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-title',
+    title: 'AlertDialogTitle',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-trigger',
+    title: 'AlertDialogTrigger',
   },
   { pathname: '/base-ui/react-badge/components-api/#badge', title: 'Badge' },
   { pathname: '/base-ui/react-button/components-api/#button', title: 'Button' },
