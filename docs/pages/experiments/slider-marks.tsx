@@ -32,7 +32,8 @@ function getSliderThumbAriaValueText(value: number) {
 
 function MarkWithLabel(props: { index: number; value: number; label: string; inverted?: boolean }) {
   const { index, value, label, inverted = false } = props;
-  const { isRtl, values } = useSliderContext();
+  const { direction, values } = useSliderContext();
+  const isRtl = direction === 'rtl';
   const isFilled = inverted ? value >= values[0] : values[0] >= value;
   return (
     <React.Fragment>
@@ -90,7 +91,7 @@ export default function App() {
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="TempSlider" defaultValue={40} isRtl>
+      <Slider.Root className="TempSlider" defaultValue={40} direction="rtl">
         <pre>RTL</pre>
         <Slider.Output className="TempSlider-output" />
         <Slider.Track className="TempSlider-track">
@@ -131,7 +132,7 @@ export default function App() {
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="TempSlider" defaultValue={40} isRtl>
+      <Slider.Root className="TempSlider" defaultValue={40} direction="rtl">
         <pre>RTL inverted fill</pre>
         <Slider.Output className="TempSlider-output" />
         <Slider.Track className="TempSlider-track">

@@ -25,9 +25,11 @@ export const TrackFill = React.forwardRef(function TrackFill(
   // does not support inverted range fill! (yet)
   const { inverted = false, style, ...otherProps } = props;
 
-  const { axis, disabled, isRtl, orientation, percentageValues } = useSliderContext();
+  const { axis, direction, disabled, orientation, percentageValues } = useSliderContext();
 
   const isRange = percentageValues.length > 1;
+
+  const isRtl = direction === 'rtl';
 
   let internalStyles;
 

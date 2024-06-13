@@ -139,8 +139,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
     defaultValue,
+    direction = 'ltr',
     disabled = false,
-    isRtl = false,
     largeStep = 10,
     marks: marksProp,
     max = 100,
@@ -306,7 +306,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const previousIndex = React.useRef<number>();
   let axis = orientation;
-  if (isRtl && orientation === 'horizontal') {
+  if (direction === 'rtl' && orientation === 'horizontal') {
     axis += '-reverse';
   }
 
@@ -403,12 +403,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-labelledby': ariaLabelledby,
-        dir: isRtl ? 'rtl' : 'ltr',
+        dir: direction,
         ref: handleRootRef,
         role: 'group',
         ...externalProps,
       }),
-    [ariaLabelledby, handleRootRef, isRtl],
+    [ariaLabelledby, direction, handleRootRef],
   );
 
   return React.useMemo(
@@ -421,10 +421,10 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       changeValue,
       compoundComponentContextValue,
       dragging,
+      direction,
       disabled,
       getFingerNewValue,
       handleValueChange,
-      isRtl,
       largeStep,
       max,
       min,
@@ -454,10 +454,10 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       changeValue,
       compoundComponentContextValue,
       dragging,
+      direction,
       disabled,
       getFingerNewValue,
       handleValueChange,
-      isRtl,
       largeStep,
       max,
       min,

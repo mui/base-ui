@@ -49,11 +49,11 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     'aria-valuetext': ariaValuetext,
     axis,
     changeValue,
+    direction,
     disabled,
     getAriaLabel,
     getAriaValueText,
     id: idParam,
-    isRtl,
     largeStep,
     max,
     min,
@@ -88,6 +88,8 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const thumbValue = sliderValues[index];
 
   const percent = percentageValues[index];
+
+  const isRtl = direction === 'rtl';
 
   const getThumbStyle = React.useCallback(() => {
     return {

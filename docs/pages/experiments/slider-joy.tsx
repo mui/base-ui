@@ -92,7 +92,9 @@ const SliderTrackFill = React.forwardRef(function SliderTrackFill(
 ) {
   const { style, ...otherProps } = props;
 
-  const { axis, disabled, isRtl, orientation, percentageValues } = Slider.useSliderContext();
+  const { axis, direction, disabled, orientation, percentageValues } = Slider.useSliderContext();
+
+  const isRtl = direction === 'rtl';
 
   const isRange = percentageValues.length > 1;
 

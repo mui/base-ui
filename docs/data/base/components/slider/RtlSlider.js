@@ -8,7 +8,7 @@ export default function RtlSlider() {
   const isDarkMode = useIsDarkMode();
   return (
     <Box className={isDarkMode ? 'dark' : ''} sx={{ width: 320, margin: '32px' }}>
-      <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel" isRtl>
+      <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel" direction="rtl">
         <Label id="VolumeSliderLabel">Volume (RTL)</Label>
         <SliderOutput />
         <SliderTrack>

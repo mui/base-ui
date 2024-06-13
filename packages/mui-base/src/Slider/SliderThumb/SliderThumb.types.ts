@@ -32,7 +32,7 @@ export interface UseSliderThumbParameters
     | 'aria-labelledby'
     | 'axis'
     | 'changeValue'
-    | 'isRtl'
+    | 'direction'
     | 'largeStep'
     | 'max'
     | 'min'

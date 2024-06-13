@@ -147,7 +147,7 @@ describe('<Slider.Root />', () => {
     it('should handle RTL', () => {
       const handleValueChange = spy();
       const { getByTestId } = render(
-        <TestSlider isRtl value={30} onValueChange={handleValueChange} />,
+        <TestSlider direction="rtl" value={30} onValueChange={handleValueChange} />,
       );
       const sliderTrack = getByTestId('track');
       const sliderThumb = getByTestId('thumb');
@@ -175,7 +175,7 @@ describe('<Slider.Root />', () => {
     it('increments on ArrowUp', () => {
       const handleValueChange = spy();
       const { container } = render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
       const input = container.querySelector('input');
@@ -198,7 +198,7 @@ describe('<Slider.Root />', () => {
     it('increments on ArrowLeft', () => {
       const handleValueChange = spy();
       const { container } = render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
       const input = container.querySelector('input');
@@ -221,7 +221,7 @@ describe('<Slider.Root />', () => {
     it('decrements on ArrowDown', () => {
       const handleValueChange = spy();
       const { container } = render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
       const input = container.querySelector('input');
@@ -244,7 +244,7 @@ describe('<Slider.Root />', () => {
     it('decrements on ArrowRight', () => {
       const handleValueChange = spy();
       const { container } = render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} isRtl />,
+        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
       const input = container.querySelector('input');

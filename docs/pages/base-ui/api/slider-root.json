@@ -5,8 +5,11 @@
     "defaultValue": {
       "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
     },
+    "direction": {
+      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
+      "default": "'ltr'"
+    },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "isRtl": { "type": { "name": "bool" }, "default": "false" },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
     "marks": {
       "type": {

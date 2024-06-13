@@ -15,8 +15,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     'aria-labelledby': ariaLabelledby,
     className,
     defaultValue,
+    direction = 'ltr',
     disabled = false,
-    isRtl = false,
     largeStep,
     render,
     minDifferenceBetweenValues,
@@ -31,7 +31,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     'aria-labelledby': ariaLabelledby,
     defaultValue,
     disabled,
-    isRtl,
+    direction,
     largeStep,
     minDifferenceBetweenValues,
     onValueChange,
@@ -45,9 +45,9 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const ownerState: SliderRootOwnerState = React.useMemo(
     () => ({
       activeThumbIndex: slider.active,
+      direction,
       disabled,
       dragging: slider.dragging,
-      isRtl,
       orientation,
       max: slider.max,
       min: slider.min,
@@ -56,8 +56,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       values: slider.values,
     }),
     [
+      direction,
       disabled,
-      isRtl,
       orientation,
       slider.active,
       slider.dragging,
@@ -114,16 +114,16 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
+   * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
+   * @default 'ltr'
+   */
+  direction: PropTypes.oneOf(['ltr', 'rtl']),
+  /**
    * /**
    * If `true`, the component is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * If `true` the Slider will be rendered right-to-left (with the lowest value on the right-hand side).
-   * @default false
-   */
-  isRtl: PropTypes.bool,
   /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10

@@ -5,7 +5,7 @@ import { Styles, TrackFill } from './slider';
 export default function App() {
   return (
     <div className="App">
-      <Slider.Root className="MySlider" defaultValue={50} isRtl>
+      <Slider.Root className="MySlider" defaultValue={50} direction="rtl">
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFill className="MySlider-track-fill" />
@@ -13,7 +13,12 @@ export default function App() {
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="VerticalSlider" defaultValue={50} isRtl orientation="vertical">
+      <Slider.Root
+        className="VerticalSlider"
+        defaultValue={50}
+        direction="rtl"
+        orientation="vertical"
+      >
         <Slider.Output className="VerticalSlider-output" />
         <Slider.Track className="VerticalSlider-track">
           <TrackFill className="VerticalSlider-track-fill" />
@@ -21,7 +26,7 @@ export default function App() {
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="MySlider" defaultValue={[50, 70]} isRtl>
+      <Slider.Root className="MySlider" defaultValue={[50, 70]} direction="rtl">
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFill className="MySlider-track-fill" />
@@ -30,7 +35,12 @@ export default function App() {
         </Slider.Track>
       </Slider.Root>
 
-      <Slider.Root className="VerticalSlider" defaultValue={[50, 70]} isRtl orientation="vertical">
+      <Slider.Root
+        className="VerticalSlider"
+        defaultValue={[50, 70]}
+        direction="rtl"
+        orientation="vertical"
+      >
         <Slider.Output className="VerticalSlider-output" />
         <Slider.Track className="VerticalSlider-track">
           <TrackFill className="VerticalSlider-track-fill" />

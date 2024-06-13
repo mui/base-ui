@@ -18,6 +18,8 @@ export type SliderProviderValue = SliderContextValue & {
   compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
 };
 
+type SliderDirection = 'ltr' | 'rtl';
+
 export interface SliderRootOwnerState {
   /**
    * The index of the active thumb.
@@ -31,7 +33,7 @@ export interface SliderRootOwnerState {
    * If `true`, a thumb is being dragged by a pointer.
    */
   dragging: boolean;
-  isRtl: boolean;
+  direction: SliderDirection;
   max: number;
   min: number;
   /**
@@ -88,15 +90,15 @@ export interface UseSliderParameters {
    */
   defaultValue?: number | ReadonlyArray<number>;
   /**
+   * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
+   * @default 'ltr'
+   */
+  direction?: SliderDirection;
+  /**
    * If `true`, the component is disabled.
    * @default false
    */
   disabled?: boolean;
-  /**
-   * If `true` the Slider will be rendered right-to-left (with the lowest value on the right-hand side).
-   * @default false
-   */
-  isRtl?: boolean;
   /**
    * Marks indicate predetermined values to which the user can move the slider.
    * If `true` the marks are spaced according the value of the `step` prop.
@@ -230,6 +232,7 @@ export interface UseSliderReturnValue {
   ) => void;
   compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
   dragging: boolean;
+  direction: SliderDirection;
   disabled: boolean;
   getFingerNewValue: (args: {
     finger: { x: number; y: number };
@@ -242,7 +245,6 @@ export interface UseSliderReturnValue {
     activeThumb: number,
     event: React.SyntheticEvent | Event,
   ) => void;
-  isRtl: boolean;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
    * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.

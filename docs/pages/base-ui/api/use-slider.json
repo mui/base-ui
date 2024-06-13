@@ -7,8 +7,11 @@
         "description": "number | ReadonlyArray&lt;number&gt;"
       }
     },
+    "direction": {
+      "type": { "name": "SliderDirection", "description": "SliderDirection" },
+      "default": "'ltr'"
+    },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
-    "isRtl": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "largeStep": { "type": { "name": "number", "description": "number" }, "default": "10" },
     "marks": {
       "type": {
@@ -86,6 +89,10 @@
       },
       "required": true
     },
+    "direction": {
+      "type": { "name": "SliderDirection", "description": "SliderDirection" },
+      "required": true
+    },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "dragging": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getFingerNewValue": {
@@ -109,7 +116,6 @@
       },
       "required": true
     },
-    "isRtl": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "largeStep": {
       "type": { "name": "number", "description": "number" },
       "default": "10",
