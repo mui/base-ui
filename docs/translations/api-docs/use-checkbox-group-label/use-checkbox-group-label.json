@@ -1,0 +1,10 @@
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "id": { "description": "The id of the label." },
+    "setId": { "description": "Set the id of the label." }
+  },
+  "returnValueDescriptions": {
+    "getLabelProps": { "description": "Props to apply to the label element." }
+  }
+}

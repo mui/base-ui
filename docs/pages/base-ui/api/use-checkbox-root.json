@@ -24,6 +24,7 @@
         "description": "React.ChangeEventHandler&lt;HTMLInputElement&gt;"
       }
     },
+    "parent": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "required": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" }
   },

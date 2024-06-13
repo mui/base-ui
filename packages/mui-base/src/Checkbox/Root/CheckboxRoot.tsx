@@ -8,6 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useLooseCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -28,6 +29,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     name,
     onChange,
     defaultChecked,
+    parent = false,
     disabled = false,
     readOnly = false,
     indeterminate = false,
@@ -39,17 +41,44 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
+  const groupContext = useLooseCheckboxGroupRootContext();
+  const isGrouped = groupContext?.parent && groupContext.allValues;
+
+  let groupProps: Partial<Omit<CheckboxRootProps, 'className'>> = {};
+  if (isGrouped) {
+    if (parent) {
+      groupProps = groupContext.parent.getParentProps();
+    } else if (name) {
+      groupProps = groupContext.parent.getChildProps(name);
+    }
+  }
+
+  const {
+    checked: groupChecked = checkedProp,
+    indeterminate: groupIndeterminate = indeterminate,
+    onChange: groupOnChange = onChange,
+    ...otherGroupProps
+  } = groupProps;
+
+  const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
+    ...props,
+    checked: groupChecked,
+    indeterminate: groupIndeterminate,
+    onChange: groupOnChange,
+  });
+
+  const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
+  const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
 
   const ownerState: CheckboxOwnerState = React.useMemo(
     () => ({
-      checked,
+      checked: computedChecked,
       disabled,
       readOnly,
       required,
-      indeterminate,
+      indeterminate: computedIndeterminate,
     }),
-    [checked, disabled, readOnly, required, indeterminate],
+    [computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
   const styleHooks = useCheckboxStyleHooks(ownerState);
@@ -60,6 +89,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: mergedRef,
     ...styleHooks,
     ...otherProps,
+    ...otherGroupProps,
   });
 
   return (
@@ -137,6 +167,11 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
   onChange: PropTypes.func,
+  /**
+   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * @default false
+   */
+  parent: PropTypes.bool,
   /**
    * If `true`, the component is read only.
    *

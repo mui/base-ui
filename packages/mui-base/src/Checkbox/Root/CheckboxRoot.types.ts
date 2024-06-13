@@ -75,6 +75,11 @@ export interface UseCheckboxRootParameters {
    * The ref to the input element.
    */
   inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * @default false
+   */
+  parent?: boolean;
 }
 
 export interface UseCheckboxRootReturnValue {

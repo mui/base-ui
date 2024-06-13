@@ -30,6 +30,14 @@ module.exports = [
   { pathname: '/base-ui/react-badge/components-api/#badge', title: 'Badge' },
   { pathname: '/base-ui/react-button/components-api/#button', title: 'Button' },
   {
+    pathname: '/base-ui/react-checkbox-group/components-api/#checkbox-group-label',
+    title: 'CheckboxGroupLabel',
+  },
+  {
+    pathname: '/base-ui/react-checkbox-group/components-api/#checkbox-group-root',
+    title: 'CheckboxGroupRoot',
+  },
+  {
     pathname: '/base-ui/react-checkbox/components-api/#checkbox-indicator',
     title: 'CheckboxIndicator',
   },
