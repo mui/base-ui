@@ -4,7 +4,7 @@
     "composite": true,
     "declaration": true,
     "noEmit": true,
-    "rootDir": ".",
+    "rootDir": "."
   },
   "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "test"],
   "references": [{ "path": "./tsconfig.json" }]
