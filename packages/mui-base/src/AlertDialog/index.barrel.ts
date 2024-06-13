@@ -1,35 +1,38 @@
-export { DialogBackdrop as AlertDialogBackdrop } from '../Dialog/Backdrop/DialogBackdrop';
+export { AlertDialogBackdrop } from './Backdrop/AlertDialogBackdrop';
 export type {
-  DialogBackdropProps as AlertDialogBackdropProps,
-  DialogBackdropOwnerState as AlertDialogBackdropOwnerState,
-} from '../Dialog/Backdrop/DialogBackdrop.types';
+  AlertDialogBackdropProps,
+  AlertDialogBackdropOwnerState,
+} from './Backdrop/AlertDialogBackdrop.types';
 
-export { DialogClose as AlertDialogClose } from '../Dialog/Close/DialogClose';
+export { AlertDialogClose } from './Close/AlertDialogClose';
 export type {
-  DialogCloseProps as AlertDialogCloseProps,
-  DialogCloseOwnerState as AlertDialogOwnerState,
-} from '../Dialog/Close/DialogClose.types';
+  AlertDialogCloseProps,
+  AlertDialogCloseOwnerState,
+} from './Close/AlertDialogClose.types';
 
-export { DialogDescription as AlertDialogDescription } from '../Dialog/Description/DialogDescription';
+export { AlertDialogDescription } from './Description/AlertDialogDescription';
 export type {
-  DialogDescriptionProps as AlertDialogDescriptionProps,
-  DialogDescriptionOwnerState as AlertDialogDescriptionOwnerState,
-} from '../Dialog/Description/DialogDescription.types';
+  AlertDialogDescriptionProps,
+  AlertDialogDescriptionOwnerState,
+} from './Description/AlertDialogDescription.types';
 
 export { AlertDialogPopup } from './Popup/AlertDialogPopup';
 export type {
-  DialogPopupProps as AlertDialogPopupProps,
-  DialogPopupOwnerState as AlertDialogPopupOwnerState,
-} from '../Dialog/Popup/DialogPopup.types';
+  AlertDialogPopupProps,
+  AlertDialogPopupOwnerState,
+} from './Popup/AlertDialogPopup.types';
 
 export { AlertDialogRoot } from './Root/AlertDialogRoot';
 export type { AlertDialogRootProps } from './Root/AlertDialogRoot.types';
 
-export { DialogTitle as AlertDialogTitle } from '../Dialog/Title/DialogTitle';
+export { AlertDialogTitle } from './Title/AlertDialogTitle';
 export type {
-  DialogTitleProps as AlertDialogTitleProps,
-  DialogTitleOwnerState as AlertDialogTitleOwnerState,
-} from '../Dialog/Title/DialogTitle.types';
+  AlertDialogTitleProps,
+  AlertDialogTitleOwnerState,
+} from './Title/AlertDialogTitle.types';
 
-export { DialogTrigger as AlertDialogTrigger } from '../Dialog/Trigger/DialogTrigger';
-export type { DialogTriggerProps as AlertDialogTriggerProps } from '../Dialog/Trigger/DialogTrigger.types';
+export { AlertDialogTrigger } from './Trigger/AlertDialogTrigger';
+export type {
+  AlertDialogTriggerProps,
+  AlertDialogTriggerOwnerState,
+} from './Trigger/AlertDialogTrigger.types';

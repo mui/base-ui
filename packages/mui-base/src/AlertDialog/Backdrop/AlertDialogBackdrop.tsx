@@ -1,56 +1,42 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
-import { AlertDialogPopupOwnerState, AlertDialogPopupProps } from './AlertDialogPopup.types';
-import { useDialogPopup } from '../../Dialog/Popup/useDialogPopup';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
+import { FloatingPortal } from '@floating-ui/react';
+import type {
+  AlertDialogBackdropOwnerState,
+  AlertDialogBackdropProps,
+} from './AlertDialogBackdrop.types';
+import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
+import { useDialogRootContext } from '../../Dialog/Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { refType, HTMLElementType } from '../../utils/proptypes';
 
-const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
-  props: AlertDialogPopupProps,
+const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
+  props: AlertDialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    animated = true,
-    className,
-    container,
-    id: idProp,
-    keepMounted = false,
-    render,
-    ...other
-  } = props;
+  const { render, className, animated = true, keepMounted = false, ...other } = props;
+  const { open, hasParentDialog, setBackdropPresent } = useDialogRootContext();
 
-  const rootContext = useAlertDialogRootContext();
-  const { open, nestedOpenDialogCount } = rootContext;
+  const handleMount = React.useCallback(() => setBackdropPresent(true), [setBackdropPresent]);
+  const handleUnmount = React.useCallback(() => setBackdropPresent(false), [setBackdropPresent]);
 
-  const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
-    id: idProp,
+  const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
     animated,
+    open,
     ref: forwardedRef,
-    isTopmost: nestedOpenDialogCount === 0,
-    ...rootContext,
+    onMount: handleMount,
+    onUnmount: handleUnmount,
   });
 
-  const ownerState: AlertDialogPopupOwnerState = {
-    open,
-    nestedOpenDialogCount,
-    transitionStatus,
-  };
+  const ownerState: AlertDialogBackdropOwnerState = { open, transitionStatus };
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
     ownerState,
     propGetter: getRootProps,
-    extraProps: {
-      ...other,
-      style: { '--nested-dialogs': nestedOpenDialogCount },
-      role: 'alertdialog',
-    },
+    extraProps: other,
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
       transitionStatus: (value) => {
         if (value === 'entering') {
           return { 'data-entering': '' } as Record<string, string>;
@@ -63,20 +49,19 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     },
   });
 
-  if (!keepMounted && !mounted) {
+  if (!mounted && !keepMounted) {
     return null;
   }
 
-  return (
-    <FloatingPortal root={container}>
-      <FloatingFocusManager context={floatingContext} modal disabled={!mounted}>
-        {renderElement()}
-      </FloatingFocusManager>
-    </FloatingPortal>
-  );
+  if (hasParentDialog) {
+    // no need to render nested backdrops
+    return null;
+  }
+
+  return <FloatingPortal>{renderElement()}</FloatingPortal>;
 });
 
-AlertDialogPopup.propTypes /* remove-proptypes */ = {
+AlertDialogBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -97,15 +82,7 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The container element to which the popup is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * If `true`, the dialog element is kept in the DOM when closed.
+   * If `true`, the backdrop element is kept in the DOM when closed.
    *
    * @default false
    */
@@ -116,4 +93,4 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { AlertDialogPopup };
+export { AlertDialogBackdrop };

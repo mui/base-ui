@@ -3,15 +3,14 @@ import { expect } from 'chai';
 import * as AlertDialog from '@base_ui/react/AlertDialog';
 import { createRenderer, describeConformance } from '../../../test';
 
-describe('<AlertDialog.Popup />', () => {
+describe('<AlertDialog.Backdrop />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<AlertDialog.Popup animated={false} />, () => ({
+  describeConformance(<AlertDialog.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open>
-          <AlertDialog.Backdrop />
+        <AlertDialog.Root open modal={false}>
           {node}
         </AlertDialog.Root>,
       );
@@ -19,15 +18,13 @@ describe('<AlertDialog.Popup />', () => {
     skip: ['reactTestRenderer'],
   }));
 
-  it('should have role="alertdialog"', async () => {
+  it('has role="presentation"', async () => {
     const { getByTestId } = await render(
       <AlertDialog.Root open>
-        <AlertDialog.Backdrop />
-        <AlertDialog.Popup data-testid="test-alert-dialog" animated={false} />
+        <AlertDialog.Backdrop data-testid="backdrop" />
       </AlertDialog.Root>,
     );
 
-    const dialog = getByTestId('test-alert-dialog');
-    expect(dialog).to.have.attribute('role', 'alertdialog');
+    expect(getByTestId('backdrop')).to.have.attribute('role', 'presentation');
   });
 });

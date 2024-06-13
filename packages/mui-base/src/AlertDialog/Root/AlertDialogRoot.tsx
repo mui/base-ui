@@ -1,10 +1,37 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { AlertDialogRootProps } from './AlertDialogRoot.types';
-import { DialogRoot } from '../../Dialog/Root/DialogRoot';
+import { AlertDialogRootContext } from './AlertDialogRootContext';
+import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
 
 function AlertDialogRoot(props: AlertDialogRootProps) {
-  return <DialogRoot {...props} modal dismissible={false} keyboardDismissible={false} />;
+  const { children, defaultOpen, onOpenChange, open: openProp } = props;
+
+  const dialogRootContext = React.useContext(AlertDialogRootContext);
+
+  const dialogRoot = useDialogRoot({
+    open: openProp,
+    defaultOpen,
+    onOpenChange,
+    modal: true,
+    dismissible: false,
+    keyboardDismissible: false,
+    onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
+    onNestedDialogOpen: dialogRootContext?.onNestedDialogOpen,
+  });
+
+  const hasParentDialog = Boolean(dialogRootContext);
+
+  const contextValue = React.useMemo(
+    () => ({ ...dialogRoot, hasParentDialog }),
+    [dialogRoot, hasParentDialog],
+  );
+
+  return (
+    <AlertDialogRootContext.Provider value={contextValue}>
+      {children}
+    </AlertDialogRootContext.Provider>
+  );
 }
 
 AlertDialogRoot.propTypes /* remove-proptypes */ = {
@@ -16,6 +43,19 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
+  /**
+   * Determines whether the dialog is initally open.
+   * This is an uncontrolled equivalent of the `open` prop.
+   */
+  defaultOpen: PropTypes.bool,
+  /**
+   * Callback invoked when the dialog is being opened or closed.
+   */
+  onOpenChange: PropTypes.func,
+  /**
+   * Determines whether the dialog is open.
+   */
+  open: PropTypes.bool,
 } as any;
 
 export { AlertDialogRoot };
