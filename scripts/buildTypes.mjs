@@ -101,11 +101,11 @@ async function rewriteImportPaths(declarationFile, publishDir) {
 async function main() {
   const packageRoot = process.cwd();
 
-  const tsconfigPath = path.join(packageRoot, 'tsconfig.build.json');
+  const tsconfigPath = path.join(packageRoot, 'tsconfig.json');
   if (!fse.existsSync(tsconfigPath)) {
     throw new Error(
       'Unable to find a tsconfig to build this project. ' +
-        `The package root needs to contain a 'tsconfig.build.json'. ` +
+        `The package root needs to contain a 'tsconfig.json'. ` +
         `The package root is '${packageRoot}'`,
     );
   }

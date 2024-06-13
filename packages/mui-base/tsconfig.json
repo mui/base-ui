@@ -1,9 +1,15 @@
 {
   "extends": "../../tsconfig.json",
-  "include": [
-    "src/**/*",
-    "test/**/*",
-    "node_modules/@mui/internal-test-utils/build/initMatchers.d.ts",
-    "node_modules/@mui/internal-test-utils/build/initPlaywrightMatchers.d.ts"
-  ]
+  // This config is for emitting declarations (.d.ts) only
+  // Actual .ts source files are transpiled via babel
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "build",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*.ts*"],
+  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
 }

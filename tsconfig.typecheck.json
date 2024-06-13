@@ -6,7 +6,10 @@
       "path": "docs/tsconfig.json"
     },
     {
-      "path": "packages/mui-base/tsconfig.build.json"
+      "path": "packages/mui-base/tsconfig.json"
+    },
+    {
+      "path": "packages/mui-base/tsconfig.test.json"
     }
   ]
 }
