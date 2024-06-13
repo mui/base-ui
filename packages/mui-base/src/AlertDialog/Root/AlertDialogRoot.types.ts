@@ -1,9 +1,6 @@
 import type { DialogRootProps, UseDialogRootReturnValue } from '../../Dialog/Root/DialogRoot.types';
 
-export type AlertDialogRootProps = Omit<
-  DialogRootProps,
-  'modal' | 'dismissible' | 'keyboardDismissible'
->;
+export type AlertDialogRootProps = Omit<DialogRootProps, 'modal' | 'dismissible'>;
 
 export interface AlertDialogRootContextValue extends UseDialogRootReturnValue {
   /**

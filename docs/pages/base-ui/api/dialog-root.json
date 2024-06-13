@@ -2,7 +2,6 @@
   "props": {
     "defaultOpen": { "type": { "name": "bool" } },
     "dismissible": { "type": { "name": "bool" }, "default": "true" },
-    "keyboardDismissible": { "type": { "name": "bool" }, "default": "true" },
     "modal": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } }

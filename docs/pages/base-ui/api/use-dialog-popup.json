@@ -31,11 +31,7 @@
       "required": true
     },
     "dismissible": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
-    "id": { "type": { "name": "string", "description": "string" } },
-    "keyboardDismissible": {
-      "type": { "name": "boolean", "description": "boolean" },
-      "default": "true"
-    }
+    "id": { "type": { "name": "string", "description": "string" } }
   },
   "returnValue": {
     "floatingContext": {

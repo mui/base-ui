@@ -7,9 +7,6 @@
     "dismissible": {
       "description": "Determines whether the dialog should close when clicking outside of it."
     },
-    "keyboardDismissible": {
-      "description": "Determines whether the dialog should close when pressing the escape key."
-    },
     "modal": { "description": "Determines whether the dialog is modal." },
     "onNestedDialogClose": { "description": "Callback to invoke when a nested dialog is closed." },
     "onNestedDialogOpen": { "description": "Callback to invoke when a nested dialog is opened." },

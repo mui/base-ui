@@ -12,9 +12,6 @@
     },
     "id": { "description": "The id of the dialog element." },
     "isTopmost": { "description": "Determines if the dialog is the top-most one." },
-    "keyboardDismissible": {
-      "description": "Determines whether the dialog should close when pressing the escape key."
-    },
     "modal": { "description": "Determines if the dialog is modal." },
     "onOpenChange": {
       "description": "Callback fired when the dialog is requested to be opened or closed."

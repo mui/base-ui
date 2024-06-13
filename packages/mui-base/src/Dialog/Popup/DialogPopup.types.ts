@@ -74,11 +74,6 @@ export interface UseDialogPopupParameters {
    */
   dismissible?: boolean;
   /**
-   * Determines whether the dialog should close when pressing the escape key.
-   * @default true
-   */
-  keyboardDismissible?: boolean;
-  /**
    * Determines if the dialog is the top-most one.
    */
   isTopmost: boolean;

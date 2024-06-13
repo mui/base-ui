@@ -29,7 +29,6 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     animated,
     ref: forwardedRef,
     dismissible: false,
-    keyboardDismissible: false,
     isTopmost: nestedOpenDialogCount === 0,
     ...rootContext,
   });

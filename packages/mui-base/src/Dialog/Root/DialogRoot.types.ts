@@ -22,11 +22,6 @@ interface DialogRootParameters {
    * @default true
    */
   dismissible?: boolean;
-  /**
-   * Determines whether the dialog should close when pressing the escape key.
-   * @default true
-   */
-  keyboardDismissible?: boolean;
 }
 
 export interface DialogRootProps extends DialogRootParameters {
@@ -109,9 +104,4 @@ export interface DialogRootContextValue extends UseDialogRootReturnValue {
    * @default true
    */
   dismissible?: boolean;
-  /**
-   * Determines whether the dialog should close when pressing the escape key.
-   * @default true
-   */
-  keyboardDismissible?: boolean;
 }

@@ -5,15 +5,7 @@ import { DialogRootContext } from './DialogRootContext';
 import { useDialogRoot } from './useDialogRoot';
 
 const DialogRoot = function DialogRoot(props: DialogRootProps) {
-  const {
-    children,
-    defaultOpen,
-    modal = true,
-    onOpenChange,
-    open: openProp,
-    dismissible,
-    keyboardDismissible,
-  } = props;
+  const { children, defaultOpen, modal = true, onOpenChange, open: openProp, dismissible } = props;
 
   const dialogRootContext = React.useContext(DialogRootContext);
 
@@ -23,7 +15,6 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
     onOpenChange,
     modal,
     dismissible,
-    keyboardDismissible,
     onNestedDialogClose: dialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: dialogRootContext?.onNestedDialogOpen,
   });
@@ -31,8 +22,8 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
   const hasParentDialog = Boolean(dialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog, dismissible, keyboardDismissible }),
-    [dialogRoot, hasParentDialog, dismissible, keyboardDismissible],
+    () => ({ ...dialogRoot, hasParentDialog, dismissible }),
+    [dialogRoot, hasParentDialog, dismissible],
   );
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
@@ -57,11 +48,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   dismissible: PropTypes.bool,
-  /**
-   * Determines whether the dialog should close when pressing the escape key.
-   * @default true
-   */
-  keyboardDismissible: PropTypes.bool,
   /**
    * Determines whether the dialog is modal.
    * @default true

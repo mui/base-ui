@@ -82,49 +82,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: keyboardDismissible', () => {
-    (
-      [
-        [true, true],
-        [false, false],
-        [undefined, true],
-      ] as const
-    ).forEach(([keyboardDismissible, expectDismissed]) => {
-      it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when pressing Esc if keyboardDismissible=${keyboardDismissible}`, async () => {
-        const handleOpenChange = spy();
-
-        const { getByTestId, queryByRole } = await render(
-          <Dialog.Root
-            defaultOpen
-            onOpenChange={handleOpenChange}
-            keyboardDismissible={keyboardDismissible}
-            modal={false}
-          >
-            <Dialog.Popup animated={false}>
-              <div tabIndex={0} data-testid="content" />
-            </Dialog.Popup>
-          </Dialog.Root>,
-        );
-
-        const content = getByTestId('content');
-
-        act(() => {
-          content.focus();
-        });
-
-        // keyDown not targetted at anything specific
-        // eslint-disable-next-line material-ui/disallow-active-element-as-key-event-target
-        fireEvent.keyDown(document.activeElement!, { key: 'Esc' });
-        expect(handleOpenChange.calledOnce).to.equal(expectDismissed);
-
-        if (expectDismissed) {
-          expect(queryByRole('dialog')).to.equal(null);
-        } else {
-          expect(queryByRole('dialog')).not.to.equal(null);
-        }
-      });
-    });
-
+  describe('prop: dismissible', () => {
     (
       [
         [true, true],

@@ -28,7 +28,6 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     ref,
     setPopupElementId,
     dismissible,
-    keyboardDismissible,
     titleElementId,
     isTopmost,
   } = parameters;
@@ -43,7 +42,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
     outsidePress: isTopmost && dismissible,
-    escapeKey: keyboardDismissible,
+    escapeKey: true,
   });
   const { getFloatingProps } = useInteractions([dismiss]);
 
