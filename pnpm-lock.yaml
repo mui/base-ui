@@ -573,8 +573,8 @@ importers:
         specifier: ^7.24.6
         version: 7.24.6
       '@floating-ui/react':
-        specifier: ^0.26.16
-        version: 0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^0.26.17
+        version: 0.26.17(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/react-dom':
         specifier: ^2.1.0
         version: 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -585,8 +585,8 @@ importers:
         specifier: ^7.2.14
         version: 7.2.14(@types/react@18.3.1)
       '@mui/utils':
-        specifier: ^5.15.14
-        version: 5.15.14(@types/react@18.3.1)(react@18.2.0)
+        specifier: ^5.15.20
+        version: 5.15.20(@types/react@18.3.1)(react@18.2.0)
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -599,7 +599,7 @@ importers:
     devDependencies:
       '@mui/internal-babel-macros':
         specifier: ^1.0.1
-        version: 1.0.1(@mui/utils@5.15.14(@types/react@18.3.1)(react@18.2.0))
+        version: 1.0.1(@mui/utils@5.15.20(@types/react@18.3.1)(react@18.2.0))
       '@mui/internal-test-utils':
         specifier: 1.0.0-dev.20240529-082515-213b5e33ab
         version: 1.0.0-dev.20240529-082515-213b5e33ab(@babel/core@7.24.6)(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1795,8 +1795,8 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.26.16':
-    resolution: {integrity: sha512-HEf43zxZNAI/E781QIVpYSF3K2VH4TTYZpqecjdsFkjsaU1EbaWcM++kw0HXFffj7gDUcBFevX8s0rQGQpxkow==}
+  '@floating-ui/react@0.26.17':
+    resolution: {integrity: sha512-ESD+jYWwqwVzaIgIhExrArdsCL1rOAzryG/Sjlu8yaD3Mtqi3uVyhbE2V7jD58Mo52qbzKz2eUY/Xgh5I86FCQ==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -1823,6 +1823,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -1830,6 +1831,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@hutson/parse-repository-url@3.0.2':
     resolution: {integrity: sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==}
@@ -2204,8 +2206,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/utils@5.15.14':
-    resolution: {integrity: sha512-0lF/7Hh/ezDv5X7Pry6enMsbYyGKjADzvHyo3Qrc/SSlTsQ1VkbDMbH0m2t3OR5iIVLwMoxwM7yGd+6FCMtTFA==}
+  '@mui/utils@5.15.20':
+    resolution: {integrity: sha512-mAbYx0sovrnpAu1zHc3MDIhPqL8RPVC5W5xcO1b7PiSCJPtckIZmBkp8hefamAvUiAV8gpfMOM6Zb+eSisbI2A==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@types/react': ^18.3.1
@@ -7269,6 +7271,10 @@ packages:
   q@1.5.1:
     resolution: {integrity: sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==}
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
+    deprecated: |-
+      You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
+      (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
     resolution: {integrity: sha512-8YOJEHtxpySA3fFDyCRxA+UUV+fA+rTWnuWvylOK/NCjhY+b4ocCtmu8TtsWb+mYeU+GCHf/S66KZF/AsteKHg==}
@@ -9959,7 +9965,7 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@floating-ui/react@0.26.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@floating-ui/react@0.26.17(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/utils': 0.2.2
@@ -10277,11 +10283,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.1
 
-  '@mui/internal-babel-macros@1.0.1(@mui/utils@5.15.14(@types/react@18.3.1)(react@18.2.0))':
+  '@mui/internal-babel-macros@1.0.1(@mui/utils@5.15.20(@types/react@18.3.1)(react@18.2.0))':
     dependencies:
       '@babel/helper-module-imports': 7.24.6
       '@babel/runtime': 7.24.6
-      '@mui/utils': 5.15.14(@types/react@18.3.1)(react@18.2.0)
+      '@mui/utils': 5.15.20(@types/react@18.3.1)(react@18.2.0)
       babel-plugin-macros: 3.1.0
 
   '@mui/internal-docs-utils@1.0.7':
@@ -10489,7 +10495,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.1
 
-  '@mui/utils@5.15.14(@types/react@18.3.1)(react@18.2.0)':
+  '@mui/utils@5.15.20(@types/react@18.3.1)(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.24.6
       '@types/prop-types': 15.7.12
