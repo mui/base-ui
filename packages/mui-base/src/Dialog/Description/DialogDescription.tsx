@@ -1,21 +1,26 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { DialogDescriptionProps } from './DialogDescription.types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useDialogRootContext } from '../Root/DialogRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useId } from '../../utils/useId';
 
 const DialogDescription = React.forwardRef(function DialogDescription(
   props: DialogDescriptionProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id, ...other } = props;
+  const { render, className, id: idProp, ...other } = props;
   const { setDescriptionElementId, open, modal } = useDialogRootContext();
+
   const ownerState = {
     open,
     modal,
   };
 
-  React.useEffect(() => {
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
     setDescriptionElementId(id);
     return () => {
       setDescriptionElementId(undefined);

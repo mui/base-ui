@@ -15,7 +15,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     animated = true,
     className,
     container,
-    id: idProp,
+    id,
     keepMounted = false,
     render,
     ...other
@@ -24,7 +24,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const { open, modal, nestedOpenDialogCount, dismissible } = rootContext;
 
   const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
-    id: idProp,
+    id,
     animated,
     ref: forwardedRef,
     isTopmost: nestedOpenDialogCount === 0,

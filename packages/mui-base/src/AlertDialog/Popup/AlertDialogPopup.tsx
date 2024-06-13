@@ -15,7 +15,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     animated = true,
     className,
     container,
-    id: idProp,
+    id,
     keepMounted = false,
     render,
     ...other
@@ -25,7 +25,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const { open, nestedOpenDialogCount } = rootContext;
 
   const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
-    id: idProp,
+    id,
     animated,
     ref: forwardedRef,
     dismissible: false,

@@ -6,6 +6,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  *
@@ -57,7 +58,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
 
   useScrollLock(modal && mounted);
 
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     setPopupElementId(id);
     return () => {
       setPopupElementId(undefined);

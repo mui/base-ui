@@ -4,6 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  *
@@ -26,7 +27,7 @@ export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBac
   const onMount = useEventCallback(onMountParam);
   const onUnmount = useEventCallback(onUnmountParam);
 
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     onMount();
 
     return onUnmount;

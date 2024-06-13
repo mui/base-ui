@@ -1,14 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { DialogTitleProps } from './DialogTitle.types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useDialogRootContext } from '../Root/DialogRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useId } from '../../utils/useId';
 
 const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitleProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id, ...other } = props;
+  const { render, className, id: idProp, ...other } = props;
   const { setTitleElementId, open, modal } = useDialogRootContext();
 
   const ownerState = {
@@ -16,7 +18,9 @@ const DialogTitle = React.forwardRef(function DialogTitle(
     modal,
   };
 
-  React.useEffect(() => {
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
     setTitleElementId(id);
     return () => {
       setTitleElementId(undefined);

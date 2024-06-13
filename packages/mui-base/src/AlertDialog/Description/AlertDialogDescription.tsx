@@ -6,19 +6,23 @@ import type {
 } from './AlertDialogDescription.types';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useId } from '../../utils/useId';
 
 const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   props: AlertDialogDescriptionProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id, ...other } = props;
+  const { render, className, id: idProp, ...other } = props;
   const { setDescriptionElementId, open } = useAlertDialogRootContext();
 
   const ownerState: AlertDialogDescriptionOwnerState = {
     open,
   };
 
-  React.useEffect(() => {
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
     setDescriptionElementId(id);
     return () => {
       setDescriptionElementId(undefined);
