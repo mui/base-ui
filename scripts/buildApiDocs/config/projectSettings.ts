@@ -17,6 +17,7 @@ export const projectSettings: ProjectSettings = {
       name: 'base',
       rootPath: path.join(process.cwd(), 'packages/mui-base'),
       entryPointPath: 'src/index.ts',
+      tsConfigPath: 'tsconfig.json',
     },
   ],
   getApiPages: () => findApiPages('docs/pages/base-ui/api'),
