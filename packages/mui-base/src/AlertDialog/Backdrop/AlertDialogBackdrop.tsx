@@ -5,8 +5,8 @@ import type {
   AlertDialogBackdropOwnerState,
   AlertDialogBackdropProps,
 } from './AlertDialogBackdrop.types';
+import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
-import { useDialogRootContext } from '../../Dialog/Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
@@ -14,7 +14,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, animated = true, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, setBackdropPresent } = useDialogRootContext();
+  const { open, hasParentDialog, setBackdropPresent } = useAlertDialogRootContext();
 
   const handleMount = React.useCallback(() => setBackdropPresent(true), [setBackdropPresent]);
   const handleUnmount = React.useCallback(() => setBackdropPresent(false), [setBackdropPresent]);
