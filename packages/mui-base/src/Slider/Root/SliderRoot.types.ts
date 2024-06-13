@@ -93,12 +93,6 @@ export interface UseSliderParameters {
    */
   disabled?: boolean;
   /**
-   * TODO: try to implement this in Material and remove from Base
-   * If `true`, the active thumb doesn't swap when moving pointer over a thumb while dragging another thumb.
-   * @default false
-   */
-  disableSwap?: boolean;
-  /**
    * If `true` the Slider will be rendered right-to-left (with the lowest value on the right-hand side).
    * @default false
    */

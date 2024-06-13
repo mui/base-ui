@@ -6,7 +6,6 @@
       "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
     },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "disableSwap": { "type": { "name": "bool" }, "default": "false" },
     "isRtl": { "type": { "name": "bool" }, "default": "false" },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
     "marks": {

@@ -140,7 +140,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     'aria-labelledby': ariaLabelledby,
     defaultValue,
     disabled = false,
-    disableSwap = true,
     isRtl = false,
     largeStep = 10,
     marks: marksProp,
@@ -266,25 +265,15 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
       if (range) {
         // Bound the new value to the thumb's neighbours.
-        if (disableSwap) {
-          newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
-        }
+        newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
 
-        const previousValue = newValue;
         newValue = setValueIndex({
           values,
           newValue,
           index,
         });
 
-        let activeIndex = index;
-
-        // Potentially swap the index if needed.
-        if (!disableSwap) {
-          activeIndex = newValue.indexOf(previousValue);
-        }
-
-        focusThumb({ sliderRef, activeIndex });
+        focusThumb({ sliderRef, activeIndex: index });
       }
 
       if (validateMinimumDistance(newValue, minDifferenceBetweenValues)) {
@@ -301,7 +290,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     },
     [
       areValuesEqual,
-      disableSwap,
       handleValueChange,
       marks,
       marksValues,
@@ -373,13 +361,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       }
 
       // Bound the new value to the thumb's neighbours.
-      if (disableSwap) {
-        newValue = clamp(
-          newValue,
-          values[activeIndex - 1] + minDifferenceBetweenValues || -Infinity,
-          values[activeIndex + 1] - minDifferenceBetweenValues || Infinity,
-        );
-      }
+      newValue = clamp(
+        newValue,
+        values[activeIndex - 1] + minDifferenceBetweenValues || -Infinity,
+        values[activeIndex + 1] - minDifferenceBetweenValues || Infinity,
+      );
 
       const previousValue = newValue;
       newValue = setValueIndex({
@@ -389,14 +375,14 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       });
 
       // Potentially swap the index if needed.
-      if (!(disableSwap && move)) {
+      if (!move) {
         activeIndex = newValue.indexOf(previousValue);
         previousIndex.current = activeIndex;
       }
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [axis, disableSwap, marksValues, max, min, minDifferenceBetweenValues, range, step, values],
+    [axis, marksValues, max, min, minDifferenceBetweenValues, range, step, values],
   );
 
   useEnhancedEffect(() => {

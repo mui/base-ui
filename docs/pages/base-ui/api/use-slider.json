@@ -8,7 +8,6 @@
       }
     },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
-    "disableSwap": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "isRtl": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "largeStep": { "type": { "name": "number", "description": "number" }, "default": "10" },
     "marks": {
