@@ -1,27 +1,17 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderContext } from '../Root/SliderProvider';
+import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderTrackProps } from './SliderTrack.types';
 import { useSliderTrack } from './useSliderTrack';
-
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
-}
 
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrackProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
-
-  const render = renderProp ?? defaultRender;
-
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const {
     areValuesEqual,
@@ -31,7 +21,6 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     handleValueChange,
     minDifferenceBetweenValues,
     onValueCommitted,
-    orientation,
     ownerState,
     percentageValues,
     registerSliderTrack,
@@ -52,7 +41,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     onValueCommitted,
     percentageValues,
     registerSliderTrack,
-    rootRef: mergedRef,
+    rootRef: forwardedRef,
     setActive,
     setDragging,
     setOpen,
@@ -60,18 +49,19 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     subitems,
   });
 
-  const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging, orientation }),
-    [disabled, dragging, orientation],
-  );
-
-  const trackProps = getRootProps({
-    ...styleHooks,
-    ...otherProps,
-    className: resolveClassName(className, ownerState),
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render: renderProp ?? 'span',
+    ownerState,
+    className,
+    ref: forwardedRef,
+    extraProps: {
+      ...otherProps,
+    },
+    customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return evaluateRenderProp(render, trackProps, ownerState);
+  return renderElement();
 });
 
 SliderTrack.propTypes /* remove-proptypes */ = {

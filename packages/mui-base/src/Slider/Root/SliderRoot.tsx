@@ -1,17 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderProvider } from './SliderProvider';
 import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
-
-function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
-  return <div {...props} />;
-}
 
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRootProps,
@@ -24,7 +18,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     disabled = false,
     isRtl = false,
     largeStep,
-    render: renderProp,
+    render,
     minDifferenceBetweenValues,
     onValueChange,
     onValueCommitted,
@@ -32,10 +26,6 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     value,
     ...otherProps
   } = props;
-
-  const render = renderProp ?? defaultRender;
-
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby,
@@ -47,7 +37,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     onValueChange,
     onValueCommitted,
     orientation,
-    rootRef: mergedRef,
+    rootRef: forwardedRef,
     value,
     ...otherProps,
   });
@@ -79,17 +69,6 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ],
   );
 
-  const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging: slider.dragging, orientation }),
-    [disabled, slider.dragging, orientation],
-  );
-
-  const rootProps = getRootProps({
-    ...styleHooks,
-    ...otherProps,
-    className: resolveClassName(className, ownerState),
-  });
-
   const contextValue = React.useMemo(
     () => ({
       ...slider,
@@ -98,11 +77,19 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     [slider, ownerState],
   );
 
-  return (
-    <SliderProvider value={contextValue}>
-      {evaluateRenderProp(render, rootProps, ownerState)}
-    </SliderProvider>
-  );
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render: render ?? 'div',
+    ownerState,
+    className,
+    ref: forwardedRef,
+    extraProps: {
+      ...otherProps,
+    },
+    customStyleHookMapping: sliderStyleHookMapping,
+  });
+
+  return <SliderProvider value={contextValue}>{renderElement()}</SliderProvider>;
 });
 
 SliderRoot.propTypes /* remove-proptypes */ = {

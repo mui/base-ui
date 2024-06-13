@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderContext } from '../Root/SliderProvider';
+import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderOutputProps } from './SliderOutput.types';
 import { useSliderOutput } from './useSliderOutput';
 
@@ -21,28 +19,27 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   const render = renderProp ?? defaultRender;
 
-  const { disabled, dragging, orientation, ownerState, subitems, values } = useSliderContext();
-
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+  const { ownerState, subitems, values } = useSliderContext();
 
   const { getRootProps } = useSliderOutput({
     subitems,
-    rootRef: mergedRef,
+    rootRef: forwardedRef,
   });
 
-  const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging, orientation }),
-    [disabled, dragging, orientation],
-  );
-
-  const outputProps = getRootProps({
-    children: values.join(' – '),
-    ...styleHooks,
-    ...otherProps,
-    className: resolveClassName(className, ownerState),
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render,
+    ownerState,
+    className,
+    ref: forwardedRef,
+    extraProps: {
+      children: values.join(' – '),
+      ...otherProps,
+    },
+    customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return evaluateRenderProp(render, outputProps, ownerState);
+  return renderElement();
 });
 
 SliderOutput.propTypes /* remove-proptypes */ = {
