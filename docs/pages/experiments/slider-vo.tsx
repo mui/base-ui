@@ -32,32 +32,27 @@ export default function App() {
   return (
     <div className="App">
       <Slider.Root className="MySlider" defaultValue={50} aria-labelledby="LabelId">
-        <Label id="LabelId">Slider</Label>
+        <Label id="LabelId">Brightness</Label>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFill className="MySlider-track-fill" />
-          <Slider.Thumb className="MySlider-thumb one" />
+          <Slider.Thumb className="MySlider-thumb" />
         </Slider.Track>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[50, 70]} aria-labelledby="LabelRangeId">
-        <LabelRange id="LabelRangeId">Range Slider</LabelRange>
+        <LabelRange id="LabelRangeId">Volume Range</LabelRange>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFill className="MySlider-track-fill" />
-          <Slider.Thumb className="MySlider-thumb one" />
-          <Slider.Thumb className="MySlider-thumb two" />
-        </Slider.Track>
-      </Slider.Root>
-
-      <Slider.Root className="MySlider" defaultValue={[30, 50, 70]} aria-labelledby="LabelRangeId">
-        <LabelRange id="LabelRangeId">Three Thumb Slider</LabelRange>
-        <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
-          <Slider.Thumb className="MySlider-thumb" />
-          <Slider.Thumb className="MySlider-thumb" />
-          <Slider.Thumb className="MySlider-thumb" />
+          <Slider.Thumb
+            className="MySlider-thumb start"
+            getAriaValueText={(thumbValue) => `start range ${thumbValue}`}
+          />
+          <Slider.Thumb
+            className="MySlider-thumb end"
+            getAriaValueText={(thumbValue) => `end range ${thumbValue}`}
+          />
         </Slider.Track>
       </Slider.Root>
       <Styles />
