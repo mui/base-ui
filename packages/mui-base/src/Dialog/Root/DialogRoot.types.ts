@@ -1,5 +1,12 @@
 interface DialogRootParameters {
   /**
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default true
+   */
+  animated?: boolean;
+  /**
    * Determines whether the dialog is open.
    */
   open?: boolean;
@@ -95,6 +102,11 @@ export interface UseDialogRootReturnValue {
 }
 
 export interface DialogRootContextValue extends UseDialogRootReturnValue {
+  /**
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   */
+  animated: boolean;
   /**
    * Determines if the dialog is nested within a parent dialog.
    */

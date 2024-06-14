@@ -9,9 +9,9 @@ describe('<AlertDialog.Close />', () => {
     refInstanceof: window.HTMLButtonElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open>
+        <AlertDialog.Root open animated={false}>
           <AlertDialog.Backdrop />
-          <AlertDialog.Popup animated={false}>{node}</AlertDialog.Popup>
+          <AlertDialog.Popup>{node}</AlertDialog.Popup>
         </AlertDialog.Root>,
       );
     },

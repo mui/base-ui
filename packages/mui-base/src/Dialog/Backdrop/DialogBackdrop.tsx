@@ -10,8 +10,8 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, animated = true, keepMounted = false, ...other } = props;
-  const { open, modal, hasParentDialog, setBackdropPresent } = useDialogRootContext();
+  const { render, className, keepMounted = false, ...other } = props;
+  const { open, modal, hasParentDialog, setBackdropPresent, animated } = useDialogRootContext();
 
   const handleMount = React.useCallback(() => setBackdropPresent(true), [setBackdropPresent]);
   const handleUnmount = React.useCallback(() => setBackdropPresent(false), [setBackdropPresent]);
@@ -66,13 +66,6 @@ DialogBackdrop.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

@@ -19,9 +19,9 @@ describe('<Dialog.Root />', () => {
   describe('uncontrolled mode', () => {
     it('should open the dialog with the trigger', async () => {
       const { queryByRole, getByRole } = await render(
-        <Dialog.Root modal={false}>
+        <Dialog.Root modal={false} animated={false}>
           <Dialog.Trigger />
-          <Dialog.Popup animated={false} />
+          <Dialog.Popup />
         </Dialog.Root>,
       );
 
@@ -39,8 +39,8 @@ describe('<Dialog.Root />', () => {
   describe('controlled mode', () => {
     it('should open and close the dialog with the `open` prop', async () => {
       const { queryByRole, setProps } = await render(
-        <Dialog.Root open={false} modal={false}>
-          <Dialog.Popup animated={false} />
+        <Dialog.Root open={false} modal={false} animated={false}>
+          <Dialog.Popup />
         </Dialog.Root>,
       );
 
@@ -58,8 +58,8 @@ describe('<Dialog.Root />', () => {
     it('warns when the dialog is modal but no backdrop is present', async () => {
       await expect(() =>
         render(
-          <Dialog.Root modal>
-            <Dialog.Popup animated={false} />
+          <Dialog.Root modal animated={false}>
+            <Dialog.Popup />
           </Dialog.Root>,
         ),
       ).toWarnDev([
@@ -71,8 +71,8 @@ describe('<Dialog.Root />', () => {
     it('does not warn when the dialog is not modal and no backdrop is present', () => {
       expect(() =>
         render(
-          <Dialog.Root modal={false}>
-            <Dialog.Popup animated={false} />
+          <Dialog.Root modal={false} animated={false}>
+            <Dialog.Popup />
           </Dialog.Root>,
         ),
       ).not.toWarnDev();
@@ -81,9 +81,9 @@ describe('<Dialog.Root />', () => {
     it('does not warn when the dialog is modal and backdrop is present', () => {
       expect(() =>
         render(
-          <Dialog.Root modal>
+          <Dialog.Root modal animated={false}>
             <Dialog.Backdrop />
-            <Dialog.Popup animated={false} />
+            <Dialog.Popup />
           </Dialog.Root>,
         ),
       ).not.toWarnDev();
@@ -108,8 +108,9 @@ describe('<Dialog.Root />', () => {
               onOpenChange={handleOpenChange}
               dismissible={dismissible}
               modal={false}
+              animated={false}
             >
-              <Dialog.Popup animated={false} />
+              <Dialog.Popup />
             </Dialog.Root>
           </div>,
         );
@@ -139,9 +140,9 @@ describe('<Dialog.Root />', () => {
       const { getByText, getByTestId } = await render(
         <div>
           <input />
-          <Dialog.Root modal={false}>
+          <Dialog.Root modal={false} animated={false}>
             <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Popup data-testid="dialog" animated={false}>
+            <Dialog.Popup data-testid="dialog">
               <input data-testid="dialog-input" />
               <button>Close</button>
             </Dialog.Popup>

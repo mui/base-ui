@@ -5,7 +5,7 @@ import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
 
 function AlertDialogRoot(props: AlertDialogRootProps) {
-  const { children, defaultOpen, onOpenChange, open: openProp } = props;
+  const { children, defaultOpen, onOpenChange, open: openProp, animated = true } = props;
 
   const dialogRootContext = React.useContext(AlertDialogRootContext);
 
@@ -21,8 +21,8 @@ function AlertDialogRoot(props: AlertDialogRootProps) {
   const hasParentDialog = Boolean(dialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog }),
-    [dialogRoot, hasParentDialog],
+    () => ({ ...dialogRoot, hasParentDialog, animated }),
+    [dialogRoot, hasParentDialog, animated],
   );
 
   return (
@@ -37,6 +37,13 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default true
+   */
+  animated: PropTypes.bool,
   /**
    * @ignore
    */

@@ -6,11 +6,11 @@ import { describeConformance, createRenderer } from '../../../test';
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Dialog.Popup animated={false} />, () => ({
+  describeConformance(<Dialog.Popup />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false}>
+        <Dialog.Root open modal={false} animated={false}>
           {node}
         </Dialog.Root>,
       );
@@ -26,7 +26,7 @@ describe('<Dialog.Popup />', () => {
     ].forEach(([keepMounted, expectedIsMounted]) => {
       it(`should ${!expectedIsMounted ? 'not ' : ''}keep the dialog mounted when keepMounted=${keepMounted}`, async () => {
         const { queryByRole } = await render(
-          <Dialog.Root open={false} modal={false}>
+          <Dialog.Root open={false} modal={false} animated={false}>
             <Dialog.Popup keepMounted={keepMounted} />
           </Dialog.Root>,
         );

@@ -5,13 +5,6 @@ import { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupOwnerState> {
   /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated?: boolean;
-  /**
    * The container element to which the popup is appended to.
    */
   container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;

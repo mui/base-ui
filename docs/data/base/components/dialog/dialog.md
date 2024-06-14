@@ -150,7 +150,7 @@ The `<Dialog.Popup>` and `<Dialog.Backdrop>` components support transitions on e
 CSS animations and transitions are supported out of the box.
 If a component has a transition or animation applied to it when it closes, it will be unmounted only after the animation finishes.
 
-As this detection of exit animations requires an extra render, you may opt out of it by setting the `animated` prop on Popup and Backdrop to `false`.
+As this detection of exit animations requires an extra render, you may opt out of it by setting the `animated` prop on Root to `false`.
 We also recommend doing so in automated tests, to avoid asynchronous behavior and make testing easier.
 
 Alternatively, you can use JS-based animations with a library like framer-motion, React Spring, or similar.

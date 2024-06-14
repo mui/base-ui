@@ -11,7 +11,7 @@ describe('<Dialog.Backdrop />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false}>
+        <Dialog.Root open modal={false} animated={false}>
           {node}
         </Dialog.Root>,
       );
@@ -21,7 +21,7 @@ describe('<Dialog.Backdrop />', () => {
 
   it('has role="presentation"', () => {
     const { getByTestId } = render(
-      <Dialog.Root open>
+      <Dialog.Root open animated={false}>
         <Dialog.Backdrop data-testid="backdrop" />
       </Dialog.Root>,
     );

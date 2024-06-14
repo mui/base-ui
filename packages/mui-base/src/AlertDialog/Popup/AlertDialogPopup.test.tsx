@@ -6,11 +6,11 @@ import { createRenderer, describeConformance } from '../../../test';
 describe('<AlertDialog.Popup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<AlertDialog.Popup animated={false} />, () => ({
+  describeConformance(<AlertDialog.Popup />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open>
+        <AlertDialog.Root open animated={false}>
           <AlertDialog.Backdrop />
           {node}
         </AlertDialog.Root>,
@@ -21,9 +21,9 @@ describe('<AlertDialog.Popup />', () => {
 
   it('should have role="alertdialog"', async () => {
     const { getByTestId } = await render(
-      <AlertDialog.Root open>
+      <AlertDialog.Root open animated={false}>
         <AlertDialog.Backdrop />
-        <AlertDialog.Popup data-testid="test-alert-dialog" animated={false} />
+        <AlertDialog.Popup data-testid="test-alert-dialog" />
       </AlertDialog.Root>,
     );
 

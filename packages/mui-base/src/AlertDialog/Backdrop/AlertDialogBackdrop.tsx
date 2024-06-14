@@ -13,8 +13,8 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, animated = true, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, setBackdropPresent } = useAlertDialogRootContext();
+  const { render, className, keepMounted = false, ...other } = props;
+  const { open, hasParentDialog, setBackdropPresent, animated } = useAlertDialogRootContext();
 
   const handleMount = React.useCallback(() => setBackdropPresent(true), [setBackdropPresent]);
   const handleUnmount = React.useCallback(() => setBackdropPresent(false), [setBackdropPresent]);
@@ -66,13 +66,6 @@ AlertDialogBackdrop.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

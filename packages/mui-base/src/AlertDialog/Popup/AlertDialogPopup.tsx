@@ -11,22 +11,13 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    animated = true,
-    className,
-    container,
-    id,
-    keepMounted = false,
-    render,
-    ...other
-  } = props;
+  const { className, container, id, keepMounted = false, render, ...other } = props;
 
   const rootContext = useAlertDialogRootContext();
   const { open, nestedOpenDialogCount } = rootContext;
 
   const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
     id,
-    animated,
     ref: forwardedRef,
     dismissible: false,
     isTopmost: nestedOpenDialogCount === 0,
@@ -82,13 +73,6 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

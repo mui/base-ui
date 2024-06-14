@@ -1,5 +1,6 @@
 {
   "parameters": {
+    "animated": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
     "defaultOpen": { "type": { "name": "boolean", "description": "boolean" } },
     "dismissible": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
     "modal": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },

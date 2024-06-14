@@ -123,19 +123,15 @@ function ReactSpringDialogDemo({ animated, keepMounted, modal, dismissible }: De
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root dismissible open={open} onOpenChange={setOpen}>
+      <Dialog.Root dismissible open={open} onOpenChange={setOpen} animated={animated}>
         <Dialog.Trigger className={classes.button}>
           Open with React Spring transition
         </Dialog.Trigger>
 
-        <Dialog.Backdrop
-          animated={animated}
-          className={`${classes.backdrop} ${animated && classes.withAnimations}`}
-        />
+        <Dialog.Backdrop className={`${classes.backdrop} ${animated && classes.withAnimations}`} />
 
         <ReactSpringTransition open={open}>
           <Dialog.Popup
-            animated={false}
             keepMounted={keepMounted}
             className={`${classes.dialog} ${classes.withReactSpringTransition}`}
           >

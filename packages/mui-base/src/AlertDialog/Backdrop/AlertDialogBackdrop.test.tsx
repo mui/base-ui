@@ -10,7 +10,7 @@ describe('<AlertDialog.Backdrop />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open modal={false}>
+        <AlertDialog.Root open modal={false} animated={false}>
           {node}
         </AlertDialog.Root>,
       );
@@ -20,7 +20,7 @@ describe('<AlertDialog.Backdrop />', () => {
 
   it('has role="presentation"', async () => {
     const { getByTestId } = await render(
-      <AlertDialog.Root open>
+      <AlertDialog.Root open animated={false}>
         <AlertDialog.Backdrop data-testid="backdrop" />
       </AlertDialog.Root>,
     );
