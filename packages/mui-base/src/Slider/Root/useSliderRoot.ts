@@ -304,9 +304,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     ],
   );
 
+  const isRtl = direction === 'rtl';
+
   const previousIndex = React.useRef<number>();
   let axis = orientation;
-  if (direction === 'rtl' && orientation === 'horizontal') {
+  if (isRtl && orientation === 'horizontal') {
     axis += '-reverse';
   }
 
@@ -328,7 +330,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       if (axis.indexOf('vertical') === 0) {
         percent = (bottom - finger.y) / height + offset;
       } else {
-        percent = (finger.x - left) / width + offset;
+        percent = (finger.x - left) / width + offset * (isRtl ? -1 : 1);
       }
 
       percent = Math.min(percent, 1);
@@ -382,7 +384,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [axis, marksValues, max, min, minDifferenceBetweenValues, range, step, values],
+    [axis, isRtl, marksValues, max, min, minDifferenceBetweenValues, range, step, values],
   );
 
   useEnhancedEffect(() => {
