@@ -129,6 +129,51 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe('prop: animated', () => {
+    before(function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+    });
+
+    const css = `
+    .dialog {
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+
+    .dialog[data-state='open'] {
+      opacity: 1;
+    }
+  `;
+
+    it('when `true`, waits for the exit transition to finish before unmounting', async () => {
+      const { setProps, queryByRole } = await render(
+        <Dialog.Root open modal={false} animated>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: css }} />
+          <Dialog.Popup className="dialog" />
+        </Dialog.Root>,
+      );
+
+      setProps({ open: false });
+      expect(queryByRole('dialog')).not.to.equal(null);
+    });
+
+    it('when `false`, unmounts the popup immediately', async () => {
+      const { setProps, queryByRole } = await render(
+        <Dialog.Root open modal={false} animated={false}>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: css }} />
+          <Dialog.Popup className="dialog" />
+        </Dialog.Root>,
+      );
+
+      setProps({ open: false });
+      expect(queryByRole('dialog')).to.equal(null);
+    });
+  });
+
   describe('focus management', () => {
     before(function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
