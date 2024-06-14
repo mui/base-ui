@@ -157,7 +157,7 @@ describe('<Dialog.Root />', () => {
       );
 
       setProps({ open: false });
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(queryByRole('dialog', { hidden: true })).not.to.equal(null);
     });
 
     it('when `false`, unmounts the popup immediately', async () => {
