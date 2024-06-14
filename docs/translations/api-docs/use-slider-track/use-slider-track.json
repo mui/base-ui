@@ -1,1 +1,17 @@
-{ "hookDescription": "", "parametersDescriptions": {}, "returnValueDescriptions": {} }
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "areValuesEqual": {
+      "description": "A function that compares a new value with the internal value of the slider. The internal value is potentially unsorted, e.g. to support frozen arrays: <a href=\"https://github.com/mui/material-ui/pull/28472\">https://github.com/mui/material-ui/pull/28472</a>"
+    },
+    "minDifferenceBetweenValues": {
+      "description": "The minimum difference between values in a range slider."
+    },
+    "percentageValues": { "description": "The value(s) of the slider as percentages" },
+    "rootRef": { "description": "The ref attached to the track of the Slider." },
+    "subitems": {
+      "description": "A map containing all the Thumb components registered to the slider"
+    }
+  },
+  "returnValueDescriptions": {}
+}

@@ -1,4 +1,4 @@
-export { Slider as Root } from './Root/SliderRoot';
+export { SliderRoot as Root } from './Root/SliderRoot';
 export {
   SliderRootOwnerState as SliderOwnerState,
   SliderRootProps as RootProps,
@@ -22,9 +22,17 @@ export type {
 export { useSliderThumb } from './SliderThumb/useSliderThumb';
 
 export { SliderTrack as Track } from './SliderTrack/SliderTrack';
-export type { SliderTrackProps as TrackProps } from './SliderTrack/SliderTrack.types';
+export type {
+  SliderTrackProps as TrackProps,
+  UseSliderTrackParameters,
+  UseSliderTrackReturnValue,
+} from './SliderTrack/SliderTrack.types';
 export { useSliderTrack } from './SliderTrack/useSliderTrack';
 
 export { SliderOutput as Output } from './SliderOutput/SliderOutput';
-export type { SliderOutputProps as OutputProps } from './SliderOutput/SliderOutput.types';
+export type {
+  SliderOutputProps as OutputProps,
+  UseSliderOutputParameters,
+  UseSliderOutputReturnValue,
+} from './SliderOutput/SliderOutput.types';
 export { useSliderOutput } from './SliderOutput/useSliderOutput';

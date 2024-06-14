@@ -1,6 +1,31 @@
 {
-  "parameters": {},
-  "returnValue": {},
+  "parameters": {
+    "subitems": {
+      "type": {
+        "name": "Map&lt;string, SliderThumbMetadata&gt;",
+        "description": "Map&lt;string, SliderThumbMetadata&gt;"
+      },
+      "required": true
+    },
+    "aria-live": {
+      "type": {
+        "name": "React.AriaAttributes[&#39;aria-live&#39;]",
+        "description": "React.AriaAttributes[&#39;aria-live&#39;]"
+      }
+    },
+    "rootRef": {
+      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
+    }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;output&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;output&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;output&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;output&#39;&gt;"
+      },
+      "required": true
+    }
+  },
   "name": "useSliderOutput",
   "filename": "/packages/mui-base/src/Slider/SliderOutput/useSliderOutput.ts",
   "imports": ["import { useSliderOutput } from '@base_ui/react/Slider';"],

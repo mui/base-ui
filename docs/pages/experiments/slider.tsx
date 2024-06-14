@@ -287,19 +287,27 @@ export function Styles() {
 
     .VerticalSlider-track {
       display: flex;
-      justify-content: center;
+      flex-flow: column nowrap;
+      align-items: center;
       position: relative;
-      height: 20rem;
+      width: 16px;
+      height: 300px;
+      border-radius: 9999px;
+      touch-action: none;
+    }
+
+    .VerticalSlider-track:before {
+      content: '';
+      height: 100%;
       width: 2px;
       border-radius: 9999px;
       background-color: gainsboro;
       touch-action: none;
-      box-sizing: border-box;
     }
 
     .VerticalSlider-track-fill {
       position: absolute;
-      width: 100%;
+      width: 2px;
       border-radius: 9999px;
       background-color: black;
       box-sizing: border-box;

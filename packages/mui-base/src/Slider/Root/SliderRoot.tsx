@@ -219,4 +219,4 @@ SliderRoot.propTypes /* remove-proptypes */ = {
   value: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
 } as any;
 
-export { SliderRoot as Slider };
+export { SliderRoot };
