@@ -1,9 +1,9 @@
 import { BaseUIComponentProps } from '../../utils/types';
 import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
-export interface SliderTrackProps extends BaseUIComponentProps<'span', SliderRootOwnerState> {}
+export interface SliderControlProps extends BaseUIComponentProps<'span', SliderRootOwnerState> {}
 
-export interface UseSliderTrackParameters
+export interface UseSliderControlParameters
   extends Pick<
     UseSliderReturnValue,
     | 'areValuesEqual'
@@ -14,7 +14,7 @@ export interface UseSliderTrackParameters
     | 'minStepsBetweenValues'
     | 'onValueCommitted'
     | 'percentageValues'
-    | 'registerSliderTrack'
+    | 'registerSliderControl'
     | 'setActive'
     | 'setDragging'
     | 'setOpen'
@@ -23,12 +23,12 @@ export interface UseSliderTrackParameters
     | 'subitems'
   > {
   /**
-   * The ref attached to the track of the Slider.
+   * The ref attached to the control area of the Slider.
    */
   rootRef?: React.Ref<Element>;
 }
 
-export interface UseSliderTrackReturnValue {
+export interface UseSliderControlReturnValue {
   getRootProps: (
     externalProps?: React.ComponentPropsWithRef<'span'>,
   ) => React.ComponentPropsWithRef<'span'>;

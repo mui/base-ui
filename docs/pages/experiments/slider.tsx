@@ -11,37 +11,37 @@ export default function App() {
       <h3>Uncontrolled</h3>
       <Slider.Root className="MySlider" defaultValue={50}>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={30} disabled>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[40, 60]}>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[40, 60, 80]}>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
           <Slider.Thumb className="MySlider-thumb three" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <h3>Controlled</h3>
@@ -53,10 +53,10 @@ export default function App() {
         }}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root
@@ -67,11 +67,11 @@ export default function App() {
         }}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb" />
           <Slider.Thumb className="MySlider-thumb" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root
@@ -82,11 +82,11 @@ export default function App() {
         }}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           {val3.map((_val, idx) => (
             <Slider.Thumb key={`thumb-${idx}`} className="MySlider-thumb" />
           ))}
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>
@@ -147,7 +147,7 @@ export function Styles() {
       text-align: left;
     }
 
-    .MySlider-track {
+    .MySlider-control {
       grid-column: 1/3;
       display: flex;
       align-items: center;
@@ -158,7 +158,7 @@ export function Styles() {
       touch-action: none;
     }
 
-    .MySlider-track::before {
+    .MySlider-control::before {
       content: '';
       width: 100%;
       height: 2px;
@@ -217,7 +217,7 @@ export function Styles() {
       font-size: .875rem;
     }
 
-    .VerticalSlider-track {
+    .VerticalSlider-control {
       display: flex;
       flex-flow: column nowrap;
       align-items: center;
@@ -228,7 +228,7 @@ export function Styles() {
       touch-action: none;
     }
 
-    .VerticalSlider-track:before {
+    .VerticalSlider-control:before {
       content: '';
       height: 100%;
       width: 2px;

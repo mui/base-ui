@@ -7,10 +7,10 @@ export default function App() {
     <div className="App">
       <Slider.Root className="MySlider" defaultValue={50} direction="rtl">
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root
@@ -20,19 +20,19 @@ export default function App() {
         orientation="vertical"
       >
         <Slider.Output className="VerticalSlider-output" />
-        <Slider.Track className="VerticalSlider-track">
+        <Slider.Control className="VerticalSlider-control">
           <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[50, 70]} direction="rtl">
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root
@@ -42,11 +42,11 @@ export default function App() {
         orientation="vertical"
       >
         <Slider.Output className="VerticalSlider-output" />
-        <Slider.Track className="VerticalSlider-track">
+        <Slider.Control className="VerticalSlider-control">
           <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb one" />
           <Slider.Thumb className="VerticalSlider-thumb two" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>

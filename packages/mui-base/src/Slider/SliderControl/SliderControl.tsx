@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderContext } from '../Root/SliderProvider';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
-import { SliderTrackProps } from './SliderTrack.types';
-import { useSliderTrack } from './useSliderTrack';
+import { SliderControlProps } from './SliderControl.types';
+import { useSliderControl } from './useSliderControl';
 
-const SliderTrack = React.forwardRef(function SliderTrack(
-  props: SliderTrackProps,
+const SliderControl = React.forwardRef(function SliderControl(
+  props: SliderControlProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
@@ -23,7 +23,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     onValueCommitted,
     ownerState,
     percentageValues,
-    registerSliderTrack,
+    registerSliderControl,
     setActive,
     setDragging,
     setOpen,
@@ -32,7 +32,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     subitems,
   } = useSliderContext();
 
-  const { getRootProps } = useSliderTrack({
+  const { getRootProps } = useSliderControl({
     areValuesEqual,
     disabled,
     dragging,
@@ -41,7 +41,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     minStepsBetweenValues,
     onValueCommitted,
     percentageValues,
-    registerSliderTrack,
+    registerSliderControl,
     rootRef: forwardedRef,
     setActive,
     setDragging,
@@ -66,7 +66,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
   return renderElement();
 });
 
-SliderTrack.propTypes /* remove-proptypes */ = {
+SliderControl.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -85,4 +85,4 @@ SliderTrack.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SliderTrack };
+export { SliderControl };

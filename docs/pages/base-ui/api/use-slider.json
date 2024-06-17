@@ -140,7 +140,7 @@
       "type": { "name": "readonly number[]", "description": "readonly number[]" },
       "required": true
     },
-    "registerSliderTrack": {
+    "registerSliderControl": {
       "type": {
         "name": "(element: HTMLElement | null) =&gt; void",
         "description": "(element: HTMLElement | null) =&gt; void"

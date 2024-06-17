@@ -8,7 +8,7 @@
       "description": "The minimum steps between values in a range slider."
     },
     "percentageValues": { "description": "The value(s) of the slider as percentages" },
-    "rootRef": { "description": "The ref attached to the track of the Slider." },
+    "rootRef": { "description": "The ref attached to the control area of the Slider." },
     "step": {
       "description": "The step increment of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
     },

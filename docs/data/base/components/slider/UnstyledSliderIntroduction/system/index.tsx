@@ -13,10 +13,10 @@ export default function UnstyledSliderIntroduction() {
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
-        <SliderTrack>
+        <SliderControl>
           <SliderIndicator />
           <SliderThumb />
-        </SliderTrack>
+        </SliderControl>
       </Slider>
     </Box>
   );
@@ -71,7 +71,7 @@ const SliderOutput = styled(BaseSlider.Output)`
   text-align: right;
 `;
 
-const SliderTrack = styled(BaseSlider.Track)`
+const SliderControl = styled(BaseSlider.Control)`
   grid-column: 1/3;
   display: flex;
   align-items: center;

@@ -24,10 +24,10 @@ export default function UnstyledSliderIntroduction() {
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
-        <SliderTrack>
+        <SliderControl>
           <SliderIndicator />
           <SliderThumb />
-        </SliderTrack>
+        </SliderControl>
       </Slider>
     </div>
   );
@@ -81,9 +81,9 @@ SliderOutput.propTypes = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
 
-const SliderTrack = React.forwardRef(function SliderTrack(props, ref) {
+const SliderControl = React.forwardRef(function SliderControl(props, ref) {
   return (
-    <BaseSlider.Track
+    <BaseSlider.Control
       {...props}
       ref={ref}
       className={(state) =>
@@ -99,7 +99,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(props, ref) {
   );
 });
 
-SliderTrack.propTypes = {
+SliderControl.propTypes = {
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */

@@ -4,7 +4,7 @@ import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { focusThumb, trackFinger, validateMinimumDistance } from '../Root/useSliderRoot';
-import { UseSliderTrackParameters, UseSliderTrackReturnValue } from './SliderTrack.types';
+import { UseSliderControlParameters, UseSliderControlReturnValue } from './SliderControl.types';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 /**
@@ -15,9 +15,11 @@ const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
  *
  * API:
  *
- * - [useSliderTrack API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-track)
+ * - [useSliderControl API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-control)
  */
-export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderTrackReturnValue {
+export function useSliderControl(
+  parameters: UseSliderControlParameters,
+): UseSliderControlReturnValue {
   const {
     areValuesEqual,
     disabled,
@@ -27,7 +29,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     onValueCommitted,
     minStepsBetweenValues,
     percentageValues,
-    registerSliderTrack,
+    registerSliderControl,
     rootRef: externalRef,
     setActive,
     setDragging,
@@ -37,9 +39,9 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     subitems,
   } = parameters;
 
-  const trackRef = React.useRef<HTMLElement>(null);
+  const controlRef = React.useRef<HTMLElement>(null);
 
-  const handleRootRef = useForkRef(externalRef, registerSliderTrack, trackRef);
+  const handleRootRef = useForkRef(externalRef, registerSliderControl, controlRef);
 
   // A number that uniquely identifies the current finger in the touch session.
   const touchId = React.useRef<number>();
@@ -81,7 +83,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       offset: offsetRef.current,
     });
 
-    focusThumb({ sliderRef: trackRef, activeIndex, setActive });
+    focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
     if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
       setValueState(newValue);
@@ -141,7 +143,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
       const { newValue, activeIndex } = getFingerNewValue({
         finger,
       });
-      focusThumb({ sliderRef: trackRef, activeIndex, setActive });
+      focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
       setValueState(newValue);
 
@@ -151,14 +153,14 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
     }
 
     moveCount.current = 0;
-    const doc = ownerDocument(trackRef.current);
+    const doc = ownerDocument(controlRef.current);
     doc.addEventListener('touchmove', handleTouchMove, { passive: true });
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
   });
 
   const stopListening = React.useCallback(() => {
     offsetRef.current = 0;
-    const doc = ownerDocument(trackRef.current);
+    const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
     doc.removeEventListener('touchmove', handleTouchMove);
@@ -166,17 +168,17 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
   }, [handleTouchEnd, handleTouchMove]);
 
   React.useEffect(() => {
-    const { current: track } = trackRef;
-    track!.addEventListener('touchstart', handleTouchStart, {
+    const { current: control } = controlRef;
+    control!.addEventListener('touchstart', handleTouchStart, {
       passive: true,
     });
 
     return () => {
-      track!.removeEventListener('touchstart', handleTouchStart);
+      control!.removeEventListener('touchstart', handleTouchStart);
 
       stopListening();
     };
-  }, [stopListening, handleTouchStart, trackRef]);
+  }, [stopListening, handleTouchStart, controlRef]);
 
   React.useEffect(() => {
     if (disabled) {
@@ -209,7 +211,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
               finger,
             });
 
-            focusThumb({ sliderRef: trackRef, activeIndex, setActive });
+            focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
@@ -230,7 +232,7 @@ export function useSliderTrack(parameters: UseSliderTrackParameters): UseSliderT
           }
 
           moveCount.current = 0;
-          const doc = ownerDocument(trackRef.current);
+          const doc = ownerDocument(controlRef.current);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd);
         },

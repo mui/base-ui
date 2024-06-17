@@ -274,7 +274,7 @@ export interface UseSliderReturnValue {
    * @default 'horizontal'
    */
   orientation: 'horizontal' | 'vertical';
-  registerSliderTrack: (element: HTMLElement | null) => void;
+  registerSliderControl: (element: HTMLElement | null) => void;
   /**
    * The value(s) of the slider as percentages
    */

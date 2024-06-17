@@ -1,8 +1,8 @@
 <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel" direction="rtl">
   <Label id="VolumeSliderLabel">Volume (RTL)</Label>
   <SliderOutput />
-  <SliderTrack>
+  <SliderControl>
     <SliderIndicator />
     <SliderThumb />
-  </SliderTrack>
+  </SliderControl>
 </Slider>

@@ -165,11 +165,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const [open, setOpen] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
 
-  const trackRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
+  const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
-  const registerSliderTrack = React.useCallback((element: HTMLElement | null) => {
+  const registerSliderControl = React.useCallback((element: HTMLElement | null) => {
     if (element) {
-      trackRef.current = element;
+      controlRef.current = element;
     }
   }, []);
 
@@ -324,8 +324,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       move?: boolean;
       offset?: number;
     }) => {
-      const { current: track } = trackRef;
-      const { width, height, bottom, left } = track!.getBoundingClientRect();
+      const { current: sliderControl } = controlRef;
+      const { width, height, bottom, left } = sliderControl!.getBoundingClientRect();
       let percent;
 
       if (axis.indexOf('vertical') === 0) {
@@ -436,7 +436,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       open,
       orientation,
       percentageValues: values.map((v) => valueToPercent(v, min, max)),
-      registerSliderTrack,
+      registerSliderControl,
       scale,
       setActive,
       setDragging,
@@ -468,7 +468,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       onValueCommitted,
       open,
       orientation,
-      registerSliderTrack,
+      registerSliderControl,
       scale,
       setActive,
       setDragging,

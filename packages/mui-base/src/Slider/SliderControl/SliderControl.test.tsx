@@ -6,7 +6,7 @@ import { describeConformance } from '../../../test/describeConformance';
 
 const NOOP = () => {};
 
-describe('<Slider.Track />', () => {
+describe('<Slider.Control />', () => {
   const { render } = createRenderer();
 
   const testProviderValue: SliderProviderValue = {
@@ -47,7 +47,7 @@ describe('<Slider.Track />', () => {
       values: [0],
     },
     percentageValues: [0],
-    registerSliderTrack: NOOP,
+    registerSliderControl: NOOP,
     scale: (val) => val,
     setActive: NOOP,
     setDragging: NOOP,
@@ -58,7 +58,7 @@ describe('<Slider.Track />', () => {
     values: [0],
   };
 
-  describeConformance(<Slider.Track />, () => ({
+  describeConformance(<Slider.Control />, () => ({
     inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(

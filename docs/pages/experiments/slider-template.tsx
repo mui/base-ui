@@ -7,10 +7,10 @@ export default function App() {
     <div className="App">
       <Slider.Root className="MySlider" defaultValue={60}>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>

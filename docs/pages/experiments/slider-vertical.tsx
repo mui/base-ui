@@ -7,19 +7,19 @@ export default function App() {
     <div className="App">
       <Slider.Root className="VerticalSlider" defaultValue={50} orientation="vertical">
         <Slider.Output className="VerticalSlider-output" />
-        <Slider.Track className="VerticalSlider-track">
+        <Slider.Control className="VerticalSlider-control">
           <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="VerticalSlider" defaultValue={[40, 60]} orientation="vertical">
         <Slider.Output className="VerticalSlider-output" />
-        <Slider.Track className="VerticalSlider-track">
+        <Slider.Control className="VerticalSlider-control">
           <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb" />
           <Slider.Thumb className="VerticalSlider-thumb" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>

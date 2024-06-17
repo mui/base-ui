@@ -22,8 +22,8 @@ export default function App() {
   return (
     <div className="App">
       <Slider.Root className="JoySlider" defaultValue={40}>
-        <Slider.Track className="JoySlider-track">
-          <SliderTrackFill className="JoySlider-track-fill" />
+        <Slider.Control className="JoySlider-control">
+          <SliderTrackFill className="JoySlider-control-fill" />
           {Array.from(Array(10), (_, x) => x).map((v) => {
             return <SliderMark key={v} index={v} className="JoySlider-mark" />;
           })}
@@ -62,7 +62,7 @@ export default function App() {
               </Tooltip.Popup>
             </Tooltip.Positioner>
           </Tooltip.Root>
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>
@@ -176,7 +176,7 @@ function Styles() {
           -webkit-tap-highlight-color: transparent;
         }
 
-        .JoySlider-track {
+        .JoySlider-control {
           display: flex;
           align-items: center;
           position: relative;
@@ -187,7 +187,7 @@ function Styles() {
           margin-top: 2rem;
         }
 
-        .JoySlider-track::before {
+        .JoySlider-control::before {
           content: '';
           width: 100%;
           height: 6px;
@@ -196,7 +196,7 @@ function Styles() {
           background-color: ${isDarkMode ? '#dde7ee' : '#32383e'};
         }
 
-        .JoySlider-track-fill {
+        .JoySlider-control-fill {
           display: block;
           position: absolute;
           height: 6px;

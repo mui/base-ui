@@ -1,8 +1,8 @@
 ---
 productId: base-ui
 title: React Slider components
-components: Slider, SliderRoot, SliderOutput, SliderTrack, SliderIndicator, SliderThumb
-hooks: useSlider, useSliderRoot, useSliderOutput, useSliderTrack, useSliderIndicator, useSliderThumb
+components: Slider, SliderRoot, SliderOutput, SliderControl, SliderIndicator, SliderThumb
+hooks: useSlider, useSliderRoot, useSliderOutput, useSliderControl, useSliderIndicator, useSliderThumb
 githubLabel: 'component: slider'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb/
 packageName: '@base_ui/react'
@@ -51,17 +51,17 @@ Sliders are implemented using a collection of related components:
 
 - `<Slider.Root />` is a top-level component that wraps the other components.
 - `<Slider.Output />` renders the value of the slider.
-- `<Slider.Track />` renders the track area along which the thumb(s) can be moved.
-- `<Slider.Indicator />` renders the filled portion of the track which represents the value(s)
+- `<Slider.Control />` renders the click/touch area along which the thumb(s) can be moved.
+- `<Slider.Indicator />` renders the filled portion of the track which represents the value(s).
 - `<Slider.Thumb />` renders the element that can be moved along the track to change the value.
 
 ```tsx
 <Slider.Root>
   <Slider.Output />
-  <Slider.Track>
+  <Slider.Control>
     <Slider.Indicator />
     <Slider.Thumb />
-  </Slider.Track>
+  </Slider.Control>
 </Slider.Root>
 ```
 
@@ -76,10 +76,10 @@ function App() {
   return (
     <Slider.Root defaultValue={50}>
       <Slider.Output />
-      <Slider.Track>
+      <Slider.Control>
         <Slider.Indicator />
         <Slider.Thumb />
-      </Slider.Track>
+      </Slider.Control>
     </Slider.Root>
   );
 }
@@ -89,7 +89,7 @@ function App() {
 
 When Slider is uncontrolled, the `value` prop holds the numerical value(s), and two callbacks are provided for when the value changes:
 
-- `onValueChange` is called when the value is changing while the thumb is being moved along the track
+- `onValueChange` is called when the value is changing while the thumb is being moved along the control area
 - `onValueCommitted` is called when thumb stops moving and `pointerup` is triggered
 
 ```tsx
@@ -98,10 +98,10 @@ function App() {
   return (
     <Slider.Root value={value} onValueChange={setValue}>
       <Slider.Output />
-      <Slider.Track>
+      <Slider.Control>
         <Slider.Indicator />
         <Slider.Thumb />
-      </Slider.Track>
+      </Slider.Control>
     </Slider.Root>
   );
 }
@@ -116,10 +116,10 @@ The `min` and `max` props can be used to restrict the value(s) within a range.
 ```tsx
 <Slider.Root min={1} max={9}>
   <Slider.Output />
-  <Slider.Track>
+  <Slider.Control>
     <Slider.Indicator />
     <Slider.Thumb />
-  </Slider.Track>
+  </Slider.Control>
 </Slider.Root>
 ```
 
@@ -130,10 +130,10 @@ The `step` prop snaps the each value to multiples of the given number. In the be
 ```tsx
 <Slider.Root step={4} defaultValue={3}>
   <Slider.Output />
-  <Slider.Track>
+  <Slider.Control>
     <Slider.Indicator />
     <Slider.Thumb />
-  </Slider.Track>
+  </Slider.Control>
 </Slider.Root>
 ```
 
@@ -146,11 +146,11 @@ To let users set the start and end of a range on a Slider, provide an array of v
 ```tsx
 <Slider.Root defaultValue={[45, 70]}>
   <Slider.Output />
-  <Slider.Track>
+  <Slider.Control>
     <Slider.Indicator />
     <Slider.Thumb />
     <Slider.Thumb />
-  </Slider.Track>
+  </Slider.Control>
 </Slider.Root>
 ```
 
@@ -162,11 +162,11 @@ The `minStepsBetweenValues` prop can be used to to set the mininum number of `st
 
 ```tsx
 <Slider.Root minStepsBetweenValues={2} step={5} defaultValue={[10, 20]}>
-  <Slider.Track>
+  <Slider.Control>
     <Slider.Indicator />
     <Slider.Thumb />
     <Slider.Thumb />
-  </Slider.Track>
+  </Slider.Control>
 </Slider.Root>
 ```
 
@@ -197,7 +197,7 @@ In a RTL Slider, <kbd class="key">Left Arrow</kbd> increases the value while <kb
 Use the `render` prop to override the rendered elements with your own components.
 
 ```jsx
-<Slider.Track render={(props) => <MyCustomTrack {...props} />}> />
+<Slider.Control render={(props) => <MyCustomTrack {...props} />}> />
 ```
 
 All subcomponents accept the `render` prop.

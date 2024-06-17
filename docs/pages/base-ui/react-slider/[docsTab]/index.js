@@ -4,17 +4,17 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/slider/slider.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import SliderApiJsonPageContent from '../../api/slider.json';
+import SliderControlApiJsonPageContent from '../../api/slider-control.json';
 import SliderIndicatorApiJsonPageContent from '../../api/slider-indicator.json';
 import SliderOutputApiJsonPageContent from '../../api/slider-output.json';
 import SliderRootApiJsonPageContent from '../../api/slider-root.json';
 import SliderThumbApiJsonPageContent from '../../api/slider-thumb.json';
-import SliderTrackApiJsonPageContent from '../../api/slider-track.json';
 import useSliderApiJsonPageContent from '../../api/use-slider.json';
+import useSliderControlApiJsonPageContent from '../../api/use-slider-control.json';
 import useSliderIndicatorApiJsonPageContent from '../../api/use-slider-indicator.json';
 import useSliderOutputApiJsonPageContent from '../../api/use-slider-output.json';
 import useSliderRootApiJsonPageContent from '../../api/use-slider-root.json';
 import useSliderThumbApiJsonPageContent from '../../api/use-slider-thumb.json';
-import useSliderTrackApiJsonPageContent from '../../api/use-slider-track.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -39,6 +39,13 @@ export const getStaticProps = () => {
     /\.\/slider.*.json$/,
   );
   const SliderApiDescriptions = mapApiPageTranslations(SliderApiReq);
+
+  const SliderControlApiReq = require.context(
+    'docs-base/translations/api-docs/slider-control',
+    false,
+    /\.\/slider-control.*.json$/,
+  );
+  const SliderControlApiDescriptions = mapApiPageTranslations(SliderControlApiReq);
 
   const SliderIndicatorApiReq = require.context(
     'docs-base/translations/api-docs/slider-indicator',
@@ -68,19 +75,19 @@ export const getStaticProps = () => {
   );
   const SliderThumbApiDescriptions = mapApiPageTranslations(SliderThumbApiReq);
 
-  const SliderTrackApiReq = require.context(
-    'docs-base/translations/api-docs/slider-track',
-    false,
-    /\.\/slider-track.*.json$/,
-  );
-  const SliderTrackApiDescriptions = mapApiPageTranslations(SliderTrackApiReq);
-
   const useSliderApiReq = require.context(
     'docs-base/translations/api-docs/use-slider',
     false,
     /\.\/use-slider.*.json$/,
   );
   const useSliderApiDescriptions = mapApiPageTranslations(useSliderApiReq);
+
+  const useSliderControlApiReq = require.context(
+    'docs-base/translations/api-docs/use-slider-control',
+    false,
+    /\.\/use-slider-control.*.json$/,
+  );
+  const useSliderControlApiDescriptions = mapApiPageTranslations(useSliderControlApiReq);
 
   const useSliderIndicatorApiReq = require.context(
     'docs-base/translations/api-docs/use-slider-indicator',
@@ -110,46 +117,39 @@ export const getStaticProps = () => {
   );
   const useSliderThumbApiDescriptions = mapApiPageTranslations(useSliderThumbApiReq);
 
-  const useSliderTrackApiReq = require.context(
-    'docs-base/translations/api-docs/use-slider-track',
-    false,
-    /\.\/use-slider-track.*.json$/,
-  );
-  const useSliderTrackApiDescriptions = mapApiPageTranslations(useSliderTrackApiReq);
-
   return {
     props: {
       componentsApiDescriptions: {
         Slider: SliderApiDescriptions,
+        SliderControl: SliderControlApiDescriptions,
         SliderIndicator: SliderIndicatorApiDescriptions,
         SliderOutput: SliderOutputApiDescriptions,
         SliderRoot: SliderRootApiDescriptions,
         SliderThumb: SliderThumbApiDescriptions,
-        SliderTrack: SliderTrackApiDescriptions,
       },
       componentsApiPageContents: {
         Slider: SliderApiJsonPageContent,
+        SliderControl: SliderControlApiJsonPageContent,
         SliderIndicator: SliderIndicatorApiJsonPageContent,
         SliderOutput: SliderOutputApiJsonPageContent,
         SliderRoot: SliderRootApiJsonPageContent,
         SliderThumb: SliderThumbApiJsonPageContent,
-        SliderTrack: SliderTrackApiJsonPageContent,
       },
       hooksApiDescriptions: {
         useSlider: useSliderApiDescriptions,
+        useSliderControl: useSliderControlApiDescriptions,
         useSliderIndicator: useSliderIndicatorApiDescriptions,
         useSliderOutput: useSliderOutputApiDescriptions,
         useSliderRoot: useSliderRootApiDescriptions,
         useSliderThumb: useSliderThumbApiDescriptions,
-        useSliderTrack: useSliderTrackApiDescriptions,
       },
       hooksApiPageContents: {
         useSlider: useSliderApiJsonPageContent,
+        useSliderControl: useSliderControlApiJsonPageContent,
         useSliderIndicator: useSliderIndicatorApiJsonPageContent,
         useSliderOutput: useSliderOutputApiJsonPageContent,
         useSliderRoot: useSliderRootApiJsonPageContent,
         useSliderThumb: useSliderThumbApiJsonPageContent,
-        useSliderTrack: useSliderTrackApiJsonPageContent,
       },
     },
   };

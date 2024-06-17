@@ -23,10 +23,10 @@ export default function UnstyledSliderIntroduction() {
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
-        <SliderTrack>
+        <SliderControl>
           <SliderIndicator />
           <SliderThumb />
-        </SliderTrack>
+        </SliderControl>
       </Slider>
     </div>
   );
@@ -72,12 +72,12 @@ const SliderOutput = React.forwardRef(function SliderOutput(
   );
 });
 
-const SliderTrack = React.forwardRef(function SliderTrack(
-  props: BaseSlider.TrackProps,
+const SliderControl = React.forwardRef(function SliderControl(
+  props: BaseSlider.ControlProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
-    <BaseSlider.Track
+    <BaseSlider.Control
       {...props}
       ref={ref}
       className={(state) =>

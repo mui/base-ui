@@ -19,10 +19,10 @@ export default function UnstyledSliderIntroduction() {
           Volume
         </Label>
         <Slider.Output className="Slider-output" />
-        <Slider.Track className="Slider-track">
+        <Slider.Control className="Slider-control">
           <Slider.Indicator className="Slider-indicator" />
           <Slider.Thumb className="Slider-thumb" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>
@@ -81,7 +81,7 @@ function Styles() {
       text-align: right;
     }
 
-    .Slider-track {
+    .Slider-control {
       grid-column: 1/3;
       display: flex;
       align-items: center;
@@ -92,7 +92,7 @@ function Styles() {
       touch-action: none;
     }
 
-    .Slider-track::before {
+    .Slider-control::before {
       content: '';
       width: 100%;
       height: 2px;
@@ -101,11 +101,11 @@ function Styles() {
       touch-action: none;
     }
 
-    .dark .Slider-track::before {
+    .dark .Slider-control::before {
       background-color: ${grey[700]};
     }
 
-    .Slider-track[data-disabled] {
+    .Slider-control[data-disabled] {
       cursor: not-allowed;
     }
 

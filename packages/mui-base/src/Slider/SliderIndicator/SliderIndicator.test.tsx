@@ -47,7 +47,7 @@ describe('<Slider.Indicator />', () => {
       values: [0],
     },
     percentageValues: [0],
-    registerSliderTrack: NOOP,
+    registerSliderControl: NOOP,
     scale: (val) => val,
     setActive: NOOP,
     setDragging: NOOP,

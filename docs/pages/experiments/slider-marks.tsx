@@ -74,7 +74,7 @@ export default function App() {
       <Slider.Root className="TempSlider" defaultValue={40}>
         <pre>LTR</pre>
         <Slider.Output className="TempSlider-output" />
-        <Slider.Track className="TempSlider-track">
+        <Slider.Control className="TempSlider-control">
           {STOPS.map((mark, index) => (
             <MarkWithLabel
               key={`mark-${index}`}
@@ -83,18 +83,18 @@ export default function App() {
               value={mark.value}
             />
           ))}
-          <Slider.Indicator className="TempSlider-track-fill" />
+          <Slider.Indicator className="TempSlider-control-fill" />
           <Slider.Thumb
             className="TempSlider-thumb"
             getAriaValueText={getSliderThumbAriaValueText}
           />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="TempSlider" defaultValue={40} direction="rtl">
         <pre>RTL</pre>
         <Slider.Output className="TempSlider-output" />
-        <Slider.Track className="TempSlider-track">
+        <Slider.Control className="TempSlider-control">
           {STOPS.map((mark, index) => (
             <MarkWithLabel
               key={`mark-${index}`}
@@ -103,12 +103,12 @@ export default function App() {
               value={mark.value}
             />
           ))}
-          <Slider.Indicator className="TempSlider-track-fill" />
+          <Slider.Indicator className="TempSlider-control-fill" />
           <Slider.Thumb
             className="TempSlider-thumb"
             getAriaValueText={getSliderThumbAriaValueText}
           />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <BrandingStyles />
     </div>
@@ -152,7 +152,7 @@ function BrandingStyles() {
       margin-left: -0.25rem;
     }
 
-    .TempSlider-track {
+    .TempSlider-control {
       display: flex;
       align-items: center;
       position: relative;
@@ -162,7 +162,7 @@ function BrandingStyles() {
       touch-action: none;
     }
 
-    .TempSlider-track::before {
+    .TempSlider-control::before {
       content: '';
       touch-action: none;
       display: block;
@@ -173,7 +173,7 @@ function BrandingStyles() {
       background-color: var(--color-primary-light);
     }
 
-    .TempSlider-track-fill {
+    .TempSlider-control-fill {
       display: block;
       position: absolute;
       height: 4px;

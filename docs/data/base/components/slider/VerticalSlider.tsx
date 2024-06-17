@@ -16,10 +16,10 @@ export default function VerticalSlider() {
         <Label id="VolumeSliderLabel" className="Label">
           Volume
         </Label>
-        <Slider.Track className="VerticalSlider-track">
+        <Slider.Control className="VerticalSlider-control">
           <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb" />
-        </Slider.Track>
+        </Slider.Control>
         <Slider.Output className="VerticalSlider-output" />
       </Slider.Root>
       <Styles />
@@ -67,7 +67,7 @@ function Styles() {
         font-size: 1.125rem;
       }
 
-      .VerticalSlider-track {
+      .VerticalSlider-control {
         display: flex;
         flex-flow: column nowrap;
         align-items: center;
@@ -78,7 +78,7 @@ function Styles() {
         touch-action: none;
       }
 
-      .VerticalSlider-track:before {
+      .VerticalSlider-control:before {
         content: '';
         height: 100%;
         width: 2px;
@@ -87,11 +87,11 @@ function Styles() {
         touch-action: none;
       }
 
-      .VerticalSlider-track[data-disabled='true'] {
+      .VerticalSlider-control[data-disabled='true'] {
         cursor: not-allowed;
       }
 
-      .dark .VerticalSlider-track:before {
+      .dark .VerticalSlider-control:before {
         background-color: ${grey[700]};
       }
 

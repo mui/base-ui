@@ -136,6 +136,10 @@ module.exports = [
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
   { pathname: '/base-ui/react-slider/components-api/#slider', title: 'Slider' },
   {
+    pathname: '/base-ui/react-slider/components-api/#slider-control',
+    title: 'SliderControl',
+  },
+  {
     pathname: '/base-ui/react-slider/components-api/#slider-indicator',
     title: 'SliderIndicator',
   },
@@ -150,10 +154,6 @@ module.exports = [
   {
     pathname: '/base-ui/react-slider/components-api/#slider-thumb',
     title: 'SliderThumb',
-  },
-  {
-    pathname: '/base-ui/react-slider/components-api/#slider-track',
-    title: 'SliderTrack',
   },
   {
     pathname: '/base-ui/react-snackbar/components-api/#snackbar',
@@ -262,6 +262,10 @@ module.exports = [
   { pathname: '/base-ui/react-select/hooks-api/#use-select', title: 'useSelect' },
   { pathname: '/base-ui/react-slider/hooks-api/#use-slider', title: 'useSlider' },
   {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-control',
+    title: 'useSliderControl',
+  },
+  {
     pathname: '/base-ui/react-slider/hooks-api/#use-slider-indicator',
     title: 'useSliderIndicator',
   },
@@ -276,10 +280,6 @@ module.exports = [
   {
     pathname: '/base-ui/react-slider/hooks-api/#use-slider-thumb',
     title: 'useSliderThumb',
-  },
-  {
-    pathname: '/base-ui/react-slider/hooks-api/#use-slider-track',
-    title: 'useSliderTrack',
   },
   {
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',

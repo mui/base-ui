@@ -36,10 +36,10 @@ export default function App() {
           Brightness
         </Label>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[50, 70]} aria-labelledby="LabelRangeId">
@@ -47,11 +47,11 @@ export default function App() {
           Volume Range
         </LabelRange>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
       <Styles />
     </div>

@@ -22,10 +22,10 @@ export default function App() {
         onValueCommitted={(newValue) => setVal2(newValue as number)}
       >
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track">
+        <Slider.Control className="MySlider-control">
           <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <pre>onValueChange value: {val1}</pre>

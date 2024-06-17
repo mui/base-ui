@@ -89,7 +89,7 @@ SliderProvider.propTypes /* remove-proptypes */ = {
       values: PropTypes.arrayOf(PropTypes.number).isRequired,
     }).isRequired,
     percentageValues: PropTypes.arrayOf(PropTypes.number).isRequired,
-    registerSliderTrack: PropTypes.func.isRequired,
+    registerSliderControl: PropTypes.func.isRequired,
     scale: PropTypes.func.isRequired,
     setActive: PropTypes.func.isRequired,
     setDragging: PropTypes.func.isRequired,

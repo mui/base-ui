@@ -20,21 +20,21 @@ export default function RangeSlider() {
       >
         <Label id="ControlledRangeLabel">Controlled Range</Label>
         <SliderOutput />
-        <SliderTrack>
+        <SliderControl>
           <SliderIndicator />
           <SliderThumb />
           <SliderThumb />
-        </SliderTrack>
+        </SliderControl>
       </Slider>
       {/* uncontrolled: */}
       <Slider defaultValue={[20, 37]} aria-labelledby="UncontrolledRangeLabel">
         <Label id="UncontrolledRangeLabel">Uncontrolled Range</Label>
         <SliderOutput />
-        <SliderTrack>
+        <SliderControl>
           <SliderIndicator />
           <SliderThumb />
           <SliderThumb />
-        </SliderTrack>
+        </SliderControl>
       </Slider>
     </Box>
   );
@@ -74,7 +74,7 @@ const SliderOutput = styled(BaseSlider.Output)`
   text-align: right;
 `;
 
-const SliderTrack = styled(BaseSlider.Track)`
+const SliderControl = styled(BaseSlider.Control)`
   grid-column: 1/3;
   display: flex;
   align-items: center;

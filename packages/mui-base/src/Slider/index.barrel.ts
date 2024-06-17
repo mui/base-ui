@@ -12,13 +12,13 @@ export type {
 } from './SliderThumb/SliderThumb.types';
 export { useSliderThumb } from './SliderThumb/useSliderThumb';
 
-export { SliderTrack } from './SliderTrack/SliderTrack';
+export { SliderControl } from './SliderControl/SliderControl';
 export type {
-  SliderTrackProps as TrackProps,
-  UseSliderTrackParameters,
-  UseSliderTrackReturnValue,
-} from './SliderTrack/SliderTrack.types';
-export { useSliderTrack } from './SliderTrack/useSliderTrack';
+  SliderControlProps as ControlProps,
+  UseSliderControlParameters,
+  UseSliderControlReturnValue,
+} from './SliderControl/SliderControl.types';
+export { useSliderControl } from './SliderControl/useSliderControl';
 
 export { SliderIndicator } from './SliderIndicator/SliderIndicator';
 export type {

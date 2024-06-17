@@ -36,9 +36,9 @@ function TestSlider(props: SliderRootProps) {
   return (
     <Slider.Root data-testid="root" {...props}>
       <Slider.Output data-testid="output" />
-      <Slider.Track data-testid="track">
+      <Slider.Control data-testid="control">
         <Slider.Thumb data-testid="thumb" />
-      </Slider.Track>
+      </Slider.Control>
     </Slider.Root>
   );
 }
@@ -47,10 +47,10 @@ function TestRangeSlider(props: SliderRootProps) {
   return (
     <Slider.Root data-testid="root" {...props}>
       <Slider.Output data-testid="output" />
-      <Slider.Track data-testid="track">
+      <Slider.Control data-testid="control">
         <Slider.Thumb data-testid="thumb-0" />
         <Slider.Thumb data-testid="thumb-1" />
-      </Slider.Track>
+      </Slider.Control>
     </Slider.Root>
   );
 }
@@ -79,9 +79,9 @@ describe('<Slider.Root />', () => {
     render(
       <Slider.Root defaultValue={30}>
         <Slider.Output />
-        <Slider.Track>
+        <Slider.Control>
           <Slider.Thumb />
-        </Slider.Track>
+        </Slider.Control>
       </Slider.Root>,
     );
 
@@ -91,13 +91,16 @@ describe('<Slider.Root />', () => {
   it('should not break when initial value is out of range', () => {
     const { getByTestId } = render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
 
-    const sliderTrack = getByTestId('track');
+    const sliderControl = getByTestId('control');
 
-    stub(sliderTrack, 'getBoundingClientRect').callsFake(
+    stub(sliderControl, 'getBoundingClientRect').callsFake(
       () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
     );
 
-    fireEvent.touchStart(sliderTrack, createTouches([{ identifier: 1, clientX: 100, clientY: 0 }]));
+    fireEvent.touchStart(
+      sliderControl,
+      createTouches([{ identifier: 1, clientX: 100, clientY: 0 }]),
+    );
 
     fireEvent.touchMove(document.body, createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]));
   });
@@ -107,9 +110,9 @@ describe('<Slider.Root />', () => {
       const { container, getByRole, getByTestId } = render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Output />
-          <Slider.Track>
+          <Slider.Control>
             <Slider.Thumb />
-          </Slider.Track>
+          </Slider.Control>
         </Slider.Root>,
       );
 
@@ -159,16 +162,16 @@ describe('<Slider.Root />', () => {
       const { getByTestId } = render(
         <TestSlider direction="rtl" value={30} onValueChange={handleValueChange} />,
       );
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
       const sliderThumb = getByTestId('thumb');
       expect(sliderThumb.style.right).to.equal('30%');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
 
@@ -276,24 +279,24 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should render data-disabled on the root, track, output and thumb', () => {
+    it('should render data-disabled on the root, control, output and thumb', () => {
       const { getByTestId } = render(
         <Slider.Root defaultValue={30} disabled data-testid="root">
           <Slider.Output data-testid="output" />
-          <Slider.Track data-testid="track">
+          <Slider.Control data-testid="control">
             <Slider.Thumb data-testid="thumb" />
-          </Slider.Track>
+          </Slider.Control>
         </Slider.Root>,
       );
 
       const root = getByTestId('root');
       const output = getByTestId('output');
-      const track = getByTestId('track');
+      const control = getByTestId('control');
       const thumb = getByTestId('thumb');
 
       expect(root).to.have.attribute('data-disabled', 'true');
       expect(output).to.have.attribute('data-disabled', 'true');
-      expect(track).to.have.attribute('data-disabled', 'true');
+      expect(control).to.have.attribute('data-disabled', 'true');
       expect(thumb).to.have.attribute('data-disabled', 'true');
     });
 
@@ -307,13 +310,13 @@ describe('<Slider.Root />', () => {
         <TestSlider defaultValue={0} data-testid="slider-root" />,
       );
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
       );
 
@@ -326,7 +329,10 @@ describe('<Slider.Root />', () => {
       expect(thumb).not.toHaveFocus();
       // expect(thumb).not.to.have.class(classes.active);
 
-      fireEvent.touchMove(sliderTrack, createTouches([{ identifier: 1, clientX: 30, clientY: 0 }]));
+      fireEvent.touchMove(
+        sliderControl,
+        createTouches([{ identifier: 1, clientX: 30, clientY: 0 }]),
+      );
 
       expect(thumb).to.have.attribute('aria-valuenow', '21');
     });
@@ -342,14 +348,14 @@ describe('<Slider.Root />', () => {
       );
 
       const thumb = getByRole('slider');
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
       );
 
@@ -393,8 +399,8 @@ describe('<Slider.Root />', () => {
 
       const sliderRoot = screen.getByRole('group');
       expect(sliderRoot).to.have.attribute('data-orientation', 'horizontal');
-      const sliderTrack = getByTestId('track');
-      expect(sliderTrack).to.have.attribute('data-orientation', 'horizontal');
+      const sliderControl = getByTestId('control');
+      expect(sliderControl).to.have.attribute('data-orientation', 'horizontal');
       const sliderOutput = getByTestId('output');
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
@@ -421,8 +427,8 @@ describe('<Slider.Root />', () => {
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
       );
 
-      const sliderTrack = getByTestId('track');
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(() => ({
+      const sliderControl = getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(() => ({
         width: 10,
         height: 100,
         bottom: 100,
@@ -435,7 +441,7 @@ describe('<Slider.Root />', () => {
       }));
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 0, clientY: 20 }]),
       );
       fireEvent.touchMove(
@@ -480,8 +486,8 @@ describe('<Slider.Root />', () => {
         slider.focus();
       });
 
-      const sliderTrack = getByTestId('track');
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      const sliderControl = getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
@@ -492,7 +498,7 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '0.2');
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
 
@@ -519,8 +525,8 @@ describe('<Slider.Root />', () => {
         slider.focus();
       });
 
-      const sliderTrack = getByTestId('track');
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      const sliderControl = getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
@@ -531,7 +537,7 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '2e-8');
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
 
@@ -552,8 +558,8 @@ describe('<Slider.Root />', () => {
         slider.focus();
       });
 
-      const sliderTrack = getByTestId('track');
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      const sliderControl = getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
@@ -564,7 +570,7 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '-2e-8');
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
       );
 
@@ -608,9 +614,9 @@ describe('<Slider.Root />', () => {
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
@@ -622,7 +628,7 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '90');
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
 
@@ -744,19 +750,19 @@ describe('<Slider.Root />', () => {
         />,
       );
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
       const slider = getByRole('slider');
 
-      fireEvent.pointerDown(sliderTrack, {
+      fireEvent.pointerDown(sliderControl, {
         buttons: 1,
         clientX: 10,
       });
-      fireEvent.pointerUp(sliderTrack, {
+      fireEvent.pointerUp(sliderControl, {
         buttons: 1,
         clientX: 10,
       });
@@ -780,13 +786,13 @@ describe('<Slider.Root />', () => {
       const { getByTestId } = render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
       );
-      const sliderTrack = getByTestId('track');
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      const sliderControl = getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
 
@@ -801,7 +807,7 @@ describe('<Slider.Root />', () => {
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
       );
 
@@ -816,7 +822,7 @@ describe('<Slider.Root />', () => {
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 22, clientY: 0 }]),
       );
 
@@ -847,13 +853,16 @@ describe('<Slider.Root />', () => {
         />,
       );
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.touchStart(sliderTrack, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
+      fireEvent.touchStart(
+        sliderControl,
+        createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
+      );
       expect(handleValueChange.callCount).to.equal(0);
       expect(handleValueCommitted.callCount).to.equal(0);
 
@@ -888,13 +897,13 @@ describe('<Slider.Root />', () => {
 
       const { getByTestId } = render(<TestSlider onValueChange={handleValueChange} value={0} />);
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.pointerDown(sliderTrack, {
+      fireEvent.pointerDown(sliderControl, {
         buttons: 1,
         clientX: 1,
       });
@@ -919,13 +928,16 @@ describe('<Slider.Root />', () => {
     it('should focus the slider when touching', () => {
       const { getByRole, getByTestId } = render(<TestSlider defaultValue={30} />);
       const slider = getByRole('slider');
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.touchStart(sliderTrack, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
+      fireEvent.touchStart(
+        sliderControl,
+        createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
+      );
 
       expect(slider).toHaveFocus();
     });
@@ -934,9 +946,9 @@ describe('<Slider.Root />', () => {
       const { getByRole, getByTestId } = render(<TestSlider defaultValue={30} step={10} />);
       const slider = getByRole('slider');
       const sliderThumb = getByTestId('thumb');
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
@@ -968,19 +980,22 @@ describe('<Slider.Root />', () => {
       }
 
       const { getByTestId } = render(<Test />);
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.touchStart(sliderTrack, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
+      fireEvent.touchStart(
+        sliderControl,
+        createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
+      );
 
       expect(handleValueChange.callCount).to.equal(0);
       expect(handleNativeEvent.callCount).to.equal(1);
-      expect(handleNativeEvent.firstCall.args[0]).to.have.property('target', sliderTrack);
+      expect(handleNativeEvent.firstCall.args[0]).to.have.property('target', sliderControl);
       expect(handleEvent.callCount).to.equal(1);
-      expect(handleEvent.firstCall.args[0]).to.have.property('target', sliderTrack);
+      expect(handleEvent.firstCall.args[0]).to.have.property('target', sliderControl);
     });
 
     it('should not override the event.target on mouse events', () => {
@@ -1002,19 +1017,19 @@ describe('<Slider.Root />', () => {
         );
       }
       const { getByTestId } = render(<Test />);
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.mouseDown(sliderTrack);
+      fireEvent.mouseDown(sliderControl);
 
       expect(handleValueChange.callCount).to.equal(0);
       expect(handleNativeEvent.callCount).to.equal(1);
-      expect(handleNativeEvent.firstCall.args[0]).to.have.property('target', sliderTrack);
+      expect(handleNativeEvent.firstCall.args[0]).to.have.property('target', sliderControl);
       expect(handleEvent.callCount).to.equal(1);
-      expect(handleEvent.firstCall.args[0]).to.have.property('target', sliderTrack);
+      expect(handleEvent.firstCall.args[0]).to.have.property('target', sliderControl);
     });
   });
 
@@ -1022,35 +1037,35 @@ describe('<Slider.Root />', () => {
     it('should not apply data-dragging for click modality', () => {
       const { getByTestId } = render(<TestSlider defaultValue={90} />);
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
       fireEvent.touchMove(
         document.body,
         createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
       );
-      expect(sliderTrack).to.not.have.attribute('data-dragging');
+      expect(sliderControl).to.not.have.attribute('data-dragging');
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
     });
 
     it('should apply data-dragging for dragging modality', () => {
       const { getByTestId } = render(<TestSlider defaultValue={90} />);
 
-      const sliderTrack = getByTestId('track');
+      const sliderControl = getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
       fireEvent.touchStart(
-        sliderTrack,
+        sliderControl,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
       fireEvent.touchMove(
@@ -1062,16 +1077,16 @@ describe('<Slider.Root />', () => {
         createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
       );
 
-      expect(sliderTrack).to.not.have.attribute('data-dragging');
+      expect(sliderControl).to.not.have.attribute('data-dragging');
 
       fireEvent.touchMove(
         document.body,
         createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
       );
 
-      expect(sliderTrack).to.have.attribute('data-dragging', 'true');
+      expect(sliderControl).to.have.attribute('data-dragging', 'true');
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
-      expect(sliderTrack).to.not.have.attribute('data-dragging');
+      expect(sliderControl).to.not.have.attribute('data-dragging');
     });
   });
 
@@ -1108,17 +1123,17 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('is called when clicking on the track', () => {
+    it('is called when clicking on the control', () => {
       const handleValueChange = spy();
       render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
-      const sliderTrack = screen.getByTestId('track');
+      const sliderControl = screen.getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.pointerDown(sliderTrack, {
+      fireEvent.pointerDown(sliderControl, {
         buttons: 1,
         clientX: 41,
       });
@@ -1130,10 +1145,10 @@ describe('<Slider.Root />', () => {
       const handleValueChange = spy();
       render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
-      const sliderTrack = screen.getByTestId('track');
+      const sliderControl = screen.getByTestId('control');
       const sliderThumb = screen.getByTestId('thumb');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
@@ -1149,13 +1164,13 @@ describe('<Slider.Root />', () => {
       const handleValueChange = spy();
       render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
-      const sliderTrack = screen.getByTestId('track');
+      const sliderControl = screen.getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.pointerDown(sliderTrack, {
+      fireEvent.pointerDown(sliderControl, {
         button: 2,
         clientX: 41,
       });
@@ -1167,13 +1182,13 @@ describe('<Slider.Root />', () => {
       const handleValueChange = spy();
       render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
 
-      const sliderTrack = screen.getByTestId('track');
+      const sliderControl = screen.getByTestId('control');
 
-      stub(sliderTrack, 'getBoundingClientRect').callsFake(
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.pointerDown(sliderTrack, {
+      fireEvent.pointerDown(sliderControl, {
         buttons: 1,
         clientX: 21,
       });
@@ -1205,9 +1220,9 @@ describe('<Slider.Root />', () => {
 
         render(<TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />);
 
-        const sliderTrack = screen.getByTestId('track');
+        const sliderControl = screen.getByTestId('control');
 
-        stub(sliderTrack, 'getBoundingClientRect').callsFake(
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
           () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
         );
 
@@ -1217,7 +1232,7 @@ describe('<Slider.Root />', () => {
         // value:      ¡ü   ¡ü
         // mouse:           ¡ü
 
-        fireEvent.pointerDown(sliderTrack, {
+        fireEvent.pointerDown(sliderControl, {
           buttons: 1,
           clientX: 41,
         });
