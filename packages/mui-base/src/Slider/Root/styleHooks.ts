@@ -6,7 +6,7 @@ export const sliderStyleHookMapping: CustomStyleHookMapping<SliderRootOwnerState
   direction: () => null,
   max: () => null,
   min: () => null,
-  minDifferenceBetweenValues: () => null,
+  minStepsBetweenValues: () => null,
   step: () => null,
   values: () => null,
 };

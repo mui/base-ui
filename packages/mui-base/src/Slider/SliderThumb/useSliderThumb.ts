@@ -57,7 +57,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     largeStep,
     max,
     min,
-    minDifferenceBetweenValues,
+    minStepsBetweenValues,
     name,
     orientation,
     rootRef: externalRef,
@@ -154,7 +154,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
               if (isRange) {
                 newValue = Number.isFinite(sliderValues[index + 1])
-                  ? sliderValues[index + 1] - minDifferenceBetweenValues
+                  ? sliderValues[index + 1] - step * minStepsBetweenValues
                   : max;
               }
               break;
@@ -163,7 +163,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
               if (isRange) {
                 newValue = Number.isFinite(sliderValues[index - 1])
-                  ? sliderValues[index - 1] + minDifferenceBetweenValues
+                  ? sliderValues[index - 1] + step * minStepsBetweenValues
                   : min;
               }
               break;
@@ -200,7 +200,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       largeStep,
       max,
       min,
-      minDifferenceBetweenValues,
+      minStepsBetweenValues,
       setOpen,
       sliderValues,
       step,

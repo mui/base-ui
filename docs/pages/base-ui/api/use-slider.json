@@ -22,7 +22,7 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "default": "100" },
     "min": { "type": { "name": "number", "description": "number" }, "default": "0" },
-    "minDifferenceBetweenValues": {
+    "minStepsBetweenValues": {
       "type": { "name": "number", "description": "number" },
       "default": "0"
     },
@@ -123,7 +123,7 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "required": true },
     "min": { "type": { "name": "number", "description": "number" }, "required": true },
-    "minDifferenceBetweenValues": {
+    "minStepsBetweenValues": {
       "type": { "name": "number", "description": "number" },
       "required": true
     },

@@ -22,7 +22,7 @@
     },
     "max": { "type": { "name": "number" }, "default": "100" },
     "min": { "type": { "name": "number" }, "default": "0" },
-    "minDifferenceBetweenValues": { "type": { "name": "number" }, "default": "0" },
+    "minStepsBetweenValues": { "type": { "name": "number" }, "default": "0" },
     "name": { "type": { "name": "string" } },
     "onValueChange": {
       "type": { "name": "func" },

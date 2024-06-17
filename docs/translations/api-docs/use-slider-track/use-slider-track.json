@@ -4,11 +4,14 @@
     "areValuesEqual": {
       "description": "A function that compares a new value with the internal value of the slider. The internal value is potentially unsorted, e.g. to support frozen arrays: <a href=\"https://github.com/mui/material-ui/pull/28472\">https://github.com/mui/material-ui/pull/28472</a>"
     },
-    "minDifferenceBetweenValues": {
-      "description": "The minimum difference between values in a range slider."
+    "minStepsBetweenValues": {
+      "description": "The minimum steps between values in a range slider."
     },
     "percentageValues": { "description": "The value(s) of the slider as percentages" },
     "rootRef": { "description": "The ref attached to the track of the Slider." },
+    "step": {
+      "description": "The step increment of the slider when incrementing or decrementing. It will snap to multiples of this value. Decimal values are supported."
+    },
     "subitems": {
       "description": "A map containing all the Thumb components registered to the slider"
     }

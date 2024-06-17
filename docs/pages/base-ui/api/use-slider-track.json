@@ -23,7 +23,7 @@
       },
       "required": true
     },
-    "minDifferenceBetweenValues": {
+    "minStepsBetweenValues": {
       "type": { "name": "number", "description": "number" },
       "required": true
     },
@@ -61,6 +61,11 @@
         "name": "(newValue: number | number[]) =&gt; void",
         "description": "(newValue: number | number[]) =&gt; void"
       },
+      "required": true
+    },
+    "step": {
+      "type": { "name": "number", "description": "number" },
+      "default": "1",
       "required": true
     },
     "subitems": {

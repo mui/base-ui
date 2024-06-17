@@ -681,15 +681,16 @@ describe('<Slider.Root />', () => {
     });
   });
 
-  describe('prop: minDifferenceBetweenValues', () => {
-    it('should enforce a minimum distance between range slider values', () => {
+  describe('prop: minStepsBetweenValues', () => {
+    it('should enforce a minimum difference between range slider values', () => {
       const handleValueChange = spy();
 
       const { getByTestId } = render(
         <TestRangeSlider
           onValueChange={handleValueChange}
-          defaultValue={[47, 50]}
-          minDifferenceBetweenValues={2}
+          defaultValue={[44, 50]}
+          step={2}
+          minStepsBetweenValues={2}
         />,
       );
 
@@ -702,7 +703,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal([48, 50]);
+      expect(handleValueChange.args[0][0]).to.deep.equal([46, 50]);
       fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(1);
 
@@ -712,11 +713,11 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(thumbTwo, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal([48, 51]);
+      expect(handleValueChange.args[1][0]).to.deep.equal([46, 52]);
       fireEvent.keyDown(thumbTwo, { key: 'ArrowDown' });
       fireEvent.keyDown(thumbTwo, { key: 'ArrowDown' });
       expect(handleValueChange.callCount).to.equal(3);
-      expect(handleValueChange.args[2][0]).to.deep.equal([48, 50]);
+      expect(handleValueChange.args[2][0]).to.deep.equal([46, 50]);
     });
   });
 

@@ -37,10 +37,10 @@ export interface SliderRootOwnerState {
   max: number;
   min: number;
   /**
-   * The minimum difference between values in a range slider.
+   * The minimum steps between values in a range slider.
    * @default 0
    */
-  minDifferenceBetweenValues: number;
+  minStepsBetweenValues: number;
   /**
    * The component orientation.
    */
@@ -120,10 +120,10 @@ export interface UseSliderParameters {
    */
   min?: number;
   /**
-   * The minimum difference between values in a range slider.
+   * The minimum steps between values in a range slider.
    * @default 0
    */
-  minDifferenceBetweenValues?: number;
+  minStepsBetweenValues?: number;
   /**
    * Name attribute of the hidden `input` element.
    */
@@ -260,9 +260,9 @@ export interface UseSliderReturnValue {
    */
   min: number;
   /**
-   * The minimum difference between values in a range slider.
+   * The minimum steps between values in a range slider.
    */
-  minDifferenceBetweenValues: number;
+  minStepsBetweenValues: number;
   name?: string;
   onValueCommitted?: (value: number | number[], event: React.SyntheticEvent | Event) => void;
   /**

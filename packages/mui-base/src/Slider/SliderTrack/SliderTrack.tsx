@@ -19,7 +19,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     dragging,
     getFingerNewValue,
     handleValueChange,
-    minDifferenceBetweenValues,
+    minStepsBetweenValues,
     onValueCommitted,
     ownerState,
     percentageValues,
@@ -28,6 +28,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     setDragging,
     setOpen,
     setValueState,
+    step,
     subitems,
   } = useSliderContext();
 
@@ -37,7 +38,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     dragging,
     getFingerNewValue,
     handleValueChange,
-    minDifferenceBetweenValues,
+    minStepsBetweenValues,
     onValueCommitted,
     percentageValues,
     registerSliderTrack,
@@ -46,6 +47,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     setDragging,
     setOpen,
     setValueState,
+    step,
     subitems,
   });
 

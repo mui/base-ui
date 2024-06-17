@@ -32,7 +32,7 @@ describe('<Slider.Output />', () => {
     largeStep: 10,
     max: 100,
     min: 0,
-    minDifferenceBetweenValues: 1,
+    minStepsBetweenValues: 0,
     open: -1,
     orientation: 'horizontal',
     ownerState: {
@@ -42,7 +42,7 @@ describe('<Slider.Output />', () => {
       direction: 'ltr',
       max: 100,
       min: 0,
-      minDifferenceBetweenValues: 1,
+      minStepsBetweenValues: 0,
       orientation: 'horizontal',
       step: 1,
       values: [0],

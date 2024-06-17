@@ -11,7 +11,7 @@ export interface UseSliderTrackParameters
     | 'dragging'
     | 'getFingerNewValue'
     | 'handleValueChange'
-    | 'minDifferenceBetweenValues'
+    | 'minStepsBetweenValues'
     | 'onValueCommitted'
     | 'percentageValues'
     | 'registerSliderTrack'
@@ -19,6 +19,7 @@ export interface UseSliderTrackParameters
     | 'setDragging'
     | 'setOpen'
     | 'setValueState'
+    | 'step'
     | 'subitems'
   > {
   /**

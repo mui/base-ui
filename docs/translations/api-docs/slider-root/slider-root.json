@@ -26,8 +26,8 @@
     "min": {
       "description": "The minimum allowed value of the slider. Should not be equal to max."
     },
-    "minDifferenceBetweenValues": {
-      "description": "The minimum difference between values in a range slider."
+    "minStepsBetweenValues": {
+      "description": "The minimum steps between values in a range slider."
     },
     "name": { "description": "Name attribute of the hidden <code>input</code> element." },
     "onValueChange": {

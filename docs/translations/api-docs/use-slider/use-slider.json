@@ -23,8 +23,8 @@
     "min": {
       "description": "The minimum allowed value of the slider. Should not be equal to max."
     },
-    "minDifferenceBetweenValues": {
-      "description": "The minimum difference between values in a range slider."
+    "minStepsBetweenValues": {
+      "description": "The minimum steps between values in a range slider."
     },
     "name": { "description": "Name attribute of the hidden <code>input</code> element." },
     "onValueChange": {
@@ -57,8 +57,8 @@
     },
     "max": { "description": "The maximum allowed value of the slider." },
     "min": { "description": "The minimum allowed value of the slider." },
-    "minDifferenceBetweenValues": {
-      "description": "The minimum difference between values in a range slider."
+    "minStepsBetweenValues": {
+      "description": "The minimum steps between values in a range slider."
     },
     "open": { "description": "The thumb index for the current value when in hover state." },
     "orientation": { "description": "The component orientation." },

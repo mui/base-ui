@@ -20,7 +20,7 @@
     },
     "max": { "type": { "name": "number", "description": "number" }, "required": true },
     "min": { "type": { "name": "number", "description": "number" }, "required": true },
-    "minDifferenceBetweenValues": {
+    "minStepsBetweenValues": {
       "type": { "name": "number", "description": "number" },
       "required": true
     },
