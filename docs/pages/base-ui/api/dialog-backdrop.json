@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "DialogBackdrop",
+  "imports": [
+    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogBackdrop = Dialog.Backdrop;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "DialogBackdrop",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Dialog/Backdrop/DialogBackdrop.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/\">Dialog</a></li></ul>",
+  "cssComponent": false
+}

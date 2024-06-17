@@ -80,7 +80,7 @@ export function testRenderProp(
       expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
     });
 
-    it('should merge the rendering element ref with the custom component ref', () => {
+    it('should merge the rendering element ref with the custom component ref', async () => {
       let refA = null;
       let refB = null;
 
@@ -100,9 +100,12 @@ export function testRenderProp(
         });
       }
 
-      render(<Test />);
+      await render(<Test />);
+
+      expect(refA).not.to.equal(null);
       expect(refA!.tagName).to.equal(Element.toUpperCase());
       expect(refA!).to.have.attribute('data-testid', 'wrapped');
+      expect(refB).not.to.equal(null);
       expect(refB!.tagName).to.equal(Element.toUpperCase());
       expect(refB!).to.have.attribute('data-testid', 'wrapped');
     });

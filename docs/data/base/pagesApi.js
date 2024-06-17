@@ -1,4 +1,32 @@
 module.exports = [
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-backdrop',
+    title: 'AlertDialogBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-close',
+    title: 'AlertDialogClose',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-description',
+    title: 'AlertDialogDescription',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-popup',
+    title: 'AlertDialogPopup',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-root',
+    title: 'AlertDialogRoot',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-title',
+    title: 'AlertDialogTitle',
+  },
+  {
+    pathname: '/base-ui/react-alert-dialog/components-api/#alert-dialog-trigger',
+    title: 'AlertDialogTrigger',
+  },
   { pathname: '/base-ui/react-badge/components-api/#badge', title: 'Badge' },
   { pathname: '/base-ui/react-button/components-api/#button', title: 'Button' },
   {
@@ -21,6 +49,34 @@ module.exports = [
   {
     pathname: '/base-ui/react-transitions/components-api/#css-transition',
     title: 'CssTransition',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-backdrop',
+    title: 'DialogBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-close',
+    title: 'DialogClose',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-description',
+    title: 'DialogDescription',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-popup',
+    title: 'DialogPopup',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-root',
+    title: 'DialogRoot',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-title',
+    title: 'DialogTitle',
+  },
+  {
+    pathname: '/base-ui/react-dialog/components-api/#dialog-trigger',
+    title: 'DialogTrigger',
   },
   { pathname: '/base-ui/react-menu/components-api/#dropdown', title: 'Dropdown' },
   {
@@ -140,6 +196,22 @@ module.exports = [
   {
     pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox-root',
     title: 'useCheckboxRoot',
+  },
+  {
+    pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-close',
+    title: 'useDialogClose',
+  },
+  {
+    pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-popup',
+    title: 'useDialogPopup',
+  },
+  {
+    pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-root',
+    title: 'useDialogRoot',
+  },
+  {
+    pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-trigger',
+    title: 'useDialogTrigger',
   },
   { pathname: '/base-ui/react-menu/hooks-api/#use-dropdown', title: 'useDropdown' },
   {

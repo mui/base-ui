@@ -1,0 +1,58 @@
+{
+  "parameters": {
+    "animated": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "descriptionElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    },
+    "isTopmost": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "modal": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "onOpenChange": {
+      "type": { "name": "(open: boolean) =&gt; void", "description": "(open: boolean) =&gt; void" },
+      "required": true
+    },
+    "open": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "ref": {
+      "type": {
+        "name": "React.Ref&lt;HTMLElement&gt;",
+        "description": "React.Ref&lt;HTMLElement&gt;"
+      },
+      "required": true
+    },
+    "setPopupElementId": {
+      "type": {
+        "name": "(id: string | undefined) =&gt; void",
+        "description": "(id: string | undefined) =&gt; void"
+      },
+      "required": true
+    },
+    "titleElementId": {
+      "type": { "name": "string | undefined", "description": "string | undefined" },
+      "required": true
+    },
+    "dismissible": { "type": { "name": "boolean", "description": "boolean" }, "default": "true" },
+    "id": { "type": { "name": "string", "description": "string" } }
+  },
+  "returnValue": {
+    "floatingContext": {
+      "type": { "name": "FloatingContext", "description": "FloatingContext" },
+      "required": true
+    },
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;",
+        "description": "(externalProps: React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;div&#39;&gt;"
+      },
+      "required": true
+    },
+    "mounted": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "transitionStatus": {
+      "type": { "name": "TransitionStatus", "description": "TransitionStatus" },
+      "required": true
+    }
+  },
+  "name": "useDialogPopup",
+  "filename": "/packages/mui-base/src/Dialog/Popup/useDialogPopup.tsx",
+  "imports": ["import { useDialogPopup } from '@base_ui/react/Dialog';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/#hooks\">Dialog</a></li></ul>"
+}
