@@ -2,7 +2,7 @@
 // to cross check whether this issue would still occur in the new API
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
-import { Styles, TrackFill } from './slider';
+import { Styles } from './slider';
 
 export default function App() {
   const [val1, setVal1] = React.useState(80);
@@ -23,7 +23,7 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>

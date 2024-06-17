@@ -20,6 +20,14 @@ export type {
 } from './SliderTrack/SliderTrack.types';
 export { useSliderTrack } from './SliderTrack/useSliderTrack';
 
+export { SliderIndicator } from './SliderIndicator/SliderIndicator';
+export type {
+  SliderIndicatorProps as IndicatorProps,
+  UseSliderIndicatorParameters,
+  UseSliderIndicatorReturnValue,
+} from './SliderIndicator/SliderIndicator.types';
+export { useSliderIndicator } from './SliderIndicator/useSliderIndicator';
+
 export { SliderOutput } from './SliderOutput/SliderOutput';
 export type {
   SliderOutputProps as OutputProps,

@@ -4,11 +4,13 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/slider/slider.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import SliderApiJsonPageContent from '../../api/slider.json';
+import SliderIndicatorApiJsonPageContent from '../../api/slider-indicator.json';
 import SliderOutputApiJsonPageContent from '../../api/slider-output.json';
 import SliderRootApiJsonPageContent from '../../api/slider-root.json';
 import SliderThumbApiJsonPageContent from '../../api/slider-thumb.json';
 import SliderTrackApiJsonPageContent from '../../api/slider-track.json';
 import useSliderApiJsonPageContent from '../../api/use-slider.json';
+import useSliderIndicatorApiJsonPageContent from '../../api/use-slider-indicator.json';
 import useSliderOutputApiJsonPageContent from '../../api/use-slider-output.json';
 import useSliderRootApiJsonPageContent from '../../api/use-slider-root.json';
 import useSliderThumbApiJsonPageContent from '../../api/use-slider-thumb.json';
@@ -37,6 +39,13 @@ export const getStaticProps = () => {
     /\.\/slider.*.json$/,
   );
   const SliderApiDescriptions = mapApiPageTranslations(SliderApiReq);
+
+  const SliderIndicatorApiReq = require.context(
+    'docs-base/translations/api-docs/slider-indicator',
+    false,
+    /\.\/slider-indicator.*.json$/,
+  );
+  const SliderIndicatorApiDescriptions = mapApiPageTranslations(SliderIndicatorApiReq);
 
   const SliderOutputApiReq = require.context(
     'docs-base/translations/api-docs/slider-output',
@@ -73,6 +82,13 @@ export const getStaticProps = () => {
   );
   const useSliderApiDescriptions = mapApiPageTranslations(useSliderApiReq);
 
+  const useSliderIndicatorApiReq = require.context(
+    'docs-base/translations/api-docs/use-slider-indicator',
+    false,
+    /\.\/use-slider-indicator.*.json$/,
+  );
+  const useSliderIndicatorApiDescriptions = mapApiPageTranslations(useSliderIndicatorApiReq);
+
   const useSliderOutputApiReq = require.context(
     'docs-base/translations/api-docs/use-slider-output',
     false,
@@ -105,6 +121,7 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         Slider: SliderApiDescriptions,
+        SliderIndicator: SliderIndicatorApiDescriptions,
         SliderOutput: SliderOutputApiDescriptions,
         SliderRoot: SliderRootApiDescriptions,
         SliderThumb: SliderThumbApiDescriptions,
@@ -112,6 +129,7 @@ export const getStaticProps = () => {
       },
       componentsApiPageContents: {
         Slider: SliderApiJsonPageContent,
+        SliderIndicator: SliderIndicatorApiJsonPageContent,
         SliderOutput: SliderOutputApiJsonPageContent,
         SliderRoot: SliderRootApiJsonPageContent,
         SliderThumb: SliderThumbApiJsonPageContent,
@@ -119,6 +137,7 @@ export const getStaticProps = () => {
       },
       hooksApiDescriptions: {
         useSlider: useSliderApiDescriptions,
+        useSliderIndicator: useSliderIndicatorApiDescriptions,
         useSliderOutput: useSliderOutputApiDescriptions,
         useSliderRoot: useSliderRootApiDescriptions,
         useSliderThumb: useSliderThumbApiDescriptions,
@@ -126,6 +145,7 @@ export const getStaticProps = () => {
       },
       hooksApiPageContents: {
         useSlider: useSliderApiJsonPageContent,
+        useSliderIndicator: useSliderIndicatorApiJsonPageContent,
         useSliderOutput: useSliderOutputApiJsonPageContent,
         useSliderRoot: useSliderRootApiJsonPageContent,
         useSliderThumb: useSliderThumbApiJsonPageContent,

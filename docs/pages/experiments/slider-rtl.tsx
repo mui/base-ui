@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
-import { Styles, TrackFill } from './slider';
+import { Styles } from './slider';
 
 export default function App() {
   return (
@@ -8,7 +8,7 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={50} direction="rtl">
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
@@ -21,7 +21,7 @@ export default function App() {
       >
         <Slider.Output className="VerticalSlider-output" />
         <Slider.Track className="VerticalSlider-track">
-          <TrackFill className="VerticalSlider-track-fill" />
+          <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
@@ -29,7 +29,7 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={[50, 70]} direction="rtl">
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
         </Slider.Track>
@@ -43,7 +43,7 @@ export default function App() {
       >
         <Slider.Output className="VerticalSlider-output" />
         <Slider.Track className="VerticalSlider-track">
-          <TrackFill className="VerticalSlider-track-fill" />
+          <Slider.Indicator className="VerticalSlider-indicator" />
           <Slider.Thumb className="VerticalSlider-thumb one" />
           <Slider.Thumb className="VerticalSlider-thumb two" />
         </Slider.Track>

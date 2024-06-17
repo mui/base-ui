@@ -27,7 +27,6 @@ function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutput
         'aria-live': ariaLive,
         htmlFor: outputFor.trim(),
         ref: rootRef,
-        ...externalProps,
       });
     },
     [ariaLive, outputFor, rootRef],

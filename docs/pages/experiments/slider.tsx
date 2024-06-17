@@ -1,71 +1,6 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider';
-import { useSliderContext } from '@base_ui/react/Slider';
-
-const axisProps = {
-  horizontal: {
-    offset: (percent: number) => ({ left: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%` }),
-  },
-  'horizontal-reverse': {
-    offset: (percent: number) => ({ right: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%` }),
-  },
-  vertical: {
-    offset: (percent: number) => ({ bottom: `${percent}%` }),
-    leap: (percent: number) => ({ height: `${percent}%` }),
-  },
-};
-
-export const TrackFill = React.forwardRef(function TrackFill(
-  props: any,
-  ref: React.ForwardedRef<any>,
-) {
-  // does not support inverted range fill! (yet)
-  const { inverted = false, style, ...otherProps } = props;
-
-  const { axis, direction, disabled, orientation, percentageValues } = useSliderContext();
-
-  const isRange = percentageValues.length > 1;
-
-  const isRtl = direction === 'rtl';
-
-  let internalStyles;
-
-  if (isRange) {
-    const trackOffset = percentageValues[0];
-    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
-
-    internalStyles = {
-      ...axisProps[axis].offset(trackOffset),
-      ...axisProps[axis].leap(trackLeap),
-    };
-  } else if (orientation === 'vertical') {
-    internalStyles = {
-      [inverted ? 'top' : 'bottom']: 0,
-      height: `${inverted ? 100 - percentageValues[0] : percentageValues[0]}%`,
-    };
-  } else {
-    internalStyles = {
-      width: `${inverted ? 100 - percentageValues[0] : percentageValues[0]}%`,
-      [(isRtl || inverted) && isRtl !== inverted ? 'right' : 'left']: 0,
-    };
-  }
-
-  return (
-    <span
-      data-disabled={disabled}
-      data-inverted={inverted}
-      ref={ref}
-      {...otherProps}
-      style={{
-        ...internalStyles,
-        ...style,
-      }}
-    />
-  );
-});
 
 export default function App() {
   const [val1, setVal1] = React.useState(50);
@@ -77,7 +12,7 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={50}>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
@@ -85,7 +20,7 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={30} disabled>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
@@ -93,7 +28,7 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={[40, 60]}>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
         </Slider.Track>
@@ -102,7 +37,7 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={[40, 60, 80]}>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
           <Slider.Thumb className="MySlider-thumb three" />
@@ -119,7 +54,7 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb" />
         </Slider.Track>
       </Slider.Root>
@@ -133,7 +68,7 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb" />
           <Slider.Thumb className="MySlider-thumb" />
         </Slider.Track>
@@ -232,7 +167,7 @@ export function Styles() {
       touch-action: none;
     }
 
-    .MySlider-track-fill {
+    .MySlider-indicator {
       display: block;
       position: absolute;
       height: 2px;
@@ -304,7 +239,7 @@ export function Styles() {
       touch-action: none;
     }
 
-    .VerticalSlider-track-fill {
+    .VerticalSlider-indicator {
       position: absolute;
       width: 2px;
       border-radius: 9999px;

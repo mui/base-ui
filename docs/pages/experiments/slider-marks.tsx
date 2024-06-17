@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
 import { useSliderContext } from '@base_ui/react/Slider';
-import { TrackFill } from './slider';
 
 const STOPS = [
   {
@@ -30,6 +29,7 @@ function getSliderThumbAriaValueText(value: number) {
   return `${value}°C`;
 }
 
+// for "inverted track", the track/rail can be styled with CSS but a prop is needed to flip the "mark active" state
 function MarkWithLabel(props: { index: number; value: number; label: string; inverted?: boolean }) {
   const { index, value, label, inverted = false } = props;
   const { direction, values } = useSliderContext();
@@ -83,7 +83,7 @@ export default function App() {
               value={mark.value}
             />
           ))}
-          <TrackFill className="TempSlider-track-fill" />
+          <Slider.Indicator className="TempSlider-track-fill" />
           <Slider.Thumb
             className="TempSlider-thumb"
             getAriaValueText={getSliderThumbAriaValueText}
@@ -103,49 +103,7 @@ export default function App() {
               value={mark.value}
             />
           ))}
-          <TrackFill className="TempSlider-track-fill" />
-          <Slider.Thumb
-            className="TempSlider-thumb"
-            getAriaValueText={getSliderThumbAriaValueText}
-          />
-        </Slider.Track>
-      </Slider.Root>
-
-      <Slider.Root className="TempSlider" defaultValue={40}>
-        <pre>LTR inverted fill</pre>
-        <Slider.Output className="TempSlider-output" />
-        <Slider.Track className="TempSlider-track">
-          {STOPS.map((mark, index) => (
-            <MarkWithLabel
-              key={`mark-${index}`}
-              index={index}
-              label={mark.label}
-              value={mark.value}
-              inverted
-            />
-          ))}
-          <TrackFill className="TempSlider-track-fill" inverted />
-          <Slider.Thumb
-            className="TempSlider-thumb"
-            getAriaValueText={getSliderThumbAriaValueText}
-          />
-        </Slider.Track>
-      </Slider.Root>
-
-      <Slider.Root className="TempSlider" defaultValue={40} direction="rtl">
-        <pre>RTL inverted fill</pre>
-        <Slider.Output className="TempSlider-output" />
-        <Slider.Track className="TempSlider-track">
-          {STOPS.map((mark, index) => (
-            <MarkWithLabel
-              key={`mark-${index}`}
-              index={index}
-              label={mark.label}
-              value={mark.value}
-              inverted
-            />
-          ))}
-          <TrackFill className="TempSlider-track-fill" inverted />
+          <Slider.Indicator className="TempSlider-track-fill" />
           <Slider.Thumb
             className="TempSlider-thumb"
             getAriaValueText={getSliderThumbAriaValueText}

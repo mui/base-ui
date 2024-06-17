@@ -1,8 +1,8 @@
 ---
 productId: base-ui
 title: React Slider components
-components: Slider, SliderRoot, SliderOutput, SliderThumb, SliderTrack
-hooks: useSlider, useSliderRoot, useSliderOutput, useSliderThumb, useSliderTrack
+components: Slider, SliderRoot, SliderOutput, SliderTrack, SliderIndicator, SliderThumb
+hooks: useSlider, useSliderRoot, useSliderOutput, useSliderTrack, useSliderIndicator, useSliderThumb
 githubLabel: 'component: slider'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb/
 packageName: '@base_ui/react'
@@ -52,12 +52,14 @@ Sliders are implemented using a collection of related components:
 - `<Slider.Root />` is a top-level component that wraps the other components.
 - `<Slider.Output />` renders the value of the slider.
 - `<Slider.Track />` renders the track area along which the thumb(s) can be moved.
+- `<Slider.Indicator />` renders the filled portion of the track which represents the value(s)
 - `<Slider.Thumb />` renders the element that can be moved along the track to change the value.
 
 ```tsx
 <Slider.Root>
   <Slider.Output />
   <Slider.Track>
+    <Slider.Indicator />
     <Slider.Thumb />
   </Slider.Track>
 </Slider.Root>

@@ -1,0 +1,84 @@
+'use client';
+import * as React from 'react';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import {
+  UseSliderIndicatorParameters,
+  UseSliderIndicatorReturnValue,
+} from './SliderIndicator.types';
+
+const axisProps = {
+  horizontal: {
+    offset: (percent: number) => ({ left: `${percent}%` }),
+    leap: (percent: number) => ({ width: `${percent}%` }),
+  },
+  'horizontal-reverse': {
+    offset: (percent: number) => ({ right: `${percent}%` }),
+    leap: (percent: number) => ({ width: `${percent}%` }),
+  },
+  vertical: {
+    offset: (percent: number) => ({ bottom: `${percent}%` }),
+    leap: (percent: number) => ({ height: `${percent}%` }),
+  },
+};
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
+ * API:
+ *
+ * - [useSliderIndicator API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-indicator)
+ */
+function useSliderIndicator(
+  parameters: UseSliderIndicatorParameters,
+): UseSliderIndicatorReturnValue {
+  const { axis, direction, orientation, percentageValues } = parameters;
+
+  const isRange = percentageValues.length > 1;
+
+  const isRtl = direction === 'rtl';
+
+  let internalStyles;
+
+  if (isRange) {
+    const trackOffset = percentageValues[0];
+    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
+
+    internalStyles = {
+      position: 'absolute',
+      ...axisProps[axis].offset(trackOffset),
+      ...axisProps[axis].leap(trackLeap),
+    };
+  } else if (orientation === 'vertical') {
+    internalStyles = {
+      position: 'absolute',
+      bottom: 0,
+      height: `${percentageValues[0]}%`,
+    };
+  } else {
+    internalStyles = {
+      position: 'absolute',
+      [isRtl ? 'right' : 'left']: 0,
+      width: `${percentageValues[0]}%`,
+    };
+  }
+
+  const getRootProps = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps(externalProps, {
+        style: internalStyles,
+      });
+    },
+    [internalStyles],
+  );
+
+  return React.useMemo(
+    () => ({
+      getRootProps,
+    }),
+    [getRootProps],
+  );
+}
+
+export { useSliderIndicator };

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
 import { useSliderContext } from '@base_ui/react/Slider';
-import { Styles, TrackFill } from './slider';
+import { Styles } from './slider';
 
 function Label(props: any) {
   const { id: idProp, ...otherProps } = props;
@@ -37,7 +37,7 @@ export default function App() {
         </Label>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
@@ -48,7 +48,7 @@ export default function App() {
         </LabelRange>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
-          <TrackFill className="MySlider-track-fill" />
+          <Slider.Indicator className="MySlider-indicator" />
           <Slider.Thumb className="MySlider-thumb one" />
           <Slider.Thumb className="MySlider-thumb two" />
         </Slider.Track>

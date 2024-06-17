@@ -409,7 +409,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         dir: direction,
         ref: handleRootRef,
         role: 'group',
-        ...externalProps,
       }),
     [ariaLabelledby, direction, handleRootRef],
   );
