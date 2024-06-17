@@ -197,18 +197,23 @@ export function Styles() {
       position: relative;
       -webkit-tap-highlight-color: transparent;
       display: grid;
-      grid-auto-rows: 1.5rem auto;
+      grid-template-columns: 1fr 1fr;
       grid-gap: 1rem;
 
       margin-bottom: 2rem;
     }
 
     .MySlider-output {
+      grid-column: 2/3;
       text-align: right;
-      font-size: .875rem;
+    }
+
+    [dir='rtl'] .MySlider-output {
+      text-align: left;
     }
 
     .MySlider-track {
+      grid-column: 1/3;
       display: flex;
       align-items: center;
       position: relative;
@@ -327,6 +332,22 @@ export function Styles() {
 
     .VerticalSlider[data-disabled] {
       cursor: not-allowed;
+    }
+
+    .Label {
+      cursor: unset;
+      font-weight: bold;
+    }
+
+    .Label[data-disabled='true'] {
+      color: ${grey[600]};
+    }
+
+    .Rail {
+      width: 100%;
+      height: 2px;
+      border-radius: 9999px;
+      background-color: gainsboro;
     }
     `}</style>
   );

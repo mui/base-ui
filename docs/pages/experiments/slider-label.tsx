@@ -32,7 +32,9 @@ export default function App() {
   return (
     <div className="App">
       <Slider.Root className="MySlider" defaultValue={50} aria-labelledby="LabelId">
-        <Label id="LabelId">Label</Label>
+        <Label id="LabelId" className="Label">
+          Brightness
+        </Label>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFill className="MySlider-track-fill" />
@@ -41,7 +43,9 @@ export default function App() {
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[50, 70]} aria-labelledby="LabelRangeId">
-        <LabelRange id="LabelRangeId">Range Label</LabelRange>
+        <LabelRange id="LabelRangeId" className="Label">
+          Volume Range
+        </LabelRange>
         <Slider.Output className="MySlider-output" />
         <Slider.Track className="MySlider-track">
           <TrackFill className="MySlider-track-fill" />

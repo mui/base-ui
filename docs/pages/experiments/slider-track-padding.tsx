@@ -15,38 +15,14 @@ export default function App() {
 
       <Slider.Root className="MySlider" defaultValue={50}>
         <Slider.Output className="MySlider-output" />
-        <Slider.Track className="MySlider-track2">
-          <span className="MySlider-rail">
+        <Slider.Track className="MySlider-track">
+          <span className="Rail">
             <TrackFill className="MySlider-track-fill" />
           </span>
           <Slider.Thumb className="MySlider-thumb one" />
         </Slider.Track>
       </Slider.Root>
       <Styles />
-      <LocalStyles />
     </div>
-  );
-}
-
-function LocalStyles() {
-  return (
-    <style suppressHydrationWarning>{`
-      .MySlider-track2 {
-        display: flex;
-        align-items: center;
-        position: relative;
-        width: 100%;
-        height: 16px;
-        border-radius: 9999px;
-        touch-action: none;
-      }
-
-      .MySlider-rail {
-        width: 100%;
-        height: 2px;
-        border-radius: 9999px;
-        background-color: gainsboro;
-      }
-    `}</style>
   );
 }

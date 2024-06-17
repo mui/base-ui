@@ -9,6 +9,7 @@ function useIsDarkMode() {
   return theme.palette.mode === 'dark';
 }
 
+// making a Material/Joy style slider with Slider + Tooltip
 export default function App() {
   const [valueLabelOpen, setValueLabelOpen] = React.useState(false);
 
