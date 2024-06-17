@@ -141,6 +141,16 @@ describe('<Slider.Root />', () => {
       fireEvent.change(slider, { target: { value: 52 } });
       expect(slider).to.have.attribute('aria-valuenow', '52');
     });
+
+    it('should set default aria-valuetext on range slider thumbs', () => {
+      const { getByTestId } = render(<TestRangeSlider defaultValue={[44, 50]} />);
+
+      const thumbOne = getByTestId('thumb-0');
+      const thumbTwo = getByTestId('thumb-1');
+
+      expect(thumbOne.querySelector('input')).to.have.attribute('aria-valuetext', 'start range 44');
+      expect(thumbTwo.querySelector('input')).to.have.attribute('aria-valuetext', 'end range 50');
+    });
   });
 
   describe('rtl', () => {

@@ -21,13 +21,13 @@ function getNewValue(
   return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
 }
 
-function getDefaultAriaLabel(values: readonly number[], index: number): string | undefined {
+function getDefaultAriaValueText(values: readonly number[], index: number): string | undefined {
   if (values.length === 2) {
     if (index === 0) {
-      return 'start';
+      return `start range ${values[index]}`;
     }
 
-    return 'end';
+    return `end range ${values[index]}`;
   }
   return undefined;
 }
@@ -212,9 +212,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
-        'aria-label': getAriaLabel
-          ? getAriaLabel(index)
-          : ariaLabel ?? getDefaultAriaLabel(sliderValues, index),
+        'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
         'aria-orientation': orientation,
         'aria-valuemax': scale(max),
@@ -222,7 +220,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         'aria-valuenow': scale(thumbValue),
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(scale(thumbValue), index)
-          : ariaValuetext,
+          : ariaValuetext ?? getDefaultAriaValueText(sliderValues, index),
         'data-index': index,
         disabled,
         id: compoundItemId,
