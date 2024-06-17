@@ -9,15 +9,15 @@ import {
 const axisProps = {
   horizontal: {
     offset: (percent: number) => ({ left: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%` }),
+    leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
   },
   'horizontal-reverse': {
     offset: (percent: number) => ({ right: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%` }),
+    leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
   },
   vertical: {
     offset: (percent: number) => ({ bottom: `${percent}%` }),
-    leap: (percent: number) => ({ height: `${percent}%` }),
+    leap: (percent: number) => ({ height: `${percent}%`, width: 'inherit' }),
   },
 };
 /**
@@ -55,12 +55,14 @@ function useSliderIndicator(
       position: 'absolute',
       bottom: 0,
       height: `${percentageValues[0]}%`,
+      width: 'inherit',
     };
   } else {
     internalStyles = {
       position: 'absolute',
       [isRtl ? 'right' : 'left']: 0,
       width: `${percentageValues[0]}%`,
+      height: 'inherit',
     };
   }
 

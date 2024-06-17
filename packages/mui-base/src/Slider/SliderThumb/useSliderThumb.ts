@@ -100,7 +100,8 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         'horizontal-reverse': 'right',
         vertical: 'bottom',
       }[axis]]: `${percent}%`,
-      transform: `translate${isVertical ? 'Y' : 'X'}(${(isVertical || isRtl ? 1 : -1) * 50}%)`,
+      [isVertical ? 'left' : 'top']: '50%',
+      transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
       // So the non active thumb doesn't show its label on hover.
       pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
       zIndex: activeIndex === index ? 1 : undefined,

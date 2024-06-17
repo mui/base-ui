@@ -25,8 +25,10 @@ export default function UnstyledSliderIntroduction() {
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
         <SliderControl>
-          <SliderIndicator />
-          <SliderThumb />
+          <SliderTrack>
+            <SliderIndicator />
+            <SliderThumb />
+          </SliderTrack>
         </SliderControl>
       </Slider>
     </div>
@@ -88,7 +90,7 @@ const SliderControl = React.forwardRef(function SliderControl(props, ref) {
       ref={ref}
       className={(state) =>
         classNames(
-          "col-span-2 relative flex items-center w-full h-4 before:content-[''] before:w-full before:h-0.5 before:rounded-full before:touch-none before:bg-gray-400 dark:before:bg-gray-700",
+          'col-span-2 relative flex items-center w-full h-4',
           state.disabled && 'cursor-not-allowed',
           typeof props.className === 'function'
             ? props.className(state)
@@ -100,6 +102,56 @@ const SliderControl = React.forwardRef(function SliderControl(props, ref) {
 });
 
 SliderControl.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
+const SliderTrack = React.forwardRef(function SliderTrack(props, ref) {
+  return (
+    <BaseSlider.Track
+      {...props}
+      ref={ref}
+      className={(state) =>
+        classNames(
+          'w-full h-0.5 rounded-full bg-gray-400 touch-none dark:bg-gray-700',
+          typeof props.className === 'function'
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    />
+  );
+});
+
+SliderTrack.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
+const SliderThumb = React.forwardRef(function SliderThumb(props, ref) {
+  return (
+    <BaseSlider.Thumb
+      {...props}
+      ref={ref}
+      className={(state) =>
+        classNames(
+          'w-4 h-4 box-border rounded-[50%] bg-black touch-none focus-visible:outline focus-visible:outline-black focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-100 dark:focus-visible:outline-gray-300 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px]',
+          state.dragging && 'bg-pink-400',
+          state.disabled && 'bg-gray-400',
+          typeof props.className === 'function'
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    />
+  );
+});
+
+SliderThumb.propTypes = {
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
@@ -124,32 +176,6 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(props, ref) {
 });
 
 SliderIndicator.propTypes = {
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-};
-
-const SliderThumb = React.forwardRef(function SliderThumb(props, ref) {
-  return (
-    <BaseSlider.Thumb
-      {...props}
-      ref={ref}
-      className={(state) =>
-        classNames(
-          'w-4 h-4 box-border rounded-[50%] bg-black touch-none focus-visible:outline-black focus-visible:outline-offset-2 dark:bg-gray-100 dark:focus-visible:outline-gray-300 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px]',
-          state.dragging && 'bg-pink-400',
-          state.disabled && 'bg-gray-400',
-          typeof props.className === 'function'
-            ? props.className(state)
-            : props.className,
-        )
-      }
-    />
-  );
-});
-
-SliderThumb.propTypes = {
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */

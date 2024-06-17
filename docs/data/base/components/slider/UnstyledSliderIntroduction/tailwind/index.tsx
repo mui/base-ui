@@ -24,8 +24,10 @@ export default function UnstyledSliderIntroduction() {
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
         <SliderControl>
-          <SliderIndicator />
-          <SliderThumb />
+          <SliderTrack>
+            <SliderIndicator />
+            <SliderThumb />
+          </SliderTrack>
         </SliderControl>
       </Slider>
     </div>
@@ -82,8 +84,50 @@ const SliderControl = React.forwardRef(function SliderControl(
       ref={ref}
       className={(state) =>
         classNames(
-          "col-span-2 relative flex items-center w-full h-4 before:content-[''] before:w-full before:h-0.5 before:rounded-full before:touch-none before:bg-gray-400 dark:before:bg-gray-700",
+          'col-span-2 relative flex items-center w-full h-4',
           state.disabled && 'cursor-not-allowed',
+          typeof props.className === 'function'
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    />
+  );
+});
+
+const SliderTrack = React.forwardRef(function SliderTrack(
+  props: BaseSlider.TrackProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  return (
+    <BaseSlider.Track
+      {...props}
+      ref={ref}
+      className={(state) =>
+        classNames(
+          'w-full h-0.5 rounded-full bg-gray-400 touch-none dark:bg-gray-700',
+          typeof props.className === 'function'
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    />
+  );
+});
+
+const SliderThumb = React.forwardRef(function SliderThumb(
+  props: BaseSlider.ThumbProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  return (
+    <BaseSlider.Thumb
+      {...props}
+      ref={ref}
+      className={(state) =>
+        classNames(
+          'w-4 h-4 box-border rounded-[50%] bg-black touch-none focus-visible:outline focus-visible:outline-black focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-100 dark:focus-visible:outline-gray-300 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px]',
+          state.dragging && 'bg-pink-400',
+          state.disabled && 'bg-gray-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -104,28 +148,6 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
       className={(state) =>
         classNames(
           'h-0.5 rounded-full bg-black dark:bg-gray-100',
-          typeof props.className === 'function'
-            ? props.className(state)
-            : props.className,
-        )
-      }
-    />
-  );
-});
-
-const SliderThumb = React.forwardRef(function SliderThumb(
-  props: BaseSlider.ThumbProps,
-  ref: React.ForwardedRef<HTMLDivElement>,
-) {
-  return (
-    <BaseSlider.Thumb
-      {...props}
-      ref={ref}
-      className={(state) =>
-        classNames(
-          'w-4 h-4 box-border rounded-[50%] bg-black touch-none focus-visible:outline-black focus-visible:outline-offset-2 dark:bg-gray-100 dark:focus-visible:outline-gray-300 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px]',
-          state.dragging && 'bg-pink-400',
-          state.disabled && 'bg-gray-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,

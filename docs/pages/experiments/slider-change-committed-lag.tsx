@@ -23,8 +23,10 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 

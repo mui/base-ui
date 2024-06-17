@@ -75,19 +75,21 @@ export default function App() {
         <pre>LTR</pre>
         <Slider.Output className="TempSlider-output" />
         <Slider.Control className="TempSlider-control">
-          {STOPS.map((mark, index) => (
-            <MarkWithLabel
-              key={`mark-${index}`}
-              index={index}
-              label={mark.label}
-              value={mark.value}
+          <Slider.Track className="TempSlider-track">
+            {STOPS.map((mark, index) => (
+              <MarkWithLabel
+                key={`mark-${index}`}
+                index={index}
+                label={mark.label}
+                value={mark.value}
+              />
+            ))}
+            <Slider.Indicator className="TempSlider-indicator" />
+            <Slider.Thumb
+              className="TempSlider-thumb"
+              getAriaValueText={getSliderThumbAriaValueText}
             />
-          ))}
-          <Slider.Indicator className="TempSlider-control-fill" />
-          <Slider.Thumb
-            className="TempSlider-thumb"
-            getAriaValueText={getSliderThumbAriaValueText}
-          />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
@@ -95,19 +97,21 @@ export default function App() {
         <pre>RTL</pre>
         <Slider.Output className="TempSlider-output" />
         <Slider.Control className="TempSlider-control">
-          {STOPS.map((mark, index) => (
-            <MarkWithLabel
-              key={`mark-${index}`}
-              index={index}
-              label={mark.label}
-              value={mark.value}
+          <Slider.Track className="TempSlider-track">
+            {STOPS.map((mark, index) => (
+              <MarkWithLabel
+                key={`mark-${index}`}
+                index={index}
+                label={mark.label}
+                value={mark.value}
+              />
+            ))}
+            <Slider.Indicator className="TempSlider-indicator" />
+            <Slider.Thumb
+              className="TempSlider-thumb"
+              getAriaValueText={getSliderThumbAriaValueText}
             />
-          ))}
-          <Slider.Indicator className="TempSlider-control-fill" />
-          <Slider.Thumb
-            className="TempSlider-thumb"
-            getAriaValueText={getSliderThumbAriaValueText}
-          />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
       <BrandingStyles />
@@ -139,7 +143,6 @@ function BrandingStyles() {
       margin: 0 var(--_margin);
       display: inline-block;
       position: relative;
-      cursor: pointer;
       touch-action: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -160,20 +163,18 @@ function BrandingStyles() {
       height: 32px;
       border-radius: 9999px;
       touch-action: none;
+      cursor: pointer;
     }
 
-    .TempSlider-control::before {
-      content: '';
+    .TempSlider-track {
       touch-action: none;
-      display: block;
-      position: absolute;
       width: 100%;
       height: 4px;
       border-radius: var(--border-radius);
       background-color: var(--color-primary-light);
     }
 
-    .TempSlider-control-fill {
+    .TempSlider-indicator {
       display: block;
       position: absolute;
       height: 4px;
@@ -184,7 +185,6 @@ function BrandingStyles() {
     .TempSlider-thumb {
       width: 16px;
       height: 16px;
-      margin-top: -1px;
       box-sizing: border-box;
       border-radius: var(--border-radius);
       outline: 0;
@@ -217,16 +217,13 @@ function BrandingStyles() {
       height: 8px;
       border-radius: var(--border-radius);
       background-color: var(--color-primary-light);
-      top: 36%;
-      transform: translateX(-50%);
+      top: 50%;
+      transform: translate(-50%, -50%);
       &[data-filled='true'] {
         background-color: var(--color-primary);
       }
-      &[dir='ltr'] {
-        transform: translateX(-50%);
-      }
       &[dir='rtl'] {
-        transform: translateX(50%);
+        transform: translate(50%, -50%);
       }
     }
 

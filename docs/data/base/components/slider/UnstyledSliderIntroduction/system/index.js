@@ -15,8 +15,10 @@ export default function UnstyledSliderIntroduction() {
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
         <SliderControl>
-          <SliderIndicator />
-          <SliderThumb />
+          <SliderTrack>
+            <SliderIndicator />
+            <SliderThumb />
+          </SliderTrack>
         </SliderControl>
       </Slider>
     </Box>
@@ -86,26 +88,24 @@ const SliderControl = styled(BaseSlider.Control)`
   border-radius: 9999px;
   touch-action: none;
 
-  &::before {
-    content: '';
-    width: 100%;
-    height: 2px;
-    border-radius: 9999px;
-    background-color: ${grey[400]};
-    touch-action: none;
-  }
-
   &[data-disabled] {
     cursor: not-allowed;
   }
+`;
 
-  .dark &::before {
+const SliderTrack = styled(BaseSlider.Track)`
+  width: 100%;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: ${grey[400]};
+  touch-action: none;
+
+  .dark & {
     background-color: ${grey[700]};
   }
 `;
 
 const SliderIndicator = styled(BaseSlider.Indicator)`
-  height: 2px;
   border-radius: 9999px;
   background-color: black;
 

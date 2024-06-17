@@ -21,8 +21,10 @@ export default function UnstyledSliderIntroduction() {
         </Label>
         <Slider.Output className="Slider-output" />
         <Slider.Control className="Slider-control">
-          <Slider.Indicator className="Slider-indicator" />
-          <Slider.Thumb className="Slider-thumb" />
+          <Slider.Track className="Slider-track">
+            <Slider.Indicator className="Slider-indicator" />
+            <Slider.Thumb className="Slider-thumb" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
       <Styles />
@@ -97,8 +99,7 @@ function Styles() {
       touch-action: none;
     }
 
-    .Slider-control::before {
-      content: '';
+    .Slider-track {
       width: 100%;
       height: 2px;
       border-radius: 9999px;
@@ -106,7 +107,7 @@ function Styles() {
       touch-action: none;
     }
 
-    .dark .Slider-control::before {
+    .dark .Slider-track {
       background-color: ${grey[700]};
     }
 

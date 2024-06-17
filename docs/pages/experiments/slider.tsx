@@ -12,35 +12,43 @@ export default function App() {
       <Slider.Root className="MySlider" defaultValue={50}>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={30} disabled>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[40, 60]}>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
-          <Slider.Thumb className="MySlider-thumb two" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+            <Slider.Thumb className="MySlider-thumb two" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className="MySlider" defaultValue={[40, 60, 80]}>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
-          <Slider.Thumb className="MySlider-thumb two" />
-          <Slider.Thumb className="MySlider-thumb three" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+            <Slider.Thumb className="MySlider-thumb two" />
+            <Slider.Thumb className="MySlider-thumb three" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
@@ -54,8 +62,10 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
@@ -68,9 +78,11 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb" />
-          <Slider.Thumb className="MySlider-thumb" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb" />
+            <Slider.Thumb className="MySlider-thumb" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
@@ -83,9 +95,11 @@ export default function App() {
       >
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          {val3.map((_val, idx) => (
-            <Slider.Thumb key={`thumb-${idx}`} className="MySlider-thumb" />
-          ))}
+          <Slider.Track className="MySlider-track">
+            {val3.map((_val, idx) => (
+              <Slider.Thumb key={`thumb-${idx}`} className="MySlider-thumb" />
+            ))}
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
       <Styles />
@@ -158,8 +172,7 @@ export function Styles() {
       touch-action: none;
     }
 
-    .MySlider-control::before {
-      content: '';
+    .MySlider-track {
       width: 100%;
       height: 2px;
       border-radius: 9999px;
@@ -168,7 +181,6 @@ export function Styles() {
     }
 
     .MySlider-indicator {
-      height: 2px;
       border-radius: 9999px;
       background-color: black;
     }
@@ -228,8 +240,7 @@ export function Styles() {
       touch-action: none;
     }
 
-    .VerticalSlider-control:before {
-      content: '';
+    .VerticalSlider-track {
       height: 100%;
       width: 2px;
       border-radius: 9999px;

@@ -37,8 +37,10 @@ export default function App() {
         </Label>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
@@ -48,9 +50,11 @@ export default function App() {
         </LabelRange>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
-          <Slider.Indicator className="MySlider-indicator" />
-          <Slider.Thumb className="MySlider-thumb one" />
-          <Slider.Thumb className="MySlider-thumb two" />
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+            <Slider.Thumb className="MySlider-thumb two" />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
       <Styles />

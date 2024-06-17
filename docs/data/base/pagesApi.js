@@ -156,6 +156,10 @@ module.exports = [
     title: 'SliderThumb',
   },
   {
+    pathname: '/base-ui/react-slider/components-api/#slider-track',
+    title: 'SliderTrack',
+  },
+  {
     pathname: '/base-ui/react-snackbar/components-api/#snackbar',
     title: 'Snackbar',
   },

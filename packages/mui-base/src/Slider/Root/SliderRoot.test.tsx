@@ -37,7 +37,10 @@ function TestSlider(props: SliderRootProps) {
     <Slider.Root data-testid="root" {...props}>
       <Slider.Output data-testid="output" />
       <Slider.Control data-testid="control">
-        <Slider.Thumb data-testid="thumb" />
+        <Slider.Track>
+          <Slider.Indicator />
+          <Slider.Thumb data-testid="thumb" />
+        </Slider.Track>
       </Slider.Control>
     </Slider.Root>
   );
@@ -48,8 +51,11 @@ function TestRangeSlider(props: SliderRootProps) {
     <Slider.Root data-testid="root" {...props}>
       <Slider.Output data-testid="output" />
       <Slider.Control data-testid="control">
-        <Slider.Thumb data-testid="thumb-0" />
-        <Slider.Thumb data-testid="thumb-1" />
+        <Slider.Track>
+          <Slider.Indicator />
+          <Slider.Thumb data-testid="thumb-0" />
+          <Slider.Thumb data-testid="thumb-1" />
+        </Slider.Track>
       </Slider.Control>
     </Slider.Root>
   );
@@ -80,7 +86,10 @@ describe('<Slider.Root />', () => {
       <Slider.Root defaultValue={30}>
         <Slider.Output />
         <Slider.Control>
-          <Slider.Thumb />
+          <Slider.Track>
+            <Slider.Indicator />
+            <Slider.Thumb />
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>,
     );
@@ -111,7 +120,10 @@ describe('<Slider.Root />', () => {
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Output />
           <Slider.Control>
-            <Slider.Thumb />
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb />
+            </Slider.Track>
           </Slider.Control>
         </Slider.Root>,
       );
@@ -279,12 +291,15 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should render data-disabled on the root, control, output and thumb', () => {
+    it('should render data-disabled on all subcomponents', () => {
       const { getByTestId } = render(
         <Slider.Root defaultValue={30} disabled data-testid="root">
           <Slider.Output data-testid="output" />
           <Slider.Control data-testid="control">
-            <Slider.Thumb data-testid="thumb" />
+            <Slider.Track data-testid="track">
+              <Slider.Indicator data-testid="indicator" />
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Track>
           </Slider.Control>
         </Slider.Root>,
       );
@@ -292,12 +307,13 @@ describe('<Slider.Root />', () => {
       const root = getByTestId('root');
       const output = getByTestId('output');
       const control = getByTestId('control');
+      const track = getByTestId('track');
+      const indicator = getByTestId('indicator');
       const thumb = getByTestId('thumb');
 
-      expect(root).to.have.attribute('data-disabled', 'true');
-      expect(output).to.have.attribute('data-disabled', 'true');
-      expect(control).to.have.attribute('data-disabled', 'true');
-      expect(thumb).to.have.attribute('data-disabled', 'true');
+      [root, output, control, track, indicator, thumb].forEach((subcomponent) => {
+        expect(subcomponent).to.have.attribute('data-disabled', 'true');
+      });
     });
 
     it('should not respond to drag events after becoming disabled', function test() {

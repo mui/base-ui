@@ -9,6 +9,7 @@ import SliderIndicatorApiJsonPageContent from '../../api/slider-indicator.json';
 import SliderOutputApiJsonPageContent from '../../api/slider-output.json';
 import SliderRootApiJsonPageContent from '../../api/slider-root.json';
 import SliderThumbApiJsonPageContent from '../../api/slider-thumb.json';
+import SliderTrackApiJsonPageContent from '../../api/slider-track.json';
 import useSliderApiJsonPageContent from '../../api/use-slider.json';
 import useSliderControlApiJsonPageContent from '../../api/use-slider-control.json';
 import useSliderIndicatorApiJsonPageContent from '../../api/use-slider-indicator.json';
@@ -75,6 +76,13 @@ export const getStaticProps = () => {
   );
   const SliderThumbApiDescriptions = mapApiPageTranslations(SliderThumbApiReq);
 
+  const SliderTrackApiReq = require.context(
+    'docs-base/translations/api-docs/slider-track',
+    false,
+    /\.\/slider-track.*.json$/,
+  );
+  const SliderTrackApiDescriptions = mapApiPageTranslations(SliderTrackApiReq);
+
   const useSliderApiReq = require.context(
     'docs-base/translations/api-docs/use-slider',
     false,
@@ -126,6 +134,7 @@ export const getStaticProps = () => {
         SliderOutput: SliderOutputApiDescriptions,
         SliderRoot: SliderRootApiDescriptions,
         SliderThumb: SliderThumbApiDescriptions,
+        SliderTrack: SliderTrackApiDescriptions,
       },
       componentsApiPageContents: {
         Slider: SliderApiJsonPageContent,
@@ -134,6 +143,7 @@ export const getStaticProps = () => {
         SliderOutput: SliderOutputApiJsonPageContent,
         SliderRoot: SliderRootApiJsonPageContent,
         SliderThumb: SliderThumbApiJsonPageContent,
+        SliderTrack: SliderTrackApiJsonPageContent,
       },
       hooksApiDescriptions: {
         useSlider: useSliderApiDescriptions,

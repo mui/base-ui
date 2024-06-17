@@ -1,0 +1,20 @@
+{
+  "parameters": {
+    "rootRef": {
+      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
+    }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    }
+  },
+  "name": "useSliderTrack",
+  "filename": "/packages/mui-base/src/Slider/SliderTrack/useSliderTrack.ts",
+  "imports": ["import { useSliderTrack } from '@base_ui/react/Slider';"],
+  "demos": "<ul></ul>"
+}

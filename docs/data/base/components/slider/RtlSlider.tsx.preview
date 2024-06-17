@@ -2,7 +2,9 @@
   <Label id="VolumeSliderLabel">Volume (RTL)</Label>
   <SliderOutput />
   <SliderControl>
-    <SliderIndicator />
-    <SliderThumb />
+    <SliderTrack>
+      <SliderIndicator />
+      <SliderThumb />
+    </SliderTrack>
   </SliderControl>
 </Slider>

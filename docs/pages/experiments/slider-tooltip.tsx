@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider';
-import { type Axis } from '@base_ui/react/Slider';
 import * as Tooltip from '@base_ui/react/Tooltip';
 
 function useIsDarkMode() {
@@ -23,45 +22,47 @@ export default function App() {
     <div className="App">
       <Slider.Root className="JoySlider" defaultValue={40}>
         <Slider.Control className="JoySlider-control">
-          <SliderTrackFill className="JoySlider-control-fill" />
-          {Array.from(Array(10), (_, x) => x).map((v) => {
-            return <SliderMark key={v} index={v} className="JoySlider-mark" />;
-          })}
-          <Tooltip.Root delay={0} open={valueLabelOpen}>
-            <Slider.Thumb
-              className="JoySlider-thumb"
-              onFocus={() => {
-                if (!valueLabelOpen) {
-                  setValueLabelOpen(true);
-                }
-              }}
-              onBlur={() => {
-                if (valueLabelOpen) {
-                  setValueLabelOpen(false);
-                }
-              }}
-              onPointerOver={() => {
-                if (!valueLabelOpen) {
-                  setValueLabelOpen(true);
-                }
-              }}
-              onPointerLeave={(event) => {
-                if (event.buttons !== 1) {
-                  setValueLabelOpen(false);
-                } else {
-                  document.addEventListener('pointerup', handleGlobalPointerUp, { once: true });
-                }
-              }}
-            >
-              <Tooltip.Trigger className="SliderTooltip-trigger" />
-            </Slider.Thumb>
-            <Tooltip.Positioner sideOffset={10} alignment="center">
-              <Tooltip.Popup className="SliderTooltip-popup" data-open={String(valueLabelOpen)}>
-                <Slider.Output />
-                <Tooltip.Arrow className="SliderTooltip-arrow" />
-              </Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Root>
+          <Slider.Track className="JoySlider-track">
+            <Slider.Indicator className="JoySlider-indicator" />
+            {Array.from(Array(10), (_, x) => x).map((v) => {
+              return <SliderMark key={v} index={v} className="JoySlider-mark" />;
+            })}
+            <Tooltip.Root delay={0} open={valueLabelOpen}>
+              <Slider.Thumb
+                className="JoySlider-thumb"
+                onFocus={() => {
+                  if (!valueLabelOpen) {
+                    setValueLabelOpen(true);
+                  }
+                }}
+                onBlur={() => {
+                  if (valueLabelOpen) {
+                    setValueLabelOpen(false);
+                  }
+                }}
+                onPointerOver={() => {
+                  if (!valueLabelOpen) {
+                    setValueLabelOpen(true);
+                  }
+                }}
+                onPointerLeave={(event) => {
+                  if (event.buttons !== 1) {
+                    setValueLabelOpen(false);
+                  } else {
+                    document.addEventListener('pointerup', handleGlobalPointerUp, { once: true });
+                  }
+                }}
+              >
+                <Tooltip.Trigger className="SliderTooltip-trigger" />
+              </Slider.Thumb>
+              <Tooltip.Positioner sideOffset={10} alignment="center">
+                <Tooltip.Popup className="SliderTooltip-popup" data-open={String(valueLabelOpen)}>
+                  <Slider.Output />
+                  <Tooltip.Arrow className="SliderTooltip-arrow" />
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Root>
+          </Slider.Track>
         </Slider.Control>
       </Slider.Root>
       <Styles />
@@ -86,77 +87,6 @@ const SliderMark = React.forwardRef(function SliderMark(props: any, ref: React.F
     />
   );
 });
-
-const SliderTrackFill = React.forwardRef(function SliderTrackFill(
-  props: any,
-  ref: React.ForwardedRef<any>,
-) {
-  const { style, ...otherProps } = props;
-
-  const { axis, direction, disabled, orientation, percentageValues } = Slider.useSliderContext();
-
-  const isRtl = direction === 'rtl';
-
-  const isRange = percentageValues.length > 1;
-
-  let internalStyles;
-
-  if (isRange) {
-    const trackOffset = percentageValues[0];
-    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
-    internalStyles = getRangeStyles(axis, trackOffset, trackLeap);
-  } else if (orientation === 'vertical') {
-    internalStyles = {
-      bottom: 0,
-      height: `${percentageValues[0]}%`,
-    };
-  } else {
-    internalStyles = {
-      width: `${percentageValues[0]}%`,
-      [isRtl ? 'right' : 'left']: 0,
-    };
-  }
-
-  return (
-    <span
-      data-disabled={disabled}
-      ref={ref}
-      style={{
-        ...internalStyles,
-        ...style,
-      }}
-      {...otherProps}
-    />
-  );
-});
-
-function getRangeStyles(axis: Axis, trackOffset: number, trackLeap: number) {
-  const axisProps: Record<
-    Axis,
-    {
-      offset: (percent: number) => Record<string, string>;
-      leap: (percent: number) => Record<string, string>;
-    }
-  > = {
-    horizontal: {
-      offset: (percent: number) => ({ left: `${percent}%` }),
-      leap: (percent: number) => ({ width: `${percent}%` }),
-    },
-    'horizontal-reverse': {
-      offset: (percent: number) => ({ right: `${percent}%` }),
-      leap: (percent: number) => ({ width: `${percent}%` }),
-    },
-    vertical: {
-      offset: (percent: number) => ({ bottom: `${percent}%` }),
-      leap: (percent: number) => ({ height: `${percent}%` }),
-    },
-  };
-
-  return {
-    ...axisProps[axis].offset(trackOffset),
-    ...axisProps[axis].leap(trackLeap),
-  };
-}
 
 function Styles() {
   // Replace this with your app logic for determining dark mode
@@ -185,10 +115,10 @@ function Styles() {
           border-radius: 9999px;
           touch-action: none;
           margin-top: 2rem;
+          cursor: pointer;
         }
 
-        .JoySlider-control::before {
-          content: '';
+        .JoySlider-track {
           width: 100%;
           height: 6px;
           border-radius: 9999px;
@@ -196,10 +126,7 @@ function Styles() {
           background-color: ${isDarkMode ? '#dde7ee' : '#32383e'};
         }
 
-        .JoySlider-control-fill {
-          display: block;
-          position: absolute;
-          height: 6px;
+        .JoySlider-indicator {
           border-radius: 9999px;
           background-color: #0b6bcb;
         }
@@ -266,6 +193,7 @@ function Styles() {
           border: 0;
           border-radius: 9999px;
           opacity: 0;
+          cursor: pointer;
         }
 
         .SliderTooltip-popup {
