@@ -11,15 +11,16 @@ export default function VerticalSlider() {
         defaultValue={50}
         orientation="vertical"
         aria-labelledby="VolumeSliderLabel"
-        className="Slider"
+        className="VerticalSlider"
       >
         <Label id="VolumeSliderLabel" className="Label">
           Volume
         </Label>
-        <Slider.Track className="Slider-track">
-          <Slider.Thumb className="Slider-thumb" />
+        <Slider.Track className="VerticalSlider-track">
+          <Slider.Indicator className="VerticalSlider-indicator" />
+          <Slider.Thumb className="VerticalSlider-thumb" />
         </Slider.Track>
-        <Slider.Output className="Slider-output" />
+        <Slider.Output className="VerticalSlider-output" />
       </Slider.Root>
       <Styles />
     </div>
@@ -49,7 +50,7 @@ function useIsDarkMode() {
 function Styles() {
   return (
     <style suppressHydrationWarning>{`
-      .Slider {
+      .VerticalSlider {
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 1rem;
         height: 100%;
@@ -62,11 +63,11 @@ function Styles() {
         gap: 1rem;
       }
 
-      .Slider-output {
+      .VerticalSlider-output {
         font-size: 1.125rem;
       }
 
-      .Slider-track {
+      .VerticalSlider-track {
         display: flex;
         flex-flow: column nowrap;
         align-items: center;
@@ -77,7 +78,7 @@ function Styles() {
         touch-action: none;
       }
 
-      .Slider-track:before {
+      .VerticalSlider-track:before {
         content: '';
         height: 100%;
         width: 2px;
@@ -86,15 +87,25 @@ function Styles() {
         touch-action: none;
       }
 
-      .Slider-track[data-disabled] {
+      .VerticalSlider-track[data-disabled='true'] {
         cursor: not-allowed;
       }
 
-      .dark .Slider-track:before {
+      .dark .VerticalSlider-track:before {
         background-color: ${grey[700]};
       }
 
-      .Slider-thumb {
+      .VerticalSlider-indicator {
+        width: 2px;
+        border-radius: 9999px;
+        background-color: black;
+      }
+
+      .dark .VerticalSlider-indicator {
+        background-color: ${grey[100]};
+      }
+
+      .VerticalSlider-thumb {
         position: absolute;
         width: 16px;
         height: 16px;
@@ -105,27 +116,27 @@ function Styles() {
         touch-action: none;
       }
 
-      .Slider-thumb[data-dragging='true'],
-      .dark .Slider-thumb[data-dragging='true'] {
+      .VerticalSlider-thumb[data-dragging='true'],
+      .dark .VerticalSlider-thumb[data-dragging='true'] {
         background-color: pink;
       }
 
-      .dark .Slider-thumb {
-        background-color: ${grey[300]};
+      .dark .VerticalSlider-thumb {
+        background-color: ${grey[100]};
       }
 
-      .Slider-thumb:focus-visible {
+      .VerticalSlider-thumb:focus-visible {
         outline: 2px solid black;
         outline-offset: 2px;
       }
 
-      .dark .Slider-thumb:focus-visible {
+      .dark .VerticalSlider-thumb:focus-visible {
         outline-color: ${grey[300]};
         outline-width: 1px;
         outline-offset: 3px;
       }
 
-      .Slider-thumb[data-disabled] {
+      .VerticalSlider-thumb[data-disabled='true'] {
         background-color: ${grey[600]};
       }
 
@@ -133,9 +144,10 @@ function Styles() {
         cursor: unset;
         font-weight: 700;
         font-size: 1rem;
+        color: inherit;
       }
 
-      .Label[data-disabled] {
+      .Label[data-disabled='true'] {
         color: ${grey[600]};
       }
     `}</style>

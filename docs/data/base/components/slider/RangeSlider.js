@@ -21,6 +21,7 @@ export default function RangeSlider() {
         <Label id="ControlledRangeLabel">Controlled Range</Label>
         <SliderOutput />
         <SliderTrack>
+          <SliderIndicator />
           <SliderThumb />
           <SliderThumb />
         </SliderTrack>
@@ -30,6 +31,7 @@ export default function RangeSlider() {
         <Label id="UncontrolledRangeLabel">Uncontrolled Range</Label>
         <SliderOutput />
         <SliderTrack>
+          <SliderIndicator />
           <SliderThumb />
           <SliderThumb />
         </SliderTrack>
@@ -65,7 +67,7 @@ const Slider = styled(BaseSlider.Root)`
   -webkit-tap-highlight-color: transparent;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 1rem;
+  gap: 1rem;
 `;
 
 const SliderOutput = styled(BaseSlider.Output)`
@@ -97,6 +99,16 @@ const SliderTrack = styled(BaseSlider.Track)`
 
   .dark &::before {
     background-color: ${grey[700]};
+  }
+`;
+
+const SliderIndicator = styled(BaseSlider.Indicator)`
+  height: 2px;
+  border-radius: 9999px;
+  background-color: black;
+
+  .dark & {
+    background-color: ${grey[100]};
   }
 `;
 

@@ -11,6 +11,7 @@ export default function RtlSlider() {
         <Label id="VolumeSliderLabel">Volume (RTL)</Label>
         <SliderOutput />
         <SliderTrack>
+          <SliderIndicator />
           <SliderThumb />
         </SliderTrack>
       </Slider>
@@ -60,7 +61,7 @@ const Slider = styled(BaseSlider.Root)`
   -webkit-tap-highlight-color: transparent;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 1rem;
+  gap: 1rem;
 `;
 
 const SliderOutput = styled(BaseSlider.Output)`
@@ -86,7 +87,7 @@ const SliderTrack = styled(BaseSlider.Track)`
     touch-action: none;
   }
 
-  &[data-disabled] {
+  &[data-disabled='true'] {
     cursor: not-allowed;
   }
 
@@ -95,14 +96,22 @@ const SliderTrack = styled(BaseSlider.Track)`
   }
 `;
 
+const SliderIndicator = styled(BaseSlider.Indicator)`
+  height: 2px;
+  border-radius: 9999px;
+  background-color: black;
+
+  .dark & {
+    background-color: ${grey[100]};
+  }
+`;
+
 const SliderThumb = styled(BaseSlider.Thumb)`
-  position: absolute;
   width: 16px;
   height: 16px;
   box-sizing: border-box;
   border-radius: 50%;
   background-color: black;
-  transform: translateX(50%);
   touch-action: none;
 
   &:focus-visible {
@@ -111,7 +120,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
   }
 
   .dark & {
-    background-color: ${grey[300]};
+    background-color: ${grey[100]};
   }
 
   .dark &:focus-visible {
@@ -124,8 +133,8 @@ const SliderThumb = styled(BaseSlider.Thumb)`
     background-color: pink;
   }
 
-  &[data-disabled],
-  .dark &[data-disabled] {
+  &[data-disabled='true'],
+  .dark &[data-disabled='true'] {
     background-color: ${grey[600]};
   }
 

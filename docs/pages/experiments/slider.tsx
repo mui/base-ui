@@ -133,7 +133,7 @@ export function Styles() {
       -webkit-tap-highlight-color: transparent;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-gap: 1rem;
+      gap: 1rem;
 
       margin-bottom: 2rem;
     }
@@ -168,8 +168,6 @@ export function Styles() {
     }
 
     .MySlider-indicator {
-      display: block;
-      position: absolute;
       height: 2px;
       border-radius: 9999px;
       background-color: black;
@@ -240,11 +238,9 @@ export function Styles() {
     }
 
     .VerticalSlider-indicator {
-      position: absolute;
       width: 2px;
       border-radius: 9999px;
       background-color: black;
-      box-sizing: border-box;
     }
 
     .VerticalSlider-thumb {
@@ -265,7 +261,7 @@ export function Styles() {
       background-color: pink;
     }
 
-    .VerticalSlider[data-disabled] {
+    .VerticalSlider[data-disabled='true'] {
       cursor: not-allowed;
     }
 

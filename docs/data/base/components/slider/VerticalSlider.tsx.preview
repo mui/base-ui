@@ -2,14 +2,15 @@
   defaultValue={50}
   orientation="vertical"
   aria-labelledby="VolumeSliderLabel"
-  className="Slider"
+  className="VerticalSlider"
 >
   <Label id="VolumeSliderLabel" className="Label">
     Volume
   </Label>
-  <Slider.Track className="Slider-track">
-    <Slider.Thumb className="Slider-thumb" />
+  <Slider.Track className="VerticalSlider-track">
+    <Slider.Indicator className="VerticalSlider-indicator" />
+    <Slider.Thumb className="VerticalSlider-thumb" />
   </Slider.Track>
-  <Slider.Output className="Slider-output" />
+  <Slider.Output className="VerticalSlider-output" />
 </Slider.Root>
 <Styles />

@@ -2,14 +2,7 @@
   <Label id="VolumeSliderLabel">Volume</Label>
   <SliderOutput />
   <SliderTrack>
-    <SliderThumb />
-  </SliderTrack>
-</Slider>
-
-<Slider defaultValue={30} disabled aria-labelledby="BrightnessSliderLabel">
-  <Label id="BrightnessSliderLabel">Brightness</Label>
-  <SliderOutput />
-  <SliderTrack>
+    <SliderIndicator />
     <SliderThumb />
   </SliderTrack>
 </Slider>

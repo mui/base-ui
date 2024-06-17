@@ -77,6 +77,7 @@ function App() {
     <Slider.Root defaultValue={50}>
       <Slider.Output />
       <Slider.Track>
+        <Slider.Indicator />
         <Slider.Thumb />
       </Slider.Track>
     </Slider.Root>
@@ -98,6 +99,7 @@ function App() {
     <Slider.Root value={value} onValueChange={setValue}>
       <Slider.Output />
       <Slider.Track>
+        <Slider.Indicator />
         <Slider.Thumb />
       </Slider.Track>
     </Slider.Root>
@@ -115,6 +117,7 @@ The `min` and `max` props can be used to restrict the value(s) within a range.
 <Slider.Root min={1} max={9}>
   <Slider.Output />
   <Slider.Track>
+    <Slider.Indicator />
     <Slider.Thumb />
   </Slider.Track>
 </Slider.Root>
@@ -128,6 +131,7 @@ The `step` prop snaps the each value to multiples of the given number. In the be
 <Slider.Root step={4} defaultValue={3}>
   <Slider.Output />
   <Slider.Track>
+    <Slider.Indicator />
     <Slider.Thumb />
   </Slider.Track>
 </Slider.Root>
@@ -143,6 +147,7 @@ To let users set the start and end of a range on a Slider, provide an array of v
 <Slider.Root defaultValue={[45, 70]}>
   <Slider.Output />
   <Slider.Track>
+    <Slider.Indicator />
     <Slider.Thumb />
     <Slider.Thumb />
   </Slider.Track>
@@ -158,6 +163,7 @@ The `minStepsBetweenValues` prop can be used to to set the mininum number of `st
 ```tsx
 <Slider.Root minStepsBetweenValues={2} step={5} defaultValue={[10, 20]}>
   <Slider.Track>
+    <Slider.Indicator />
     <Slider.Thumb />
     <Slider.Thumb />
   </Slider.Track>
@@ -210,6 +216,12 @@ The `Slider.Thumb` component's `render` prop contains an additional `inputProps`
     )
   }}>
 />
+```
+
+It's handled automatically if you use the shorthand:
+
+```jsx
+<Slider.Thumb render={<MyCustomThumb />} />
 ```
 
 ## Accessibility

@@ -20,21 +20,7 @@ export default function UnstyledSliderIntroduction() {
         </Label>
         <Slider.Output className="Slider-output" />
         <Slider.Track className="Slider-track">
-          <Slider.Thumb className="Slider-thumb" />
-        </Slider.Track>
-      </Slider.Root>
-
-      <Slider.Root
-        className="Slider"
-        defaultValue={30}
-        aria-labelledby="BrightnessSliderLabel"
-        disabled
-      >
-        <Label id="BrightnessSliderLabel" className="Slider-label">
-          Brightness
-        </Label>
-        <Slider.Output className="Slider-output" />
-        <Slider.Track className="Slider-track">
+          <Slider.Indicator className="Slider-indicator" />
           <Slider.Thumb className="Slider-thumb" />
         </Slider.Track>
       </Slider.Root>
@@ -88,7 +74,7 @@ function Styles() {
       -webkit-tap-highlight-color: transparent;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-gap: 1rem;
+      gap: 1rem;
     }
 
     .Slider-output {
@@ -111,22 +97,34 @@ function Styles() {
       width: 100%;
       height: 2px;
       border-radius: 9999px;
-      background-color: gainsboro;
+      background-color: ${grey[400]};
       touch-action: none;
+    }
+
+    .dark .Slider-track::before {
+      background-color: ${grey[700]};
     }
 
     .Slider-track[data-disabled] {
       cursor: not-allowed;
     }
 
+    .Slider-indicator {
+      height: 2px;
+      border-radius: 9999px;
+      background-color: black;
+    }
+
+    .dark .Slider-indicator {
+      background-color: ${grey[100]};
+    }
+
     .Slider-thumb {
-      position: absolute;
       width: 16px;
       height: 16px;
       box-sizing: border-box;
       border-radius: 50%;
       background-color: black;
-      transform: translateX(-50%);
       touch-action: none;
 
       &:focus-visible {
@@ -140,6 +138,20 @@ function Styles() {
 
       &[data-disabled] {
         background-color: ${grey[300]};
+      }
+    }
+
+    .dark .Slider-thumb {
+      background-color: ${grey[100]};
+
+      &:focus-visible {
+        outline-color: ${grey[300]};
+        outline-width: 1px;
+        outline-offset: 3px;
+      }
+
+      &[data-disabled] {
+        background-color: ${grey[600]};
       }
     }
 

@@ -24,14 +24,7 @@ export default function UnstyledSliderIntroduction() {
         <Label id="VolumeSliderLabel">Volume</Label>
         <SliderOutput />
         <SliderTrack>
-          <SliderThumb />
-        </SliderTrack>
-      </Slider>
-
-      <Slider defaultValue={30} disabled aria-labelledby="BrightnessSliderLabel">
-        <Label id="BrightnessSliderLabel">Brightness</Label>
-        <SliderOutput />
-        <SliderTrack>
+          <SliderIndicator />
           <SliderThumb />
         </SliderTrack>
       </Slider>
@@ -89,8 +82,28 @@ const SliderTrack = React.forwardRef(function SliderTrack(
       ref={ref}
       className={(state) =>
         classNames(
-          "col-span-2 relative flex items-center w-full h-4 before:content-[''] before:w-full before:h-1 before:rounded-full before:touch-none before:bg-[gainsboro]",
+          "col-span-2 relative flex items-center w-full h-4 before:content-[''] before:w-full before:h-0.5 before:rounded-full before:touch-none before:bg-gray-400 dark:before:bg-gray-700",
           state.disabled && 'cursor-not-allowed',
+          typeof props.className === 'function'
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    />
+  );
+});
+
+const SliderIndicator = React.forwardRef(function SliderIndicator(
+  props: BaseSlider.IndicatorProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  return (
+    <BaseSlider.Indicator
+      {...props}
+      ref={ref}
+      className={(state) =>
+        classNames(
+          'h-0.5 rounded-full bg-black dark:bg-gray-100',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -110,7 +123,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
       ref={ref}
       className={(state) =>
         classNames(
-          'absolute w-4 h-4 box-border rounded-[50%] bg-black touch-none translate-x-[-50%] focus-visible:outline-black focus-visible:outline-offset-2',
+          'w-4 h-4 box-border rounded-[50%] bg-black touch-none focus-visible:outline-black focus-visible:outline-offset-2 dark:bg-gray-100 dark:focus-visible:outline-gray-300 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px]',
           state.dragging && 'bg-pink-400',
           state.disabled && 'bg-gray-400',
           typeof props.className === 'function'

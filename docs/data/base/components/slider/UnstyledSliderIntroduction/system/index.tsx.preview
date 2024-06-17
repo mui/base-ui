@@ -2,6 +2,7 @@
   <Label id="VolumeSliderLabel">Volume</Label>
   <SliderOutput />
   <SliderTrack>
+    <SliderIndicator />
     <SliderThumb />
   </SliderTrack>
 </Slider>
