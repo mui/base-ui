@@ -228,13 +228,11 @@ function Styles() {
         }
 
         .JoySlider-thumb {
-          position: absolute;
           width: 18px;
           height: 18px;
           box-sizing: border-box;
           border-radius: 50%;
           background-color: #fefefe;
-          transform: translateX(-50%);
           touch-action: none;
         }
 

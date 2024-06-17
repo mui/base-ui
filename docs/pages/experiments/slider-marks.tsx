@@ -224,10 +224,8 @@ function BrandingStyles() {
     }
 
     .TempSlider-thumb {
-      position: absolute;
       width: 16px;
       height: 16px;
-      margin-left: -6px;
       margin-top: -1px;
       box-sizing: border-box;
       border-radius: var(--border-radius);

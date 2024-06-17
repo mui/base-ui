@@ -236,18 +236,12 @@ export function Styles() {
     }
 
     .MySlider-thumb {
-      position: absolute;
       width: 16px;
       height: 16px;
       box-sizing: border-box;
       border-radius: 50%;
       background-color: black;
-      transform: translateX(-50%);
       touch-action: none;
-    }
-
-    .MySlider[dir=rtl] .MySlider-thumb {
-      transform: translateX(50%);
     }
 
     .MySlider-thumb:focus-visible {
@@ -314,14 +308,12 @@ export function Styles() {
     }
 
     .VerticalSlider-thumb {
-      position: absolute;
       width: 16px;
       height: 16px;
       box-sizing: border-box;
       border-radius: 50%;
       background-color: black;
       touch-action: none;
-      transform: translateY(50%);
     }
 
     .VerticalSlider-thumb:focus-visible {
