@@ -1,0 +1,16 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "animated": {
+      "description": "If <code>true</code>, the dialog supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
+    },
+    "defaultOpen": {
+      "description": "Determines whether the dialog is initally open. This is an uncontrolled equivalent of the <code>open</code> prop."
+    },
+    "onOpenChange": {
+      "description": "Callback invoked when the dialog is being opened or closed."
+    },
+    "open": { "description": "Determines whether the dialog is open." }
+  },
+  "classDescriptions": {}
+}

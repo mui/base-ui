@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useDialogBackdrop",
+  "filename": "/packages/mui-base/src/Dialog/Backdrop/useDialogBackdrop.ts",
+  "imports": ["import { useDialogBackdrop } from '@base_ui/react/Dialog';"],
+  "demos": "<ul></ul>"
+}
