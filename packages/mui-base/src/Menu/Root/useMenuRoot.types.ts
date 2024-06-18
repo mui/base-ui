@@ -1,3 +1,4 @@
+import { ListAction, ListState } from '../../useList';
 import type { MenuRootContextValue } from './MenuRootContext';
 
 export interface UseMenuRootParameters {
@@ -69,14 +70,16 @@ interface DropdownCloseAction {
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
 }
 
-export type DropdownAction =
+export type MenuReducerAction =
   | DropdownBlurAction
   | DropdownEscapeKeyDownAction
   | DropdownToggleAction
   | DropdownOpenAction
-  | DropdownCloseAction;
+  | DropdownCloseAction
+  | ListAction<string>;
 
-export type DropdownState = {
+export type MenuReducerState = ListState<string> & {
   open: boolean;
   changeReason: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+  items: string[];
 };

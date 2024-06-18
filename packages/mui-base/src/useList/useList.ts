@@ -64,9 +64,8 @@ function useList<
   ItemValue,
   State extends ListState<ItemValue> = ListState<ItemValue>,
   CustomAction extends ControllableReducerAction = never,
-  CustomActionContext = {},
 >(
-  params: UseListParameters<ItemValue, State, CustomAction, CustomActionContext>,
+  params: UseListParameters<ItemValue, State, CustomAction>,
 ): UseListReturnValue<ItemValue, State, CustomAction> {
   const {
     controlledProps = EMPTY_OBJECT,
@@ -87,7 +86,6 @@ function useList<
     onItemsChange,
     orientation = 'vertical',
     pageSize = 5,
-    reducerActionContext = EMPTY_OBJECT as CustomActionContext,
     selectionMode = 'single',
     stateReducer: externalReducer,
     componentName = 'useList',
@@ -206,18 +204,8 @@ function useList<
     ListAction<ItemValue> | CustomAction
   >;
 
-  const actionContext: ListActionContext<ItemValue> & CustomActionContext = React.useMemo(
-    () => ({ ...reducerActionContext, ...listActionContext }),
-    [reducerActionContext, listActionContext],
-  );
-
-  const [state, dispatch] = useControllableReducer<
-    State,
-    ListAction<ItemValue> | CustomAction,
-    ListActionContext<ItemValue> & CustomActionContext
-  >({
+  const [state, dispatch] = useControllableReducer<State, ListAction<ItemValue> | CustomAction>({
     reducer,
-    actionContext,
     initialState: initialState as State,
     controlledProps,
     stateComparers,

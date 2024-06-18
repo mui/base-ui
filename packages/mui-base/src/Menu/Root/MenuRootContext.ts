@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { DropdownAction, DropdownState } from './useMenuRoot.types';
+import { MenuReducerAction, DropdownState } from './useMenuRoot.types';
 
 export interface MenuRootContextValue {
-  dispatch: React.Dispatch<DropdownAction>;
+  dispatch: React.Dispatch<MenuReducerAction>;
   popupId: string;
   registerPopup: (popupId: string) => void;
   registerTrigger: (element: HTMLElement | null) => void;

@@ -10,23 +10,20 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'a',
         selectedValues: [],
+        items: [],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.blur,
         event: {} as any, // not relevant
-        context: {
-          items: [],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
       };
 
       const result = listReducer(state, action);
@@ -39,23 +36,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'a',
         selectedValues: [],
+        items: [
+          { value: 'one', disabled: false },
+          { value: 'two', disabled: false },
+          { value: 'three', disabled: false },
+        ],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
-        context: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
         item: 'two',
       };
 
@@ -67,23 +65,25 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: null,
         selectedValues: [],
+        items: [
+          { value: 'one', disabled: false },
+          { value: 'two', disabled: true },
+          { value: 'three', disabled: false },
+        ],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
-        context: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: (item) => item === 'two',
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
+
         item: 'two',
       };
 
@@ -96,23 +96,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'a',
         selectedValues: ['one'],
+        items: [
+          { value: 'one', disabled: false },
+          { value: 'two', disabled: false },
+          { value: 'three', disabled: false },
+        ],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
-        context: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
         item: 'two',
       };
 
@@ -124,23 +125,25 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: ['one'],
+        items: [
+          { value: 'one', disabled: false },
+          { value: 'two', disabled: false },
+          { value: 'three', disabled: false },
+        ],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'multiple',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
-        context: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'multiple',
-        },
+
         item: 'two',
       };
 
@@ -152,23 +155,25 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'three',
         selectedValues: ['one', 'two'],
+        items: [
+          { value: 'one', disabled: false },
+          { value: 'two', disabled: false },
+          { value: 'three', disabled: false },
+        ],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'multiple',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
-        context: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'multiple',
-        },
+
         item: 'two',
       };
 
@@ -180,23 +185,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
+        items: [
+          { value: 'one', disabled: false },
+          { value: 'two', disabled: false },
+          { value: 'three', disabled: false },
+        ],
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'none',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
-        context: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'none',
-        },
         item: 'two',
       };
 
@@ -595,7 +601,7 @@ describe('listReducer', () => {
             type: ListActionTypes.keyDown,
             key: spec.key,
             event: null as any, // not relevant
-            context: {
+            settings: {
               items: ['1', '2', '3', '4', '5'],
               disableListWrap: spec.disableListWrap,
               disabledItemsFocusable: spec.disabledItemFocusable,
@@ -626,7 +632,7 @@ describe('listReducer', () => {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
-          context: {
+          settings: {
             items: ['one', 'two', 'three'],
             disableListWrap: false,
             disabledItemsFocusable: false,
@@ -654,7 +660,7 @@ describe('listReducer', () => {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
-          context: {
+          settings: {
             items: ['one', 'two', 'three'],
             disableListWrap: false,
             disabledItemsFocusable: false,
@@ -682,7 +688,7 @@ describe('listReducer', () => {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
-          context: {
+          settings: {
             items: ['one', 'two', 'three'],
             disableListWrap: false,
             disabledItemsFocusable: false,
@@ -713,7 +719,7 @@ describe('listReducer', () => {
         type: ListActionTypes.textNavigation,
         searchString: 'th',
         event: {} as React.KeyboardEvent,
-        context: {
+        settings: {
           items: ['one', 'two', 'three', 'four', 'five'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -741,7 +747,7 @@ describe('listReducer', () => {
         type: ListActionTypes.textNavigation,
         searchString: 'z',
         event: {} as React.KeyboardEvent,
-        context: {
+        settings: {
           items: ['one', 'two', 'three', 'four', 'five'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -769,7 +775,7 @@ describe('listReducer', () => {
         type: ListActionTypes.textNavigation,
         searchString: 't',
         event: {} as React.KeyboardEvent,
-        context: {
+        settings: {
           items: ['one', 'two', 'three', 'four', 'five'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -797,7 +803,7 @@ describe('listReducer', () => {
         type: ListActionTypes.textNavigation,
         searchString: 't',
         event: {} as React.KeyboardEvent,
-        context: {
+        settings: {
           items: ['one', 'two', 'three', 'four', 'five'],
           disableListWrap: false,
           disabledItemsFocusable: true,
@@ -825,7 +831,7 @@ describe('listReducer', () => {
         type: ListActionTypes.textNavigation,
         searchString: 'one',
         event: {} as React.KeyboardEvent,
-        context: {
+        settings: {
           items: ['one', 'two', 'three', 'four', 'five'],
           disableListWrap: true,
           disabledItemsFocusable: false,
@@ -868,7 +874,7 @@ describe('listReducer', () => {
           event: null,
           items: ['1', '2'],
           previousItems: ['0', '1', '2'],
-          context: {
+          settings: {
             items: ['1', '2'],
             itemComparer: (o, v) => o === v,
             ...irrelevantConfig,
@@ -890,7 +896,7 @@ describe('listReducer', () => {
           event: null,
           items: ['1', '2'],
           previousItems: ['0', '1', '2'],
-          context: {
+          settings: {
             items: ['1', '2'],
             itemComparer: (o, v) => o === v,
             ...irrelevantConfig,
@@ -912,7 +918,7 @@ describe('listReducer', () => {
           event: null,
           items: ['1', '2'],
           previousItems: ['0', '1', '2'],
-          context: {
+          settings: {
             items: ['1', '2'],
             itemComparer: (o, v) => o === v,
             ...irrelevantConfig,
@@ -934,7 +940,7 @@ describe('listReducer', () => {
           event: null,
           items: ['1', '2'],
           previousItems: ['0', '1', '2'],
-          context: {
+          settings: {
             items: ['1', '2'],
             itemComparer: (o, v) => o === v,
             ...irrelevantConfig,
@@ -960,7 +966,7 @@ describe('listReducer', () => {
           event: null,
           items: [{ v: '1' }, { v: '2' }],
           previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          context: {
+          settings: {
             items: [{ v: '1' }, { v: '2' }],
             itemComparer: (a, b) => a.v === b.v,
             ...irrelevantConfig,
@@ -982,7 +988,7 @@ describe('listReducer', () => {
           event: null,
           items: [{ v: '1' }, { v: '2' }],
           previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          context: {
+          settings: {
             items: [{ v: '1' }, { v: '2' }],
             itemComparer: (a, b) => a.v === b.v,
             ...irrelevantConfig,
@@ -1004,7 +1010,7 @@ describe('listReducer', () => {
           event: null,
           items: [{ v: '1' }, { v: '2' }],
           previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          context: {
+          settings: {
             items: [{ v: '1' }, { v: '2' }],
             itemComparer: (a, b) => a.v === b.v,
             ...irrelevantConfig,
@@ -1026,7 +1032,7 @@ describe('listReducer', () => {
           event: null,
           items: [{ v: '1' }, { v: '2' }],
           previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          context: {
+          settings: {
             items: [{ v: '1' }, { v: '2' }],
             itemComparer: (a, b) => a.v === b.v,
             ...irrelevantConfig,
@@ -1050,7 +1056,7 @@ describe('listReducer', () => {
           event: null,
           items: ['1', '2'],
           previousItems: [],
-          context: {
+          settings: {
             ...irrelevantConfig,
             items: ['1', '2'],
             itemComparer: (o, v) => o === v,
@@ -1073,7 +1079,7 @@ describe('listReducer', () => {
           event: null,
           items: ['1', '2', '3'],
           previousItems: [],
-          context: {
+          settings: {
             ...irrelevantConfig,
             items: ['1', '2', '3'],
             itemComparer: (o, v) => o === v,
@@ -1098,7 +1104,7 @@ describe('listReducer', () => {
       const action: ListReducerAction<string> = {
         type: ListActionTypes.resetHighlight,
         event: null,
-        context: {
+        settings: {
           items: ['one', 'two', 'three'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -1125,7 +1131,7 @@ describe('listReducer', () => {
       const action: ListReducerAction<string> = {
         type: ListActionTypes.resetHighlight,
         event: null,
-        context: {
+        settings: {
           items: ['one', 'two', 'three'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -1154,7 +1160,7 @@ describe('listReducer', () => {
       const action: ListReducerAction<string> = {
         type: ListActionTypes.highlightLast,
         event: null,
-        context: {
+        settings: {
           items: ['one', 'two', 'three'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -1181,7 +1187,7 @@ describe('listReducer', () => {
       const action: ListReducerAction<string> = {
         type: ListActionTypes.highlightLast,
         event: null,
-        context: {
+        settings: {
           items: ['one', 'two', 'three'],
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -1209,7 +1215,7 @@ describe('listReducer', () => {
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.clearSelection,
-        context: {
+        settings: {
           items: ['one', 'two', 'three'],
           disableListWrap: false,
           disabledItemsFocusable: false,

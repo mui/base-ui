@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Simplify } from '@mui/types';
 import { ListAction } from './listActions.types';
 import {
-  ActionWithContext,
   ControllableReducerAction,
   StateChangeCallback,
 } from '../utils/useControllableReducer.types';
@@ -13,10 +12,6 @@ type ListActionContextRequiredKeys =
   | 'disabledItemsFocusable'
   | 'disableListWrap'
   | 'focusManagement'
-  | 'getItemAsString'
-  | 'isItemDisabled'
-  | 'itemComparer'
-  | 'items'
   | 'orientation'
   | 'pageSize'
   | 'selectionMode';
@@ -35,10 +30,13 @@ export type ListActionContext<ItemValue> = Simplify<
  * @template ItemValue The type of the item values.
  * @template CustomActionContext The shape of additional properties that will be added to actions when dispatched.
  */
-export type ListReducerAction<ItemValue, CustomActionContext = {}> = ActionWithContext<
-  ListAction<ItemValue>,
-  ListActionContext<ItemValue> & CustomActionContext
->;
+export type ListReducerAction<ItemValue> = ListAction<ItemValue>;
+
+export type ListItemMetadata<ItemValue> = {
+  value: ItemValue;
+  disabled: boolean;
+  valueAsString?: string;
+};
 
 /**
  * The state of the list.
@@ -53,6 +51,8 @@ export interface ListState<ItemValue> {
    * The item(s) that are currently selected.
    */
   selectedValues: ItemValue[];
+  items: Map<ItemValue, ListItemMetadata<ItemValue>>;
+  settings: ListActionContext<ItemValue>;
 }
 
 /**
@@ -62,9 +62,9 @@ export interface ListState<ItemValue> {
  * @template State The type of the list state. This should be a subtype of ListState<ItemValue>.
  * @template CustomActionContext The shape of additional properties that will be added to actions when dispatched.
  */
-export type ListReducer<ItemValue, State extends ListState<ItemValue>, CustomActionContext> = (
+export type ListReducer<ItemValue, State extends ListState<ItemValue>> = (
   state: State,
-  action: ListReducerAction<ItemValue, CustomActionContext>,
+  action: ListReducerAction<ItemValue>,
 ) => State;
 
 export type FocusManagementType = 'DOM' | 'activeDescendant';
@@ -83,7 +83,6 @@ export interface UseListParameters<
   ItemValue,
   State extends ListState<ItemValue> = ListState<ItemValue>,
   CustomAction extends ControllableReducerAction = never,
-  CustomActionContext = {},
 > {
   /**
    * The externally controlled values (highlighted and selected item(s)) of the list.
@@ -190,11 +189,6 @@ export interface UseListParameters<
    */
   items: ItemValue[];
   /**
-   * Additional data to be passed to all the reducer actions.
-   * It will be available in the `context` property of the action when dispatched.
-   */
-  reducerActionContext?: CustomActionContext;
-  /**
    * Orientation of the items in the list.
    * Determines the actions that are performed when arrow keys are pressed.
    */
@@ -208,13 +202,7 @@ export interface UseListParameters<
    * Custom state reducer function. It calculates the new state (highlighted and selected items + optional custom state)
    * based on the previous one and the performed action.
    */
-  stateReducer?: (
-    state: State,
-    action: ActionWithContext<
-      ListAction<ItemValue> | CustomAction,
-      ListActionContext<ItemValue> & CustomActionContext
-    >,
-  ) => State;
+  stateReducer?: (state: State, action: ListAction<ItemValue> | CustomAction) => State;
   /**
    * The name of the component using useList.
    * For debugging purposes.
