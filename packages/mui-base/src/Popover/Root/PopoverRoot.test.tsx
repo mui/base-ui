@@ -316,11 +316,11 @@ describe('<Popover.Root />', () => {
 
       fireEvent.mouseLeave(anchor);
 
-      clock.tick(OPEN_DELAY / 2);
+      clock.tick(50);
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
-      clock.tick(OPEN_DELAY / 2);
+      clock.tick(50);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
