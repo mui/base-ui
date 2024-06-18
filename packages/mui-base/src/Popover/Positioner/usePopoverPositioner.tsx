@@ -24,15 +24,10 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useLatestRef } from '../../utils/useLatestRef';
 
 /**
- * The basic building block for creating custom popovers.
- *
- * Demos:
- *
- * - [Popover](https://mui.com/base-ui/react-popover/#hooks)
  *
  * API:
  *
- * - [usePopoverPositioner API](https://mui.com/base-ui/react-popover/hooks-api/#use-popover-positioner)
+ * - [usePopoverPositioner API](https://mui.com/base-ui/api/use-popover-positioner/)
  */
 export function usePopoverPositioner(
   params: UsePopoverPositionerParameters,
@@ -205,40 +200,18 @@ export function usePopoverPositioner(
       [floatingStyles, isHidden],
     );
 
-  const getArrowProps: UsePopoverPositionerReturnValue['getArrowProps'] = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps<'div'>(externalProps, {
-        style: {
-          position: 'absolute',
-          top: middlewareData.arrow?.y,
-          left: middlewareData.arrow?.x,
-        },
-      });
-    },
-    [middlewareData],
-  );
-
   const arrowUncentered = middlewareData.arrow?.centerOffset !== 0;
 
   return React.useMemo(
     () => ({
       mounted,
       getPositionerProps,
-      getArrowProps,
       arrowRef,
       arrowUncentered,
       side: renderedSide,
       alignment: renderedAlignment,
       floatingContext: context,
     }),
-    [
-      mounted,
-      getPositionerProps,
-      getArrowProps,
-      arrowUncentered,
-      renderedSide,
-      renderedAlignment,
-      context,
-    ],
+    [mounted, getPositionerProps, arrowUncentered, renderedSide, renderedAlignment, context],
   );
 }

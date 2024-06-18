@@ -2,7 +2,6 @@
 productId: base-ui
 title: React Popover Component
 components: PopoverRoot, PopoverTrigger, PopoverPositioner, PopoverPopup, PopoverArrow, PopoverBackdrop, PopoverTitle, PopoverDescription, PopoverClose
-hooks: usePopoverRoot, usePopoverPositioner
 githubLabel: 'component: popover'
 ---
 

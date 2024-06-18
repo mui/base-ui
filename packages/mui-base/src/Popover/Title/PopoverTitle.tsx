@@ -2,10 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
 import type { PopoverTitleProps } from './PopoverTitle.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import { usePopoverTitle } from './usePopoverTitle';
 
 /**
  * Renders a title element that labels the popover.
@@ -24,16 +23,12 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { setTitleId, getTitleProps } = usePopoverRootContext();
+  const { setTitleId } = usePopoverRootContext();
 
-  const id = useId(otherProps.id);
-
-  useEnhancedEffect(() => {
-    setTitleId(id);
-    return () => {
-      setTitleId(undefined);
-    };
-  }, [setTitleId, id]);
+  const { getTitleProps } = usePopoverTitle({
+    titleId: otherProps.id,
+    setTitleId,
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getTitleProps,

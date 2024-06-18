@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingOverlay, FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal } from '@floating-ui/react';
 import type { PopoverBackdropProps } from './PopoverBackdrop.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
+import { usePopoverBackdrop } from './usePopoverBackdrop';
 
 /**
  * Renders a backdrop for the popover.
@@ -26,20 +27,17 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const { open, mounted } = usePopoverRootContext();
 
+  const { getBackdropProps } = usePopoverBackdrop();
+
   const ownerState = React.useMemo(() => ({ open }), [open]);
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? <FloatingOverlay />,
+    propGetter: getBackdropProps,
+    render: render ?? 'div',
     className,
     ownerState,
     ref: forwardedRef,
-    extraProps: {
-      ...otherProps,
-      style: {
-        zIndex: 2147483647, // max z-index
-        ...otherProps.style,
-      },
-    },
+    extraProps: otherProps,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -80,10 +78,6 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
 } as any;
 
 export { PopoverBackdrop };

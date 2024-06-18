@@ -70,13 +70,6 @@
       "type": { "name": "FloatingContext", "description": "FloatingContext" },
       "required": true
     },
-    "getArrowProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    },
     "getPositionerProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
@@ -96,5 +89,5 @@
   "name": "usePopoverPositioner",
   "filename": "/packages/mui-base/src/Popover/Positioner/usePopoverPositioner.tsx",
   "imports": ["import { usePopoverPositioner } from '@base_ui/react/Popover';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-popover/#hooks\">Popover</a></li></ul>"
+  "demos": "<ul></ul>"
 }

@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "usePopoverTrigger",
+  "filename": "/packages/mui-base/src/Popover/Trigger/usePopoverTrigger.ts",
+  "imports": ["import { usePopoverTrigger } from '@base_ui/react/Popover';"],
+  "demos": "<ul></ul>"
+}

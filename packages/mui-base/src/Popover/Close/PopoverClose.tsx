@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { PopoverCloseProps } from './PopoverClose.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import { usePopoverClose } from './usePopoverClose';
 
 /**
- * Renders a button that will close the popover when clicked.
+ * Renders a button that closes the popover when clicked.
  *
  * Demos:
  *
@@ -22,7 +23,13 @@ const PopoverClose = React.forwardRef(function PopoverClose(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getCloseProps } = usePopoverRootContext();
+  const { setOpen } = usePopoverRootContext();
+
+  const { getCloseProps } = usePopoverClose({
+    onClose() {
+      setOpen(false);
+    },
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getCloseProps,

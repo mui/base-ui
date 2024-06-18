@@ -15,19 +15,13 @@ import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
- * Manages the root state for a popover.
- *
- * Demos:
- *
- * - [Popover](https://mui.com/base-ui/react-popover/#hooks)
  *
  * API:
  *
- * - [usePopoverRoot API](https://mui.com/base-ui/react-popover/hooks-api/#use-popover-root)
+ * - [usePopoverRoot API](https://mui.com/base-ui/api/use-popover-root/)
  */
 export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRootReturnValue {
   const {
@@ -144,55 +138,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
   const dismiss = useDismiss(context);
   const role = useRole(context);
 
-  const { getReferenceProps: getTriggerProps, getFloatingProps } = useInteractions([
-    hover,
-    click,
-    dismiss,
-    role,
-  ]);
-
-  const getPopupProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps<'div'>(getFloatingProps(externalProps), {
-        'aria-labelledby': titleId,
-        'aria-describedby': descriptionId,
-        style: {
-          // <Popover.Arrow> must be relative to the inner popup element.
-          position: 'relative',
-        },
-      });
-    },
-    [titleId, descriptionId, getFloatingProps],
-  );
-
-  const getTitleProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps<'h2'>(externalProps, {
-        id: titleId,
-      });
-    },
-    [titleId],
-  );
-
-  const getDescriptionProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps<'p'>(externalProps, {
-        id: descriptionId,
-      });
-    },
-    [descriptionId],
-  );
-
-  const getCloseProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps<'button'>(externalProps, {
-        onClick() {
-          setOpen(false);
-        },
-      });
-    },
-    [setOpen],
-  );
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   return React.useMemo(
     () => ({
@@ -205,11 +151,8 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       setTitleId,
       descriptionId,
       setDescriptionId,
-      getTriggerProps,
-      getPopupProps,
-      getTitleProps,
-      getDescriptionProps,
-      getCloseProps,
+      getRootTriggerProps: getReferenceProps,
+      getRootPopupProps: getFloatingProps,
       rootContext: context,
       instantType,
     }),
@@ -221,11 +164,8 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       transitionStatus,
       titleId,
       descriptionId,
-      getTriggerProps,
-      getPopupProps,
-      getTitleProps,
-      getDescriptionProps,
-      getCloseProps,
+      getReferenceProps,
+      getFloatingProps,
       context,
       instantType,
     ],

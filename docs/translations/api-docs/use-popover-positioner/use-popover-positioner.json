@@ -1,5 +1,5 @@
 {
-  "hookDescription": "The basic building block for creating custom popovers.",
+  "hookDescription": "",
   "parametersDescriptions": {
     "alignment": {
       "description": "The alignment of the popover element to the anchor element along its cross axis."
@@ -43,7 +43,6 @@
     "arrowRef": { "description": "The ref of the popover arrow element." },
     "arrowUncentered": { "description": "Determines if the arrow cannot be centered." },
     "floatingContext": { "description": "<code>FloatingContext</code>" },
-    "getArrowProps": { "description": "Props to spread on the popover arrow element." },
     "getPositionerProps": { "description": "Props to spread on the popover positioner element." },
     "mounted": {
       "description": "Whether the popover is mounted, including CSS transitions or animations."

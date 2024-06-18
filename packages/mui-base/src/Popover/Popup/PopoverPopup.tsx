@@ -5,9 +5,10 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { PopoverPopupOwnerState, PopoverPopupProps } from './PopoverPopup.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
+import { usePopoverPopup } from './usePopoverPopup';
 
 /**
- * The popover popup element.
+ * Renders the popover popup element.
  *
  * Demos:
  *
@@ -23,8 +24,15 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus, getPopupProps } = usePopoverRootContext();
+  const { open, instantType, transitionStatus, getRootPopupProps, titleId, descriptionId } =
+    usePopoverRootContext();
   const { side, alignment } = usePopoverPositionerContext();
+
+  const { getPopupProps } = usePopoverPopup({
+    getProps: getRootPopupProps,
+    titleId,
+    descriptionId,
+  });
 
   const ownerState: PopoverPopupOwnerState = React.useMemo(
     () => ({

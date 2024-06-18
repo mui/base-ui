@@ -12,8 +12,6 @@ import PopoverPositionerApiJsonPageContent from '../../api/popover-positioner.js
 import PopoverRootApiJsonPageContent from '../../api/popover-root.json';
 import PopoverTitleApiJsonPageContent from '../../api/popover-title.json';
 import PopoverTriggerApiJsonPageContent from '../../api/popover-trigger.json';
-import usePopoverPositionerApiJsonPageContent from '../../api/use-popover-positioner.json';
-import usePopoverRootApiJsonPageContent from '../../api/use-popover-root.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -95,20 +93,6 @@ export const getStaticProps = () => {
   );
   const PopoverTriggerApiDescriptions = mapApiPageTranslations(PopoverTriggerApiReq);
 
-  const usePopoverPositionerApiReq = require.context(
-    'docs-base/translations/api-docs/use-popover-positioner',
-    false,
-    /\.\/use-popover-positioner.*.json$/,
-  );
-  const usePopoverPositionerApiDescriptions = mapApiPageTranslations(usePopoverPositionerApiReq);
-
-  const usePopoverRootApiReq = require.context(
-    'docs-base/translations/api-docs/use-popover-root',
-    false,
-    /\.\/use-popover-root.*.json$/,
-  );
-  const usePopoverRootApiDescriptions = mapApiPageTranslations(usePopoverRootApiReq);
-
   return {
     props: {
       componentsApiDescriptions: {
@@ -133,14 +117,8 @@ export const getStaticProps = () => {
         PopoverTitle: PopoverTitleApiJsonPageContent,
         PopoverTrigger: PopoverTriggerApiJsonPageContent,
       },
-      hooksApiDescriptions: {
-        usePopoverPositioner: usePopoverPositionerApiDescriptions,
-        usePopoverRoot: usePopoverRootApiDescriptions,
-      },
-      hooksApiPageContents: {
-        usePopoverPositioner: usePopoverPositionerApiJsonPageContent,
-        usePopoverRoot: usePopoverRootApiJsonPageContent,
-      },
+      hooksApiDescriptions: {},
+      hooksApiPageContents: {},
     },
   };
 };

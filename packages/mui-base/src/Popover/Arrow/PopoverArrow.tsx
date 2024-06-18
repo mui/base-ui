@@ -6,6 +6,7 @@ import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerCont
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
+import { usePopoverArrow } from './usePopoverArrow';
 
 /**
  * The tooltip arrow caret element.
@@ -25,8 +26,13 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open } = usePopoverRootContext();
-  const { arrowRef, side, alignment, arrowUncentered, getArrowProps } =
+  const { arrowRef, side, alignment, arrowUncentered, floatingContext } =
     usePopoverPositionerContext();
+
+  const { getArrowProps } = usePopoverArrow({
+    floatingContext,
+    hidden: hideWhenUncentered && arrowUncentered,
+  });
 
   const ownerState: PopoverArrowOwnerState = React.useMemo(
     () => ({
@@ -46,13 +52,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     className,
     ownerState,
     ref: mergedRef,
-    extraProps: {
-      ...otherProps,
-      style: {
-        ...(hideWhenUncentered && arrowUncentered && { visibility: 'hidden' }),
-        ...otherProps.style,
-      },
-    },
+    extraProps: otherProps,
     customStyleHookMapping: {
       open(value) {
         return {
@@ -87,10 +87,6 @@ PopoverArrow.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
 } as any;
 
 export { PopoverArrow };

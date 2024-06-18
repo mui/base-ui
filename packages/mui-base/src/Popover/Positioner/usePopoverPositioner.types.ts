@@ -109,10 +109,6 @@ export interface UsePopoverPositionerReturnValue {
    */
   getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * Props to spread on the popover arrow element.
-   */
-  getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
    * The ref of the popover arrow element.
    */
   arrowRef: React.MutableRefObject<Element | null>;

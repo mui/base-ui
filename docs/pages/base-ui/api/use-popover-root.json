@@ -37,35 +37,14 @@
       "type": { "name": "string | undefined", "description": "string | undefined" },
       "required": true
     },
-    "getCloseProps": {
+    "getRootPopupProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
         "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
       },
       "required": true
     },
-    "getDescriptionProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    },
-    "getPopupProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    },
-    "getTitleProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    },
-    "getTriggerProps": {
+    "getRootTriggerProps": {
       "type": {
         "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
         "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
@@ -125,5 +104,5 @@
   "name": "usePopoverRoot",
   "filename": "/packages/mui-base/src/Popover/Root/usePopoverRoot.ts",
   "imports": ["import { usePopoverRoot } from '@base_ui/react/Popover';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-popover/#hooks\">Popover</a></li></ul>"
+  "demos": "<ul></ul>"
 }

@@ -1,5 +1,5 @@
 import type { Side } from '@floating-ui/react';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 export type PopoverArrowOwnerState = {
   open: boolean;

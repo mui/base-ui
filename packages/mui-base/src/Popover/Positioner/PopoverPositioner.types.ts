@@ -1,5 +1,5 @@
-import type { Side } from '@floating-ui/react';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { FloatingContext, Side } from '@floating-ui/react';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { PopoverPositionerParameters } from './usePopoverPositioner.types';
 
 export interface PopoverPositionerContextValue {
@@ -7,7 +7,7 @@ export interface PopoverPositionerContextValue {
   alignment: 'start' | 'end' | 'center';
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
-  getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  floatingContext: FloatingContext;
 }
 
 export type PopoverPositionerOwnerState = {

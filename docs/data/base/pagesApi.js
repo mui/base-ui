@@ -275,14 +275,6 @@ module.exports = [
     pathname: '/base-ui/react-select/hooks-api/#use-option-context-stabilizer',
     title: 'useOptionContextStabilizer',
   },
-  {
-    pathname: '/base-ui/react-popover/hooks-api/#use-popover-positioner',
-    title: 'usePopoverPositioner',
-  },
-  {
-    pathname: '/base-ui/react-popover/hooks-api/#use-popover-root',
-    title: 'usePopoverRoot',
-  },
   { pathname: '/base-ui/react-select/hooks-api/#use-select', title: 'useSelect' },
   { pathname: '/base-ui/react-slider/hooks-api/#use-slider', title: 'useSlider' },
   {

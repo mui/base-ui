@@ -1,5 +1,5 @@
 {
-  "componentDescription": "The popover positioner element.",
+  "componentDescription": "Renders the element that positions the popover popup.",
   "propDescriptions": {
     "alignment": {
       "description": "The alignment of the popover element to the anchor element along its cross axis."

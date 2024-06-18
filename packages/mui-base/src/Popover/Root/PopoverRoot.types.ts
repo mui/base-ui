@@ -22,11 +22,8 @@ export interface PopoverRootContextValue {
   descriptionId: string | undefined;
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
   rootContext: FloatingRootContext;
-  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getTitleProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getDescriptionProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getCloseProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
 export type PopoverRootOwnerState = {

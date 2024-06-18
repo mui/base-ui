@@ -2,10 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
-import type { PopoverDescriptionProps } from './PopoverDescription.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import type { PopoverDescriptionProps } from './PopoverDescription.types';
+import { usePopoverDescription } from './usePopoverDescription';
 
 /**
  * Renders a description element that describes the popover.
@@ -24,16 +23,12 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { setDescriptionId, getDescriptionProps } = usePopoverRootContext();
+  const { setDescriptionId } = usePopoverRootContext();
 
-  const id = useId(otherProps.id);
-
-  useEnhancedEffect(() => {
-    setDescriptionId(id);
-    return () => {
-      setDescriptionId(undefined);
-    };
-  }, [setDescriptionId, id]);
+  const { getDescriptionProps } = usePopoverDescription({
+    descriptionId: otherProps.id,
+    setDescriptionId,
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getDescriptionProps,

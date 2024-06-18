@@ -1,5 +1,5 @@
 {
-  "componentDescription": "Renders a button that will close the popover when clicked.",
+  "componentDescription": "Renders a button that closes the popover when clicked.",
   "propDescriptions": {
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."

@@ -15,7 +15,7 @@ import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 
 /**
- * The popover positioner element.
+ * Renders the element that positions the popover popup.
  *
  * Demos:
  *
@@ -85,14 +85,14 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       alignment: positioner.alignment,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
-      getArrowProps: positioner.getArrowProps,
+      floatingContext: positioner.floatingContext,
     }),
     [
       positioner.side,
       positioner.alignment,
       positioner.arrowRef,
       positioner.arrowUncentered,
-      positioner.getArrowProps,
+      positioner.floatingContext,
     ],
   );
 
