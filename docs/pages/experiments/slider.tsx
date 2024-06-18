@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider';
+import { useSliderContext } from '@base_ui/react/Slider';
 
 export default function App() {
   const [val1, setVal1] = React.useState(50);
@@ -8,7 +9,7 @@ export default function App() {
   const [val3, setVal3] = React.useState([20, 40, 60, 80]);
   return (
     <div className="App">
-      <h3>Uncontrolled</h3>
+      <h3 id="uncontrolled">Uncontrolled</h3>
       <Slider.Root className="MySlider" defaultValue={50}>
         <Slider.Output className="MySlider-output" />
         <Slider.Control className="MySlider-control">
@@ -52,7 +53,9 @@ export default function App() {
         </Slider.Control>
       </Slider.Root>
 
-      <h3>Controlled</h3>
+      <h3 style={{ marginTop: 64 }} id="controlled">
+        Controlled
+      </h3>
       <Slider.Root
         className="MySlider"
         value={val1}
@@ -102,9 +105,151 @@ export default function App() {
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
+
+      <h3 style={{ marginTop: 64 }} id="with-labels">
+        With custom labels
+      </h3>
+      <Slider.Root className="MySlider" defaultValue={50} aria-labelledby="LabelId">
+        <Label id="LabelId" className="Label">
+          Brightness
+        </Label>
+        <Slider.Output className="MySlider-output" />
+        <Slider.Control className="MySlider-control">
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <Slider.Root className="MySlider" defaultValue={[50, 70]} aria-labelledby="LabelRangeId">
+        <LabelRange id="LabelRangeId" className="Label">
+          Volume Range
+        </LabelRange>
+        <Slider.Output className="MySlider-output" />
+        <Slider.Control className="MySlider-control">
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+            <Slider.Thumb className="MySlider-thumb two" />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <h3 style={{ marginTop: 64 }} id="vertical">
+        Vertical
+      </h3>
+      <Slider.Root className="VerticalSlider" defaultValue={50} orientation="vertical">
+        <Slider.Output className="VerticalSlider-output" />
+        <Slider.Control className="VerticalSlider-control">
+          <Slider.Track className="VerticalSlider-track">
+            <Slider.Indicator className="VerticalSlider-indicator" />
+            <Slider.Thumb className="VerticalSlider-thumb" />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <Slider.Root className="VerticalSlider" defaultValue={[40, 60]} orientation="vertical">
+        <Slider.Output className="VerticalSlider-output" />
+        <Slider.Control className="VerticalSlider-control">
+          <Slider.Track className="VerticalSlider-track">
+            <Slider.Indicator className="VerticalSlider-indicator" />
+            <Slider.Thumb className="VerticalSlider-thumb" />
+            <Slider.Thumb className="VerticalSlider-thumb" />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <h3 style={{ marginTop: 64 }} id="rtl">
+        RTL
+      </h3>
+      <Slider.Root className="MySlider" defaultValue={50} direction="rtl">
+        <Slider.Output className="MySlider-output" />
+        <Slider.Control className="MySlider-control">
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <Slider.Root
+        className="VerticalSlider"
+        defaultValue={50}
+        direction="rtl"
+        orientation="vertical"
+        aria-labelledby="RtlLabelId"
+      >
+        <Slider.Output className="VerticalSlider-output" />
+        <Slider.Control className="VerticalSlider-control">
+          <Slider.Track className="VerticalSlider-track">
+            <Slider.Indicator className="VerticalSlider-indicator" />
+            <Slider.Thumb className="VerticalSlider-thumb one" />
+          </Slider.Track>
+        </Slider.Control>
+        <Label id="RtlLabelId" className="Label">
+          Brightness
+        </Label>
+      </Slider.Root>
+
+      <Slider.Root className="MySlider" defaultValue={[50, 70]} direction="rtl">
+        <Slider.Output className="MySlider-output" />
+        <Slider.Control className="MySlider-control">
+          <Slider.Track className="MySlider-track">
+            <Slider.Indicator className="MySlider-indicator" />
+            <Slider.Thumb className="MySlider-thumb one" />
+            <Slider.Thumb className="MySlider-thumb two" />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <Slider.Root
+        className="VerticalSlider"
+        defaultValue={[50, 70]}
+        direction="rtl"
+        orientation="vertical"
+        aria-labelledby="RtlLabelRangeId"
+      >
+        <Slider.Output className="VerticalSlider-output" />
+        <Slider.Control className="VerticalSlider-control">
+          <Slider.Track className="VerticalSlider-track">
+            <Slider.Indicator className="VerticalSlider-indicator" />
+            <Slider.Thumb className="VerticalSlider-thumb one" />
+            <Slider.Thumb className="VerticalSlider-thumb two" />
+          </Slider.Track>
+        </Slider.Control>
+        <LabelRange id="RtlLabelRangeId" className="Label">
+          Price Range
+        </LabelRange>
+      </Slider.Root>
       <Styles />
     </div>
   );
+}
+
+function Label(props: any) {
+  const { id: idProp, ...otherProps } = props;
+  const defaultId = React.useId();
+  const labelId = idProp ?? defaultId;
+
+  const { subitems } = useSliderContext();
+
+  const htmlFor = Array.from(subitems.values())
+    .reduce((acc, item) => {
+      return `${acc} ${item.inputId}`;
+    }, '')
+    .trim();
+
+  return <label id={labelId} htmlFor={htmlFor} {...otherProps} />;
+}
+
+function LabelRange(props: any) {
+  const { id: idProp, ...otherProps } = props;
+
+  const defaultId = React.useId();
+  const labelId = idProp ?? defaultId;
+
+  return <span id={labelId} {...otherProps} />;
 }
 
 const grey = {
@@ -133,23 +278,23 @@ export function Styles() {
       font-family: system-ui, sans-serif;
       width: 20rem;
       padding: 1rem;
+      display: flex;
+      flex-flow: column nowrap;
     }
 
     .App h3 {
-      margin-top: 4rem;
+      color: blue;
     }
 
     .MySlider {
       width: 100%;
-      margin: 16px 0;
+      margin: 2rem 0;
       align-items: center;
       position: relative;
       -webkit-tap-highlight-color: transparent;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
-
-      margin-bottom: 2rem;
     }
 
     .MySlider-output {
@@ -213,20 +358,18 @@ export function Styles() {
 
     .VerticalSlider {
       height: 100%;
-      width: 5rem;
-      margin: 1rem 0;
+      width: 6rem;
+      margin: 4rem 0;
       align-items: center;
       position: relative;
       -webkit-tap-highlight-color: transparent;
       display: flex;
       flex-flow: column nowrap;
-
-      margin-bottom: 2rem;
+      gap: 1rem;
     }
 
     .VerticalSlider-output {
       margin-bottom: 1rem;
-      font-size: .875rem;
     }
 
     .VerticalSlider-control {
@@ -281,15 +424,12 @@ export function Styles() {
       font-weight: bold;
     }
 
-    .Label[data-disabled='true'] {
-      color: ${grey[600]};
+    .Label[data-orientation='vertical'] {
+      text-align: center;
     }
 
-    .Rail {
-      width: 100%;
-      height: 2px;
-      border-radius: 9999px;
-      background-color: gainsboro;
+    .Label[data-disabled='true'] {
+      color: ${grey[600]};
     }
     `}</style>
   );
