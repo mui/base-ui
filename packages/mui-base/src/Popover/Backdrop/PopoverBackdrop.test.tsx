@@ -10,7 +10,11 @@ describe('<Popover.Backdrop />', () => {
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<Popover.Root open>{node}</Popover.Root>);
+      return render(
+        <Popover.Root open animated={false}>
+          {node}
+        </Popover.Root>,
+      );
     },
     skip: ['reactTestRenderer'],
   }));
