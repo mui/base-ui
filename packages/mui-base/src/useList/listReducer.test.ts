@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { listReducer } from './listReducer';
 import { ListState } from './useList.types';
 import { ListAction, ListActionTypes } from './listActions.types';
-import { IndexableMap } from '../utils/indexableMap';
+import { IndexableMap } from '../utils/IndexableMap';
 
 describe('listReducer', () => {
   describe('action: blur', () => {

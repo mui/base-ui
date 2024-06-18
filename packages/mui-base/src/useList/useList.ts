@@ -8,6 +8,7 @@ import {
   ListState,
   ListSettings,
   UseListReturnValue,
+  ListItemMetadata,
 } from './useList.types';
 import { ListActionTypes, ListAction } from './listActions.types';
 import { ListContextValue } from './ListContext';
@@ -27,14 +28,7 @@ import { EventHandlers } from '../utils/types';
 
 const EMPTY_OBJECT = {};
 const NOOP = () => {};
-
-const defaultItemComparer = <ItemValue>(optionA: ItemValue, optionB: ItemValue) =>
-  optionA === optionB;
-
-const defaultIsItemDisabled = () => false;
-
-const defaultItemStringifier = <ItemValue>(item: ItemValue) =>
-  typeof item === 'string' ? item : String(item);
+const COMPARER = (a: unknown, b: unknown) => a === b;
 
 const defaultGetInitialState = () => ({
   highlightedValue: null,
@@ -75,12 +69,9 @@ function useList<
     getInitialState = defaultGetInitialState,
     getItemDomElement,
     getItemId,
-    isItemDisabled = defaultIsItemDisabled,
     rootRef: externalListRef,
     onStateChange = NOOP,
     items,
-    itemComparer = defaultItemComparer,
-    getItemAsString = defaultItemStringifier,
     onChange,
     onHighlightChange,
     onItemsChange,
@@ -132,11 +123,11 @@ function useList<
   const stateComparers = React.useMemo(
     () =>
       ({
-        highlightedValue: itemComparer,
+        highlightedValue: COMPARER,
         selectedValues: (valuesArray1, valuesArray2) =>
-          areArraysEqual(valuesArray1, valuesArray2, itemComparer),
+          areArraysEqual(valuesArray1, valuesArray2, COMPARER),
       }) as StateComparers<State>,
-    [itemComparer],
+    [],
   );
 
   // This gets called whenever a reducer changes the state.
@@ -166,39 +157,29 @@ function useList<
     [handleHighlightChange, onChange, onStateChange],
   );
 
-  // The following object is added to each action when it's dispatched.
-  // It's accessible in the reducer via the `action.context` field.
-  const listActionContext: ListSettings = React.useMemo(() => {
+  const listSettings: ListSettings = React.useMemo(() => {
     return {
       disabledItemsFocusable,
       disableListWrap,
       focusManagement,
-      isItemDisabled,
-      itemComparer,
-      items,
-      getItemAsString,
-      onHighlightChange: handleHighlightChange,
       orientation,
       pageSize,
       selectionMode,
-      stateComparers,
     };
   }, [
     disabledItemsFocusable,
     disableListWrap,
     focusManagement,
-    isItemDisabled,
-    itemComparer,
-    items,
-    getItemAsString,
-    handleHighlightChange,
     orientation,
     pageSize,
     selectionMode,
-    stateComparers,
   ]);
 
-  const initialState = getInitialState();
+  const initialState = React.useMemo(
+    () => ({ ...getInitialState(), settings: listSettings }),
+    [getInitialState, listSettings],
+  );
+
   const reducer = (externalReducer ?? defaultReducer) as React.Reducer<
     State,
     ListAction<ItemValue> | CustomAction
@@ -223,12 +204,12 @@ function useList<
     }),
   );
 
-  const previousItems = React.useRef<ItemValue[]>([]);
+  const previousItems = React.useRef<ListItemMetadata<ItemValue>[]>([]);
 
   React.useEffect(() => {
     // Whenever the `items` object changes, we need to determine if the actual items changed.
     // If they did, we need to dispatch an `itemsChange` action, so the selected/highlighted state is updated.
-    if (areArraysEqual(previousItems.current, items, itemComparer)) {
+    if (!areArraysEqual(previousItems.current, items)) {
       return;
     }
 
@@ -236,12 +217,11 @@ function useList<
       type: ListActionTypes.itemsChange,
       event: null,
       items,
-      previousItems: previousItems.current,
     });
 
     previousItems.current = items;
     onItemsChange?.(items);
-  }, [items, itemComparer, dispatch, onItemsChange]);
+  }, [items, dispatch, onItemsChange]);
 
   const createHandleKeyDown =
     (externalHandlers: EventHandlers) =>
@@ -321,11 +301,9 @@ function useList<
 
   const getItemState = React.useCallback(
     (item: ItemValue): ListItemState => {
-      const selected = (selectedValues ?? []).some(
-        (value) => value != null && itemComparer(item, value),
-      );
+      const selected = (selectedValues ?? []).some((value) => value != null && item === value);
 
-      const highlighted = highlightedValue != null && itemComparer(item, highlightedValue);
+      const highlighted = highlightedValue != null && item === highlightedValue;
       const focusable = focusManagement === 'DOM';
 
       return {
@@ -334,7 +312,7 @@ function useList<
         selected,
       };
     },
-    [itemComparer, selectedValues, highlightedValue, focusManagement],
+    [selectedValues, highlightedValue, focusManagement],
   );
 
   const contextValue: ListContextValue<ItemValue> = React.useMemo(

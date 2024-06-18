@@ -64,4 +64,18 @@ export class IndexableMap<Key, Value> {
 
     return false;
   }
+
+  static areEqual<K, V>(map1: IndexableMap<K, V>, map2: IndexableMap<K, V>): boolean {
+    if (map1.size !== map2.size) {
+      return false;
+    }
+
+    for (const key of map1.keys()) {
+      if (map1.get(key) !== map2.get(key)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

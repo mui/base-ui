@@ -6,7 +6,7 @@ import {
 } from '../utils/useControllableReducer.types';
 import type { ListContextValue } from './ListContext';
 import { MuiCancellableEventHandler } from '../utils/MuiCancellableEvent';
-import { IndexableMap } from '../utils/indexableMap';
+import { IndexableMap } from '../utils/IndexableMap';
 
 /**
  * The configuration settings that modify the behavior of the list.
@@ -120,11 +120,6 @@ export interface UseListParameters<
    */
   getInitialState?: () => State;
   /**
-   * A function that determines if a particular item is disabled.
-   * @default () => false
-   */
-  isItemDisabled?: (itemValue: ItemValue, index: number) => boolean;
-  /**
    * Ref to the list root DOM element.
    */
   rootRef?: React.Ref<Element>;
@@ -151,7 +146,7 @@ export interface UseListParameters<
    *
    * @param items The new items collection
    */
-  onItemsChange?: (items: ItemValue[]) => void;
+  onItemsChange?: (items: ListItemMetadata<ItemValue>[]) => void;
   /**
    * Callback fired when the any of the state items change.
    * Note that in case of `selectedValues` and `highlightedValue` the strongly typed
@@ -165,19 +160,9 @@ export interface UseListParameters<
    */
   pageSize?: number;
   /**
-   * A function that tests equality between two items' values.
-   * @default (a, b) => a === b
-   */
-  itemComparer?: (itemValue1: ItemValue, itemValue2: ItemValue) => boolean;
-  /**
-   * A function that converts an object to its string representation
-   * @default (o) => o
-   */
-  getItemAsString?: (option: ItemValue) => string | undefined;
-  /**
    * Array of list items.
    */
-  items: ItemValue[];
+  items: ListItemMetadata<ItemValue>[];
   /**
    * Orientation of the items in the list.
    * Determines the actions that are performed when arrow keys are pressed.

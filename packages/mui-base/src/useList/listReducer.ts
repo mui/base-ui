@@ -1,4 +1,4 @@
-import { IndexableMap } from '../utils/indexableMap';
+import { IndexableMap } from '../utils/IndexableMap';
 import { type ListAction, ListActionTypes } from './listActions.types';
 import type { ListState, ListSettings, ListItemMetadata, SelectionMode } from './useList.types';
 
