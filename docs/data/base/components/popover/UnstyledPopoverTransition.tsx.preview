@@ -1,0 +1,9 @@
+<Popover.Root>
+  <AnchorButton>Anchor</AnchorButton>
+  <Popover.Positioner sideOffset={5}>
+    <PopoverPopup>
+      <PopoverTitle>Popover Title</PopoverTitle>
+      <PopoverDescription>Popover Description</PopoverDescription>
+    </PopoverPopup>
+  </Popover.Positioner>
+</Popover.Root>

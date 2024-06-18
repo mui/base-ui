@@ -291,6 +291,8 @@ Styles need to be applied in three states:
 - The open styles, placed on the base element class with `[data-state="open"]`
 - The entering styles, placed on the base element class with `[data-entering]`
 
+{{"demo": "UnstyledPopoverTransition.js", "defaultCodeOpen": false}}
+
 In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
 
 ```css

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClick,
@@ -70,9 +71,20 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
     elements: { reference: triggerElement, floating: positionerElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
+      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
       const isFocusOpen = openValue && reasonValue === 'focus';
       const isDismissClose =
         !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
+
+      function changeState() {
+        setOpen(openValue, eventValue, reasonValue);
+      }
+
+      if (animated && isHover) {
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
 
       if (isFocusOpen || isDismissClose) {
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
@@ -87,8 +99,6 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
           setMounted(false);
         }
       }
-
-      setOpen(openValue, eventValue, reasonValue);
     },
   });
 
