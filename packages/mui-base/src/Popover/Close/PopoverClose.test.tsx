@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '../../../test';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Popover.Close />', () => {
