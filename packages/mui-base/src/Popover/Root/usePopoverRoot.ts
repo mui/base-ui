@@ -49,7 +49,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
     default: defaultOpen,
-    name: 'Tooltip',
+    name: 'Popover',
     state: 'open',
   });
 
