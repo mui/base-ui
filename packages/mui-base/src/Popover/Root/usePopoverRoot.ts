@@ -174,6 +174,15 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
     [titleId],
   );
 
+  const getDescriptionProps = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps<'p'>(externalProps, {
+        id: descriptionId,
+      });
+    },
+    [descriptionId],
+  );
+
   const getCloseProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'button'>(externalProps, {
@@ -199,6 +208,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       getTriggerProps,
       getPopupProps,
       getTitleProps,
+      getDescriptionProps,
       getCloseProps,
       rootContext: context,
       instantType,
@@ -214,6 +224,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       getTriggerProps,
       getPopupProps,
       getTitleProps,
+      getDescriptionProps,
       getCloseProps,
       context,
       instantType,

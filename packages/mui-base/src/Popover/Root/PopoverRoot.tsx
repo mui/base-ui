@@ -37,6 +37,7 @@ function PopoverRoot(props: PopoverRootProps) {
     getTriggerProps,
     getPopupProps,
     getTitleProps,
+    getDescriptionProps,
     getCloseProps,
     titleId,
     setTitleId,
@@ -79,6 +80,7 @@ function PopoverRoot(props: PopoverRootProps) {
       getPopupProps,
       getTriggerProps,
       getTitleProps,
+      getDescriptionProps,
       getCloseProps,
     }),
     [
@@ -102,6 +104,7 @@ function PopoverRoot(props: PopoverRootProps) {
       getPopupProps,
       getTriggerProps,
       getTitleProps,
+      getDescriptionProps,
       getCloseProps,
     ],
   );

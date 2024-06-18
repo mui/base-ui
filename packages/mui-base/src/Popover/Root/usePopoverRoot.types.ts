@@ -80,6 +80,7 @@ export interface UsePopoverRootReturnValue {
   getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getTitleProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getDescriptionProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getCloseProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
 }

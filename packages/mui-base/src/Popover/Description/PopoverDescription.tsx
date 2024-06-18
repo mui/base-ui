@@ -24,7 +24,7 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { setDescriptionId, getTitleProps } = usePopoverRootContext();
+  const { setDescriptionId, getDescriptionProps } = usePopoverRootContext();
 
   const id = useId(otherProps.id);
 
@@ -36,7 +36,7 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
   }, [setDescriptionId, id]);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getTitleProps,
+    propGetter: getDescriptionProps,
     render: render ?? 'p',
     className,
     ownerState: {},

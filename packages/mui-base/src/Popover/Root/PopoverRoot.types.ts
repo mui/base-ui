@@ -25,6 +25,7 @@ export interface PopoverRootContextValue {
   getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getTitleProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getDescriptionProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getCloseProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
