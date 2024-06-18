@@ -22,7 +22,6 @@ export function createRenderer(globalOptions?: CreateRendererOptions) {
 
     // flush microtasks
     await waitFor(async () => {});
-
     return result;
   };
 
