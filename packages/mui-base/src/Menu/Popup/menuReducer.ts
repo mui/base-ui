@@ -1,8 +1,8 @@
-import { ListAction, ListActionContext, ListActionTypes, listReducer } from '../../useList';
+import { ListAction, ListSettings, ListActionTypes, listReducer } from '../../useList';
 import { ActionWithContext } from '../../utils/useControllableReducer.types';
 import { MenuInternalState } from './useMenuPopup.types';
 
-export type MenuActionContext = ListActionContext<string> & {
+export type MenuActionContext = ListSettings<string> & {
   listboxRef: React.RefObject<HTMLElement>;
 };
 

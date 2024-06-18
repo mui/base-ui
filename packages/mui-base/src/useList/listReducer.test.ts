@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { listReducer } from './listReducer';
 import { ListReducerAction, ListState } from './useList.types';
 import { ListActionTypes } from './listActions.types';
+import { IndexableMap } from '../utils/indexableMap';
 
 describe('listReducer', () => {
   describe('action: blur', () => {
@@ -10,7 +11,7 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'a',
         selectedValues: [],
-        items: [],
+        items: new IndexableMap(),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -36,11 +37,11 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'a',
         selectedValues: [],
-        items: [
-          { value: 'one', disabled: false },
-          { value: 'two', disabled: false },
-          { value: 'three', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -65,11 +66,11 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: null,
         selectedValues: [],
-        items: [
-          { value: 'one', disabled: false },
-          { value: 'two', disabled: true },
-          { value: 'three', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: true }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -96,11 +97,11 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'a',
         selectedValues: ['one'],
-        items: [
-          { value: 'one', disabled: false },
-          { value: 'two', disabled: false },
-          { value: 'three', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -125,11 +126,11 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: ['one'],
-        items: [
-          { value: 'one', disabled: false },
-          { value: 'two', disabled: false },
-          { value: 'three', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -155,11 +156,11 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'three',
         selectedValues: ['one', 'two'],
-        items: [
-          { value: 'one', disabled: false },
-          { value: 'two', disabled: false },
-          { value: 'three', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -185,11 +186,11 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
-        items: [
-          { value: 'one', disabled: false },
-          { value: 'two', disabled: false },
-          { value: 'three', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
         settings: {
           disableListWrap: false,
           disabledItemsFocusable: false,
@@ -595,24 +596,27 @@ describe('listReducer', () => {
           const state: ListState<string> = {
             highlightedValue: spec.initialHighlightedItem,
             selectedValues: [],
+            items: new IndexableMap([
+              ['1', { value: '1', disabled: spec.disabledItems.includes('1') }],
+              ['2', { value: '2', disabled: spec.disabledItems.includes('2') }],
+              ['3', { value: '3', disabled: spec.disabledItems.includes('3') }],
+              ['4', { value: '4', disabled: spec.disabledItems.includes('4') }],
+              ['5', { value: '5', disabled: spec.disabledItems.includes('5') }],
+            ]),
+            settings: {
+              disableListWrap: spec.disableListWrap,
+              disabledItemsFocusable: spec.disabledItemFocusable,
+              focusManagement: 'activeDescendant',
+              orientation: 'vertical',
+              pageSize: 3,
+              selectionMode: 'single',
+            },
           };
 
           const action: ListReducerAction<string> = {
             type: ListActionTypes.keyDown,
             key: spec.key,
             event: null as any, // not relevant
-            settings: {
-              items: ['1', '2', '3', '4', '5'],
-              disableListWrap: spec.disableListWrap,
-              disabledItemsFocusable: spec.disabledItemFocusable,
-              focusManagement: 'activeDescendant',
-              isItemDisabled: (item) => spec.disabledItems.includes(item),
-              itemComparer: (o, v) => o === v,
-              getItemAsString: (option) => option,
-              orientation: 'vertical',
-              pageSize: 3,
-              selectionMode: 'single',
-            },
           };
 
           const result = listReducer(state, action);
@@ -626,24 +630,25 @@ describe('listReducer', () => {
         const state: ListState<string> = {
           highlightedValue: 'two',
           selectedValues: [],
+          items: new IndexableMap([
+            ['one', { value: 'one', disabled: false }],
+            ['two', { value: 'two', disabled: false }],
+            ['three', { value: 'three', disabled: false }],
+          ]),
+          settings: {
+            disableListWrap: false,
+            disabledItemsFocusable: false,
+            focusManagement: 'activeDescendant',
+            orientation: 'vertical',
+            pageSize: 5,
+            selectionMode: 'single',
+          },
         };
 
         const action: ListReducerAction<string> = {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
-          settings: {
-            items: ['one', 'two', 'three'],
-            disableListWrap: false,
-            disabledItemsFocusable: false,
-            focusManagement: 'activeDescendant',
-            isItemDisabled: () => false,
-            itemComparer: (o, v) => o === v,
-            getItemAsString: (option) => option,
-            orientation: 'vertical',
-            pageSize: 5,
-            selectionMode: 'single',
-          },
         };
 
         const result = listReducer(state, action);
@@ -654,24 +659,25 @@ describe('listReducer', () => {
         const state: ListState<string> = {
           highlightedValue: 'two',
           selectedValues: ['one'],
+          items: new IndexableMap([
+            ['one', { value: 'one', disabled: false }],
+            ['two', { value: 'two', disabled: false }],
+            ['three', { value: 'three', disabled: false }],
+          ]),
+          settings: {
+            disableListWrap: false,
+            disabledItemsFocusable: false,
+            focusManagement: 'activeDescendant',
+            orientation: 'vertical',
+            pageSize: 5,
+            selectionMode: 'single',
+          },
         };
 
         const action: ListReducerAction<string> = {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
-          settings: {
-            items: ['one', 'two', 'three'],
-            disableListWrap: false,
-            disabledItemsFocusable: false,
-            focusManagement: 'activeDescendant',
-            isItemDisabled: () => false,
-            itemComparer: (o, v) => o === v,
-            getItemAsString: (option) => option,
-            orientation: 'vertical',
-            pageSize: 5,
-            selectionMode: 'single',
-          },
         };
 
         const result = listReducer(state, action);
@@ -682,24 +688,25 @@ describe('listReducer', () => {
         const state: ListState<string> = {
           highlightedValue: 'two',
           selectedValues: ['one'],
+          items: new IndexableMap([
+            ['one', { value: 'one', disabled: false }],
+            ['two', { value: 'two', disabled: false }],
+            ['three', { value: 'three', disabled: false }],
+          ]),
+          settings: {
+            disableListWrap: false,
+            disabledItemsFocusable: false,
+            focusManagement: 'activeDescendant',
+            orientation: 'vertical',
+            pageSize: 5,
+            selectionMode: 'multiple',
+          },
         };
 
         const action: ListReducerAction<string> = {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
-          settings: {
-            items: ['one', 'two', 'three'],
-            disableListWrap: false,
-            disabledItemsFocusable: false,
-            focusManagement: 'activeDescendant',
-            isItemDisabled: () => false,
-            itemComparer: (o, v) => o === v,
-            getItemAsString: (option) => option,
-            orientation: 'vertical',
-            pageSize: 5,
-            selectionMode: 'multiple',
-          },
         };
 
         const result = listReducer(state, action);
@@ -713,24 +720,27 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'two',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+          ['four', { value: 'four', disabled: false }],
+          ['five', { value: 'five', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 'th',
         event: {} as React.KeyboardEvent,
-        settings: {
-          items: ['one', 'two', 'three', 'four', 'five'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
       };
 
       const result = listReducer(state, action);
@@ -741,24 +751,27 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+          ['four', { value: 'four', disabled: false }],
+          ['five', { value: 'five', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 'z',
         event: {} as React.KeyboardEvent,
-        settings: {
-          items: ['one', 'two', 'three', 'four', 'five'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
       };
 
       const result = listReducer(state, action);
@@ -769,24 +782,27 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: true }],
+          ['three', { value: 'three', disabled: false }],
+          ['four', { value: 'four', disabled: false }],
+          ['five', { value: 'five', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 't',
         event: {} as React.KeyboardEvent,
-        settings: {
-          items: ['one', 'two', 'three', 'four', 'five'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: (_, i) => i === 1,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
       };
 
       const result = listReducer(state, action);
@@ -797,24 +813,27 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: true }],
+          ['three', { value: 'three', disabled: false }],
+          ['four', { value: 'four', disabled: false }],
+          ['five', { value: 'five', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: true,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 't',
         event: {} as React.KeyboardEvent,
-        settings: {
-          items: ['one', 'two', 'three', 'four', 'five'],
-          disableListWrap: false,
-          disabledItemsFocusable: true,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: (_, i) => i === 1,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
       };
 
       const result = listReducer(state, action);
@@ -825,24 +844,27 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'three',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+          ['four', { value: 'four', disabled: false }],
+          ['five', { value: 'five', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: true,
+          disabledItemsFocusable: false,
+          focusManagement: 'activeDescendant',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'single',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 'one',
         event: {} as React.KeyboardEvent,
-        settings: {
-          items: ['one', 'two', 'three', 'four', 'five'],
-          disableListWrap: true,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
       };
 
       const result = listReducer(state, action);
@@ -855,193 +877,109 @@ describe('listReducer', () => {
       disableListWrap: false,
       disabledItemsFocusable: false,
       focusManagement: 'activeDescendant' as const,
-      isItemDisabled: () => false,
-      getItemAsString: (option: any) => option,
       orientation: 'vertical' as const,
       pageSize: 5,
       selectionMode: 'single' as const,
     };
 
-    describe('using default item comparer', () => {
-      it('keeps the highlighted value if it is present among the new items', () => {
-        const state: ListState<string> = {
-          highlightedValue: '1',
-          selectedValues: [],
-        };
+    it('keeps the highlighted value if it is present among the new items', () => {
+      const state: ListState<string> = {
+        highlightedValue: '1',
+        selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+        ]),
+        settings: irrelevantConfig,
+      };
 
-        const action: ListReducerAction<string> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: ['1', '2'],
-          previousItems: ['0', '1', '2'],
-          settings: {
-            items: ['1', '2'],
-            itemComparer: (o, v) => o === v,
-            ...irrelevantConfig,
-          },
-        };
+      const action: ListReducerAction<string> = {
+        type: ListActionTypes.itemsChange,
+        event: null,
+        items: [
+          { value: '0', disabled: false },
+          { value: '1', disabled: false },
+          { value: '2', disabled: false },
+        ],
+      };
 
-        const result = listReducer(state, action);
-        expect(result.highlightedValue).to.equal('1');
-      });
-
-      it('resets the highlighted value if it is not present among the new items', () => {
-        const state: ListState<string> = {
-          highlightedValue: '0',
-          selectedValues: [],
-        };
-
-        const action: ListReducerAction<string> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: ['1', '2'],
-          previousItems: ['0', '1', '2'],
-          settings: {
-            items: ['1', '2'],
-            itemComparer: (o, v) => o === v,
-            ...irrelevantConfig,
-          },
-        };
-
-        const result = listReducer(state, action);
-        expect(result.highlightedValue).to.equal(null);
-      });
-
-      it('keeps the selected values if they are present among the new items', () => {
-        const state: ListState<string> = {
-          highlightedValue: '1',
-          selectedValues: ['1', '2'],
-        };
-
-        const action: ListReducerAction<string> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: ['1', '2'],
-          previousItems: ['0', '1', '2'],
-          settings: {
-            items: ['1', '2'],
-            itemComparer: (o, v) => o === v,
-            ...irrelevantConfig,
-          },
-        };
-
-        const result = listReducer(state, action);
-        expect(result.selectedValues).to.deep.equal(['1', '2']);
-      });
-
-      it('removes the values from the selection if they are no longer present among the new items', () => {
-        const state: ListState<string> = {
-          highlightedValue: '1',
-          selectedValues: ['0', '2'],
-        };
-
-        const action: ListReducerAction<string> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: ['1', '2'],
-          previousItems: ['0', '1', '2'],
-          settings: {
-            items: ['1', '2'],
-            itemComparer: (o, v) => o === v,
-            ...irrelevantConfig,
-          },
-        };
-
-        const result = listReducer(state, action);
-        expect(result.selectedValues).to.deep.equal(['2']);
-      });
+      const result = listReducer(state, action);
+      expect(result.highlightedValue).to.equal('1');
     });
 
-    describe('using custom item comparer', () => {
-      type ItemType = { v: string };
+    it('resets the highlighted value if it is not present among the new items', () => {
+      const state: ListState<string> = {
+        highlightedValue: '0',
+        selectedValues: [],
+        items: new IndexableMap([
+          ['0', { value: '0', disabled: false }],
+          ['1', { value: '1', disabled: false }],
+          ['2', { value: '2', disabled: false }],
+        ]),
+        settings: irrelevantConfig,
+      };
 
-      it('keeps the highlighted value if it is present among the new items', () => {
-        const state: ListState<ItemType> = {
-          highlightedValue: { v: '1' },
-          selectedValues: [],
-        };
+      const action: ListReducerAction<string> = {
+        type: ListActionTypes.itemsChange,
+        event: null,
+        items: [
+          { value: '1', disabled: false },
+          { value: '2', disabled: false },
+        ],
+      };
 
-        const action: ListReducerAction<ItemType> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: [{ v: '1' }, { v: '2' }],
-          previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          settings: {
-            items: [{ v: '1' }, { v: '2' }],
-            itemComparer: (a, b) => a.v === b.v,
-            ...irrelevantConfig,
-          },
-        };
+      const result = listReducer(state, action);
+      expect(result.highlightedValue).to.equal(null);
+    });
 
-        const result = listReducer(state, action);
-        expect(result.highlightedValue?.v).to.equal('1');
-      });
+    it('keeps the selected values if they are present among the new items', () => {
+      const state: ListState<string> = {
+        highlightedValue: '1',
+        selectedValues: ['1', '2'],
+        items: new IndexableMap([
+          ['0', { value: '0', disabled: false }],
+          ['1', { value: '1', disabled: false }],
+          ['2', { value: '2', disabled: false }],
+        ]),
+        settings: irrelevantConfig,
+      };
 
-      it('resets the highlighted value if it is not present among the new items', () => {
-        const state: ListState<ItemType> = {
-          highlightedValue: { v: '0' },
-          selectedValues: [],
-        };
+      const action: ListReducerAction<string> = {
+        type: ListActionTypes.itemsChange,
+        event: null,
+        items: [
+          { value: '1', disabled: false },
+          { value: '2', disabled: false },
+        ],
+      };
 
-        const action: ListReducerAction<ItemType> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: [{ v: '1' }, { v: '2' }],
-          previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          settings: {
-            items: [{ v: '1' }, { v: '2' }],
-            itemComparer: (a, b) => a.v === b.v,
-            ...irrelevantConfig,
-          },
-        };
+      const result = listReducer(state, action);
+      expect(result.selectedValues).to.deep.equal(['1', '2']);
+    });
 
-        const result = listReducer(state, action);
-        expect(result.highlightedValue).to.equal(null);
-      });
+    it('removes the values from the selection if they are no longer present among the new items', () => {
+      const state: ListState<string> = {
+        highlightedValue: '1',
+        selectedValues: ['0', '2'],
+        items: new IndexableMap([
+          ['0', { value: '0', disabled: false }],
+          ['1', { value: '1', disabled: false }],
+          ['2', { value: '2', disabled: false }],
+        ]),
+        settings: irrelevantConfig,
+      };
 
-      it('keeps the selected values if they are present among the new items', () => {
-        const state: ListState<ItemType> = {
-          highlightedValue: { v: '1' },
-          selectedValues: [{ v: '1' }, { v: '2' }],
-        };
+      const action: ListReducerAction<string> = {
+        type: ListActionTypes.itemsChange,
+        event: null,
+        items: [
+          { value: '1', disabled: false },
+          { value: '2', disabled: false },
+        ],
+      };
 
-        const action: ListReducerAction<ItemType> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: [{ v: '1' }, { v: '2' }],
-          previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          settings: {
-            items: [{ v: '1' }, { v: '2' }],
-            itemComparer: (a, b) => a.v === b.v,
-            ...irrelevantConfig,
-          },
-        };
-
-        const result = listReducer(state, action);
-        expect(result.selectedValues.map((sv) => sv.v)).to.deep.equal(['1', '2']);
-      });
-
-      it('removes the values from the selection if they are no longer present among the new items', () => {
-        const state: ListState<ItemType> = {
-          highlightedValue: { v: '1' },
-          selectedValues: [{ v: '0' }, { v: '2' }],
-        };
-
-        const action: ListReducerAction<ItemType> = {
-          type: ListActionTypes.itemsChange,
-          event: null,
-          items: [{ v: '1' }, { v: '2' }],
-          previousItems: [{ v: '0' }, { v: '1' }, { v: '2' }],
-          settings: {
-            items: [{ v: '1' }, { v: '2' }],
-            itemComparer: (a, b) => a.v === b.v,
-            ...irrelevantConfig,
-          },
-        };
-
-        const result = listReducer(state, action);
-        expect(result.selectedValues.map((sv) => sv.v)).to.deep.equal(['2']);
-      });
+      const result = listReducer(state, action);
+      expect(result.selectedValues).to.deep.equal(['2']);
     });
 
     describe('after the items are initialized', () => {
@@ -1049,19 +987,20 @@ describe('listReducer', () => {
         const state: ListState<string> = {
           highlightedValue: null,
           selectedValues: [],
+          items: new IndexableMap(),
+          settings: {
+            ...irrelevantConfig,
+            focusManagement: 'DOM',
+          },
         };
 
         const action: ListReducerAction<string> = {
           type: ListActionTypes.itemsChange,
+          items: [
+            { value: '1', disabled: false },
+            { value: '2', disabled: false },
+          ],
           event: null,
-          items: ['1', '2'],
-          previousItems: [],
-          settings: {
-            ...irrelevantConfig,
-            items: ['1', '2'],
-            itemComparer: (o, v) => o === v,
-            focusManagement: 'DOM',
-          },
         };
 
         const result = listReducer(state, action);
@@ -1072,20 +1011,22 @@ describe('listReducer', () => {
         const state: ListState<string> = {
           highlightedValue: null,
           selectedValues: [],
+          items: new IndexableMap(),
+
+          settings: {
+            ...irrelevantConfig,
+            focusManagement: 'DOM',
+          },
         };
 
         const action: ListReducerAction<string> = {
           type: ListActionTypes.itemsChange,
           event: null,
-          items: ['1', '2', '3'],
-          previousItems: [],
-          settings: {
-            ...irrelevantConfig,
-            items: ['1', '2', '3'],
-            itemComparer: (o, v) => o === v,
-            focusManagement: 'DOM',
-            isItemDisabled: (item) => ['1', '2'].includes(item),
-          },
+          items: [
+            { value: '1', disabled: true },
+            { value: '2', disabled: true },
+            { value: '3', disabled: false },
+          ],
         };
 
         const result = listReducer(state, action);
@@ -1099,23 +1040,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'three',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'DOM',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'none',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.resetHighlight,
         event: null,
-        settings: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'DOM',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'none',
-        },
       };
 
       const result = listReducer(state, action);
@@ -1126,23 +1068,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'three',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: true }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'DOM',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'none',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.resetHighlight,
         event: null,
-        settings: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'DOM',
-          isItemDisabled: (item) => item === 'one',
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'none',
-        },
       };
 
       const result = listReducer(state, action);
@@ -1155,23 +1098,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: false }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'DOM',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'none',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.highlightLast,
         event: null,
-        settings: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'DOM',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'none',
-        },
       };
 
       const result = listReducer(state, action);
@@ -1182,23 +1126,24 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: 'one',
         selectedValues: [],
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: true }],
+        ]),
+        settings: {
+          disableListWrap: false,
+          disabledItemsFocusable: false,
+          focusManagement: 'DOM',
+          orientation: 'vertical',
+          pageSize: 5,
+          selectionMode: 'none',
+        },
       };
 
       const action: ListReducerAction<string> = {
         type: ListActionTypes.highlightLast,
         event: null,
-        settings: {
-          items: ['one', 'two', 'three'],
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'DOM',
-          isItemDisabled: (item) => item === 'three',
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
-          orientation: 'vertical',
-          pageSize: 5,
-          selectionMode: 'none',
-        },
       };
 
       const result = listReducer(state, action);
@@ -1211,22 +1156,23 @@ describe('listReducer', () => {
       const state: ListState<string> = {
         highlightedValue: null,
         selectedValues: ['one', 'two'],
-      };
-
-      const action: ListReducerAction<string> = {
-        type: ListActionTypes.clearSelection,
+        items: new IndexableMap([
+          ['one', { value: 'one', disabled: false }],
+          ['two', { value: 'two', disabled: false }],
+          ['three', { value: 'three', disabled: true }],
+        ]),
         settings: {
-          items: ['one', 'two', 'three'],
           disableListWrap: false,
           disabledItemsFocusable: false,
           focusManagement: 'DOM',
-          isItemDisabled: () => false,
-          itemComparer: (o, v) => o === v,
-          getItemAsString: (option) => option,
           orientation: 'vertical',
           pageSize: 5,
           selectionMode: 'none',
         },
+      };
+
+      const action: ListReducerAction<string> = {
+        type: ListActionTypes.clearSelection,
       };
 
       const result = listReducer(state, action);

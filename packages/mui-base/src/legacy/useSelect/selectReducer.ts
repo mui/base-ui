@@ -1,6 +1,6 @@
 import {
   ListAction,
-  ListActionContext,
+  ListSettings,
   moveHighlight,
   listReducer,
   ListActionTypes,
@@ -13,7 +13,7 @@ export function selectReducer<OptionValue>(
   state: SelectInternalState<OptionValue>,
   action: ActionWithContext<
     ListAction<OptionValue> | SelectAction<OptionValue>,
-    ListActionContext<OptionValue>
+    ListSettings<OptionValue>
   >,
 ) {
   const { open } = state;
@@ -42,7 +42,7 @@ export function selectReducer<OptionValue>(
 
   const newState: SelectInternalState<OptionValue> = listReducer(
     state,
-    action as ActionWithContext<ListAction<OptionValue>, ListActionContext<OptionValue>>,
+    action as ActionWithContext<ListAction<OptionValue>, ListSettings<OptionValue>>,
   );
 
   switch (action.type) {

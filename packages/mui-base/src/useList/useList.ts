@@ -6,7 +6,7 @@ import {
   ListItemState,
   UseListRootSlotProps,
   ListState,
-  ListActionContext,
+  ListSettings,
   UseListReturnValue,
 } from './useList.types';
 import { ListActionTypes, ListAction } from './listActions.types';
@@ -168,7 +168,7 @@ function useList<
 
   // The following object is added to each action when it's dispatched.
   // It's accessible in the reducer via the `action.context` field.
-  const listActionContext: ListActionContext<ItemValue> = React.useMemo(() => {
+  const listActionContext: ListSettings = React.useMemo(() => {
     return {
       disabledItemsFocusable,
       disableListWrap,

@@ -2,14 +2,14 @@ import { TabsListActionTypes, ValueChangeAction } from './TabsList.types';
 import {
   ListState,
   ListAction,
-  ListActionContext,
+  ListSettings,
   listReducer,
   ListActionTypes,
   moveHighlight,
 } from '../../useList';
 import { ActionWithContext } from '../../utils/useControllableReducer.types';
 
-export type TabsListActionContext = ListActionContext<any> & {
+export type TabsListActionContext = ListSettings<any> & {
   activateOnFocus: boolean;
 };
 

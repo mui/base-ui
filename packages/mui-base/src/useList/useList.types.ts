@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Simplify } from '@mui/types';
 import { ListAction } from './listActions.types';
 import {
   ControllableReducerAction,
@@ -7,24 +6,22 @@ import {
 } from '../utils/useControllableReducer.types';
 import type { ListContextValue } from './ListContext';
 import { MuiCancellableEventHandler } from '../utils/MuiCancellableEvent';
-
-type ListActionContextRequiredKeys =
-  | 'disabledItemsFocusable'
-  | 'disableListWrap'
-  | 'focusManagement'
-  | 'orientation'
-  | 'pageSize'
-  | 'selectionMode';
+import { IndexableMap } from '../utils/indexableMap';
 
 /**
- * The subset of `UseListParameters` that is passed to the list reducer actions.
+ * The configuration settings that modify the behavior of the list.
  */
-export type ListActionContext<ItemValue> = Simplify<
-  Required<Pick<UseListParameters<ItemValue, any, any>, ListActionContextRequiredKeys>>
->;
+export interface ListSettings {
+  disabledItemsFocusable: boolean;
+  disableListWrap: boolean;
+  focusManagement: FocusManagementType;
+  orientation: ListOrientation;
+  pageSize: number;
+  selectionMode: SelectionMode;
+}
 
 /**
- * The action object augmented with the action context ({@linkcode ListActionContext} instance).
+ * The action object augmented with the action context ({@linkcode ListSettings} instance).
  * Instances of this type are passed to the reducer.
  *
  * @template ItemValue The type of the item values.
@@ -51,8 +48,8 @@ export interface ListState<ItemValue> {
    * The item(s) that are currently selected.
    */
   selectedValues: ItemValue[];
-  items: Map<ItemValue, ListItemMetadata<ItemValue>>;
-  settings: ListActionContext<ItemValue>;
+  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>;
+  settings: ListSettings;
 }
 
 /**
@@ -68,6 +65,8 @@ export type ListReducer<ItemValue, State extends ListState<ItemValue>> = (
 ) => State;
 
 export type FocusManagementType = 'DOM' | 'activeDescendant';
+
+export type ListOrientation = 'horizontal-ltr' | 'horizontal-rtl' | 'vertical';
 
 export type SelectionMode = 'none' | 'single' | 'multiple';
 
@@ -192,7 +191,7 @@ export interface UseListParameters<
    * Orientation of the items in the list.
    * Determines the actions that are performed when arrow keys are pressed.
    */
-  orientation?: 'horizontal-ltr' | 'horizontal-rtl' | 'vertical';
+  orientation?: ListOrientation;
   /**
    * Controls how many items can be selected at once: none (the selection functionality is disabled in this case), one, or indefinitely many.
    * @default 'single'

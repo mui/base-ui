@@ -1,11 +1,11 @@
-import { every, findIndex, some } from '../utils/iterable';
+import { IndexableMap } from '../utils/indexableMap';
 import { ListActionTypes } from './listActions.types';
 import {
   ListState,
   ListReducerAction,
-  ListActionContext,
-  SelectionMode,
+  ListSettings,
   ListItemMetadata,
+  SelectionMode,
 } from './useList.types';
 
 /**
@@ -21,14 +21,11 @@ import {
 function findValidItemToHighlight<ItemValue>(
   currentIndex: number,
   lookupDirection: 'next' | 'previous',
-  items: Map<ItemValue, ListItemMetadata<ItemValue>>,
+  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
   includeDisabledItems: boolean,
   wrapAround: boolean,
 ): number {
-  if (
-    items.size === 0 ||
-    (!includeDisabledItems && every(items.values(), (item) => item.disabled))
-  ) {
+  if (items.size === 0 || (!includeDisabledItems && items.every((item) => item.disabled))) {
     return -1;
   }
 
@@ -63,28 +60,27 @@ function findValidItemToHighlight<ItemValue>(
  *
  * @param previouslyHighlightedValue The item from which to start the search for the next candidate.
  * @param offset The offset from the previously highlighted item to search for the next candidate or a special named value ('reset', 'start', 'end').
- * @param context The list action context.
+ * @param items The list of items.
+ * @param settings The list settings.
  *
  * @returns The next item to highlight or null if no item is valid.
  */
 export function moveHighlight<ItemValue>(
   previouslyHighlightedValue: ItemValue | null,
   offset: number | 'reset' | 'start' | 'end',
-  items: Map<ItemValue, ListItemMetadata<ItemValue>>,
-  settings: ListActionContext<ItemValue>,
+  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
+  settings: ListSettings,
 ): ItemValue | null {
   const { disableListWrap, disabledItemsFocusable, focusManagement } = settings;
 
   // TODO: make this configurable
-  // The always should be an item highlighted when focus is managed by the DOM
+  // There always should be an item highlighted when focus is managed by the DOM
   // so that it's accessible by the `tab` key.
   const defaultHighlightedIndex = focusManagement === 'DOM' ? 0 : -1;
   const maxIndex = items.size - 1;
 
   const previouslyHighlightedIndex =
-    previouslyHighlightedValue == null
-      ? -1
-      : findIndex(items.values(), (item) => item.value === previouslyHighlightedValue);
+    previouslyHighlightedValue == null ? -1 : items.indexOf(previouslyHighlightedValue);
 
   let nextIndexCandidate: number;
   let lookupDirection: 'next' | 'previous';
@@ -151,12 +147,12 @@ export function moveHighlight<ItemValue>(
   if (
     nextIndex === -1 &&
     previouslyHighlightedValue !== null &&
-    !isItemDisabled(previouslyHighlightedValue, previouslyHighlightedIndex)
+    !items.get(previouslyHighlightedValue)?.disabled
   ) {
     return previouslyHighlightedValue;
   }
 
-  return items[nextIndex] ?? null;
+  return items.elementAt(nextIndex)?.value ?? null;
 }
 
 /**
@@ -173,7 +169,6 @@ export function toggleSelection<ItemValue>(
   item: ItemValue,
   selectedValues: ItemValue[],
   selectionMode: SelectionMode,
-  itemComparer: (item1: ItemValue, item2: ItemValue) => boolean,
 ) {
   if (selectionMode === 'none') {
     return [];
@@ -181,7 +176,7 @@ export function toggleSelection<ItemValue>(
 
   if (selectionMode === 'single') {
     // if the item to select has already been selected, return the original array
-    if (itemComparer(selectedValues[0], item)) {
+    if (selectedValues[0] === item) {
       return selectedValues;
     }
 
@@ -189,8 +184,8 @@ export function toggleSelection<ItemValue>(
   }
 
   // The toggled item is selected; remove it from the selection.
-  if (selectedValues.some((sv) => itemComparer(sv, item))) {
-    return selectedValues.filter((sv) => !itemComparer(sv, item));
+  if (selectedValues.some((sv) => sv === item)) {
+    return selectedValues.filter((sv) => sv !== item);
   }
 
   // The toggled item is not selected - add it to the selection.
@@ -202,29 +197,23 @@ export function toggleSelection<ItemValue>(
  *
  * @param item - The item to be selected.
  * @param state - The current state of the list.
- * @param context - The context of the list action.
  * @returns The new state of the list after the item has been selected, or the original state if the item is disabled.
  */
-export function handleItemSelection<ItemValue, State extends ListState<ItemValue>>(
-  itemId: ItemId,
-  state: State,
-): State {
-  const { selectionMode, itemComparer } = state.settings;
+export function handleItemSelection<ItemValue>(
+  item: ItemValue,
+  state: ListState<ItemValue>,
+): ListState<ItemValue> {
+  const { selectionMode } = state.settings;
   const { selectedValues, items } = state;
 
-  const itemDefinition = items.get(itemId);
+  const itemDefinition = items.get(item);
 
   if (itemDefinition == null || itemDefinition.disabled) {
     return state;
   }
 
   // if the item is already selected, remove it from the selection, otherwise add it
-  const newSelectedValues = toggleSelection(
-    itemDefinition.value,
-    selectedValues,
-    selectionMode,
-    itemComparer,
-  );
+  const newSelectedValues = toggleSelection(itemDefinition.value, selectedValues, selectionMode);
 
   return {
     ...state,
@@ -317,7 +306,7 @@ function handleKeyDown<ItemValue, State extends ListState<ItemValue>>(
         return state;
       }
 
-      return handleItemSelection(state.highlightedValue, state);
+      return handleItemSelection(state.highlightedValue, state) as State;
 
     default:
       break;
@@ -337,18 +326,27 @@ function handleBlur<ItemValue, State extends ListState<ItemValue>>(state: State)
   };
 }
 
-function textCriteriaMatches<ItemId, ItemValue>(
-  nextFocus: ListItemMetadata<ItemId, ItemValue>,
+function textCriteriaMatches<ItemValue>(
+  nextFocus: ListItemMetadata<ItemValue>,
   searchString: string,
 ) {
-  const text = nextFocus?.valueAsString?.trim()?.toLowerCase();
+  let textValue: string | null;
+  if (nextFocus.valueAsString == null) {
+    if (typeof nextFocus.value === 'string' || typeof nextFocus.value === 'number') {
+      textValue = nextFocus.value.toString();
+    } else {
+      textValue = null;
+    }
+  } else {
+    textValue = nextFocus.valueAsString;
+  }
 
-  if (!text || text.length === 0) {
+  if (!textValue || textValue.length === 0) {
     // Make item not navigable if stringification fails or results in empty string.
     return false;
   }
 
-  return text.indexOf(searchString) === 0;
+  return textValue.startsWith(searchString);
 }
 
 function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
@@ -360,9 +358,11 @@ function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
 
   const startWithCurrentItem = searchString.length > 1;
 
-  let nextItem = startWithCurrentItem
+  let nextItemValue = startWithCurrentItem
     ? state.highlightedValue
     : moveHighlight(state.highlightedValue, 1, items, settings);
+
+  let nextItem = nextItemValue ? items.get(nextItemValue) : null;
 
   for (let index = 0; index < items.size; index += 1) {
     // Return un-mutated state if looped back to the currently highlighted value
@@ -372,16 +372,18 @@ function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
 
     if (
       textCriteriaMatches(nextItem, searchString) &&
-      (!isItemDisabled(nextItem, items.indexOf(nextItem)) || disabledItemsFocusable)
+      (!nextItem.disabled || disabledItemsFocusable)
     ) {
       // The nextItem is the element to be highlighted
       return {
         ...state,
-        highlightedValue: nextItem,
+        highlightedValue: nextItem.value,
       };
     }
+
     // Move to the next element.
-    nextItem = moveHighlight(nextItem, 1, items, settings);
+    nextItemValue = moveHighlight(nextItemValue, 1, items, settings);
+    nextItem = nextItemValue ? items.get(nextItemValue) : null;
   }
 
   // No item matches the text search criteria
@@ -389,28 +391,32 @@ function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
 }
 
 function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
-  items: Map<ItemValue, ListItemMetadata<ItemValue>>,
-  previousItems: ItemValue[],
+  items: ListItemMetadata<ItemValue>[],
   state: State,
 ): State {
   const { focusManagement } = state.settings;
 
   let newHighlightedValue: ItemValue | null = null;
 
+  const itemsMap = new IndexableMap<ItemValue, ListItemMetadata<ItemValue>>(
+    items.map((item) => [item.value, item]),
+  );
+
   if (state.highlightedValue != null) {
-    newHighlightedValue = items.get(state.highlightedValue)?.value ?? null;
-  } else if (focusManagement === 'DOM' && previousItems.length === 0) {
-    newHighlightedValue = moveHighlight(null, 'reset', items, state.settings);
+    newHighlightedValue = itemsMap.get(state.highlightedValue)?.value ?? null;
+  } else if (focusManagement === 'DOM' && state.items.size === 0) {
+    newHighlightedValue = moveHighlight(null, 'reset', itemsMap, state.settings);
   }
 
   // exclude selected values that are no longer in the items list
   const selectedValues = state.selectedValues ?? [];
   const newSelectedValues = selectedValues.filter((selectedValue) =>
-    some(items.values(), (item) => item.value === selectedValue),
+    items.some((item) => item.value === selectedValue),
   );
 
   return {
     ...state,
+    items: itemsMap,
     highlightedValue: newHighlightedValue,
     selectedValues: newSelectedValues,
   };
@@ -448,13 +454,13 @@ export function listReducer<ItemValue, State extends ListState<ItemValue>>(
     case ListActionTypes.keyDown:
       return handleKeyDown(action.key, state);
     case ListActionTypes.itemClick:
-      return handleItemSelection(action.item, state);
+      return handleItemSelection(action.item, state) as State;
     case ListActionTypes.blur:
       return handleBlur(state);
     case ListActionTypes.textNavigation:
       return handleTextNavigation(state, action.searchString);
     case ListActionTypes.itemsChange:
-      return handleItemsChange(action.items, action.previousItems, state);
+      return handleItemsChange(action.items, state);
     case ListActionTypes.resetHighlight:
       return handleResetHighlight(state);
     case ListActionTypes.highlightLast:

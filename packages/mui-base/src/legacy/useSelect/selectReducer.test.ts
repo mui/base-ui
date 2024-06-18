@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { selectReducer } from './selectReducer';
 import { SelectAction, SelectActionTypes, SelectInternalState } from './useSelect.types';
 import { ActionWithContext } from '../../utils/useControllableReducer.types';
-import { ListActionContext } from '../../useList';
+import { ListSettings } from '../../useList';
 
 describe('selectReducer', () => {
   const irrelevantConfig = {
@@ -26,7 +26,7 @@ describe('selectReducer', () => {
         open: false,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListActionContext<unknown>> = {
+      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
         context: irrelevantConfig,
@@ -43,7 +43,7 @@ describe('selectReducer', () => {
         open: true,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListActionContext<unknown>> = {
+      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
         context: {
@@ -62,7 +62,7 @@ describe('selectReducer', () => {
         open: false,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListActionContext<string>> = {
+      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
         context: {
@@ -82,7 +82,7 @@ describe('selectReducer', () => {
         open: false,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListActionContext<string>> = {
+      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
         context: {
@@ -104,7 +104,7 @@ describe('selectReducer', () => {
         open: false,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListActionContext<string>> = {
+      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
         type: SelectActionTypes.browserAutoFill,
         event: {} as any, // not relevant
         item: '1',

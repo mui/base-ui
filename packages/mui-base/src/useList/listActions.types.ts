@@ -1,3 +1,5 @@
+import type { ListItemMetadata } from './useList.types';
+
 export const ListActionTypes = {
   blur: 'list:blur',
   focus: 'list:focus',
@@ -48,8 +50,7 @@ interface TextNavigationAction {
 interface ItemsChangeAction<ItemValue> {
   type: typeof ListActionTypes.itemsChange;
   event: null;
-  items: ItemValue[];
-  previousItems: ItemValue[];
+  items: ListItemMetadata<ItemValue>[];
 }
 
 interface ResetHighlightAction {
