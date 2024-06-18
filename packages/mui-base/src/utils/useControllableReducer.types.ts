@@ -13,18 +13,10 @@ export type StateChangeCallback<State> = <StateKey extends keyof State>(
   state: State,
 ) => void;
 
-export type ActionWithContext<Action, ContextValue> = Action & {
-  context: ContextValue;
-};
-
 /**
  * Parameters of the useControllableReducer hook.
  */
-export interface ControllableReducerParameters<
-  State,
-  Action extends ControllableReducerAction,
-  ActionContext = undefined,
-> {
+export interface ControllableReducerParameters<State, Action extends ControllableReducerAction> {
   /**
    * The reducer function.
    *
@@ -32,7 +24,7 @@ export interface ControllableReducerParameters<
    * @param action The action to dispatch. The action can be augmented with the `actionContext`.
    * @returns The updated state.
    */
-  reducer: (state: State, action: ActionWithContext<Action, ActionContext>) => State;
+  reducer: (state: State, action: Action) => State;
   /**
    * The controlled props that will override the state items.
    */
@@ -51,10 +43,6 @@ export interface ControllableReducerParameters<
    * The event handler called whenever a field of the state changes.
    */
   onStateChange?: StateChangeCallback<State>;
-  /**
-   * Additional properties that will be added to the action.
-   */
-  actionContext?: ActionContext;
   /**
    * The name of the component using useControllableReducer.
    * For debugging purposes.
