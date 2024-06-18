@@ -20,15 +20,6 @@ export interface ListSettings {
   selectionMode: SelectionMode;
 }
 
-/**
- * The action object augmented with the action context ({@linkcode ListSettings} instance).
- * Instances of this type are passed to the reducer.
- *
- * @template ItemValue The type of the item values.
- * @template CustomActionContext The shape of additional properties that will be added to actions when dispatched.
- */
-export type ListReducerAction<ItemValue> = ListAction<ItemValue>;
-
 export type ListItemMetadata<ItemValue> = {
   value: ItemValue;
   disabled: boolean;
@@ -61,7 +52,7 @@ export interface ListState<ItemValue> {
  */
 export type ListReducer<ItemValue, State extends ListState<ItemValue>> = (
   state: State,
-  action: ListReducerAction<ItemValue>,
+  action: ListAction<ItemValue>,
 ) => State;
 
 export type FocusManagementType = 'DOM' | 'activeDescendant';

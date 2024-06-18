@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { listReducer } from './listReducer';
-import { ListReducerAction, ListState } from './useList.types';
-import { ListActionTypes } from './listActions.types';
+import { ListState } from './useList.types';
+import { ListAction, ListActionTypes } from './listActions.types';
 import { IndexableMap } from '../utils/indexableMap';
 
 describe('listReducer', () => {
@@ -22,7 +22,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.blur,
         event: {} as any, // not relevant
       };
@@ -52,7 +52,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
         item: 'two',
@@ -81,7 +81,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
 
@@ -112,7 +112,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
         item: 'two',
@@ -141,7 +141,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
 
@@ -171,7 +171,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
 
@@ -201,7 +201,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemClick,
         event: {} as any, // not relevant
         item: 'two',
@@ -613,7 +613,7 @@ describe('listReducer', () => {
             },
           };
 
-          const action: ListReducerAction<string> = {
+          const action: ListAction<string> = {
             type: ListActionTypes.keyDown,
             key: spec.key,
             event: null as any, // not relevant
@@ -645,7 +645,7 @@ describe('listReducer', () => {
           },
         };
 
-        const action: ListReducerAction<string> = {
+        const action: ListAction<string> = {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
@@ -674,7 +674,7 @@ describe('listReducer', () => {
           },
         };
 
-        const action: ListReducerAction<string> = {
+        const action: ListAction<string> = {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
@@ -703,7 +703,7 @@ describe('listReducer', () => {
           },
         };
 
-        const action: ListReducerAction<string> = {
+        const action: ListAction<string> = {
           type: ListActionTypes.keyDown,
           key: 'Enter',
           event: {} as any,
@@ -737,7 +737,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 'th',
         event: {} as React.KeyboardEvent,
@@ -768,7 +768,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 'z',
         event: {} as React.KeyboardEvent,
@@ -799,7 +799,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 't',
         event: {} as React.KeyboardEvent,
@@ -830,7 +830,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 't',
         event: {} as React.KeyboardEvent,
@@ -861,7 +861,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.textNavigation,
         searchString: 'one',
         event: {} as React.KeyboardEvent,
@@ -893,7 +893,7 @@ describe('listReducer', () => {
         settings: irrelevantConfig,
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
         items: [
@@ -919,7 +919,7 @@ describe('listReducer', () => {
         settings: irrelevantConfig,
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
         items: [
@@ -944,7 +944,7 @@ describe('listReducer', () => {
         settings: irrelevantConfig,
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
         items: [
@@ -969,7 +969,7 @@ describe('listReducer', () => {
         settings: irrelevantConfig,
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
         items: [
@@ -994,7 +994,7 @@ describe('listReducer', () => {
           },
         };
 
-        const action: ListReducerAction<string> = {
+        const action: ListAction<string> = {
           type: ListActionTypes.itemsChange,
           items: [
             { value: '1', disabled: false },
@@ -1019,7 +1019,7 @@ describe('listReducer', () => {
           },
         };
 
-        const action: ListReducerAction<string> = {
+        const action: ListAction<string> = {
           type: ListActionTypes.itemsChange,
           event: null,
           items: [
@@ -1055,7 +1055,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.resetHighlight,
         event: null,
       };
@@ -1083,7 +1083,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.resetHighlight,
         event: null,
       };
@@ -1113,7 +1113,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.highlightLast,
         event: null,
       };
@@ -1141,7 +1141,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.highlightLast,
         event: null,
       };
@@ -1171,7 +1171,7 @@ describe('listReducer', () => {
         },
       };
 
-      const action: ListReducerAction<string> = {
+      const action: ListAction<string> = {
         type: ListActionTypes.clearSelection,
       };
 

@@ -1,17 +1,11 @@
 import { IndexableMap } from '../utils/indexableMap';
-import { ListActionTypes } from './listActions.types';
-import {
-  ListState,
-  ListReducerAction,
-  ListSettings,
-  ListItemMetadata,
-  SelectionMode,
-} from './useList.types';
+import { type ListAction, ListActionTypes } from './listActions.types';
+import type { ListState, ListSettings, ListItemMetadata, SelectionMode } from './useList.types';
 
 /**
  * Looks up the next valid item to highlight within the list.
  *
- * @param currentIndex The index of the start of the search.
+ * @param startIndex The index of the start of the search.
  * @param lookupDirection Whether to look for the next or previous item.
  * @param items The array of items to search.
  * @param includeDisabledItems Whether to include disabled items in the search.
@@ -19,7 +13,7 @@ import {
  * @returns The index of the next valid item to highlight or -1 if no valid item is found.
  */
 function findValidItemToHighlight<ItemValue>(
-  currentIndex: number,
+  startIndex: number,
   lookupDirection: 'next' | 'previous',
   items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
   includeDisabledItems: boolean,
@@ -29,8 +23,7 @@ function findValidItemToHighlight<ItemValue>(
     return -1;
   }
 
-  let nextFocus = currentIndex;
-  const valuesArray = Array.from(items.values());
+  let nextFocus = startIndex;
 
   for (;;) {
     // No valid items found
@@ -43,7 +36,7 @@ function findValidItemToHighlight<ItemValue>(
 
     const nextFocusDisabled = includeDisabledItems
       ? false
-      : valuesArray[nextFocus]?.disabled ?? false;
+      : items.elementAt(nextFocus)?.disabled ?? false;
     if (nextFocusDisabled) {
       nextFocus += lookupDirection === 'next' ? 1 : -1;
       if (wrapAround) {
@@ -446,7 +439,7 @@ function handleClearSelection<ItemValue, State extends ListState<ItemValue>>(sta
 
 export function listReducer<ItemValue, State extends ListState<ItemValue>>(
   state: State,
-  action: ListReducerAction<ItemValue>,
+  action: ListAction<ItemValue>,
 ): State {
   const { type } = action;
 
