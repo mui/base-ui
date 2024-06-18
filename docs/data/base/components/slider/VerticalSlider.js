@@ -30,30 +30,6 @@ export default function VerticalSlider() {
   );
 }
 
-function Label(props) {
-  const { id, ...otherProps } = props;
-  const { subitems, disabled } = Slider.useSliderContext();
-
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
-
-  return (
-    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
-  );
-}
-
-Label.propTypes = {
-  id: PropTypes.string,
-};
-
-function useIsDarkMode() {
-  const theme = useTheme();
-  return theme.palette.mode === 'dark';
-}
-
 function Styles() {
   return (
     <style suppressHydrationWarning>{`
@@ -157,6 +133,30 @@ function Styles() {
       }
     `}</style>
   );
+}
+
+function Label(props) {
+  const { id, ...otherProps } = props;
+  const { subitems, disabled } = Slider.useSliderContext();
+
+  const htmlFor = Array.from(subitems.values())
+    .reduce((acc, item) => {
+      return `${acc} ${item.inputId}`;
+    }, '')
+    .trim();
+
+  return (
+    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
+  );
+}
+
+Label.propTypes = {
+  id: PropTypes.string,
+};
+
+function useIsDarkMode() {
+  const theme = useTheme();
+  return theme.palette.mode === 'dark';
 }
 
 const grey = {

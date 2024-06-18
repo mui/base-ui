@@ -134,7 +134,7 @@ The `min` and `max` props can be used to restrict the value(s) within a range.
 
 ### Step
 
-The `step` prop snaps the each value to multiples of the given number. In the below example, the input value snaps to increments of `4` starting from the initial `defaultValue`: `3`, `7`, `11`, `15`, and so on.
+The `step` prop snaps each value to multiples of the given number. In the below example, the input value snaps to increments of `4` starting from the initial `defaultValue`: `3`, `7`, `11`, `15`, and so on.
 
 ```tsx
 <Slider.Root step={4} defaultValue={3}>
@@ -148,7 +148,7 @@ The `step` prop snaps the each value to multiples of the given number. In the be
 </Slider.Root>
 ```
 
-You can specify the `largeStep` prop to change the step when the user holds the <kbd>shift</kbd> key, snapping to multiples of 10 by default.
+You can specify the `largeStep` prop to change the step when the user holds the <kbd class="key">shift</kbd> key, snapping to multiples of 10 by default.
 
 ## Range Sliders
 
