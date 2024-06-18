@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import { createRenderer } from '../../../test';
 import { OPEN_DELAY } from '../utils/constants';
 
-const waitForPosition = () => {};
+const waitForPosition = async () => act(async () => {});
 
 function Root(props: Popover.RootProps) {
   return <Popover.Root {...props} animated={false} />;

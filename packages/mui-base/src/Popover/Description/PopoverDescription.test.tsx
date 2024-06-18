@@ -13,7 +13,7 @@ describe('<Popover.Description />', () => {
     refInstanceof: window.HTMLParagraphElement,
     render(node) {
       return render(
-        <Popover.Root open>
+        <Popover.Root open animated={false}>
           <Popover.Positioner>
             <Popover.Popup>{node}</Popover.Popup>
           </Popover.Positioner>
