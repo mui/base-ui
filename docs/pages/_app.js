@@ -20,6 +20,10 @@ import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
 import { DocsProvider } from '@mui/docs/DocsProvider';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
+import SvgBaseUiLogo, {
+  baseSvgLogoString,
+  baseSvgWordmarkString,
+} from 'docs/src/icons/SvgBaseUiLogo';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
@@ -151,8 +155,11 @@ function AppWrapper(props) {
   const productIdentifier = React.useMemo(() => {
     if (productId === 'base-ui') {
       return {
-        metadata: 'MUI Core',
+        metadata: '',
         name: 'Base UI',
+        logo: SvgBaseUiLogo,
+        logoSvg: baseSvgLogoString,
+        wordmarkSvg: baseSvgWordmarkString,
         versions: [{ text: `v${basePkgJson.version}`, current: true }],
       };
     }

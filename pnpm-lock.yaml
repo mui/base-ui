@@ -74,8 +74,8 @@ importers:
         specifier: 6.0.0-alpha.10
         version: 6.0.0-alpha.10(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.0.0-alpha.10
-        version: https://codeload.github.com/mui/material-ui/tar.gz/b7e5998ec222200ca6283aebf7b9fc534ef7bafd(@opentelemetry/api@1.8.0)(encoding@0.1.13)
+        specifier: github:mui/material-ui#6ad092c5ca10aeea4c146ca48124c4cd7a628a1b
+        version: https://codeload.github.com/mui/material-ui/tar.gz/6ad092c5ca10aeea4c146ca48124c4cd7a628a1b(@opentelemetry/api@1.8.0)(encoding@0.1.13)
       '@mui/utils':
         specifier: 6.0.0-alpha.9
         version: 6.0.0-alpha.9(@types/react@18.3.1)(react@18.2.0)
@@ -2144,8 +2144,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/b7e5998ec222200ca6283aebf7b9fc534ef7bafd':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/b7e5998ec222200ca6283aebf7b9fc534ef7bafd}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/6ad092c5ca10aeea4c146ca48124c4cd7a628a1b':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/6ad092c5ca10aeea4c146ca48124c4cd7a628a1b}
     version: 6.0.0-alpha.10
     engines: {pnpm: 8.15.8}
 
@@ -10417,7 +10417,7 @@ snapshots:
       '@emotion/styled': 11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       '@types/react': 18.3.1
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/b7e5998ec222200ca6283aebf7b9fc534ef7bafd(@opentelemetry/api@1.8.0)(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/6ad092c5ca10aeea4c146ca48124c4cd7a628a1b(@opentelemetry/api@1.8.0)(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 7.0.1(encoding@0.1.13)
       '@netlify/functions': 2.7.0(@opentelemetry/api@1.8.0)
