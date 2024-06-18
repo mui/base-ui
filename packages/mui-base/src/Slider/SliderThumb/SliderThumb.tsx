@@ -96,7 +96,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   });
 
   const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging: activeIndex === index }),
+    () => getStyleHookProps({ disabled, dragging: index !== -1 && activeIndex === index }),
     [activeIndex, disabled, index],
   );
 

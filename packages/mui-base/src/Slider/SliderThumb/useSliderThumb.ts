@@ -22,6 +22,10 @@ function getNewValue(
 }
 
 function getDefaultAriaValueText(values: readonly number[], index: number): string | undefined {
+  if (index < 0) {
+    return undefined;
+  }
+
   if (values.length === 2) {
     if (index === 0) {
       return `start range ${values[index]}`;
@@ -29,6 +33,7 @@ function getDefaultAriaValueText(values: readonly number[], index: number): stri
 
     return `end range ${values[index]}`;
   }
+
   return undefined;
 }
 /**
@@ -87,12 +92,18 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
   const thumbValue = sliderValues[index];
 
-  const percent = percentageValues[index];
+  // for SSR, don't wait for the index if there's only one thumb
+  const percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
 
   const isRtl = direction === 'rtl';
 
   const getThumbStyle = React.useCallback(() => {
     const isVertical = orientation === 'vertical';
+
+    if (!Number.isFinite(percent)) {
+      return visuallyHidden;
+    }
+
     return {
       position: 'absolute',
       [{

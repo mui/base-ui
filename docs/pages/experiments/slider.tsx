@@ -45,9 +45,9 @@ export default function App() {
         <Slider.Control className="MySlider-control">
           <Slider.Track className="MySlider-track">
             <Slider.Indicator className="MySlider-indicator" />
-            <Slider.Thumb className="MySlider-thumb one" />
-            <Slider.Thumb className="MySlider-thumb two" />
-            <Slider.Thumb className="MySlider-thumb three" />
+            <Slider.Thumb className="MySlider-thumb" />
+            <Slider.Thumb className="MySlider-thumb" />
+            <Slider.Thumb className="MySlider-thumb" />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
