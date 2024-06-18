@@ -202,12 +202,12 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, tooltip stays mounted in the DOM when closed.
+   * If `true`, popover stays mounted in the DOM when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the tooltip popup element.
+   * The CSS position strategy for positioning the popover popup element.
    * @default 'absolute'
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
