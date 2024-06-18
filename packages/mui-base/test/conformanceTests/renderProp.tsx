@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { randomStringValue } from '@mui/internal-test-utils';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
-import { throwMissingPropError, waitForAsyncTasks } from './utils';
+import { throwMissingPropError } from './utils';
 
 export function testRenderProp(
   element: React.ReactElement,
@@ -34,8 +34,6 @@ export function testRenderProp(
         }),
       );
 
-      await waitForAsyncTasks();
-
       expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
       expect(queryByTestId('wrapped')).not.to.equal(null);
       expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
@@ -49,8 +47,6 @@ export function testRenderProp(
         }),
       );
 
-      await waitForAsyncTasks();
-
       expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
       expect(queryByTestId('wrapped')).not.to.equal(null);
       expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
@@ -62,8 +58,6 @@ export function testRenderProp(
           render: <Wrapper />,
         }),
       );
-
-      await waitForAsyncTasks();
 
       expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
     });
@@ -81,8 +75,7 @@ export function testRenderProp(
         });
       }
 
-      render(<Test />);
-      await waitForAsyncTasks();
+      await render(<Test />);
       expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
       expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
     });

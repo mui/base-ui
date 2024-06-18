@@ -2,9 +2,9 @@ import {
   CreateRendererOptions,
   RenderOptions,
   createRenderer as sharedCreateRenderer,
+  waitFor,
   act,
   MuiRenderResult,
-  waitFor,
 } from '@mui/internal-test-utils';
 
 export function createRenderer(globalOptions?: CreateRendererOptions) {
@@ -20,12 +20,8 @@ export function createRenderer(globalOptions?: CreateRendererOptions) {
       result = await originalRender(element, options);
     }
 
-    // Flush microtasks and animation frames
-    await waitFor(async () => {
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => resolve());
-      });
-    });
+    // flush microtasks
+    await waitFor(async () => {});
 
     return result;
   };
