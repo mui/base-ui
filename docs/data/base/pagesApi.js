@@ -134,7 +134,6 @@ module.exports = [
   { pathname: '/base-ui/react-popup/components-api/#popup', title: 'Popup' },
   { pathname: '/base-ui/react-portal/components-api/#portal', title: 'Portal' },
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
-  { pathname: '/base-ui/react-slider/components-api/#slider', title: 'Slider' },
   {
     pathname: '/base-ui/react-slider/components-api/#slider-control',
     title: 'SliderControl',
@@ -264,7 +263,6 @@ module.exports = [
     title: 'useOptionContextStabilizer',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-select', title: 'useSelect' },
-  { pathname: '/base-ui/react-slider/hooks-api/#use-slider', title: 'useSlider' },
   {
     pathname: '/base-ui/react-slider/hooks-api/#use-slider-control',
     title: 'useSliderControl',

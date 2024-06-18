@@ -3,14 +3,12 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/slider/slider.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
-import SliderApiJsonPageContent from '../../api/slider.json';
 import SliderControlApiJsonPageContent from '../../api/slider-control.json';
 import SliderIndicatorApiJsonPageContent from '../../api/slider-indicator.json';
 import SliderOutputApiJsonPageContent from '../../api/slider-output.json';
 import SliderRootApiJsonPageContent from '../../api/slider-root.json';
 import SliderThumbApiJsonPageContent from '../../api/slider-thumb.json';
 import SliderTrackApiJsonPageContent from '../../api/slider-track.json';
-import useSliderApiJsonPageContent from '../../api/use-slider.json';
 import useSliderControlApiJsonPageContent from '../../api/use-slider-control.json';
 import useSliderIndicatorApiJsonPageContent from '../../api/use-slider-indicator.json';
 import useSliderOutputApiJsonPageContent from '../../api/use-slider-output.json';
@@ -34,13 +32,6 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const SliderApiReq = require.context(
-    'docs-base/translations/api-docs/slider',
-    false,
-    /\.\/slider.*.json$/,
-  );
-  const SliderApiDescriptions = mapApiPageTranslations(SliderApiReq);
-
   const SliderControlApiReq = require.context(
     'docs-base/translations/api-docs/slider-control',
     false,
@@ -83,13 +74,6 @@ export const getStaticProps = () => {
   );
   const SliderTrackApiDescriptions = mapApiPageTranslations(SliderTrackApiReq);
 
-  const useSliderApiReq = require.context(
-    'docs-base/translations/api-docs/use-slider',
-    false,
-    /\.\/use-slider.*.json$/,
-  );
-  const useSliderApiDescriptions = mapApiPageTranslations(useSliderApiReq);
-
   const useSliderControlApiReq = require.context(
     'docs-base/translations/api-docs/use-slider-control',
     false,
@@ -128,7 +112,6 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
-        Slider: SliderApiDescriptions,
         SliderControl: SliderControlApiDescriptions,
         SliderIndicator: SliderIndicatorApiDescriptions,
         SliderOutput: SliderOutputApiDescriptions,
@@ -137,7 +120,6 @@ export const getStaticProps = () => {
         SliderTrack: SliderTrackApiDescriptions,
       },
       componentsApiPageContents: {
-        Slider: SliderApiJsonPageContent,
         SliderControl: SliderControlApiJsonPageContent,
         SliderIndicator: SliderIndicatorApiJsonPageContent,
         SliderOutput: SliderOutputApiJsonPageContent,
@@ -146,7 +128,6 @@ export const getStaticProps = () => {
         SliderTrack: SliderTrackApiJsonPageContent,
       },
       hooksApiDescriptions: {
-        useSlider: useSliderApiDescriptions,
         useSliderControl: useSliderControlApiDescriptions,
         useSliderIndicator: useSliderIndicatorApiDescriptions,
         useSliderOutput: useSliderOutputApiDescriptions,
@@ -154,7 +135,6 @@ export const getStaticProps = () => {
         useSliderThumb: useSliderThumbApiDescriptions,
       },
       hooksApiPageContents: {
-        useSlider: useSliderApiJsonPageContent,
         useSliderControl: useSliderControlApiJsonPageContent,
         useSliderIndicator: useSliderIndicatorApiJsonPageContent,
         useSliderOutput: useSliderOutputApiJsonPageContent,

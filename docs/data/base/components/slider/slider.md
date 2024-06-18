@@ -1,8 +1,8 @@
 ---
 productId: base-ui
 title: React Slider components
-components: Slider, SliderRoot, SliderOutput, SliderControl, SliderTrack, SliderThumb, SliderIndicator
-hooks: useSlider, useSliderRoot, useSliderOutput, useSliderControl, useSliderThumb, useSliderIndicator
+components: SliderRoot, SliderOutput, SliderControl, SliderTrack, SliderThumb, SliderIndicator
+hooks: useSliderRoot, useSliderOutput, useSliderControl, useSliderThumb, useSliderIndicator
 githubLabel: 'component: slider'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb/
 packageName: '@base_ui/react'
