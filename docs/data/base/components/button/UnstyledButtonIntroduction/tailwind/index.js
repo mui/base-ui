@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Button as BaseButton } from '@base_ui/react/Button';
+import { Button as BaseButton } from '@base_ui/react/legacy/Button';
 import Stack from '@mui/material/Stack';
 import clsx from 'clsx';
 import { useTheme } from '@mui/system';

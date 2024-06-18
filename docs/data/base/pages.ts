@@ -43,13 +43,15 @@ const pages: readonly MuiPage[] = [
           { pathname: '/base-ui/react-tooltip', title: 'Tooltip' },
         ],
       },
-      // {
-      //   pathname: '/base-ui/components/feedback',
-      //   subheader: 'feedback',
-      //   children: [
-      //     { pathname: '/base-ui/react-snackbar', title: 'Snackbar' },
-      //   ],
-      // },
+      {
+        pathname: '/base-ui/components/feedback',
+        subheader: 'feedback',
+        children: [
+          { pathname: '/base-ui/react-alert-dialog', title: 'Alert Dialog' },
+          { pathname: '/base-ui/react-dialog', title: 'Dialog' },
+          //    { pathname: '/base-ui/react-snackbar', title: 'Snackbar' },
+        ],
+      },
       // {
       //   pathname: '/base-ui/components/surfaces',
       //   subheader: 'surfaces',

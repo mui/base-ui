@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Popper } from '@base_ui/react/Popper';
+import { Popper } from '@base_ui/react/legacy/Popper';
 
 function Radio({ value, ...props }) {
   return (

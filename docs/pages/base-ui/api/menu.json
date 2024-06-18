@@ -22,12 +22,12 @@
     }
   },
   "name": "Menu",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';"],
+  "imports": ["import { Menu } from '@base_ui/react/legacy/Menu';"],
   "classes": [],
   "spread": true,
   "muiName": "Menu",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Menu.tsx",
+  "filename": "/packages/mui-base/src/legacy/Menu/Menu.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

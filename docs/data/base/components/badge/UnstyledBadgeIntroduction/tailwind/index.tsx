@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Badge as BaseBadge, BadgeProps } from '@base_ui/react/Badge';
+import { Badge as BaseBadge, BadgeProps } from '@base_ui/react/legacy/Badge';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

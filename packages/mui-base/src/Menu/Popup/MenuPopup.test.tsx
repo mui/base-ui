@@ -17,7 +17,7 @@ import {
   MenuPopupProvider,
   useMenuPopup,
 } from '@base_ui/react/Menu';
-import { Popper } from '@base_ui/react/Popper';
+import { Popper } from '@base_ui/react/legacy/Popper';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 function createAnchor() {

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import useEventCallback from '@mui/utils/useEventCallback';
 import {
   safePolygon,
@@ -74,11 +75,22 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     elements: { reference: triggerElement, floating: popupElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, reasonValue);
-
+      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
       const isFocusOpen = openValue && reasonValue === 'focus';
       const isDismissClose =
         !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
+
+      function changeState() {
+        setOpen(openValue, eventValue, reasonValue);
+      }
+
+      if (animated && isHover) {
+        // If a hover reason is provided, we need to flush the state synchronously. This ensures
+        // `node.getAnimations()` knows about the new state.
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
 
       if (isFocusOpen || isDismissClose) {
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');

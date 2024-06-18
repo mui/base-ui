@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { useTheme } from '@mui/system';
-import { TablePagination } from '@base_ui/react/TablePagination';
+import { TablePagination } from '@base_ui/react/legacy/TablePagination';
 import FirstPageRoundedIcon from '@mui/icons-material/FirstPageRounded';
 import LastPageRoundedIcon from '@mui/icons-material/LastPageRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';

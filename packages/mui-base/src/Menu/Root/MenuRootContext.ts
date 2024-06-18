@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { MenuReducerAction, DropdownState } from './useMenuRoot.types';
+import { MenuReducerAction, MenuReducerState } from './useMenuRoot.types';
 
 export interface MenuRootContextValue {
   dispatch: React.Dispatch<MenuReducerAction>;
   popupId: string;
   registerPopup: (popupId: string) => void;
   registerTrigger: (element: HTMLElement | null) => void;
-  state: DropdownState;
+  state: MenuReducerState;
   triggerElement: HTMLElement | null;
 }
 

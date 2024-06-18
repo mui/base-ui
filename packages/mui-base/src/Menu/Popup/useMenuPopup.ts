@@ -14,7 +14,7 @@ import { DropdownActionTypes } from '../Root/useMenuRoot.types';
 import { EventHandlers } from '../../utils/types';
 import { useCompoundParent } from '../../useCompound';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
 
 const FALLBACK_MENU_CONTEXT: MenuRootContextValue = {

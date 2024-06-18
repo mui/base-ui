@@ -1,5 +1,5 @@
 import type { Side, VirtualElement } from '@floating-ui/react';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface MenuPositionerProps extends BaseUIComponentProps<'div', MenuPositionerOwnerState> {
   anchor?:

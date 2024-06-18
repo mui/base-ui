@@ -43,7 +43,7 @@ default-job: &default-job
     REACT_VERSION: << parameters.react-version >>
     TEST_GATE: << parameters.test-gate >>
     AWS_REGION_ARTIFACTS: eu-central-1
-  working_directory: /tmp/material-ui
+  working_directory: /tmp/base-ui
   docker:
     - image: cimg/node:18.20
 
@@ -89,7 +89,7 @@ commands:
                   corepack enable
             - run:
                 name: Prepare playwright hash
-                command: pnpm list --json --filter playwright > /tmp/playwright_info.json
+                command: pnpm list --recursive --json --filter @mui-internal/tests playwright > /tmp/playwright_info.json
             - store_artifacts:
                 name: Debug playwright hash
                 path: /tmp/playwright_info.json
@@ -319,7 +319,7 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.43.1-focal
+      - image: mcr.microsoft.com/playwright:v1.44.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -350,7 +350,7 @@ jobs:
   test_profile:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.43.1-focal
+      - image: mcr.microsoft.com/playwright:v1.44.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -378,7 +378,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.43.1-focal
+      - image: mcr.microsoft.com/playwright:v1.44.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -395,13 +395,16 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.43.1-focal
+      - image: mcr.microsoft.com/playwright:v1.44.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
           browsers: true
+      - run:
+          name: install Playwright browsers
+          command: pnpm exec playwright install
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e

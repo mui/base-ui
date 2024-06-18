@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select as BaseSelect } from '@base_ui/react/Select';
-import { Option as BaseOption } from '@base_ui/react/Option';
+import { Select as BaseSelect } from '@base_ui/react/legacy/Select';
+import { Option as BaseOption } from '@base_ui/react/legacy/Option';
 import { useTheme } from '@mui/system';
 import clsx from 'clsx';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';

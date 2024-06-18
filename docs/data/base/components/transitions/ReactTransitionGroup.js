@@ -1,9 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTransitionStateManager } from '@base_ui/react/useTransition';
+import { useTransitionStateManager } from '@base_ui/react/legacy/useTransition';
 import Fade from '@mui/material/Fade';
-import { Button as BaseButton } from '@base_ui/react/Button';
-import { Unstable_Popup as BasePopup } from '@base_ui/react/Unstable_Popup';
+import { Button as BaseButton } from '@base_ui/react/legacy/Button';
+import { Unstable_Popup as BasePopup } from '@base_ui/react/legacy/Unstable_Popup';
 import { styled } from '@mui/system';
 
 const grey = {

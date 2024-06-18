@@ -20,6 +20,10 @@ export function getComponentImports(name: string, filename: string) {
     throw new Error(`The file ${filename} is not in a subdirectory of packages/mui-base/src`);
   }
 
+  if (directories[3] === 'legacy') {
+    return [`import { ${name} } from '@base_ui/react/legacy/${directories[4]}';`];
+  }
+
   const componentDirectory = directories[3];
   if (componentDirectory === name) {
     return [`import { ${name} } from '@base_ui/react/${name}';`];

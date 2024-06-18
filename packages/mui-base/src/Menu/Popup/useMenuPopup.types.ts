@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ListAction, ListState } from '../../useList';
 import { MenuItemMetadata } from '../Item/useMenuItem.types';
 import { MenuPopupProviderValue } from './MenuPopupProvider';
-import { GenericHTMLProps } from '../../utils/BaseUI.types';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface UseMenuPopupParameters {
   /**

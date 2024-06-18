@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupOwnerState> {
   /**

@@ -1,4 +1,4 @@
-import { GenericHTMLProps } from '../../utils/BaseUI.types';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface UseMenuTriggerParameters {
   /**

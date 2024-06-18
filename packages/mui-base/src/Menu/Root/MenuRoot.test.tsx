@@ -9,7 +9,7 @@ import {
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext, MenuPopupProvider, useMenuPopup } from '@base_ui/react/Menu';
-import { Unstable_Popup as Popup } from '@base_ui/react/Unstable_Popup';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 
 describe('<Dropdown />', () => {
   const { render: internalRender } = createRenderer();

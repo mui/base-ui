@@ -2,8 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, css } from '@mui/system';
-import { Modal as BaseModal } from '@base_ui/react/Modal';
-import { Button } from '@base_ui/react/Button';
+import { Modal as BaseModal } from '@base_ui/react/legacy/Modal';
+import { Button } from '@base_ui/react/legacy/Button';
 
 export default function NestedModal() {
   const [open, setOpen] = React.useState(false);

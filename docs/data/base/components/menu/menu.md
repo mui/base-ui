@@ -29,10 +29,10 @@ The Base UI Dropdown Menu is implemented using a collection of related componen
 ## Components
 
 ```jsx
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuItem } from '@base_ui/react/MenuItem';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import { MenuButton } from '@base_ui/react/legacy/MenuButton';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuItem } from '@base_ui/react/legacy/MenuItem';
 ```
 
 The demo below shows how to create and style a Dropdown Menu.
@@ -112,10 +112,10 @@ To do this, override the Listbox slot of the Menu and wrap it with a transition 
 ## Hooks
 
 ```jsx
-import { useDropdown } from '@base_ui/react/useDropdown';
-import { useMenuButton } from '@base_ui/react/useMenuButton';
-import { useMenu } from '@base_ui/react/useMenu';
-import { useMenuItem } from '@base_ui/react/useMenuItem';
+import { useDropdown } from '@base_ui/react/legacy/useDropdown';
+import { useMenuButton } from '@base_ui/react/legacy/useMenuButton';
+import { useMenu } from '@base_ui/react/legacy/useMenu';
+import { useMenuItem } from '@base_ui/react/legacy/useMenuItem';
 ```
 
 The Dropdown Menu hooks let you apply the functionality of the Dropdown Menu suite to fully custom components.

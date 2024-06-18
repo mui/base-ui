@@ -35,12 +35,12 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "Select",
-  "imports": ["import { Select } from '@base_ui/react/Select';"],
+  "imports": ["import { Select } from '@base_ui/react/legacy/Select';"],
   "classes": [],
   "spread": true,
   "muiName": "Select",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Select/Select.tsx",
+  "filename": "/packages/mui-base/src/legacy/Select/Select.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false

@@ -2,7 +2,7 @@
   "parameters": {},
   "returnValue": {},
   "name": "useMenuButton",
-  "filename": "/packages/mui-base/src/useMenuButton/useMenuButton.ts",
-  "imports": ["import { useMenuButton } from '@base_ui/react/useMenuButton';"],
+  "filename": "/packages/mui-base/src/legacy/useMenuButton/useMenuButton.ts",
+  "imports": ["import { useMenuButton } from '@base_ui/react/legacy/useMenuButton';"],
   "demos": "<ul><li><a href=\"/base-ui/react-menu/#hooks\">Menu</a></li></ul>"
 }

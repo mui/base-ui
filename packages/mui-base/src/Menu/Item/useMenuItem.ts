@@ -8,10 +8,11 @@ import type {
   UseMenuItemReturnValue,
   UseMenuItemRootSlotProps,
 } from './useMenuItem.types';
+
 import { useListItem } from '../../useList';
 import { DropdownActionTypes } from '../Root/useMenuRoot.types';
 import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
+import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
 import { useCompoundItem } from '../../useCompound';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 import { EventHandlers } from '../../utils/types';

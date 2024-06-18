@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { MenuRootContextValue } from './MenuRootContext';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback } from '../../utils/useControllableReducer.types';
-import { DropdownActionTypes, DropdownState, UseMenuRootParameters } from './useMenuRoot.types';
+import { DropdownActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
 import { dropdownReducer } from './dropdownReducer';
 
 /**
@@ -22,7 +22,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const lastActionType = React.useRef<string | null>(null);
 
-  const handleStateChange: StateChangeCallback<DropdownState> = React.useCallback(
+  const handleStateChange: StateChangeCallback<MenuReducerState> = React.useCallback(
     (event, field, value, reason) => {
       if (field === 'open') {
         onOpenChange?.(

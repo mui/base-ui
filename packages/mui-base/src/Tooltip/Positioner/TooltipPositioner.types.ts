@@ -1,5 +1,5 @@
 import type { Side } from '@floating-ui/react';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/BaseUI.types';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { TooltipPositionerParameters } from './useTooltipPositioner.types';
 
 export interface TooltipPositionerContextValue {

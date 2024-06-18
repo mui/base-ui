@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Unstable_Popup as BasePopup } from '@base_ui/react/Unstable_Popup';
+import { Unstable_Popup as BasePopup } from '@base_ui/react/legacy/Unstable_Popup';
 import { Box, styled } from '@mui/system';
 
 export default function DisabledPortalPopup() {

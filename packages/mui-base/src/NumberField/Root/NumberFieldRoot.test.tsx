@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
-import { fireEvent } from '@testing-library/react';
+import { act, createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberFieldBase from '@base_ui/react/NumberField';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -335,7 +334,7 @@ describe('<NumberField />', () => {
     it('should increment the value by the default `largeStep` prop of 10 while holding the shift key', () => {
       render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('20');
     });
@@ -343,7 +342,7 @@ describe('<NumberField />', () => {
     it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', () => {
       render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('0');
     });
@@ -351,7 +350,7 @@ describe('<NumberField />', () => {
     it('should use explicit `largeStep` value if provided while holding the shift key', () => {
       render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('10');
     });
@@ -359,10 +358,10 @@ describe('<NumberField />', () => {
     it('should not use the `largeStep` prop if no longer holding the shift key', () => {
       render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('10');
-      fireEvent.keyUp(window, { shiftKey: true });
+      fireEvent.keyUp(input, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('15');
     });
@@ -372,7 +371,7 @@ describe('<NumberField />', () => {
     it('should increment the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
       render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('5.1');
     });
@@ -380,7 +379,7 @@ describe('<NumberField />', () => {
     it('should decrement the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
       render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('5.9');
     });
@@ -388,7 +387,7 @@ describe('<NumberField />', () => {
     it('should use explicit `smallStep` value if provided while holding the alt key', () => {
       render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('5.5');
     });
@@ -397,10 +396,10 @@ describe('<NumberField />', () => {
       render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
       const button = screen.getByLabelText('Increase');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(button);
       expect(input).to.have.value('5.5');
-      fireEvent.keyUp(window, { altKey: false });
+      fireEvent.keyUp(input, { altKey: false });
       fireEvent.pointerDown(button);
       expect(input).to.have.value('6.5');
     });
@@ -519,6 +518,7 @@ describe('<NumberField />', () => {
   it('should allow navigation keys and not prevent their default behavior', () => {
     render(<NumberField />);
     const input = screen.getByRole('textbox') as HTMLInputElement;
+    input.focus();
     fireEvent.change(input, { target: { value: '123' } });
 
     const navigateKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];

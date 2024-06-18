@@ -2,7 +2,7 @@
   "parameters": {},
   "returnValue": {},
   "name": "useSelect",
-  "filename": "/packages/mui-base/src/useSelect/useSelect.ts",
-  "imports": ["import { useSelect } from '@base_ui/react/useSelect';"],
+  "filename": "/packages/mui-base/src/legacy/useSelect/useSelect.ts",
+  "imports": ["import { useSelect } from '@base_ui/react/legacy/useSelect';"],
   "demos": "<ul><li><a href=\"/base-ui/react-select/#hooks\">Select</a></li></ul>"
 }

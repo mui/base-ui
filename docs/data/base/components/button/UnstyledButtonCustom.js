@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Button, buttonClasses } from '@base_ui/react/Button';
+import { Button, buttonClasses } from '@base_ui/react/legacy/Button';
 import { styled } from '@mui/system';
 
 const ButtonRoot = React.forwardRef(function ButtonRoot(props, ref) {

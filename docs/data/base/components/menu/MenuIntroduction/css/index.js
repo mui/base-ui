@@ -97,17 +97,17 @@ function Styles() {
         transform: scale(0.95, 0.8);
         transition: opacity 200ms ease-in, transform 200ms ease-in;
       }
-      
+
       .open & {
         opacity: 1;
         transform: scale(1, 1);
         transition: opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
       }
-    
+
       .placement-top & {
         transform-origin: bottom;
       }
-    
+
       .placement-bottom & {
         transform-origin: top;
       }
