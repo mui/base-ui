@@ -25,6 +25,7 @@ import { useTextNavigation } from '../utils/useTextNavigation';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
 import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { EventHandlers } from '../utils/types';
+import { IndexableMap } from '../utils/IndexableMap';
 
 const EMPTY_OBJECT = {};
 const NOOP = () => {};
@@ -33,6 +34,7 @@ const COMPARER = (a: unknown, b: unknown) => a === b;
 const defaultGetInitialState = () => ({
   highlightedValue: null,
   selectedValues: [],
+  items: new IndexableMap(),
 });
 
 /**
@@ -209,7 +211,7 @@ function useList<
   React.useEffect(() => {
     // Whenever the `items` object changes, we need to determine if the actual items changed.
     // If they did, we need to dispatch an `itemsChange` action, so the selected/highlighted state is updated.
-    if (!areArraysEqual(previousItems.current, items)) {
+    if (areArraysEqual(previousItems.current, items)) {
       return;
     }
 

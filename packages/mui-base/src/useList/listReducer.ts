@@ -397,7 +397,7 @@ function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
 
   if (state.highlightedValue != null) {
     newHighlightedValue = itemsMap.get(state.highlightedValue)?.value ?? null;
-  } else if (focusManagement === 'DOM' && state.items.size === 0) {
+  } else if (focusManagement === 'DOM' && (state.items == null || state.items.size === 0)) {
     newHighlightedValue = moveHighlight(null, 'reset', itemsMap, state.settings);
   }
 
