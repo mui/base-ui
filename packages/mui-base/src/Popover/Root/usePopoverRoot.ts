@@ -55,17 +55,23 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
-  const setOpen = React.useCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
-      onOpenChange(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-    },
-    [onOpenChange, setOpenUnwrapped],
-  );
-
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const runOnceAnimationsFinish = useAnimationsFinished(() => positionerElement?.firstElementChild);
+
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+      onOpenChange(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+      if (!keepMounted && !nextOpen) {
+        if (animated) {
+          runOnceAnimationsFinish(() => setMounted(false));
+        } else {
+          setMounted(false);
+        }
+      }
+    },
+  );
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -90,14 +96,6 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
       } else {
         setInstantTypeState(undefined);
-      }
-
-      if (!keepMounted && !openValue) {
-        if (animated) {
-          runOnceAnimationsFinish(() => setMounted(false));
-        } else {
-          setMounted(false);
-        }
       }
     },
   });
