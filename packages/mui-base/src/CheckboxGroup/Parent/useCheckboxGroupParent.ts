@@ -75,6 +75,7 @@ export function useCheckboxGroupParent(
         }
         uncontrolledStateRef.current = newValue;
         onValueChange(newValue);
+        setStatus('mixed');
       },
     }),
     [id, onValueChange, value],
