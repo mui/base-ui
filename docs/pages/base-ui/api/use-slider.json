@@ -13,13 +13,6 @@
     },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "largeStep": { "type": { "name": "number", "description": "number" }, "default": "10" },
-    "marks": {
-      "type": {
-        "name": "boolean | ReadonlyArray&lt;Mark&gt;",
-        "description": "boolean | ReadonlyArray&lt;Mark&gt;"
-      },
-      "default": "false"
-    },
     "max": { "type": { "name": "number", "description": "number" }, "default": "100" },
     "min": { "type": { "name": "number", "description": "number" }, "default": "0" },
     "minStepsBetweenValues": {

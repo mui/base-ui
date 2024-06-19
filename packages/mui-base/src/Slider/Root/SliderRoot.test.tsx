@@ -389,19 +389,6 @@ describe('<Slider.Root />', () => {
     });
   });
 
-  describe('prop: marks', () => {
-    it('does not cause unknown-prop error', () => {
-      const marks = [
-        {
-          value: 33,
-        },
-      ];
-      expect(() => {
-        render(<Slider.Root marks={marks} />);
-      }).not.to.throw();
-    });
-  });
-
   describe('prop: orientation', () => {
     it('sets the orientation via ARIA', () => {
       render(<TestSlider orientation="vertical" />);

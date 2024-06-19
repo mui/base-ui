@@ -9,12 +9,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useCompoundParent } from '../../useCompound';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
-import {
-  Mark,
-  SliderThumbMetadata,
-  UseSliderParameters,
-  UseSliderReturnValue,
-} from './SliderRoot.types';
+import { SliderThumbMetadata, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
 
 function asc(a: number, b: number) {
   return a - b;
@@ -143,7 +138,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     direction = 'ltr',
     disabled = false,
     largeStep = 10,
-    marks: marksProp,
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
@@ -216,18 +210,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     );
   }, [max, min, range, valueState]);
 
-  const marks = React.useMemo(() => {
-    if (marksProp === true && step !== null) {
-      return [...Array(Math.floor((max - min) / step) + 1)].map((_, index) => ({
-        value: min + step * index,
-      }));
-    }
-
-    return marksProp ?? [];
-  }, [marksProp, max, min, step]);
-
-  const marksValues = (marks as Mark[]).map((mark: Mark) => mark.value);
-
   const sliderRef = React.useRef<HTMLDivElement>(null);
 
   const handleRootRef = useForkRef(rootRef, sliderRef);
@@ -247,20 +229,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const changeValue = React.useCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
-      const value = values[index];
-      const marksIndex = marksValues.indexOf(value);
       let newValue: number | number[] = valueInput;
-
-      if (marks && step == null) {
-        const maxMarksValue = marksValues[marksValues.length - 1];
-        if (newValue > maxMarksValue) {
-          newValue = maxMarksValue;
-        } else if (newValue < marksValues[0]) {
-          newValue = marksValues[0];
-        } else {
-          newValue = newValue < value ? marksValues[marksIndex - 1] : marksValues[marksIndex + 1];
-        }
-      }
 
       newValue = clamp(newValue, min, max);
 
@@ -292,8 +261,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     [
       areValuesEqual,
       handleValueChange,
-      marks,
-      marksValues,
       max,
       min,
       minStepsBetweenValues,
@@ -348,10 +315,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       newValue = percentToValue(percent, min, max);
       if (step) {
         newValue = roundValueToStep(newValue, step, min);
-      } else {
-        // will be deprecated by restricted values redesign
-        const closestIndex = findClosest(marksValues, newValue);
-        newValue = marksValues[closestIndex!];
       }
 
       newValue = clamp(newValue, min, max);
@@ -389,7 +352,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [axis, isRtl, marksValues, max, min, minStepsBetweenValues, range, step, values],
+    [axis, isRtl, max, min, minStepsBetweenValues, range, step, values],
   );
 
   useEnhancedEffect(() => {

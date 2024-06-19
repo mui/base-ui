@@ -100,14 +100,6 @@ export interface UseSliderParameters {
    */
   disabled?: boolean;
   /**
-   * Marks indicate predetermined values to which the user can move the slider.
-   * If `true` the marks are spaced according the value of the `step` prop.
-   * If an array, it should contain objects with `value` and an optional `label` keys.
-   * @default false
-   * @deprecated The Mark and MarkLabel components will be deprecated
-   */
-  marks?: boolean | ReadonlyArray<Mark>;
-  /**
    * The maximum allowed value of the slider.
    * Should not be equal to min.
    * @default 100
@@ -299,9 +291,4 @@ export interface UseSliderReturnValue {
    * The value(s) of the slider
    */
   values: readonly number[];
-}
-
-export interface Mark {
-  value: number;
-  label?: React.ReactNode;
 }

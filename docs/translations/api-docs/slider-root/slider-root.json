@@ -17,9 +17,6 @@
     "largeStep": {
       "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
     },
-    "marks": {
-      "description": "Marks indicate predetermined values to which the user can move the slider. If <code>true</code> the marks are spaced according the value of the <code>step</code> prop. If an array, it should contain objects with <code>value</code> and an optional <code>label</code> keys."
-    },
     "max": {
       "description": "The maximum allowed value of the slider. Should not be equal to min."
     },

@@ -130,22 +130,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   largeStep: PropTypes.number,
   /**
-   * Marks indicate predetermined values to which the user can move the slider.
-   * If `true` the marks are spaced according the value of the `step` prop.
-   * If an array, it should contain objects with `value` and an optional `label` keys.
-   * @default false
-   * @deprecated The Mark and MarkLabel components will be deprecated
-   */
-  marks: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.node,
-        value: PropTypes.number.isRequired,
-      }),
-    ),
-    PropTypes.bool,
-  ]),
-  /**
    * The maximum allowed value of the slider.
    * Should not be equal to min.
    * @default 100
