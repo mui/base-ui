@@ -16,10 +16,7 @@ export function usePopoverBackdrop(): UsePopoverBackdropReturnValue {
         zIndex: 2147483647, // max z-index
         overflow: 'auto',
         position: 'fixed',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+        inset: 0,
       },
     });
   }, []);
