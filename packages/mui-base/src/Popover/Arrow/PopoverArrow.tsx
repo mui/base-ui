@@ -9,15 +9,15 @@ import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverArrow } from './usePopoverArrow';
 
 /**
- * The tooltip arrow caret element.
+ * Renders an arrow that points to the center of the anchor element.
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Popover](https://mui.com/base-ui/react-popover/)
  *
  * API:
  *
- * - [PopoverArrow API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-arrow)
+ * - [PopoverArrow API](https://mui.com/base-ui/react-popover/components-api/#popover-arrow)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrowProps,

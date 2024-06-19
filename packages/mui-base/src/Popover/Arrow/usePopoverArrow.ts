@@ -23,7 +23,7 @@ export function usePopoverArrow(params: UsePopoverArrowParameters): UsePopoverAr
           position: 'absolute',
           top: middlewareData.arrow?.y,
           left: middlewareData.arrow?.x,
-          visibility: hidden ? 'hidden' : 'visible',
+          ...(hidden && { visibility: 'hidden' }),
         },
       });
     },

@@ -244,7 +244,46 @@ The `Popover.Positioner` element receives the following CSS variables, which can
 - `--available-height`: Specifies the available height of the popup before it overflows the viewport.
 - `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
-By default, `maxWidth` and `maxHeight` are already specified on the positioner using `--available-{width,height}` to prevent the popover from being too big to fit on the screen.
+### Large content
+
+If your popover is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--available-width` and `--available-height` properties are useful to constrain its size to prevent it from overflowing.
+
+It's also recommended that you specify a minimum acceptable width so that the popover does not choose the `left` and `right` sides on narrow viewports.
+
+```css
+.PopoverPopup {
+  max-width: var(--available-width);
+  max-height: var(--available-height);
+  overflow: auto;
+}
+```
+
+The `overflow: auto` property will prevent the `Arrow` from appearing, if specified. You can instead place this on a wrapper child inside the `Popup`:
+
+```jsx
+<Popover.Popup className="PopoverPopup">
+  <Popover.Arrow />
+  <div className="PopoverPopup-content">Large content</div>
+</Popover.Popup>
+```
+
+```css
+.PopoverPopup-content {
+  max-width: var(--available-width);
+  max-height: var(--available-height);
+  overflow: auto;
+}
+```
+
+Absolute maximums can also be specified if the available sizes are still too large:
+
+```css
+.PopoverPopup-content {
+  max-width: min(500px, var(--available-width));
+  max-height: min(500px, var(--available-height));
+  overflow: auto;
+}
+```
 
 ## Animations
 
