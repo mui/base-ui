@@ -380,22 +380,6 @@ Four states are available as data attributes to animate the popup, which enables
 - `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
 - `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
 
-### Instant animation
-
-Animations can be removed under certain conditions using the `data-instant` attribute on `Popover.Popup`. This attribute can be used unconditionally, but it also has different values for granular checks:
-
-- `data-instant="delay"` indicates the popover is grouped and instantly opened with no delay.
-- `data-instant="focus"` indicates it was triggered by keyboard focus.
-- `data-instant="dismiss"` indicates it was dismissed by pressing the `esc` key.
-
-In most of these cases, you'll want to remove any animations:
-
-```css
-.PopoverPopup[data-instant] {
-  transition-duration: 0s;
-}
-```
-
 ## Overriding default components
 
 Use the `render` prop to override the rendered elements with your own components.

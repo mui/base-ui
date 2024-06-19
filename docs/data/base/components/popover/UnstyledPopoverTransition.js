@@ -6,7 +6,7 @@ export default function UnstyledPopoverTransition() {
   return (
     <div style={{ display: 'flex', gap: 12 }}>
       <Popover.Root>
-        <AnchorButton>Anchor</AnchorButton>
+        <AnchorButton>Trigger</AnchorButton>
         <Popover.Positioner sideOffset={5}>
           <PopoverPopup>
             <PopoverTitle>Popover Title</PopoverTitle>

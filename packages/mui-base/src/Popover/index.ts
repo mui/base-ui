@@ -7,8 +7,6 @@ export { PopoverBackdrop as Backdrop } from './Backdrop/PopoverBackdrop';
 export { PopoverTitle as Title } from './Title/PopoverTitle';
 export { PopoverDescription as Description } from './Description/PopoverDescription';
 export { PopoverClose as Close } from './Close/PopoverClose';
-export { usePopoverRoot } from './Root/usePopoverRoot';
-export { usePopoverPositioner } from './Positioner/usePopoverPositioner';
 
 export type { PopoverRootProps as RootProps } from './Root/PopoverRoot.types';
 export type {
@@ -43,11 +41,3 @@ export type {
   PopoverCloseProps as CloseProps,
   PopoverCloseOwnerState as CloseOwnerState,
 } from './Close/PopoverClose.types';
-export type {
-  UsePopoverRootParameters as UseRootParameters,
-  UsePopoverRootReturnValue as UseRootReturnValue,
-} from './Root/usePopoverRoot.types';
-export type {
-  UsePopoverPositionerParameters as UsePositionerParameters,
-  UsePopoverPositionerReturnValue as UsePositionerReturnValue,
-} from './Positioner/usePopoverPositioner.types';
