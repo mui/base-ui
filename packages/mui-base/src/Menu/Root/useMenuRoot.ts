@@ -5,6 +5,14 @@ import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback } from '../../utils/useControllableReducer.types';
 import { DropdownActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
 import { dropdownReducer } from './dropdownReducer';
+import { IndexableMap } from '../../utils/IndexableMap';
+
+const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
+  changeReason: null,
+  highlightedValue: null,
+  selectedValues: [],
+  items: new IndexableMap(),
+};
 
 /**
  *
@@ -41,11 +49,22 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
     [openProp],
   );
 
+  const initialState: MenuReducerState = {
+    ...INITIAL_STATE,
+    open: defaultOpen ?? false,
+    settings: {
+      disabledItemsFocusable: true,
+      disableListWrap: false,
+      focusManagement: 'DOM',
+      orientation: 'vertical', // TODO: from parameters
+      pageSize: 1,
+      selectionMode: 'none',
+    },
+  };
+
   const [state, dispatch] = useControllableReducer({
     controlledProps,
-    initialState: defaultOpen
-      ? { open: true, changeReason: null }
-      : { open: false, changeReason: null },
+    initialState,
     onStateChange: handleStateChange,
     reducer: dropdownReducer,
     componentName,

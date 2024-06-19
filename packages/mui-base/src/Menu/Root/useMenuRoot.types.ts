@@ -81,5 +81,5 @@ export type MenuReducerAction =
 export type MenuReducerState = ListState<string> & {
   open: boolean;
   changeReason: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
-  items: string[];
+  listboxRef: React.RefObject<HTMLElement>;
 };

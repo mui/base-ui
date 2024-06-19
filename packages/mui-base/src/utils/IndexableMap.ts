@@ -65,6 +65,16 @@ export class IndexableMap<Key, Value> {
     return false;
   }
 
+  first(predicate: (value: Value) => boolean): Value | undefined {
+    for (const value of this.#map.values()) {
+      if (predicate(value)) {
+        return value;
+      }
+    }
+
+    return undefined;
+  }
+
   static areEqual<K, V>(map1: IndexableMap<K, V>, map2: IndexableMap<K, V>): boolean {
     if (map1.size !== map2.size) {
       return false;

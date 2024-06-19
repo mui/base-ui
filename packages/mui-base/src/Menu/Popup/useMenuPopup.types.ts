@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ListAction, ListState } from '../../useList';
+import { ListAction } from '../../useList';
 import { MenuItemMetadata } from '../Item/useMenuItem.types';
 import { MenuPopupProviderValue } from './MenuPopupProvider';
 import { GenericHTMLProps } from '../../utils/types';
@@ -81,5 +81,3 @@ export interface UseMenuPopupReturnValue {
    */
   triggerElement: HTMLElement | null;
 }
-
-export interface MenuInternalState extends ListState<string> {}
