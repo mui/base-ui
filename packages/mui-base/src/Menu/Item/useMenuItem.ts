@@ -10,7 +10,7 @@ import type {
 } from './useMenuItem.types';
 
 import { useListItem } from '../../useList';
-import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
 import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
 import { useCompoundItem } from '../../useCompound';
@@ -88,7 +88,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
       }
 
       dispatch({
-        type: DropdownActionTypes.close,
+        type: MenuActionTypes.close,
         event,
       });
     };

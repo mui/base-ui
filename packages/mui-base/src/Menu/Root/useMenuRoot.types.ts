@@ -18,12 +18,6 @@ export interface UseMenuRootParameters {
    * This is a controlled counterpart of `defaultOpen`.
    */
   open?: boolean;
-  /**
-   * The name of the component using useDropdown.
-   * For debugging purposes.
-   * @default 'useDropdown'
-   */
-  componentName?: string;
 }
 
 export interface UseMenuRootReturnValue {
@@ -37,45 +31,45 @@ export interface UseMenuRootReturnValue {
   open: boolean;
 }
 
-export const DropdownActionTypes = {
-  blur: 'dropdown:blur',
-  escapeKeyDown: 'dropdown:escapeKeyDown',
-  toggle: 'dropdown:toggle',
-  open: 'dropdown:open',
-  close: 'dropdown:close',
+export const MenuActionTypes = {
+  blur: 'menu:blur',
+  escapeKeyDown: 'menu:escapeKeyDown',
+  toggle: 'menu:toggle',
+  open: 'menu:open',
+  close: 'menu:close',
 } as const;
 
-interface DropdownBlurAction {
-  type: typeof DropdownActionTypes.blur;
+interface MenuBlurAction {
+  type: typeof MenuActionTypes.blur;
   event: React.FocusEvent;
 }
 
-interface DropdownEscapeKeyDownAction {
-  type: typeof DropdownActionTypes.escapeKeyDown;
+interface MenuEscapeKeyDownAction {
+  type: typeof MenuActionTypes.escapeKeyDown;
   event: React.KeyboardEvent;
 }
 
-interface DropdownToggleAction {
-  type: typeof DropdownActionTypes.toggle;
+interface MenuToggleAction {
+  type: typeof MenuActionTypes.toggle;
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
 }
 
-interface DropdownOpenAction {
-  type: typeof DropdownActionTypes.open;
+interface MenuOpenAction {
+  type: typeof MenuActionTypes.open;
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
 }
 
-interface DropdownCloseAction {
-  type: typeof DropdownActionTypes.close;
+interface MenuCloseAction {
+  type: typeof MenuActionTypes.close;
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
 }
 
 export type MenuReducerAction =
-  | DropdownBlurAction
-  | DropdownEscapeKeyDownAction
-  | DropdownToggleAction
-  | DropdownOpenAction
-  | DropdownCloseAction
+  | MenuBlurAction
+  | MenuEscapeKeyDownAction
+  | MenuToggleAction
+  | MenuOpenAction
+  | MenuCloseAction
   | ListAction<string>;
 
 export type MenuReducerState = ListState<string> & {

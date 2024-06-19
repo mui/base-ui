@@ -3,8 +3,8 @@ import * as React from 'react';
 import type { MenuRootContextValue } from './MenuRootContext';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback } from '../../utils/useControllableReducer.types';
-import { DropdownActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
-import { dropdownReducer } from './dropdownReducer';
+import { MenuActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
+import { menuReducer } from './menuReducer';
 import { IndexableMap } from '../../utils/IndexableMap';
 
 const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
@@ -12,6 +12,7 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   highlightedValue: null,
   selectedValues: [],
   items: new IndexableMap(),
+  listboxRef: { current: null },
 };
 
 /**
@@ -25,7 +26,7 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
  * - [useDropdown API](https://mui.com/base-ui/react-menu/hooks-api/#use-dropdown)
  */
 export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
-  const { defaultOpen, onOpenChange, open: openProp, componentName = 'useDropdown' } = parameters;
+  const { defaultOpen, onOpenChange, open: openProp } = parameters;
   const [popupId, setPopupId] = React.useState<string>('');
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const lastActionType = React.useRef<string | null>(null);
@@ -66,15 +67,15 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
     controlledProps,
     initialState,
     onStateChange: handleStateChange,
-    reducer: dropdownReducer,
-    componentName,
+    reducer: menuReducer,
+    componentName: 'MenuRoot',
   });
 
   React.useEffect(() => {
     if (
       !state.open &&
       lastActionType.current !== null &&
-      lastActionType.current !== DropdownActionTypes.blur
+      lastActionType.current !== MenuActionTypes.blur
     ) {
       triggerElement?.focus();
     }

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { UseMenuTriggerParameters, UseMenuTriggerReturnValue } from './useMenuTrigger.types';
 import { MenuRootContext } from '../Root/MenuRootContext';
-import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton/useButton';
 import { EventHandlers } from '../../utils/types';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
@@ -52,7 +52,7 @@ export function useMenuTrigger(
       }
 
       dispatch({
-        type: DropdownActionTypes.toggle,
+        type: MenuActionTypes.toggle,
         event,
       });
     };
@@ -67,7 +67,7 @@ export function useMenuTrigger(
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         dispatch({
-          type: DropdownActionTypes.open,
+          type: MenuActionTypes.open,
           event,
         });
       }

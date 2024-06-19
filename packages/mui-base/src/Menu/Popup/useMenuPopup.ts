@@ -10,7 +10,7 @@ import { menuReducer } from './menuReducer';
 import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
 import { ListActionTypes, useList } from '../../useList';
 import { MenuItemMetadata } from '../Item/useMenuItem.types';
-import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { EventHandlers } from '../../utils/types';
 import { useCompoundParent } from '../../useCompound';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
@@ -164,7 +164,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
       }
 
       menuDispatch({
-        type: DropdownActionTypes.blur,
+        type: MenuActionTypes.blur,
         event,
       });
     };
@@ -178,7 +178,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
 
       if (event.key === 'Escape') {
         menuDispatch({
-          type: DropdownActionTypes.escapeKeyDown,
+          type: MenuActionTypes.escapeKeyDown,
           event,
         });
       }

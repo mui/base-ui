@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { act, createMount, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext, MenuRootContextValue } from '@base_ui/react/Menu';
-import { DropdownActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { describeConformance } from '../../../test';
 
 const testContext: MenuRootContextValue = {
@@ -118,7 +118,7 @@ describe('<Menu.Trigger />', () => {
     button.click();
 
     expect(dispatchSpy.calledOnce).to.equal(true);
-    expect(dispatchSpy.args[0][0]).to.contain({ type: DropdownActionTypes.toggle });
+    expect(dispatchSpy.args[0][0]).to.contain({ type: MenuActionTypes.toggle });
   });
 
   describe('keyboard navigation', () => {
@@ -147,7 +147,7 @@ describe('<Menu.Trigger />', () => {
           await user.keyboard(`{${key}}`);
 
           expect(dispatchSpy.calledOnce).to.equal(true);
-          expect(dispatchSpy.args[0][0]).to.contain({ type: DropdownActionTypes.open });
+          expect(dispatchSpy.args[0][0]).to.contain({ type: MenuActionTypes.open });
         }),
       );
 
@@ -174,7 +174,7 @@ describe('<Menu.Trigger />', () => {
           await user.keyboard(`{${key}}`);
 
           expect(dispatchSpy.calledOnce).to.equal(true);
-          expect(dispatchSpy.args[0][0]).to.contain({ type: DropdownActionTypes.toggle });
+          expect(dispatchSpy.args[0][0]).to.contain({ type: MenuActionTypes.toggle });
         }),
       );
     });

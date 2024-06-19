@@ -1,10 +1,7 @@
 import { ListActionTypes, listReducer } from '../../useList';
-import { MenuReducerAction, DropdownActionTypes, MenuReducerState } from './useMenuRoot.types';
+import { MenuReducerAction, MenuActionTypes, MenuReducerState } from './useMenuRoot.types';
 
-export function dropdownReducer(
-  state: MenuReducerState,
-  action: MenuReducerAction,
-): MenuReducerState {
+export function menuReducer(state: MenuReducerState, action: MenuReducerAction): MenuReducerState {
   switch (action.type) {
     case ListActionTypes.itemHover:
       return {
@@ -12,7 +9,7 @@ export function dropdownReducer(
         highlightedValue: action.item,
       };
 
-    case DropdownActionTypes.blur:
+    case MenuActionTypes.blur:
       // TODO: move this check to the caller and not dispatch the action in the first place
       if (!state.listboxRef.current?.contains(action.event.relatedTarget)) {
         // To prevent the menu from closing when the focus leaves the menu to the button.
@@ -31,16 +28,16 @@ export function dropdownReducer(
       }
 
       return state;
-    case DropdownActionTypes.escapeKeyDown:
+    case MenuActionTypes.escapeKeyDown:
       return { ...state, open: false, changeReason: action.event };
 
-    case DropdownActionTypes.toggle:
+    case MenuActionTypes.toggle:
       return { ...state, open: !state.open, changeReason: action.event };
 
-    case DropdownActionTypes.open:
+    case MenuActionTypes.open:
       return { ...state, open: true, changeReason: action.event };
 
-    case DropdownActionTypes.close:
+    case MenuActionTypes.close:
       return { ...state, open: false, changeReason: action.event };
 
     default:
