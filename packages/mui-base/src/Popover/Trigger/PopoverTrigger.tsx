@@ -5,7 +5,6 @@ import type { PopoverTriggerOwnerState, PopoverTriggerProps } from './PopoverTri
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { usePopoverTrigger } from './usePopoverTrigger';
 
 /**
  * Renders a trigger element that opens the popover.
@@ -26,16 +25,12 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const { open, setTriggerElement, getRootTriggerProps } = usePopoverRootContext();
 
-  const { getTriggerProps } = usePopoverTrigger({
-    getProps: getRootTriggerProps,
-  });
-
   const ownerState: PopoverTriggerOwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getTriggerProps,
+    propGetter: getRootTriggerProps,
     render: render ?? 'button',
     className,
     ownerState,
