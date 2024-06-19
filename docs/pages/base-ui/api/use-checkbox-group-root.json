@@ -1,40 +1,6 @@
 {
   "parameters": {},
-  "returnValue": {
-    "getRootProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    },
-    "labelId": {
-      "type": { "name": "string | undefined", "description": "string | undefined" },
-      "required": true
-    },
-    "parent": {
-      "type": {
-        "name": "UseCheckboxGroupParentReturnValue",
-        "description": "UseCheckboxGroupParentReturnValue"
-      },
-      "required": true
-    },
-    "setLabelId": {
-      "type": {
-        "name": "React.Dispatch&lt;React.SetStateAction&lt;string | undefined&gt;&gt;",
-        "description": "React.Dispatch&lt;React.SetStateAction&lt;string | undefined&gt;&gt;"
-      },
-      "required": true
-    },
-    "setValue": {
-      "type": {
-        "name": "(value: string[]) =&gt; void",
-        "description": "(value: string[]) =&gt; void"
-      },
-      "required": true
-    },
-    "value": { "type": { "name": "string[]", "description": "string[]" }, "required": true }
-  },
+  "returnValue": {},
   "name": "useCheckboxGroupRoot",
   "filename": "/packages/mui-base/src/CheckboxGroup/Root/useCheckboxGroupRoot.tsx",
   "imports": ["import { useCheckboxGroupRoot } from '@base_ui/react/CheckboxGroup';"],

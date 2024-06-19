@@ -1,26 +1,6 @@
 {
-  "parameters": {
-    "id": {
-      "type": { "name": "string | undefined", "description": "string | undefined" },
-      "required": true
-    },
-    "setId": {
-      "type": {
-        "name": "React.Dispatch&lt;React.SetStateAction&lt;string | undefined&gt;&gt;",
-        "description": "React.Dispatch&lt;React.SetStateAction&lt;string | undefined&gt;&gt;"
-      },
-      "required": true
-    }
-  },
-  "returnValue": {
-    "getLabelProps": {
-      "type": {
-        "name": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps",
-        "description": "(externalProps?: GenericHTMLProps) =&gt; GenericHTMLProps"
-      },
-      "required": true
-    }
-  },
+  "parameters": {},
+  "returnValue": {},
   "name": "useCheckboxGroupLabel",
   "filename": "/packages/mui-base/src/CheckboxGroup/Label/useCheckboxGroupLabel.ts",
   "imports": ["import { useCheckboxGroupLabel } from '@base_ui/react/CheckboxGroup';"],

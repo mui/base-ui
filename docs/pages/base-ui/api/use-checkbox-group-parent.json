@@ -1,35 +1,6 @@
 {
-  "parameters": {
-    "allValues": { "type": { "name": "string[]", "description": "string[]" } },
-    "onValueChange": {
-      "type": {
-        "name": "(value: string[]) =&gt; void",
-        "description": "(value: string[]) =&gt; void"
-      }
-    },
-    "value": { "type": { "name": "string[]", "description": "string[]" } }
-  },
-  "returnValue": {
-    "getChildProps": {
-      "type": {
-        "name": "(name: string) =&gt; {\n  name: string\n  id: string\n  checked: boolean\n  onChange: (event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void\n}",
-        "description": "(name: string) =&gt; {\n  name: string\n  id: string\n  checked: boolean\n  onChange: (event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void\n}"
-      },
-      "required": true
-    },
-    "getParentProps": {
-      "type": {
-        "name": "() =&gt; {\n  id: string | undefined\n  indeterminate: boolean\n  checked: boolean\n  &#39;aria-controls&#39;: string\n  onChange: (event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void\n}",
-        "description": "() =&gt; {\n  id: string | undefined\n  indeterminate: boolean\n  checked: boolean\n  &#39;aria-controls&#39;: string\n  onChange: (event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void\n}"
-      },
-      "required": true
-    },
-    "id": {
-      "type": { "name": "string | undefined", "description": "string | undefined" },
-      "required": true
-    },
-    "indeterminate": { "type": { "name": "boolean", "description": "boolean" }, "required": true }
-  },
+  "parameters": {},
+  "returnValue": {},
   "name": "useCheckboxGroupParent",
   "filename": "/packages/mui-base/src/CheckboxGroup/Parent/useCheckboxGroupParent.ts",
   "imports": ["import { useCheckboxGroupParent } from '@base_ui/react/CheckboxGroup';"],
