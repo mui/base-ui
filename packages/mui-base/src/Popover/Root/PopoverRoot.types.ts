@@ -13,7 +13,7 @@ export interface PopoverRootContextValue {
   delay: number;
   closeDelay: number;
   delayType: 'rest' | 'hover';
-  instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+  instantType: 'dismiss' | 'click' | undefined;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   transitionStatus: TransitionStatus;

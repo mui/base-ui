@@ -79,5 +79,5 @@ export interface UsePopoverRootReturnValue {
   rootContext: FloatingRootContext;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+  instantType: 'dismiss' | 'click' | undefined;
 }

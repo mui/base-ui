@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClick,
-  useDelayGroup,
   useDismiss,
   useFloatingRootContext,
   useHover,
@@ -42,7 +41,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
+  const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [titleId, setTitleId] = React.useState<string>();
   const [descriptionId, setDescriptionId] = React.useState<string>();
 
@@ -78,9 +77,8 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isFocusOpen = openValue && reasonValue === 'focus';
-      const isDismissClose =
-        !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
+      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
+      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
 
       function changeState() {
         setOpen(openValue, eventValue, reasonValue);
@@ -92,43 +90,19 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
         changeState();
       }
 
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+      if (isKeyboardClick || isDismissClose) {
+        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
       } else {
-        setInstantTypeState(undefined);
+        setInstantType(undefined);
       }
     },
   });
 
-  const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
-  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : groupDelay;
-  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : groupDelay;
-
-  let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
-  if (!open && context.floatingId === currentId) {
-    instantType = instantTypeState;
-  }
-
-  const computedRestMs = delayType === 'rest' ? openGroupDelay || delayWithDefault : undefined;
+  const computedRestMs = delayType === 'rest' ? delayWithDefault : undefined;
   let computedOpenDelay: number | undefined = delayType === 'hover' ? delayWithDefault : undefined;
-  let computedCloseDelay: number | undefined = closeDelayWithDefault;
 
   if (delayType === 'hover') {
-    if (delay == null) {
-      computedOpenDelay =
-        groupDelay === 0
-          ? // A provider is not present.
-            delayWithDefault
-          : // A provider is present.
-            openGroupDelay;
-    } else {
-      computedOpenDelay = delay;
-    }
-  }
-
-  // A provider is present and the close delay is not set.
-  if (closeDelay == null && groupDelay !== 0) {
-    computedCloseDelay = closeGroupDelay;
+    computedOpenDelay = delay == null ? delayWithDefault : delay;
   }
 
   const hover = useHover(context, {
@@ -139,7 +113,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
     restMs: computedRestMs,
     delay: {
       open: computedOpenDelay,
-      close: computedCloseDelay,
+      close: closeDelayWithDefault,
     },
   });
   const click = useClick(context);
