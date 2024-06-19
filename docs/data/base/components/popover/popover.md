@@ -248,8 +248,6 @@ The `Popover.Positioner` element receives the following CSS variables, which can
 
 If your popover is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--available-width` and `--available-height` properties are useful to constrain its size to prevent it from overflowing.
 
-It's also recommended that you specify a minimum acceptable width so that the popover does not choose the `left` and `right` sides on narrow viewports.
-
 ```css
 .PopoverPopup {
   max-width: var(--available-width);
