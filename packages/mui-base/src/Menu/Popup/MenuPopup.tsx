@@ -3,8 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
-import { MenuPopupProvider } from './MenuPopupProvider';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useCompoundParent } from '../../useCompound';
+import { MenuItemMetadata } from '../Item/useMenuItem.types';
+import { MenuPopupContext, MenuPopupContextValue } from './MenuPopupContext';
 
 /**
  *
@@ -22,10 +24,11 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, onItemsChange, ...other } = props;
 
-  const { contextValue, getListboxProps, open } = useMenuPopup({
-    onItemsChange,
-    componentName: 'Menu',
+  const { subitems, registerItem } = useCompoundParent<string, MenuItemMetadata>();
+
+  const { getListboxProps, getItemState } = useMenuPopup({
     listboxRef: forwardedRef,
+    subitems,
   });
 
   const ownerState: MenuPopupOwnerState = { open };
@@ -41,7 +44,14 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     extraProps: other,
   });
 
-  return <MenuPopupProvider value={contextValue}>{renderElement()}</MenuPopupProvider>;
+  const contextValue: MenuPopupContextValue = React.useMemo(
+    () => ({ registerItem, getItemState }),
+    [registerItem, getItemState],
+  );
+
+  return (
+    <MenuPopupContext.Provider value={contextValue}>{renderElement()}</MenuPopupContext.Provider>
+  );
 });
 
 MenuPopup.propTypes /* remove-proptypes */ = {

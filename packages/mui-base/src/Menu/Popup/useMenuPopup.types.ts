@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ListAction } from '../../useList';
+import { ListAction, ListItemState } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
-import { UseCompoundParentReturnValue } from '../../useCompound';
 import { MenuItemMetadata } from '../Item/useMenuItem.types';
+import { IndexableMap } from '../../utils/IndexableMap';
 
 export interface UseMenuPopupParameters {
   /**
@@ -20,15 +20,10 @@ export interface UseMenuPopupParameters {
    * The ref to the menu's listbox node.
    */
   listboxRef?: React.Ref<Element>;
+  subitems: IndexableMap<string, MenuItemMetadata>;
 }
 
 export interface UseMenuPopupReturnValue {
-  registerItem: UseCompoundParentReturnValue<string, MenuItemMetadata>['registerItem'];
-  /**
-   * Action dispatcher for the menu component.
-   * Allows to programmatically control the menu.
-   */
-  dispatch: (action: ListAction<string>) => void;
   /**
    * Resolver for the listbox slot's props.
    * @param externalProps additional props for the listbox component
@@ -41,4 +36,5 @@ export interface UseMenuPopupReturnValue {
    * The ref to the menu's listbox node.
    */
   listboxRef: React.RefCallback<Element> | null;
+  getItemState: (value: string) => ListItemState;
 }

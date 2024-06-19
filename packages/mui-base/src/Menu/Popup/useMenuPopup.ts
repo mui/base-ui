@@ -8,18 +8,16 @@ import {
 import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
 import { MenuRootContext } from '../Root/MenuRootContext';
 import { ListActionTypes, useList } from '../../useList';
-import { MenuItemMetadata } from '../Item/useMenuItem.types';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { EventHandlers } from '../../utils/types';
-import { useCompoundParent } from '../../useCompound';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
 
 const EMPTY_ARRAY: string[] = [];
 
-export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPopupReturnValue {
-  const { listboxRef: listboxRefProp, id: idParam, autoFocus = true } = parameters;
+export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupReturnValue {
+  const { listboxRef: listboxRefProp, id: idParam, autoFocus = true, subitems } = parameters;
 
   const rootRef = React.useRef<HTMLElement>(null);
   const handleRef = useForkRef(rootRef, listboxRefProp);
@@ -44,9 +42,11 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
   // (the first menu items gets focued only when the menu is opened by the user)
   const isInitiallyOpen = React.useRef(open);
 
-  const { subitems, registerItem } = useCompoundParent<string, MenuItemMetadata>();
-
-  const { getRootProps: getListRootProps, rootRef: mergedListRef } = useList({
+  const {
+    getRootProps: getListRootProps,
+    rootRef: mergedListRef,
+    getItemState,
+  } = useList({
     dispatch,
     highlightedValue,
     selectedValues: EMPTY_ARRAY,
@@ -139,8 +139,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
   };
 
   return {
-    dispatch,
-    registerItem,
+    getItemState,
     getListboxProps,
     listboxRef: mergedListRef,
   };
