@@ -273,7 +273,7 @@ The `overflow: auto` property will prevent the `Arrow` from appearing, if specif
 }
 ```
 
-Absolute maximums can also be specified if the available sizes are still too large:
+Absolute maximums can also be specified if the popover's size can be too large on wider or bigger screens:
 
 ```css
 .PopoverPopup-content {
