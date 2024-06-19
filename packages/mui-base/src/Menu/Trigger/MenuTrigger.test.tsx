@@ -6,7 +6,7 @@ import { act, createMount, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext, MenuRootContextValue } from '@base_ui/react/Menu';
 import { DropdownActionTypes } from '../Root/useMenuRoot.types';
-import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
+import { describeConformance } from '../../../test';
 
 const testContext: MenuRootContextValue = {
   dispatch: () => {},
@@ -21,7 +21,7 @@ describe('<Menu.Trigger />', () => {
   const mount = createMount();
   const { render } = createRenderer();
 
-  describeConformanceUnstyled(<Menu.Trigger />, () => ({
+  describeConformance(<Menu.Trigger />, () => ({
     inheritComponent: 'button',
     render: (node) => {
       return render(
@@ -35,7 +35,7 @@ describe('<Menu.Trigger />', () => {
       return wrapper.childAt(0);
     },
     refInstanceof: window.HTMLButtonElement,
-    skip: ['componentProp', 'reactTestRenderer'],
+    skip: ['reactTestRenderer'],
   }));
 
   describe('prop: disabled', () => {

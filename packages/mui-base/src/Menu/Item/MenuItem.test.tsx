@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuPopupProvider } from '@base_ui/react/Menu';
-import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
+import { describeConformance } from '../../../test';
 
 const dummyGetItemState = () => ({
   disabled: false,
@@ -26,7 +26,7 @@ describe('<Menu.Item />', () => {
   const mount = createMount();
   const { render } = createRenderer();
 
-  describeConformanceUnstyled(<Menu.Item />, () => ({
+  describeConformance(<Menu.Item />, () => ({
     inheritComponent: 'li',
     render: (node) => {
       return render(<MenuPopupProvider value={testContext}>{node}</MenuPopupProvider>);
@@ -38,7 +38,6 @@ describe('<Menu.Item />', () => {
     refInstanceof: window.HTMLLIElement,
     testComponentPropWith: 'span',
     skip: [
-      'componentProp',
       'reactTestRenderer', // Need to be wrapped in MenuContext
     ],
   }));

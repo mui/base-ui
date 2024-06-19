@@ -18,7 +18,7 @@ import {
   useMenuPopup,
 } from '@base_ui/react/Menu';
 import { Popper } from '@base_ui/react/legacy/Popper';
-import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
+import { describeConformance } from '../../../test/describeConformance';
 
 function createAnchor() {
   const anchor = document.createElement('div');
@@ -48,7 +48,7 @@ describe('<Menu />', () => {
     return rendered;
   }
 
-  describeConformanceUnstyled(<Menu.Popup />, () => ({
+  describeConformance(<Menu.Popup />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       return render(
