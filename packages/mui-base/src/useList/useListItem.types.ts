@@ -1,4 +1,10 @@
+import { ListAction } from './listActions.types';
+
 export interface UseListItemParameters<ItemValue> {
+  dispatch: (action: ListAction<ItemValue>) => void;
+  focusable: boolean;
+  highlighted: boolean;
+  selected: boolean;
   /**
    * If `true`, the list item will dispatch the `itemHover` action on pointer over.
    * Since the use cases for it are rare, it's disabled by default.

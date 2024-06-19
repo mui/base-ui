@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { ListAction } from '../../useList';
-import { MenuItemMetadata } from '../Item/useMenuItem.types';
-import { MenuPopupProviderValue } from './MenuPopupProvider';
 import { GenericHTMLProps } from '../../utils/types';
+import { UseCompoundParentReturnValue } from '../../useCompound';
+import { MenuItemMetadata } from '../Item/useMenuItem.types';
 
 export interface UseMenuPopupParameters {
   /**
@@ -17,36 +17,13 @@ export interface UseMenuPopupParameters {
    */
   id?: string;
   /**
-   * If `true`, it will be possible to highlight disabled items.
-   * @default true
-   */
-  disabledItemsFocusable?: boolean;
-  /**
-   * If `true`, the highlight will not wrap around the list if arrow keys are used.
-   * @default false
-   */
-  disableListWrap?: boolean;
-  /**
-   * Callback fired when the menu items change.
-   */
-  onItemsChange?: (items: string[]) => void;
-  /**
    * The ref to the menu's listbox node.
    */
   listboxRef?: React.Ref<Element>;
-  /**
-   * The name of the component using useMenu.
-   * For debugging purposes.
-   * @default 'useMenu'
-   */
-  componentName?: string;
 }
 
 export interface UseMenuPopupReturnValue {
-  /**
-   * The value to be passed into the MenuProvider.
-   */
-  contextValue: MenuPopupProviderValue;
+  registerItem: UseCompoundParentReturnValue<string, MenuItemMetadata>['registerItem'];
   /**
    * Action dispatcher for the menu component.
    * Allows to programmatically control the menu.
@@ -61,23 +38,7 @@ export interface UseMenuPopupReturnValue {
     externalProps?: ExternalProps,
   ) => GenericHTMLProps;
   /**
-   * The highlighted option in the menu listbox.
-   */
-  highlightedValue: string | null;
-  /**
    * The ref to the menu's listbox node.
    */
   listboxRef: React.RefCallback<Element> | null;
-  /**
-   * Items in the menu listbox.
-   */
-  menuItems: Map<string, MenuItemMetadata>;
-  /**
-   * If `true`, the menu is open.
-   */
-  open: boolean;
-  /**
-   * An element that triggers the visibility of the menu.
-   */
-  triggerElement: HTMLElement | null;
 }

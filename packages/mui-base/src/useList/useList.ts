@@ -5,37 +5,13 @@ import {
   UseListParameters,
   ListItemState,
   UseListRootSlotProps,
-  ListState,
-  ListSettings,
   UseListReturnValue,
-  ListItemMetadata,
 } from './useList.types';
-import { ListActionTypes, ListAction } from './listActions.types';
-import { ListContextValue } from './ListContext';
-import { listReducer as defaultReducer } from './listReducer';
-
-import { useControllableReducer } from '../utils/useControllableReducer';
-import {
-  ControllableReducerAction,
-  StateChangeCallback,
-  StateComparers,
-} from '../utils/useControllableReducer.types';
-import { areArraysEqual } from '../utils/areArraysEqual';
+import { ListActionTypes } from './listActions.types';
 import { useTextNavigation } from '../utils/useTextNavigation';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
 import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { EventHandlers } from '../utils/types';
-import { IndexableMap } from '../utils/IndexableMap';
-
-const EMPTY_OBJECT = {};
-const NOOP = () => {};
-const COMPARER = (a: unknown, b: unknown) => a === b;
-
-const defaultGetInitialState = () => ({
-  highlightedValue: null,
-  selectedValues: [],
-  items: new IndexableMap(),
-});
 
 /**
  * The useList is a lower-level utility that is used to build list-like components.
@@ -50,38 +26,19 @@ const defaultGetInitialState = () => ({
  * Also the actions that can be dispatched and the reducer function can be defined externally.
  *
  * @template ItemValue The type of the item values.
- * @template State The type of the list state. This should be a subtype of `ListState<ItemValue>`.
- * @template CustomAction The type of the actions that can be dispatched (besides the standard ListAction).
- * @template CustomActionContext The shape of additional properties that will be added to actions when dispatched.
  *
  * @ignore - internal hook.
  */
-function useList<
-  ItemValue,
-  State extends ListState<ItemValue> = ListState<ItemValue>,
-  CustomAction extends ControllableReducerAction = never,
->(
-  params: UseListParameters<ItemValue, State, CustomAction>,
-): UseListReturnValue<ItemValue, State, CustomAction> {
+function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturnValue<ItemValue> {
   const {
-    controlledProps = EMPTY_OBJECT,
-    disabledItemsFocusable = false,
-    disableListWrap = false,
     focusManagement = 'activeDescendant',
-    getInitialState = defaultGetInitialState,
     getItemDomElement,
     getItemId,
     rootRef: externalListRef,
-    onStateChange = NOOP,
-    items,
-    onChange,
-    onHighlightChange,
-    onItemsChange,
+    highlightedValue,
+    selectedValues,
+    dispatch,
     orientation = 'vertical',
-    pageSize = 5,
-    selectionMode = 'single',
-    stateReducer: externalReducer,
-    componentName = 'useList',
   } = params;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -101,103 +58,6 @@ function useList<
   const listRef = React.useRef<HTMLUListElement>(null);
   const handleRef = useForkRef(externalListRef, listRef);
 
-  const handleHighlightChange = React.useCallback(
-    (
-      event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-      value: ItemValue | null,
-      reason: string,
-    ) => {
-      onHighlightChange?.(event, value, reason);
-
-      if (
-        focusManagement === 'DOM' &&
-        value != null &&
-        (reason === ListActionTypes.itemClick ||
-          reason === ListActionTypes.keyDown ||
-          reason === ListActionTypes.textNavigation)
-      ) {
-        getItemDomElement?.(value)?.focus();
-      }
-    },
-    [getItemDomElement, onHighlightChange, focusManagement],
-  );
-
-  const stateComparers = React.useMemo(
-    () =>
-      ({
-        highlightedValue: COMPARER,
-        selectedValues: (valuesArray1, valuesArray2) =>
-          areArraysEqual(valuesArray1, valuesArray2, COMPARER),
-      }) as StateComparers<State>,
-    [],
-  );
-
-  // This gets called whenever a reducer changes the state.
-  const handleStateChange: StateChangeCallback<State> = React.useCallback(
-    (event, field, value, reason, state) => {
-      onStateChange?.(event, field, value, reason, state);
-
-      switch (field) {
-        case 'highlightedValue':
-          handleHighlightChange(
-            event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-            value as ItemValue | null,
-            reason,
-          );
-          break;
-        case 'selectedValues':
-          onChange?.(
-            event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-            value as ItemValue[],
-            reason,
-          );
-          break;
-        default:
-          break;
-      }
-    },
-    [handleHighlightChange, onChange, onStateChange],
-  );
-
-  const listSettings: ListSettings = React.useMemo(() => {
-    return {
-      disabledItemsFocusable,
-      disableListWrap,
-      focusManagement,
-      orientation,
-      pageSize,
-      selectionMode,
-    };
-  }, [
-    disabledItemsFocusable,
-    disableListWrap,
-    focusManagement,
-    orientation,
-    pageSize,
-    selectionMode,
-  ]);
-
-  const initialState = React.useMemo(
-    () => ({ ...getInitialState(), settings: listSettings }),
-    [getInitialState, listSettings],
-  );
-
-  const reducer = (externalReducer ?? defaultReducer) as React.Reducer<
-    State,
-    ListAction<ItemValue> | CustomAction
-  >;
-
-  const [state, dispatch] = useControllableReducer<State, ListAction<ItemValue> | CustomAction>({
-    reducer,
-    initialState: initialState as State,
-    controlledProps,
-    stateComparers,
-    onStateChange: handleStateChange,
-    componentName,
-  });
-
-  const { highlightedValue, selectedValues } = state;
-
   const handleTextNavigation = useTextNavigation((searchString, event) =>
     dispatch({
       type: ListActionTypes.textNavigation,
@@ -205,25 +65,6 @@ function useList<
       searchString,
     }),
   );
-
-  const previousItems = React.useRef<ListItemMetadata<ItemValue>[]>([]);
-
-  React.useEffect(() => {
-    // Whenever the `items` object changes, we need to determine if the actual items changed.
-    // If they did, we need to dispatch an `itemsChange` action, so the selected/highlighted state is updated.
-    if (areArraysEqual(previousItems.current, items)) {
-      return;
-    }
-
-    dispatch({
-      type: ListActionTypes.itemsChange,
-      event: null,
-      items,
-    });
-
-    previousItems.current = items;
-    onItemsChange?.(items);
-  }, [items, dispatch, onItemsChange]);
 
   const createHandleKeyDown =
     (externalHandlers: EventHandlers) =>
@@ -317,24 +158,10 @@ function useList<
     [selectedValues, highlightedValue, focusManagement],
   );
 
-  const contextValue: ListContextValue<ItemValue> = React.useMemo(
-    () => ({
-      dispatch,
-      getItemState,
-    }),
-    [dispatch, getItemState],
-  );
-
-  React.useDebugValue({
-    state,
-  });
-
   return {
-    contextValue,
-    dispatch,
     getRootProps,
+    getItemState,
     rootRef: handleRef,
-    state,
   };
 }
 

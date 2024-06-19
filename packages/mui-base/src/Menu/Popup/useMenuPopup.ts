@@ -6,8 +6,7 @@ import {
   unstable_useEnhancedEffect as useEnhancedEffect,
 } from '@mui/utils';
 import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
-import { menuReducer } from './menuReducer';
-import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
+import { MenuRootContext } from '../Root/MenuRootContext';
 import { ListActionTypes, useList } from '../../useList';
 import { MenuItemMetadata } from '../Item/useMenuItem.types';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
@@ -17,106 +16,42 @@ import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
 
-const FALLBACK_MENU_CONTEXT: MenuRootContextValue = {
-  dispatch: () => {},
-  popupId: '',
-  registerPopup: () => {},
-  registerTrigger: () => {},
-  state: { open: true, changeReason: null },
-  triggerElement: null,
-};
+const EMPTY_ARRAY: string[] = [];
 
-/**
- *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/#hooks)
- *
- * API:
- *
- * - [useMenu API](https://mui.com/base-ui/react-menu/hooks-api/#use-menu)
- */
 export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPopupReturnValue {
-  const {
-    listboxRef: listboxRefProp,
-    onItemsChange,
-    id: idParam,
-    disabledItemsFocusable = true,
-    disableListWrap = false,
-    autoFocus = true,
-    componentName = 'useMenu',
-  } = parameters;
+  const { listboxRef: listboxRefProp, id: idParam, autoFocus = true } = parameters;
 
   const rootRef = React.useRef<HTMLElement>(null);
   const handleRef = useForkRef(rootRef, listboxRefProp);
 
   const listboxId = useId(idParam) ?? '';
 
+  const menuRootContext = React.useContext(MenuRootContext);
+  if (menuRootContext == null) {
+    throw new Error(
+      `Base UI: MenuPopup is missing the parent context value. Make sure the component is inside a MenuRoot.`,
+    );
+  }
+
   const {
-    state: { open, changeReason },
-    dispatch: menuDispatch,
+    state: { open, changeReason, highlightedValue },
+    dispatch,
     triggerElement,
     registerPopup,
-  } = React.useContext(MenuRootContext) ?? FALLBACK_MENU_CONTEXT;
+  } = menuRootContext;
 
   // store the initial open state to prevent focus stealing
   // (the first menu items gets focued only when the menu is opened by the user)
   const isInitiallyOpen = React.useRef(open);
 
-  const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
-    string,
-    MenuItemMetadata
-  >();
+  const { subitems, registerItem } = useCompoundParent<string, MenuItemMetadata>();
 
-  const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
-
-  const getItemDomElement = React.useCallback(
-    (itemId: string) => {
-      if (itemId == null) {
-        return null;
-      }
-
-      return subitems.get(itemId)?.ref.current ?? null;
-    },
-    [subitems],
-  );
-
-  const isItemDisabled = React.useCallback(
-    (id: string) => subitems?.get(id)?.disabled || false,
-    [subitems],
-  );
-
-  const getItemAsString = React.useCallback(
-    (id: string) => subitems.get(id)?.label || subitems.get(id)?.ref.current?.innerText,
-    [subitems],
-  );
-
-  const reducerActionContext = React.useMemo(() => ({ listboxRef: rootRef }), [rootRef]);
-
-  const {
-    dispatch: listDispatch,
-    getRootProps: getListRootProps,
-    contextValue: listContextValue,
-    state: { highlightedValue },
-    rootRef: mergedListRef,
-  } = useList({
-    disabledItemsFocusable,
-    disableListWrap,
+  const { getRootProps: getListRootProps, rootRef: mergedListRef } = useList({
+    dispatch,
+    highlightedValue,
+    selectedValues: EMPTY_ARRAY,
     focusManagement: 'DOM',
-    getItemDomElement,
-    getInitialState: () => ({
-      selectedValues: [],
-      highlightedValue: null,
-    }),
-    isItemDisabled,
-    items: subitemKeys,
-    getItemAsString,
     rootRef: handleRef,
-    onItemsChange,
-    reducerActionContext,
-    selectionMode: 'none',
-    stateReducer: menuReducer,
-    componentName,
   });
 
   useEnhancedEffect(() => {
@@ -129,18 +64,18 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
       changeReason?.type === 'keydown' &&
       (changeReason as React.KeyboardEvent).key === 'ArrowUp'
     ) {
-      listDispatch({
+      dispatch({
         type: ListActionTypes.highlightLast,
         event: changeReason as React.KeyboardEvent,
       });
     }
-  }, [open, changeReason, listDispatch]);
+  }, [open, changeReason, dispatch]);
 
   React.useEffect(() => {
     if (open && autoFocus && highlightedValue && !isInitiallyOpen.current) {
       subitems.get(highlightedValue)?.ref?.current?.focus();
     }
-  }, [open, autoFocus, highlightedValue, subitems, subitemKeys]);
+  }, [open, autoFocus, highlightedValue, subitems]);
 
   React.useEffect(() => {
     // set focus to the highlighted item (but prevent stealing focus from other elements on the page)
@@ -163,7 +98,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
         return;
       }
 
-      menuDispatch({
+      dispatch({
         type: MenuActionTypes.blur,
         event,
       });
@@ -177,7 +112,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
       }
 
       if (event.key === 'Escape') {
-        menuDispatch({
+        dispatch({
           type: MenuActionTypes.escapeKeyDown,
           event,
         });
@@ -203,19 +138,10 @@ export function useMenuPopup(parameters: UseMenuPopupParameters = {}): UseMenuPo
     };
   };
 
-  React.useDebugValue({ subitems, highlightedValue });
-
   return {
-    contextValue: {
-      ...compoundComponentContextValue,
-      ...listContextValue,
-    },
-    dispatch: listDispatch,
+    dispatch,
+    registerItem,
     getListboxProps,
-    highlightedValue,
     listboxRef: mergedListRef,
-    menuItems: subitems,
-    open,
-    triggerElement,
   };
 }

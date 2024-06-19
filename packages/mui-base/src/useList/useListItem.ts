@@ -4,7 +4,6 @@ import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { EventHandlers } from '../utils/types';
 import { UseListItemParameters, UseListItemReturnValue } from './useListItem.types';
 import { ListActionTypes } from './listActions.types';
-import { ListContext } from './ListContext';
 
 /**
  * Contains the logic for an item of a list-like component (for example Select, Menu, etc.).
@@ -16,16 +15,14 @@ import { ListContext } from './ListContext';
 export function useListItem<ItemValue>(
   parameters: UseListItemParameters<ItemValue>,
 ): UseListItemReturnValue {
-  const { handlePointerOverEvents = false, item } = parameters;
-
-  const listContext = React.useContext(ListContext);
-  if (!listContext) {
-    throw new Error('useListItem must be used within a ListProvider');
-  }
-
-  const { dispatch, getItemState } = listContext;
-
-  const { highlighted, selected, focusable } = getItemState(item);
+  const {
+    handlePointerOverEvents = false,
+    item,
+    dispatch,
+    highlighted,
+    selected,
+    focusable,
+  } = parameters;
 
   const createHandleClick = React.useCallback(
     (externalHandlers: EventHandlers) => (event: React.MouseEvent) => {

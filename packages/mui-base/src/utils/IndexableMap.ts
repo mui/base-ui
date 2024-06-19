@@ -26,6 +26,10 @@ export class IndexableMap<Key, Value> {
     return this.#map.values();
   }
 
+  [Symbol.iterator](): IterableIterator<[Key, Value]> {
+    return this.#map.entries();
+  }
+
   get(key: Key): Value | undefined {
     return this.#map.get(key);
   }
@@ -34,6 +38,13 @@ export class IndexableMap<Key, Value> {
     if (!this.#map.has(key)) {
       this.#map.set(key, value);
       this.#index.push(key);
+    }
+  }
+
+  delete(key: Key) {
+    if (this.#map.has(key)) {
+      this.#map.delete(key);
+      this.#index.splice(this.#index.indexOf(key), 1);
     }
   }
 

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { IndexableMap } from '../utils/IndexableMap';
 
 interface RegisterItemReturnValue<Key> {
   /**
@@ -14,7 +15,7 @@ interface RegisterItemReturnValue<Key> {
 
 export type KeyGenerator<Key> = (existingKeys: Set<Key>) => Key;
 
-export type CompoundComponentContextValue<Key, Subitem> = {
+export interface UseCompoundParentReturnValue<Key, Subitem extends { ref: React.RefObject<Node> }> {
   /**
    * Registers an item with the parent.
    * This should be called during the effect phase of the child component.
@@ -27,42 +28,18 @@ export type CompoundComponentContextValue<Key, Subitem> = {
    */
   registerItem: (id: Key | KeyGenerator<Key>, item: Subitem) => RegisterItemReturnValue<Key>;
   /**
-   * Returns the 0-based index of the item in the parent component's list of registered items.
-   *
-   * @param id id of the item.
-   */
-  getItemIndex: (id: Key) => number;
-  /**
-   * The total number of items registered with the parent.
-   */
-  totalSubitemCount: number;
-};
-
-export const CompoundComponentContext = React.createContext<CompoundComponentContextValue<
-  any,
-  any
-> | null>(null);
-
-CompoundComponentContext.displayName = 'CompoundComponentContext';
-
-export interface UseCompoundParentReturnValue<Key, Subitem extends { ref: React.RefObject<Node> }> {
-  /**
-   * The value for the CompoundComponentContext provider.
-   */
-  contextValue: CompoundComponentContextValue<Key, Subitem>;
-  /**
    * The subitems registered with the parent.
    * The key is the id of the subitem, and the value is the metadata passed to the `useCompoundItem` hook.
    * The order of the items is the same as the order in which they were registered.
    */
-  subitems: Map<Key, Subitem>;
+  subitems: IndexableMap<Key, Subitem>;
 }
 
 /**
  * Sorts the subitems by their position in the DOM.
  */
 function sortSubitems<Key, Subitem extends { ref: React.RefObject<Node> }>(
-  subitems: Map<Key, Subitem>,
+  subitems: IndexableMap<Key, Subitem>,
 ) {
   const subitemsArray = Array.from(subitems.keys()).map((key) => {
     const subitem = subitems.get(key)!;
@@ -81,7 +58,7 @@ function sortSubitems<Key, Subitem extends { ref: React.RefObject<Node> }>(
     return aNode.compareDocumentPosition(bNode) & Node.DOCUMENT_POSITION_PRECEDING ? 1 : -1;
   });
 
-  return new Map(subitemsArray.map((item) => [item.key, item.subitem]));
+  return new IndexableMap(subitemsArray.map((item) => [item.key, item.subitem]));
 }
 
 /**
@@ -100,13 +77,13 @@ export function useCompoundParent<
   Key,
   Subitem extends { ref: React.RefObject<Node> },
 >(): UseCompoundParentReturnValue<Key, Subitem> {
-  const [subitems, setSubitems] = React.useState(new Map<Key, Subitem>());
+  const [subitems, setSubitems] = React.useState(new IndexableMap<Key, Subitem>());
   const subitemKeys = React.useRef(new Set<Key>());
 
   const deregisterItem = React.useCallback(function deregisterItem(id: Key) {
     subitemKeys.current.delete(id);
     setSubitems((previousState) => {
-      const newState = new Map(previousState);
+      const newState = new IndexableMap(previousState);
       newState.delete(id);
       return newState;
     });
@@ -124,7 +101,7 @@ export function useCompoundParent<
 
       subitemKeys.current.add(providedOrGeneratedId);
       setSubitems((previousState) => {
-        const newState = new Map(previousState);
+        const newState = new IndexableMap(previousState);
         newState.set(providedOrGeneratedId, item);
         return newState;
       });
@@ -146,17 +123,13 @@ export function useCompoundParent<
     [sortedSubitems],
   );
 
-  const contextValue = React.useMemo(
+  return React.useMemo(
     () => ({
       getItemIndex,
       registerItem,
-      totalSubitemCount: subitems.size,
+      itemCount: subitems.size,
+      subitems: sortedSubitems,
     }),
-    [getItemIndex, registerItem, subitems.size],
+    [getItemIndex, registerItem, subitems.size, sortedSubitems],
   );
-
-  return {
-    contextValue,
-    subitems: sortedSubitems,
-  };
 }

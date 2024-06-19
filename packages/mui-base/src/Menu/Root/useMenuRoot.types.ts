@@ -6,6 +6,12 @@ export interface UseMenuRootParameters {
    * If `true`, the dropdown is initially open.
    */
   defaultOpen?: boolean;
+  getItemDomElement?: (itemValue: string) => HTMLElement | null;
+  onHighlightChange?: (
+    value: string | null,
+    reason: string,
+    event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
+  ) => void;
   /**
    * Callback fired when the component requests to be opened or closed.
    */
