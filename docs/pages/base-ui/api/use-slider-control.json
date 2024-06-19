@@ -11,8 +11,8 @@
     "dragging": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
     "getFingerNewValue": {
       "type": {
-        "name": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number }",
-        "description": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number }"
+        "name": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null",
+        "description": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null"
       },
       "required": true
     },

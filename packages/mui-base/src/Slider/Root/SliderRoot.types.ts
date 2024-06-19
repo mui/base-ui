@@ -239,7 +239,7 @@ export interface UseSliderReturnValue {
     move?: boolean;
     offset?: number;
     activeIndex?: number;
-  }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number };
+  }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null;
   handleValueChange: (
     value: number | number[],
     activeThumb: number,

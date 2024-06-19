@@ -44,9 +44,9 @@ export function useSliderControl(
   const handleRootRef = useForkRef(externalRef, registerSliderControl, controlRef);
 
   // A number that uniquely identifies the current finger in the touch session.
-  const touchId = React.useRef<number>();
+  const touchIdRef = React.useRef<number>();
 
-  const moveCount = React.useRef(0);
+  const moveCountRef = React.useRef(0);
 
   // offset distance between:
   // 1. pointerDown coordinates and
@@ -61,13 +61,13 @@ export function useSliderControl(
   }, [subitems]);
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    const finger = trackFinger(nativeEvent, touchId);
+    const finger = trackFinger(nativeEvent, touchIdRef);
 
     if (!finger) {
       return;
     }
 
-    moveCount.current += 1;
+    moveCountRef.current += 1;
 
     // Cancel move in case some other element consumed a pointerup event and it was not fired.
     // @ts-ignore buttons doesn't not exists on touch event
@@ -77,18 +77,24 @@ export function useSliderControl(
       return;
     }
 
-    const { newValue, activeIndex } = getFingerNewValue({
+    const newFingerValue = getFingerNewValue({
       finger,
       move: true,
       offset: offsetRef.current,
     });
+
+    if (!newFingerValue) {
+      return;
+    }
+
+    const { newValue, activeIndex } = newFingerValue;
 
     focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
     if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
       setValueState(newValue);
 
-      if (!dragging && moveCount.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
+      if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
         setDragging(true);
       }
 
@@ -99,17 +105,21 @@ export function useSliderControl(
   });
 
   const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    const finger = trackFinger(nativeEvent, touchId);
+    const finger = trackFinger(nativeEvent, touchIdRef);
     setDragging(false);
 
     if (!finger) {
       return;
     }
 
-    const { newValue } = getFingerNewValue({
+    const newFingerValue = getFingerNewValue({
       finger,
       move: true,
     });
+
+    if (!newFingerValue) {
+      return;
+    }
 
     setActive(-1);
     if (nativeEvent.type === 'touchend') {
@@ -117,10 +127,10 @@ export function useSliderControl(
     }
 
     if (onValueCommitted) {
-      onValueCommitted(newValue, nativeEvent);
+      onValueCommitted(newFingerValue.newValue, nativeEvent);
     }
 
-    touchId.current = undefined;
+    touchIdRef.current = undefined;
 
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
@@ -134,15 +144,21 @@ export function useSliderControl(
     const touch = nativeEvent.changedTouches[0];
 
     if (touch != null) {
-      touchId.current = touch.identifier;
+      touchIdRef.current = touch.identifier;
     }
 
-    const finger = trackFinger(nativeEvent, touchId);
+    const finger = trackFinger(nativeEvent, touchIdRef);
 
     if (finger !== false) {
-      const { newValue, activeIndex } = getFingerNewValue({
+      const newFingerValue = getFingerNewValue({
         finger,
       });
+
+      if (!newFingerValue) {
+        return;
+      }
+      const { newValue, activeIndex } = newFingerValue;
+
       focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
       setValueState(newValue);
@@ -152,29 +168,34 @@ export function useSliderControl(
       }
     }
 
-    moveCount.current = 0;
+    moveCountRef.current = 0;
     const doc = ownerDocument(controlRef.current);
     doc.addEventListener('touchmove', handleTouchMove, { passive: true });
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
   });
 
-  const stopListening = React.useCallback(() => {
+  const stopListening = useEventCallback(() => {
     offsetRef.current = 0;
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
-  }, [handleTouchEnd, handleTouchMove]);
+  });
 
   React.useEffect(() => {
-    const { current: control } = controlRef;
-    control!.addEventListener('touchstart', handleTouchStart, {
+    const { current: sliderControl } = controlRef;
+
+    if (!sliderControl) {
+      return () => stopListening();
+    }
+
+    sliderControl.addEventListener('touchstart', handleTouchStart, {
       passive: true,
     });
 
     return () => {
-      control!.removeEventListener('touchstart', handleTouchStart);
+      sliderControl.removeEventListener('touchstart', handleTouchStart);
 
       stopListening();
     };
@@ -205,11 +226,19 @@ export function useSliderControl(
 
           // Avoid text selection
           event.preventDefault();
-          const finger = trackFinger(event, touchId);
+
+          const finger = trackFinger(event, touchIdRef);
+
           if (finger !== false) {
-            const { newValue, activeIndex, newPercentageValue } = getFingerNewValue({
+            const newFingerValue = getFingerNewValue({
               finger,
             });
+
+            if (!newFingerValue) {
+              return;
+            }
+
+            const { newValue, activeIndex, newPercentageValue } = newFingerValue;
 
             focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
@@ -231,7 +260,7 @@ export function useSliderControl(
             }
           }
 
-          moveCount.current = 0;
+          moveCountRef.current = 0;
           const doc = ownerDocument(controlRef.current);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd);

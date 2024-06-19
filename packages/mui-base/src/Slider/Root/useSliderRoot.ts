@@ -100,14 +100,14 @@ export function validateMinimumDistance(
 
 export function trackFinger(
   event: TouchEvent | PointerEvent | React.PointerEvent,
-  touchId: React.RefObject<any>,
+  touchIdRef: React.RefObject<any>,
 ) {
   // The event is TouchEvent
-  if (touchId.current !== undefined && (event as TouchEvent).changedTouches) {
+  if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
     const touchEvent = event as TouchEvent;
     for (let i = 0; i < touchEvent.changedTouches.length; i += 1) {
       const touch = touchEvent.changedTouches[i];
-      if (touch.identifier === touchId.current) {
+      if (touch.identifier === touchIdRef.current) {
         return {
           x: touch.clientX,
           y: touch.clientY,
@@ -307,7 +307,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const isRtl = direction === 'rtl';
 
-  const previousIndex = React.useRef<number>();
+  const previousIndexRef = React.useRef<number>();
   let axis = orientation;
   if (isRtl && orientation === 'horizontal') {
     axis += '-reverse';
@@ -325,6 +325,10 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       offset?: number;
     }) => {
       const { current: sliderControl } = controlRef;
+      if (!sliderControl) {
+        return null;
+      }
+
       const { width, height, bottom, left } = sliderControl!.getBoundingClientRect();
       let percent;
 
@@ -360,7 +364,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       if (!move) {
         activeIndex = findClosest(values, newValue)!;
       } else {
-        activeIndex = previousIndex.current!;
+        activeIndex = previousIndexRef.current!;
       }
 
       // Bound the new value to the thumb's neighbours.
@@ -380,7 +384,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       // Potentially swap the index if needed.
       if (!move) {
         activeIndex = newValue.indexOf(previousValue);
-        previousIndex.current = activeIndex;
+        previousIndexRef.current = activeIndex;
       }
 
       return { newValue, activeIndex, newPercentageValue: percent };

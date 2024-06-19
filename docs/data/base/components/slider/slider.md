@@ -95,7 +95,7 @@ function App() {
 When Slider is uncontrolled, the `value` prop holds the numerical value(s), and two callbacks are provided for when the value changes:
 
 - `onValueChange` is called when the value is changing while the thumb is being moved along the control area
-- `onValueCommitted` is called when thumb stops moving and `pointerup` is triggered
+- `onValueCommitted` is called when thumb stops moving and either `pointerup` or `keydown` are triggered
 
 ```tsx
 function App() {
