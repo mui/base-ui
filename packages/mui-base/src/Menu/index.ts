@@ -2,7 +2,11 @@ export { MenuItem as Item } from './Item/MenuItem';
 export { useMenuItem } from './Item/useMenuItem';
 
 export { MenuPopup as Popup } from './Popup/MenuPopup';
-export { MenuPopupProvider } from './Popup/MenuPopupProvider';
+export {
+  MenuPopupContext,
+  useMenuPopupContext,
+  type MenuPopupContextValue,
+} from './Popup/MenuPopupContext';
 export { useMenuPopup } from './Popup/useMenuPopup';
 
 export { MenuPositioner as Positioner } from './Positioner/MenuPositioner';

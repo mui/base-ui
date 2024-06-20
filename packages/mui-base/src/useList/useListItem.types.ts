@@ -1,3 +1,4 @@
+import { GenericHTMLProps } from '../utils/types';
 import { ListAction } from './listActions.types';
 
 export interface UseListItemParameters<ItemValue> {
@@ -19,24 +20,13 @@ export interface UseListItemParameters<ItemValue> {
   item: ItemValue;
 }
 
-interface UseListItemRootSlotOwnProps {
-  onClick: React.MouseEventHandler;
-  onPointerOver: React.PointerEventHandler | undefined;
-  tabIndex?: number;
-}
-
-export type UseListItemRootSlotProps<ExternalProps = {}> = ExternalProps &
-  UseListItemRootSlotOwnProps;
-
 export interface UseListItemReturnValue {
   /**
    * Resolver for the root slot's props.
    * @param externalProps additional props to be forwarded to the root slot
    * @returns props that should be spread on the root slot
    */
-  getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps?: ExternalProps,
-  ) => UseListItemRootSlotProps<ExternalProps>;
+  getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
    * If `true`, the current item is highlighted.
    */

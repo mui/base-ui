@@ -4,11 +4,9 @@ import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuIte
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton';
 import { useListItem } from '../../useList';
-import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
-import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
-import { EventHandlers, GenericHTMLProps } from '../../utils/types';
-import { extractEventHandlers } from '../../utils/extractEventHandlers';
 import { useForkRef } from '../../utils/useForkRef';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 
 /**
  *
@@ -32,7 +30,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
 
   const itemRef = React.useRef<HTMLElement>(null);
 
-  const { getRootProps: getListRootProps } = useListItem({
+  const { getRootProps: getListItemProps } = useListItem({
     dispatch,
     item: id ?? '',
     handlePointerOverEvents: !disableFocusOnHover,
@@ -48,40 +46,23 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
 
   const handleRef = useForkRef(buttonRefHandler, externalRef, itemRef);
 
-  const createHandleClick =
-    (otherHandlers: EventHandlers) => (event: React.MouseEvent & MuiCancellableEvent) => {
-      otherHandlers.onClick?.(event);
-      if (event.defaultMuiPrevented) {
-        return;
-      }
-
-      dispatch({
-        type: MenuActionTypes.close,
-        event,
-      });
-    };
-
-  const getOwnHandlers = <ExternalProps extends EventHandlers>(
-    otherHandlers: ExternalProps = {} as ExternalProps,
-  ) => ({
-    ...otherHandlers,
-    onClick: createHandleClick(otherHandlers),
-  });
-
   function getRootProps(externalProps?: GenericHTMLProps): GenericHTMLProps {
-    const externalEventHandlers = extractEventHandlers(externalProps);
-    const getCombinedRootProps = combineHooksSlotProps(
-      getOwnHandlers,
-      combineHooksSlotProps(getButtonProps, getListRootProps),
+    return mergeReactProps(
+      externalProps,
+      {
+        id,
+        ref: handleRef,
+        role: 'menuitem',
+        onClick: (event: React.MouseEvent) => {
+          dispatch({
+            type: MenuActionTypes.close,
+            event,
+          });
+        },
+      },
+      getButtonProps(),
+      getListItemProps(),
     );
-    return {
-      ...externalProps,
-      ...externalEventHandlers,
-      ...getCombinedRootProps(externalEventHandlers),
-      id,
-      ref: handleRef,
-      role: 'menuitem',
-    };
   }
 
   return {

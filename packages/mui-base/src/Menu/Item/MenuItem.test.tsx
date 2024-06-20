@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createMount, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuPopupProvider } from '@base_ui/react/Menu';
+import { MenuPopupContext } from '@base_ui/react/Menu';
 import { describeConformance } from '../../../test';
 
 const dummyGetItemState = () => ({
@@ -13,13 +13,8 @@ const dummyGetItemState = () => ({
 });
 
 const testContext = {
-  dispatch: () => {},
-  getItemIndex: () => 0,
-  getItemProps: () => ({}),
   getItemState: dummyGetItemState,
-  open: false,
   registerItem: () => ({ id: '', deregister: () => {} }),
-  totalSubitemCount: 0,
 };
 
 describe('<Menu.Item />', () => {
@@ -29,10 +24,14 @@ describe('<Menu.Item />', () => {
   describeConformance(<Menu.Item />, () => ({
     inheritComponent: 'li',
     render: (node) => {
-      return render(<MenuPopupProvider value={testContext}>{node}</MenuPopupProvider>);
+      return render(
+        <MenuPopupContext.Provider value={testContext}>{node}</MenuPopupContext.Provider>,
+      );
     },
     mount: (node: React.ReactNode) => {
-      const wrapper = mount(<MenuPopupProvider value={testContext}>{node}</MenuPopupProvider>);
+      const wrapper = mount(
+        <MenuPopupContext.Provider value={testContext}>{node}</MenuPopupContext.Provider>,
+      );
       return wrapper.childAt(0);
     },
     refInstanceof: window.HTMLLIElement,
