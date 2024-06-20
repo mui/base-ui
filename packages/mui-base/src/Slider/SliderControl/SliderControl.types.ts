@@ -17,7 +17,6 @@ export interface UseSliderControlParameters
     | 'registerSliderControl'
     | 'setActive'
     | 'setDragging'
-    | 'setOpen'
     | 'setValueState'
     | 'step'
     | 'subitems'

@@ -39,7 +39,6 @@ export interface UseSliderThumbParameters
     | 'orientation'
     | 'percentageValues'
     | 'scale'
-    | 'setOpen'
     | 'step'
     | 'tabIndex'
     | 'values'

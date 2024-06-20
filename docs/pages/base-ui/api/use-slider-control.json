@@ -52,10 +52,6 @@
       },
       "required": true
     },
-    "setOpen": {
-      "type": { "name": "(index: number) =&gt; void", "description": "(index: number) =&gt; void" },
-      "required": true
-    },
     "setValueState": {
       "type": {
         "name": "(newValue: number | number[]) =&gt; void",

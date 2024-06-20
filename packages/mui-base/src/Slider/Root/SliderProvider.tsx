@@ -74,7 +74,6 @@ SliderProvider.propTypes /* remove-proptypes */ = {
     minStepsBetweenValues: PropTypes.number.isRequired,
     name: PropTypes.string,
     onValueCommitted: PropTypes.func,
-    open: PropTypes.number.isRequired,
     orientation: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
     ownerState: PropTypes.shape({
       activeThumbIndex: PropTypes.number.isRequired,
@@ -93,7 +92,6 @@ SliderProvider.propTypes /* remove-proptypes */ = {
     scale: PropTypes.func.isRequired,
     setActive: PropTypes.func.isRequired,
     setDragging: PropTypes.func.isRequired,
-    setOpen: PropTypes.func.isRequired,
     setValueState: PropTypes.func.isRequired,
     step: PropTypes.number.isRequired,
     subitems: PropTypes.object.isRequired,

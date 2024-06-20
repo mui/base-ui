@@ -258,10 +258,6 @@ export interface UseSliderReturnValue {
   name?: string;
   onValueCommitted?: (value: number | number[], event: React.SyntheticEvent | Event) => void;
   /**
-   * The thumb index for the current value when in hover state.
-   */
-  open: number;
-  /**
    * The component orientation.
    * @default 'horizontal'
    */
@@ -274,7 +270,6 @@ export interface UseSliderReturnValue {
   scale: (value: number) => number;
   setActive: (activeIndex: number) => void;
   setDragging: (isDragging: boolean) => void;
-  setOpen: (index: number) => void;
   setValueState: (newValue: number | number[]) => void;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap

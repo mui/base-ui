@@ -43,10 +43,6 @@
       },
       "required": true
     },
-    "setOpen": {
-      "type": { "name": "(index: number) =&gt; void", "description": "(index: number) =&gt; void" },
-      "required": true
-    },
     "step": {
       "type": { "name": "number", "description": "number" },
       "default": "1",

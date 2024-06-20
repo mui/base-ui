@@ -156,7 +156,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
   const [active, setActive] = React.useState(-1);
-  const [open, setOpen] = React.useState(-1);
+
   const [dragging, setDragging] = React.useState(false);
 
   const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
@@ -400,14 +400,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       minStepsBetweenValues,
       name,
       onValueCommitted,
-      open,
       orientation,
       percentageValues: values.map((v) => valueToPercent(v, min, max)),
       registerSliderControl,
       scale,
       setActive,
       setDragging,
-      setOpen,
       setValueState,
       step,
       subitems,
@@ -433,13 +431,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       minStepsBetweenValues,
       name,
       onValueCommitted,
-      open,
       orientation,
       registerSliderControl,
       scale,
       setActive,
       setDragging,
-      setOpen,
       setValueState,
       step,
       subitems,

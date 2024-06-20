@@ -32,7 +32,6 @@ describe('<Slider.Indicator />', () => {
     max: 100,
     min: 0,
     minStepsBetweenValues: 0,
-    open: -1,
     orientation: 'horizontal',
     ownerState: {
       activeThumbIndex: -1,
@@ -51,7 +50,6 @@ describe('<Slider.Indicator />', () => {
     scale: (val) => val,
     setActive: NOOP,
     setDragging: NOOP,
-    setOpen: NOOP,
     setValueState: NOOP,
     step: 1,
     subitems: new Map(),

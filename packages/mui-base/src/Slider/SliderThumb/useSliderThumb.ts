@@ -67,7 +67,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     orientation,
     rootRef: externalRef,
     scale,
-    setOpen,
     step,
     tabIndex,
     percentageValues,
@@ -124,12 +123,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: idParam,
-        onFocus() {
-          setOpen(index);
-        },
-        onBlur() {
-          setOpen(-1);
-        },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
           const isRange = sliderValues.length > 1;
@@ -191,12 +184,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
             event.preventDefault();
           }
         },
-        onPointerOver() {
-          setOpen(index);
-        },
-        onPointerLeave() {
-          setOpen(-1);
-        },
         ref: handleRef,
         style: {
           ...getThumbStyle(),
@@ -216,7 +203,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       max,
       min,
       minStepsBetweenValues,
-      setOpen,
       sliderValues,
       step,
       tabIndex,

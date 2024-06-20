@@ -33,7 +33,6 @@ export function useSliderControl(
     rootRef: externalRef,
     setActive,
     setDragging,
-    setOpen,
     setValueState,
     step,
     subitems,
@@ -122,9 +121,6 @@ export function useSliderControl(
     }
 
     setActive(-1);
-    if (nativeEvent.type === 'touchend') {
-      setOpen(-1);
-    }
 
     if (onValueCommitted) {
       onValueCommitted(newFingerValue.newValue, nativeEvent);
