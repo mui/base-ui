@@ -4,17 +4,8 @@ import PropTypes from 'prop-types';
 import { MenuTriggerOwnerState, MenuTriggerProps } from './MenuTrigger.types';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useMenuRootContext } from '../Root/MenuRootContext';
 
-/**
- *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/)
- *
- * API:
- *
- * - [MenuButton API](https://mui.com/base-ui/react-menu/components-api/#menu-button)
- */
 const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
@@ -28,14 +19,18 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     ...other
   } = props;
 
-  const { getRootProps, open } = useMenuTrigger({
+  const { state, dispatch } = useMenuRootContext();
+
+  const { getRootProps } = useMenuTrigger({
     disabled,
     focusableWhenDisabled,
     rootRef: forwardedRef,
+    menuState: state,
+    dispatch,
   });
 
   const ownerState: MenuTriggerOwnerState = {
-    open,
+    open: state.open,
   };
 
   const { renderElement } = useComponentRenderer({

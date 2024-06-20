@@ -9,7 +9,6 @@ import {
   fireEvent,
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuRootContext } from '@base_ui/react/Menu';
 
 describe('<Menu.Root />', () => {
   const { render: internalRender } = createRenderer();
@@ -388,51 +387,6 @@ describe('<Menu.Root />', () => {
         expect(getByText('ąc')).to.have.attribute('tabindex', '0');
       });
     });
-  });
-
-  it('registers a popup id correctly', async () => {
-    function TestComponent() {
-      const { registerPopup, popupId } = React.useContext(MenuRootContext)!;
-      expect(context).not.to.equal(null);
-
-      React.useEffect(() => {
-        registerPopup('test-popup');
-      }, [registerPopup]);
-
-      return <p>{popupId}</p>;
-    }
-
-    const { container } = await render(
-      <Menu.Root>
-        <TestComponent />
-      </Menu.Root>,
-    );
-
-    expect(container.innerHTML).to.equal('<p>test-popup</p>');
-  });
-
-  it('registers a trigger element correctly', async () => {
-    const trigger = document.createElement('button');
-    trigger.setAttribute('data-testid', 'test-button');
-
-    function TestComponent() {
-      const { registerTrigger, triggerElement } = React.useContext(MenuRootContext)!;
-      expect(context).not.to.equal(null);
-
-      React.useEffect(() => {
-        registerTrigger(trigger);
-      }, [registerTrigger]);
-
-      return <p>{triggerElement?.getAttribute('data-testid')}</p>;
-    }
-
-    const { container } = await render(
-      <Menu.Root>
-        <TestComponent />
-      </Menu.Root>,
-    );
-
-    expect(container.innerHTML).to.equal('<p>test-button</p>');
   });
 
   it('focuses the first item after the menu is opened', async () => {

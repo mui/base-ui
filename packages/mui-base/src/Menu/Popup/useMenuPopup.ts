@@ -6,8 +6,7 @@ import {
   unstable_useEnhancedEffect as useEnhancedEffect,
 } from '@mui/utils';
 import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { ListActionTypes, useList } from '../../useList';
+import { useList } from '../../useList';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -15,19 +14,21 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 const EMPTY_ARRAY: string[] = [];
 
 export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupReturnValue {
-  const { listboxRef: listboxRefProp, id: idParam, autoFocus = true, subitems } = parameters;
+  const {
+    id: idParam,
+    autoFocus = true,
+    state,
+    dispatch,
+    childItems,
+    rootRef: externalRef,
+  } = parameters;
 
   const rootRef = React.useRef<HTMLElement>(null);
-  const handleRef = useForkRef(rootRef, listboxRefProp);
+  const handleRef = useForkRef(rootRef, state.listboxRef, externalRef);
 
   const id = useId(idParam) ?? '';
 
-  const {
-    state: { open, changeReason, highlightedValue },
-    dispatch,
-    triggerElement,
-    registerPopup,
-  } = useMenuRootContext();
+  const { open, highlightedValue, items: subitems, triggerElement } = state;
 
   // store the initial open state to prevent focus stealing
   // (the first menu items gets focued only when the menu is opened by the user)
@@ -43,25 +44,15 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     selectedValues: EMPTY_ARRAY,
     focusManagement: 'DOM',
     rootRef: handleRef,
-    items: subitems,
+    items: childItems,
   });
 
   useEnhancedEffect(() => {
-    registerPopup(id);
-  }, [id, registerPopup]);
-
-  useEnhancedEffect(() => {
-    if (
-      open &&
-      changeReason?.type === 'keydown' &&
-      (changeReason as React.KeyboardEvent).key === 'ArrowUp'
-    ) {
-      dispatch({
-        type: ListActionTypes.highlightLast,
-        event: changeReason as React.KeyboardEvent,
-      });
-    }
-  }, [open, changeReason, dispatch]);
+    dispatch({
+      type: MenuActionTypes.registerPopup,
+      popupId: id,
+    });
+  }, [id, dispatch]);
 
   React.useEffect(() => {
     if (open && autoFocus && highlightedValue && !isInitiallyOpen.current) {
@@ -76,7 +67,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     }
   }, [highlightedValue, subitems]);
 
-  const getListboxProps = (externalProps?: GenericHTMLProps) => {
+  const getRootProps = (externalProps?: GenericHTMLProps) => {
     return mergeReactProps(
       externalProps,
       {
@@ -103,6 +94,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
         },
         id,
         role: 'menu',
+        'aria-hidden': !open || undefined,
       },
       getListRootProps(),
     );
@@ -110,7 +102,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
 
   return {
     getItemState,
-    getListboxProps,
-    listboxRef: mergedListRef,
+    getRootProps,
+    rootRef: mergedListRef,
   };
 }

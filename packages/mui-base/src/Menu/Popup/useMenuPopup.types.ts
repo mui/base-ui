@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ListAction, ListItemState } from '../../useList';
+import { MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
+import { ListItemMetadata, ListItemState } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
-import { MenuItemMetadata } from '../Item/useMenuItem.types';
 import { IndexableMap } from '../../utils/IndexableMap';
 
 export interface UseMenuPopupParameters {
@@ -16,11 +16,10 @@ export interface UseMenuPopupParameters {
    * The id of the menu. If not provided, it will be generated.
    */
   id?: string;
-  /**
-   * The ref to the menu's listbox node.
-   */
-  listboxRef?: React.Ref<Element>;
-  subitems: IndexableMap<string, MenuItemMetadata>;
+  state: MenuReducerState;
+  dispatch: React.Dispatch<MenuReducerAction>;
+  rootRef: React.Ref<Element>;
+  childItems: IndexableMap<string, ListItemMetadata<string>>;
 }
 
 export interface UseMenuPopupReturnValue {
@@ -29,12 +28,10 @@ export interface UseMenuPopupReturnValue {
    * @param externalProps additional props for the listbox component
    * @returns props that should be spread on the listbox component
    */
-  getListboxProps: <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps?: ExternalProps,
-  ) => GenericHTMLProps;
+  getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   /**
-   * The ref to the menu's listbox node.
+   * The ref to the menu's popup node.
    */
-  listboxRef: React.RefCallback<Element> | null;
+  rootRef: React.RefCallback<Element> | null;
   getItemState: (value: string) => ListItemState;
 }

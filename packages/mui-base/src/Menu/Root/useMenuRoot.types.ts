@@ -1,5 +1,4 @@
 import { ListAction, ListState } from '../../useList';
-import type { MenuRootContextValue } from './MenuRootContext';
 
 export interface UseMenuRootParameters {
   /**
@@ -27,14 +26,8 @@ export interface UseMenuRootParameters {
 }
 
 export interface UseMenuRootReturnValue {
-  /**
-   * The value to be passed into the DropdownContext provider.
-   */
-  contextValue: MenuRootContextValue;
-  /**
-   * If `true`, the dropdown is open.
-   */
-  open: boolean;
+  state: MenuReducerState;
+  dispatch: React.Dispatch<MenuReducerAction>;
 }
 
 export const MenuActionTypes = {
@@ -43,6 +36,8 @@ export const MenuActionTypes = {
   toggle: 'menu:toggle',
   open: 'menu:open',
   close: 'menu:close',
+  registerPopup: 'menu:registerPopup',
+  registerTrigger: 'menu:registerTrigger',
 } as const;
 
 interface MenuBlurAction {
@@ -63,11 +58,22 @@ interface MenuToggleAction {
 interface MenuOpenAction {
   type: typeof MenuActionTypes.open;
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+  highlightRequest?: 'first' | 'last';
 }
 
 interface MenuCloseAction {
   type: typeof MenuActionTypes.close;
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+}
+
+interface MenuRegisterPopupAction {
+  type: typeof MenuActionTypes.registerPopup;
+  popupId: string | null;
+}
+
+interface MenuRegisterTriggerAction {
+  type: typeof MenuActionTypes.registerTrigger;
+  triggerElement: HTMLElement | null;
 }
 
 export type MenuReducerAction =
@@ -76,10 +82,16 @@ export type MenuReducerAction =
   | MenuToggleAction
   | MenuOpenAction
   | MenuCloseAction
+  | MenuRegisterPopupAction
+  | MenuRegisterTriggerAction
   | ListAction<string>;
 
 export type MenuReducerState = ListState<string> & {
   open: boolean;
+  // TODO: remove?
   changeReason: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+  // TODO: at least rename
   listboxRef: React.RefObject<HTMLElement>;
+  popupId: string | null;
+  triggerElement: HTMLElement | null;
 };

@@ -3,34 +3,26 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCompoundParent } from '../../useCompound';
 import { MenuPopupContext, MenuPopupContextValue } from './MenuPopupContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { useCompoundParent } from '../../useCompound';
 import { ListItemMetadata } from '../../useList';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
-/**
- *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/)
- *
- * API:
- *
- * - [Menu API](https://mui.com/base-ui/react-menu/components-api/#menu)
- */
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopupProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, onItemsChange, ...other } = props;
-  const { state } = useMenuRootContext();
-
+  const { render, className, id, ...other } = props;
+  const { state, dispatch } = useMenuRootContext();
   const { subitems, registerItem } = useCompoundParent<string, ListItemMetadata<string>>();
 
-  const { getListboxProps, getItemState } = useMenuPopup({
-    listboxRef: forwardedRef,
-    subitems,
+  const { getRootProps, getItemState } = useMenuPopup({
+    state,
+    dispatch,
+    rootRef: forwardedRef,
+    childItems: subitems,
+    id,
   });
 
   const ownerState: MenuPopupOwnerState = { open: state.open };
@@ -39,7 +31,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     render: render || 'div',
     className,
     ownerState,
-    propGetter: getListboxProps,
+    propGetter: getRootProps,
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },
@@ -69,10 +61,6 @@ MenuPopup.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   className: PropTypes.string,
-  /**
-   * Function called when the items displayed in the menu change.
-   */
-  onItemsChange: PropTypes.func,
 } as any;
 
 export { MenuPopup };

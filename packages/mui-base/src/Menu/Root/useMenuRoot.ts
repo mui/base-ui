@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { MenuRootContextValue } from './MenuRootContext';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback, StateComparers } from '../../utils/useControllableReducer.types';
 import { MenuActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
@@ -15,6 +14,8 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   selectedValues: [],
   items: new IndexableMap(),
   listboxRef: { current: null },
+  triggerElement: null,
+  popupId: null,
 };
 
 /**
@@ -36,8 +37,6 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
     open: openProp,
   } = parameters;
 
-  const [popupId, setPopupId] = React.useState<string>('');
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const lastActionType = React.useRef<string | null>(null);
 
   const handleHighlightChange = React.useCallback(
@@ -129,21 +128,9 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
       lastActionType.current !== null &&
       lastActionType.current !== MenuActionTypes.blur
     ) {
-      triggerElement?.focus();
+      state.triggerElement?.focus();
     }
-  }, [state.open, triggerElement]);
+  }, [state.open, state.triggerElement]);
 
-  const contextValue: MenuRootContextValue = {
-    state,
-    dispatch,
-    popupId,
-    registerPopup: setPopupId,
-    registerTrigger: setTriggerElement,
-    triggerElement,
-  };
-
-  return {
-    contextValue,
-    open: state.open,
-  };
+  return React.useMemo(() => ({ state, dispatch }), [state, dispatch]);
 }

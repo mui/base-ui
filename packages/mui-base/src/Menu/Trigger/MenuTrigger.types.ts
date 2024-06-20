@@ -1,4 +1,4 @@
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export interface MenuTriggerProps extends BaseUIComponentProps<'button', MenuTriggerOwnerState> {
   children?: React.ReactNode;

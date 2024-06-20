@@ -2,104 +2,75 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { UseMenuTriggerParameters, UseMenuTriggerReturnValue } from './useMenuTrigger.types';
-import { MenuRootContext } from '../Root/MenuRootContext';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton/useButton';
-import { EventHandlers } from '../../utils/types';
-import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
-import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
-import { extractEventHandlers } from '../../utils/extractEventHandlers';
+import { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
-/**
- *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/#hooks)
- *
- * API:
- *
- * - [useMenuButton API](https://mui.com/base-ui/react-menu/hooks-api/#use-menu-button)
- */
-export function useMenuTrigger(
-  parameters: UseMenuTriggerParameters = {},
-): UseMenuTriggerReturnValue {
-  const { disabled = false, focusableWhenDisabled, rootRef: externalRef } = parameters;
-
-  const menuContext = React.useContext(MenuRootContext);
-  if (menuContext === null) {
-    throw new Error('useMenuButton: no menu context available.');
-  }
-
-  const { state, dispatch, registerTrigger, popupId } = menuContext;
-
+export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTriggerReturnValue {
   const {
-    getRootProps: getButtonRootProps,
-    rootRef: buttonRootRef,
-    active,
-  } = useButton({
+    disabled = false,
+    focusableWhenDisabled,
+    rootRef: externalRef,
+    menuState,
+    dispatch,
+  } = parameters;
+
+  const { getRootProps: getButtonRootProps, rootRef: buttonRootRef } = useButton({
     disabled,
     focusableWhenDisabled,
     rootRef: externalRef,
   });
 
+  const registerTrigger = React.useCallback(
+    (element: HTMLElement | null) => {
+      dispatch({
+        type: MenuActionTypes.registerTrigger,
+        triggerElement: element,
+      });
+    },
+    [dispatch],
+  );
+
   const handleRef = useForkRef(buttonRootRef, registerTrigger);
 
-  const createHandleClick =
-    (otherHandlers: EventHandlers) => (event: React.MouseEvent & MuiCancellableEvent) => {
-      otherHandlers.onClick?.(event);
-      if (event.defaultMuiPrevented) {
-        return;
-      }
-
-      dispatch({
-        type: MenuActionTypes.toggle,
-        event,
-      });
-    };
-
-  const createHandleKeyDown =
-    (otherHandlers: EventHandlers) => (event: React.KeyboardEvent & MuiCancellableEvent) => {
-      otherHandlers.onKeyDown?.(event);
-      if (event.defaultMuiPrevented) {
-        return;
-      }
-
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-        event.preventDefault();
-        dispatch({
-          type: MenuActionTypes.open,
-          event,
-        });
-      }
-    };
-
-  const getOwnRootProps = (otherHandlers: EventHandlers = {}) => ({
-    onClick: createHandleClick(otherHandlers),
-    onKeyDown: createHandleKeyDown(otherHandlers),
-  });
-
-  const getRootProps = <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ) => {
-    const externalEventHandlers = extractEventHandlers(externalProps);
-    const getCombinedProps = combineHooksSlotProps(getOwnRootProps, getButtonRootProps);
-
-    return {
-      'aria-haspopup': 'menu' as const,
-      'aria-expanded': state.open,
-      'aria-controls': popupId,
-      ...externalProps,
-      ...externalEventHandlers,
-      ...getCombinedProps(externalEventHandlers),
-      tabIndex: 0, // this is needed to make the button focused after click in Safari
-      ref: handleRef,
-    };
+  const getRootProps = (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    return mergeReactProps(
+      externalProps,
+      {
+        'aria-haspopup': 'menu' as const,
+        'aria-expanded': menuState.open,
+        'aria-controls': menuState.popupId ?? undefined,
+        tabIndex: 0, // this is needed to make the button focused after click in Safari
+        ref: handleRef,
+      },
+      getButtonRootProps({
+        onClick: (event: React.MouseEvent) => {
+          if (!disabled) {
+            dispatch({
+              type: MenuActionTypes.toggle,
+              event,
+            });
+          }
+        },
+        onKeyDown: (event: React.KeyboardEvent) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (!disabled) {
+              dispatch({
+                type: MenuActionTypes.open,
+                event,
+                highlightRequest: event.key === 'ArrowDown' ? 'first' : 'last',
+              });
+            }
+          }
+        },
+      }),
+    );
   };
 
   return {
-    active,
     getRootProps,
-    open: state.open,
     rootRef: handleRef,
   };
 }

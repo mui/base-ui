@@ -6,26 +6,16 @@ import { MenuRootProps } from './MenuRoot.types';
 import { MenuRootContext } from './MenuRootContext';
 import { useMenuRoot } from './useMenuRoot';
 
-/**
- *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/)
- *
- * API:
- *
- * - [Dropdown API](https://mui.com/base-ui/react-menu/components-api/#dropdown)
- */
 function MenuRoot(props: MenuRootProps) {
   const { children, open, defaultOpen, onOpenChange } = props;
 
-  const { contextValue } = useMenuRoot({
+  const stateAndDispatch = useMenuRoot({
     defaultOpen,
     onOpenChange,
     open,
   });
 
-  return <MenuRootContext.Provider value={contextValue}>{children}</MenuRootContext.Provider>;
+  return <MenuRootContext.Provider value={stateAndDispatch}>{children}</MenuRootContext.Provider>;
 }
 
 MenuRoot.propTypes /* remove-proptypes */ = {

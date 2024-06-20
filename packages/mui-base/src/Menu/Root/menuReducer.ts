@@ -1,4 +1,4 @@
-import { ListActionTypes, listReducer } from '../../useList';
+import { ListActionTypes, listReducer, moveHighlight } from '../../useList';
 import { MenuReducerAction, MenuActionTypes, MenuReducerState } from './useMenuRoot.types';
 
 export function menuReducer(state: MenuReducerState, action: MenuReducerAction): MenuReducerState {
@@ -28,6 +28,7 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       }
 
       return state;
+
     case MenuActionTypes.escapeKeyDown:
       return { ...state, open: false, changeReason: action.event };
 
@@ -38,7 +39,7 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
         changeReason: action.event,
         highlightedValue: state.open
           ? null
-          : state.items.first((item) => !item.disabled)?.value ?? null,
+          : moveHighlight(null, 'start', state.items, state.settings),
       };
 
     case MenuActionTypes.open:
@@ -46,11 +47,20 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
         ...state,
         open: true,
         changeReason: action.event,
-        highlightedValue: state.items.first((item) => !item.disabled)?.value ?? null,
+        highlightedValue:
+          action.highlightRequest === 'last'
+            ? moveHighlight(null, 'end', state.items, state.settings)
+            : moveHighlight(null, 'start', state.items, state.settings),
       };
 
     case MenuActionTypes.close:
       return { ...state, open: false, changeReason: action.event };
+
+    case MenuActionTypes.registerPopup:
+      return { ...state, popupId: action.popupId };
+
+    case MenuActionTypes.registerTrigger:
+      return { ...state, triggerElement: action.triggerElement };
 
     default:
   }

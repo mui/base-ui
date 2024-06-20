@@ -1,4 +1,5 @@
 import { GenericHTMLProps } from '../../utils/types';
+import { MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
 
 export interface UseMenuTriggerParameters {
   /**
@@ -15,13 +16,12 @@ export interface UseMenuTriggerParameters {
    * The ref to the root element.
    */
   rootRef?: React.Ref<HTMLElement>;
+
+  menuState: MenuReducerState;
+  dispatch: React.Dispatch<MenuReducerAction>;
 }
 
 export interface UseMenuTriggerReturnValue {
-  /**
-   * If `true`, the component is active (pressed).
-   */
-  active: boolean;
   /**
    * Resolver for the root slot's props.
    * @param externalProps props for the root slot
@@ -30,10 +30,6 @@ export interface UseMenuTriggerReturnValue {
   getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
     externalProps?: ExternalProps,
   ) => GenericHTMLProps;
-  /*
-   * If `true`, the menu is open.
-   */
-  open: boolean;
   /**
    * The ref to the root element.
    */

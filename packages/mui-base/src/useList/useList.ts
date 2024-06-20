@@ -37,7 +37,7 @@ function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturn
     selectedValues,
     dispatch,
     orientation = 'vertical',
-    items,
+    items, // TODO: it should be just `state`
   } = params;
 
   const listRef = React.useRef<HTMLUListElement>(null);

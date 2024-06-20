@@ -6,10 +6,7 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupOwn
    * A ref with imperative actions that can be performed on the menu.
    */
   children?: React.ReactNode;
-  /**
-   * Function called when the items displayed in the menu change.
-   */
-  onItemsChange?: (items: string[]) => void;
+  id?: string;
 }
 
 export type MenuPopupOwnerState = {

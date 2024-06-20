@@ -1,24 +1,35 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { act, createMount, createRenderer } from '@mui/internal-test-utils';
+import { act, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext, MenuRootContextValue } from '@base_ui/react/Menu';
-import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { describeConformance } from '../../../test';
+import { IndexableMap } from '../../utils/IndexableMap';
 
 const testContext: MenuRootContextValue = {
   dispatch: () => {},
-  popupId: 'menu-popup',
-  registerPopup: () => {},
-  registerTrigger: () => {},
-  state: { open: true, changeReason: null },
-  triggerElement: null,
+  state: {
+    open: true,
+    changeReason: null,
+    items: new IndexableMap(),
+    highlightedValue: null,
+    selectedValues: [],
+    listboxRef: { current: null },
+    triggerElement: null,
+    popupId: null,
+    settings: {
+      disabledItemsFocusable: true,
+      disableListWrap: false,
+      focusManagement: 'DOM',
+      orientation: 'vertical',
+      pageSize: 1,
+      selectionMode: 'none',
+    },
+  },
 };
 
 describe('<Menu.Trigger />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
 
   describeConformance(<Menu.Trigger />, () => ({
@@ -28,12 +39,6 @@ describe('<Menu.Trigger />', () => {
         <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
       );
     },
-    mount: (node: React.ReactNode) => {
-      const wrapper = mount(
-        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
-      );
-      return wrapper.childAt(0);
-    },
     refInstanceof: window.HTMLButtonElement,
     skip: ['reactTestRenderer'],
   }));
@@ -41,9 +46,9 @@ describe('<Menu.Trigger />', () => {
   describe('prop: disabled', () => {
     it('should render a disabled button', () => {
       const { getByRole } = render(
-        <MenuRootContext.Provider value={testContext}>
+        <Menu.Root>
           <Menu.Trigger disabled />
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
 
       const button = getByRole('button');
@@ -51,32 +56,26 @@ describe('<Menu.Trigger />', () => {
     });
 
     it('should not open the menu when clicked', () => {
-      const dispatchSpy = spy();
-      const context = {
-        ...testContext,
-        state: { open: false, changeReason: null },
-        dispatch: dispatchSpy,
-      };
-
-      const { getByRole } = render(
-        <MenuRootContext.Provider value={context}>
+      const { getByRole, queryByRole } = render(
+        <Menu.Root>
           <Menu.Trigger disabled />
-        </MenuRootContext.Provider>,
+          <Menu.Popup />
+        </Menu.Root>,
       );
 
       const button = getByRole('button');
       button.click();
 
-      expect(dispatchSpy.called).to.equal(false);
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
   });
 
   describe('prop: focusableWhenDisabled', () => {
     it('has the aria-disabled instead of disabled attribute when disabled', () => {
       const { getByRole } = render(
-        <MenuRootContext.Provider value={testContext}>
+        <Menu.Root>
           <Menu.Trigger disabled focusableWhenDisabled />
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
 
       const button = getByRole('button');
@@ -86,9 +85,9 @@ describe('<Menu.Trigger />', () => {
 
     it('can receive focus when focusableWhenDisabled is set', () => {
       const { getByRole } = render(
-        <MenuRootContext.Provider value={testContext}>
+        <Menu.Root>
           <Menu.Trigger disabled focusableWhenDisabled />
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
 
       const button = getByRole('button');
@@ -101,24 +100,22 @@ describe('<Menu.Trigger />', () => {
   });
 
   it('toggles the menu state when clicked', () => {
-    const dispatchSpy = spy();
-    const context = {
-      ...testContext,
-      state: { open: false, changeReason: null },
-      dispatch: dispatchSpy,
-    };
-
-    const { getByRole } = render(
-      <MenuRootContext.Provider value={context}>
+    const { getByRole, queryByRole } = render(
+      <Menu.Root>
         <Menu.Trigger />
-      </MenuRootContext.Provider>,
+        <Menu.Popup />
+      </Menu.Root>,
     );
 
     const button = getByRole('button');
-    button.click();
+    act(() => {
+      button.click();
+    });
 
-    expect(dispatchSpy.calledOnce).to.equal(true);
-    expect(dispatchSpy.args[0][0]).to.contain({ type: MenuActionTypes.toggle });
+    const menuPopup = queryByRole('menu', { hidden: false });
+    expect(menuPopup).not.to.equal(null);
+
+    expect(menuPopup).to.have.attribute('data-state', 'open');
   });
 
   describe('keyboard navigation', () => {
@@ -126,17 +123,13 @@ describe('<Menu.Trigger />', () => {
       const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
       ['ArrowUp', 'ArrowDown'].forEach((key) =>
         it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
-          const dispatchSpy = spy();
-          const context = {
-            ...testContext,
-            state: { open: false, changeReason: null },
-            dispatch: dispatchSpy,
-          };
-
           const user = userEvent.setup();
 
-          const { getByRole } = render(
-            <MenuRootContext.Provider value={context}>{buttonComponent}</MenuRootContext.Provider>,
+          const { getByRole, queryByRole } = render(
+            <Menu.Root>
+              {buttonComponent}
+              <Menu.Popup />
+            </Menu.Root>,
           );
 
           const button = getByRole('button');
@@ -146,24 +139,20 @@ describe('<Menu.Trigger />', () => {
 
           await user.keyboard(`{${key}}`);
 
-          expect(dispatchSpy.calledOnce).to.equal(true);
-          expect(dispatchSpy.args[0][0]).to.contain({ type: MenuActionTypes.open });
+          const menuPopup = queryByRole('menu', { hidden: false });
+          expect(menuPopup).not.to.equal(null);
         }),
       );
 
       ['Enter', ' '].forEach((key) =>
         it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
-          const dispatchSpy = spy();
-          const context = {
-            ...testContext,
-            state: { open: false, changeReason: null },
-            dispatch: dispatchSpy,
-          };
-
           const user = userEvent.setup();
 
-          const { getByRole } = render(
-            <MenuRootContext.Provider value={context}>{buttonComponent}</MenuRootContext.Provider>,
+          const { getByRole, queryByRole } = render(
+            <Menu.Root>
+              {buttonComponent}
+              <Menu.Popup />
+            </Menu.Root>,
           );
 
           const button = getByRole('button');
@@ -173,8 +162,8 @@ describe('<Menu.Trigger />', () => {
 
           await user.keyboard(`{${key}}`);
 
-          expect(dispatchSpy.calledOnce).to.equal(true);
-          expect(dispatchSpy.args[0][0]).to.contain({ type: MenuActionTypes.toggle });
+          const menuPopup = queryByRole('menu', { hidden: false });
+          expect(menuPopup).not.to.equal(null);
         }),
       );
     });
@@ -183,9 +172,9 @@ describe('<Menu.Trigger />', () => {
   describe('accessibility attributes', () => {
     it('has the aria-haspopup attribute', () => {
       const { getByRole } = render(
-        <MenuRootContext.Provider value={testContext}>
+        <Menu.Root>
           <Menu.Trigger />
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
 
       const button = getByRole('button');
@@ -193,41 +182,35 @@ describe('<Menu.Trigger />', () => {
     });
 
     it('has the aria-expanded=false attribute when closed', () => {
-      const context = {
-        ...testContext,
-        state: { open: false, changeReason: null },
-      };
-
       const { getByRole } = render(
-        <MenuRootContext.Provider value={context}>
+        <Menu.Root>
           <Menu.Trigger />
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
+
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'false');
     });
 
     it('has the aria-expanded=true attribute when open', () => {
-      const context = {
-        ...testContext,
-        state: { open: true, changeReason: null },
-      };
-
       const { getByRole } = render(
-        <MenuRootContext.Provider value={context}>
+        <Menu.Root open>
           <Menu.Trigger />
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
+
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'true');
     });
 
     it('has the aria-controls attribute', () => {
       const { getByRole } = render(
-        <MenuRootContext.Provider value={testContext}>
+        <Menu.Root>
           <Menu.Trigger />
-        </MenuRootContext.Provider>,
+          <Menu.Popup id="menu-popup" />
+        </Menu.Root>,
       );
+
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-controls', 'menu-popup');
     });

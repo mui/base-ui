@@ -17,9 +17,6 @@ import { IndexableMap } from '../../utils/IndexableMap';
 
 const testContext: MenuRootContextValue = {
   dispatch: () => {},
-  popupId: 'menu-popup',
-  registerPopup: () => {},
-  registerTrigger: () => {},
   state: {
     open: true,
     changeReason: null,
@@ -27,6 +24,8 @@ const testContext: MenuRootContextValue = {
     highlightedValue: null,
     selectedValues: [],
     listboxRef: { current: null },
+    popupId: 'menu-popup',
+    triggerElement: null,
     settings: {
       disabledItemsFocusable: true,
       disableListWrap: false,
@@ -36,7 +35,6 @@ const testContext: MenuRootContextValue = {
       selectionMode: 'none',
     },
   },
-  triggerElement: null,
 };
 
 describe('<Menu.Popup />', () => {
@@ -68,35 +66,6 @@ describe('<Menu.Popup />', () => {
     refInstanceof: window.HTMLDivElement,
     skip: ['reactTestRenderer'],
   }));
-
-  describe.skip('prop: onItemsChange', () => {
-    it('should be called when the menu items change', async () => {
-      const handleItemsChange = spy();
-
-      const { setProps } = await render(
-        <MenuRootContext.Provider value={testContext}>
-          <Menu.Popup onItemsChange={handleItemsChange}>
-            <Menu.Item key="1">1</Menu.Item>
-            <Menu.Item key="2">2</Menu.Item>
-          </Menu.Popup>
-        </MenuRootContext.Provider>,
-      );
-
-      // The first call is the initial render.
-      expect(handleItemsChange.callCount).to.equal(1);
-
-      setProps({
-        children: (
-          <Menu.Popup onItemsChange={handleItemsChange}>
-            <Menu.Item key="1">1</Menu.Item>
-            <Menu.Item key="3">3</Menu.Item>
-          </Menu.Popup>
-        ),
-      });
-
-      expect(handleItemsChange.callCount).to.equal(2);
-    });
-  });
 
   describe('prop: anchor', () => {
     it('should be placed near the specified element', async function test() {
@@ -182,7 +151,7 @@ describe('<Menu.Popup />', () => {
   });
 
   // TODO: fix
-  it.skip('perf: does not rerender menu items unnecessarily', async () => {
+  it('perf: does not rerender menu items unnecessarily', async () => {
     const renderItem1Spy = spy();
     const renderItem2Spy = spy();
     const renderItem3Spy = spy();
