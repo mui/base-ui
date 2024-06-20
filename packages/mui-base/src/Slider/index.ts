@@ -29,12 +29,7 @@ export type {
 export { useSliderControl } from './SliderControl/useSliderControl';
 
 export { SliderTrack as Track } from './SliderTrack/SliderTrack';
-export type {
-  SliderTrackProps as TrackProps,
-  UseSliderTrackParameters,
-  UseSliderTrackReturnValue,
-} from './SliderTrack/SliderTrack.types';
-export { useSliderTrack } from './SliderTrack/useSliderTrack';
+export type { SliderTrackProps as TrackProps } from './SliderTrack/SliderTrack.types';
 
 export { SliderThumb as Thumb } from './SliderThumb/SliderThumb';
 export type {

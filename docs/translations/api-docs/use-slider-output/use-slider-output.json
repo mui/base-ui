@@ -1,7 +1,6 @@
 {
   "hookDescription": "",
   "parametersDescriptions": {
-    "rootRef": { "description": "Ref to the root slot&#39;s DOM element." },
     "subitems": {
       "description": "A map containing all the Thumb components registered to the slider"
     }

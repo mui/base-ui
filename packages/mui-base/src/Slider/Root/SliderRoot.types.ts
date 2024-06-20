@@ -18,7 +18,7 @@ export type SliderProviderValue = SliderContextValue & {
   compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
 };
 
-type SliderDirection = 'ltr' | 'rtl';
+export type SliderDirection = 'ltr' | 'rtl';
 
 export interface SliderRootOwnerState {
   /**

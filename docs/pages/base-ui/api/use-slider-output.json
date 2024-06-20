@@ -12,9 +12,6 @@
         "name": "React.AriaAttributes[&#39;aria-live&#39;]",
         "description": "React.AriaAttributes[&#39;aria-live&#39;]"
       }
-    },
-    "rootRef": {
-      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
     }
   },
   "returnValue": {

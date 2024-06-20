@@ -13,7 +13,7 @@ import { UseSliderOutputParameters, UseSliderOutputReturnValue } from './SliderO
  * - [useSliderOutput API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-output)
  */
 function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutputReturnValue {
-  const { 'aria-live': ariaLive = 'off', rootRef, subitems } = parameters;
+  const { 'aria-live': ariaLive = 'off', subitems } = parameters;
 
   const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
     return `${acc} ${item.inputId}`;
@@ -26,10 +26,9 @@ function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutput
         // and also when the value is changing (but not yet committed)
         'aria-live': ariaLive,
         htmlFor: outputFor.trim(),
-        ref: rootRef,
       });
     },
-    [ariaLive, outputFor, rootRef],
+    [ariaLive, outputFor],
   );
 
   return React.useMemo(

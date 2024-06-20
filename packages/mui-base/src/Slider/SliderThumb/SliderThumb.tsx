@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { resolveClassName } from '../../utils/resolveClassName';
@@ -39,10 +38,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     ...otherProps
   } = props;
 
-  const render =
-    typeof renderProp === 'string'
-      ? defaultRenderFunctions[renderProp]
-      : renderProp ?? defaultRender;
+  const render = renderProp ?? defaultRender;
 
   const {
     active: activeIndex,

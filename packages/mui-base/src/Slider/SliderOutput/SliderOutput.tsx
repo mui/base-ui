@@ -17,7 +17,6 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   const { getRootProps } = useSliderOutput({
     subitems,
-    rootRef: forwardedRef,
   });
 
   const { renderElement } = useComponentRenderer({

@@ -22,7 +22,6 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
     disabled,
     orientation,
     percentageValues,
-    rootRef: forwardedRef,
   });
 
   const { renderElement } = useComponentRenderer({

@@ -5,10 +5,6 @@ export interface SliderOutputProps extends BaseUIComponentProps<'output', Slider
 
 export interface UseSliderOutputParameters extends Pick<UseSliderReturnValue, 'subitems'> {
   'aria-live'?: React.AriaAttributes['aria-live'];
-  /**
-   * Ref to the root slot's DOM element.
-   */
-  rootRef?: React.Ref<Element>;
 }
 
 export interface UseSliderOutputReturnValue {

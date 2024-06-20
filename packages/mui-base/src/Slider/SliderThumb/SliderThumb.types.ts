@@ -1,4 +1,3 @@
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { BaseUIComponentProps } from '../../utils/types';
 import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
@@ -21,8 +20,7 @@ export interface SliderThumbProps
         inputProps: React.ComponentPropsWithRef<'input'>,
         state: SliderThumbOwnerState,
       ) => React.ReactElement)
-    | (React.ReactElement & { ref: React.Ref<Element> })
-    | keyof typeof defaultRenderFunctions;
+    | (React.ReactElement & { ref: React.Ref<Element> });
 }
 
 export interface UseSliderThumbParameters

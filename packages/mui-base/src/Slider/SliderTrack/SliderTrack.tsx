@@ -5,7 +5,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderContext } from '../Root/SliderProvider';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderTrackProps } from './SliderTrack.types';
-import { useSliderTrack } from './useSliderTrack';
 
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrackProps,
@@ -15,12 +14,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 
   const { ownerState } = useSliderContext();
 
-  const { getRootProps } = useSliderTrack({
-    rootRef: forwardedRef,
-  });
-
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
     render: render ?? 'span',
     ownerState,
     className,

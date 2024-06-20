@@ -17,9 +17,6 @@
     "percentageValues": {
       "type": { "name": "readonly number[]", "description": "readonly number[]" },
       "required": true
-    },
-    "rootRef": {
-      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
     }
   },
   "returnValue": {

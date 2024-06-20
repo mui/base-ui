@@ -20,12 +20,7 @@ export type {
 export { useSliderControl } from './SliderControl/useSliderControl';
 
 export { SliderTrack } from './SliderTrack/SliderTrack';
-export type {
-  SliderTrackProps,
-  UseSliderTrackParameters,
-  UseSliderTrackReturnValue,
-} from './SliderTrack/SliderTrack.types';
-export { useSliderTrack } from './SliderTrack/useSliderTrack';
+export type { SliderTrackProps } from './SliderTrack/SliderTrack.types';
 
 export { SliderThumb } from './SliderThumb/SliderThumb';
 export type {
