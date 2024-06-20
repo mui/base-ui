@@ -4,21 +4,54 @@ import PropTypes from 'prop-types';
 import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
 import { useMenuItemContextStabilizer } from './useMenuItemContextStabilizer';
-import { ListContext } from '../../useList';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useMenuPopupContext } from '../Popup/MenuPopupContext';
+import { useCompoundItem } from '../../useCompound';
+import { useId } from '../../utils/useId';
+import { ListItemMetadata } from '../../useList';
+import { useForkRef } from '../../utils/useForkRef';
+import { useMenuRootContext } from '../Root/MenuRootContext';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function MenuItem(
     props: MenuItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
-    const { render, className, disabled: disabledProp = false, label, id, ...other } = props;
+    const { render, className, disabled = false, label, id: idProp, ...other } = props;
 
-    const { getRootProps, disabled, highlighted } = useMenuItem({
+    const { dispatch } = useMenuRootContext();
+    const { getItemState, registerItem } = useMenuPopupContext();
+    const id = useId(idProp);
+
+    const itemRef = React.useRef<HTMLElement>(null);
+    const mergedRef = useForkRef(forwardedRef, itemRef);
+
+    const itemMetadata: ListItemMetadata<string> = React.useMemo(
+      () => ({
+        value: id ?? '',
+        id,
+        valueAsString: label,
+        ref: itemRef,
+        disabled,
+      }),
+      [id, label, disabled],
+    );
+
+    useCompoundItem({
+      key: id,
+      itemMetadata,
+      registerItem,
+    });
+
+    const { highlighted } = id != null ? getItemState(id) : { highlighted: false };
+
+    const { getRootProps } = useMenuItem({
       id,
-      disabled: disabledProp,
-      rootRef: forwardedRef,
+      disabled,
+      rootRef: mergedRef,
       label,
+      highlighted,
+      dispatch,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };

@@ -35,7 +35,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
 
   const {
-    id: value,
+    key: value,
     index,
     totalItemCount: totalTabsCount,
   } = useCompoundItem<any, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);

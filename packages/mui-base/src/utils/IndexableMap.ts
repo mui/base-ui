@@ -4,7 +4,7 @@ export class IndexableMap<Key, Value> {
 
   #index: Key[];
 
-  constructor(entries?: Iterable<readonly [Key, Value]>) {
+  constructor(entries?: Iterable<readonly [Key, Value]> | null) {
     if (entries) {
       this.#map = new Map(entries);
       this.#index = Array.from(this.#map.keys());
@@ -24,6 +24,10 @@ export class IndexableMap<Key, Value> {
 
   values(): IterableIterator<Value> {
     return this.#map.values();
+  }
+
+  entries(): IterableIterator<[Key, Value]> {
+    return this.#map.entries();
   }
 
   [Symbol.iterator](): IterableIterator<[Key, Value]> {

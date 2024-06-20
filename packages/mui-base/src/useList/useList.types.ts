@@ -16,9 +16,26 @@ export interface ListSettings {
 }
 
 export type ListItemMetadata<ItemValue> = {
+  /**
+   * Value of the list item. Must be unique within the list.
+   */
   value: ItemValue;
+  /**
+   * Determines if the item is disabled.
+   */
   disabled: boolean;
+  /**
+   * String version of the list item's value. Used to navigate the list.
+   */
   valueAsString?: string;
+  /**
+   * Ref to the list item's DOM element.
+   */
+  ref: React.RefObject<HTMLElement>;
+  /**
+   * The id of the list item's DOM element.
+   */
+  idAttribute?: string;
 };
 
 /**

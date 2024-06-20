@@ -1,35 +1,14 @@
 'use client';
 import * as React from 'react';
-import { unstable_useId as useId, unstable_useForkRef as useForkRef } from '@mui/utils';
-import { useButton } from '../../useButton';
-import type {
-  MenuItemMetadata,
-  UseMenuItemParameters,
-  UseMenuItemReturnValue,
-  UseMenuItemRootSlotProps,
-} from './useMenuItem.types';
-
-import { useListItem } from '../../useList';
+import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
-import { MenuRootContext, MenuRootContextValue } from '../Root/MenuRootContext';
+import { useButton } from '../../useButton';
+import { useListItem } from '../../useList';
 import { combineHooksSlotProps } from '../../legacy/utils/combineHooksSlotProps';
-import { useCompoundItem } from '../../useCompound';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
-import { EventHandlers } from '../../utils/types';
+import { EventHandlers, GenericHTMLProps } from '../../utils/types';
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
-
-function idGenerator(existingKeys: Set<string>) {
-  return `menu-item-${existingKeys.size}`;
-}
-
-const FALLBACK_MENU_CONTEXT: MenuRootContextValue = {
-  dispatch: () => {},
-  popupId: '',
-  registerPopup: () => {},
-  registerTrigger: () => {},
-  state: { open: true, changeReason: null },
-  triggerElement: null,
-};
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  *
@@ -43,42 +22,31 @@ const FALLBACK_MENU_CONTEXT: MenuRootContextValue = {
  */
 export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
+    dispatch,
     disabled = false,
-    id: idParam,
+    id,
     rootRef: externalRef,
-    label,
     disableFocusOnHover = false,
+    highlighted,
   } = params;
 
-  const id = useId(idParam);
   const itemRef = React.useRef<HTMLElement>(null);
 
-  const itemMetadata: MenuItemMetadata = React.useMemo(
-    () => ({ disabled, id: id ?? '', label, ref: itemRef }),
-    [disabled, id, label],
-  );
-
-  const { dispatch } = React.useContext(MenuRootContext) ?? FALLBACK_MENU_CONTEXT;
-
-  const { getRootProps: getListRootProps, highlighted } = useListItem({
-    item: id,
+  const { getRootProps: getListRootProps } = useListItem({
+    dispatch,
+    item: id ?? '',
     handlePointerOverEvents: !disableFocusOnHover,
+    highlighted,
+    focusable: true,
+    selected: false,
   });
 
-  const { index, totalItemCount } = useCompoundItem(id ?? idGenerator, itemMetadata);
-
-  const {
-    getRootProps: getButtonProps,
-    focusVisible,
-    rootRef: buttonRefHandler,
-  } = useButton({
+  const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: true,
   });
 
   const handleRef = useForkRef(buttonRefHandler, externalRef, itemRef);
-
-  React.useDebugValue({ id, highlighted, disabled, label });
 
   const createHandleClick =
     (otherHandlers: EventHandlers) => (event: React.MouseEvent & MuiCancellableEvent) => {
@@ -100,9 +68,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     onClick: createHandleClick(otherHandlers),
   });
 
-  function getRootProps<ExternalProps extends Record<string, unknown> = {}>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ): UseMenuItemRootSlotProps<ExternalProps> {
+  function getRootProps(externalProps?: GenericHTMLProps): GenericHTMLProps {
     const externalEventHandlers = extractEventHandlers(externalProps);
     const getCombinedRootProps = combineHooksSlotProps(
       getOwnHandlers,
@@ -118,27 +84,8 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     };
   }
 
-  // If `id` is undefined (during SSR in React < 18), we fall back to rendering a simplified menu item
-  // which does not have access to infortmation about its position or highlighted state.
-  if (id === undefined) {
-    return {
-      getRootProps,
-      disabled: false,
-      focusVisible,
-      highlighted: false,
-      index: -1,
-      totalItemCount: 0,
-      rootRef: handleRef,
-    };
-  }
-
   return {
     getRootProps,
-    disabled,
-    focusVisible,
-    highlighted,
-    index,
-    totalItemCount,
     rootRef: handleRef,
   };
 }

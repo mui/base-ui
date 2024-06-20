@@ -11,3 +11,11 @@ export interface MenuRootContextValue {
 }
 
 export const MenuRootContext = React.createContext<MenuRootContextValue | null>(null);
+
+export function useMenuRootContext() {
+  const context = React.useContext(MenuRootContext);
+  if (context === null) {
+    throw new Error('Base UI: MenuRootContext is not defined.');
+  }
+  return context;
+}
