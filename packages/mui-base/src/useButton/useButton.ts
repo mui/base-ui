@@ -148,7 +148,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
         event.key === 'Enter' &&
         !disabled
       ) {
-        buttonRef.current?.click();
+        otherHandlers.onClick?.(event);
         event.preventDefault();
       }
     };
@@ -172,7 +172,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
         event.key === ' ' &&
         !event.defaultMuiPrevented
       ) {
-        buttonRef.current?.click();
+        otherHandlers.onClick?.(event);
       }
     };
 

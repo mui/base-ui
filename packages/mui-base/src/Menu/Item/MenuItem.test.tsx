@@ -1,8 +1,14 @@
 import * as React from 'react';
-import { createMount, createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuPopupContext } from '@base_ui/react/Menu';
+import {
+  MenuPopupContext,
+  MenuPopupContextValue,
+  MenuRootContext,
+  MenuRootContextValue,
+} from '@base_ui/react/Menu';
 import { describeConformance } from '../../../test';
+import { IndexableMap } from '../../utils/IndexableMap';
 
 const dummyGetItemState = () => ({
   disabled: false,
@@ -12,30 +18,47 @@ const dummyGetItemState = () => ({
   focusable: true,
 });
 
-const testContext = {
+const testRootContext: MenuRootContextValue = {
+  dispatch: () => {},
+  popupId: '',
+  triggerElement: null,
+  registerPopup: () => {},
+  registerTrigger: () => {},
+  state: {
+    items: new IndexableMap(),
+    highlightedValue: null,
+    selectedValues: [],
+    open: true,
+    listboxRef: { current: null },
+    changeReason: null,
+    settings: {
+      disabledItemsFocusable: false,
+      disableListWrap: false,
+      focusManagement: 'DOM',
+      orientation: 'horizontal-ltr',
+      pageSize: 1,
+      selectionMode: 'none',
+    },
+  },
+};
+
+const testPopupContext: MenuPopupContextValue = {
   getItemState: dummyGetItemState,
   registerItem: () => ({ id: '', deregister: () => {} }),
 };
 
 describe('<Menu.Item />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
 
   describeConformance(<Menu.Item />, () => ({
-    inheritComponent: 'li',
     render: (node) => {
       return render(
-        <MenuPopupContext.Provider value={testContext}>{node}</MenuPopupContext.Provider>,
+        <MenuRootContext.Provider value={testRootContext}>
+          <MenuPopupContext.Provider value={testPopupContext}>{node}</MenuPopupContext.Provider>
+        </MenuRootContext.Provider>,
       );
     },
-    mount: (node: React.ReactNode) => {
-      const wrapper = mount(
-        <MenuPopupContext.Provider value={testContext}>{node}</MenuPopupContext.Provider>,
-      );
-      return wrapper.childAt(0);
-    },
-    refInstanceof: window.HTMLLIElement,
-    testComponentPropWith: 'span',
+    refInstanceof: window.HTMLDivElement,
     skip: [
       'reactTestRenderer', // Need to be wrapped in MenuContext
     ],

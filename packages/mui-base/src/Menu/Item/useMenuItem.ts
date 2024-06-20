@@ -49,19 +49,21 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
   function getRootProps(externalProps?: GenericHTMLProps): GenericHTMLProps {
     return mergeReactProps(
       externalProps,
-      { ref: handleRef },
-      getListItemProps(),
-      getButtonProps(),
       {
-        id,
-        role: 'menuitem',
-        onClick: (event: React.MouseEvent) => {
-          dispatch({
-            type: MenuActionTypes.close,
-            event,
-          });
-        },
+        ref: handleRef,
       },
+      getButtonProps(
+        getListItemProps({
+          id,
+          role: 'menuitem',
+          onClick: (event: React.MouseEvent) => {
+            dispatch({
+              type: MenuActionTypes.close,
+              event,
+            });
+          },
+        }),
+      ),
     );
   }
 

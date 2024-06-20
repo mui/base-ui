@@ -339,7 +339,7 @@ function textCriteriaMatches<ItemValue>(
     return false;
   }
 
-  return textValue.startsWith(searchString);
+  return textValue.toLowerCase().startsWith(searchString.toLowerCase());
 }
 
 function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(

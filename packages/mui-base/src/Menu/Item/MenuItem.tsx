@@ -42,7 +42,7 @@ const InnerMenuItem = React.memo(
       () => ({
         value: id ?? '',
         id,
-        valueAsString: label,
+        valueAsString: label ?? itemRef.current?.innerText,
         ref: itemRef,
         disabled,
       }),

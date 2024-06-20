@@ -256,15 +256,15 @@ describe('<Menu.Root />', () => {
         });
 
         fireEvent.keyDown(items[0], { key: 'b' });
-        expect(document.activeElement).to.equal(items[1]);
+        expect(items[1]).toHaveFocus();
         expect(items[1]).to.have.attribute('tabindex', '0');
 
         fireEvent.keyDown(items[1], { key: 'b' });
-        expect(document.activeElement).to.equal(items[2]);
+        expect(items[2]).toHaveFocus();
         expect(items[2]).to.have.attribute('tabindex', '0');
 
         fireEvent.keyDown(items[2], { key: 'b' });
-        expect(document.activeElement).to.equal(items[1]);
+        expect(items[1]).toHaveFocus();
         expect(items[1]).to.have.attribute('tabindex', '0');
       });
 
