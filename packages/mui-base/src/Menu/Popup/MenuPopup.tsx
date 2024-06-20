@@ -5,8 +5,9 @@ import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCompoundParent } from '../../useCompound';
-import { MenuItemMetadata } from '../Item/useMenuItem.types';
 import { MenuPopupContext, MenuPopupContextValue } from './MenuPopupContext';
+import { useMenuRootContext } from '../Root/MenuRootContext';
+import { ListItemMetadata } from '../../useList';
 
 /**
  *
@@ -23,15 +24,16 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, onItemsChange, ...other } = props;
+  const { state } = useMenuRootContext();
 
-  const { subitems, registerItem } = useCompoundParent<string, MenuItemMetadata>();
+  const { subitems, registerItem } = useCompoundParent<string, ListItemMetadata<string>>();
 
   const { getListboxProps, getItemState } = useMenuPopup({
     listboxRef: forwardedRef,
     subitems,
   });
 
-  const ownerState: MenuPopupOwnerState = { open };
+  const ownerState: MenuPopupOwnerState = { open: state.open };
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',

@@ -1,3 +1,4 @@
+import { IndexableMap } from '../utils/IndexableMap';
 import type { ListItemMetadata } from './useList.types';
 
 export const ListActionTypes = {
@@ -50,7 +51,7 @@ interface TextNavigationAction {
 interface ItemsChangeAction<ItemValue> {
   type: typeof ListActionTypes.itemsChange;
   event: null;
-  items: ListItemMetadata<ItemValue>[];
+  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>;
 }
 
 interface ResetHighlightAction {

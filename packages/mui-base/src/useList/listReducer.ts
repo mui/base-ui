@@ -384,21 +384,17 @@ function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
 }
 
 function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
-  items: ListItemMetadata<ItemValue>[],
+  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
   state: State,
 ): State {
   const { focusManagement } = state.settings;
 
   let newHighlightedValue: ItemValue | null = null;
 
-  const itemsMap = new IndexableMap<ItemValue, ListItemMetadata<ItemValue>>(
-    items.map((item) => [item.value, item]),
-  );
-
   if (state.highlightedValue != null) {
-    newHighlightedValue = itemsMap.get(state.highlightedValue)?.value ?? null;
+    newHighlightedValue = items.get(state.highlightedValue)?.value ?? null;
   } else if (focusManagement === 'DOM' && (state.items == null || state.items.size === 0)) {
-    newHighlightedValue = moveHighlight(null, 'reset', itemsMap, state.settings);
+    newHighlightedValue = moveHighlight(null, 'reset', items, state.settings);
   }
 
   // exclude selected values that are no longer in the items list
@@ -409,7 +405,7 @@ function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
 
   return {
     ...state,
-    items: itemsMap,
+    items,
     highlightedValue: newHighlightedValue,
     selectedValues: newSelectedValues,
   };

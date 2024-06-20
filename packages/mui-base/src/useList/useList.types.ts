@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ListAction } from './listActions.types';
-import { MuiCancellableEventHandler } from '../utils/MuiCancellableEvent';
 import { IndexableMap } from '../utils/IndexableMap';
+import { GenericHTMLProps } from '../utils/types';
 
 /**
  * The configuration settings that modify the behavior of the list.
@@ -89,20 +89,7 @@ export interface UseListParameters<ItemValue> {
    * @default 'activeDescendant'
    */
   focusManagement?: FocusManagementType;
-  /**
-   * A function that returns the DOM element associated with an item.
-   * This is required when using the `DOM` focus management.
-   *
-   * @param item List item to get the DOM element for.
-   */
-  getItemDomElement?: (itemValue: ItemValue) => HTMLElement | null;
-  /**
-   * A function that returns the id of an item.
-   * This is required when using the `activeDescendant` focus management.
-   *
-   * @param itemValue List item to get the id for.
-   */
-  getItemId?: (itemValue: ItemValue) => string | undefined;
+  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>;
   /**
    * The item that is currently highlighted.
    */
@@ -138,16 +125,6 @@ export interface ListItemState {
   selected: boolean;
 }
 
-interface UseListRootSlotOwnProps {
-  'aria-activedescendant'?: React.AriaAttributes['aria-activedescendant'];
-  onBlur: MuiCancellableEventHandler<React.FocusEvent<HTMLElement>>;
-  onKeyDown: MuiCancellableEventHandler<React.KeyboardEvent<HTMLElement>>;
-  tabIndex: number;
-  ref: React.RefCallback<Element> | null;
-}
-
-export type UseListRootSlotProps<ExternalProps = {}> = ExternalProps & UseListRootSlotOwnProps;
-
 export interface UseListReturnValue<ItemValue> {
   getItemState: (item: ItemValue) => ListItemState;
   /**
@@ -155,8 +132,6 @@ export interface UseListReturnValue<ItemValue> {
    * @param externalProps additional props for the root slot
    * @returns props that should be spread on the root slot
    */
-  getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
-    externalProps?: ExternalProps,
-  ) => UseListRootSlotProps<ExternalProps>;
+  getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   rootRef: React.RefCallback<Element> | null;
 }

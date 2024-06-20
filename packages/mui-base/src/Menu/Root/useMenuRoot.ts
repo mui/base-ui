@@ -17,8 +17,6 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   listboxRef: { current: null },
 };
 
-const DEFAULT_COMPARER = (a: unknown, b: unknown) => a === b;
-
 /**
  *
  * Demos:
@@ -110,10 +108,8 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
   const stateComparers = React.useMemo(
     () =>
       ({
-        open: DEFAULT_COMPARER,
-        highlightedValue: DEFAULT_COMPARER,
         selectedValues: (valuesArray1: string[], valuesArray2: string[]) =>
-          areArraysEqual(valuesArray1, valuesArray2, DEFAULT_COMPARER),
+          areArraysEqual(valuesArray1, valuesArray2),
       }) as StateComparers<MenuReducerState>,
     [],
   );

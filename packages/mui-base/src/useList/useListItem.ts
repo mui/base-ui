@@ -15,14 +15,7 @@ import { mergeReactProps } from '../utils/mergeReactProps';
 export function useListItem<ItemValue>(
   parameters: UseListItemParameters<ItemValue>,
 ): UseListItemReturnValue {
-  const {
-    handlePointerOverEvents = false,
-    item,
-    dispatch,
-    highlighted,
-    selected,
-    focusable,
-  } = parameters;
+  const { handlePointerOverEvents = false, item, dispatch, highlighted, focusable } = parameters;
 
   let tabIndex: number | undefined;
   if (focusable) {
@@ -78,7 +71,5 @@ export function useListItem<ItemValue>(
 
   return {
     getRootProps,
-    highlighted,
-    selected,
   };
 }

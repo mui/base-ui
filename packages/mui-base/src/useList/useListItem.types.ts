@@ -27,12 +27,4 @@ export interface UseListItemReturnValue {
    * @returns props that should be spread on the root slot
    */
   getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
-   * If `true`, the current item is highlighted.
-   */
-  highlighted: boolean;
-  /**
-   * If `true`, the current item is selected.
-   */
-  selected: boolean;
 }

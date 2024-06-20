@@ -7,7 +7,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   props: MenuPositionerProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, side, alignment, keepMounted, ...other } = props;
+  const { render, className, side, alignment, keepMounted = true, ...other } = props;
 
   const menuRootContext = React.useContext(MenuRootContext);
   if (menuRootContext == null) {

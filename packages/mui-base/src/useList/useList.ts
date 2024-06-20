@@ -4,14 +4,14 @@ import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import {
   UseListParameters,
   ListItemState,
-  UseListRootSlotProps,
   UseListReturnValue,
+  ListItemMetadata,
 } from './useList.types';
 import { ListActionTypes } from './listActions.types';
 import { useTextNavigation } from '../utils/useTextNavigation';
-import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
-import { EventHandlers } from '../utils/types';
+import { GenericHTMLProps } from '../utils/types';
+import { mergeReactProps } from '../utils/mergeReactProps';
+import { IndexableMap } from '../utils/IndexableMap';
 
 /**
  * The useList is a lower-level utility that is used to build list-like components.
@@ -32,28 +32,13 @@ import { EventHandlers } from '../utils/types';
 function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturnValue<ItemValue> {
   const {
     focusManagement = 'activeDescendant',
-    getItemDomElement,
-    getItemId,
     rootRef: externalListRef,
     highlightedValue,
     selectedValues,
     dispatch,
     orientation = 'vertical',
+    items,
   } = params;
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (focusManagement === 'DOM' && getItemDomElement == null) {
-      throw new Error(
-        'useList: The `getItemDomElement` prop is required when using the `DOM` focus management.',
-      );
-    }
-
-    if (focusManagement === 'activeDescendant' && getItemId == null) {
-      throw new Error(
-        'useList: The `getItemId` prop is required when using the `activeDescendant` focus management.',
-      );
-    }
-  }
 
   const listRef = React.useRef<HTMLUListElement>(null);
   const handleRef = useForkRef(externalListRef, listRef);
@@ -66,80 +51,75 @@ function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturn
     }),
   );
 
-  const createHandleKeyDown =
-    (externalHandlers: EventHandlers) =>
-    (event: React.KeyboardEvent<HTMLElement> & MuiCancellableEvent) => {
-      externalHandlers.onKeyDown?.(event);
+  const previousItems = React.useRef<IndexableMap<ItemValue, ListItemMetadata<ItemValue>>>(
+    new IndexableMap(),
+  );
 
-      if (event.defaultMuiPrevented) {
-        return;
-      }
+  React.useEffect(() => {
+    // Whenever the `items` object changes, we need to determine if the actual items changed.
+    // If they did, we need to dispatch an `itemsChange` action, so the selected/highlighted state is updated.
+    if (IndexableMap.areEqual(previousItems.current, items)) {
+      return;
+    }
 
-      const keysToPreventDefault = ['Home', 'End', 'PageUp', 'PageDown'];
+    dispatch({
+      type: ListActionTypes.itemsChange,
+      event: null,
+      items,
+    });
 
-      if (orientation === 'vertical') {
-        keysToPreventDefault.push('ArrowUp', 'ArrowDown');
-      } else {
-        keysToPreventDefault.push('ArrowLeft', 'ArrowRight');
-      }
+    previousItems.current = items;
+  }, [items, dispatch]);
 
-      if (focusManagement === 'activeDescendant') {
-        // When the child element is focused using the activeDescendant attribute,
-        // the list handles keyboard events on its behalf.
-        // We have to `preventDefault()` is this case to prevent the browser from
-        // scrolling the view when space is pressed or submitting forms when enter is pressed.
-        keysToPreventDefault.push(' ', 'Enter');
-      }
-
-      if (keysToPreventDefault.includes(event.key)) {
-        event.preventDefault();
-      }
-
-      dispatch({
-        type: ListActionTypes.keyDown,
-        key: event.key,
-        event,
-      });
-
-      handleTextNavigation(event);
-    };
-
-  const createHandleBlur =
-    (externalHandlers: EventHandlers) =>
-    (event: React.FocusEvent<HTMLElement> & MuiCancellableEvent) => {
-      externalHandlers.onBlur?.(event);
-
-      if (event.defaultMuiPrevented) {
-        return;
-      }
-
-      if (listRef.current?.contains(event.relatedTarget)) {
-        // focus remains within the list
-        return;
-      }
-
-      dispatch({
-        type: ListActionTypes.blur,
-        event,
-      });
-    };
-
-  const getRootProps = <ExternalProps extends Record<string, any> = {}>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ): UseListRootSlotProps<ExternalProps> => {
-    const externalEventHandlers = extractEventHandlers(externalProps);
-    return {
-      ...externalProps,
+  const getRootProps = (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    return mergeReactProps(externalProps, {
       'aria-activedescendant':
         focusManagement === 'activeDescendant' && highlightedValue != null
-          ? getItemId!(highlightedValue)
+          ? items.get(highlightedValue)?.idAttribute
           : undefined,
       tabIndex: focusManagement === 'DOM' ? -1 : 0,
       ref: handleRef,
-      ...externalEventHandlers,
-      onBlur: createHandleBlur(externalEventHandlers),
-      onKeyDown: createHandleKeyDown(externalEventHandlers),
-    };
+      onBlur: (event: React.FocusEvent) => {
+        if (listRef.current?.contains(event.relatedTarget)) {
+          // focus remains within the list
+          return;
+        }
+
+        dispatch({
+          type: ListActionTypes.blur,
+          event,
+        });
+      },
+      onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => {
+        const keysToPreventDefault = ['Home', 'End', 'PageUp', 'PageDown'];
+
+        if (orientation === 'vertical') {
+          keysToPreventDefault.push('ArrowUp', 'ArrowDown');
+        } else {
+          keysToPreventDefault.push('ArrowLeft', 'ArrowRight');
+        }
+
+        if (focusManagement === 'activeDescendant') {
+          // When the child element is focused using the activeDescendant attribute,
+          // the list handles keyboard events on its behalf.
+          // We have to `preventDefault()` is this case to prevent the browser from
+          // scrolling the view when space is pressed or submitting forms when enter is pressed.
+          keysToPreventDefault.push(' ', 'Enter');
+        }
+
+        if (keysToPreventDefault.includes(event.key)) {
+          event.preventDefault();
+        }
+
+        dispatch({
+          type: ListActionTypes.keyDown,
+          key: event.key,
+          event,
+        });
+
+        handleTextNavigation(event);
+      },
+    });
   };
 
   const getItemState = React.useCallback(

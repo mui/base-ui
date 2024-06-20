@@ -32,10 +32,22 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       return { ...state, open: false, changeReason: action.event };
 
     case MenuActionTypes.toggle:
-      return { ...state, open: !state.open, changeReason: action.event };
+      return {
+        ...state,
+        open: !state.open,
+        changeReason: action.event,
+        highlightedValue: state.open
+          ? null
+          : state.items.first((item) => !item.disabled)?.value ?? null,
+      };
 
     case MenuActionTypes.open:
-      return { ...state, open: true, changeReason: action.event };
+      return {
+        ...state,
+        open: true,
+        changeReason: action.event,
+        highlightedValue: state.items.first((item) => !item.disabled)?.value ?? null,
+      };
 
     case MenuActionTypes.close:
       return { ...state, open: false, changeReason: action.event };
@@ -45,13 +57,5 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
 
   const newState = listReducer<string, MenuReducerState>(state, action);
 
-  // make sure an item is always highlighted
-  if (newState.highlightedValue === null && state.items.size > 0) {
-    return {
-      ...newState,
-      highlightedValue: state.items.first((item) => !item.disabled)?.value ?? null,
-    };
-  }
-
-  return state;
+  return newState;
 }

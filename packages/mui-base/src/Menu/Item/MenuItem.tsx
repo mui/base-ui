@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
-import { useMenuItemContextStabilizer } from './useMenuItemContextStabilizer';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuPopupContext } from '../Popup/MenuPopupContext';
 import { useCompoundItem } from '../../useCompound';
@@ -11,17 +10,30 @@ import { useId } from '../../utils/useId';
 import { ListItemMetadata } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { MenuReducerAction } from '../Root/useMenuRoot.types';
+
+interface InnerMenuItemProps extends MenuItemProps {
+  highlighted: boolean;
+  dispatch: React.Dispatch<MenuReducerAction>;
+}
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function MenuItem(
-    props: MenuItemProps,
+    props: InnerMenuItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
-    const { render, className, disabled = false, label, id: idProp, ...other } = props;
+    const {
+      render,
+      className,
+      disabled = false,
+      label,
+      id,
+      highlighted,
+      dispatch,
+      ...other
+    } = props;
 
-    const { dispatch } = useMenuRootContext();
-    const { getItemState, registerItem } = useMenuPopupContext();
-    const id = useId(idProp);
+    const { registerItem } = useMenuPopupContext();
 
     const itemRef = React.useRef<HTMLElement>(null);
     const mergedRef = useForkRef(forwardedRef, itemRef);
@@ -38,12 +50,10 @@ const InnerMenuItem = React.memo(
     );
 
     useCompoundItem({
-      key: id,
+      key: id ?? '',
       itemMetadata,
       registerItem,
     });
-
-    const { highlighted } = id != null ? getItemState(id) : { highlighted: false };
 
     const { getRootProps } = useMenuItem({
       id,
@@ -84,17 +94,17 @@ const MenuItem = React.forwardRef(function MenuItem(
   ref: React.ForwardedRef<Element>,
 ) {
   const { id: idProp } = props;
+  const { dispatch, state } = useMenuRootContext();
+  const id = useId(idProp);
+
+  const highlighted = state.highlightedValue === id;
 
   // This wrapper component is used as a performance optimization.
-  // `useMenuItemContextStabilizer` ensures that the context value
-  // is stable across renders, so that the actual MenuItem re-renders
+  // MenuItem reads the context and re-renders the actual MenuItem
   // only when it needs to.
-  const { contextValue, id } = useMenuItemContextStabilizer(idProp);
 
   return (
-    <ListContext.Provider value={contextValue}>
-      <InnerMenuItem {...props} id={id} ref={ref} />
-    </ListContext.Provider>
+    <InnerMenuItem {...props} id={id} ref={ref} dispatch={dispatch} highlighted={highlighted} />
   );
 });
 
