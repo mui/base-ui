@@ -91,8 +91,8 @@ export default function AnchorPositioning() {
           <div
             ref={refs.setFloating}
             style={{
-              ...positionerStyles,
               visibility: visible ? 'visible' : 'hidden',
+              ...positionerStyles,
             }}
           >
             <div
