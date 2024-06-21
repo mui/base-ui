@@ -105,10 +105,6 @@ export function useAnchorPositioning(
 
   const flipMiddleware = flip({
     ...commonCollisionProps,
-    // TODO: Floating UI's flip algorithm doesn't work well on narrow viewports when this is set.
-    // It tends to choose the `left`/`right` placements even when `top`/`bottom` work better because
-    // there is a lot of vertical space, but the horizontal space is limited and text cannot be
-    // read well.
     fallbackAxisSideDirection,
   });
   const shiftMiddleware = shift({
