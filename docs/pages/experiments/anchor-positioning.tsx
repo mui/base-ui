@@ -10,16 +10,19 @@ const oppositeSideMap = {
 } as const;
 
 export default function AnchorPositioning() {
-  const [size, setSize] = React.useState<'xs' | 's' | 'm' | 'l' | 'xl'>('xs');
+  const [popupSize, setPopupSize] = React.useState<'xs' | 's' | 'm' | 'l' | 'xl'>('xs');
+  const [anchorSize, setAnchorSize] = React.useState<'xs' | 's' | 'm' | 'l' | 'xl'>('m');
   const [side, setSide] = React.useState<'top' | 'bottom' | 'left' | 'right'>('top');
   const [alignment, setAlignment] = React.useState<'start' | 'center' | 'end'>('center');
   const [sideOffset, setSideOffset] = React.useState(0);
   const [alignmentOffset, setAlignmentOffset] = React.useState(0);
   const [collisionPadding, setCollisionPadding] = React.useState(5);
+  const [arrowPadding, setArrowPadding] = React.useState(5);
   const [hideWhenDetached, setHideWhenDetached] = React.useState(false);
   const [arrow, setArrow] = React.useState(true);
   const [hideArrowWhenUncentered, setHideArrowWhenUncentered] = React.useState(false);
   const [sticky, setSticky] = React.useState(false);
+  const [constrainSize, setConstrainSize] = React.useState(false);
 
   const { positionerStyles, refs, arrowStyles, arrowRef, renderedSide, arrowUncentered } =
     useAnchorPositioning({
@@ -30,7 +33,26 @@ export default function AnchorPositioning() {
       collisionPadding,
       hideWhenDetached,
       sticky,
+      arrowPadding,
     });
+
+  const [visible, setVisible] = React.useState(false);
+
+  const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      node.scrollLeft = 285;
+      node.scrollTop = 625;
+      setVisible(true);
+    }
+  }, []);
+
+  const anchorLength = {
+    xs: 5,
+    s: 25,
+    m: 50,
+    l: 100,
+    xl: 250,
+  }[anchorSize];
 
   return (
     <div style={{ fontFamily: 'sans-serif', margin: 50 }}>
@@ -44,33 +66,44 @@ export default function AnchorPositioning() {
             width: 375,
             height: 800,
           }}
+          ref={handleInitialScroll}
         >
-          <div style={{ width: 1000, height: 1000 }} />
+          <div style={{ width: 1000 + anchorLength / 2, height: 1000 }} />
           <div
             ref={refs.setReference}
             style={{
               display: 'grid',
               placeItems: 'center',
-              width: 50,
-              height: 50,
+              width: anchorLength,
+              height: anchorLength,
               background: 'tomato',
               position: 'relative',
               left: 450,
               fontFamily: 'sans-serif',
               color: 'white',
+              fontSize: 12,
+              fontWeight: 'bold',
             }}
           >
-            A
+            {anchorSize !== 'xs' ? 'A' : null}
           </div>
-          <div ref={refs.setFloating} style={positionerStyles}>
+          <div
+            ref={refs.setFloating}
+            style={{
+              ...positionerStyles,
+              visibility: visible ? 'visible' : 'hidden',
+            }}
+          >
             <div
               style={{
                 background: 'white',
-                maxWidth: 'var(--available-width)',
-                maxHeight: 'var(--available-height)',
-                overflow: 'auto',
                 boxSizing: 'border-box',
                 padding: 10,
+                ...(constrainSize && {
+                  maxWidth: 'var(--available-width)',
+                  maxHeight: 'var(--available-height)',
+                  overflow: 'auto',
+                }),
               }}
             >
               {`Content `.repeat(
@@ -80,7 +113,7 @@ export default function AnchorPositioning() {
                   m: 10,
                   l: 50,
                   xl: 200,
-                }[size],
+                }[popupSize],
               )}
             </div>
             {arrow && (
@@ -97,14 +130,34 @@ export default function AnchorPositioning() {
               />
             )}
           </div>
-          <div style={{ width: 1000, height: 1000 }} />
+          <div style={{ width: 1000 + anchorLength / 2, height: 1000 }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <fieldset>
-            <legend>Content Size</legend>
+            <legend>Popup Size</legend>
             {(['xs', 's', 'm', 'l', 'xl'] as const).map((s) => (
-              <label>
-                <input name="size" type="radio" checked={s === size} onChange={() => setSize(s)} />
+              <label key={s}>
+                <input
+                  name="popup-size"
+                  type="radio"
+                  checked={s === popupSize}
+                  onChange={() => setPopupSize(s)}
+                />
+                {s}
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset>
+            <legend>Anchor Size</legend>
+            {(['xs', 's', 'm', 'l', 'xl'] as const).map((s) => (
+              <label key={s}>
+                <input
+                  name="anchor-size"
+                  type="radio"
+                  checked={s === anchorSize}
+                  onChange={() => setAnchorSize(s)}
+                />
                 {s}
               </label>
             ))}
@@ -113,7 +166,7 @@ export default function AnchorPositioning() {
           <fieldset>
             <legend>Side</legend>
             {(['top', 'bottom', 'left', 'right'] as const).map((s) => (
-              <label>
+              <label key={s}>
                 <input name="side" type="radio" checked={s === side} onChange={() => setSide(s)} />
                 {s}
               </label>
@@ -123,7 +176,7 @@ export default function AnchorPositioning() {
           <fieldset>
             <legend>Alignment</legend>
             {(['start', 'center', 'end'] as const).map((a) => (
-              <label>
+              <label key={a}>
                 <input
                   name="alignment"
                   type="radio"
@@ -170,6 +223,27 @@ export default function AnchorPositioning() {
             />
             {collisionPadding}
           </fieldset>
+
+          <fieldset>
+            <legend>Arrow Padding</legend>
+            <input
+              type="range"
+              min={0}
+              max={20}
+              value={arrowPadding}
+              onChange={(e) => setArrowPadding(Number(e.target.value))}
+            />
+            {arrowPadding}
+          </fieldset>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={constrainSize}
+              onChange={() => setConstrainSize((prev) => !prev)}
+            />
+            Constrain size
+          </label>
 
           <label>
             <input

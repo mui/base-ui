@@ -157,7 +157,7 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hideWhenDetached && hide(commonCollisionProps),
+    hideWhenDetached && hide(),
     {
       name: 'transformOrigin',
       fn({ elements, middlewareData, placement: renderedPlacement }) {
