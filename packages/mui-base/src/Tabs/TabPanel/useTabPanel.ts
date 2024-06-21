@@ -7,10 +7,6 @@ import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
-function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
-  return otherTabPanelValues.size;
-}
-
 /**
  *
  * Demos:
@@ -29,14 +25,23 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
     orientation,
     direction,
     tabActivationDirection,
+    compoundParentContext,
   } = useTabsContext();
+
+  const { getRegisteredItemCount: getRegisteredPanelsCount } = compoundParentContext;
 
   const id = useId(idParam);
   const ref = React.useRef<HTMLElement>(null);
   const handleRef = useForkRef(ref, externalRef);
   const metadata = React.useMemo(() => ({ id, ref }), [id]);
 
-  const { key: value } = useCompoundItem(valueParam ?? tabPanelValueGenerator, metadata);
+  const value = React.useRef(valueParam ?? getRegisteredPanelsCount()).current;
+
+  useCompoundItem({
+    key: value,
+    itemMetadata: metadata,
+    parentContext: compoundParentContext,
+  });
 
   const hidden = value !== selectedTabValue;
 

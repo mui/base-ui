@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { IndexableMap } from '../utils/IndexableMap';
-import type { KeyGenerator, UseCompoundParentReturnValue, WithRef } from './useCompound.types';
+import type { UseCompoundParentReturnValue, WithRef } from './useCompound.types';
 
 /**
  * Provides a way for a component to know about its children.
@@ -32,33 +32,21 @@ export function useCompoundParent<Key, Subitem extends WithRef>(): UseCompoundPa
   }, []);
 
   const registerItem = React.useCallback(
-    function registerItem(
-      key: Key | KeyGenerator<Key>,
-      item: Subitem | ((generatedId: Key) => Subitem),
-    ) {
-      let providedOrGeneratedKey: Key;
-
-      if (typeof key === 'function') {
-        providedOrGeneratedKey = (key as KeyGenerator<Key>)(subitemKeys.current);
-      } else {
-        providedOrGeneratedKey = key;
-      }
-
-      subitemKeys.current.add(providedOrGeneratedKey);
+    function registerItem(key: Key, item: Subitem | ((generatedId: Key) => Subitem)) {
+      subitemKeys.current.add(key);
       setSubitems((previousState) => {
         const newState = new IndexableMap(previousState);
 
         if (typeof item === 'function') {
-          item = item(providedOrGeneratedKey);
+          item = item(key);
         }
 
-        newState.set(providedOrGeneratedKey, item);
+        newState.set(key, item);
         return newState;
       });
 
       return {
-        key: providedOrGeneratedKey,
-        deregister: () => deregisterItem(providedOrGeneratedKey),
+        deregister: () => deregisterItem(key),
       };
     },
     [deregisterItem],
@@ -66,21 +54,15 @@ export function useCompoundParent<Key, Subitem extends WithRef>(): UseCompoundPa
 
   const sortedSubitems = React.useMemo(() => sortSubitems(subitems), [subitems]);
 
-  const getItemIndex = React.useCallback(
-    function getItemIndex(id: Key) {
-      return Array.from(sortedSubitems.keys()).indexOf(id);
-    },
-    [sortedSubitems],
-  );
-
   return React.useMemo(
     () => ({
-      getItemIndex,
-      registerItem,
-      itemCount: subitems.size,
+      context: {
+        registerItem,
+        getRegisteredItemCount: () => subitemKeys.current.size,
+      },
       subitems: sortedSubitems,
     }),
-    [getItemIndex, registerItem, subitems.size, sortedSubitems],
+    [registerItem, subitemKeys, sortedSubitems],
   );
 }
 

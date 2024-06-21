@@ -36,6 +36,10 @@ describe('<Tabs.Tab />', () => {
     orientation: 'horizontal',
     direction: 'ltr',
     tabActivationDirection: 'none',
+    registerTabPanel: () => ({
+      deregister: () => {},
+    }),
+    generateTabPanelId: () => '',
   };
 
   describeConformance(<Tabs.Tab value="1" />, () => ({

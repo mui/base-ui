@@ -16,7 +16,8 @@ import type { UseCompoundItemParameters } from './useCompound.types';
 export function useCompoundItem<Key, Subitem extends { ref: any }>(
   parameters: UseCompoundItemParameters<Key, Subitem>,
 ): void {
-  const { key, itemMetadata, registerItem } = parameters;
+  const { key, itemMetadata, parentContext } = parameters;
+  const { registerItem } = parentContext;
 
   useEnhancedEffect(() => {
     const { deregister } = registerItem(key, itemMetadata);

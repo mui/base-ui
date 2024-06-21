@@ -9,7 +9,6 @@ export type {
 } from './Root/TabsRoot.types';
 export { useTabsRoot } from './Root/useTabsRoot';
 export { TabsContext, type TabsContextValue, useTabsContext } from './Root/TabsContext';
-export * from './Root/TabsProvider';
 
 export { Tab } from './Tab/Tab';
 export type { TabOwnerState, TabProps, UseTabParameters, UseTabReturnValue } from './Tab/Tab.types';
@@ -39,5 +38,4 @@ export type {
   UseTabsListParameters,
   UseTabsListReturnValue,
 } from './TabsList/TabsList.types';
-export * from './TabsList/TabsListProvider';
 export { useTabsList } from './TabsList/useTabsList';

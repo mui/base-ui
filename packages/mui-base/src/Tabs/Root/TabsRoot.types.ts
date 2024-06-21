@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { TabsProviderValue } from './TabsProvider';
 import { BaseUIComponentProps } from '../../utils/types';
+import { TabsContextValue } from './TabsContext';
 
 export type TabsRootOwnerState = {
   orientation: TabsOrientation;
@@ -70,7 +70,7 @@ export interface UseTabsReturnValue {
   /**
    * Returns the values to be passed to the tabs provider.
    */
-  contextValue: TabsProviderValue;
+  contextValue: TabsContextValue;
   getRootProps: (
     externalProps?: React.ComponentPropsWithRef<'div'>,
   ) => React.ComponentPropsWithRef<'div'>;

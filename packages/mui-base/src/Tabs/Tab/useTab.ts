@@ -1,18 +1,12 @@
 'use client';
 import * as React from 'react';
-import { UseTabParameters, UseTabReturnValue } from './Tab.types';
-import { useTabsContext } from '../Root/TabsContext';
-import { TabMetadata } from '../Root/useTabsRoot';
+import { TabMetadata, UseTabParameters, UseTabReturnValue } from './Tab.types';
 import { useCompoundItem } from '../../useCompound';
 import { useListItem } from '../../useList';
 import { useButton } from '../../useButton';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
-function tabValueGenerator(otherTabValues: Set<any>) {
-  return otherTabValues.size;
-}
 
 /**
  *
@@ -25,23 +19,42 @@ function tabValueGenerator(otherTabValues: Set<any>) {
  * - [useTab API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab)
  */
 function useTab(parameters: UseTabParameters): UseTabReturnValue {
-  const { value: valueParam, rootRef: externalRef, disabled = false, id: idParam } = parameters;
+  const {
+    value: valueParam,
+    rootRef: externalRef,
+    disabled = false,
+    id: idParam,
+    compoundParentContext,
+    state,
+    orientation,
+    getTabPanelId,
+    dispatch,
+  } = parameters;
 
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
+  const value = React.useRef(valueParam ?? compoundParentContext.getRegisteredItemCount()).current;
 
-  const { value: selectedValue, getTabPanelId, orientation } = useTabsContext();
+  const tabMetadata: TabMetadata = React.useMemo(
+    () => ({ disabled, ref: tabRef, id, value }),
+    [disabled, tabRef, id, value],
+  );
 
-  const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
-
-  const {
+  useCompoundItem<any, TabMetadata>({
     key: value,
-    index,
-    totalItemCount: totalTabsCount,
-  } = useCompoundItem<any, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
+    itemMetadata: tabMetadata,
+    parentContext: compoundParentContext,
+  });
 
-  const { getRootProps: getListItemProps, selected } = useListItem({
+  const selected = state.selectedValues.includes(value);
+  const highlighted = state.highlightedValue === value;
+
+  const { getRootProps: getListItemProps } = useListItem({
     item: value,
+    dispatch,
+    focusable: true,
+    highlighted,
+    selected,
   });
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
@@ -76,13 +89,10 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   return {
     getRootProps,
-    index,
     rootRef: handleRef,
-    // the `selected` state isn't set on the server (it relies on effects to be calculated),
-    // so we fall back to checking the `value` prop with the selectedValue from the TabsContext
-    selected: selected || value === selectedValue,
-    totalTabsCount,
+    selected,
     orientation,
+    value,
   };
 }
 
