@@ -204,6 +204,21 @@ You may dim content behind the popover in order to draw more attention to it by 
 
 It has the same maximum `z-index` as the `Positioner` component by default, and should be placed before it in the React tree. This allows it to block all content behind it, and also be independently animated.
 
+### Hover
+
+When combining `openOnHover` with the Backdrop component, ensure the `Trigger` element lies on a higher `z-index` than the Backdrop:
+
+```jsx
+<Popover.Trigger style={{ position: 'relative', zIndex: 2 ** 31 - 1 }} />
+<Popover.Backdrop style={{ zIndex: 2 ** 31 - 2 }} />
+```
+
+:::info
+`2 ** 31 - 1` is the maximum possible `z-index`, ensuring the popover appears on the very top layer of the document.
+:::
+
+This will prevent it from closing unexpectedly, as well as prevent it from being dimmed due to the Backdrop covering it.
+
 ## Anchoring
 
 By default, the `Trigger` acts as the anchor, but this can be changed to another element.
