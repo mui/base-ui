@@ -1,30 +1,36 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
-import {
-  TabsListProvider,
-  TabsListProviderValue,
-  TabsContext,
-  TabsContextValue,
-} from '@base_ui/react/Tabs';
+import { TabsContext, TabsContextValue } from '@base_ui/react/Tabs';
 import { describeConformance } from '../../../test/describeConformance';
+import { TabsListContext, TabsListContextValue } from '../TabsList/TabsListContext';
+import { IndexableMap } from '../../utils/IndexableMap';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
 
-  const testTabsListContext: TabsListProviderValue = {
+  const testTabsListContext: TabsListContextValue = {
     dispatch: () => {},
-    registerItem: () => ({ id: 0, deregister: () => {} }),
-    getItemIndex: () => 0,
-    totalSubitemCount: 1,
-    getItemState() {
-      return { disabled: false, highlighted: false, selected: false, focusable: true, index: 0 };
+    compoundParentContext: {
+      registerItem: () => ({ deregister: () => {} }),
+      getRegisteredItemCount: () => 0,
     },
-    activateOnFocus: true,
+    state: {
+      highlightedValue: null,
+      items: new IndexableMap(),
+      selectedValues: [],
+      tabsListRef: { current: null },
+      settings: {
+        activateOnFocus: true,
+        disabledItemsFocusable: true,
+        disableListWrap: false,
+        focusManagement: 'DOM',
+        orientation: 'horizontal-rtl',
+        pageSize: 1,
+        selectionMode: 'single',
+      },
+    },
     getTabElement: () => null,
-    tabsListRef: {
-      current: null,
-    },
   };
 
   const testTabsContext: TabsContextValue = {
@@ -36,10 +42,12 @@ describe('<Tabs.Tab />', () => {
     orientation: 'horizontal',
     direction: 'ltr',
     tabActivationDirection: 'none',
-    registerTabPanel: () => ({
-      deregister: () => {},
-    }),
-    generateTabPanelId: () => '',
+    compoundParentContext: {
+      registerItem: () => ({
+        deregister: () => {},
+      }),
+      getRegisteredItemCount: () => 0,
+    },
   };
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
@@ -47,7 +55,7 @@ describe('<Tabs.Tab />', () => {
     render: (node) => {
       const { container, ...other } = render(
         <TabsContext.Provider value={testTabsContext}>
-          <TabsListProvider value={testTabsListContext}>{node}</TabsListProvider>
+          <TabsListContext.Provider value={testTabsListContext}>{node}</TabsListContext.Provider>
         </TabsContext.Provider>,
       );
 

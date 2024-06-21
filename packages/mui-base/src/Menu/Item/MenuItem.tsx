@@ -33,7 +33,7 @@ const InnerMenuItem = React.memo(
       ...other
     } = props;
 
-    const { registerItem } = useMenuPopupContext();
+    const { compoundParentContext } = useMenuPopupContext();
 
     const itemRef = React.useRef<HTMLElement>(null);
     const mergedRef = useForkRef(forwardedRef, itemRef);
@@ -52,7 +52,7 @@ const InnerMenuItem = React.memo(
     useCompoundItem({
       key: id ?? '',
       itemMetadata,
-      registerItem,
+      parentContext: compoundParentContext,
     });
 
     const { getRootProps } = useMenuItem({

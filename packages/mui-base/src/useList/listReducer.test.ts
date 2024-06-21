@@ -5,6 +5,8 @@ import { ListState } from './useList.types';
 import { ListAction, ListActionTypes } from './listActions.types';
 import { IndexableMap } from '../utils/IndexableMap';
 
+const EMPTY_REF = { current: null };
+
 describe('listReducer', () => {
   describe('action: blur', () => {
     it('resets the highlightedValue', () => {
@@ -38,9 +40,9 @@ describe('listReducer', () => {
         highlightedValue: 'a',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -67,9 +69,9 @@ describe('listReducer', () => {
         highlightedValue: null,
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: true }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: true, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -98,9 +100,9 @@ describe('listReducer', () => {
         highlightedValue: 'a',
         selectedValues: ['one'],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -127,9 +129,9 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: ['one'],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -157,9 +159,9 @@ describe('listReducer', () => {
         highlightedValue: 'three',
         selectedValues: ['one', 'two'],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -187,9 +189,9 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -597,11 +599,11 @@ describe('listReducer', () => {
             highlightedValue: spec.initialHighlightedItem,
             selectedValues: [],
             items: new IndexableMap([
-              ['1', { value: '1', disabled: spec.disabledItems.includes('1') }],
-              ['2', { value: '2', disabled: spec.disabledItems.includes('2') }],
-              ['3', { value: '3', disabled: spec.disabledItems.includes('3') }],
-              ['4', { value: '4', disabled: spec.disabledItems.includes('4') }],
-              ['5', { value: '5', disabled: spec.disabledItems.includes('5') }],
+              ['1', { value: '1', disabled: spec.disabledItems.includes('1'), ref: EMPTY_REF }],
+              ['2', { value: '2', disabled: spec.disabledItems.includes('2'), ref: EMPTY_REF }],
+              ['3', { value: '3', disabled: spec.disabledItems.includes('3'), ref: EMPTY_REF }],
+              ['4', { value: '4', disabled: spec.disabledItems.includes('4'), ref: EMPTY_REF }],
+              ['5', { value: '5', disabled: spec.disabledItems.includes('5'), ref: EMPTY_REF }],
             ]),
             settings: {
               disableListWrap: spec.disableListWrap,
@@ -631,9 +633,9 @@ describe('listReducer', () => {
           highlightedValue: 'two',
           selectedValues: [],
           items: new IndexableMap([
-            ['one', { value: 'one', disabled: false }],
-            ['two', { value: 'two', disabled: false }],
-            ['three', { value: 'three', disabled: false }],
+            ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+            ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+            ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
           ]),
           settings: {
             disableListWrap: false,
@@ -660,9 +662,9 @@ describe('listReducer', () => {
           highlightedValue: 'two',
           selectedValues: ['one'],
           items: new IndexableMap([
-            ['one', { value: 'one', disabled: false }],
-            ['two', { value: 'two', disabled: false }],
-            ['three', { value: 'three', disabled: false }],
+            ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+            ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+            ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
           ]),
           settings: {
             disableListWrap: false,
@@ -689,9 +691,9 @@ describe('listReducer', () => {
           highlightedValue: 'two',
           selectedValues: ['one'],
           items: new IndexableMap([
-            ['one', { value: 'one', disabled: false }],
-            ['two', { value: 'two', disabled: false }],
-            ['three', { value: 'three', disabled: false }],
+            ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+            ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+            ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
           ]),
           settings: {
             disableListWrap: false,
@@ -721,11 +723,11 @@ describe('listReducer', () => {
         highlightedValue: 'two',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
-          ['four', { value: 'four', disabled: false }],
-          ['five', { value: 'five', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
+          ['four', { value: 'four', disabled: false, ref: EMPTY_REF }],
+          ['five', { value: 'five', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -752,11 +754,11 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
-          ['four', { value: 'four', disabled: false }],
-          ['five', { value: 'five', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
+          ['four', { value: 'four', disabled: false, ref: EMPTY_REF }],
+          ['five', { value: 'five', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -783,11 +785,11 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: true }],
-          ['three', { value: 'three', disabled: false }],
-          ['four', { value: 'four', disabled: false }],
-          ['five', { value: 'five', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: true, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
+          ['four', { value: 'four', disabled: false, ref: EMPTY_REF }],
+          ['five', { value: 'five', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -814,11 +816,11 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: true }],
-          ['three', { value: 'three', disabled: false }],
-          ['four', { value: 'four', disabled: false }],
-          ['five', { value: 'five', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: true, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
+          ['four', { value: 'four', disabled: false, ref: EMPTY_REF }],
+          ['five', { value: 'five', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -845,11 +847,11 @@ describe('listReducer', () => {
         highlightedValue: 'three',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
-          ['four', { value: 'four', disabled: false }],
-          ['five', { value: 'five', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
+          ['four', { value: 'four', disabled: false, ref: EMPTY_REF }],
+          ['five', { value: 'five', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: true,
@@ -887,8 +889,8 @@ describe('listReducer', () => {
         highlightedValue: '1',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: irrelevantConfig,
       };
@@ -896,11 +898,11 @@ describe('listReducer', () => {
       const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
-        items: [
-          { value: '0', disabled: false },
-          { value: '1', disabled: false },
-          { value: '2', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['0', { value: '0', disabled: false, ref: EMPTY_REF }],
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
+        ]),
       };
 
       const result = listReducer(state, action);
@@ -912,9 +914,9 @@ describe('listReducer', () => {
         highlightedValue: '0',
         selectedValues: [],
         items: new IndexableMap([
-          ['0', { value: '0', disabled: false }],
-          ['1', { value: '1', disabled: false }],
-          ['2', { value: '2', disabled: false }],
+          ['0', { value: '0', disabled: false, ref: EMPTY_REF }],
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: irrelevantConfig,
       };
@@ -922,10 +924,10 @@ describe('listReducer', () => {
       const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
-        items: [
-          { value: '1', disabled: false },
-          { value: '2', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
+        ]),
       };
 
       const result = listReducer(state, action);
@@ -937,9 +939,9 @@ describe('listReducer', () => {
         highlightedValue: '1',
         selectedValues: ['1', '2'],
         items: new IndexableMap([
-          ['0', { value: '0', disabled: false }],
-          ['1', { value: '1', disabled: false }],
-          ['2', { value: '2', disabled: false }],
+          ['0', { value: '0', disabled: false, ref: EMPTY_REF }],
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: irrelevantConfig,
       };
@@ -947,10 +949,10 @@ describe('listReducer', () => {
       const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
-        items: [
-          { value: '1', disabled: false },
-          { value: '2', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
+        ]),
       };
 
       const result = listReducer(state, action);
@@ -962,9 +964,9 @@ describe('listReducer', () => {
         highlightedValue: '1',
         selectedValues: ['0', '2'],
         items: new IndexableMap([
-          ['0', { value: '0', disabled: false }],
-          ['1', { value: '1', disabled: false }],
-          ['2', { value: '2', disabled: false }],
+          ['0', { value: '0', disabled: false, ref: EMPTY_REF }],
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: irrelevantConfig,
       };
@@ -972,10 +974,10 @@ describe('listReducer', () => {
       const action: ListAction<string> = {
         type: ListActionTypes.itemsChange,
         event: null,
-        items: [
-          { value: '1', disabled: false },
-          { value: '2', disabled: false },
-        ],
+        items: new IndexableMap([
+          ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+          ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
+        ]),
       };
 
       const result = listReducer(state, action);
@@ -996,10 +998,10 @@ describe('listReducer', () => {
 
         const action: ListAction<string> = {
           type: ListActionTypes.itemsChange,
-          items: [
-            { value: '1', disabled: false },
-            { value: '2', disabled: false },
-          ],
+          items: new IndexableMap([
+            ['1', { value: '1', disabled: false, ref: EMPTY_REF }],
+            ['2', { value: '2', disabled: false, ref: EMPTY_REF }],
+          ]),
           event: null,
         };
 
@@ -1022,11 +1024,11 @@ describe('listReducer', () => {
         const action: ListAction<string> = {
           type: ListActionTypes.itemsChange,
           event: null,
-          items: [
-            { value: '1', disabled: true },
-            { value: '2', disabled: true },
-            { value: '3', disabled: false },
-          ],
+          items: new IndexableMap([
+            ['1', { value: '1', disabled: true, ref: EMPTY_REF }],
+            ['2', { value: '2', disabled: true, ref: EMPTY_REF }],
+            ['3', { value: '3', disabled: false, ref: EMPTY_REF }],
+          ]),
         };
 
         const result = listReducer(state, action);
@@ -1041,9 +1043,9 @@ describe('listReducer', () => {
         highlightedValue: 'three',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -1069,9 +1071,9 @@ describe('listReducer', () => {
         highlightedValue: 'three',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: true }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: true, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -1099,9 +1101,9 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: false }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: false, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -1127,9 +1129,9 @@ describe('listReducer', () => {
         highlightedValue: 'one',
         selectedValues: [],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: true }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: true, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,
@@ -1157,9 +1159,9 @@ describe('listReducer', () => {
         highlightedValue: null,
         selectedValues: ['one', 'two'],
         items: new IndexableMap([
-          ['one', { value: 'one', disabled: false }],
-          ['two', { value: 'two', disabled: false }],
-          ['three', { value: 'three', disabled: true }],
+          ['one', { value: 'one', disabled: false, ref: EMPTY_REF }],
+          ['two', { value: 'two', disabled: false, ref: EMPTY_REF }],
+          ['three', { value: 'three', disabled: true, ref: EMPTY_REF }],
         ]),
         settings: {
           disableListWrap: false,

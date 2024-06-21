@@ -3,14 +3,15 @@ import { expect } from 'chai';
 import { render } from '@mui/internal-test-utils';
 import { useCompoundParent } from './useCompoundParent';
 import { useCompoundItem } from './useCompoundItem';
-import { KeyGenerator, RegisterItemReturnValue } from './useCompound.types';
+import { CompoundParentContextValue } from './useCompound.types';
 import { IndexableMap } from '../utils/IndexableMap';
 
 type ItemValue = { value?: string; ref: React.RefObject<HTMLSpanElement> };
 
-const CompoundComponentContext = React.createContext<
-  ((id: string | KeyGenerator<string>, item: ItemValue) => RegisterItemReturnValue<string>) | null
->(null);
+const CompoundComponentContext = React.createContext<CompoundParentContextValue<
+  string,
+  ItemValue
+> | null>(null);
 
 describe('compound components', () => {
   describe('useCompoundParent', () => {
@@ -19,12 +20,12 @@ describe('compound components', () => {
 
       function Parent(props: React.PropsWithChildren<{}>) {
         const { children } = props;
-        const { subitems, registerItem } = useCompoundParent<string, ItemValue>();
+        const { subitems, context } = useCompoundParent<string, ItemValue>();
 
         parentSubitems = subitems;
 
         return (
-          <CompoundComponentContext.Provider value={registerItem}>
+          <CompoundComponentContext.Provider value={context}>
             {children}
           </CompoundComponentContext.Provider>
         );
@@ -33,12 +34,12 @@ describe('compound components', () => {
       function Child(props: React.PropsWithChildren<{ id: string; value: string }>) {
         const { id, value, children } = props;
         const ref = React.useRef<HTMLSpanElement>(null);
-        const registerItem = React.useContext(CompoundComponentContext)!;
+        const parentContext = React.useContext(CompoundComponentContext)!;
 
         useCompoundItem({
           key: id,
           itemMetadata: React.useMemo(() => ({ value, ref }), [value, ref]),
-          registerItem,
+          parentContext,
         });
 
         return <span ref={ref}>{children}</span>;
@@ -85,12 +86,12 @@ describe('compound components', () => {
 
       function Parent(props: React.PropsWithChildren<{}>) {
         const { children } = props;
-        const { subitems, registerItem } = useCompoundParent<string, ItemValue>();
+        const { subitems, context } = useCompoundParent<string, ItemValue>();
 
         parentSubitems = subitems;
 
         return (
-          <CompoundComponentContext.Provider value={registerItem}>
+          <CompoundComponentContext.Provider value={context}>
             {children}
           </CompoundComponentContext.Provider>
         );
@@ -99,12 +100,12 @@ describe('compound components', () => {
       function Child(props: { id: string; value: string }) {
         const { id, value } = props;
         const ref = React.useRef<HTMLSpanElement>(null);
-        const registerItem = React.useContext(CompoundComponentContext)!;
+        const parentContext = React.useContext(CompoundComponentContext)!;
 
         useCompoundItem({
           key: id,
           itemMetadata: React.useMemo(() => ({ value, ref }), [value, ref]),
-          registerItem,
+          parentContext,
         });
 
         return <span ref={ref} />;
@@ -146,12 +147,12 @@ describe('compound components', () => {
 
       function Parent(props: React.PropsWithChildren<{}>) {
         const { children } = props;
-        const { subitems, registerItem } = useCompoundParent<string, ItemValue>();
+        const { subitems, context } = useCompoundParent<string, ItemValue>();
 
         parentSubitems = subitems;
 
         return (
-          <CompoundComponentContext.Provider value={registerItem}>
+          <CompoundComponentContext.Provider value={context}>
             {children}
           </CompoundComponentContext.Provider>
         );
@@ -160,12 +161,12 @@ describe('compound components', () => {
       function Child(props: React.PropsWithChildren<{ id: string; value: string }>) {
         const { id, value, children } = props;
         const ref = React.useRef<HTMLSpanElement>(null);
-        const registerItem = React.useContext(CompoundComponentContext)!;
+        const parentContext = React.useContext(CompoundComponentContext)!;
 
         useCompoundItem({
           key: id,
           itemMetadata: React.useMemo(() => ({ value, ref }), [value, ref]),
-          registerItem,
+          parentContext,
         });
 
         return <span ref={ref}>{children}</span>;
@@ -195,49 +196,7 @@ describe('compound components', () => {
     // TODO: test if removed children are removed from the map
 
     // TODO: test if parent is notified about updated metadata
-  });
 
-  describe('useCompoundItem', () => {
-    it('gets assigned a generated id if none is provided', () => {
-      function Parent(props: React.PropsWithChildren<{}>) {
-        const { children } = props;
-        const { registerItem } = useCompoundParent<string, ItemValue>();
-
-        return (
-          <CompoundComponentContext.Provider value={registerItem}>
-            <ul>{children}</ul>
-          </CompoundComponentContext.Provider>
-        );
-      }
-
-      function idGenerator(existingIds: Set<string>) {
-        return `item-${existingIds.size}`;
-      }
-
-      function Child() {
-        const ref = React.useRef<HTMLLIElement>(null);
-        const registerItem = React.useContext(CompoundComponentContext)!;
-        const { key: id } = useCompoundItem<string, ItemValue>({
-          key: idGenerator,
-          itemMetadata: React.useMemo(() => ({ ref }), []),
-          registerItem,
-        });
-
-        return <li ref={ref}>{id}</li>;
-      }
-
-      const { getAllByRole } = render(
-        <Parent>
-          <Child />
-          <Child />
-          <Child />
-        </Parent>,
-      );
-
-      const children = getAllByRole('listitem');
-      expect(children[0].innerHTML).to.equal('item-0');
-      expect(children[1].innerHTML).to.equal('item-1');
-      expect(children[2].innerHTML).to.equal('item-2');
-    });
+    // TODO: test getRegisteredItemCount
   });
 });

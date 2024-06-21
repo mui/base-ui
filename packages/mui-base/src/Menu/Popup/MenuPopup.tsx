@@ -15,7 +15,10 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, id, ...other } = props;
   const { state, dispatch } = useMenuRootContext();
-  const { subitems, registerItem } = useCompoundParent<string, ListItemMetadata<string>>();
+  const { subitems, context: compoundParentContext } = useCompoundParent<
+    string,
+    ListItemMetadata<string>
+  >();
 
   const { getRootProps, getItemState } = useMenuPopup({
     state,
@@ -39,8 +42,8 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   });
 
   const contextValue: MenuPopupContextValue = React.useMemo(
-    () => ({ registerItem, getItemState }),
-    [registerItem, getItemState],
+    () => ({ compoundParentContext, getItemState }),
+    [compoundParentContext, getItemState],
   );
 
   return (

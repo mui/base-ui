@@ -1,9 +1,9 @@
 import * as React from 'react';
 import type { ListItemMetadata, UseListReturnValue } from '../../useList';
-import type { UseCompoundParentReturnValue } from '../../useCompound/useCompound.types';
+import type { CompoundParentContextValue } from '../../useCompound/useCompound.types';
 
 export interface MenuPopupContextValue {
-  registerItem: UseCompoundParentReturnValue<string, ListItemMetadata<string>>['registerItem'];
+  compoundParentContext: CompoundParentContextValue<string, ListItemMetadata<string>>;
   getItemState: UseListReturnValue<string>['getItemState'];
 }
 

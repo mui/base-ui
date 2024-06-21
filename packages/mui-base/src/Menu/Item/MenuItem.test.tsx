@@ -20,10 +20,6 @@ const dummyGetItemState = () => ({
 
 const testRootContext: MenuRootContextValue = {
   dispatch: () => {},
-  popupId: '',
-  triggerElement: null,
-  registerPopup: () => {},
-  registerTrigger: () => {},
   state: {
     items: new IndexableMap(),
     highlightedValue: null,
@@ -31,6 +27,8 @@ const testRootContext: MenuRootContextValue = {
     open: true,
     listboxRef: { current: null },
     changeReason: null,
+    popupId: '',
+    triggerElement: null,
     settings: {
       disabledItemsFocusable: false,
       disableListWrap: false,
@@ -44,7 +42,10 @@ const testRootContext: MenuRootContextValue = {
 
 const testPopupContext: MenuPopupContextValue = {
   getItemState: dummyGetItemState,
-  registerItem: () => ({ id: '', deregister: () => {} }),
+  compoundParentContext: {
+    registerItem: () => ({ deregister: () => {} }),
+    getRegisteredItemCount: () => 0,
+  },
 };
 
 describe('<Menu.Item />', () => {
