@@ -9,9 +9,11 @@ const oppositeSideMap = {
   right: 'left',
 } as const;
 
+type Size = 'xs' | 's' | 'm' | 'l' | 'xl';
+
 export default function AnchorPositioning() {
-  const [popupSize, setPopupSize] = React.useState<'xs' | 's' | 'm' | 'l' | 'xl'>('xs');
-  const [anchorSize, setAnchorSize] = React.useState<'xs' | 's' | 'm' | 'l' | 'xl'>('m');
+  const [popupSize, setPopupSize] = React.useState<Size>('xs');
+  const [anchorSize, setAnchorSize] = React.useState<Size>('m');
   const [side, setSide] = React.useState<'top' | 'bottom' | 'left' | 'right'>('top');
   const [alignment, setAlignment] = React.useState<'start' | 'center' | 'end'>('center');
   const [sideOffset, setSideOffset] = React.useState(0);
@@ -23,8 +25,9 @@ export default function AnchorPositioning() {
   const [hideArrowWhenUncentered, setHideArrowWhenUncentered] = React.useState(false);
   const [sticky, setSticky] = React.useState(false);
   const [constrainSize, setConstrainSize] = React.useState(false);
+  const [visible, setVisible] = React.useState(false);
 
-  const { positionerStyles, refs, arrowStyles, arrowRef, renderedSide, arrowUncentered } =
+  const { refs, positionerStyles, arrowStyles, arrowRef, renderedSide, arrowUncentered } =
     useAnchorPositioning({
       side,
       alignment,
@@ -35,8 +38,6 @@ export default function AnchorPositioning() {
       sticky,
       arrowPadding,
     });
-
-  const [visible, setVisible] = React.useState(false);
 
   const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -59,6 +60,7 @@ export default function AnchorPositioning() {
       <h1>Anchor Positioning Playground</h1>
       <div style={{ display: 'flex', gap: 20 }}>
         <div
+          ref={handleInitialScroll}
           style={{
             overflow: 'auto',
             background: 'black',
@@ -66,7 +68,6 @@ export default function AnchorPositioning() {
             width: 375,
             height: 800,
           }}
-          ref={handleInitialScroll}
         >
           <div style={{ width: 1000 + anchorLength / 2, height: 1000 }} />
           <div
