@@ -4,7 +4,7 @@
     <PopoverPopup>
       <PopoverTitle>Popover Title</PopoverTitle>
       <PopoverDescription>Popover Description</PopoverDescription>
-      <PopoverArrow data-arrow />
+      <PopoverArrow />
     </PopoverPopup>
   </Popover.Positioner>
 </Popover.Root>

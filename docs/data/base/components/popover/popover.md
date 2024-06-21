@@ -217,7 +217,7 @@ When combining `openOnHover` with the Backdrop component, ensure the `Trigger` e
 `2 ** 31 - 1` is the maximum possible `z-index`, ensuring the popover appears on the very top layer of the document.
 :::
 
-This will prevent it from closing unexpectedly, as well as prevent it from being dimmed due to the Backdrop covering it.
+This will prevent the Popup from closing unexpectedly, as well as prevent the Trigger from being dimmed due to the Backdrop covering it.
 
 ## Anchoring
 

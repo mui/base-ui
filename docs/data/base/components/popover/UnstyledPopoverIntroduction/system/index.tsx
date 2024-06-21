@@ -10,7 +10,7 @@ export default function UnstyledPopoverIntroduction() {
         <PopoverPopup>
           <PopoverTitle>Popover Title</PopoverTitle>
           <PopoverDescription>Popover Description</PopoverDescription>
-          <PopoverArrow data-arrow />
+          <PopoverArrow />
         </PopoverPopup>
       </Popover.Positioner>
     </Popover.Root>
@@ -31,16 +31,6 @@ export const PopoverPopup = styled(Popover.Popup)`
   filter: drop-shadow(0 2px 4px rgb(0 10 20 / 0.25));
   outline: 0;
   padding: 4px 16px;
-
-  &:focus-visible {
-    outline: 2px solid ${blue[400]};
-    outline-offset: 2px;
-    filter: drop-shadow(0 1px 2px rgb(0 10 20 / 0.1));
-
-    [data-arrow] {
-      visibility: hidden;
-    }
-  }
 `;
 
 export const PopoverTitle = styled(Popover.Title)`
