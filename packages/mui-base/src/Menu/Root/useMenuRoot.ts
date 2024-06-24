@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useFloatingRootContext } from '@floating-ui/react';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback, StateComparers } from '../../utils/useControllableReducer.types';
 import { MenuActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
@@ -15,6 +16,7 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   items: new IndexableMap(),
   listboxRef: { current: null },
   triggerElement: null,
+  positionerElement: null,
   popupId: null,
 };
 
@@ -128,5 +130,16 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
     }
   }, [state.open, state.triggerElement]);
 
-  return React.useMemo(() => ({ state, dispatch }), [state, dispatch]);
+  const floatingRootContext = useFloatingRootContext({
+    elements: {
+      reference: state.triggerElement,
+      floating: state.positionerElement,
+    },
+    open: state.open,
+  });
+
+  return React.useMemo(
+    () => ({ state, dispatch, floatingRootContext }),
+    [state, dispatch, floatingRootContext],
+  );
 }

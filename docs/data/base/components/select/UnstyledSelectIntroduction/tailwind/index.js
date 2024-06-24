@@ -102,10 +102,6 @@ const AnimatedListbox = React.forwardRef(function AnimatedListbox(props, ref) {
   );
 });
 
-AnimatedListbox.propTypes = {
-  ownerState: PropTypes.object.isRequired,
-};
-
 const resolveSlotProps = (fn, args) => (typeof fn === 'function' ? fn(args) : fn);
 
 const Select = React.forwardRef(function CustomSelect(props, ref) {

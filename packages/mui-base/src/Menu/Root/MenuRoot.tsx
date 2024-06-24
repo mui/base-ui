@@ -9,13 +9,13 @@ import { useMenuRoot } from './useMenuRoot';
 function MenuRoot(props: MenuRootProps) {
   const { children, open, defaultOpen, onOpenChange } = props;
 
-  const stateAndDispatch = useMenuRoot({
+  const context = useMenuRoot({
     defaultOpen,
     onOpenChange,
     open,
   });
 
-  return <MenuRootContext.Provider value={stateAndDispatch}>{children}</MenuRootContext.Provider>;
+  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 }
 
 MenuRoot.propTypes /* remove-proptypes */ = {

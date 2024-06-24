@@ -62,6 +62,9 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
     case MenuActionTypes.registerTrigger:
       return { ...state, triggerElement: action.triggerElement };
 
+    case MenuActionTypes.registerPositioner:
+      return { ...state, positionerElement: action.positionerElement };
+
     default:
   }
 

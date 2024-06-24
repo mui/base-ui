@@ -81,6 +81,17 @@ const Menu = React.forwardRef((props, ref) => {
   );
 });
 
+Menu.propTypes = {
+  /**
+   * The props used for each slot inside the Menu.
+   * @default {}
+   */
+  slotProps: PropTypes.shape({
+    listbox: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  }),
+};
+
 const MenuButton = React.forwardRef((props, ref) => {
   const { className, ...other } = props;
   return (

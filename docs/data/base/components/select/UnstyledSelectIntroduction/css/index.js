@@ -101,10 +101,6 @@ const AnimatedListbox = React.forwardRef(function AnimatedListbox(props, ref) {
   );
 });
 
-AnimatedListbox.propTypes = {
-  ownerState: PropTypes.object.isRequired,
-};
-
 function useIsDarkMode() {
   const theme = useTheme();
   return theme.palette.mode === 'dark';

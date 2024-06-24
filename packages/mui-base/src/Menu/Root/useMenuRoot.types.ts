@@ -37,6 +37,7 @@ export const MenuActionTypes = {
   close: 'menu:close',
   registerPopup: 'menu:registerPopup',
   registerTrigger: 'menu:registerTrigger',
+  registerPositioner: 'menu:registerPositioner',
 } as const;
 
 interface MenuBlurAction {
@@ -75,6 +76,11 @@ interface MenuRegisterTriggerAction {
   triggerElement: HTMLElement | null;
 }
 
+interface MenuRegisterPositionerAction {
+  type: typeof MenuActionTypes.registerPositioner;
+  positionerElement: HTMLElement | null;
+}
+
 export type MenuReducerAction =
   | MenuBlurAction
   | MenuEscapeKeyDownAction
@@ -83,6 +89,7 @@ export type MenuReducerAction =
   | MenuCloseAction
   | MenuRegisterPopupAction
   | MenuRegisterTriggerAction
+  | MenuRegisterPositionerAction
   | ListAction<string>;
 
 export type MenuReducerState = ListState<string> & {
@@ -93,4 +100,5 @@ export type MenuReducerState = ListState<string> & {
   listboxRef: React.RefObject<HTMLElement>;
   popupId: string | null;
   triggerElement: HTMLElement | null;
+  positionerElement: HTMLElement | null;
 };

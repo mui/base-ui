@@ -1,19 +1,21 @@
-import type { Side, VirtualElement } from '@floating-ui/react';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { FloatingContext, Side } from '@floating-ui/react';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { MenuPositionerParameters } from './useMenuPositioner.types';
 
-export interface MenuPositionerProps extends BaseUIComponentProps<'div', MenuPositionerOwnerState> {
-  anchor?:
-    | Element
-    | null
-    | VirtualElement
-    | React.MutableRefObject<Element | null>
-    | (() => Element | VirtualElement | null);
-  children?: React.ReactNode;
-  side?: Side;
-  alignment?: 'start' | 'end' | 'center';
-  keepMounted?: boolean;
+export interface MenuPositionerContextValue {
+  side: Side;
+  alignment: 'start' | 'end' | 'center';
+  arrowRef: React.MutableRefObject<Element | null>;
+  arrowUncentered: boolean;
+  floatingContext: FloatingContext;
 }
 
-export interface MenuPositionerOwnerState {
+export type MenuPositionerOwnerState = {
   open: boolean;
-}
+  side: Side;
+  alignment: 'start' | 'end' | 'center';
+};
+
+export interface MenuPositionerProps
+  extends MenuPositionerParameters,
+    BaseUIComponentProps<'div', MenuPositionerOwnerState> {}
