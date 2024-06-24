@@ -8,6 +8,6 @@
     },
     {
       "path": "packages/mui-base/tsconfig.json"
-    },
+    }
   ]
 }
