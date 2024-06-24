@@ -7,6 +7,11 @@ import { useButton } from '../../useButton';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
+
+function keyGenerator(index: number): number {
+  return index;
+}
 
 /**
  *
@@ -33,15 +38,15 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
-  const value = React.useRef(valueParam ?? compoundParentContext.getRegisteredItemCount()).current;
 
   const tabMetadata: TabMetadata = React.useMemo(
-    () => ({ disabled, ref: tabRef, id, value }),
-    [disabled, tabRef, id, value],
+    () => ({ disabled, ref: tabRef, idAttribute: id }),
+    [disabled, tabRef, id],
   );
 
-  useCompoundItem<any, TabMetadata>({
-    key: value,
+  const { key: value } = useCompoundItem<any, TabMetadata>({
+    key: valueParam,
+    keyGenerator,
     itemMetadata: tabMetadata,
     parentContext: compoundParentContext,
   });
@@ -68,8 +73,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const tabPanelId = value !== undefined ? getTabPanelId(value) : undefined;
 
   const getRootProps = React.useCallback(
-    (externalProps = {}) => {
-      //
+    (externalProps?: GenericHTMLProps) => {
       return mergeReactProps<'button'>(
         externalProps,
         mergeReactProps<'button'>(

@@ -11,7 +11,7 @@ export type TabOwnerState = {
   orientation: TabsOrientation;
 };
 
-export type TabMetadata = ListItemMetadata<any>;
+export type TabMetadata = ListItemMetadata;
 
 export interface TabProps extends BaseUIComponentProps<'button', TabOwnerState> {
   /**

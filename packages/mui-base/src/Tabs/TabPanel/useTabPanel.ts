@@ -7,6 +7,10 @@ import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
+function keyGenerator(index: number): number {
+  return index;
+}
+
 /**
  *
  * Demos:
@@ -28,17 +32,14 @@ function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue 
     compoundParentContext,
   } = useTabsContext();
 
-  const { getRegisteredItemCount: getRegisteredPanelsCount } = compoundParentContext;
-
   const id = useId(idParam);
   const ref = React.useRef<HTMLElement>(null);
   const handleRef = useForkRef(ref, externalRef);
   const metadata = React.useMemo(() => ({ id, ref }), [id]);
 
-  const value = React.useRef(valueParam ?? getRegisteredPanelsCount()).current;
-
-  useCompoundItem({
-    key: value,
+  const { key: value } = useCompoundItem({
+    key: valueParam,
+    keyGenerator,
     itemMetadata: metadata,
     parentContext: compoundParentContext,
   });

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '../../../test';
 
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
@@ -129,7 +129,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('should support values of different types', () => {
-      const tabValues = [0, '1', { value: 2 }, () => 3, Symbol('4'), /5/];
+      const tabValues = [0, '1', { value: 2 }, Symbol('3'), /4/];
 
       const { getAllByRole } = render(
         <Tabs.Root>
@@ -271,16 +271,15 @@ describe('<Tabs.Root />', () => {
       describe(`when focus is on a tab element in a ${orientation} ${direction} tablist`, () => {
         describe(previousItemKey ?? '', () => {
           describe('with `activateOnFocus = false`', () => {
-            it('moves focus to the last tab without activating it if focus is on the first tab', () => {
+            it('moves focus to the last tab without activating it if focus is on the first tab', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
-              const { getAllByRole } = render(
+              const { getAllByRole } = await render(
                 <Tabs.Root
                   direction={direction as Tabs.RootProps['direction']}
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={0}
                 >
                   <Tabs.List activateOnFocus={false}>
                     <Tabs.Tab value={0} />
@@ -311,7 +310,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={1}
+                  defaultValue={1}
                 >
                   <Tabs.List activateOnFocus={false}>
                     <Tabs.Tab value={0} />
@@ -344,7 +343,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={0}
+                  defaultValue={0}
                 >
                   <Tabs.List>
                     <Tabs.Tab value={0} />
@@ -376,7 +375,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={1}
+                  defaultValue={1}
                 >
                   <Tabs.List>
                     <Tabs.Tab value={0} />
@@ -407,7 +406,7 @@ describe('<Tabs.Root />', () => {
                 direction={direction as Tabs.RootProps['direction']}
                 onKeyDown={handleKeyDown}
                 orientation={orientation as Tabs.RootProps['orientation']}
-                value={2}
+                defaultValue={2}
               >
                 <Tabs.List>
                   <Tabs.Tab value={0} />
@@ -440,7 +439,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={2}
+                  defaultValue={2}
                 >
                   <Tabs.List activateOnFocus={false}>
                     <Tabs.Tab value={0} />
@@ -471,7 +470,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={1}
+                  defaultValue={1}
                 >
                   <Tabs.List activateOnFocus={false}>
                     <Tabs.Tab value={0} />
@@ -504,7 +503,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={2}
+                  defaultValue={2}
                 >
                   <Tabs.List>
                     <Tabs.Tab value={0} />
@@ -536,7 +535,7 @@ describe('<Tabs.Root />', () => {
                   onValueChange={handleChange}
                   onKeyDown={handleKeyDown}
                   orientation={orientation as Tabs.RootProps['orientation']}
-                  value={1}
+                  defaultValue={1}
                 >
                   <Tabs.List>
                     <Tabs.Tab value={0} />
@@ -567,7 +566,7 @@ describe('<Tabs.Root />', () => {
                 direction={direction as Tabs.RootProps['direction']}
                 onKeyDown={handleKeyDown}
                 orientation={orientation as Tabs.RootProps['orientation']}
-                value={0}
+                defaultValue={0}
               >
                 <Tabs.List>
                   <Tabs.Tab value={0} />
@@ -597,7 +596,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} defaultValue={2}>
               <Tabs.List activateOnFocus={false}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -622,7 +621,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} defaultValue={2}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -647,7 +646,7 @@ describe('<Tabs.Root />', () => {
         it('moves focus to first non-disabled tab', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onKeyDown={handleKeyDown} value={2}>
+            <Tabs.Root onKeyDown={handleKeyDown} defaultValue={2}>
               <Tabs.List>
                 <Tabs.Tab value={0} disabled />
                 <Tabs.Tab value={1} />
@@ -673,7 +672,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} defaultValue={0}>
               <Tabs.List activateOnFocus={false}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -698,7 +697,7 @@ describe('<Tabs.Root />', () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onValueChange={handleChange} onKeyDown={handleKeyDown} defaultValue={0}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
@@ -723,7 +722,7 @@ describe('<Tabs.Root />', () => {
         it('moves focus to first non-disabled tab', () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
-            <Tabs.Root onKeyDown={handleKeyDown} value={0}>
+            <Tabs.Root onKeyDown={handleKeyDown} defaultValue={0}>
               <Tabs.List>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />

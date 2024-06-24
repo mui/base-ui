@@ -10,7 +10,7 @@ import { useTabsContext } from '../Root/TabsContext';
 import { type TabMetadata } from '../Tab/Tab.types';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot.types';
 import { useCompoundParent } from '../../useCompound';
-import { useList, ListOrientation } from '../../useList';
+import { useList, ListOrientation, ListActionTypes } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -18,6 +18,7 @@ import { TabsListContextValue } from './TabsListContext';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { IndexableMap } from '../../utils/IndexableMap';
 import { StateChangeCallback } from '../../utils/useControllableReducer.types';
+import { areArraysEqual } from '../../utils/areArraysEqual';
 
 const INITIAL_STATE: TabsReducerState = {
   highlightedValue: null,
@@ -26,7 +27,7 @@ const INITIAL_STATE: TabsReducerState = {
   tabsListRef: { current: null },
   settings: {
     activateOnFocus: false,
-    disabledItemsFocusable: true,
+    disabledItemsFocusable: false,
     disableListWrap: false,
     focusManagement: 'DOM',
     orientation: 'horizontal-ltr',
@@ -95,11 +96,28 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
   );
 
   const handleChange: StateChangeCallback<TabsReducerState> = React.useCallback(
-    (event, field, newValue) => {
-      if (field === 'selectedValues') {
-        const newSelectedValue = newValue[0] ?? null;
-        const activationDirection = detectActivationDirection(newSelectedValue);
-        onSelected(event, newValue[0] ?? null, activationDirection);
+    (event, field, newValue, reason, newState) => {
+      switch (field) {
+        case 'selectedValues': {
+          const newSelectedValue = newValue[0] ?? null;
+          const activationDirection = detectActivationDirection(newSelectedValue);
+          onSelected(event, newValue[0] ?? null, activationDirection);
+          break;
+        }
+
+        case 'highlightedValue': {
+          if (
+            newValue != null &&
+            (reason === ListActionTypes.itemClick ||
+              reason === ListActionTypes.keyDown ||
+              reason === ListActionTypes.textNavigation)
+          ) {
+            newState.items.get(newValue)?.ref.current?.focus();
+          }
+          break;
+        }
+
+        default:
       }
     },
     [onSelected, detectActivationDirection],
@@ -128,6 +146,9 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     controlledProps,
     initialState,
     onStateChange: handleChange,
+    stateComparers: {
+      selectedValues: areArraysEqual,
+    },
   });
 
   const { getRootProps: getListboxRootProps, rootRef: mergedRootRef } = useList({
