@@ -3,10 +3,11 @@ import * as React from 'react';
 import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton';
-import { useListItem } from '../../useList';
+import { ListItemMetadata, useListItem } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
+import { useCompoundItem } from '../../useCompound';
 
 /**
  *
@@ -20,15 +21,33 @@ import { GenericHTMLProps } from '../../utils/types';
  */
 export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
-    dispatch,
+    compoundParentContext,
     disabled = false,
-    id,
-    rootRef: externalRef,
     disableFocusOnHover = false,
+    dispatch,
     highlighted,
+    id,
+    label,
+    rootRef: externalRef,
   } = params;
 
   const itemRef = React.useRef<HTMLElement>(null);
+
+  const itemMetadata: ListItemMetadata = React.useMemo(
+    () => ({
+      id,
+      valueAsString: label ?? itemRef.current?.innerText,
+      ref: itemRef,
+      disabled,
+    }),
+    [id, label, disabled],
+  );
+
+  useCompoundItem({
+    key: id ?? '',
+    itemMetadata,
+    parentContext: compoundParentContext,
+  });
 
   const { getRootProps: getListItemProps } = useListItem({
     dispatch,

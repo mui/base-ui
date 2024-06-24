@@ -1,7 +1,7 @@
 import { GenericHTMLProps } from '../../utils/types';
 import { MenuReducerAction } from '../Root/useMenuRoot.types';
+import { CompoundParentContextValue } from '../../useCompound/useCompound.types';
 import { ListItemMetadata } from '../../useList';
-import { UseCompoundItemParameters } from '../../useCompound/useCompound.types';
 
 export interface UseMenuItemParameters {
   dispatch: (action: MenuReducerAction) => void;
@@ -17,6 +17,7 @@ export interface UseMenuItemParameters {
    */
   disableFocusOnHover?: boolean;
   highlighted: boolean;
+  compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
 }
 
 export interface UseMenuItemReturnValue {

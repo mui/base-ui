@@ -5,10 +5,7 @@ import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuPopupContext } from '../Popup/MenuPopupContext';
-import { useCompoundItem } from '../../useCompound';
 import { useId } from '../../utils/useId';
-import { ListItemMetadata } from '../../useList';
-import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { MenuReducerAction } from '../Root/useMenuRoot.types';
 
@@ -35,32 +32,14 @@ const InnerMenuItem = React.memo(
 
     const { compoundParentContext } = useMenuPopupContext();
 
-    const itemRef = React.useRef<HTMLElement>(null);
-    const mergedRef = useForkRef(forwardedRef, itemRef);
-
-    const itemMetadata: ListItemMetadata = React.useMemo(
-      () => ({
-        id,
-        valueAsString: label ?? itemRef.current?.innerText,
-        ref: itemRef,
-        disabled,
-      }),
-      [id, label, disabled],
-    );
-
-    useCompoundItem({
-      key: id ?? '',
-      itemMetadata,
-      parentContext: compoundParentContext,
-    });
-
     const { getRootProps } = useMenuItem({
-      id,
+      compoundParentContext,
       disabled,
-      rootRef: mergedRef,
-      label,
-      highlighted,
       dispatch,
+      highlighted,
+      id,
+      label,
+      rootRef: forwardedRef,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };
