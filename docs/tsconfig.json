@@ -1,10 +1,11 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tsconfig.base.json",
   "include": ["next-env.d.ts", "types", "src", "pages", "data", "next.config.mjs"],
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,
     /* files are emitted by babel */
+    "emitDeclarationOnly": false,
     "noEmit": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
@@ -17,7 +18,7 @@
   "exclude": ["node_modules"],
   "references": [
     {
-      "path": "../packages/mui-base/tsconfig.json"
+      "path": "../packages/mui-base/tsconfig.build.json"
     }
   ]
 }

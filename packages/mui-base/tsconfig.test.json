@@ -1,11 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "noEmit": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "outDir": "build-tests"
   },
   "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "test"],
-  "references": [{ "path": "./tsconfig.json" }]
+  "references": [{ "path": "./tsconfig.build.json" }]
 }

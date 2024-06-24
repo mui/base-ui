@@ -4,7 +4,7 @@ export default {
   base: {
     rootPath: path.join(process.cwd(), 'packages/mui-base'),
     entryPointPath: 'src/index.ts',
-    tsConfigPath: 'tsconfig.json',
+    tsConfigPath: 'tsconfig.build.json',
   },
   docs: {
     rootPath: path.join(process.cwd(), 'docs'),

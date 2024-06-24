@@ -1,15 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
-  // This config is for emitting declarations (.d.ts) only
-  // Actual .ts source files are transpiled via babel
-  "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "noEmit": false,
-    "outDir": "build",
-    "rootDir": "./src"
-  },
-  "include": ["src/**/*.ts*"],
-  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    {
+      "path": "./tsconfig.build.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    },
+  ]
 }
