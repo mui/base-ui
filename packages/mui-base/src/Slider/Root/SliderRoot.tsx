@@ -82,10 +82,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     render: render ?? 'div',
     ownerState,
     className,
-    ref: forwardedRef,
-    extraProps: {
-      ...otherProps,
-    },
+    extraProps: otherProps,
     customStyleHookMapping: sliderStyleHookMapping,
   });
 

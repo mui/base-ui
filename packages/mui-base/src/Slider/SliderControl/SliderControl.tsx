@@ -54,10 +54,7 @@ const SliderControl = React.forwardRef(function SliderControl(
     render: renderProp ?? 'span',
     ownerState,
     className,
-    ref: forwardedRef,
-    extraProps: {
-      ...otherProps,
-    },
+    extraProps: otherProps,
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
