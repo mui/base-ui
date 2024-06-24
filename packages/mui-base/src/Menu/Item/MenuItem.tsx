@@ -38,9 +38,8 @@ const InnerMenuItem = React.memo(
     const itemRef = React.useRef<HTMLElement>(null);
     const mergedRef = useForkRef(forwardedRef, itemRef);
 
-    const itemMetadata: ListItemMetadata<string> = React.useMemo(
+    const itemMetadata: ListItemMetadata = React.useMemo(
       () => ({
-        value: id ?? '',
         id,
         valueAsString: label ?? itemRef.current?.innerText,
         ref: itemRef,

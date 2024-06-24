@@ -3,7 +3,7 @@ import type { ListItemMetadata, UseListReturnValue } from '../../useList';
 import type { CompoundParentContextValue } from '../../useCompound/useCompound.types';
 
 export interface MenuPopupContextValue {
-  compoundParentContext: CompoundParentContextValue<string, ListItemMetadata<string>>;
+  compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
   getItemState: UseListReturnValue<string>['getItemState'];
 }
 

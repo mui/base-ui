@@ -29,13 +29,7 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
  * - [useDropdown API](https://mui.com/base-ui/react-menu/hooks-api/#use-dropdown)
  */
 export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
-  const {
-    defaultOpen,
-    getItemDomElement,
-    onOpenChange,
-    onHighlightChange,
-    open: openProp,
-  } = parameters;
+  const { defaultOpen, onOpenChange, onHighlightChange, open: openProp } = parameters;
 
   const lastActionType = React.useRef<string | null>(null);
 
@@ -44,6 +38,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
       value: string | null,
       reason: string,
       event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
+      newState: MenuReducerState,
     ) => {
       onHighlightChange?.(value, reason, event);
 
@@ -53,27 +48,28 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
           reason === ListActionTypes.keyDown ||
           reason === ListActionTypes.textNavigation)
       ) {
-        getItemDomElement?.(value)?.focus();
+        newState.items.get(value)?.ref.current?.focus();
       }
     },
-    [getItemDomElement, onHighlightChange],
+    [onHighlightChange],
   );
 
   const handleStateChange: StateChangeCallback<MenuReducerState> = React.useCallback(
-    (event, field, value, reason) => {
-      if (field === 'open') {
-        onOpenChange?.(
-          event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent,
-          value as boolean,
-        );
-      }
-
+    (event, field, value, reason, newState) => {
       switch (field) {
+        case 'open':
+          onOpenChange?.(
+            event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent,
+            value as boolean,
+          );
+          break;
+
         case 'highlightedValue':
           handleHighlightChange(
             value as string | null,
             reason,
             event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
+            newState,
           );
           break;
 

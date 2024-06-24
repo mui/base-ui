@@ -15,11 +15,7 @@ export interface ListSettings {
   selectionMode: SelectionMode;
 }
 
-export type ListItemMetadata<ItemValue> = {
-  /**
-   * Value of the list item. Must be unique within the list.
-   */
-  value: ItemValue;
+export type ListItemMetadata = {
   /**
    * Determines if the item is disabled.
    */
@@ -51,7 +47,7 @@ export interface ListState<ItemValue> {
    * The item(s) that are currently selected.
    */
   selectedValues: ItemValue[];
-  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>;
+  items: IndexableMap<ItemValue, ListItemMetadata>;
   settings: ListSettings;
 }
 
@@ -89,7 +85,7 @@ export interface UseListParameters<ItemValue> {
    * @default 'activeDescendant'
    */
   focusManagement?: FocusManagementType;
-  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>;
+  items: IndexableMap<ItemValue, ListItemMetadata>;
   /**
    * The item that is currently highlighted.
    */

@@ -14,7 +14,7 @@ describe('useList', () => {
       it(`prevents default behavior when ${key} is pressed in activeDescendant focus management mode`, () => {
         function Listbox() {
           const { getRootProps } = useList({
-            items: new IndexableMap<unknown, ListItemMetadata<unknown>>(),
+            items: new IndexableMap<unknown, ListItemMetadata>(),
             focusManagement: 'activeDescendant',
             dispatch: () => {},
             highlightedValue: null,
@@ -42,7 +42,7 @@ describe('useList', () => {
       it(`prevents default behavior when ${key} is pressed in DOM focus management mode`, () => {
         function Listbox() {
           const { getRootProps } = useList({
-            items: new IndexableMap<unknown, ListItemMetadata<unknown>>(),
+            items: new IndexableMap<unknown, ListItemMetadata>(),
             focusManagement: 'DOM',
             dispatch: () => {},
             highlightedValue: null,
@@ -70,7 +70,7 @@ describe('useList', () => {
       it(`does not prevent default behavior when ${key} is pressed in DOM focus management mode`, () => {
         function Listbox() {
           const { getRootProps } = useList({
-            items: new IndexableMap<unknown, ListItemMetadata<unknown>>(),
+            items: new IndexableMap<unknown, ListItemMetadata>(),
             focusManagement: 'DOM',
             dispatch: () => {},
             highlightedValue: null,
@@ -101,7 +101,7 @@ describe('useList', () => {
 
       function Listbox() {
         const { getRootProps } = useList({
-          items: new IndexableMap<unknown, ListItemMetadata<unknown>>(),
+          items: new IndexableMap<unknown, ListItemMetadata>(),
           focusManagement: 'activeDescendant',
           dispatch: () => {},
           highlightedValue: null,

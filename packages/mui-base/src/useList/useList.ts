@@ -51,9 +51,7 @@ function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturn
     }),
   );
 
-  const previousItems = React.useRef<IndexableMap<ItemValue, ListItemMetadata<ItemValue>>>(
-    new IndexableMap(),
-  );
+  const previousItems = React.useRef<IndexableMap<ItemValue, ListItemMetadata>>(new IndexableMap());
 
   React.useEffect(() => {
     // Whenever the `items` object changes, we need to determine if the actual items changed.

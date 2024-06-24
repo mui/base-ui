@@ -51,7 +51,7 @@ interface TextNavigationAction {
 interface ItemsChangeAction<ItemValue> {
   type: typeof ListActionTypes.itemsChange;
   event: null;
-  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>;
+  items: IndexableMap<ItemValue, ListItemMetadata>;
 }
 
 interface ResetHighlightAction {

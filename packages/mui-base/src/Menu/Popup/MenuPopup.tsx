@@ -17,7 +17,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   const { state, dispatch } = useMenuRootContext();
   const { subitems, context: compoundParentContext } = useCompoundParent<
     string,
-    ListItemMetadata<string>
+    ListItemMetadata
   >();
 
   const { getRootProps, getItemState } = useMenuPopup({

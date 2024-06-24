@@ -5,7 +5,6 @@ export interface UseMenuRootParameters {
    * If `true`, the dropdown is initially open.
    */
   defaultOpen?: boolean;
-  getItemDomElement?: (itemValue: string) => HTMLElement | null;
   onHighlightChange?: (
     value: string | null,
     reason: string,

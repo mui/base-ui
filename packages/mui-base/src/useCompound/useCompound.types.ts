@@ -20,7 +20,7 @@ export interface CompoundParentContextValue<Key, Subitem extends WithRef> {
    *   Return `existingKeys.size` if you want to use the index of the new item as the id.
    * @param itemMetadata Arbitrary metadata to pass to the parent component.
    */
-  registerItem: (key: Key, item: Subitem) => RegisterItemReturnValue;
+  registerItem: (key: Key | undefined, item: Subitem) => RegisterItemReturnValue;
   /**
    * Returns a number of items that were registered with the parent.
    * This number may be different from `subitems.size` during the effect phase, as `subitems` are kept in state and are updated less frequently.
@@ -40,7 +40,12 @@ export interface UseCompoundParentReturnValue<Key, Subitem extends WithRef> {
 }
 
 export interface UseCompoundItemParameters<Key, Subitem extends WithRef> {
-  key: Key;
+  key: Key | undefined;
+  keyGenerator?: (registeredItemsCount: number) => Key;
   itemMetadata: Subitem;
   parentContext: CompoundParentContextValue<Key, Subitem>;
+}
+
+export interface UseCompoundItemReturnValue<Key> {
+  key: Key | undefined;
 }

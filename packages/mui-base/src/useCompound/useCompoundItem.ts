@@ -1,6 +1,7 @@
 'use client';
+import * as React from 'react';
 import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/utils';
-import type { UseCompoundItemParameters } from './useCompound.types';
+import type { UseCompoundItemParameters, UseCompoundItemReturnValue } from './useCompound.types';
 
 /**
  * Registers a child component with the parent component.
@@ -15,12 +16,23 @@ import type { UseCompoundItemParameters } from './useCompound.types';
  */
 export function useCompoundItem<Key, Subitem extends { ref: any }>(
   parameters: UseCompoundItemParameters<Key, Subitem>,
-): void {
-  const { key, itemMetadata, parentContext } = parameters;
-  const { registerItem } = parentContext;
+): UseCompoundItemReturnValue<Key> {
+  const { key: keyParam, keyGenerator, itemMetadata, parentContext } = parameters;
+  const { registerItem, getRegisteredItemCount } = parentContext;
+  const [key, setKey] = React.useState<Key | undefined>(keyParam);
 
   useEnhancedEffect(() => {
-    const { deregister } = registerItem(key, itemMetadata);
+    if (keyParam == null && keyGenerator != null) {
+      const registeredItemsCount = getRegisteredItemCount();
+      const generatedKey = keyGenerator(registeredItemsCount);
+      setKey(generatedKey);
+      const { deregister } = registerItem(generatedKey, itemMetadata);
+      return deregister;
+    }
+
+    const { deregister } = registerItem(keyParam, itemMetadata);
     return deregister;
-  }, [registerItem, itemMetadata, key]);
+  }, [registerItem, itemMetadata, keyParam, getRegisteredItemCount, keyGenerator]);
+
+  return React.useMemo(() => ({ key }), [key]);
 }

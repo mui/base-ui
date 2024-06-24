@@ -23,7 +23,7 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
         return {
           ...state,
           open: false,
-          highlightedValue: state.items.first((item) => !item.disabled)?.value ?? null,
+          highlightedValue: moveHighlight(null, 'start', state.items, state.settings),
         };
       }
 

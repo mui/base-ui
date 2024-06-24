@@ -52,6 +52,14 @@ export class IndexableMap<Key, Value> {
     }
   }
 
+  has(key: Key): boolean {
+    return this.#map.has(key);
+  }
+
+  keyAt(index: number): Key | undefined {
+    return this.#index[index];
+  }
+
   elementAt(index: number): Value | undefined {
     return this.#map.get(this.#index[index]);
   }

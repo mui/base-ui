@@ -1,4 +1,5 @@
 import { IndexableMap } from '../utils/IndexableMap';
+import { areArraysEqual } from '../utils/areArraysEqual';
 import { type ListAction, ListActionTypes } from './listActions.types';
 import type { ListState, ListSettings, ListItemMetadata, SelectionMode } from './useList.types';
 
@@ -15,7 +16,7 @@ import type { ListState, ListSettings, ListItemMetadata, SelectionMode } from '.
 function findValidItemToHighlight<ItemValue>(
   startIndex: number,
   lookupDirection: 'next' | 'previous',
-  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
+  items: IndexableMap<ItemValue, ListItemMetadata>,
   includeDisabledItems: boolean,
   wrapAround: boolean,
 ): number {
@@ -61,7 +62,7 @@ function findValidItemToHighlight<ItemValue>(
 export function moveHighlight<ItemValue>(
   previouslyHighlightedValue: ItemValue | null,
   offset: number | 'reset' | 'start' | 'end',
-  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
+  items: IndexableMap<ItemValue, ListItemMetadata>,
   settings: ListSettings,
 ): ItemValue | null {
   const { disableListWrap, disabledItemsFocusable, focusManagement } = settings;
@@ -145,7 +146,7 @@ export function moveHighlight<ItemValue>(
     return previouslyHighlightedValue;
   }
 
-  return items.elementAt(nextIndex)?.value ?? null;
+  return items.keyAt(nextIndex) ?? null;
 }
 
 /**
@@ -199,19 +200,19 @@ export function handleItemSelection<ItemValue>(
   const { selectionMode } = state.settings;
   const { selectedValues, items } = state;
 
-  const itemDefinition = items.get(item);
+  const itemMetadata = items.get(item);
 
-  if (itemDefinition == null || itemDefinition.disabled) {
+  if (itemMetadata == null || itemMetadata.disabled) {
     return state;
   }
 
   // if the item is already selected, remove it from the selection, otherwise add it
-  const newSelectedValues = toggleSelection(itemDefinition.value, selectedValues, selectionMode);
+  const newSelectedValues = toggleSelection(item, selectedValues, selectionMode);
 
   return {
     ...state,
     selectedValues: newSelectedValues,
-    highlightedValue: itemDefinition.value,
+    highlightedValue: item,
   };
 }
 
@@ -320,18 +321,20 @@ function handleBlur<ItemValue, State extends ListState<ItemValue>>(state: State)
 }
 
 function textCriteriaMatches<ItemValue>(
-  nextFocus: ListItemMetadata<ItemValue>,
+  nextFocus: ItemValue,
   searchString: string,
+  items: IndexableMap<ItemValue, ListItemMetadata>,
 ) {
   let textValue: string | null;
-  if (nextFocus.valueAsString == null) {
-    if (typeof nextFocus.value === 'string' || typeof nextFocus.value === 'number') {
-      textValue = nextFocus.value.toString();
+  const nextFocusedItemMetadata = items.get(nextFocus);
+  if (nextFocusedItemMetadata?.valueAsString == null) {
+    if (typeof nextFocus === 'string' || typeof nextFocus === 'number') {
+      textValue = nextFocus.toString();
     } else {
       textValue = null;
     }
   } else {
-    textValue = nextFocus.valueAsString;
+    textValue = nextFocusedItemMetadata.valueAsString;
   }
 
   if (!textValue || textValue.length === 0) {
@@ -364,13 +367,13 @@ function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
     }
 
     if (
-      textCriteriaMatches(nextItem, searchString) &&
+      textCriteriaMatches(nextItemValue, searchString, items) &&
       (!nextItem.disabled || disabledItemsFocusable)
     ) {
       // The nextItem is the element to be highlighted
       return {
         ...state,
-        highlightedValue: nextItem.value,
+        highlightedValue: nextItemValue,
       };
     }
 
@@ -384,24 +387,26 @@ function handleTextNavigation<ItemValue, State extends ListState<ItemValue>>(
 }
 
 function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
-  items: IndexableMap<ItemValue, ListItemMetadata<ItemValue>>,
+  items: IndexableMap<ItemValue, ListItemMetadata>,
   state: State,
 ): State {
   const { focusManagement } = state.settings;
 
   let newHighlightedValue: ItemValue | null = null;
 
-  if (state.highlightedValue != null) {
-    newHighlightedValue = items.get(state.highlightedValue)?.value ?? null;
+  if (state.highlightedValue != null && items.has(state.highlightedValue)) {
+    newHighlightedValue = state.highlightedValue;
   } else if (focusManagement === 'DOM' && (state.items == null || state.items.size === 0)) {
     newHighlightedValue = moveHighlight(null, 'reset', items, state.settings);
   }
 
   // exclude selected values that are no longer in the items list
   const selectedValues = state.selectedValues ?? [];
-  const newSelectedValues = selectedValues.filter((selectedValue) =>
-    items.some((item) => item.value === selectedValue),
-  );
+  let newSelectedValues = selectedValues.filter((selectedValue) => items.has(selectedValue));
+
+  if (areArraysEqual(selectedValues, newSelectedValues)) {
+    newSelectedValues = selectedValues;
+  }
 
   return {
     ...state,

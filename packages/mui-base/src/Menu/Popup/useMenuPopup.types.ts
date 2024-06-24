@@ -19,7 +19,7 @@ export interface UseMenuPopupParameters {
   state: MenuReducerState;
   dispatch: React.Dispatch<MenuReducerAction>;
   rootRef: React.Ref<Element>;
-  childItems: IndexableMap<string, ListItemMetadata<string>>;
+  childItems: IndexableMap<string, ListItemMetadata>;
 }
 
 export interface UseMenuPopupReturnValue {

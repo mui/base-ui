@@ -3,6 +3,8 @@ import * as React from 'react';
 import { IndexableMap } from '../utils/IndexableMap';
 import type { UseCompoundParentReturnValue, WithRef } from './useCompound.types';
 
+const NOOP = () => {};
+
 /**
  * Provides a way for a component to know about its children.
  *
@@ -32,14 +34,14 @@ export function useCompoundParent<Key, Subitem extends WithRef>(): UseCompoundPa
   }, []);
 
   const registerItem = React.useCallback(
-    function registerItem(key: Key, item: Subitem | ((generatedId: Key) => Subitem)) {
+    function registerItem(key: Key | undefined, item: Subitem) {
+      if (key === undefined) {
+        return { deregister: NOOP };
+      }
+
       subitemKeys.current.add(key);
       setSubitems((previousState) => {
         const newState = new IndexableMap(previousState);
-
-        if (typeof item === 'function') {
-          item = item(key);
-        }
 
         newState.set(key, item);
         return newState;
@@ -54,15 +56,20 @@ export function useCompoundParent<Key, Subitem extends WithRef>(): UseCompoundPa
 
   const sortedSubitems = React.useMemo(() => sortSubitems(subitems), [subitems]);
 
+  const context = React.useMemo(
+    () => ({
+      registerItem,
+      getRegisteredItemCount: () => subitemKeys.current.size,
+    }),
+    [registerItem],
+  );
+
   return React.useMemo(
     () => ({
-      context: {
-        registerItem,
-        getRegisteredItemCount: () => subitemKeys.current.size,
-      },
+      context,
       subitems: sortedSubitems,
     }),
-    [registerItem, subitemKeys, sortedSubitems],
+    [context, sortedSubitems],
   );
 }
 
