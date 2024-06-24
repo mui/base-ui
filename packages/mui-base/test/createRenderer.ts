@@ -7,7 +7,10 @@ import {
   MuiRenderResult,
 } from '@mui/internal-test-utils';
 
-export function createRenderer(globalOptions?: CreateRendererOptions) {
+export function createRenderer(globalOptions?: CreateRendererOptions): {
+  // TODO: replace with Renderer from @mui/internal-test-utils once it's exported
+  render: (element: React.ReactElement, options?: RenderOptions) => Promise<MuiRenderResult>;
+} {
   const createRendererResult = sharedCreateRenderer(globalOptions);
   const { render: originalRender } = createRendererResult;
 
