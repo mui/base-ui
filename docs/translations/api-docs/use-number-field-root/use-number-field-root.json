@@ -18,7 +18,7 @@
     "max": { "description": "The maximum value of the input element." },
     "min": { "description": "The minimum value of the input element." },
     "name": { "description": "The name of the input element." },
-    "onChange": { "description": "Callback fired when the number value changes." },
+    "onValueChange": { "description": "Callback fired when the number value changes." },
     "readOnly": { "description": "If <code>true</code>, the input element is read only." },
     "required": { "description": "If <code>true</code>, the input element is required." },
     "smallStep": {

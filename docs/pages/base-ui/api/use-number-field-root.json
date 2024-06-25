@@ -16,7 +16,7 @@
     "max": { "type": { "name": "number", "description": "number" } },
     "min": { "type": { "name": "number", "description": "number" } },
     "name": { "type": { "name": "string", "description": "string" } },
-    "onChange": {
+    "onValueChange": {
       "type": {
         "name": "(value: number | null) =&gt; void",
         "description": "(value: number | null) =&gt; void"

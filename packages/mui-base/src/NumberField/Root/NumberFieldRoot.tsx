@@ -41,7 +41,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     name,
     defaultValue,
     value,
-    onChange,
+    onValueChange,
     allowWheelScrub,
     format,
     render: renderProp,
@@ -181,7 +181,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
    */
-  onChange: PropTypes.func,
+  onValueChange: PropTypes.func,
   /**
    * If `true`, the input element is read only.
    * @default false

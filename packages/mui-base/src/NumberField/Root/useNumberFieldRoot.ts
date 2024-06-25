@@ -61,7 +61,7 @@ export function useNumberFieldRoot(
     allowWheelScrub = false,
     format,
     value: externalValue,
-    onChange,
+    onValueChange,
     defaultValue,
   } = params;
 
@@ -147,7 +147,7 @@ export function useNumberFieldRoot(
       minWithZeroDefault,
     });
 
-    onChange?.(validatedValue);
+    onValueChange?.(validatedValue);
     setValueUnwrapped(validatedValue);
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of

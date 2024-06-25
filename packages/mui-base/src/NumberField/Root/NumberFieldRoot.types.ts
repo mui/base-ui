@@ -122,7 +122,7 @@ export interface UseNumberFieldRootParameters {
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
    */
-  onChange?: (value: number | null) => void;
+  onValueChange?: (value: number | null) => void;
 }
 
 export interface UseNumberFieldRootReturnValue {

@@ -17,7 +17,7 @@
     "max": { "type": { "name": "number" } },
     "min": { "type": { "name": "number" } },
     "name": { "type": { "name": "string" } },
-    "onChange": {
+    "onValueChange": {
       "type": { "name": "func" },
       "signature": { "type": "function(value: number | null) => void", "describedArgs": ["value"] }
     },
