@@ -25,6 +25,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     disabled = false,
     disableFocusOnHover = false,
     dispatch,
+    rootDispatch,
     highlighted,
     id,
     label,
@@ -78,7 +79,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
           role: 'menuitem',
           onClick: (event: React.MouseEvent) => {
             if (closeOnClick) {
-              dispatch({
+              rootDispatch({
                 type: MenuActionTypes.close,
                 event,
               });

@@ -11,11 +11,12 @@ import {
   flushMicrotasks,
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuRootContext, MenuRootContextValue } from '@base_ui/react/Menu';
+import { MenuRootContext } from '@base_ui/react/Menu';
+import { FloatingRootContext } from '@floating-ui/react';
 import { describeConformance } from '../../../test/describeConformance';
 import { IndexableMap } from '../../utils/IndexableMap';
 
-const testContext: MenuRootContextValue = {
+const testContext: MenuRootContext = {
   dispatch: () => {},
   state: {
     open: true,
@@ -26,6 +27,8 @@ const testContext: MenuRootContextValue = {
     listboxRef: { current: null },
     popupId: 'menu-popup',
     triggerElement: null,
+    positionerElement: null,
+    hasNestedMenuOpen: false,
     settings: {
       disabledItemsFocusable: true,
       disableListWrap: false,
@@ -35,6 +38,8 @@ const testContext: MenuRootContextValue = {
       selectionMode: 'none',
     },
   },
+  parentContext: null,
+  floatingRootContext: {} as FloatingRootContext,
 };
 
 describe('<Menu.Popup />', () => {

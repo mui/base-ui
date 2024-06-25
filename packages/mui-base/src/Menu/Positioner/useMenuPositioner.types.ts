@@ -8,6 +8,7 @@ import type {
   FloatingRootContext,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
+import { MenuReducerAction } from '../Root/useMenuRoot.types';
 
 export interface MenuPositionerParameters {
   /**
@@ -96,6 +97,7 @@ export interface UseMenuPositionerParameters extends MenuPositionerParameters {
    * The Menu root context.
    */
   floatingRootContext?: FloatingRootContext;
+  dispatch: React.Dispatch<MenuReducerAction>;
 }
 
 export interface UseMenuPositionerReturnValue {

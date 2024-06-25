@@ -61,5 +61,5 @@ export type ControllableReducerAction = {
   /**
    * The event that triggered the action.
    */
-  event?: React.SyntheticEvent | null;
+  event?: React.SyntheticEvent | Event | null;
 };

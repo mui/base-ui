@@ -22,6 +22,7 @@ import type {
 } from './useMenuPositioner.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { MenuActionTypes } from '../Root/useMenuRoot.types';
 
 /**
  *
@@ -46,6 +47,7 @@ export function useMenuPositioner(
     mounted = true,
     floatingRootContext,
     arrowPadding = 5,
+    dispatch,
   } = params;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
@@ -142,6 +144,23 @@ export function useMenuPositioner(
     },
   );
 
+  const handleOpenChange = React.useCallback(
+    (isOpen: boolean, event: Event | undefined) => {
+      if (isOpen) {
+        dispatch({
+          type: MenuActionTypes.open,
+          event: event ?? null,
+        });
+      } else {
+        dispatch({
+          type: MenuActionTypes.close,
+          event: event ?? null,
+        });
+      }
+    },
+    [dispatch],
+  );
+
   const {
     refs,
     elements,
@@ -155,6 +174,7 @@ export function useMenuPositioner(
     placement,
     middleware,
     strategy: positionStrategy,
+    onOpenChange: handleOpenChange,
   });
 
   // The `anchor` prop is non-reactive.

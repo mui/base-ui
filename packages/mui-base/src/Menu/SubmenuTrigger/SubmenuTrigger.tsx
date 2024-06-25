@@ -1,15 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '@base_ui/react/utils/types';
+import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuPopupContext } from '../Popup/MenuPopupContext';
-import { useMenuItem } from '../Item/useMenuItem';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useId } from '../../utils/useId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { MenuActionTypes } from '../Root/useMenuRoot.types';
-import { useForkRef } from '../../utils/useForkRef';
+import { useSubmenuTrigger } from './useSubmenuTrigger';
 
-namespace ItemTrigger {
+namespace SubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
@@ -38,14 +36,14 @@ namespace ItemTrigger {
   }
 }
 
-const ItemTrigger = React.forwardRef(function ItemTriggerComponent(
-  props: ItemTrigger.Props,
+const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+  props: SubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
   const id = useId(idProp);
 
-  const { dispatch, parentContext } = useMenuRootContext();
+  const { dispatch, parentContext, topmostContext, getTriggerProps } = useMenuRootContext();
   const { compoundParentContext } = useMenuPopupContext();
 
   if (parentContext === null) {
@@ -56,45 +54,32 @@ const ItemTrigger = React.forwardRef(function ItemTriggerComponent(
 
   const highlighted = parentState.highlightedValue === id;
 
-  const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
-    compoundParentContext,
-    disabled,
-    dispatch: parentDispatch,
-    highlighted,
+  const { getRootProps } = useSubmenuTrigger({
+    dispatch,
+    parentDispatch,
+    rootDispatch: topmostContext?.dispatch ?? dispatch,
     id,
-    label,
+    highlighted,
+    compoundParentContext,
     rootRef: forwardedRef,
-    closeOnClick: false,
-    disableFocusOnHover: !parentState.settings.disabledItemsFocusable,
+    label,
+    disabled,
   });
 
-  const registerTrigger = React.useCallback(
-    (element: HTMLElement | null) => {
-      dispatch({
-        type: MenuActionTypes.registerTrigger,
-        triggerElement: element,
-      });
-    },
-    [dispatch],
-  );
-
-  const menuTriggerRef = useForkRef(menuItemRef, registerTrigger);
-
-  const ownerState: ItemTrigger.OwnerState = { disabled, highlighted };
+  const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
     ownerState,
-    propGetter: getMenuItemProps,
+    propGetter: (externalProps: GenericHTMLProps) => getTriggerProps(getRootProps(externalProps)),
     extraProps: other,
-    ref: menuTriggerRef,
   });
 
   return renderElement();
 });
 
-ItemTrigger.propTypes /* remove-proptypes */ = {
+SubmenuTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -105,4 +90,4 @@ ItemTrigger.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
 } as any;
 
-export { ItemTrigger };
+export { SubmenuTrigger as ItemTrigger };

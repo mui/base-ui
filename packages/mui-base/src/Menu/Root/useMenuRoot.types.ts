@@ -58,13 +58,13 @@ interface MenuToggleAction {
 
 interface MenuOpenAction {
   type: typeof MenuActionTypes.open;
-  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | Event | null;
   highlightRequest?: 'first' | 'last';
 }
 
 interface MenuCloseAction {
   type: typeof MenuActionTypes.close;
-  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | Event | null;
 }
 
 interface MenuRegisterPopupAction {
@@ -95,8 +95,6 @@ export type MenuReducerAction =
 
 export type MenuReducerState = ListState<string> & {
   open: boolean;
-  // TODO: remove?
-  changeReason: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
   // TODO: at least rename
   listboxRef: React.RefObject<HTMLElement>;
   popupId: string | null;

@@ -32,13 +32,12 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       return state;
 
     case MenuActionTypes.escapeKeyDown:
-      return { ...state, open: false, changeReason: action.event };
+      return { ...state, open: false };
 
     case MenuActionTypes.toggle:
       return {
         ...state,
         open: !state.open,
-        changeReason: action.event,
         highlightedValue: state.open
           ? null
           : moveHighlight(null, 'start', state.items, state.settings),
@@ -48,7 +47,6 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       return {
         ...state,
         open: true,
-        changeReason: action.event,
         highlightedValue:
           action.highlightRequest === 'last'
             ? moveHighlight(null, 'end', state.items, state.settings)
@@ -56,7 +54,7 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       };
 
     case MenuActionTypes.close:
-      return { ...state, open: false, changeReason: action.event };
+      return { ...state, open: false };
 
     case MenuActionTypes.registerPopup:
       return { ...state, popupId: action.popupId };

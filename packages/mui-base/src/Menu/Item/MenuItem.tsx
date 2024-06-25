@@ -12,6 +12,7 @@ import { MenuReducerAction } from '../Root/useMenuRoot.types';
 interface InnerMenuItemProps extends MenuItemProps {
   highlighted: boolean;
   dispatch: React.Dispatch<MenuReducerAction>;
+  rootDispatch: React.Dispatch<MenuReducerAction>;
 }
 
 const InnerMenuItem = React.memo(
@@ -27,6 +28,7 @@ const InnerMenuItem = React.memo(
       id,
       highlighted,
       dispatch,
+      rootDispatch,
       ...other
     } = props;
 
@@ -36,6 +38,7 @@ const InnerMenuItem = React.memo(
       compoundParentContext,
       disabled,
       dispatch,
+      rootDispatch,
       highlighted,
       id,
       label,
@@ -73,7 +76,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   ref: React.ForwardedRef<Element>,
 ) {
   const { id: idProp } = props;
-  const { dispatch, state } = useMenuRootContext();
+  const { dispatch, topmostContext, state } = useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = state.highlightedValue === id;
@@ -83,7 +86,14 @@ const MenuItem = React.forwardRef(function MenuItem(
   // only when it needs to.
 
   return (
-    <InnerMenuItem {...props} id={id} ref={ref} dispatch={dispatch} highlighted={highlighted} />
+    <InnerMenuItem
+      {...props}
+      id={id}
+      ref={ref}
+      dispatch={dispatch}
+      rootDispatch={topmostContext?.dispatch ?? dispatch}
+      highlighted={highlighted}
+    />
   );
 });
 

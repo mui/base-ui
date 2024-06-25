@@ -4,12 +4,13 @@ import { CompoundParentContextValue } from '../../useCompound/useCompound.types'
 import { ListItemMetadata } from '../../useList';
 
 export interface UseMenuItemParameters {
-  dispatch: (action: MenuReducerAction) => void;
+  dispatch: React.Dispatch<MenuReducerAction>;
+  rootDispatch: React.Dispatch<MenuReducerAction>;
   disabled: boolean;
   id: string | undefined;
   label?: string;
   onClick?: React.MouseEventHandler<any>;
-  rootRef: React.Ref<Element>;
+  rootRef?: React.Ref<Element>;
   /**
    * If `true`, the menu item won't receive focus when the mouse moves over it.
    *

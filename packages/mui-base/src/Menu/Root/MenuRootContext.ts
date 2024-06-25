@@ -1,12 +1,16 @@
 import * as React from 'react';
 import { FloatingRootContext } from '@floating-ui/react';
 import { MenuReducerAction, MenuReducerState } from './useMenuRoot.types';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface MenuRootContext {
   dispatch: React.Dispatch<MenuReducerAction>;
   state: MenuReducerState;
   floatingRootContext: FloatingRootContext;
   parentContext: MenuRootContext | null;
+  topmostContext: MenuRootContext | null;
+  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);

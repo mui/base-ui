@@ -14,6 +14,7 @@ import { useMenuPositioner } from './useMenuPositioner';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
+import { GenericHTMLProps } from '../../utils/types';
 
 /**
  * Renders the element that positions the Menu popup.
@@ -48,7 +49,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const { state, dispatch, floatingRootContext } = useMenuRootContext();
+  const { state, dispatch, floatingRootContext, getPositionerProps } = useMenuRootContext();
 
   const { open, triggerElement } = state;
 
@@ -68,6 +69,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding,
     hideWhenDetached,
     sticky,
+    dispatch,
   });
 
   const ownerState: MenuPositionerOwnerState = React.useMemo(
@@ -106,7 +108,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
+    propGetter: (externalProps: GenericHTMLProps) =>
+      getPositionerProps(positioner.getPositionerProps(externalProps)),
     render: render ?? 'div',
     className,
     ownerState,

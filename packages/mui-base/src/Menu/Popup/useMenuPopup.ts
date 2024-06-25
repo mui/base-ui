@@ -33,7 +33,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
 
   const id = useId(idParam) ?? '';
 
-  const { open, highlightedValue, items: subitems, triggerElement } = state;
+  const { open, highlightedValue, items: subitems } = state;
 
   // store the initial open state to prevent focus stealing
   // (the first menu items gets focued only when the menu is opened by the user)
@@ -76,27 +76,6 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     return mergeReactProps(
       externalProps,
       {
-        onBlur: (event: React.FocusEvent) => {
-          if (
-            rootRef.current?.contains(event.relatedTarget as HTMLElement) ||
-            event.relatedTarget === triggerElement
-          ) {
-            return;
-          }
-
-          dispatch({
-            type: MenuActionTypes.blur,
-            event,
-          });
-        },
-        onKeyDown: (event: React.KeyboardEvent) => {
-          if (event.key === 'Escape') {
-            dispatch({
-              type: MenuActionTypes.escapeKeyDown,
-              event,
-            });
-          }
-        },
         id,
         role: 'menu',
         'aria-hidden': !open || undefined,

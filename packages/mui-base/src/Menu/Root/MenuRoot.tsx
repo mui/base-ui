@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { FloatingTree } from '@floating-ui/react';
 import { exactProp } from '@mui/utils';
 import { MenuRootProps } from './MenuRoot.types';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
@@ -18,13 +19,23 @@ function MenuRoot(props: MenuRootProps) {
     parentState: parentContext?.state,
   });
 
-  const context = React.useMemo(
+  const context: MenuRootContext = React.useMemo(
     () => ({
       ...menuRoot,
       parentContext,
+      topmostContext: parentContext != null ? parentContext.topmostContext ?? parentContext : null,
     }),
     [menuRoot, parentContext],
   );
+
+  if (parentContext == null) {
+    // set up a FloatingTree to provide the context to nested menus
+    return (
+      <FloatingTree>
+        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
+      </FloatingTree>
+    );
+  }
 
   return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 }

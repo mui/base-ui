@@ -120,13 +120,15 @@ const MenuPopup = styled(Menu.Popup)(
   &[data-state='closed'] {
     opacity: 0;
     transform: scale(0.95, 0.8);
-    transition: opacity 200ms ease-in, transform 200ms ease-in;
+    transition: opacity 200ms ease-in, transform 200ms ease-in, visibility 0ms 200ms;
+    visibility: hidden;
   }
   
   &[data-state='open'] {
     opacity: 1;
     transform: scale(1, 1);
     transition: opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
+    visibility: visible;
   }
   `,
 );

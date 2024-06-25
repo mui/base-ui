@@ -1,6 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useFloatingRootContext } from '@floating-ui/react';
+import {
+  safePolygon,
+  useClick,
+  useDismiss,
+  useFloatingRootContext,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback, StateComparers } from '../../utils/useControllableReducer.types';
 import { MenuActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
@@ -10,7 +17,6 @@ import { areArraysEqual } from '../../utils/areArraysEqual';
 import { ListActionTypes } from '../../useList';
 
 const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
-  changeReason: null,
   highlightedValue: null,
   selectedValues: [],
   items: new IndexableMap(),
@@ -31,6 +37,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
   const { defaultOpen, onOpenChange, onHighlightChange, open: openProp, parentState } = parameters;
 
   const lastActionType = React.useRef<string | null>(null);
+  const isNested = parentState !== undefined;
 
   const handleHighlightChange = React.useCallback(
     (
@@ -139,10 +146,41 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
       floating: state.positionerElement,
     },
     open: state.open,
+    onOpenChange: (isOpen: boolean, event: Event | undefined) => {
+      if (isOpen) {
+        dispatch({ type: MenuActionTypes.open, event: event ?? null });
+      } else {
+        dispatch({ type: MenuActionTypes.close, event: event ?? null });
+      }
+    },
   });
 
+  const hover = useHover(floatingRootContext, {
+    enabled: isNested,
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    delay: {
+      open: 75,
+    },
+  });
+
+  const click = useClick(floatingRootContext, {
+    event: 'mousedown',
+    toggle: !isNested,
+    ignoreMouse: isNested,
+  });
+
+  const dismiss = useDismiss(floatingRootContext, { bubbles: true });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss]);
+
   return React.useMemo(
-    () => ({ state, dispatch, floatingRootContext }),
-    [state, dispatch, floatingRootContext],
+    () => ({
+      state,
+      dispatch,
+      floatingRootContext,
+      getTriggerProps: getReferenceProps,
+      getPositionerProps: getFloatingProps,
+    }),
+    [state, dispatch, floatingRootContext, getReferenceProps, getFloatingProps],
   );
 }
