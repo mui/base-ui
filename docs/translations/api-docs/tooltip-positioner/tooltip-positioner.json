@@ -12,7 +12,7 @@
       "description": "Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip popup element has rounded corners via <code>border-radius</code>."
     },
     "className": {
-      "description": "Class names applied to the element or a function that returns them based on the component&#39;s <code>ownerState</code>."
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "collisionBoundary": {
       "description": "The boundary that the tooltip popup element should be constrained to."
@@ -32,9 +32,7 @@
     "positionStrategy": {
       "description": "The CSS position strategy for positioning the tooltip popup element."
     },
-    "render": {
-      "description": "A React element or function that returns one to customize the element rendered by the component."
-    },
+    "render": { "description": "A function to customize rendering of the component." },
     "side": {
       "description": "The side of the anchor element that the tooltip popup element should be placed at."
     },

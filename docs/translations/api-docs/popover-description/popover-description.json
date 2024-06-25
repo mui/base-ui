@@ -2,11 +2,9 @@
   "componentDescription": "Renders a description element that describes the popover.",
   "propDescriptions": {
     "className": {
-      "description": "Class names applied to the element or a function that returns them based on the component&#39;s <code>ownerState</code>."
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "render": {
-      "description": "A React element or function that returns one to customize the element rendered by the component."
-    }
+    "render": { "description": "A function to customize rendering of the component." }
   },
   "classDescriptions": {}
 }
