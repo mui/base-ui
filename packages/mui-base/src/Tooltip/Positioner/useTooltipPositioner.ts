@@ -1,27 +1,11 @@
 'use client';
 import * as React from 'react';
-import {
-  autoUpdate,
-  flip,
-  limitShift,
-  offset,
-  shift,
-  arrow,
-  useFloating,
-  size,
-  hide,
-  type Placement,
-  type UseFloatingOptions,
-} from '@floating-ui/react';
-import { getSide, getAlignment } from '@floating-ui/utils';
-import { isElement } from '@floating-ui/utils/dom';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type {
   UseTooltipPositionerParameters,
   UseTooltipPositionerReturnValue,
 } from './useTooltipPositioner.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
 /**
  * Manages the popup state for a tooltip including positioning.
@@ -39,168 +23,28 @@ export function useTooltipPositioner(
 ): UseTooltipPositionerReturnValue {
   const {
     open,
-    anchor,
-    positionStrategy = 'absolute',
-    side = 'top',
-    sideOffset = 0,
-    alignment = 'center',
-    alignmentOffset = 0,
-    collisionBoundary,
-    collisionPadding = 5,
-    hideWhenDetached = false,
-    sticky = false,
     keepMounted = false,
-    arrowPadding = 5,
     mounted = true,
     getRootPositionerProps,
-    rootContext,
     followCursorAxis = 'none',
   } = params;
 
-  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's
-  // presence.
-  const arrowRef = React.useRef<Element | null>(null);
-
-  const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
-
-  const middleware: UseFloatingOptions['middleware'] = [
-    offset({
-      mainAxis: sideOffset,
-      crossAxis: alignmentOffset,
-      alignmentAxis: alignmentOffset,
-    }),
-  ];
-
-  const flipMiddleware = flip({
-    fallbackAxisSideDirection: 'start',
-    padding: collisionPadding,
-    boundary: collisionBoundary,
-  });
-  const shiftMiddleware = shift({
-    limiter: sticky
-      ? undefined
-      : limitShift(() => {
-          if (!arrowRef.current) {
-            return {};
-          }
-          const { height } = arrowRef.current.getBoundingClientRect();
-          return {
-            offset: height,
-          };
-        }),
-    padding: collisionPadding,
-    boundary: collisionBoundary,
-  });
-
-  // https://floating-ui.com/docs/flip#combining-with-shift
-  if (alignment !== 'center') {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
-    middleware.push(shiftMiddleware, flipMiddleware);
-  }
-
-  middleware.push(
-    size({
-      boundary: collisionBoundary,
-      padding: collisionPadding,
-      apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
-        Object.entries({
-          '--available-width': `${availableWidth}px`,
-          '--available-height': `${availableHeight}px`,
-          '--anchor-width': `${reference.width}px`,
-          '--anchor-height': `${reference.height}px`,
-        }).forEach(([key, value]) => {
-          floating.style.setProperty(key, value);
-        });
-      },
-    }),
-    arrow(
-      () => ({
-        // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
-        // we'll create a fake element.
-        element: arrowRef.current || document.createElement('div'),
-        padding: arrowPadding,
-      }),
-      [arrowPadding],
-    ),
-    hideWhenDetached && hide(),
-    {
-      name: 'transformOrigin',
-      fn({ elements, middlewareData, placement: renderedPlacement }) {
-        const currentRenderedSide = getSide(renderedPlacement);
-        const arrowEl = arrowRef.current;
-        const arrowX = middlewareData.arrow?.x ?? 0;
-        const arrowY = middlewareData.arrow?.y ?? 0;
-        const arrowWidth = arrowEl?.clientWidth ?? sideOffset;
-        const arrowHeight = arrowEl?.clientHeight ?? sideOffset;
-        const transformX = arrowX + arrowWidth / 2;
-        const transformY = arrowY + arrowHeight;
-
-        const transformOrigin = {
-          top: `${transformX}px calc(100% + ${arrowHeight}px)`,
-          bottom: `${transformX}px ${-arrowHeight}px`,
-          left: `calc(100% + ${arrowHeight}px) ${transformY}px`,
-          right: `${-arrowHeight}px ${transformY}px`,
-        }[currentRenderedSide];
-
-        elements.floating.style.setProperty('--transform-origin', transformOrigin);
-
-        return {};
-      },
-    },
-  );
-
   const {
-    refs,
-    elements,
-    floatingStyles,
-    middlewareData,
-    update,
-    placement: renderedPlacement,
-  } = useFloating({
-    rootContext,
-    placement,
-    strategy: positionStrategy,
-    middleware,
-    whileElementsMounted: keepMounted ? undefined : autoUpdate,
-  });
-
-  // The `anchor` prop is non-reactive.
-  const anchorRef = useLatestRef(anchor);
-
-  useEnhancedEffect(() => {
-    function isRef(param: any): param is React.MutableRefObject<any> {
-      return {}.hasOwnProperty.call(param, 'current');
-    }
-    const resolvedAnchor =
-      typeof anchorRef.current === 'function' ? anchorRef.current() : anchorRef.current;
-    if (resolvedAnchor && !isElement(resolvedAnchor)) {
-      refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
-    }
-  }, [refs, anchorRef]);
-
-  React.useEffect(() => {
-    if (keepMounted && mounted && elements.domReference && elements.floating) {
-      return autoUpdate(elements.domReference, elements.floating, update);
-    }
-    return undefined;
-  }, [keepMounted, mounted, elements, update]);
-
-  const renderedSide = getSide(renderedPlacement);
-  const renderedAlignment = getAlignment(renderedPlacement) || 'center';
-  const isHidden = hideWhenDetached && middlewareData.hide?.referenceHidden;
+    positionerStyles,
+    arrowStyles,
+    hidden,
+    arrowRef,
+    arrowUncentered,
+    renderedSide,
+    renderedAlignment,
+  } = useAnchorPositioning(params);
 
   const getPositionerProps: UseTooltipPositionerReturnValue['getPositionerProps'] =
     React.useCallback(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (isHidden) {
-          hiddenStyles.visibility = 'hidden';
-        }
-
-        if ((keepMounted && !open) || isHidden) {
+        if ((keepMounted && !open) || hidden) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -212,8 +56,7 @@ export function useTooltipPositioner(
           externalProps,
           getRootPositionerProps({
             style: {
-              ...floatingStyles,
-              ...hiddenStyles,
+              ...positionerStyles,
               maxWidth: 'var(--available-width)',
               maxHeight: 'var(--available-height)',
               zIndex: 2147483647, // max z-index
@@ -221,24 +64,18 @@ export function useTooltipPositioner(
           }),
         );
       },
-      [getRootPositionerProps, floatingStyles, isHidden, followCursorAxis, open, keepMounted],
+      [getRootPositionerProps, positionerStyles, hidden, followCursorAxis, open, keepMounted],
     );
 
   const getArrowProps: UseTooltipPositionerReturnValue['getArrowProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
         'aria-hidden': true,
-        style: {
-          position: 'absolute',
-          top: middlewareData.arrow?.y,
-          left: middlewareData.arrow?.x,
-        },
+        style: arrowStyles,
       });
     },
-    [middlewareData],
+    [arrowStyles],
   );
-
-  const arrowUncentered = middlewareData.arrow?.centerOffset !== 0;
 
   return React.useMemo(
     () => ({
@@ -250,6 +87,14 @@ export function useTooltipPositioner(
       side: renderedSide,
       alignment: renderedAlignment,
     }),
-    [mounted, getPositionerProps, getArrowProps, arrowUncentered, renderedSide, renderedAlignment],
+    [
+      mounted,
+      getPositionerProps,
+      getArrowProps,
+      arrowRef,
+      arrowUncentered,
+      renderedSide,
+      renderedAlignment,
+    ],
   );
 }
