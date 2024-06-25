@@ -2,24 +2,16 @@
   "props": {
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "disableFocusOnHover": { "type": { "name": "bool" }, "default": "false" },
-    "label": { "type": { "name": "string" } },
-    "slotProps": {
-      "type": { "name": "shape", "description": "{ root?: func<br>&#124;&nbsp;object }" },
-      "default": "{}"
-    },
-    "slots": {
-      "type": { "name": "shape", "description": "{ root?: elementType }" },
-      "default": "{}",
-      "additionalInfo": { "slotsApi": true }
-    }
+    "label": { "type": { "name": "string" } }
   },
   "name": "MenuItem",
-  "imports": ["import { MenuItem } from '@base_ui/react/legacy/MenuItem';"],
+  "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuItem = Menu.Item;"],
   "classes": [],
   "spread": true,
+  "themeDefaultProps": true,
   "muiName": "MenuItem",
-  "forwardsRefTo": "HTMLLIElement",
-  "filename": "/packages/mui-base/src/legacy/MenuItem/MenuItem.tsx",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Menu/Item/MenuItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

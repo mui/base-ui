@@ -5,23 +5,11 @@
       "type": { "name": "ActiveTabPosition | null", "description": "ActiveTabPosition | null" },
       "required": true
     },
-    "direction": {
-      "type": { "name": "TabsDirection", "description": "TabsDirection" },
-      "required": true
-    },
     "getRootProps": {
       "type": {
         "name": "(otherProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
         "description": "(otherProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
       },
-      "required": true
-    },
-    "orientation": {
-      "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
-      "required": true
-    },
-    "tabActivationDirection": {
-      "type": { "name": "TabActivationDirection", "description": "TabActivationDirection" },
       "required": true
     }
   },

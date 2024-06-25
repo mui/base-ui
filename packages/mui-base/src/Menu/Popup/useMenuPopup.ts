@@ -12,7 +12,12 @@ import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const EMPTY_ARRAY: string[] = [];
-
+/**
+ *
+ * API:
+ *
+ * - [useMenuPopup API](https://mui.com/base-ui/api/use-menu-popup/)
+ */
 export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupReturnValue {
   const {
     id: idParam,

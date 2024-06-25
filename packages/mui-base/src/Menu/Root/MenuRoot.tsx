@@ -3,17 +3,28 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { exactProp } from '@mui/utils';
 import { MenuRootProps } from './MenuRoot.types';
-import { MenuRootContext } from './MenuRootContext';
+import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { useMenuRoot } from './useMenuRoot';
 
 function MenuRoot(props: MenuRootProps) {
   const { children, open, defaultOpen, onOpenChange } = props;
 
-  const context = useMenuRoot({
+  const parentContext = useMenuRootContext(true);
+
+  const menuRoot = useMenuRoot({
     defaultOpen,
     onOpenChange,
     open,
+    parentState: parentContext?.state,
   });
+
+  const context = React.useMemo(
+    () => ({
+      ...menuRoot,
+      parentContext,
+    }),
+    [menuRoot, parentContext],
+  );
 
   return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 }

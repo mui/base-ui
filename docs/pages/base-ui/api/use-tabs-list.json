@@ -12,7 +12,7 @@
   },
   "returnValue": {
     "contextValue": {
-      "type": { "name": "TabsListProviderValue", "description": "TabsListProviderValue" },
+      "type": { "name": "TabsListContextValue", "description": "TabsListContextValue" },
       "required": true
     },
     "direction": {

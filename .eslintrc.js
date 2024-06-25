@@ -43,6 +43,7 @@ module.exports = {
         ],
       },
     ],
+    '@typescript-eslint/no-redeclare': 'off',
   },
   overrides: [
     ...baseline.overrides,

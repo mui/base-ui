@@ -57,13 +57,21 @@ MenuPopup.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * @ignore
+   * A ref with imperative actions that can be performed on the menu.
    */
   children: PropTypes.node,
   /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * @ignore
    */
-  className: PropTypes.string,
+  id: PropTypes.string,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { MenuPopup };

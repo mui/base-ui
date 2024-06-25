@@ -57,9 +57,9 @@ MenuTrigger.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class name applied to the root element.
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className: PropTypes.string,
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * If `true`, the component is disabled.
    * @default false
@@ -74,6 +74,10 @@ MenuTrigger.propTypes /* remove-proptypes */ = {
    * Label of the button
    */
   label: PropTypes.string,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { MenuTrigger };

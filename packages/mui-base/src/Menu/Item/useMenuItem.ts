@@ -29,6 +29,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     id,
     label,
     rootRef: externalRef,
+    closeOnClick,
   } = params;
 
   const itemRef = React.useRef<HTMLElement>(null);
@@ -76,10 +77,12 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
           id,
           role: 'menuitem',
           onClick: (event: React.MouseEvent) => {
-            dispatch({
-              type: MenuActionTypes.close,
-              event,
-            });
+            if (closeOnClick) {
+              dispatch({
+                type: MenuActionTypes.close,
+                event,
+              });
+            }
           },
         }),
       ),

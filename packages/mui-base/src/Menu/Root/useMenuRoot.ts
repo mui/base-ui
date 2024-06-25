@@ -18,20 +18,17 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   triggerElement: null,
   positionerElement: null,
   popupId: null,
+  hasNestedMenuOpen: false,
 };
 
 /**
  *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/#hooks)
- *
  * API:
  *
- * - [useDropdown API](https://mui.com/base-ui/react-menu/hooks-api/#use-dropdown)
+ * - [useMenuRoot API](https://mui.com/base-ui/api/use-menu-root/)
  */
 export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
-  const { defaultOpen, onOpenChange, onHighlightChange, open: openProp } = parameters;
+  const { defaultOpen, onOpenChange, onHighlightChange, open: openProp, parentState } = parameters;
 
   const lastActionType = React.useRef<string | null>(null);
 
@@ -119,6 +116,12 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
     componentName: 'MenuRoot',
     stateComparers,
   });
+
+  React.useEffect(() => {
+    if (parentState?.open === false) {
+      dispatch({ type: MenuActionTypes.close, event: null });
+    }
+  }, [parentState?.open, dispatch]);
 
   React.useEffect(() => {
     if (

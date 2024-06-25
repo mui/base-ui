@@ -204,11 +204,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, Menu stays mounted in the DOM when closed.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
    * The CSS position strategy for positioning the Menu popup element.
    * @default 'absolute'
    */

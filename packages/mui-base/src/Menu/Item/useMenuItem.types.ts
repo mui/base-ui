@@ -18,6 +18,8 @@ export interface UseMenuItemParameters {
   disableFocusOnHover?: boolean;
   highlighted: boolean;
   compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
+
+  closeOnClick: boolean;
 }
 
 export interface UseMenuItemReturnValue {

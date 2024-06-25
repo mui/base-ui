@@ -16,9 +16,11 @@ export { MenuPositionerProps as PositionerProps } from './Positioner/MenuPositio
 
 export { MenuRoot as Root } from './Root/MenuRoot';
 export { MenuRootProps as RootProps } from './Root/MenuRoot.types';
-export { MenuRootContext, MenuRootContextValue } from './Root/MenuRootContext';
+export { MenuRootContext } from './Root/MenuRootContext';
 export { useMenuRoot } from './Root/useMenuRoot';
 
 export { MenuTrigger as Trigger } from './Trigger/MenuTrigger';
 export { MenuTriggerProps as TriggerProps } from './Trigger/MenuTrigger.types';
 export { useMenuTrigger } from './Trigger/useMenuTrigger';
+
+export { ItemTrigger } from './ItemTrigger/ItemTrigger';

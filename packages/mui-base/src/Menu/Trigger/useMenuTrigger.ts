@@ -6,7 +6,12 @@ import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton/useButton';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
+/**
+ *
+ * API:
+ *
+ * - [useMenuTrigger API](https://mui.com/base-ui/api/use-menu-trigger/)
+ */
 export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTriggerReturnValue {
   const {
     disabled = false,

@@ -27,7 +27,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
  *
  * API:
  *
- * - [useMenuPositioner API](https://mui.com/base-ui/api/use-Menu-positioner/)
+ * - [useMenuPositioner API](https://mui.com/base-ui/api/use-menu-positioner/)
  */
 export function useMenuPositioner(
   params: UseMenuPositionerParameters,

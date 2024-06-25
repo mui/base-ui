@@ -40,6 +40,7 @@ const InnerMenuItem = React.memo(
       id,
       label,
       rootRef: forwardedRef,
+      closeOnClick: true,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };
@@ -96,10 +97,6 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
    * If `true`, the menu item will be disabled.
    * @default false
    */
@@ -111,6 +108,10 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   disableFocusOnHover: PropTypes.bool,
   /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * A text representation of the menu item's content.
    * Used for keyboard text navigation matching.
    */
@@ -119,21 +120,6 @@ MenuItem.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   onClick: PropTypes.func,
-  /**
-   * The props used for each slot inside the MenuItem.
-   * @default {}
-   */
-  slotProps: PropTypes.shape({
-    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  }),
-  /**
-   * The components used for each slot inside the MenuItem.
-   * Either a string to use a HTML element or a component.
-   * @default {}
-   */
-  slots: PropTypes.shape({
-    root: PropTypes.elementType,
-  }),
 } as any;
 
 export { MenuItem };

@@ -22,6 +22,7 @@ export interface UseMenuRootParameters {
    * This is a controlled counterpart of `defaultOpen`.
    */
   open?: boolean;
+  parentState?: MenuReducerState;
 }
 
 export interface UseMenuRootReturnValue {
@@ -101,4 +102,5 @@ export type MenuReducerState = ListState<string> & {
   popupId: string | null;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
+  hasNestedMenuOpen: boolean;
 };
