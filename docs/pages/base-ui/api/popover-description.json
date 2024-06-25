@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "PopoverDescription",
+  "imports": [
+    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverDescription = Popover.Description;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "PopoverDescription",
+  "forwardsRefTo": "HTMLParagraphElement",
+  "filename": "/packages/mui-base/src/Popover/Description/PopoverDescription.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-popover/\">Popover</a></li></ul>",
+  "cssComponent": false
+}
