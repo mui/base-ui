@@ -41,6 +41,7 @@ export interface UseSwitchRootParameters {
    * Callback fired when the checked state is changed.
    *
    * @param {boolean} checked The new checked state.
+   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
    */
   onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   /**

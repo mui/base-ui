@@ -15,7 +15,10 @@
     "name": { "description": "Name of the underlying input element." },
     "onCheckedChange": {
       "description": "Callback fired when the checked state is changed.",
-      "typeDescriptions": { "checked": "The new checked state." }
+      "typeDescriptions": {
+        "checked": "The new checked state.",
+        "event": "The event source of the callback."
+      }
     },
     "readOnly": { "description": "If <code>true</code>, the component is read only." },
     "render": { "description": "A function to customize rendering of the component." },
