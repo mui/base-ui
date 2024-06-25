@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export type CheckboxOwnerState = {
@@ -44,7 +45,7 @@ export interface UseCheckboxRootParameters {
    *
    * @param {boolean} checked The new checked state.
    */
-  onCheckedChange?: (checked: boolean) => void;
+  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   /**
    * If `true`, the component is read only.
    *

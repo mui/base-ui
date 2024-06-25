@@ -92,7 +92,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           const nextChecked = event.target.checked;
 
           setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked);
+          onCheckedChange?.(nextChecked, event);
         },
       }),
     [

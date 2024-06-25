@@ -82,7 +82,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           const nextChecked = event.target.checked;
 
           setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked);
+          onCheckedChange?.(nextChecked, event);
         },
       }),
     [checked, disabled, name, required, handleInputRef, onCheckedChange, setCheckedState],
