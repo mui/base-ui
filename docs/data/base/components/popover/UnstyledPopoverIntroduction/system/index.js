@@ -30,7 +30,7 @@ export const PopoverPopup = styled(Popover.Popup)`
   border-radius: 5px;
   filter: drop-shadow(0 2px 4px rgb(0 10 20 / 0.25));
   outline: 0;
-  padding: 4px 16px;
+  padding: 8px 16px;
 `;
 
 export const PopoverTitle = styled(Popover.Title)`
@@ -39,7 +39,7 @@ export const PopoverTitle = styled(Popover.Title)`
   margin-bottom: 0;
 `;
 
-export const PopoverDescription = styled('p')`
+export const PopoverDescription = styled(Popover.Description)`
   margin-top: 12px;
 `;
 
