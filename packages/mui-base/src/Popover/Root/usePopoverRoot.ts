@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
@@ -135,7 +136,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       setDescriptionId,
       getRootTriggerProps: getReferenceProps,
       getRootPopupProps: getFloatingProps,
-      rootContext: context,
+      floatingRootContext: context,
       instantType,
     }),
     [

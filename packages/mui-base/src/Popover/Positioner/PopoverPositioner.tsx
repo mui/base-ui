@@ -48,12 +48,12 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...otherProps
   } = props;
 
-  const { rootContext, open, mounted, triggerElement, setPositionerElement } =
+  const { floatingRootContext, open, mounted, triggerElement, setPositionerElement } =
     usePopoverRootContext();
 
   const positioner = usePopoverPositioner({
     anchor: anchor || triggerElement,
-    rootContext,
+    floatingRootContext,
     positionStrategy,
     container,
     open,
@@ -85,14 +85,14 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       alignment: positioner.alignment,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
-      floatingContext: positioner.floatingContext,
+      arrowStyles: positioner.arrowStyles,
     }),
     [
       positioner.side,
       positioner.alignment,
       positioner.arrowRef,
       positioner.arrowUncentered,
-      positioner.floatingContext,
+      positioner.arrowStyles,
     ],
   );
 
@@ -107,7 +107,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     extraProps: otherProps,
   });
 
-  const shouldRender = keepMounted || positioner.mounted;
+  const shouldRender = keepMounted || mounted;
   if (!shouldRender) {
     return null;
   }
@@ -115,7 +115,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   return (
     <PopoverPositionerContext.Provider value={contextValue}>
       <FloatingPortal root={props.container}>
-        <FloatingFocusManager context={positioner.floatingContext} modal={false}>
+        <FloatingFocusManager context={positioner.positionerContext} modal={false}>
           {renderElement()}
         </FloatingFocusManager>
       </FloatingPortal>

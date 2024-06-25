@@ -13,21 +13,15 @@ import type {
  * - [usePopoverArrow API](https://mui.com/base-ui/api/use-popover-arrow/)
  */
 export function usePopoverArrow(params: UsePopoverArrowParameters): UsePopoverArrowReturnValue {
-  const { floatingContext, hidden } = params;
-  const middlewareData = floatingContext.middlewareData;
+  const { arrowStyles } = params;
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(externalProps, {
-        style: {
-          position: 'absolute',
-          top: middlewareData.arrow?.y,
-          left: middlewareData.arrow?.x,
-          ...(hidden && { visibility: 'hidden' }),
-        },
+        style: arrowStyles,
       });
     },
-    [middlewareData, hidden],
+    [arrowStyles],
   );
 
   return React.useMemo(

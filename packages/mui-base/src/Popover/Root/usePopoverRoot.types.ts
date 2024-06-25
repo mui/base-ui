@@ -76,7 +76,7 @@ export interface UsePopoverRootReturnValue {
   setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
   descriptionId: string | undefined;
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  rootContext: FloatingRootContext;
+  floatingRootContext: FloatingRootContext;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   instantType: 'dismiss' | 'click' | undefined;

@@ -26,11 +26,10 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open } = usePopoverRootContext();
-  const { arrowRef, side, alignment, arrowUncentered, floatingContext } =
-    usePopoverPositionerContext();
+  const { arrowRef, side, alignment, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
   const { getArrowProps } = usePopoverArrow({
-    floatingContext,
+    arrowStyles,
     hidden: hideWhenUncentered && arrowUncentered,
   });
 

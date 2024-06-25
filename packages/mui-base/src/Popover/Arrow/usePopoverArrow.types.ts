@@ -1,8 +1,8 @@
-import type { FloatingContext } from '@floating-ui/react';
+import type * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export interface UsePopoverArrowParameters {
-  floatingContext: FloatingContext;
+  arrowStyles: React.CSSProperties;
   hidden?: boolean;
 }
 

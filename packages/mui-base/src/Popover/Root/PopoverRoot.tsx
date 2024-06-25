@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { PopoverRootProps } from './PopoverRoot.types';
+import type { PopoverRootProps, PopoverRootContextValue } from './PopoverRoot.types';
 import { PopoverContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
-import { PopoverRootContextValue } from './PopoverRoot.types';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
@@ -33,7 +32,7 @@ function PopoverRoot(props: PopoverRootProps) {
     setMounted,
     instantType,
     transitionStatus,
-    rootContext,
+    floatingRootContext,
     getRootTriggerProps,
     getRootPopupProps,
     titleId,
@@ -73,7 +72,7 @@ function PopoverRoot(props: PopoverRootProps) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      rootContext,
+      floatingRootContext,
       getRootPopupProps,
       getRootTriggerProps,
     }),
@@ -94,7 +93,7 @@ function PopoverRoot(props: PopoverRootProps) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      rootContext,
+      floatingRootContext,
       getRootPopupProps,
       getRootTriggerProps,
     ],

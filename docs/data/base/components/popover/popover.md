@@ -206,7 +206,15 @@ It has the same maximum `z-index` as the `Positioner` component by default, and 
 
 ### Hover
 
-When combining `openOnHover` with the Backdrop component, ensure the `Trigger` element lies on a higher `z-index` than the Backdrop:
+When combining `openOnHover` with the Backdrop component, ensure the Backdrop does not block pointer events:
+
+```jsx
+<Popover.Backdrop style={{ pointerEvents: 'none' }} />
+```
+
+This will prevent the Popup from closing unexpectedly.
+
+If the Backdrop is colored, then you may want to ensure the trigger element can appear over the top of it, so it acts more like a mask. To do so, ensure their z-index layering is correct:
 
 ```jsx
 <Popover.Trigger style={{ position: 'relative', zIndex: 2 ** 31 - 1 }} />
@@ -216,8 +224,6 @@ When combining `openOnHover` with the Backdrop component, ensure the `Trigger` e
 :::info
 `2 ** 31 - 1` is the maximum possible `z-index`, ensuring the popover appears on the very top layer of the document.
 :::
-
-This will prevent the Popup from closing unexpectedly, as well as prevent the Trigger from being dimmed due to the Backdrop covering it.
 
 ## Anchoring
 

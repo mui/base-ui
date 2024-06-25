@@ -3,9 +3,9 @@ import type {
   Boundary,
   Padding,
   VirtualElement,
-  FloatingContext,
   Side,
   FloatingRootContext,
+  FloatingContext,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 
@@ -75,11 +75,6 @@ export interface PopoverPositionerParameters {
    */
   sticky?: boolean;
   /**
-   * If `true`, the popover is mounted.
-   * @default true
-   */
-  mounted?: boolean;
-  /**
    * Determines the padding between the arrow and the popover popup's edges. Useful when the popover
    * popup has rounded corners via `border-radius`.
    * @default 5
@@ -95,12 +90,13 @@ export interface PopoverPositionerParameters {
 export interface UsePopoverPositionerParameters extends PopoverPositionerParameters {
   /**
    * If `true`, the popover is mounted.
+   * @default true
    */
   mounted?: boolean;
   /**
    * The popover root context.
    */
-  rootContext?: FloatingRootContext;
+  floatingRootContext?: FloatingRootContext;
 }
 
 export interface UsePopoverPositionerReturnValue {
@@ -125,11 +121,11 @@ export interface UsePopoverPositionerReturnValue {
    */
   alignment: 'start' | 'end' | 'center';
   /**
-   * Whether the popover is mounted, including CSS transitions or animations.
+   * The styles to apply to the popover arrow element.
    */
-  mounted: boolean;
+  arrowStyles: React.CSSProperties;
   /**
-   * `FloatingContext`
+   * The floating context.
    */
-  floatingContext: FloatingContext;
+  positionerContext: FloatingContext;
 }

@@ -17,6 +17,7 @@ import {
   type FloatingRootContext,
   type VirtualElement,
   type Padding,
+  type FloatingContext,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
@@ -42,7 +43,7 @@ interface UseAnchorPositioningParameters {
   sticky?: boolean;
   keepMounted?: boolean;
   arrowPadding?: number;
-  rootContext?: FloatingRootContext;
+  floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
 }
 
@@ -55,6 +56,7 @@ interface UseAnchorPositioningReturnValue {
   renderedAlignment: 'start' | 'center' | 'end';
   hidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
+  positionerContext: FloatingContext;
 }
 
 /**
@@ -67,7 +69,7 @@ export function useAnchorPositioning(
 ): UseAnchorPositioningReturnValue {
   const {
     anchor,
-    rootContext,
+    floatingRootContext,
     positionStrategy = 'absolute',
     side = 'top',
     sideOffset = 0,
@@ -187,8 +189,9 @@ export function useAnchorPositioning(
     middlewareData,
     update,
     placement: renderedPlacement,
+    context: positionerContext,
   } = useFloating({
-    rootContext,
+    rootContext: floatingRootContext,
     placement,
     middleware,
     strategy: positionStrategy,
@@ -250,6 +253,7 @@ export function useAnchorPositioning(
       renderedAlignment,
       hidden,
       refs,
+      positionerContext,
     }),
     [
       positionerStyles,
@@ -260,6 +264,7 @@ export function useAnchorPositioning(
       renderedAlignment,
       hidden,
       refs,
+      positionerContext,
     ],
   );
 }
