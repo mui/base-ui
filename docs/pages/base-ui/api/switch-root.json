@@ -6,12 +6,9 @@
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "inputRef": { "type": { "name": "custom", "description": "ref" } },
     "name": { "type": { "name": "string" } },
-    "onChange": {
+    "onCheckedChange": {
       "type": { "name": "func" },
-      "signature": {
-        "type": "function(event: React.ChangeEvent<HTMLInputElement>) => void",
-        "describedArgs": ["event"]
-      }
+      "signature": { "type": "function(checked: boolean) => void", "describedArgs": ["checked"] }
     },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },

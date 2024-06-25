@@ -13,11 +13,9 @@
     },
     "inputRef": { "description": "Ref to the underlying input element." },
     "name": { "description": "Name of the underlying input element." },
-    "onChange": {
-      "description": "Callback fired when the state is changed.",
-      "typeDescriptions": {
-        "event": "The event source of the callback. You can pull out the new value by accessing <code>event.target.value</code> (string). You can pull out the new checked state by accessing <code>event.target.checked</code> (boolean)."
-      }
+    "onCheckedChange": {
+      "description": "Callback fired when the checked state is changed.",
+      "typeDescriptions": { "checked": "The new checked state." }
     },
     "readOnly": {
       "description": "If <code>true</code>, the component is read-only. Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently."

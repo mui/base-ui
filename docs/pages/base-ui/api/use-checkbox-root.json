@@ -18,10 +18,10 @@
       }
     },
     "name": { "type": { "name": "string", "description": "string" }, "default": "undefined" },
-    "onChange": {
+    "onCheckedChange": {
       "type": {
-        "name": "React.ChangeEventHandler&lt;HTMLInputElement&gt;",
-        "description": "React.ChangeEventHandler&lt;HTMLInputElement&gt;"
+        "name": "(checked: boolean) =&gt; void",
+        "description": "(checked: boolean) =&gt; void"
       }
     },
     "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },

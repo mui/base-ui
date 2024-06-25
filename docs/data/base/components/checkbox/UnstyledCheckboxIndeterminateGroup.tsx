@@ -22,8 +22,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
           aria-controls={colors.map((color) => `${id}-${color}`).join(' ')}
           indeterminate={isIndeterminate}
           checked={isChecked}
-          onChange={(event) => {
-            const checked = event.target.checked;
+          onCheckedChange={(checked) => {
             setCheckedValues([checked, checked, checked]);
           }}
         >
@@ -41,9 +40,9 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             <Checkbox
               id={`${id}-${color}`}
               checked={checkedValues[index]}
-              onChange={(event) => {
+              onCheckedChange={(checked) => {
                 const newCheckedValues = [...checkedValues];
-                newCheckedValues[index] = event.target.checked;
+                newCheckedValues[index] = checked;
                 setCheckedValues(newCheckedValues);
               }}
             >

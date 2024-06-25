@@ -10,7 +10,7 @@
     },
     "inputRef": { "description": "Ref to the underlying input element." },
     "name": { "description": "Name of the underlying input element." },
-    "onChange": { "description": "Callback fired when the state is changed." },
+    "onCheckedChange": { "description": "Callback fired when the checked state is changed." },
     "readOnly": {
       "description": "If <code>true</code>, the component is read-only. Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently."
     },

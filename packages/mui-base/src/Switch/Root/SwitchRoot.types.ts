@@ -37,13 +37,11 @@ export interface UseSwitchRootParameters {
    */
   name?: string;
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
-   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
+   * @param {boolean} checked The new checked state.
    */
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onCheckedChange?: (checked: boolean) => void;
   /**
    * If `true`, the component is read-only.
    * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.

@@ -4,6 +4,7 @@ import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -21,7 +22,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     checked: externalChecked,
     inputRef: externalInputRef,
     name,
-    onChange,
+    onCheckedChange: onCheckedChangeProp = () => {},
     defaultChecked = false,
     disabled = false,
     readOnly = false,
@@ -29,6 +30,8 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     autoFocus = false,
     indeterminate = false,
   } = params;
+
+  const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef);
@@ -86,11 +89,22 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
             return;
           }
 
-          setCheckedState(event.target.checked);
-          onChange?.(event);
+          const nextChecked = event.target.checked;
+
+          setCheckedState(nextChecked);
+          onCheckedChange?.(nextChecked);
         },
       }),
-    [autoFocus, checked, disabled, name, onChange, required, setCheckedState, mergedInputRef],
+    [
+      autoFocus,
+      checked,
+      disabled,
+      name,
+      onCheckedChange,
+      required,
+      setCheckedState,
+      mergedInputRef,
+    ],
   );
 
   return React.useMemo(
