@@ -130,6 +130,42 @@ module.exports = [
     pathname: '/base-ui/react-select/components-api/#option-group',
     title: 'OptionGroup',
   },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-arrow',
+    title: 'PopoverArrow',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-backdrop',
+    title: 'PopoverBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-close',
+    title: 'PopoverClose',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-description',
+    title: 'PopoverDescription',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-popup',
+    title: 'PopoverPopup',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-positioner',
+    title: 'PopoverPositioner',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-root',
+    title: 'PopoverRoot',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-title',
+    title: 'PopoverTitle',
+  },
+  {
+    pathname: '/base-ui/react-popover/components-api/#popover-trigger',
+    title: 'PopoverTrigger',
+  },
   { pathname: '/base-ui/react-popper/components-api/#popper', title: 'Popper' },
   { pathname: '/base-ui/react-popup/components-api/#popup', title: 'Popup' },
   { pathname: '/base-ui/react-portal/components-api/#portal', title: 'Portal' },

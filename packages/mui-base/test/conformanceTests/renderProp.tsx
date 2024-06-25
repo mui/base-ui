@@ -62,7 +62,7 @@ export function testRenderProp(
       expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
     });
 
-    it('should pass the ref to the custom component', () => {
+    it('should pass the ref to the custom component', async () => {
       let instanceFromRef = null;
 
       function Test() {
@@ -75,7 +75,7 @@ export function testRenderProp(
         });
       }
 
-      render(<Test />);
+      await render(<Test />);
       expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
       expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
     });
