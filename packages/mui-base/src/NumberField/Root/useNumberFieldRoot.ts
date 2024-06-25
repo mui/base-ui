@@ -61,7 +61,7 @@ export function useNumberFieldRoot(
     allowWheelScrub = false,
     format,
     value: externalValue,
-    onValueChange,
+    onValueChange: onValueChangeProp = () => {},
     defaultValue,
   } = params;
 
@@ -75,6 +75,7 @@ export function useNumberFieldRoot(
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
