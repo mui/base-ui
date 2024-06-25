@@ -18,8 +18,8 @@
     "name": { "type": { "name": "string", "description": "string" } },
     "onValueChange": {
       "type": {
-        "name": "(value: number | null) =&gt; void",
-        "description": "(value: number | null) =&gt; void"
+        "name": "(value: number | null, event?: Event) =&gt; void",
+        "description": "(value: number | null, event?: Event) =&gt; void"
       }
     },
     "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },

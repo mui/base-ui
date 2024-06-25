@@ -138,7 +138,7 @@ export function useNumberFieldRoot(
     return step;
   });
 
-  const setValue = useEventCallback((unvalidatedValue: number | null) => {
+  const setValue = useEventCallback((unvalidatedValue: number | null, event?: Event) => {
     const validatedValue = toValidatedNumber(unvalidatedValue, {
       step: getStepAmount(),
       format: formatOptionsRef.current,
@@ -147,7 +147,7 @@ export function useNumberFieldRoot(
       minWithZeroDefault,
     });
 
-    onValueChange?.(validatedValue);
+    onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
@@ -156,11 +156,11 @@ export function useNumberFieldRoot(
   });
 
   const incrementValue = useEventCallback(
-    (amount: number, dir: 1 | -1, currentValue?: number | null) => {
+    (amount: number, dir: 1 | -1, currentValue?: number | null, event?: Event) => {
       const prevValue = currentValue == null ? value : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
-      setValue(nextValue);
+      setValue(nextValue, event);
     },
   );
 
@@ -329,7 +329,7 @@ export function useNumberFieldRoot(
 
         const amount = getStepAmount() ?? DEFAULT_STEP;
 
-        incrementValue(amount, event.deltaY > 0 ? -1 : 1);
+        incrementValue(amount, event.deltaY > 0 ? -1 : 1, undefined, event);
       }
 
       element.addEventListener('wheel', handleWheel);
@@ -384,7 +384,7 @@ export function useNumberFieldRoot(
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
-          incrementValue(amount, isIncrement ? 1 : -1);
+          incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
         },
         onPointerDown(event) {
           const isMainButton = !event.button || event.button === 0;
@@ -531,7 +531,7 @@ export function useNumberFieldRoot(
           const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
 
           if (parsedValue !== null) {
-            setValue(parsedValue);
+            setValue(parsedValue, event.nativeEvent);
           }
         },
         onChange(event) {
@@ -545,7 +545,7 @@ export function useNumberFieldRoot(
 
           if (targetValue.trim() === '') {
             setInputValue(targetValue);
-            setValue(null);
+            setValue(null, event.nativeEvent);
             return;
           }
 
@@ -558,13 +558,15 @@ export function useNumberFieldRoot(
 
           if (parsedValue !== null) {
             setInputValue(targetValue);
-            setValue(parsedValue);
+            setValue(parsedValue, event.nativeEvent);
           }
         },
         onKeyDown(event) {
           if (event.defaultPrevented || readOnly || disabled) {
             return;
           }
+
+          const nativeEvent = event.nativeEvent;
 
           allowInputSyncRef.current = true;
 
@@ -615,7 +617,7 @@ export function useNumberFieldRoot(
 
           if (
             // Allow composition events (e.g., pinyin)
-            event.nativeEvent.isComposing ||
+            nativeEvent.isComposing ||
             event.altKey ||
             event.ctrlKey ||
             event.metaKey ||
@@ -637,13 +639,13 @@ export function useNumberFieldRoot(
           event.preventDefault();
 
           if (event.key === 'ArrowUp') {
-            incrementValue(amount, 1, parsedValue);
+            incrementValue(amount, 1, parsedValue, nativeEvent);
           } else if (event.key === 'ArrowDown') {
-            incrementValue(amount, -1, parsedValue);
+            incrementValue(amount, -1, parsedValue, nativeEvent);
           } else if (event.key === 'Home' && min != null) {
-            setValue(min);
+            setValue(min, nativeEvent);
           } else if (event.key === 'End' && max != null) {
-            setValue(max);
+            setValue(max, nativeEvent);
           }
         },
         onPaste(event) {
@@ -660,7 +662,7 @@ export function useNumberFieldRoot(
 
           if (parsedValue !== null) {
             allowInputSyncRef.current = false;
-            setValue(parsedValue);
+            setValue(parsedValue, event.nativeEvent);
             setInputValue(pastedData);
           }
         },
