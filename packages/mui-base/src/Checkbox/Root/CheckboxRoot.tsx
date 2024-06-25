@@ -26,7 +26,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 ) {
   const {
     name,
-    onChange,
+    onCheckedChange,
     defaultChecked,
     disabled = false,
     readOnly = false,

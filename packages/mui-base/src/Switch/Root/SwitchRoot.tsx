@@ -35,7 +35,7 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
     defaultChecked,
     disabled = false,
     inputRef,
-    onChange,
+    onCheckedChange,
     readOnly = false,
     required = false,
     render: renderProp,
