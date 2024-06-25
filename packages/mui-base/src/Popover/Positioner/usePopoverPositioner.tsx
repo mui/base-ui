@@ -42,8 +42,6 @@ export function usePopoverPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            maxWidth: 'var(--available-width)',
-            maxHeight: 'var(--available-height)',
             zIndex: 2147483647, // max z-index
           },
         });
