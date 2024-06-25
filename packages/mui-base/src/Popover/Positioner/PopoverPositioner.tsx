@@ -15,7 +15,7 @@ import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 
 /**
- * Renders the element that positions the popover popup.
+ * The popover positioner element.
  *
  * Demos:
  *
@@ -30,10 +30,12 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    anchor,
-    positionStrategy = 'absolute',
-    className,
     render,
+    className,
+    anchor,
+    container,
+    keepMounted = false,
+    positionStrategy = 'absolute',
     side = 'bottom',
     alignment = 'center',
     sideOffset = 0,
@@ -43,8 +45,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     hideWhenDetached = false,
     sticky = false,
-    keepMounted = false,
-    container,
     ...otherProps
   } = props;
 
@@ -55,9 +55,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     anchor: anchor || triggerElement,
     floatingRootContext,
     positionStrategy,
-    container,
     open,
-    mounted,
     keepMounted,
     side,
     sideOffset,
@@ -81,19 +79,12 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const contextValue: PopoverPositionerContextValue = React.useMemo(
     () => ({
-      side: positioner.side,
-      alignment: positioner.alignment,
+      ...ownerState,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
     }),
-    [
-      positioner.side,
-      positioner.alignment,
-      positioner.arrowRef,
-      positioner.arrowUncentered,
-      positioner.arrowStyles,
-    ],
+    [ownerState, positioner.arrowRef, positioner.arrowUncentered, positioner.arrowStyles],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -114,7 +105,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={props.container}>
+      <FloatingPortal root={container}>
         <FloatingFocusManager context={positioner.positionerContext} modal={false}>
           {renderElement()}
         </FloatingFocusManager>
@@ -129,17 +120,17 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the popover element to the anchor element along its cross axis.
+   * The alignment of the popover popup element to the anchor element along its cross axis.
    * @default 'center'
    */
   alignment: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the popover element along its alignment axis.
+   * The offset of the popover popup element along its alignment axis.
    * @default 0
    */
   alignmentOffset: PropTypes.number,
   /**
-   * The anchor element to which the popover popup will be placed at.
+   * The element to which the popover popup element is anchored to.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -147,8 +138,8 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the popover popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Determines the padding between the arrow and the popover popup edges. Useful when the popover
+   * popup element has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -157,11 +148,12 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * Class names applied to the element or a function that returns them based on the component's
+   * `ownerState`.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the popover element should be constrained to.
+   * The boundary that the popover popup element should be constrained to.
    * @default 'clippingAncestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -176,7 +168,8 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * The padding between the popover popup element and the edges of the collision boundary to add
+   * whitespace between them to prevent them from touching.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -189,20 +182,20 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the popover popup will be appended to.
+   * The container element to which the popover positioner is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
     PropTypes.func,
   ]),
   /**
-   * If `true`, the popover will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
+   * Whether the popover popup element is hidden if it appears detached from its anchor element due
+   * to the anchor element being clipped (or hidden) from view.
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, popover stays mounted in the DOM when closed.
+   * Whether the popover popup remains mounted in the DOM while closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -212,21 +205,22 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * A React element or function that returns one to customize the element rendered by the
+   * component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the popover element should align to.
+   * The side of the anchor element that the popover popup element should be placed at.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the popover element.
+   * The gap between the anchor element and the popover popup element.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the popover to remain in stuck view while the anchor element is scrolled out
+   * Whether to allow the popover to remain stuck in view while the anchor element is scrolled out
    * of view.
    * @default false
    */

@@ -2,13 +2,15 @@
   "componentDescription": "Renders a backdrop for the popover.",
   "propDescriptions": {
     "className": {
-      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s <code>ownerState</code>."
     },
     "container": { "description": "The container element to which the backdrop is appended to." },
     "keepMounted": {
       "description": "If <code>true</code>, the backdrop remains mounted when the popover content is closed."
     },
-    "render": { "description": "A function to customize rendering of the component." }
+    "render": {
+      "description": "A React element or function that returns one to customize the element rendered by the component."
+    }
   },
   "classDescriptions": {}
 }

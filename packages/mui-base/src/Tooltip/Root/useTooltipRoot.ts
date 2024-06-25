@@ -21,13 +21,9 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 /**
  * Manages the root state for a tooltip.
  *
- * Demos:
- *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
- *
  * API:
  *
- * - [useTooltipRoot API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-root)
+ * - [useTooltipRoot API](https://mui.com/base-ui/api/use-tooltip-root/)
  */
 export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRootReturnValue {
   const {
@@ -36,7 +32,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     defaultOpen = false,
     keepMounted = false,
     triggerElement = null,
-    popupElement = null,
+    positionerElement = null,
     hoverable = true,
     animated = true,
     followCursorAxis = 'none',
@@ -69,10 +65,10 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(() => popupElement?.firstElementChild);
+  const runOnceAnimationsFinish = useAnimationsFinished(() => positionerElement?.firstElementChild);
 
   const context = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: popupElement },
+    elements: { reference: triggerElement, floating: positionerElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
@@ -156,7 +152,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     axis: followCursorAxis === 'none' ? undefined : followCursorAxis,
   });
 
-  const { getReferenceProps: getTriggerProps, getFloatingProps: getRootPositionerProps } =
+  const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
     useInteractions([hover, focus, dismiss, clientPoint]);
 
   return React.useMemo(
@@ -165,9 +161,9 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       setOpen,
       mounted,
       setMounted,
-      getTriggerProps,
-      getRootPositionerProps,
-      rootContext: context,
+      getRootTriggerProps,
+      getRootPopupProps,
+      floatingRootContext: context,
       instantType,
       transitionStatus,
     }),
@@ -176,8 +172,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       open,
       setMounted,
       setOpen,
-      getTriggerProps,
-      getRootPositionerProps,
+      getRootTriggerProps,
+      getRootPopupProps,
       context,
       instantType,
       transitionStatus,

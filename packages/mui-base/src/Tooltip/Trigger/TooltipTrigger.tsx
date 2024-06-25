@@ -3,12 +3,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import type { TooltipTriggerProps } from './TooltipTrigger.types';
-import { tooltipTriggerStyleHookMapping } from './styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 
 /**
- * Renders a trigger element that will open the tooltip.
+ * Renders a trigger element that opens the tooltip.
  *
  * Demos:
  *
@@ -24,19 +23,26 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, setTriggerElement, getTriggerProps } = useTooltipRootContext();
+  const { open, setTriggerElement, getRootTriggerProps } = useTooltipRootContext();
 
   const ownerState = React.useMemo(() => ({ open }), [open]);
-  const mergedRef = useForkRef(setTriggerElement, forwardedRef);
+
+  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getTriggerProps,
+    propGetter: getRootTriggerProps,
     render: render ?? 'button',
     className,
     ownerState,
-    extraProps: otherProps,
     ref: mergedRef,
-    customStyleHookMapping: tooltipTriggerStyleHookMapping,
+    extraProps: otherProps,
+    customStyleHookMapping: {
+      open(value) {
+        return {
+          'data-state': value ? 'open' : 'closed',
+        };
+      },
+    },
   });
 
   return renderElement();
@@ -48,11 +54,13 @@ TooltipTrigger.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * Class names applied to the element or a function that returns them based on the component's
+   * `ownerState`.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * A React element or function that returns one to customize the element rendered by the
+   * component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -47,7 +47,8 @@ AlertDialogTitle.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * Class names applied to the element or a function that returns them based on the component's
+   * `ownerState`.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -55,7 +56,8 @@ AlertDialogTitle.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * A React element or function that returns one to customize the element rendered by the
+   * component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

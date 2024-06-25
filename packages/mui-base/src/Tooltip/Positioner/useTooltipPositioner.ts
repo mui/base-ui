@@ -8,26 +8,15 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
 /**
- * Manages the popup state for a tooltip including positioning.
- *
- * Demos:
- *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/#hooks)
  *
  * API:
  *
- * - [useTooltipPositioner API](https://mui.com/base-ui/react-tooltip/hooks-api/#use-tooltip-positioner)
+ * - [useTooltipPositioner API](https://mui.com/base-ui/api/use-tooltip-positioner/)
  */
 export function useTooltipPositioner(
   params: UseTooltipPositionerParameters,
 ): UseTooltipPositionerReturnValue {
-  const {
-    open,
-    keepMounted = false,
-    mounted = true,
-    getRootPositionerProps,
-    followCursorAxis = 'none',
-  } = params;
+  const { open = false, keepMounted = false, followCursorAxis = 'none' } = params;
 
   const {
     positionerStyles,
@@ -52,49 +41,29 @@ export function useTooltipPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(
-          externalProps,
-          getRootPositionerProps({
-            style: {
-              ...positionerStyles,
-              maxWidth: 'var(--available-width)',
-              maxHeight: 'var(--available-height)',
-              zIndex: 2147483647, // max z-index
-            },
-          }),
-        );
+        return mergeReactProps<'div'>(externalProps, {
+          role: 'presentation',
+          style: {
+            ...positionerStyles,
+            ...hiddenStyles,
+            maxWidth: 'var(--available-width)',
+            maxHeight: 'var(--available-height)',
+            zIndex: 2147483647, // max z-index
+          },
+        });
       },
-      [getRootPositionerProps, positionerStyles, hidden, followCursorAxis, open, keepMounted],
+      [positionerStyles, hidden, followCursorAxis, open, keepMounted],
     );
-
-  const getArrowProps: UseTooltipPositionerReturnValue['getArrowProps'] = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        'aria-hidden': true,
-        style: arrowStyles,
-      });
-    },
-    [arrowStyles],
-  );
 
   return React.useMemo(
     () => ({
-      mounted,
       getPositionerProps,
-      getArrowProps,
+      arrowStyles,
       arrowRef,
       arrowUncentered,
       side: renderedSide,
       alignment: renderedAlignment,
     }),
-    [
-      mounted,
-      getPositionerProps,
-      getArrowProps,
-      arrowRef,
-      arrowUncentered,
-      renderedSide,
-      renderedAlignment,
-    ],
+    [getPositionerProps, arrowRef, arrowUncentered, renderedSide, renderedAlignment, arrowStyles],
   );
 }

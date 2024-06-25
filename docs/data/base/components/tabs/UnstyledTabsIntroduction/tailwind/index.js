@@ -45,7 +45,8 @@ const TabsList = React.forwardRef((props, ref) => {
 
 TabsList.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * Class names applied to the element or a function that returns them based on the component's
+   * `ownerState`.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -74,7 +75,8 @@ const Tab = React.forwardRef((props, ref) => {
 
 Tab.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * Class names applied to the element or a function that returns them based on the component's
+   * `ownerState`.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -95,7 +97,8 @@ const TabPanel = React.forwardRef((props, ref) => {
 
 TabPanel.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * Class names applied to the element or a function that returns them based on the component's
+   * `ownerState`.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };

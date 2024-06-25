@@ -6,7 +6,7 @@
     },
     "autoFocus": { "description": "If <code>true</code>, the input element is focused on mount." },
     "className": {
-      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s <code>ownerState</code>."
     },
     "defaultValue": {
       "description": "The default value of the input element. Use when the component is not controlled."
@@ -26,7 +26,9 @@
       "typeDescriptions": { "value": "The new value." }
     },
     "readOnly": { "description": "If <code>true</code>, the input element is read only." },
-    "render": { "description": "A function to customize rendering of the component." },
+    "render": {
+      "description": "A React element or function that returns one to customize the element rendered by the component."
+    },
     "required": { "description": "If <code>true</code>, the input element is required." },
     "smallStep": {
       "description": "The small step value of the input element when incrementing while the meta key is held. Snaps to multiples of this value."

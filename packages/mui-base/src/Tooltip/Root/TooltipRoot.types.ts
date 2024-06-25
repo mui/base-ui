@@ -1,26 +1,23 @@
-import type {
-  FloatingRootContext,
-  OpenChangeReason,
-  UseInteractionsReturn,
-} from '@floating-ui/react';
+import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { GenericHTMLProps } from '../../utils/types';
 
 export interface TooltipRootContextValue {
   open: boolean;
   setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
   triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;
-  popupElement: HTMLElement | null;
-  setPopupElement: (el: HTMLElement | null) => void;
+  positionerElement: HTMLElement | null;
+  setPositionerElement: (el: HTMLElement | null) => void;
   delay: number;
   closeDelay: number;
   delayType: 'rest' | 'hover';
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  getTriggerProps: UseInteractionsReturn['getReferenceProps'];
-  getRootPositionerProps: UseInteractionsReturn['getFloatingProps'];
+  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
-  rootContext: FloatingRootContext;
+  floatingRootContext: FloatingRootContext;
   followCursorAxis: 'none' | 'x' | 'y' | 'both';
   transitionStatus: TransitionStatus;
 }
