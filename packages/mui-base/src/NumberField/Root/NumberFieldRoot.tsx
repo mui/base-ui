@@ -180,6 +180,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
+   * @param {Event} event The event that triggered the change.
    */
   onValueChange: PropTypes.func,
   /**

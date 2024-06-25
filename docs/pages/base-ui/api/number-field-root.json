@@ -19,7 +19,10 @@
     "name": { "type": { "name": "string" } },
     "onValueChange": {
       "type": { "name": "func" },
-      "signature": { "type": "function(value: number | null) => void", "describedArgs": ["value"] }
+      "signature": {
+        "type": "function(value: number | null, event: Event) => void",
+        "describedArgs": ["value", "event"]
+      }
     },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },

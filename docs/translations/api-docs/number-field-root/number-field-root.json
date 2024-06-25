@@ -23,7 +23,10 @@
     "name": { "description": "The name of the input element." },
     "onValueChange": {
       "description": "Callback fired when the number value changes.",
-      "typeDescriptions": { "value": "The new value." }
+      "typeDescriptions": {
+        "value": "The new value.",
+        "event": "The event that triggered the change."
+      }
     },
     "readOnly": { "description": "If <code>true</code>, the input element is read only." },
     "render": { "description": "A function to customize rendering of the component." },
