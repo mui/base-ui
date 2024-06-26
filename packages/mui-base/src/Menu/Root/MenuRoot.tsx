@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
 import { MenuRootProps } from './MenuRoot.types';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
@@ -47,5 +48,37 @@ function MenuRoot(props: MenuRootProps) {
 
   return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 }
+
+MenuRoot.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * If `true`, the dropdown is initially open.
+   */
+  defaultOpen: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  dir: PropTypes.oneOf(['ltr', 'rtl']),
+  /**
+   * Callback fired when the component requests to be opened or closed.
+   */
+  onOpenChange: PropTypes.func,
+  /**
+   * Allows to control whether the dropdown is open.
+   * This is a controlled counterpart of `defaultOpen`.
+   */
+  open: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+} as any;
 
 export { MenuRoot };

@@ -11,7 +11,7 @@ import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
  *
  * API:
  *
- * - [usePopoverPositioner API](https://mui.com/base-ui/api/use-popover-positioner/)
+ * - [useMenuPositioner API](https://mui.com/base-ui/api/use-menu-positioner/)
  */
 export function useMenuPositioner(
   params: UseMenuPositionerParameters,

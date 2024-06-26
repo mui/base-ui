@@ -91,6 +91,38 @@ SubmenuTrigger.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * If `true`, the menu item will be disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * If `true`, the menu item won't receive focus when the mouse moves over it.
+   *
+   * @default false
+   */
+  disableFocusOnHover: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
+   * A text representation of the menu item's content.
+   * Used for keyboard text navigation matching.
+   */
+  label: PropTypes.string,
+  /**
+   * @ignore
+   */
+  onClick: PropTypes.func,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { SubmenuTrigger };

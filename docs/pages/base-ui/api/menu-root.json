@@ -1,0 +1,17 @@
+{
+  "props": {
+    "defaultOpen": { "type": { "name": "bool" } },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } }
+  },
+  "name": "MenuRoot",
+  "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuRoot = Menu.Root;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "MenuRoot",
+  "filename": "/packages/mui-base/src/Menu/Root/MenuRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

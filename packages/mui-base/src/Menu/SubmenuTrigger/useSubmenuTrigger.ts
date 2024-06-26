@@ -26,7 +26,12 @@ namespace useSubmenuTrigger {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }
-
+/**
+ *
+ * API:
+ *
+ * - [useSubmenuTrigger API](https://mui.com/base-ui/api/use-submenu-trigger/)
+ */
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
 ): useSubmenuTrigger.ReturnValue {

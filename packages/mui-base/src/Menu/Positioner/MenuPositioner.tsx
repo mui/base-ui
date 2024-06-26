@@ -169,7 +169,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the Menu popup's edges. Useful when the Menu
+   * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
    * popup has rounded corners via `border-radius`.
    * @default 5
    */
