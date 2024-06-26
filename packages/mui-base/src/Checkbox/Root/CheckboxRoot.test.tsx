@@ -320,5 +320,9 @@ describe('<Checkbox.Root />', () => {
     fireEvent.click(checkbox);
 
     expect(checkbox).to.have.attribute('aria-checked', 'true');
+
+    fireEvent.click(checkbox);
+
+    expect(checkbox).to.have.attribute('aria-checked', 'false');
   });
 });
