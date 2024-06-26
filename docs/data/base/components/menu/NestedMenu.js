@@ -15,7 +15,7 @@ export default function NestedMenu() {
       <Menu.Positioner side="bottom" alignment="start">
         <MenuPopup>
           <Menu.Root>
-            <ItemTrigger>Text color</ItemTrigger>
+            <SubmenuTrigger>Text color</SubmenuTrigger>
             <Menu.Positioner alignment="start" side="right">
               <MenuPopup>
                 <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
@@ -32,11 +32,11 @@ export default function NestedMenu() {
           </Menu.Root>
 
           <Menu.Root>
-            <ItemTrigger>Style</ItemTrigger>
+            <SubmenuTrigger>Style</SubmenuTrigger>
             <Menu.Positioner alignment="start" side="right">
               <MenuPopup>
                 <Menu.Root>
-                  <ItemTrigger>Heading</ItemTrigger>
+                  <SubmenuTrigger>Heading</SubmenuTrigger>
                   <Menu.Positioner alignment="start" side="right">
                     <MenuPopup>
                       <MenuItem
@@ -157,7 +157,7 @@ const MenuItem = styled(Menu.Item)(
   `,
 );
 
-const ItemTrigger = styled(Menu.ItemTrigger)(
+const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
   ({ theme }) => `
   list-style: none;
   padding: 8px;

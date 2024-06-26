@@ -2,23 +2,28 @@ import * as React from 'react';
 import { expect } from 'chai';
 import {
   act,
-  createRenderer,
   flushMicrotasks,
   MuiRenderResult,
   RenderOptions,
   fireEvent,
+  createRenderer,
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
+import userEvent from '@testing-library/user-event';
+
+async function waitForPosition() {
+  return act(async () => {});
+}
 
 describe('<Menu.Root />', () => {
-  const { render: internalRender } = createRenderer();
+  const { render: internalRender, clock } = createRenderer({ clock: 'fake' });
 
   async function render(
     element: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     options?: RenderOptions,
   ): Promise<MuiRenderResult> {
     const rendered = internalRender(element, options);
-    await flushMicrotasks();
+    await act(async () => {});
     return rendered;
   }
 
@@ -388,59 +393,224 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  it('focuses the first item after the menu is opened', async () => {
-    const { getByRole, getAllByRole } = await render(
-      <div>
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Popup>
-            <Menu.Item>One</Menu.Item>
-            <Menu.Item>Two</Menu.Item>
-            <Menu.Item>Three</Menu.Item>
-          </Menu.Popup>
-        </Menu.Root>
-      </div>,
-    );
-
-    const button = getByRole('button');
-    act(() => {
-      button.click();
+  describe('nested menus', () => {
+    clock.withFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        clock.tick(delay);
+      },
     });
 
-    const menuItems = getAllByRole('menuitem');
+    (
+      [
+        ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
+        ['vertical', 'rtl', 'ArrowLeft', 'ArrowRight'],
+        ['horizontal', 'ltr', 'ArrowDown', 'ArrowUp'],
+        ['horizontal', 'rtl', 'ArrowDown', 'ArrowUp'],
+      ] as const
+    ).forEach(([orientation, direction, openKey, closeKey]) => {
+      it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu when the trigger is focused and the ${openKey} key is pressed`, async () => {
+        const { getByTestId, queryByTestId } = await render(
+          <Menu.Root open orientation={orientation} dir={direction}>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu">
+                      <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
+                      <Menu.Item>2.2</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Root>,
+        );
 
-    await flushMicrotasks();
+        const submenuTrigger = getByTestId('submenu-trigger');
 
-    expect(menuItems[0]).toHaveFocus();
+        await act(() => {
+          submenuTrigger.focus();
+        });
+
+        await user.keyboard(`[${openKey}]`);
+
+        const submenu = queryByTestId('submenu');
+        expect(submenu).not.to.equal(null);
+
+        const submenuItem1 = queryByTestId('submenu-item-1');
+        expect(submenuItem1).not.to.equal(null);
+        expect(submenuItem1).toHaveFocus();
+      });
+
+      it(`closes a ${orientation} ${direction.toUpperCase()} nested menu when the trigger is focused and the ${closeKey} key is pressed`, async () => {
+        const { getByTestId } = await render(
+          <Menu.Root open>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root defaultOpen orientation={orientation} dir={direction}>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu">
+                      <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
+                      <Menu.Item>2.2</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Root>,
+        );
+
+        const submenuTrigger = getByTestId('submenu-trigger');
+        const submenu = getByTestId('submenu');
+        const submenuItem1 = getByTestId('submenu-item-1');
+
+        await act(() => {
+          submenuItem1.focus();
+        });
+
+        await user.keyboard(`[${closeKey}]`);
+
+        expect(submenuTrigger).toHaveFocus();
+        expect(submenu).toBeInaccessible();
+      });
+    });
+
+    it('closes the whole tree when the Escape key is pressed on a nested menu', async () => {
+      const { getByTestId, queryAllByRole } = await render(
+        <Menu.Root defaultOpen>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>1</Menu.Item>
+              <Menu.Root defaultOpen>
+                <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="submenu">
+                    <Menu.Item>2.1</Menu.Item>
+                    <Menu.Root defaultOpen>
+                      <Menu.SubmenuTrigger>2.2</Menu.SubmenuTrigger>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu">
+                          <Menu.Item data-testid="submenu-item-221">2.2.1</Menu.Item>
+                          <Menu.Item>2.2.2</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Root>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Root>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const deeplyNestedItem = getByTestId('submenu-item-221');
+
+      await act(() => {
+        deeplyNestedItem.focus();
+      });
+
+      expect(deeplyNestedItem).toHaveFocus();
+
+      await user.keyboard('[Escape]');
+
+      const allMenus = queryAllByRole('menu', { hidden: false });
+      expect(allMenus).to.have.length(0);
+    });
+
+    it('opens a nested menu on mouse hover', async () => {
+      const { getByTestId, queryByTestId } = await render(
+        <Menu.Root defaultOpen>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>1</Menu.Item>
+              <Menu.Root>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="submenu">
+                    <Menu.Item>2.1</Menu.Item>
+                    <Menu.Item>2.2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Root>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const submenuTrigger = getByTestId('submenu-trigger');
+      const submenu = queryByTestId('submenu');
+
+      user.hover(submenuTrigger);
+
+      clock.tick(200);
+
+      await waitForPosition();
+
+      expect(submenu).not.to.equal(null);
+      expect(submenu).not.toBeInaccessible();
+    });
   });
 
-  it('focuses the trigger after the menu is closed', async () => {
-    const { getByRole } = await render(
-      <div>
-        <input type="text" />
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Popup>
-            <Menu.Item>Close</Menu.Item>
-          </Menu.Popup>
-        </Menu.Root>
-        <input type="text" />
-      </div>,
-    );
+  describe('focus management', () => {
+    it('focuses the first item after the menu is opened', async () => {
+      const { getByRole, getAllByRole } = await render(
+        <div>
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Popup>
+              <Menu.Item>One</Menu.Item>
+              <Menu.Item>Two</Menu.Item>
+              <Menu.Item>Three</Menu.Item>
+            </Menu.Popup>
+          </Menu.Root>
+        </div>,
+      );
 
-    const button = getByRole('button');
-    act(() => {
-      button.click();
+      const button = getByRole('button');
+      act(() => {
+        button.click();
+      });
+
+      const menuItems = getAllByRole('menuitem');
+
+      await flushMicrotasks();
+
+      expect(menuItems[0]).toHaveFocus();
     });
 
-    const menuItem = getByRole('menuitem');
+    it('focuses the trigger after the menu is closed', async () => {
+      const { getByRole } = await render(
+        <div>
+          <input type="text" />
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Popup>
+              <Menu.Item>Close</Menu.Item>
+            </Menu.Popup>
+          </Menu.Root>
+          <input type="text" />
+        </div>,
+      );
 
-    await flushMicrotasks();
+      const button = getByRole('button');
+      act(() => {
+        button.click();
+      });
 
-    act(() => {
-      menuItem.click();
+      const menuItem = getByRole('menuitem');
+
+      await flushMicrotasks();
+
+      act(() => {
+        menuItem.click();
+      });
+
+      expect(button).toHaveFocus();
     });
-
-    expect(button).toHaveFocus();
   });
 });

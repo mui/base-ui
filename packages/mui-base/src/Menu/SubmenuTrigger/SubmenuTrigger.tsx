@@ -93,4 +93,4 @@ SubmenuTrigger.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
 } as any;
 
-export { SubmenuTrigger as ItemTrigger };
+export { SubmenuTrigger };

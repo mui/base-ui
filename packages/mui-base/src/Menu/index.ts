@@ -23,4 +23,4 @@ export { MenuTrigger as Trigger } from './Trigger/MenuTrigger';
 export { MenuTriggerProps as TriggerProps } from './Trigger/MenuTrigger.types';
 export { useMenuTrigger } from './Trigger/useMenuTrigger';
 
-export { ItemTrigger } from './SubmenuTrigger/SubmenuTrigger';
+export { SubmenuTrigger } from './SubmenuTrigger/SubmenuTrigger';
