@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { createRenderer, act, fireEvent } from '@mui/internal-test-utils';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -303,5 +303,22 @@ describe('<Checkbox.Root />', () => {
     submitButton.click();
 
     expect(stringifiedFormData).to.equal('test-checkbox=on');
+  });
+
+  it('should change state when clicking the checkbox if it has a wrapping label', () => {
+    const { getAllByRole } = render(
+      <label data-testid="label">
+        <Checkbox.Root />
+        Toggle
+      </label>,
+    );
+
+    const [checkbox] = getAllByRole('checkbox');
+
+    expect(checkbox).to.have.attribute('aria-checked', 'false');
+
+    fireEvent.click(checkbox);
+
+    expect(checkbox).to.have.attribute('aria-checked', 'true');
   });
 });

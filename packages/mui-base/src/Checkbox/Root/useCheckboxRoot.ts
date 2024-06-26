@@ -61,6 +61,8 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
             return;
           }
 
+          event.preventDefault();
+
           inputRef.current?.click();
         },
       }),
