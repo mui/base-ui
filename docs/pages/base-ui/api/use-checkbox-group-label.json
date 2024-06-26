@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useCheckboxGroupLabel",
-  "filename": "/packages/mui-base/src/CheckboxGroup/Label/useCheckboxGroupLabel.ts",
-  "imports": ["import { useCheckboxGroupLabel } from '@base_ui/react/CheckboxGroup';"],
-  "demos": "<ul></ul>"
-}

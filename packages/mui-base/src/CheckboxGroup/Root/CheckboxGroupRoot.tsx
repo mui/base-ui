@@ -8,19 +8,12 @@ import type {
 } from './CheckboxGroupRoot.types';
 import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
 import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
+import { FormProvider, useFormContext } from '../../Form/FormContext';
 
 /**
- * The foundation for building custom-styled checkbox groups.
- *
- * Demos:
- *
- * - [CheckboxGroup](https://mui.com/base-ui/react-checkbox-group/)
- *
- * API:
- *
- * - [CheckboxGroup API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-group-root)
+ * @ignore - internal component.
  */
-const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
+const CheckboxGroupRootComponent = React.forwardRef(function CheckboxGroupRootComponent(
   props: CheckboxGroupRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -34,11 +27,14 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     ...otherProps
   } = props;
 
-  const { getRootProps, labelId, setLabelId, value, setValue, parent } = useCheckboxGroupRoot({
+  const { labelId, setLabelId } = useFormContext();
+
+  const { getRootProps, value, setValue, parent } = useCheckboxGroupRoot({
     value: externalValue,
     allValues,
     defaultValue,
     onValueChange,
+    labelId,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -59,13 +55,35 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
       setValue,
       parent,
     }),
-    [labelId, setLabelId, value, setValue, parent, allValues],
+    [labelId, setLabelId, allValues, value, setValue, parent],
   );
 
   return (
     <CheckboxGroupRootContext.Provider value={contextValue}>
       {renderElement()}
     </CheckboxGroupRootContext.Provider>
+  );
+});
+
+/**
+ * The foundation for building custom-styled checkbox groups.
+ *
+ * Demos:
+ *
+ * - [CheckboxGroup](https://mui.com/base-ui/react-checkbox-group/)
+ *
+ * API:
+ *
+ * - [CheckboxGroup API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-group-root)
+ */
+const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
+  props: CheckboxGroupRootProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  return (
+    <FormProvider>
+      <CheckboxGroupRootComponent {...props} ref={forwardedRef} />
+    </FormProvider>
   );
 });
 
@@ -83,10 +101,6 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
    * @ignore
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
@@ -94,10 +108,6 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   onValueChange: PropTypes.func,
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * @ignore
    */

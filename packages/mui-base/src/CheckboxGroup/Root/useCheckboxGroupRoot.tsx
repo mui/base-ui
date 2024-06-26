@@ -18,9 +18,7 @@ import { useCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
 export function useCheckboxGroupRoot(
   params: UseCheckboxGroupRootParameters,
 ): UseCheckboxGroupRootReturnValue {
-  const { allValues, value: externalValue, defaultValue, onValueChange } = params;
-
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+  const { allValues, value: externalValue, defaultValue, onValueChange, labelId } = params;
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
@@ -52,12 +50,10 @@ export function useCheckboxGroupRoot(
   return React.useMemo(
     () => ({
       getRootProps,
-      labelId,
-      setLabelId,
       value,
       setValue,
       parent,
     }),
-    [getRootProps, labelId, value, setValue, parent],
+    [getRootProps, value, setValue, parent],
   );
 }

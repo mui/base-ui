@@ -62,7 +62,7 @@ const CheckboxLabelStyled = styled('label')`
   ${labelStyles}
 `;
 
-const CheckboxGroupLabelStyled = styled(CheckboxGroup.Label)`
+const CheckboxGroupLabel = styled(CheckboxGroup.Label)`
   font-size: 17px;
   font-weight: bold;
   ${labelStyles}
@@ -70,12 +70,6 @@ const CheckboxGroupLabelStyled = styled(CheckboxGroup.Label)`
 
 function CheckboxLabel(props: React.ComponentPropsWithoutRef<'label'>) {
   return <CheckboxLabelStyled onMouseDown={(e) => e.preventDefault()} {...props} />;
-}
-
-function CheckboxGroupLabel(props: React.ComponentPropsWithoutRef<'label'>) {
-  return (
-    <CheckboxGroupLabelStyled onMouseDown={(e) => e.preventDefault()} {...props} />
-  );
 }
 
 const Checkbox = styled(BaseCheckbox.Root)(

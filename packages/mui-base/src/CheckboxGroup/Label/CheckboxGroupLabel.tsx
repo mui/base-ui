@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import * as Form from '../../Form';
 import type { CheckboxGroupLabelProps } from './CheckboxGroupLabel.types';
-import { useCheckboxGroupRootContext } from '../Root/CheckboxGroupRootContext';
-import { useCheckboxGroupLabel } from './useCheckboxGroupLabel';
 
 /**
  * The label of a checkbox group.
@@ -19,26 +17,9 @@ import { useCheckboxGroupLabel } from './useCheckboxGroupLabel';
  */
 const CheckboxGroupLabel = React.forwardRef(function CheckboxGroupLabel(
   props: CheckboxGroupLabelProps,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLLabelElement | HTMLSpanElement>,
 ) {
-  const { render, className, ...otherProps } = props;
-
-  const { groupLabelId, setGroupLabelId } = useCheckboxGroupRootContext();
-  const { getLabelProps } = useCheckboxGroupLabel({
-    id: groupLabelId,
-    setId: setGroupLabelId,
-  });
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getLabelProps,
-    render: render ?? 'span',
-    ownerState: {},
-    className,
-    ref: forwardedRef,
-    extraProps: otherProps,
-  });
-
-  return renderElement();
+  return <Form.Label {...props} ref={forwardedRef} preventTextSelection={false} />;
 });
 
 CheckboxGroupLabel.propTypes /* remove-proptypes */ = {
@@ -50,14 +31,6 @@ CheckboxGroupLabel.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { CheckboxGroupLabel };

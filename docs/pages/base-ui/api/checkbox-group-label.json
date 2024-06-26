@@ -1,8 +1,5 @@
 {
-  "props": {
-    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
-  },
+  "props": {},
   "name": "CheckboxGroupLabel",
   "imports": [
     "import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';\nconst CheckboxGroupLabel = CheckboxGroup.Label;"
