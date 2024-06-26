@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 export class IndexableMap<Key, Value> {
   #map: Map<Key, Value>;
 
