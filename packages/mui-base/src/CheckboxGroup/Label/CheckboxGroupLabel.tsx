@@ -17,9 +17,11 @@ import type { CheckboxGroupLabelProps } from './CheckboxGroupLabel.types';
  */
 const CheckboxGroupLabel = React.forwardRef(function CheckboxGroupLabel(
   props: CheckboxGroupLabelProps,
-  forwardedRef: React.ForwardedRef<HTMLLabelElement | HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  return <Form.Label {...props} ref={forwardedRef} preventTextSelection={false} />;
+  return (
+    <Form.Label {...props} render={<span />} ref={forwardedRef} preventTextSelection={false} />
+  );
 });
 
 CheckboxGroupLabel.propTypes /* remove-proptypes */ = {
