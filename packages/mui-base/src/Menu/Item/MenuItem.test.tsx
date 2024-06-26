@@ -1,12 +1,8 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
+import { FloatingRootContext } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
-import {
-  MenuPopupContext,
-  MenuPopupContextValue,
-  MenuRootContext,
-  MenuRootContextValue,
-} from '@base_ui/react/Menu';
+import { MenuPopupContext, MenuPopupContextValue, MenuRootContext } from '@base_ui/react/Menu';
 import { describeConformance } from '../../../test';
 import { IndexableMap } from '../../utils/IndexableMap';
 
@@ -18,7 +14,7 @@ const dummyGetItemState = () => ({
   focusable: true,
 });
 
-const testRootContext: MenuRootContextValue = {
+const testRootContext: MenuRootContext = {
   dispatch: () => {},
   state: {
     items: new IndexableMap(),
@@ -26,18 +22,26 @@ const testRootContext: MenuRootContextValue = {
     selectedValues: [],
     open: true,
     listboxRef: { current: null },
-    changeReason: null,
     popupId: '',
     triggerElement: null,
+    positionerElement: null,
+    hasNestedMenuOpen: false,
     settings: {
       disabledItemsFocusable: false,
       disableListWrap: false,
       focusManagement: 'DOM',
-      orientation: 'horizontal-ltr',
+      orientation: 'horizontal',
+      direction: 'ltr',
       pageSize: 1,
       selectionMode: 'none',
     },
   },
+  floatingRootContext: {} as FloatingRootContext,
+  getPositionerProps: () => ({}),
+  getTriggerProps: () => ({}),
+  parentContext: null,
+  topmostContext: null,
+  isNested: false,
 };
 
 const testPopupContext: MenuPopupContextValue = {

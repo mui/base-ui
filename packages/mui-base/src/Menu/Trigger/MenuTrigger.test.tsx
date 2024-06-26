@@ -1,32 +1,41 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { FloatingRootContext } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { act, createRenderer } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuRootContext, MenuRootContextValue } from '@base_ui/react/Menu';
+import { MenuRootContext } from '@base_ui/react/Menu';
 import { describeConformance } from '../../../test';
 import { IndexableMap } from '../../utils/IndexableMap';
 
-const testContext: MenuRootContextValue = {
+const testContext: MenuRootContext = {
   dispatch: () => {},
   state: {
     open: true,
-    changeReason: null,
     items: new IndexableMap(),
     highlightedValue: null,
     selectedValues: [],
     listboxRef: { current: null },
+    popupId: 'menu-popup',
     triggerElement: null,
-    popupId: null,
+    positionerElement: null,
+    hasNestedMenuOpen: false,
     settings: {
       disabledItemsFocusable: true,
       disableListWrap: false,
       focusManagement: 'DOM',
       orientation: 'vertical',
+      direction: 'ltr',
       pageSize: 1,
       selectionMode: 'none',
     },
   },
+  parentContext: null,
+  topmostContext: null,
+  floatingRootContext: {} as FloatingRootContext,
+  getPositionerProps: () => ({}),
+  getTriggerProps: () => ({}),
+  isNested: false,
 };
 
 describe('<Menu.Trigger />', () => {

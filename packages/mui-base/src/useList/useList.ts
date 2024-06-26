@@ -38,6 +38,7 @@ function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturn
     dispatch,
     orientation = 'vertical',
     items, // TODO: it should be just `state`
+    isNested,
   } = params;
 
   const listRef = React.useRef<HTMLUListElement>(null);
@@ -107,6 +108,10 @@ function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturn
 
         if (keysToPreventDefault.includes(event.key)) {
           event.preventDefault();
+          if (isNested) {
+            // prevent the event from being propagated to the parent list
+            event.stopPropagation();
+          }
         }
 
         dispatch({

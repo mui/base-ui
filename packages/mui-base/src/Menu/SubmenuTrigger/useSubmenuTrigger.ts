@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ListItemMetadata } from '@base_ui/react/useList';
+import { ListDirection, ListItemMetadata, ListOrientation } from '@base_ui/react/useList';
 import { CompoundParentContextValue } from '../../useCompound';
 import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
@@ -18,6 +18,8 @@ namespace useSubmenuTrigger {
     disabled: boolean;
     label: string | undefined;
     rootRef?: React.Ref<Element>;
+    orientation: ListOrientation;
+    direction: ListDirection;
   }
 
   export interface ReturnValue {
@@ -38,6 +40,8 @@ export function useSubmenuTrigger(
     disabled,
     label,
     rootRef,
+    orientation,
+    direction,
   } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
@@ -51,6 +55,9 @@ export function useSubmenuTrigger(
     rootRef,
     closeOnClick: false,
     disableFocusOnHover: false,
+    isNested: parentDispatch !== rootDispatch,
+    orientation,
+    direction,
   });
 
   const registerTrigger = React.useCallback(
@@ -67,15 +74,24 @@ export function useSubmenuTrigger(
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
+      const openSubmenuKey = getSubmenuOpenKey(orientation, direction);
       return mergeReactProps(
         externalProps,
         {
           ref: menuTriggerRef,
+          onKeyDown: (event: React.KeyboardEvent) => {
+            if (event.key === openSubmenuKey) {
+              dispatch({
+                type: MenuActionTypes.open,
+                event,
+              });
+            }
+          },
         },
         getMenuItemProps(),
       );
     },
-    [getMenuItemProps, menuTriggerRef],
+    [getMenuItemProps, menuTriggerRef, dispatch, orientation, direction],
   );
 
   return React.useMemo(
@@ -85,4 +101,12 @@ export function useSubmenuTrigger(
     }),
     [getRootProps, menuTriggerRef],
   );
+}
+
+function getSubmenuOpenKey(orientation: ListOrientation, direction: ListDirection) {
+  if (orientation === 'horizontal') {
+    return 'ArrowDown';
+  }
+
+  return direction === 'ltr' ? 'ArrowRight' : 'ArrowLeft';
 }

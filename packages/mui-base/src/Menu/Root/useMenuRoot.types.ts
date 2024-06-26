@@ -1,5 +1,8 @@
 import { ListAction, ListState } from '../../useList';
 
+export type MenuOrientation = 'horizontal' | 'vertical';
+export type MenuDirection = 'ltr' | 'rtl';
+
 export interface UseMenuRootParameters {
   /**
    * If `true`, the dropdown is initially open.
@@ -23,6 +26,8 @@ export interface UseMenuRootParameters {
    */
   open?: boolean;
   parentState?: MenuReducerState;
+  orientation: MenuOrientation;
+  direction: MenuDirection;
 }
 
 export interface UseMenuRootReturnValue {

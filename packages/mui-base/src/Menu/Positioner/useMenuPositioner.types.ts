@@ -8,7 +8,6 @@ import type {
   FloatingRootContext,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { MenuReducerAction } from '../Root/useMenuRoot.types';
 
 export interface MenuPositionerParameters {
   /**
@@ -76,12 +75,7 @@ export interface MenuPositionerParameters {
    */
   sticky?: boolean;
   /**
-   * If `true`, the Menu is mounted.
-   * @default true
-   */
-  mounted?: boolean;
-  /**
-   * Determines the padding between the arrow and the Menu popup's edges. Useful when the Menu
+   * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
    * popup has rounded corners via `border-radius`.
    * @default 5
    */
@@ -91,13 +85,14 @@ export interface MenuPositionerParameters {
 export interface UseMenuPositionerParameters extends MenuPositionerParameters {
   /**
    * If `true`, the Menu is mounted.
+   * @default true
    */
   mounted?: boolean;
   /**
    * The Menu root context.
    */
   floatingRootContext?: FloatingRootContext;
-  dispatch: React.Dispatch<MenuReducerAction>;
+  nodeId?: string;
 }
 
 export interface UseMenuPositionerReturnValue {
@@ -122,11 +117,11 @@ export interface UseMenuPositionerReturnValue {
    */
   alignment: 'start' | 'end' | 'center';
   /**
-   * Whether the Menu is mounted, including CSS transitions or animations.
+   * The styles to apply to the Menu arrow element.
    */
-  mounted: boolean;
+  arrowStyles: React.CSSProperties;
   /**
-   * `FloatingContext`
+   * The floating context.
    */
   floatingContext: FloatingContext;
 }

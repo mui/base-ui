@@ -20,6 +20,7 @@ export interface UseMenuPopupParameters {
   dispatch: React.Dispatch<MenuReducerAction>;
   rootRef: React.Ref<Element>;
   childItems: IndexableMap<string, ListItemMetadata>;
+  isNested: boolean;
 }
 
 export interface UseMenuPopupReturnValue {

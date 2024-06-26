@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import {
+  FloatingFocusManager,
+  FloatingNode,
+  FloatingPortal,
+  useFloatingNodeId,
+} from '@floating-ui/react';
 import type {
   PopoverPositionerContextValue,
   PopoverPositionerOwnerState,
@@ -50,6 +55,8 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const { floatingRootContext, open, mounted, triggerElement, setPositionerElement } =
     usePopoverRootContext();
+
+  const floatingNodeId = useFloatingNodeId();
 
   const positioner = usePopoverPositioner({
     anchor: anchor || triggerElement,
@@ -114,11 +121,13 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={props.container}>
-        <FloatingFocusManager context={positioner.positionerContext} modal={false}>
-          {renderElement()}
-        </FloatingFocusManager>
-      </FloatingPortal>
+      <FloatingNode id={floatingNodeId}>
+        <FloatingPortal root={props.container}>
+          <FloatingFocusManager context={positioner.positionerContext} modal={false}>
+            {renderElement()}
+          </FloatingFocusManager>
+        </FloatingPortal>
+      </FloatingNode>
     </PopoverPositionerContext.Provider>
   );
 });

@@ -1,7 +1,7 @@
 import { GenericHTMLProps } from '../../utils/types';
 import { MenuReducerAction } from '../Root/useMenuRoot.types';
 import { CompoundParentContextValue } from '../../useCompound/useCompound.types';
-import { ListItemMetadata } from '../../useList';
+import { ListDirection, ListItemMetadata, ListOrientation } from '../../useList';
 
 export interface UseMenuItemParameters {
   dispatch: React.Dispatch<MenuReducerAction>;
@@ -21,6 +21,9 @@ export interface UseMenuItemParameters {
   compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
 
   closeOnClick: boolean;
+  isNested: boolean;
+  orientation: ListOrientation;
+  direction: ListDirection;
 }
 
 export interface UseMenuItemReturnValue {

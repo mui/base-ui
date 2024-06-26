@@ -14,7 +14,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, id, ...other } = props;
-  const { state, dispatch } = useMenuRootContext();
+  const { state, dispatch, isNested } = useMenuRootContext();
   const { subitems, context: compoundParentContext } = useCompoundParent<
     string,
     ListItemMetadata
@@ -26,6 +26,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     rootRef: forwardedRef,
     childItems: subitems,
     id,
+    isNested,
   });
 
   const ownerState: MenuPopupOwnerState = { open: state.open };

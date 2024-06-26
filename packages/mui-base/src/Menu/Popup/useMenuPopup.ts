@@ -26,6 +26,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     dispatch,
     childItems,
     rootRef: externalRef,
+    isNested,
   } = parameters;
 
   const rootRef = React.useRef<HTMLElement>(null);
@@ -33,7 +34,12 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
 
   const id = useId(idParam) ?? '';
 
-  const { open, highlightedValue, items: subitems } = state;
+  const {
+    open,
+    highlightedValue,
+    items: subitems,
+    settings: { orientation, direction },
+  } = state;
 
   // store the initial open state to prevent focus stealing
   // (the first menu items gets focued only when the menu is opened by the user)
@@ -50,6 +56,9 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     focusManagement: 'DOM',
     rootRef: handleRef,
     items: childItems,
+    orientation,
+    direction,
+    isNested,
   });
 
   useEnhancedEffect(() => {
@@ -64,13 +73,6 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
       subitems.get(highlightedValue)?.ref?.current?.focus();
     }
   }, [open, autoFocus, highlightedValue, subitems]);
-
-  React.useEffect(() => {
-    // set focus to the highlighted item (but prevent stealing focus from other elements on the page)
-    if (rootRef.current?.contains(document.activeElement) && highlightedValue !== null) {
-      subitems?.get(highlightedValue)?.ref.current?.focus();
-    }
-  }, [highlightedValue, subitems]);
 
   const getRootProps = (externalProps?: GenericHTMLProps) => {
     return mergeReactProps(

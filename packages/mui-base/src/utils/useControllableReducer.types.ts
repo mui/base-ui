@@ -6,7 +6,7 @@ export type StateComparers<State> = {
 };
 
 export type StateChangeCallback<State> = <StateKey extends keyof State>(
-  event: React.SyntheticEvent | null,
+  event: React.SyntheticEvent | Event | null,
   field: StateKey,
   value: State[StateKey],
   reason: string,

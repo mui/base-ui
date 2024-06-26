@@ -221,7 +221,7 @@ function handleKeyDown<ItemValue, State extends ListState<ItemValue>>(
   state: State,
 ): State {
   const { highlightedValue: previouslySelectedValue, items, settings } = state;
-  const { orientation, pageSize } = settings;
+  const { orientation, direction, pageSize } = settings;
 
   switch (key) {
     case 'Home':
@@ -273,7 +273,7 @@ function handleKeyDown<ItemValue, State extends ListState<ItemValue>>(
         break;
       }
 
-      const offset = orientation === 'horizontal-ltr' ? -1 : 1;
+      const offset = direction === 'ltr' ? -1 : 1;
 
       return {
         ...state,
@@ -286,7 +286,7 @@ function handleKeyDown<ItemValue, State extends ListState<ItemValue>>(
         break;
       }
 
-      const offset = orientation === 'horizontal-ltr' ? 1 : -1;
+      const offset = direction === 'ltr' ? 1 : -1;
 
       return {
         ...state,

@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton';
-import { ListItemMetadata, useListItem } from '../../useList';
+import { ListDirection, ListItemMetadata, ListOrientation, useListItem } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
@@ -31,6 +31,9 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     label,
     rootRef: externalRef,
     closeOnClick,
+    isNested,
+    orientation,
+    direction,
   } = params;
 
   const itemRef = React.useRef<HTMLElement>(null);
@@ -67,31 +70,63 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
 
   const handleRef = useForkRef(buttonRefHandler, externalRef, itemRef);
 
-  function getRootProps(externalProps?: GenericHTMLProps): GenericHTMLProps {
-    return mergeReactProps(
-      externalProps,
-      {
-        ref: handleRef,
-      },
-      getButtonProps(
-        getListItemProps({
-          id,
-          role: 'menuitem',
-          onClick: (event: React.MouseEvent) => {
-            if (closeOnClick) {
-              rootDispatch({
-                type: MenuActionTypes.close,
-                event,
-              });
-            }
-          },
-        }),
-      ),
-    );
-  }
+  const getRootProps = React.useCallback(
+    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+      const closeKey = getSubmenuCloseKey(orientation, direction);
+
+      return mergeReactProps(
+        externalProps,
+        {
+          ref: handleRef,
+        },
+        getButtonProps(
+          getListItemProps({
+            id,
+            role: 'menuitem',
+            onClick: (event: React.MouseEvent) => {
+              if (closeOnClick) {
+                rootDispatch({
+                  type: MenuActionTypes.close,
+                  event,
+                });
+              }
+            },
+            onKeyDown: (event: React.KeyboardEvent) => {
+              if (isNested && event.key === closeKey) {
+                dispatch({
+                  type: MenuActionTypes.close,
+                  event,
+                });
+              }
+            },
+          }),
+        ),
+      );
+    },
+    [
+      closeOnClick,
+      dispatch,
+      direction,
+      getButtonProps,
+      getListItemProps,
+      handleRef,
+      isNested,
+      orientation,
+      rootDispatch,
+      id,
+    ],
+  );
 
   return {
     getRootProps,
     rootRef: handleRef,
   };
+}
+
+function getSubmenuCloseKey(orientation: ListOrientation, direction: ListDirection) {
+  if (orientation === 'horizontal') {
+    return 'ArrowUp';
+  }
+
+  return direction === 'ltr' ? 'ArrowLeft' : 'ArrowRight';
 }

@@ -31,7 +31,7 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootOwner
   /**
    * Callback invoked when new value is being set.
    */
-  onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
+  onValueChange?: (value: any | null, event: React.SyntheticEvent | Event | null) => void;
 }
 
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
@@ -63,7 +63,7 @@ export interface UseTabsParameters {
   /**
    * Callback invoked when new value is being set.
    */
-  onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
+  onValueChange?: (value: any | null, event: React.SyntheticEvent | Event | null) => void;
 }
 
 export interface UseTabsReturnValue {

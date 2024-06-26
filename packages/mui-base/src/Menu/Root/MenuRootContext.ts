@@ -11,9 +11,12 @@ export interface MenuRootContext {
   topmostContext: MenuRootContext | null;
   getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  isNested: boolean;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);
+
+MenuRootContext.displayName = 'MenuRootContext';
 
 function useMenuRootContext(optional?: false): MenuRootContext;
 function useMenuRootContext(optional: true): MenuRootContext | null;

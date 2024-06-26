@@ -145,8 +145,8 @@ const MenuItem = styled(Menu.Item)(
     border-bottom: none;
   }
 
-  &:focus {
-    outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
+  &:focus,
+  &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
@@ -174,8 +174,8 @@ const ItemTrigger = styled(Menu.ItemTrigger)(
     float: right;
   }
 
-  &:focus {
-    outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
+  &:focus,
+  &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }

@@ -53,6 +53,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const { state: parentState, dispatch: parentDispatch } = parentContext;
 
   const highlighted = parentState.highlightedValue === id;
+  const { orientation, direction } = parentState.settings;
 
   const { getRootProps } = useSubmenuTrigger({
     dispatch,
@@ -64,6 +65,8 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     rootRef: forwardedRef,
     label,
     disabled,
+    orientation,
+    direction,
   });
 
   const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };

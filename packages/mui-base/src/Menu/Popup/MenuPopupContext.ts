@@ -9,6 +9,8 @@ export interface MenuPopupContextValue {
 
 export const MenuPopupContext = React.createContext<MenuPopupContextValue | null>(null);
 
+MenuPopupContext.displayName = 'MenuPopupContext';
+
 export function useMenuPopupContext() {
   const context = React.useContext(MenuPopupContext);
   if (context === null) {

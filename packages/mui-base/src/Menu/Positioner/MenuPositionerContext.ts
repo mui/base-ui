@@ -4,6 +4,8 @@ import type { MenuPositionerContextValue } from './MenuPositioner.types';
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContextValue | null>(null);
 
+MenuPositionerContext.displayName = 'MenuPositionerContext';
+
 export function useMenuPositionerContext() {
   const context = React.useContext(MenuPositionerContext);
   if (context === null) {

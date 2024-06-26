@@ -43,7 +43,7 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
 
   const onSelected = React.useCallback(
     (
-      event: React.SyntheticEvent | null,
+      event: React.SyntheticEvent | Event | null,
       newValue: any | null,
       activationDirection: TabActivationDirection,
     ) => {

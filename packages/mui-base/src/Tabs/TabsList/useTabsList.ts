@@ -10,7 +10,7 @@ import { useTabsContext } from '../Root/TabsContext';
 import { type TabMetadata } from '../Tab/Tab.types';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot.types';
 import { useCompoundParent } from '../../useCompound';
-import { useList, ListOrientation, ListActionTypes } from '../../useList';
+import { useList, ListActionTypes } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -30,7 +30,8 @@ const INITIAL_STATE: TabsReducerState = {
     disabledItemsFocusable: false,
     disableListWrap: false,
     focusManagement: 'DOM',
-    orientation: 'horizontal-ltr',
+    orientation: 'horizontal',
+    direction: 'ltr',
     pageSize: 1,
     selectionMode: 'single',
   },
@@ -80,13 +81,6 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     [subitems],
   );
 
-  let listOrientation: ListOrientation;
-  if (orientation === 'vertical') {
-    listOrientation = 'vertical';
-  } else {
-    listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
-  }
-
   const tabsListRef = React.useRef<HTMLElement | null>(null);
   const detectActivationDirection = useActivationDirectionDetector(
     value,
@@ -134,11 +128,12 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
       settings: {
         ...INITIAL_STATE.settings,
         activateOnFocus,
-        orientation: listOrientation,
+        orientation,
+        direction,
         disableListWrap: !loop,
       },
     }),
-    [activateOnFocus, listOrientation, loop],
+    [activateOnFocus, orientation, direction, loop],
   );
 
   const [state, dispatch] = useControllableReducer({
@@ -156,7 +151,8 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     focusManagement: 'DOM',
     items: subitems,
     rootRef: externalRef,
-    orientation: listOrientation,
+    orientation,
+    direction,
     highlightedValue: state.highlightedValue,
     selectedValues: state.selectedValues,
   });

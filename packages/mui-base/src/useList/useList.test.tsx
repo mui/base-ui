@@ -19,6 +19,8 @@ describe('useList', () => {
             dispatch: () => {},
             highlightedValue: null,
             selectedValues: [],
+            orientation: 'vertical',
+            direction: 'ltr',
           });
           return <div role="listbox" {...getRootProps()} />;
         }
@@ -47,6 +49,8 @@ describe('useList', () => {
             dispatch: () => {},
             highlightedValue: null,
             selectedValues: [],
+            orientation: 'vertical',
+            direction: 'ltr',
           });
           return <div role="listbox" {...getRootProps()} />;
         }
@@ -75,6 +79,8 @@ describe('useList', () => {
             dispatch: () => {},
             highlightedValue: null,
             selectedValues: [],
+            orientation: 'vertical',
+            direction: 'ltr',
           });
           return <div role="listbox" {...getRootProps()} />;
         }
@@ -106,6 +112,8 @@ describe('useList', () => {
           dispatch: () => {},
           highlightedValue: null,
           selectedValues: [],
+          orientation: 'vertical',
+          direction: 'ltr',
         });
         return (
           <div

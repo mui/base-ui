@@ -33,8 +33,16 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
  *
  * - [useMenuRoot API](https://mui.com/base-ui/api/use-menu-root/)
  */
-export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
-  const { defaultOpen, onOpenChange, onHighlightChange, open: openProp, parentState } = parameters;
+export function useMenuRoot(parameters: UseMenuRootParameters) {
+  const {
+    defaultOpen,
+    onOpenChange,
+    onHighlightChange,
+    open: openProp,
+    parentState,
+    orientation,
+    direction,
+  } = parameters;
 
   const lastActionType = React.useRef<string | null>(null);
   const isNested = parentState !== undefined;
@@ -100,7 +108,8 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
       disabledItemsFocusable: true,
       disableListWrap: false,
       focusManagement: 'DOM',
-      orientation: 'vertical', // TODO: from parameters
+      orientation,
+      direction,
       pageSize: 1,
       selectionMode: 'none',
     },
@@ -157,6 +166,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters = {}) {
 
   const hover = useHover(floatingRootContext, {
     enabled: isNested,
+    // enabled: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
     delay: {
       open: 75,

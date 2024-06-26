@@ -104,13 +104,13 @@ describe('<Menu.Root />', () => {
       });
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      expect(document.activeElement).to.equal(item2);
+      expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
-      expect(document.activeElement).to.equal(item3);
+      expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
-      expect(document.activeElement).to.equal(item2);
+      expect(item2).toHaveFocus();
     });
 
     it('changes the highlighted item using the Home and End keys', async () => {
@@ -132,10 +132,10 @@ describe('<Menu.Root />', () => {
       });
 
       fireEvent.keyDown(item1, { key: 'End' });
-      expect(document.activeElement).to.equal(getByTestId('item-3'));
+      expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'Home' });
-      expect(document.activeElement).to.equal(getByTestId('item-1'));
+      expect(item1).toHaveFocus();
     });
 
     it('includes disabled items during keyboard navigation', async () => {
@@ -158,8 +158,7 @@ describe('<Menu.Root />', () => {
       });
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      expect(document.activeElement).to.equal(item2);
-
+      expect(item2).toHaveFocus();
       expect(item2).to.have.attribute('aria-disabled', 'true');
     });
 

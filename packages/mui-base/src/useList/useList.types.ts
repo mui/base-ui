@@ -11,6 +11,7 @@ export interface ListSettings {
   disableListWrap: boolean;
   focusManagement: FocusManagementType;
   orientation: ListOrientation;
+  direction: ListDirection;
   pageSize: number;
   selectionMode: SelectionMode;
 }
@@ -65,7 +66,9 @@ export type ListReducer<ItemValue, State extends ListState<ItemValue>> = (
 
 export type FocusManagementType = 'DOM' | 'activeDescendant';
 
-export type ListOrientation = 'horizontal-ltr' | 'horizontal-rtl' | 'vertical';
+export type ListOrientation = 'horizontal' | 'vertical';
+
+export type ListDirection = 'ltr' | 'rtl';
 
 export type SelectionMode = 'none' | 'single' | 'multiple';
 
@@ -103,7 +106,9 @@ export interface UseListParameters<ItemValue> {
    * Orientation of the items in the list.
    * Determines the actions that are performed when arrow keys are pressed.
    */
-  orientation?: ListOrientation;
+  orientation: ListOrientation;
+  direction: ListDirection;
+  isNested?: boolean;
 }
 
 export interface ListItemState {

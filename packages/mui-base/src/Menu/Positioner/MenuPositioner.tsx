@@ -1,7 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import {
+  FloatingFocusManager,
+  FloatingNode,
+  FloatingPortal,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '@floating-ui/react';
 import type {
   MenuPositionerContextValue,
   MenuPositionerOwnerState,
@@ -53,6 +59,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const { open, triggerElement } = state;
 
+  const nodeId = useFloatingNodeId();
+
   const positioner = useMenuPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
@@ -69,7 +77,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding,
     hideWhenDetached,
     sticky,
-    dispatch,
+    nodeId,
   });
 
   const ownerState: MenuPositionerOwnerState = React.useMemo(
@@ -117,13 +125,22 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     extraProps: otherProps,
   });
 
+  const isNested = useFloatingParentNodeId() !== null;
+
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={props.container}>
-        <FloatingFocusManager context={positioner.floatingContext} modal={false}>
-          {renderElement()}
-        </FloatingFocusManager>
-      </FloatingPortal>
+      <FloatingNode id={nodeId}>
+        <FloatingPortal root={props.container}>
+          <FloatingFocusManager
+            context={positioner.floatingContext}
+            modal={false}
+            initialFocus={isNested ? -1 : 0}
+            returnFocus={isNested}
+          >
+            {renderElement()}
+          </FloatingFocusManager>
+        </FloatingPortal>
+      </FloatingNode>
     </MenuPositionerContext.Provider>
   );
 });

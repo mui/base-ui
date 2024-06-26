@@ -8,11 +8,14 @@ import { useMenuPopupContext } from '../Popup/MenuPopupContext';
 import { useId } from '../../utils/useId';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { MenuReducerAction } from '../Root/useMenuRoot.types';
+import { ListDirection, ListOrientation } from '../../useList';
 
 interface InnerMenuItemProps extends MenuItemProps {
   highlighted: boolean;
   dispatch: React.Dispatch<MenuReducerAction>;
   rootDispatch: React.Dispatch<MenuReducerAction>;
+  orientation: ListOrientation;
+  direction: ListDirection;
 }
 
 const InnerMenuItem = React.memo(
@@ -29,6 +32,8 @@ const InnerMenuItem = React.memo(
       highlighted,
       dispatch,
       rootDispatch,
+      orientation,
+      direction,
       ...other
     } = props;
 
@@ -44,6 +49,9 @@ const InnerMenuItem = React.memo(
       label,
       rootRef: forwardedRef,
       closeOnClick: true,
+      isNested: rootDispatch !== dispatch,
+      orientation,
+      direction,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };
@@ -77,6 +85,7 @@ const MenuItem = React.forwardRef(function MenuItem(
 ) {
   const { id: idProp } = props;
   const { dispatch, topmostContext, state } = useMenuRootContext();
+  const { orientation, direction } = state.settings;
   const id = useId(idProp);
 
   const highlighted = state.highlightedValue === id;
@@ -93,6 +102,8 @@ const MenuItem = React.forwardRef(function MenuItem(
       dispatch={dispatch}
       rootDispatch={topmostContext?.dispatch ?? dispatch}
       highlighted={highlighted}
+      orientation={orientation}
+      direction={direction}
     />
   );
 });
