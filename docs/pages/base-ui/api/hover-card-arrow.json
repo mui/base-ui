@@ -9,7 +9,10 @@
     "import * as HoverCard from '@base_ui/react/HoverCard';\nconst HoverCardArrow = HoverCard.Arrow;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "HoverCardArrow",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/HoverCard/Arrow/HoverCardArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-hover-card/\">Hover Card</a></li></ul>",

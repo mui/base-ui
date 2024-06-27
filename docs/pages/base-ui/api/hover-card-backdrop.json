@@ -10,7 +10,10 @@
     "import * as HoverCard from '@base_ui/react/HoverCard';\nconst HoverCardBackdrop = HoverCard.Backdrop;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "HoverCardBackdrop",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/HoverCard/Backdrop/HoverCardBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-hover-card/\">Hover Card</a></li></ul>",
