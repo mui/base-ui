@@ -3,8 +3,10 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
     "rootDir": ".",
-    "outDir": "build-tests"
+    "outDir": "build-tests",
   },
   "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "test"],
   "references": [{ "path": "./tsconfig.build.json" }]

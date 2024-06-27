@@ -5,7 +5,6 @@
     "allowJs": true,
     "isolatedModules": true,
     /* files are emitted by babel */
-    "emitDeclarationOnly": false,
     "noEmit": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,

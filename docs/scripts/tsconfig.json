@@ -4,7 +4,6 @@
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,
-    "emitDeclarationOnly": false,
     "noEmit": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
