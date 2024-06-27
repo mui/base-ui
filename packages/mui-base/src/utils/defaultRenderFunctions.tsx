@@ -17,4 +17,8 @@ export const defaultRenderFunctions = {
   span: (props: React.ComponentPropsWithRef<'span'>) => {
     return <span {...props} />;
   },
+  a: (props: React.ComponentPropsWithRef<'a'>) => {
+    // eslint-disable-next-line jsx-a11y/anchor-has-content
+    return <a {...props} />;
+  },
 };

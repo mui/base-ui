@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useHoverCardPopup",
+  "filename": "/packages/mui-base/src/HoverCard/Popup/useHoverCardPopup.ts",
+  "imports": ["import { useHoverCardPopup } from '@base_ui/react/HoverCard';"],
+  "demos": "<ul></ul>"
+}

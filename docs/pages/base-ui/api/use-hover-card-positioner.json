@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useHoverCardPositioner",
+  "filename": "/packages/mui-base/src/HoverCard/Positioner/useHoverCardPositioner.ts",
+  "imports": ["import { useHoverCardPositioner } from '@base_ui/react/HoverCard';"],
+  "demos": "<ul></ul>"
+}

@@ -1,0 +1,18 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" } },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "HoverCardBackdrop",
+  "imports": [
+    "import * as HoverCard from '@base_ui/react/HoverCard';\nconst HoverCardBackdrop = HoverCard.Backdrop;"
+  ],
+  "classes": [],
+  "muiName": "HoverCardBackdrop",
+  "filename": "/packages/mui-base/src/HoverCard/Backdrop/HoverCardBackdrop.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-hover-card/\">Hover Card</a></li></ul>",
+  "cssComponent": false
+}

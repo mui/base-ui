@@ -87,6 +87,30 @@ module.exports = [
     pathname: '/base-ui/react-form-control/components-api/#form-control',
     title: 'FormControl',
   },
+  {
+    pathname: '/base-ui/react-hover-card/components-api/#hover-card-arrow',
+    title: 'HoverCardArrow',
+  },
+  {
+    pathname: '/base-ui/react-hover-card/components-api/#hover-card-backdrop',
+    title: 'HoverCardBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-hover-card/components-api/#hover-card-popup',
+    title: 'HoverCardPopup',
+  },
+  {
+    pathname: '/base-ui/react-hover-card/components-api/#hover-card-positioner',
+    title: 'HoverCardPositioner',
+  },
+  {
+    pathname: '/base-ui/react-hover-card/components-api/#hover-card-root',
+    title: 'HoverCardRoot',
+  },
+  {
+    pathname: '/base-ui/react-hover-card/components-api/#hover-card-trigger',
+    title: 'HoverCardTrigger',
+  },
   { pathname: '/base-ui/react-input/components-api/#input', title: 'Input' },
   { pathname: '/base-ui/react-menu/components-api/#menu', title: 'Menu' },
   {
