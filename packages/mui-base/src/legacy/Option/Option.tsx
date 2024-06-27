@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -7,9 +8,10 @@ import { OptionProps, OptionOwnerState, OptionType, OptionRootSlotProps } from '
 import { getOptionUtilityClass } from './optionClasses';
 import { useSlotProps } from '../utils/useSlotProps';
 import { WithOptionalOwnerState } from '../utils/types';
-import { useOption, useOptionContextStabilizer } from '../useOption';
+import { SelectOption, useOption } from '../useOption';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
-import { ListContext } from '../../useList';
+import { SelectAction, useSelectContext } from '../useSelect';
+import { CompoundParentContextValue } from '../../useCompound';
 
 function useUtilityClasses<OptionValue>(ownerState: OptionOwnerState<OptionValue>) {
   const { disabled, highlighted, selected } = ownerState;
@@ -21,9 +23,20 @@ function useUtilityClasses<OptionValue>(ownerState: OptionOwnerState<OptionValue
   return composeClasses(slots, useClassNamesOverride(getOptionUtilityClass));
 }
 
+type InnerOptionProps<OptionValue, RootComponentType extends React.ElementType> = OptionProps<
+  OptionValue,
+  RootComponentType
+> & {
+  dispatch: React.Dispatch<SelectAction<OptionValue>>;
+  selected: boolean;
+  highlighted: boolean;
+  compoundParentContext: CompoundParentContextValue<OptionValue, SelectOption<OptionValue>>;
+  keyExtractor: (value: OptionValue) => any;
+};
+
 const InnerOption = React.memo(
-  React.forwardRef(function Option<OptionValue, RootComponentType extends React.ElementType>(
-    props: OptionProps<OptionValue, RootComponentType>,
+  React.forwardRef(function InnerOption<OptionValue, RootComponentType extends React.ElementType>(
+    props: InnerOptionProps<OptionValue, RootComponentType>,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
     const {
@@ -33,6 +46,11 @@ const InnerOption = React.memo(
       slotProps = {},
       slots = {},
       value,
+      selected,
+      highlighted,
+      dispatch,
+      compoundParentContext,
+      keyExtractor,
       ...other
     } = props;
 
@@ -46,18 +64,22 @@ const InnerOption = React.memo(
     const computedLabel =
       label ?? (typeof children === 'string' ? children : optionRef.current?.textContent?.trim());
 
-    const { getRootProps, selected, highlighted, index } = useOption({
+    const { getRootProps } = useOption({
       disabled,
       label: computedLabel,
       rootRef: combinedRef,
       value,
+      highlighted,
+      selected,
+      dispatch,
+      compoundParentContext,
+      keyExtractor,
     });
 
     const ownerState: OptionOwnerState<OptionValue> = {
       ...props,
       disabled,
       highlighted,
-      index,
       selected,
     };
 
@@ -92,17 +114,21 @@ const Option = React.forwardRef(function Option<OptionValue>(
   ref: React.ForwardedRef<Element>,
 ) {
   const { value } = props;
+  const { state, dispatch, compoundParentContext, keyExtractor } = useSelectContext();
 
-  // This wrapper component is used as a performance optimization.
-  // `useOptionContextStabilizer` ensures that the context value
-  // is stable across renders, so that the actual Option re-renders
-  // only when it needs to.
-  const { contextValue } = useOptionContextStabilizer(value);
+  const selected = state.selectedValues.includes(value);
+  const highlighted = state.highlightedValue === value;
 
   return (
-    <ListContext.Provider value={contextValue}>
-      <InnerOption {...props} ref={ref} />
-    </ListContext.Provider>
+    <InnerOption
+      {...props}
+      dispatch={dispatch}
+      selected={selected}
+      highlighted={highlighted}
+      compoundParentContext={compoundParentContext}
+      keyExtractor={keyExtractor}
+      ref={ref}
+    />
   );
 }) as OptionType;
 

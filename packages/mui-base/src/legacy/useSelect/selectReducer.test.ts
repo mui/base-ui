@@ -1,35 +1,33 @@
 import { expect } from 'chai';
 import { selectReducer } from './selectReducer';
 import { SelectAction, SelectActionTypes, SelectInternalState } from './useSelect.types';
-import { ActionWithContext } from '../../utils/useControllableReducer.types';
-import { ListSettings } from '../../useList';
+import { ListItemMetadata, ListSettings } from '../../useList';
+import { IndexableMap } from '../../utils/IndexableMap';
 
 describe('selectReducer', () => {
-  const irrelevantConfig = {
-    items: [],
+  const irrelevantSettings: ListSettings = {
     disableListWrap: false,
     disabledItemsFocusable: false,
     focusManagement: 'activeDescendant' as const,
-    isItemDisabled: () => false,
-    itemComparer: (a: any, b: any) => a === b,
-    getItemAsString: (option: any) => option,
     orientation: 'vertical' as const,
     pageSize: 5,
     selectionMode: 'single' as const,
+    direction: 'ltr' as const,
   };
 
   describe('action: buttonClick', () => {
     it('opens the select if it was closed', () => {
-      const state: SelectInternalState<unknown> = {
+      const state: SelectInternalState<string> = {
         highlightedValue: null,
         selectedValues: [],
+        items: new IndexableMap<string, ListItemMetadata>(),
         open: false,
+        settings: irrelevantSettings,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
+      const action: SelectAction<string> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
-        context: irrelevantConfig,
       };
 
       const result = selectReducer(state, action);
@@ -37,18 +35,17 @@ describe('selectReducer', () => {
     });
 
     it('closes the select if it was open', () => {
-      const state: SelectInternalState<unknown> = {
+      const state: SelectInternalState<string> = {
         highlightedValue: null,
         selectedValues: [],
+        items: new IndexableMap<string, ListItemMetadata>(),
         open: true,
+        settings: irrelevantSettings,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
+      const action: SelectAction<string> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
-        context: {
-          ...irrelevantConfig,
-        },
       };
 
       const result = selectReducer(state, action);
@@ -59,16 +56,18 @@ describe('selectReducer', () => {
       const state: SelectInternalState<string> = {
         highlightedValue: null,
         selectedValues: ['2'],
+        items: new IndexableMap<string, ListItemMetadata>([
+          ['1', { disabled: false, ref: { current: null } }],
+          ['2', { disabled: false, ref: { current: null } }],
+          ['3', { disabled: false, ref: { current: null } }],
+        ]),
         open: false,
+        settings: irrelevantSettings,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
+      const action: SelectAction<string> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
-        context: {
-          ...irrelevantConfig,
-          items: ['1', '2', '3'],
-        },
       };
 
       const result = selectReducer(state, action);
@@ -79,16 +78,18 @@ describe('selectReducer', () => {
       const state: SelectInternalState<string> = {
         highlightedValue: null,
         selectedValues: [],
+        items: new IndexableMap<string, ListItemMetadata>([
+          ['1', { disabled: false, ref: { current: null } }],
+          ['2', { disabled: false, ref: { current: null } }],
+          ['3', { disabled: false, ref: { current: null } }],
+        ]),
         open: false,
+        settings: irrelevantSettings,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
+      const action: SelectAction<string> = {
         type: SelectActionTypes.buttonClick,
         event: {} as any, // not relevant
-        context: {
-          ...irrelevantConfig,
-          items: ['1', '2', '3'],
-        },
       };
 
       const result = selectReducer(state, action);
@@ -101,17 +102,19 @@ describe('selectReducer', () => {
       const state: SelectInternalState<string> = {
         highlightedValue: null,
         selectedValues: [],
+        items: new IndexableMap<string, ListItemMetadata>([
+          ['1', { disabled: false, ref: { current: null } }],
+          ['2', { disabled: false, ref: { current: null } }],
+          ['3', { disabled: false, ref: { current: null } }],
+        ]),
         open: false,
+        settings: irrelevantSettings,
       };
 
-      const action: ActionWithContext<SelectAction<string>, ListSettings> = {
+      const action: SelectAction<string> = {
         type: SelectActionTypes.browserAutoFill,
         event: {} as any, // not relevant
         item: '1',
-        context: {
-          ...irrelevantConfig,
-          items: ['1', '2', '3'],
-        },
       };
 
       const result = selectReducer(state, action);

@@ -185,6 +185,10 @@ const AnimatedListbox = React.forwardRef(function AnimatedListbox(props, ref) {
   );
 });
 
+AnimatedListbox.propTypes = {
+  ownerState: PropTypes.object.isRequired,
+};
+
 const Option = styled(BaseOption)(
   ({ theme }) => `
   list-style: none;
