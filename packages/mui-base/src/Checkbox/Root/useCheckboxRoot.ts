@@ -4,6 +4,7 @@ import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useId } from '../../utils/useId';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -30,6 +31,15 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     indeterminate = false,
   } = params;
 
+  const id = useId();
+
+  const [checked, setCheckedState] = useControlled({
+    controlled: externalChecked,
+    default: defaultChecked,
+    name: 'Checkbox',
+    state: 'checked',
+  });
+
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef);
 
@@ -39,32 +49,26 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     }
   }, [indeterminate]);
 
-  const [checked, setCheckedState] = useControlled({
-    controlled: externalChecked,
-    default: defaultChecked,
-    name: 'Checkbox',
-    state: 'checked',
-  });
-
   const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(externalProps, {
+        id,
         value: 'off',
         type: 'button',
         role: 'checkbox',
         'aria-checked': indeterminate ? 'mixed' : checked,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
-        ...externalProps,
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
             return;
           }
 
+          event.preventDefault();
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, indeterminate, readOnly],
+    [id, indeterminate, checked, disabled, readOnly],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(
@@ -86,11 +90,12 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
             return;
           }
 
-          setCheckedState(event.target.checked);
+          const checkedValue = event.target.checked;
+          setCheckedState(checkedValue);
           onChange?.(event);
         },
       }),
-    [autoFocus, checked, disabled, name, onChange, required, setCheckedState, mergedInputRef],
+    [checked, disabled, name, required, autoFocus, mergedInputRef, setCheckedState, onChange],
   );
 
   return React.useMemo(
