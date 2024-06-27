@@ -8,7 +8,7 @@
     "emitDeclarationOnly": true,
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build",
+    "outDir": "build"
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
