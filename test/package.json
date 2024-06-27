@@ -12,7 +12,7 @@
     "@emotion/react": "^11.11.4",
     "@mui/internal-test-utils": "1.0.0-dev.20240529-082515-213b5e33ab",
     "@mui/joy": "5.0.0-beta.36",
-    "@mui/material": "6.0.0-alpha.11",
+    "@mui/material": "6.0.0-alpha.13",
     "@playwright/test": "1.44.1",
     "@testing-library/dom": "^10.1.0",
     "@types/chai": "^4.3.16",
