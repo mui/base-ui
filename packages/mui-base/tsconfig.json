@@ -1,10 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": [
-    "src/**/*",
-    "test/**/*",
-    "node_modules/@mui/internal-test-utils/build/initMatchers.d.ts",
-    "node_modules/@mui/internal-test-utils/build/initPlaywrightMatchers.d.ts"
-  ],
-  "exclude": ["src/legacy/**/*"]
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    {
+      "path": "./tsconfig.build.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    }
+  ]
 }
