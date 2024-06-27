@@ -77,16 +77,15 @@ describe('<Checkbox.Root />', () => {
 
   it('should call onChange when clicked', () => {
     const handleChange = spy();
-    const { getAllByRole, container } = render(<Checkbox.Root onChange={handleChange} />);
+    const { getAllByRole } = render(<Checkbox.Root onCheckedChange={handleChange} />);
     const [checkbox] = getAllByRole('checkbox');
-    const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
     act(() => {
       checkbox.click();
     });
 
     expect(handleChange.callCount).to.equal(1);
-    expect(handleChange.firstCall.args[0].target).to.equal(input);
+    expect(handleChange.firstCall.args[0]).to.equal(true);
   });
 
   describe('prop: disabled', () => {
