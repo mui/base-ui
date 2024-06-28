@@ -6,7 +6,7 @@
     },
     "container": { "description": "The element the <code>Backdrop</code> is appended to." },
     "keepMounted": {
-      "description": "Whether the <code>Backdrop</code> remains mounted when the Hover Card <code>Popup</code> is closed."
+      "description": "Whether the <code>Backdrop</code> remains mounted when the Preview Card <code>Popup</code> is closed."
     },
     "render": { "description": "A function to customize rendering of the component." }
   },

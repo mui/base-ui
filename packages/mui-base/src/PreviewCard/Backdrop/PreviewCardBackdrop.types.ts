@@ -7,7 +7,7 @@ export type PreviewCardBackdropOwnerState = {
 export interface PreviewCardBackdropProps
   extends BaseUIComponentProps<'div', PreviewCardBackdropOwnerState> {
   /**
-   * Whether the `Backdrop` remains mounted when the Hover Card `Popup` is closed.
+   * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
    * @default false
    */
   keepMounted?: boolean;

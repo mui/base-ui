@@ -60,7 +60,7 @@ PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Whether the `Backdrop` remains mounted when the Hover Card `Popup` is closed.
+   * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
    * @default false
    */
   keepMounted: PropTypes.bool,

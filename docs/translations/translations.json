@@ -224,7 +224,7 @@
     "/base-ui/react-number-field": "Number Field",
     "/base-ui/react-switch": "Switch",
     "data-display": "Data display",
-    "/base-ui/react-preview-card": "Hover Card",
+    "/base-ui/react-preview-card": "Preview Card",
     "/base-ui/react-popover": "Popover",
     "/base-ui/react-tooltip": "Tooltip",
     "feedback": "Feedback",

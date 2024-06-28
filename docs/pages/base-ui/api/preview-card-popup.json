@@ -14,6 +14,6 @@
   "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/PreviewCard/Popup/PreviewCardPopup.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/base-ui/react-preview-card/\">Hover Card</a></li></ul>",
+  "demos": "<ul><li><a href=\"/base-ui/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false
 }

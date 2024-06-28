@@ -1,11 +1,11 @@
 ---
 productId: base-ui
-title: React Hover Card Component
+title: React Preview Card Component
 components: PreviewCardRoot, PreviewCardTrigger, PreviewCardPositioner, PreviewCardPopup, PreviewCardArrow, PreviewCardBackdrop
 githubLabel: 'component: preview-card'
 ---
 
-# Hover Card
+# Preview Card
 
 <p class="description">Preview Cards are visual-only interactive floating elements that display a concise preview of a link's contents when a user hovers over it before navigating through.</p>
 
@@ -45,13 +45,13 @@ import * as PreviewCard from '@base_ui/react/PreviewCard';
 
 ## Anatomy
 
-Hover Card is implemented using a collection of related components:
+Preview Card is implemented using a collection of related components:
 
 - `<PreviewCard.Root />` is a top-level component that wraps the other components.
 - `<PreviewCard.Trigger />` renders the trigger element.
 - `<PreviewCard.Backdrop />` renders an optional backdrop element behind the popup.
-- `<PreviewCard.Positioner />` renders the Hover Card's positioning element.
-- `<PreviewCard.Popup />` renders the Hover Card popup itself.
+- `<PreviewCard.Positioner />` renders the Preview Card's positioning element.
+- `<PreviewCard.Popup />` renders the Preview Card popup itself.
 - `<PreviewCard.Arrow />` renders an optional pointing arrow, placed inside the popup.
 
 ```tsx
@@ -73,30 +73,30 @@ Preview Cards are a type of progressive enhancement component to display a conci
 Guidelines:
 
 - Preview Cards should not contain content that cannot be viewed when navigating through to the link's new location — ensure they act as a preview of the _same_ information contained in the link.
-- Preview Cards should avoid form inputs other than buttons, as the Hover Card will close when the cursor leaves its boundaries, making it difficult to preserve state or fill out information.
+- Preview Cards should avoid form inputs other than buttons, as the Preview Card will close when the cursor leaves its boundaries, making it difficult to preserve state or fill out information.
 
 ## Placement
 
-By default, the Hover Card is placed on the bottom side of its trigger, the default anchor. To change this, use the `side` prop:
+By default, the Preview Card is placed on the bottom side of its trigger, the default anchor. To change this, use the `side` prop:
 
 ```jsx
 <PreviewCard.Root>
   <PreviewCard.Trigger />
   <PreviewCard.Positioner side="right">
-    <PreviewCard.Popup>Hover Card</PreviewCard.Popup>
+    <PreviewCard.Popup>Preview Card</PreviewCard.Popup>
   </PreviewCard.Positioner>
 </PreviewCard.Root>
 ```
 
-You can also change the alignment of the Hover Card in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `alignment` prop:
+You can also change the alignment of the Preview Card in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `alignment` prop:
 
 ```jsx
 <PreviewCard.Positioner side="right" alignment="start">
-  <PreviewCard.Popup>Hover Card</PreviewCard.Popup>
+  <PreviewCard.Popup>Preview Card</PreviewCard.Popup>
 </PreviewCard.Positioner>
 ```
 
-Due to collision detection, the Hover Card may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
+Due to collision detection, the Preview Card may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
 
 To access the true rendered values, which may change as the result of a collision, the popup element receives data attributes:
 
@@ -104,16 +104,16 @@ To access the true rendered values, which may change as the result of a collisio
 // Rendered HTML (simplified)
 <div>
   <div data-side="left" data-alignment="end">
-    Hover Card
+    Preview Card
   </div>
 </div>
 ```
 
-This allows you to conditionally style the Hover Card based on its rendered side or alignment.
+This allows you to conditionally style the Preview Card based on its rendered side or alignment.
 
 ## Offset
 
-The `sideOffset` prop creates a gap between the anchor and Hover Card popup, while `alignmentOffset` slides the Hover Card popup from its alignment, acting logically for `start` and `end` alignments.
+The `sideOffset` prop creates a gap between the anchor and Preview Card popup, while `alignmentOffset` slides the Preview Card popup from its alignment, acting logically for `start` and `end` alignments.
 
 ```jsx
 <PreviewCard.Positioner sideOffset={10} alignmentOffset={10}>
@@ -121,7 +121,7 @@ The `sideOffset` prop creates a gap between the anchor and Hover Card popup, whi
 
 ## Delay
 
-To change how long the Hover Card waits until it opens or closes, use the `delay` and `closeDelay` props, which represent how long the Hover Card waits after the cursor rests on the trigger to open, or moves away from the trigger to close, in milliseconds:
+To change how long the Preview Card waits until it opens or closes, use the `delay` and `closeDelay` props, which represent how long the Preview Card waits after the cursor rests on the trigger to open, or moves away from the trigger to close, in milliseconds:
 
 ```jsx
 <PreviewCard.Root delay={200} closeDelay={200}>
@@ -135,7 +135,7 @@ The delay type can be changed from `"rest"` (user's cursor is static over the tr
 
 ## Controlled
 
-To control the Hover Card with external state, use the `open` and `onOpenChange` props:
+To control the Preview Card with external state, use the `open` and `onOpenChange` props:
 
 ```jsx
 function App() {
@@ -150,13 +150,13 @@ function App() {
 
 ## Arrow
 
-To add an arrow (caret or triangle) inside the Hover Card content that points toward the center of the anchor element, use the `PreviewCard.Arrow` component:
+To add an arrow (caret or triangle) inside the Preview Card content that points toward the center of the anchor element, use the `PreviewCard.Arrow` component:
 
 ```jsx
 <PreviewCard.Positioner>
   <PreviewCard.Popup>
     <PreviewCard.Arrow />
-    Hover Card
+    Preview Card
   </PreviewCard.Popup>
 </PreviewCard.Positioner>
 ```
@@ -165,7 +165,7 @@ It automatically positions a wrapper element that can be styled or contain a cus
 
 ## Backdrop
 
-You may dim content behind the Hover Card in order to draw more attention to it by rendering an optional backdrop.
+You may dim content behind the Preview Card in order to draw more attention to it by rendering an optional backdrop.
 
 ```jsx
 <PreviewCard.Root>
@@ -210,15 +210,15 @@ By default, the `Trigger` acts as the anchor, but this can be changed to another
 
 The `PreviewCard.Positioner` element receives the following CSS variables, which can be used by `PreviewCard.Popup`:
 
-- `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the Hover Card with its anchor.
-- `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the Hover Card with its anchor.
+- `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the Preview Card with its anchor.
+- `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the Preview Card with its anchor.
 - `--available-width`: Specifies the available width of the popup before it overflows the viewport.
 - `--available-height`: Specifies the available height of the popup before it overflows the viewport.
 - `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
 ### Large content
 
-If your Hover Card is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--available-width` and `--available-height` properties are useful to constrain its size to prevent it from overflowing.
+If your Preview Card is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--available-width` and `--available-height` properties are useful to constrain its size to prevent it from overflowing.
 
 ```css
 .PreviewCardPopup {
@@ -245,7 +245,7 @@ The `overflow: auto` property will prevent the `Arrow` from appearing, if specif
 }
 ```
 
-Absolute maximums can also be specified if the Hover Card's size can be too large on wider or bigger screens:
+Absolute maximums can also be specified if the Preview Card's size can be too large on wider or bigger screens:
 
 ```css
 .PreviewCardPopup-content {
@@ -257,7 +257,7 @@ Absolute maximums can also be specified if the Hover Card's size can be too larg
 
 ## Animations
 
-The Hover Card can animate when opening or closing with either:
+The Preview Card can animate when opening or closing with either:
 
 - CSS transitions
 - CSS animations
@@ -268,7 +268,7 @@ The Hover Card can animate when opening or closing with either:
 Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
 
 ```jsx
-<PreviewCard.Popup className="PreviewCardPopup">Hover Card</PreviewCard.Popup>
+<PreviewCard.Popup className="PreviewCardPopup">Preview Card</PreviewCard.Popup>
 ```
 
 ```css
@@ -370,7 +370,7 @@ function App() {
                 />
               }
             >
-              Hover Card
+              Preview Card
             </PreviewCard.Popup>
           </PreviewCard.Positioner>
         )}
