@@ -8,6 +8,7 @@ import {
   useHover,
   useInteractions,
   useListNavigation,
+  useTypeahead,
 } from '@floating-ui/react';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback, StateComparers } from '../../utils/useControllableReducer.types';
@@ -183,18 +184,35 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
   const dismiss = useDismiss(floatingRootContext, { bubbles: true });
 
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
+  const itemLabels = React.useRef<(string | null)[]>([]);
+  const activeIndex =
+    state.highlightedValue == null ? null : state.items.indexOf(state.highlightedValue);
 
   React.useEffect(() => {
     itemDomElements.current = state.items.mapValues((item) => item.ref.current);
+    itemLabels.current = state.items.mapValues(
+      (item) => item.valueAsString ?? item.ref.current?.textContent ?? null,
+    );
   }, [state.items]);
 
   const listNavigation = useListNavigation(floatingRootContext, {
     listRef: itemDomElements,
-    activeIndex:
-      state.highlightedValue == null ? null : state.items.indexOf(state.highlightedValue),
+    activeIndex,
     nested: isNested,
     loop: true,
     onNavigate: (index) => {
+      dispatch({
+        type: ListActionTypes.highlight,
+        item: index == null ? null : state.items.keyAt(index) ?? null,
+        event: null,
+      });
+    },
+  });
+
+  const typeahead = useTypeahead(floatingRootContext, {
+    listRef: itemLabels,
+    activeIndex,
+    onMatch: (index) => {
       dispatch({
         type: ListActionTypes.highlight,
         item: index == null ? null : state.items.keyAt(index) ?? null,
@@ -208,6 +226,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     click,
     dismiss,
     listNavigation,
+    typeahead,
   ]);
 
   return React.useMemo(
