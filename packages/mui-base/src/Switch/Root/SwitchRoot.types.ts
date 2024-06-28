@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export type SwitchOwnerState = {
@@ -37,13 +38,12 @@ export interface UseSwitchRootParameters {
    */
   name?: string;
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
+   * @param {boolean} checked The new checked state.
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   /**
    * If `true`, the component is read-only.
    * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
