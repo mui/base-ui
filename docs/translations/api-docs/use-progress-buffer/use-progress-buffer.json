@@ -1,0 +1,10 @@
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "bufferValue": { "description": "The buffer value." },
+    "direction": { "description": "The direction that progress bars fill in" },
+    "max": { "description": "The maximum value" },
+    "min": { "description": "The minimum value" }
+  },
+  "returnValueDescriptions": {}
+}
