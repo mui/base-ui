@@ -213,7 +213,7 @@ export default function BadgeVisibility() {
         <Divider orientation="vertical" />
         <Stack direction="row" spacing={1} useFlexGap>
           <StyledLabel>Show badge</StyledLabel>
-          <Switch checked={!invisible} onChange={handleBadgeVisibility}>
+          <Switch checked={!invisible} onCheckedChange={handleBadgeVisibility}>
             <Thumb />
           </Switch>
         </Stack>

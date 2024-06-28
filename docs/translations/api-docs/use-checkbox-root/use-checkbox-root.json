@@ -10,7 +10,7 @@
     "indeterminate": { "description": "If <code>true</code>, the checkbox will be indeterminate." },
     "inputRef": { "description": "The ref to the input element." },
     "name": { "description": "Name of the underlying input element." },
-    "onChange": { "description": "Callback fired when the state is changed." },
+    "onCheckedChange": { "description": "Callback fired when the checked state is changed." },
     "readOnly": { "description": "If <code>true</code>, the component is read only." },
     "required": {
       "description": "If <code>true</code>, the <code>input</code> element is required."
