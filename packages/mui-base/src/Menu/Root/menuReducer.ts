@@ -9,29 +9,6 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
         highlightedValue: action.item,
       };
 
-    case MenuActionTypes.blur:
-      // TODO: move this check to the caller and not dispatch the action in the first place
-      if (!state.listboxRef.current?.contains(action.event.relatedTarget)) {
-        // To prevent the menu from closing when the focus leaves the menu to the button.
-        // For more details, see https://github.com/mui/material-ui/pull/36917#issuecomment-1566992698
-        const listboxId = state.listboxRef.current?.getAttribute('id');
-        const controlledBy = action.event.relatedTarget?.getAttribute('aria-controls');
-        if (listboxId && controlledBy && listboxId === controlledBy) {
-          return state;
-        }
-
-        return {
-          ...state,
-          open: false,
-          highlightedValue: moveHighlight(null, 'start', state.items, state.settings),
-        };
-      }
-
-      return state;
-
-    case MenuActionTypes.escapeKeyDown:
-      return { ...state, open: false };
-
     case MenuActionTypes.toggle:
       return {
         ...state,

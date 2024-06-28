@@ -55,14 +55,6 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     previousItems.current = subitems;
   }, [subitems, dispatch]);
 
-  /* 
-  React.useEffect(() => {
-    if (open && autoFocus && highlightedValue && !isInitiallyOpen.current) {
-      subitems.get(highlightedValue)?.ref?.current?.focus();
-    }
-  }, [open, autoFocus, highlightedValue, subitems]);
-  */
-
   const getRootProps = (externalProps?: GenericHTMLProps) => {
     return mergeReactProps(externalProps, {
       id,

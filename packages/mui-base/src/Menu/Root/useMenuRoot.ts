@@ -22,7 +22,6 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   highlightedValue: null,
   selectedValues: [],
   items: new IndexableMap(),
-  listboxRef: { current: null },
   triggerElement: null,
   positionerElement: null,
   popupId: null,
@@ -54,24 +53,14 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
       value: string | null,
       reason: string,
       event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-      newState: MenuReducerState,
     ) => {
       onHighlightChange?.(value, reason, event);
-
-      if (
-        value != null &&
-        (reason === ListActionTypes.itemClick ||
-          reason === ListActionTypes.keyDown ||
-          reason === ListActionTypes.textNavigation)
-      ) {
-        newState.items.get(value)?.ref.current?.focus();
-      }
     },
     [onHighlightChange],
   );
 
   const handleStateChange: StateChangeCallback<MenuReducerState> = React.useCallback(
-    (event, field, value, reason, newState) => {
+    (event, field, value, reason) => {
       switch (field) {
         case 'open':
           onOpenChange?.(
@@ -85,7 +74,6 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
             value as string | null,
             reason,
             event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-            newState,
           );
           break;
 
@@ -141,16 +129,6 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     }
   }, [parentState?.open, dispatch]);
 
-  /* React.useEffect(() => {
-    if (
-      !state.open &&
-      lastActionType.current !== null &&
-      lastActionType.current !== MenuActionTypes.blur
-    ) {
-      state.triggerElement?.focus();
-    }
-  }, [state.open, state.triggerElement]); */
-
   const floatingRootContext = useFloatingRootContext({
     elements: {
       reference: state.triggerElement,
@@ -201,11 +179,13 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     nested: isNested,
     loop: true,
     onNavigate: (index) => {
-      dispatch({
-        type: ListActionTypes.highlight,
-        item: index == null ? null : state.items.keyAt(index) ?? null,
-        event: null,
-      });
+      if (index !== activeIndex) {
+        dispatch({
+          type: ListActionTypes.highlight,
+          item: index == null ? null : state.items.keyAt(index) ?? null,
+          event: null,
+        });
+      }
     },
   });
 
@@ -213,11 +193,13 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     listRef: itemLabels,
     activeIndex,
     onMatch: (index) => {
-      dispatch({
-        type: ListActionTypes.highlight,
-        item: index == null ? null : state.items.keyAt(index) ?? null,
-        event: null,
-      });
+      if (index !== activeIndex) {
+        dispatch({
+          type: ListActionTypes.highlight,
+          item: index == null ? null : state.items.keyAt(index) ?? null,
+          event: null,
+        });
+      }
     },
   });
 

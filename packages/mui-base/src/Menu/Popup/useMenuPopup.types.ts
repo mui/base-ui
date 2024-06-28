@@ -22,9 +22,9 @@ export interface UseMenuPopupParameters {
 
 export interface UseMenuPopupReturnValue {
   /**
-   * Resolver for the listbox slot's props.
-   * @param externalProps additional props for the listbox component
-   * @returns props that should be spread on the listbox component
+   * Resolver for the Popup's props.
+   * @param externalProps additional props for the Popup component
+   * @returns props that should be spread on the Popup component
    */
   getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;

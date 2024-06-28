@@ -42,8 +42,6 @@ export interface UseMenuRootReturnValue {
 }
 
 export const MenuActionTypes = {
-  blur: 'menu:blur',
-  escapeKeyDown: 'menu:escapeKeyDown',
   toggle: 'menu:toggle',
   open: 'menu:open',
   close: 'menu:close',
@@ -51,16 +49,6 @@ export const MenuActionTypes = {
   registerTrigger: 'menu:registerTrigger',
   registerPositioner: 'menu:registerPositioner',
 } as const;
-
-interface MenuBlurAction {
-  type: typeof MenuActionTypes.blur;
-  event: React.FocusEvent;
-}
-
-interface MenuEscapeKeyDownAction {
-  type: typeof MenuActionTypes.escapeKeyDown;
-  event: React.KeyboardEvent;
-}
 
 interface MenuToggleAction {
   type: typeof MenuActionTypes.toggle;
@@ -94,8 +82,6 @@ interface MenuRegisterPositionerAction {
 }
 
 export type MenuReducerAction =
-  | MenuBlurAction
-  | MenuEscapeKeyDownAction
   | MenuToggleAction
   | MenuOpenAction
   | MenuCloseAction
@@ -106,8 +92,6 @@ export type MenuReducerAction =
 
 export type MenuReducerState = ListState<string> & {
   open: boolean;
-  // TODO: at least rename
-  listboxRef: React.RefObject<HTMLElement>;
   popupId: string | null;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
