@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
-import { ListItemMetadata, ListItemState } from '../../useList';
+import { ListItemMetadata } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
 import { IndexableMap } from '../../utils/IndexableMap';
 
@@ -34,5 +34,4 @@ export interface UseMenuPopupReturnValue {
    * The ref to the menu's popup node.
    */
   rootRef: React.RefCallback<Element> | null;
-  getItemState: (value: string) => ListItemState;
 }

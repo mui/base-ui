@@ -126,8 +126,7 @@ export interface ListItemState {
   selected: boolean;
 }
 
-export interface UseListReturnValue<ItemValue> {
-  getItemState: (item: ItemValue) => ListItemState;
+export interface UseListReturnValue {
   /**
    * Resolver for the root slot's props.
    * @param externalProps additional props for the root slot

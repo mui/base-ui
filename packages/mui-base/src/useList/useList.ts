@@ -1,12 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
-import {
-  UseListParameters,
-  ListItemState,
-  UseListReturnValue,
-  ListItemMetadata,
-} from './useList.types';
+import { UseListParameters, UseListReturnValue, ListItemMetadata } from './useList.types';
 import { ListActionTypes } from './listActions.types';
 import { useTextNavigation } from '../utils/useTextNavigation';
 import { GenericHTMLProps } from '../utils/types';
@@ -29,12 +24,11 @@ import { IndexableMap } from '../utils/IndexableMap';
  *
  * @ignore - internal hook.
  */
-function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturnValue<ItemValue> {
+function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturnValue {
   const {
     focusManagement = 'activeDescendant',
     rootRef: externalListRef,
     highlightedValue,
-    selectedValues,
     dispatch,
     orientation = 'vertical',
     items, // TODO: it should be just `state`
@@ -125,25 +119,8 @@ function useList<ItemValue>(params: UseListParameters<ItemValue>): UseListReturn
     });
   };
 
-  const getItemState = React.useCallback(
-    (item: ItemValue): ListItemState => {
-      const selected = (selectedValues ?? []).some((value) => value != null && item === value);
-
-      const highlighted = highlightedValue != null && item === highlightedValue;
-      const focusable = focusManagement === 'DOM';
-
-      return {
-        focusable,
-        highlighted,
-        selected,
-      };
-    },
-    [selectedValues, highlightedValue, focusManagement],
-  );
-
   return {
     getRootProps,
-    getItemState,
     rootRef: handleRef,
   };
 }

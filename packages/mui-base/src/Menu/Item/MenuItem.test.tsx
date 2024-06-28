@@ -6,14 +6,6 @@ import { MenuPopupContext, MenuPopupContextValue, MenuRootContext } from '@base_
 import { describeConformance } from '../../../test';
 import { IndexableMap } from '../../utils/IndexableMap';
 
-const dummyGetItemState = () => ({
-  disabled: false,
-  highlighted: false,
-  selected: false,
-  index: 0,
-  focusable: true,
-});
-
 const testRootContext: MenuRootContext = {
   dispatch: () => {},
   state: {
@@ -45,7 +37,6 @@ const testRootContext: MenuRootContext = {
 };
 
 const testPopupContext: MenuPopupContextValue = {
-  getItemState: dummyGetItemState,
   compoundParentContext: {
     registerItem: () => ({ deregister: () => {} }),
     getRegisteredItemCount: () => 0,

@@ -45,11 +45,7 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
   // (the first menu items gets focued only when the menu is opened by the user)
   const isInitiallyOpen = React.useRef(open);
 
-  const {
-    getRootProps: getListRootProps,
-    rootRef: mergedListRef,
-    getItemState,
-  } = useList({
+  const { getRootProps: getListRootProps, rootRef: mergedListRef } = useList({
     dispatch,
     highlightedValue,
     selectedValues: EMPTY_ARRAY,
@@ -87,7 +83,6 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
   };
 
   return {
-    getItemState,
     getRootProps,
     rootRef: mergedListRef,
   };
