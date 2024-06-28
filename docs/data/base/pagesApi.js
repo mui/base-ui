@@ -87,30 +87,6 @@ module.exports = [
     pathname: '/base-ui/react-form-control/components-api/#form-control',
     title: 'FormControl',
   },
-  {
-    pathname: '/base-ui/react-hover-card/components-api/#hover-card-arrow',
-    title: 'HoverCardArrow',
-  },
-  {
-    pathname: '/base-ui/react-hover-card/components-api/#hover-card-backdrop',
-    title: 'HoverCardBackdrop',
-  },
-  {
-    pathname: '/base-ui/react-hover-card/components-api/#hover-card-popup',
-    title: 'HoverCardPopup',
-  },
-  {
-    pathname: '/base-ui/react-hover-card/components-api/#hover-card-positioner',
-    title: 'HoverCardPositioner',
-  },
-  {
-    pathname: '/base-ui/react-hover-card/components-api/#hover-card-root',
-    title: 'HoverCardRoot',
-  },
-  {
-    pathname: '/base-ui/react-hover-card/components-api/#hover-card-trigger',
-    title: 'HoverCardTrigger',
-  },
   { pathname: '/base-ui/react-input/components-api/#input', title: 'Input' },
   { pathname: '/base-ui/react-menu/components-api/#menu', title: 'Menu' },
   {
@@ -193,6 +169,30 @@ module.exports = [
   { pathname: '/base-ui/react-popper/components-api/#popper', title: 'Popper' },
   { pathname: '/base-ui/react-popup/components-api/#popup', title: 'Popup' },
   { pathname: '/base-ui/react-portal/components-api/#portal', title: 'Portal' },
+  {
+    pathname: '/base-ui/react-preview-card/components-api/#preview-card-arrow',
+    title: 'PreviewCardArrow',
+  },
+  {
+    pathname: '/base-ui/react-preview-card/components-api/#preview-card-backdrop',
+    title: 'PreviewCardBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-preview-card/components-api/#preview-card-popup',
+    title: 'PreviewCardPopup',
+  },
+  {
+    pathname: '/base-ui/react-preview-card/components-api/#preview-card-positioner',
+    title: 'PreviewCardPositioner',
+  },
+  {
+    pathname: '/base-ui/react-preview-card/components-api/#preview-card-root',
+    title: 'PreviewCardRoot',
+  },
+  {
+    pathname: '/base-ui/react-preview-card/components-api/#preview-card-trigger',
+    title: 'PreviewCardTrigger',
+  },
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
   { pathname: '/base-ui/react-slider/components-api/#slider', title: 'Slider' },
   {

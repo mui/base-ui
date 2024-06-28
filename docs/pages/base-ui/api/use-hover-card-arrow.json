@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useHoverCardArrow",
-  "filename": "/packages/mui-base/src/HoverCard/Arrow/useHoverCardArrow.ts",
-  "imports": ["import { useHoverCardArrow } from '@base_ui/react/HoverCard';"],
-  "demos": "<ul></ul>"
-}

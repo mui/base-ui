@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "PreviewCardTrigger",
+  "imports": [
+    "import * as PreviewCard from '@base_ui/react/PreviewCard';\nconst PreviewCardTrigger = PreviewCard.Trigger;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "PreviewCardTrigger",
+  "forwardsRefTo": "HTMLAnchorElement",
+  "filename": "/packages/mui-base/src/PreviewCard/Trigger/PreviewCardTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-preview-card/\">Hover Card</a></li></ul>",
+  "cssComponent": false
+}

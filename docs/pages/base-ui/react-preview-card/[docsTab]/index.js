@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
-import * as pageProps from 'docs-base/data/base/components/hover-card/hover-card.md?@mui/markdown';
+import * as pageProps from 'docs-base/data/base/components/preview-card/preview-card.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import PreviewCardArrowApiJsonPageContent from '../../api/preview-card-arrow.json';
 import PreviewCardBackdropApiJsonPageContent from '../../api/preview-card-backdrop.json';

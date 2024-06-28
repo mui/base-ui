@@ -1,0 +1,24 @@
+{
+  "props": {
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "closeDelay": { "type": { "name": "number" }, "default": "300" },
+    "defaultOpen": { "type": { "name": "bool" } },
+    "delay": { "type": { "name": "number" }, "default": "400" },
+    "delayType": {
+      "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
+      "default": "'rest'"
+    },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } }
+  },
+  "name": "PreviewCardRoot",
+  "imports": [
+    "import * as PreviewCard from '@base_ui/react/PreviewCard';\nconst PreviewCardRoot = PreviewCard.Root;"
+  ],
+  "classes": [],
+  "muiName": "PreviewCardRoot",
+  "filename": "/packages/mui-base/src/PreviewCard/Root/PreviewCardRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-preview-card/\">Hover Card</a></li></ul>",
+  "cssComponent": false
+}

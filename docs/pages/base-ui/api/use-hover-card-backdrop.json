@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useHoverCardBackdrop",
-  "filename": "/packages/mui-base/src/HoverCard/Backdrop/useHoverCardBackdrop.ts",
-  "imports": ["import { useHoverCardBackdrop } from '@base_ui/react/HoverCard';"],
-  "demos": "<ul></ul>"
-}

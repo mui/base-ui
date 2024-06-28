@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useHoverCardRoot",
-  "filename": "/packages/mui-base/src/HoverCard/Root/useHoverCardRoot.ts",
-  "imports": ["import { useHoverCardRoot } from '@base_ui/react/HoverCard';"],
-  "demos": "<ul></ul>"
-}
