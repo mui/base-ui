@@ -163,8 +163,8 @@ describe('<Slider.Root />', () => {
       const thumbOne = getByTestId('thumb-0');
       const thumbTwo = getByTestId('thumb-1');
 
-      expect(thumbOne.querySelector('input')).to.have.attribute('aria-valuetext', 'start range 44');
-      expect(thumbTwo.querySelector('input')).to.have.attribute('aria-valuetext', 'end range 50');
+      expect(thumbOne.querySelector('input')).to.have.attribute('aria-valuetext', '44 start range');
+      expect(thumbTwo.querySelector('input')).to.have.attribute('aria-valuetext', '50 end range');
     });
   });
 

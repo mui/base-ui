@@ -28,10 +28,10 @@ function getDefaultAriaValueText(values: readonly number[], index: number): stri
 
   if (values.length === 2) {
     if (index === 0) {
-      return `start range ${values[index]}`;
+      return `${values[index]} start range`;
     }
 
-    return `end range ${values[index]}`;
+    return `${values[index]} end range`;
   }
 
   return undefined;
