@@ -12,11 +12,11 @@ export default function NestedMenu() {
   return (
     <Menu.Root>
       <MenuButton>Format</MenuButton>
-      <Menu.Positioner side="bottom" alignment="start">
+      <MenuPositioner side="bottom" alignment="start">
         <MenuPopup>
           <Menu.Root>
             <SubmenuTrigger>Text color</SubmenuTrigger>
-            <Menu.Positioner alignment="start" side="right">
+            <MenuPositioner alignment="start" side="right">
               <MenuPopup>
                 <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
                   Black
@@ -28,16 +28,16 @@ export default function NestedMenu() {
                   Accent
                 </MenuItem>
               </MenuPopup>
-            </Menu.Positioner>
+            </MenuPositioner>
           </Menu.Root>
 
           <Menu.Root>
             <SubmenuTrigger>Style</SubmenuTrigger>
-            <Menu.Positioner alignment="start" side="right">
+            <MenuPositioner alignment="start" side="right">
               <MenuPopup>
                 <Menu.Root>
                   <SubmenuTrigger>Heading</SubmenuTrigger>
-                  <Menu.Positioner alignment="start" side="right">
+                  <MenuPositioner alignment="start" side="right">
                     <MenuPopup>
                       <MenuItem
                         onClick={createHandleMenuClick('Style/Heading/Level 1')}
@@ -55,20 +55,20 @@ export default function NestedMenu() {
                         Level 3
                       </MenuItem>
                     </MenuPopup>
-                  </Menu.Positioner>
+                  </MenuPositioner>
                 </Menu.Root>
                 <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                   Paragraph
                 </MenuItem>
               </MenuPopup>
-            </Menu.Positioner>
+            </MenuPositioner>
           </Menu.Root>
 
           <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
             Clear formatting
           </MenuItem>
         </MenuPopup>
-      </Menu.Positioner>
+      </MenuPositioner>
     </Menu.Root>
   );
 }
@@ -133,6 +133,12 @@ const MenuPopup = styled(Menu.Popup)(
   `,
 );
 
+const MenuPositioner = styled(Menu.Positioner)`
+  &:focus-visible {
+    outline: 0;
+  }
+`;
+
 const MenuItem = styled(Menu.Item)(
   ({ theme }) => `
   list-style: none;
@@ -140,15 +146,19 @@ const MenuItem = styled(Menu.Item)(
   border-radius: 8px;
   cursor: default;
   user-select: none;
-
+  
   &:last-of-type {
     border-bottom: none;
   }
-
+    
   &:focus,
   &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  }
+
+  &:focus-visible {
+    outline: none;
   }
 
   &.[data-disabled] {
@@ -178,6 +188,10 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
   &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  }
+
+  &:focus-visible {
+    outline: none;
   }
 
   &.[data-disabled] {
