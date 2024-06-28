@@ -44,7 +44,7 @@ export function useHoverCardRoot(params: UseHoverCardRootParameters): UseHoverCa
   } = params;
 
   const delayWithDefault = delay ?? 500;
-  const closeDelayWithDefault = closeDelay ?? 0;
+  const closeDelayWithDefault = closeDelay ?? 250;
 
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 

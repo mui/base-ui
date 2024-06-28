@@ -3,7 +3,7 @@
     "animated": { "type": { "name": "bool" }, "default": "true" },
     "closeDelay": { "type": { "name": "number" }, "default": "0" },
     "defaultOpen": { "type": { "name": "bool" } },
-    "delay": { "type": { "name": "number" }, "default": "300" },
+    "delay": { "type": { "name": "number" }, "default": "500" },
     "delayType": {
       "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
       "default": "'rest'"

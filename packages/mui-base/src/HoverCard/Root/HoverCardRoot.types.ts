@@ -40,12 +40,12 @@ export interface HoverCardRootProps {
   defaultOpen?: boolean;
   /**
    * The delay in milliseconds until the hover card popup is opened.
-   * @default 300
+   * @default 500
    */
   delay?: number;
   /**
    * The delay in milliseconds until the hover card popup is closed.
-   * @default 0
+   * @default 250
    */
   closeDelay?: number;
   /**

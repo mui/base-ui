@@ -115,7 +115,7 @@ HoverCardRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the hover card popup is opened.
-   * @default 300
+   * @default 500
    */
   delay: PropTypes.number,
   /**
