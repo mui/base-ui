@@ -17,7 +17,6 @@ export interface HoverCardRootContextValue {
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   floatingRootContext: FloatingRootContext;
-  followCursorAxis: 'none' | 'x' | 'y' | 'both';
   transitionStatus: TransitionStatus;
 }
 
@@ -40,12 +39,12 @@ export interface HoverCardRootProps {
   defaultOpen?: boolean;
   /**
    * The delay in milliseconds until the hover card popup is opened.
-   * @default 500
+   * @default 400
    */
   delay?: number;
   /**
    * The delay in milliseconds until the hover card popup is closed.
-   * @default 250
+   * @default 300
    */
   closeDelay?: number;
   /**
@@ -61,9 +60,4 @@ export interface HoverCardRootProps {
    * @default true
    */
   animated?: boolean;
-  /**
-   * Determines which axis the hover card should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis?: 'none' | 'x' | 'y' | 'both';
 }

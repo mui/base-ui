@@ -26,29 +26,19 @@ export interface UseHoverCardRootParameters {
    */
   positionerElement?: HTMLElement | null;
   /**
-   * If `true`, the user can move from the trigger toward the hover card without it closing.
-   * @default true
-   */
-  hoverable?: boolean;
-  /**
    * Whether the hover card can animate, adding animation-related attributes and allowing for exit
    * animations to play. Useful to disable in tests to remove async behavior.
    * @default true
    */
   animated?: boolean;
   /**
-   * Determines which axis the hover card should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis?: 'none' | 'x' | 'y' | 'both';
-  /**
    * The delay in milliseconds until the hover card popup is opened.
-   * @default 500
+   * @default 400
    */
   delay?: number;
   /**
    * The delay in milliseconds until the hover card popup is closed.
-   * @default 250
+   * @default 300
    */
   closeDelay?: number;
   /**

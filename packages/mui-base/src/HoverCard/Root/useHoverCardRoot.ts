@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import useEventCallback from '@mui/utils/useEventCallback';
 import {
   safePolygon,
-  useClientPoint,
   useDelayGroup,
   useDismiss,
   useFloatingRootContext,
@@ -35,16 +34,14 @@ export function useHoverCardRoot(params: UseHoverCardRootParameters): UseHoverCa
     keepMounted = false,
     triggerElement = null,
     positionerElement = null,
-    hoverable = true,
     animated = true,
-    followCursorAxis = 'none',
     delayType = 'rest',
     delay,
     closeDelay,
   } = params;
 
-  const delayWithDefault = delay ?? 500;
-  const closeDelayWithDefault = closeDelay ?? 250;
+  const delayWithDefault = delay ?? 400;
+  const closeDelayWithDefault = closeDelay ?? 300;
 
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
@@ -140,21 +137,17 @@ export function useHoverCardRoot(params: UseHoverCardRootParameters): UseHoverCa
   const hover = useHover(context, {
     mouseOnly: true,
     move: false,
-    handleClose: hoverable && followCursorAxis !== 'both' ? safePolygon() : null,
+    handleClose: safePolygon(),
     restMs: computedRestMs,
     delay: {
       open: computedOpenDelay,
       close: computedCloseDelay,
     },
   });
-  const dismiss = useDismiss(context, { referencePress: true });
-  const clientPoint = useClientPoint(context, {
-    enabled: followCursorAxis !== 'none',
-    axis: followCursorAxis === 'none' ? undefined : followCursorAxis,
-  });
+  const dismiss = useDismiss(context);
 
   const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
-    useInteractions([hover, dismiss, clientPoint]);
+    useInteractions([hover, dismiss]);
 
   return React.useMemo(
     () => ({

@@ -6,16 +6,10 @@ import { HoverCardRootContext } from './HoverCardContext';
 import { useHoverCardRoot } from './useHoverCardRoot';
 
 function HoverCardRoot(props: HoverCardRootProps) {
-  const {
-    delayType = 'rest',
-    delay,
-    closeDelay,
-    animated = true,
-    followCursorAxis = 'none',
-  } = props;
+  const { delayType = 'rest', delay, closeDelay, animated = true } = props;
 
-  const delayWithDefault = delay ?? 300;
-  const closeDelayWithDefault = closeDelay ?? 0;
+  const delayWithDefault = delay ?? 400;
+  const closeDelayWithDefault = closeDelay ?? 250;
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -34,7 +28,6 @@ function HoverCardRoot(props: HoverCardRootProps) {
     positionerElement,
     triggerElement,
     animated,
-    followCursorAxis,
     delay,
     delayType,
     closeDelay,
@@ -60,7 +53,6 @@ function HoverCardRoot(props: HoverCardRootProps) {
       getRootTriggerProps,
       getRootPopupProps,
       floatingRootContext,
-      followCursorAxis,
       transitionStatus,
     }),
     [
@@ -77,7 +69,6 @@ function HoverCardRoot(props: HoverCardRootProps) {
       getRootTriggerProps,
       getRootPopupProps,
       floatingRootContext,
-      followCursorAxis,
       transitionStatus,
     ],
   );
@@ -106,7 +97,7 @@ HoverCardRoot.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * The delay in milliseconds until the hover card popup is closed.
-   * @default 0
+   * @default 300
    */
   closeDelay: PropTypes.number,
   /**
@@ -115,7 +106,7 @@ HoverCardRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the hover card popup is opened.
-   * @default 500
+   * @default 400
    */
   delay: PropTypes.number,
   /**
@@ -125,11 +116,6 @@ HoverCardRoot.propTypes /* remove-proptypes */ = {
    * @default 'rest'
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
-  /**
-   * Determines which axis the hover card should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
   /**
    * Callback fired when the hover card popup is requested to be opened or closed. Use when
    * controlled.

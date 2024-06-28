@@ -1,19 +1,12 @@
 {
   "props": {
     "animated": { "type": { "name": "bool" }, "default": "true" },
-    "closeDelay": { "type": { "name": "number" }, "default": "0" },
+    "closeDelay": { "type": { "name": "number" }, "default": "300" },
     "defaultOpen": { "type": { "name": "bool" } },
-    "delay": { "type": { "name": "number" }, "default": "500" },
+    "delay": { "type": { "name": "number" }, "default": "400" },
     "delayType": {
       "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
       "default": "'rest'"
-    },
-    "followCursorAxis": {
-      "type": {
-        "name": "enum",
-        "description": "'both'<br>&#124;&nbsp;'none'<br>&#124;&nbsp;'x'<br>&#124;&nbsp;'y'"
-      },
-      "default": "'none'"
     },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } }
