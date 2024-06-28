@@ -7,6 +7,7 @@ import {
   useFloatingRootContext,
   useHover,
   useInteractions,
+  useListNavigation,
 } from '@floating-ui/react';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback, StateComparers } from '../../utils/useControllableReducer.types';
@@ -139,7 +140,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     }
   }, [parentState?.open, dispatch]);
 
-  React.useEffect(() => {
+  /* React.useEffect(() => {
     if (
       !state.open &&
       lastActionType.current !== null &&
@@ -147,7 +148,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     ) {
       state.triggerElement?.focus();
     }
-  }, [state.open, state.triggerElement]);
+  }, [state.open, state.triggerElement]); */
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -181,7 +182,33 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
 
   const dismiss = useDismiss(floatingRootContext, { bubbles: true });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss]);
+  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
+
+  React.useEffect(() => {
+    itemDomElements.current = state.items.mapValues((item) => item.ref.current);
+  }, [state.items]);
+
+  const listNavigation = useListNavigation(floatingRootContext, {
+    listRef: itemDomElements,
+    activeIndex:
+      state.highlightedValue == null ? null : state.items.indexOf(state.highlightedValue),
+    nested: isNested,
+    loop: true,
+    onNavigate: (index) => {
+      dispatch({
+        type: ListActionTypes.highlight,
+        item: index == null ? null : state.items.keyAt(index) ?? null,
+        event: null,
+      });
+    },
+  });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+    hover,
+    click,
+    dismiss,
+    listNavigation,
+  ]);
 
   return React.useMemo(
     () => ({
@@ -190,7 +217,8 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
       floatingRootContext,
       getTriggerProps: getReferenceProps,
       getPositionerProps: getFloatingProps,
+      getItemProps,
     }),
-    [state, dispatch, floatingRootContext, getReferenceProps, getFloatingProps],
+    [state, dispatch, floatingRootContext, getReferenceProps, getFloatingProps, getItemProps],
   );
 }

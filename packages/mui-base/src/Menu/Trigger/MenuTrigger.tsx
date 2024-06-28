@@ -19,7 +19,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     ...other
   } = props;
 
-  const { state, dispatch } = useMenuRootContext();
+  const { state, dispatch, getTriggerProps } = useMenuRootContext();
 
   const { getRootProps } = useMenuTrigger({
     disabled,
@@ -37,7 +37,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     render: render || 'button',
     className,
     ownerState,
-    propGetter: getRootProps,
+    propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },

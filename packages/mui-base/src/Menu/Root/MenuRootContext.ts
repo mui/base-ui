@@ -11,6 +11,7 @@ export interface MenuRootContext {
   topmostContext: MenuRootContext | null;
   getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   isNested: boolean;
 }
 

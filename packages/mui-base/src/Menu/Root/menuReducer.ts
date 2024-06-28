@@ -20,8 +20,6 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
           return state;
         }
 
-        return state;
-
         return {
           ...state,
           open: false,

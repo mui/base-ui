@@ -1,4 +1,6 @@
+import { FloatingRootContext } from '@floating-ui/react';
 import { ListAction, ListState } from '../../useList';
+import { GenericHTMLProps } from '../../utils/types';
 
 export type MenuOrientation = 'horizontal' | 'vertical';
 export type MenuDirection = 'ltr' | 'rtl';
@@ -33,6 +35,10 @@ export interface UseMenuRootParameters {
 export interface UseMenuRootReturnValue {
   state: MenuReducerState;
   dispatch: React.Dispatch<MenuReducerAction>;
+  floatingRootContext: FloatingRootContext;
+  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
 export const MenuActionTypes = {

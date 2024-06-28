@@ -9,6 +9,7 @@ import { useId } from '../../utils/useId';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { MenuReducerAction } from '../Root/useMenuRoot.types';
 import { ListDirection, ListOrientation } from '../../useList';
+import { GenericHTMLProps } from '../../utils/types';
 
 interface InnerMenuItemProps extends MenuItemProps {
   highlighted: boolean;
@@ -16,6 +17,7 @@ interface InnerMenuItemProps extends MenuItemProps {
   rootDispatch: React.Dispatch<MenuReducerAction>;
   orientation: ListOrientation;
   direction: ListDirection;
+  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
 const InnerMenuItem = React.memo(
@@ -34,6 +36,7 @@ const InnerMenuItem = React.memo(
       rootDispatch,
       orientation,
       direction,
+      propGetter,
       ...other
     } = props;
 
@@ -60,7 +63,7 @@ const InnerMenuItem = React.memo(
       render: render || 'div',
       className,
       ownerState,
-      propGetter: getRootProps,
+      propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
       extraProps: other,
     });
 
@@ -84,7 +87,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   ref: React.ForwardedRef<Element>,
 ) {
   const { id: idProp } = props;
-  const { dispatch, topmostContext, state } = useMenuRootContext();
+  const { dispatch, topmostContext, state, getItemProps } = useMenuRootContext();
   const { orientation, direction } = state.settings;
   const id = useId(idProp);
 
@@ -104,6 +107,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       highlighted={highlighted}
       orientation={orientation}
       direction={direction}
+      propGetter={getItemProps}
     />
   );
 });

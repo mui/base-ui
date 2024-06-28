@@ -49,28 +49,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
         tabIndex: 0, // this is needed to make the button focused after click in Safari
         ref: handleRef,
       },
-      getButtonRootProps({
-        onClick: (event: React.MouseEvent) => {
-          if (!disabled) {
-            dispatch({
-              type: MenuActionTypes.toggle,
-              event,
-            });
-          }
-        },
-        onKeyDown: (event: React.KeyboardEvent) => {
-          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-            event.preventDefault();
-            if (!disabled) {
-              dispatch({
-                type: MenuActionTypes.open,
-                event,
-                highlightRequest: event.key === 'ArrowDown' ? 'first' : 'last',
-              });
-            }
-          }
-        },
-      }),
+      getButtonRootProps(),
     );
   };
 

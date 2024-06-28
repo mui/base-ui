@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import {
-  unstable_useForkRef as useForkRef,
   unstable_useId as useId,
   unstable_useEnhancedEffect as useEnhancedEffect,
 } from '@mui/utils';
 import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
-import { useList } from '../../useList';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useCompoundParent } from '../../useCompound';
+import { IndexableMap } from '../../utils/IndexableMap';
+import { ListActionTypes, ListItemMetadata } from '../../useList';
 
-const EMPTY_ARRAY: string[] = [];
 /**
  *
  * API:
@@ -19,43 +19,16 @@ const EMPTY_ARRAY: string[] = [];
  * - [useMenuPopup API](https://mui.com/base-ui/api/use-menu-popup/)
  */
 export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupReturnValue {
-  const {
-    id: idParam,
-    autoFocus = true,
-    state,
-    dispatch,
-    childItems,
-    rootRef: externalRef,
-    isNested,
-  } = parameters;
-
-  const rootRef = React.useRef<HTMLElement>(null);
-  const handleRef = useForkRef(rootRef, state.listboxRef, externalRef);
+  const { id: idParam, state, dispatch } = parameters;
 
   const id = useId(idParam) ?? '';
 
-  const {
-    open,
-    highlightedValue,
-    items: subitems,
-    settings: { orientation, direction },
-  } = state;
+  const { open } = state;
 
-  // store the initial open state to prevent focus stealing
-  // (the first menu items gets focued only when the menu is opened by the user)
-  const isInitiallyOpen = React.useRef(open);
-
-  const { getRootProps: getListRootProps, rootRef: mergedListRef } = useList({
-    dispatch,
-    highlightedValue,
-    selectedValues: EMPTY_ARRAY,
-    focusManagement: 'DOM',
-    rootRef: handleRef,
-    items: childItems,
-    orientation,
-    direction,
-    isNested,
-  });
+  const { context: compoundParentContext, subitems } = useCompoundParent<
+    string,
+    ListItemMetadata
+  >();
 
   useEnhancedEffect(() => {
     dispatch({
@@ -64,26 +37,42 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
     });
   }, [id, dispatch]);
 
+  const previousItems = React.useRef<IndexableMap<string, ListItemMetadata>>(new IndexableMap());
+
+  React.useEffect(() => {
+    // Whenever the `items` object changes, we need to determine if the actual items changed.
+    // If they did, we need to dispatch an `itemsChange` action, so the selected/highlighted state is updated.
+    if (IndexableMap.areEqual(previousItems.current, subitems)) {
+      return;
+    }
+
+    dispatch({
+      type: ListActionTypes.itemsChange,
+      event: null,
+      items: subitems,
+    });
+
+    previousItems.current = subitems;
+  }, [subitems, dispatch]);
+
+  /* 
   React.useEffect(() => {
     if (open && autoFocus && highlightedValue && !isInitiallyOpen.current) {
       subitems.get(highlightedValue)?.ref?.current?.focus();
     }
   }, [open, autoFocus, highlightedValue, subitems]);
+  */
 
   const getRootProps = (externalProps?: GenericHTMLProps) => {
-    return mergeReactProps(
-      externalProps,
-      {
-        id,
-        role: 'menu',
-        'aria-hidden': !open || undefined,
-      },
-      getListRootProps(),
-    );
+    return mergeReactProps(externalProps, {
+      id,
+      role: 'menu',
+      'aria-hidden': !open || undefined,
+    });
   };
 
   return {
     getRootProps,
-    rootRef: mergedListRef,
+    compoundParentContext,
   };
 }

@@ -9,6 +9,7 @@ export const ListActionTypes = {
   itemsChange: 'list:itemsChange',
   keyDown: 'list:keyDown',
   resetHighlight: 'list:resetHighlight',
+  highlight: 'list:highlight',
   highlightLast: 'list:highlightLast',
   textNavigation: 'list:textNavigation',
   clearSelection: 'list:clearSelection',
@@ -59,6 +60,12 @@ interface ResetHighlightAction {
   event: React.SyntheticEvent | null;
 }
 
+interface HighlightAction<ItemValue> {
+  type: typeof ListActionTypes.highlight;
+  event: React.SyntheticEvent | null;
+  item: ItemValue | null;
+}
+
 interface HighlightLastAction {
   type: typeof ListActionTypes.highlightLast;
   event: React.SyntheticEvent | null;
@@ -79,6 +86,7 @@ export type ListAction<ItemValue> =
   | ItemsChangeAction<ItemValue>
   | KeyDownAction
   | ResetHighlightAction
+  | HighlightAction<ItemValue>
   | HighlightLastAction
   | TextNavigationAction
   | ClearSelectionAction;

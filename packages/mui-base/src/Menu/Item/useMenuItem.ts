@@ -3,11 +3,11 @@ import * as React from 'react';
 import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
 import { MenuActionTypes } from '../Root/useMenuRoot.types';
 import { useButton } from '../../useButton';
-import { ListDirection, ListItemMetadata, ListOrientation, useListItem } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useCompoundItem } from '../../useCompound';
+import { ListItemMetadata } from '../../useList';
 
 /**
  *
@@ -19,17 +19,12 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
   const {
     compoundParentContext,
     disabled = false,
-    disableFocusOnHover = false,
-    dispatch,
     rootDispatch,
-    highlighted,
     id,
     label,
     rootRef: externalRef,
     closeOnClick,
-    isNested,
-    orientation,
-    direction,
+    highlighted,
   } = params;
 
   const itemRef = React.useRef<HTMLElement>(null);
@@ -50,15 +45,6 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     parentContext: compoundParentContext,
   });
 
-  const { getRootProps: getListItemProps } = useListItem({
-    dispatch,
-    item: id ?? '',
-    handlePointerOverEvents: !disableFocusOnHover,
-    highlighted,
-    focusable: true,
-    selected: false,
-  });
-
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: true,
@@ -68,61 +54,31 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      const closeKey = getSubmenuCloseKey(orientation, direction);
-
       return mergeReactProps(
         externalProps,
         {
           ref: handleRef,
         },
-        getButtonProps(
-          getListItemProps({
-            id,
-            role: 'menuitem',
-            onClick: (event: React.MouseEvent) => {
-              if (closeOnClick) {
-                rootDispatch({
-                  type: MenuActionTypes.close,
-                  event,
-                });
-              }
-            },
-            onKeyDown: (event: React.KeyboardEvent) => {
-              if (isNested && event.key === closeKey) {
-                dispatch({
-                  type: MenuActionTypes.close,
-                  event,
-                });
-              }
-            },
-          }),
-        ),
+        getButtonProps({
+          id,
+          role: 'menuitem',
+          tabIndex: highlighted ? 0 : -1,
+          onClick: (event: React.MouseEvent) => {
+            if (closeOnClick) {
+              rootDispatch({
+                type: MenuActionTypes.close,
+                event,
+              });
+            }
+          },
+        }),
       );
     },
-    [
-      closeOnClick,
-      dispatch,
-      direction,
-      getButtonProps,
-      getListItemProps,
-      handleRef,
-      isNested,
-      orientation,
-      rootDispatch,
-      id,
-    ],
+    [closeOnClick, getButtonProps, handleRef, rootDispatch, highlighted, id],
   );
 
   return {
     getRootProps,
     rootRef: handleRef,
   };
-}
-
-function getSubmenuCloseKey(orientation: ListOrientation, direction: ListDirection) {
-  if (orientation === 'horizontal') {
-    return 'ArrowUp';
-  }
-
-  return direction === 'ltr' ? 'ArrowLeft' : 'ArrowRight';
 }

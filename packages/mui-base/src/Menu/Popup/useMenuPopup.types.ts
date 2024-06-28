@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
-import { ListItemMetadata } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
-import { IndexableMap } from '../../utils/IndexableMap';
+import { CompoundParentContextValue } from '../../useCompound';
+import { ListItemMetadata } from '../../useList';
 
 export interface UseMenuPopupParameters {
   /**
@@ -18,9 +18,6 @@ export interface UseMenuPopupParameters {
   id?: string;
   state: MenuReducerState;
   dispatch: React.Dispatch<MenuReducerAction>;
-  rootRef: React.Ref<Element>;
-  childItems: IndexableMap<string, ListItemMetadata>;
-  isNested: boolean;
 }
 
 export interface UseMenuPopupReturnValue {
@@ -30,8 +27,5 @@ export interface UseMenuPopupReturnValue {
    * @returns props that should be spread on the listbox component
    */
   getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
-   * The ref to the menu's popup node.
-   */
-  rootRef: React.RefCallback<Element> | null;
+  compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
 }

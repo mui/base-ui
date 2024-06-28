@@ -423,6 +423,16 @@ function handleResetHighlight<ItemValue, State extends ListState<ItemValue>>(sta
   };
 }
 
+function handleHighlight<ItemValue, State extends ListState<ItemValue>>(
+  item: ItemValue | null,
+  state: State,
+) {
+  return {
+    ...state,
+    highlightedValue: item,
+  };
+}
+
 function handleHighlightLast<ItemValue, State extends ListState<ItemValue>>(state: State) {
   return {
     ...state,
@@ -457,6 +467,8 @@ export function listReducer<ItemValue, State extends ListState<ItemValue>>(
       return handleItemsChange(action.items, state);
     case ListActionTypes.resetHighlight:
       return handleResetHighlight(state);
+    case ListActionTypes.highlight:
+      return handleHighlight(action.item, state);
     case ListActionTypes.highlightLast:
       return handleHighlightLast(state);
     case ListActionTypes.clearSelection:

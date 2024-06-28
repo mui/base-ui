@@ -108,6 +108,10 @@ export class IndexableMap<Key, Value> {
     return lastValue;
   }
 
+  mapValues<T>(mapper: (value: Value) => T): T[] {
+    return this.#index.map((key) => mapper(this.#map.get(key)!));
+  }
+
   static areEqual<K, V>(map1: IndexableMap<K, V>, map2: IndexableMap<K, V>): boolean {
     if (map1.size !== map2.size) {
       return false;

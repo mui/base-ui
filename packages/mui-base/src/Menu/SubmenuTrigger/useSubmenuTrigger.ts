@@ -3,7 +3,7 @@ import { ListDirection, ListItemMetadata, ListOrientation } from '@base_ui/react
 import { CompoundParentContextValue } from '../../useCompound';
 import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { MenuActionTypes, MenuReducerAction } from '../Root/useMenuRoot.types';
+import { MenuActionTypes, MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 
@@ -20,6 +20,7 @@ namespace useSubmenuTrigger {
     rootRef?: React.Ref<Element>;
     orientation: ListOrientation;
     direction: ListDirection;
+    state: MenuReducerState;
   }
 
   export interface ReturnValue {
@@ -47,6 +48,7 @@ export function useSubmenuTrigger(
     rootRef,
     orientation,
     direction,
+    state,
   } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
@@ -79,24 +81,18 @@ export function useSubmenuTrigger(
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
-      const openSubmenuKey = getSubmenuOpenKey(orientation, direction);
       return mergeReactProps(
         externalProps,
         {
+          'aria-haspopup': 'menu' as const,
+          'aria-expanded': state.open,
+          'aria-controls': state.popupId ?? undefined,
           ref: menuTriggerRef,
-          onKeyDown: (event: React.KeyboardEvent) => {
-            if (event.key === openSubmenuKey) {
-              dispatch({
-                type: MenuActionTypes.open,
-                event,
-              });
-            }
-          },
         },
         getMenuItemProps(),
       );
     },
-    [getMenuItemProps, menuTriggerRef, dispatch, orientation, direction],
+    [getMenuItemProps, menuTriggerRef, state.open, state.popupId],
   );
 
   return React.useMemo(
@@ -106,12 +102,4 @@ export function useSubmenuTrigger(
     }),
     [getRootProps, menuTriggerRef],
   );
-}
-
-function getSubmenuOpenKey(orientation: ListOrientation, direction: ListDirection) {
-  if (orientation === 'horizontal') {
-    return 'ArrowDown';
-  }
-
-  return direction === 'ltr' ? 'ArrowRight' : 'ArrowLeft';
 }
