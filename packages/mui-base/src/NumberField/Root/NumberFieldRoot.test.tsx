@@ -63,24 +63,24 @@ describe('<NumberField />', () => {
     });
 
     it('should be `null` when the input is empty but not trimmed', () => {
-      const onChange = spy();
-      render(<NumberField value={1} onChange={onChange} />);
+      const onValueChange = spy();
+      render(<NumberField value={1} onValueChange={onValueChange} />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '  ' } });
-      expect(onChange.firstCall.args[0]).to.equal(null);
+      expect(onValueChange.firstCall.args[0]).to.equal(null);
     });
   });
 
-  describe('prop: onChange', () => {
+  describe('prop: onValueChange', () => {
     it('should be called when the value changes', () => {
-      const onChange = spy();
+      const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(1);
         return (
           <NumberField
             value={value}
-            onChange={(val) => {
-              onChange(val);
+            onValueChange={(val) => {
+              onValueChange(val);
               setValue(val);
             }}
           />
@@ -89,19 +89,19 @@ describe('<NumberField />', () => {
       render(<App />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '2' } });
-      expect(onChange.callCount).to.equal(1);
-      expect(onChange.firstCall.args[0]).to.equal(2);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(2);
     });
 
     it('should be called with a number when transitioning from `null`', () => {
-      const onChange = spy();
+      const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(null);
         return (
           <NumberField
             value={value}
-            onChange={(val) => {
-              onChange(val);
+            onValueChange={(val) => {
+              onValueChange(val);
               setValue(val);
             }}
           />
@@ -110,19 +110,19 @@ describe('<NumberField />', () => {
       render(<App />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '5' } });
-      expect(onChange.callCount).to.equal(1);
-      expect(onChange.firstCall.args[0]).to.equal(5);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(5);
     });
 
     it('should be called with `null` when empty and transitioning from a number', () => {
-      const onChange = spy();
+      const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(5);
         return (
           <NumberField
             value={value}
-            onChange={(val) => {
-              onChange(val);
+            onValueChange={(val) => {
+              onValueChange(val);
               setValue(val);
             }}
           />
@@ -131,8 +131,8 @@ describe('<NumberField />', () => {
       render(<App />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '' } });
-      expect(onChange.callCount).to.equal(1);
-      expect(onChange.firstCall.args[0]).to.equal(null);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(null);
     });
   });
 
@@ -193,7 +193,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -219,7 +219,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -246,7 +246,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -272,7 +272,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
