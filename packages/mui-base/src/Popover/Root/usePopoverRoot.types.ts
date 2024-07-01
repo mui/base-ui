@@ -25,7 +25,7 @@ export interface UsePopoverRootParameters {
   openOnHover?: boolean;
   /**
    * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
-   * @default 500
+   * @default 300
    */
   delay?: number;
   /**

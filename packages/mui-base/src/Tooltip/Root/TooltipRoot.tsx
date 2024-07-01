@@ -131,7 +131,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the tooltip popup is opened.
-   * @default 300
+   * @default 600
    */
   delay: PropTypes.number,
   /**

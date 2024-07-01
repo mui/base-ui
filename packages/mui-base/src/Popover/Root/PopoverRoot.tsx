@@ -132,7 +132,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
-   * @default 500
+   * @default 300
    */
   delay: PropTypes.number,
   /**
