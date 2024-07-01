@@ -17,6 +17,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { OPEN_DELAY } from '../utils/constants';
 
 /**
  * Manages the root state for a tooltip.
@@ -39,7 +40,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     closeDelay,
   } = params;
 
-  const delayWithDefault = delay ?? 600;
+  const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import type { TooltipRootProps } from './TooltipRoot.types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
+import { OPEN_DELAY } from '../utils/constants';
 
 /**
  * The foundation for building custom-styled tooltips.
@@ -26,7 +27,7 @@ function TooltipRoot(props: TooltipRootProps) {
     followCursorAxis = 'none',
   } = props;
 
-  const delayWithDefault = delay ?? 600;
+  const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const {
