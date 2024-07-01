@@ -10,11 +10,11 @@
       "type": { "name": "union", "description": "func<br>&#124;&nbsp;{ current?: object }" }
     },
     "name": { "type": { "name": "string" }, "default": "undefined" },
-    "onChange": {
+    "onCheckedChange": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(event: React.ChangeEvent<HTMLInputElement>) => void",
-        "describedArgs": ["event"]
+        "type": "function(checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void",
+        "describedArgs": ["checked", "event"]
       }
     },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
