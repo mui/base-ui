@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FloatingRootContext } from '@floating-ui/react';
-import { MenuReducerAction, MenuReducerState } from './useMenuRoot.types';
+import { MenuReducerAction, MenuReducerState } from './menuReducer';
 import { GenericHTMLProps } from '../../utils/types';
 
 export interface MenuRootContext {

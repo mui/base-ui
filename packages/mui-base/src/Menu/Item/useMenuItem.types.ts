@@ -1,5 +1,5 @@
 import { GenericHTMLProps } from '../../utils/types';
-import { MenuReducerAction } from '../Root/useMenuRoot.types';
+import { MenuReducerAction } from '../Root/menuReducer';
 import { CompoundParentContextValue } from '../../useCompound/useCompound.types';
 import { ListDirection, ListItemMetadata, ListOrientation } from '../../useList';
 

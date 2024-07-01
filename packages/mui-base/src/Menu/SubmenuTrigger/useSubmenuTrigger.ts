@@ -3,7 +3,7 @@ import { ListDirection, ListItemMetadata, ListOrientation } from '@base_ui/react
 import { CompoundParentContextValue } from '../../useCompound';
 import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { MenuActionTypes, MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
+import { MenuActionTypes, MenuReducerAction, MenuReducerState } from '../Root/menuReducer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 

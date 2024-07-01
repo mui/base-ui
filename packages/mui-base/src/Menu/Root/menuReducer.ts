@@ -1,5 +1,13 @@
-import { ListActionTypes, listReducer, moveHighlight } from '../../useList';
-import { MenuReducerAction, MenuActionTypes, MenuReducerState } from './useMenuRoot.types';
+import { ListAction, ListActionTypes, ListState, listReducer, moveHighlight } from '../../useList';
+
+export const MenuActionTypes = {
+  toggle: 'menu:toggle',
+  open: 'menu:open',
+  close: 'menu:close',
+  registerPopup: 'menu:registerPopup',
+  registerTrigger: 'menu:registerTrigger',
+  registerPositioner: 'menu:registerPositioner',
+} as const;
 
 export function menuReducer(state: MenuReducerState, action: MenuReducerAction): MenuReducerState {
   switch (action.type) {
@@ -43,3 +51,51 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
 
   return newState;
 }
+
+interface MenuToggleAction {
+  type: typeof MenuActionTypes.toggle;
+  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
+}
+
+interface MenuOpenAction {
+  type: typeof MenuActionTypes.open;
+  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | Event | null;
+  highlightRequest?: 'first' | 'last';
+}
+
+interface MenuCloseAction {
+  type: typeof MenuActionTypes.close;
+  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | Event | null;
+}
+
+interface MenuRegisterPopupAction {
+  type: typeof MenuActionTypes.registerPopup;
+  popupId: string | null;
+}
+
+interface MenuRegisterTriggerAction {
+  type: typeof MenuActionTypes.registerTrigger;
+  triggerElement: HTMLElement | null;
+}
+
+interface MenuRegisterPositionerAction {
+  type: typeof MenuActionTypes.registerPositioner;
+  positionerElement: HTMLElement | null;
+}
+
+export type MenuReducerAction =
+  | MenuToggleAction
+  | MenuOpenAction
+  | MenuCloseAction
+  | MenuRegisterPopupAction
+  | MenuRegisterTriggerAction
+  | MenuRegisterPositionerAction
+  | ListAction<string>;
+
+export type MenuReducerState = ListState<string> & {
+  open: boolean;
+  popupId: string | null;
+  triggerElement: HTMLElement | null;
+  positionerElement: HTMLElement | null;
+  hasNestedMenuOpen: boolean;
+};

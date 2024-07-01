@@ -1,5 +1,5 @@
 import { GenericHTMLProps } from '../../utils/types';
-import { MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
+import { MenuReducerAction, MenuReducerState } from '../Root/menuReducer';
 
 export interface UseMenuTriggerParameters {
   /**

@@ -5,7 +5,7 @@ import {
   unstable_useEnhancedEffect as useEnhancedEffect,
 } from '@mui/utils';
 import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
-import { MenuActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/menuReducer';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useCompoundParent } from '../../useCompound';

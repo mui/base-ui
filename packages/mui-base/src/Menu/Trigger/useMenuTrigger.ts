@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { UseMenuTriggerParameters, UseMenuTriggerReturnValue } from './useMenuTrigger.types';
-import { MenuActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/menuReducer';
 import { useButton } from '../../useButton/useButton';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';

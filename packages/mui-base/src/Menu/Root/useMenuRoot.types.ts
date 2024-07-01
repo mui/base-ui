@@ -1,6 +1,6 @@
 import { FloatingRootContext } from '@floating-ui/react';
-import { ListAction, ListState } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
+import { MenuReducerAction, MenuReducerState } from './menuReducer';
 
 export type MenuOrientation = 'horizontal' | 'vertical';
 export type MenuDirection = 'ltr' | 'rtl';
@@ -40,60 +40,3 @@ export interface UseMenuRootReturnValue {
   getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
-
-export const MenuActionTypes = {
-  toggle: 'menu:toggle',
-  open: 'menu:open',
-  close: 'menu:close',
-  registerPopup: 'menu:registerPopup',
-  registerTrigger: 'menu:registerTrigger',
-  registerPositioner: 'menu:registerPositioner',
-} as const;
-
-interface MenuToggleAction {
-  type: typeof MenuActionTypes.toggle;
-  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null;
-}
-
-interface MenuOpenAction {
-  type: typeof MenuActionTypes.open;
-  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | Event | null;
-  highlightRequest?: 'first' | 'last';
-}
-
-interface MenuCloseAction {
-  type: typeof MenuActionTypes.close;
-  event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | Event | null;
-}
-
-interface MenuRegisterPopupAction {
-  type: typeof MenuActionTypes.registerPopup;
-  popupId: string | null;
-}
-
-interface MenuRegisterTriggerAction {
-  type: typeof MenuActionTypes.registerTrigger;
-  triggerElement: HTMLElement | null;
-}
-
-interface MenuRegisterPositionerAction {
-  type: typeof MenuActionTypes.registerPositioner;
-  positionerElement: HTMLElement | null;
-}
-
-export type MenuReducerAction =
-  | MenuToggleAction
-  | MenuOpenAction
-  | MenuCloseAction
-  | MenuRegisterPopupAction
-  | MenuRegisterTriggerAction
-  | MenuRegisterPositionerAction
-  | ListAction<string>;
-
-export type MenuReducerState = ListState<string> & {
-  open: boolean;
-  popupId: string | null;
-  triggerElement: HTMLElement | null;
-  positionerElement: HTMLElement | null;
-  hasNestedMenuOpen: boolean;
-};

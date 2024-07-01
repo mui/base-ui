@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
-import { MenuActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/menuReducer';
 import { useButton } from '../../useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';

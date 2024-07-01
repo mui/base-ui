@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuPopupContext } from '../Popup/MenuPopupContext';
 import { useId } from '../../utils/useId';
 import { useMenuRootContext } from '../Root/MenuRootContext';
-import { MenuReducerAction } from '../Root/useMenuRoot.types';
+import { MenuReducerAction } from '../Root/menuReducer';
 import { ListDirection, ListOrientation } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
 

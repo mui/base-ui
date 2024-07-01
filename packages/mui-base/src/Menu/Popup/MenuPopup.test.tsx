@@ -23,7 +23,6 @@ const testContext: MenuRootContext = {
     items: new IndexableMap(),
     highlightedValue: null,
     selectedValues: [],
-    listboxRef: { current: null },
     popupId: 'menu-popup',
     triggerElement: null,
     positionerElement: null,
@@ -43,6 +42,7 @@ const testContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
   getPositionerProps: () => ({}),
   getTriggerProps: () => ({}),
+  getItemProps: () => ({}),
   isNested: false,
 };
 

@@ -19,7 +19,7 @@ import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositioner } from './useMenuPositioner';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
-import { MenuActionTypes } from '../Root/useMenuRoot.types';
+import { MenuActionTypes } from '../Root/menuReducer';
 import { GenericHTMLProps } from '../../utils/types';
 
 /**

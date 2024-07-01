@@ -12,8 +12,8 @@ import {
 } from '@floating-ui/react';
 import { useControllableReducer } from '../../utils/useControllableReducer';
 import { StateChangeCallback, StateComparers } from '../../utils/useControllableReducer.types';
-import { MenuActionTypes, MenuReducerState, UseMenuRootParameters } from './useMenuRoot.types';
-import { menuReducer } from './menuReducer';
+import { UseMenuRootParameters, UseMenuRootReturnValue } from './useMenuRoot.types';
+import { MenuActionTypes, MenuReducerState, menuReducer } from './menuReducer';
 import { IndexableMap } from '../../utils/IndexableMap';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { ListActionTypes } from '../../useList';
@@ -36,7 +36,7 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
  *
  * - [useMenuRoot API](https://mui.com/base-ui/api/use-menu-root/)
  */
-export function useMenuRoot(parameters: UseMenuRootParameters) {
+export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootReturnValue {
   const {
     defaultOpen,
     onOpenChange,
@@ -50,17 +50,6 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
   const lastActionType = React.useRef<string | null>(null);
   const isNested = parentState !== undefined;
 
-  const handleHighlightChange = React.useCallback(
-    (
-      value: string | null,
-      reason: string,
-      event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-    ) => {
-      onHighlightChange?.(value, reason, event);
-    },
-    [onHighlightChange],
-  );
-
   const handleStateChange: StateChangeCallback<MenuReducerState> = React.useCallback(
     (event, field, value, reason) => {
       switch (field) {
@@ -72,7 +61,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
           break;
 
         case 'highlightedValue':
-          handleHighlightChange(
+          onHighlightChange?.(
             value as string | null,
             reason,
             event as React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
@@ -85,7 +74,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
 
       lastActionType.current = reason;
     },
-    [onOpenChange, handleHighlightChange],
+    [onOpenChange, onHighlightChange],
   );
 
   const controlledProps = React.useMemo(
@@ -216,7 +205,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
   ]);
 
   const getTriggerProps = React.useCallback(
-    (externalProps: GenericHTMLProps) =>
+    (externalProps?: GenericHTMLProps) =>
       getReferenceProps(
         mergeReactProps(externalProps, {
           onMouseEnter: () => {
@@ -228,7 +217,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
   );
 
   const getPositionerProps = React.useCallback(
-    (externalProps: GenericHTMLProps) =>
+    (externalProps?: GenericHTMLProps) =>
       getFloatingProps(
         mergeReactProps(externalProps, {
           onMouseEnter: () => {

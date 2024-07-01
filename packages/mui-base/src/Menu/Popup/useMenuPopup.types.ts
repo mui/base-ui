@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MenuReducerAction, MenuReducerState } from '../Root/useMenuRoot.types';
+import { MenuReducerAction, MenuReducerState } from '../Root/menuReducer';
 import { GenericHTMLProps } from '../../utils/types';
 import { CompoundParentContextValue } from '../../useCompound';
 import { ListItemMetadata } from '../../useList';
