@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import useEventCallback from '@mui/utils/useEventCallback';
 import {
   safePolygon,
   useClientPoint,
@@ -17,6 +16,7 @@ import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useT
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * Manages the root state for a tooltip.
@@ -31,8 +31,6 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
     keepMounted = false,
-    triggerElement = null,
-    positionerElement = null,
     hoverable = true,
     animated = true,
     followCursorAxis = 'none',
@@ -41,10 +39,14 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     closeDelay,
   } = params;
 
-  const delayWithDefault = delay ?? 300;
+  const delayWithDefault = delay ?? 600;
   const closeDelayWithDefault = closeDelay ?? 0;
 
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
+
+  const popupRef = React.useRef<HTMLElement>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -65,7 +67,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(() => positionerElement?.firstElementChild);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -161,6 +163,11 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       setOpen,
       mounted,
       setMounted,
+      triggerElement,
+      setTriggerElement,
+      positionerElement,
+      setPositionerElement,
+      popupRef,
       getRootTriggerProps,
       getRootPopupProps,
       floatingRootContext: context,
@@ -171,6 +178,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       mounted,
       open,
       setMounted,
+      triggerElement,
+      positionerElement,
       setOpen,
       getRootTriggerProps,
       getRootPopupProps,

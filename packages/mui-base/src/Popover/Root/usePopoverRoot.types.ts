@@ -42,16 +42,6 @@ export interface UsePopoverRootParameters {
    */
   delayType?: 'rest' | 'hover';
   /**
-   * The trigger element that opens the popover popup. Store in state.
-   * @default null
-   */
-  triggerElement?: Element | null;
-  /**
-   * The element that positioners the popover popup. Store in state.
-   * @default null
-   */
-  positionerElement?: HTMLElement | null;
-  /**
    * Whether the popover popup element stays mounted in the DOM when closed.
    * @default false
    */
@@ -83,4 +73,9 @@ export interface UsePopoverRootReturnValue {
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   instantType: 'dismiss' | 'click' | undefined;
+  triggerElement: Element | null;
+  positionerElement: HTMLElement | null;
+  setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+  setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  popupRef: React.RefObject<HTMLElement>;
 }

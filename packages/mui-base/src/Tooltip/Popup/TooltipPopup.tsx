@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
 import { useTooltipPopup } from './useTooltipPopup';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The tooltip popup element.
@@ -24,7 +25,8 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus, getRootPopupProps } = useTooltipRootContext();
+  const { open, instantType, transitionStatus, getRootPopupProps, popupRef } =
+    useTooltipRootContext();
   const { side, alignment } = useTooltipPositionerContext();
 
   const { getPopupProps } = useTooltipPopup({
@@ -43,6 +45,8 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, alignment, instantType, transitionStatus],
   );
 
+  const mergedRef = useForkRef(popupRef, forwardedRef);
+
   // The content element needs to be a child of a wrapper floating element in order to avoid
   // conflicts with CSS transitions and the positioning transform.
   const { renderElement } = useComponentRenderer({
@@ -50,7 +54,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     render: render ?? 'div',
     className,
     ownerState,
-    ref: forwardedRef,
+    ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: {
       entering(value) {

@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -10,6 +11,7 @@ export interface PopoverRootContextValue {
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
+  popupRef: React.RefObject<HTMLElement>;
   delay: number;
   closeDelay: number;
   delayType: 'rest' | 'hover';

@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -17,16 +18,6 @@ export interface UseTooltipRootParameters {
    * Callback fired when the tooltip popup is requested to be opened or closed.
    */
   onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  /**
-   * The trigger element that opens the tooltip popup. Store in state.
-   * @default null
-   */
-  triggerElement?: Element | null;
-  /**
-   * The element that positioners the tooltip popup. Store in state.
-   * @default null
-   */
-  positionerElement?: HTMLElement | null;
   /**
    * Whether the can move their cursor from the trigger element toward the tooltip popup element
    * without it closing using a "safe polygon" technique.
@@ -69,40 +60,18 @@ export interface UseTooltipRootParameters {
 }
 
 export interface UseTooltipRootReturnValue {
-  /**
-   * Whether the tooltip is open.
-   */
   open: boolean;
-  /**
-   * Sets the open state of the tooltip.
-   */
   setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  /**
-   * Whether the tooltip is mounted to the DOM.
-   */
   mounted: boolean;
-  /**
-   * Sets the mounted state of the tooltip.
-   */
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  /**
-   * Prop getter to spread props on the trigger element.
-   */
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
-   * Prop getter to spread root props on the positioner element.
-   */
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  /**
-   * The root context object.
-   */
   floatingRootContext: FloatingRootContext;
-  /**
-   * The type of instant phase the tooltip is in to remove animations.
-   */
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
-  /**
-   * The transition status of the tooltip.
-   */
   transitionStatus: TransitionStatus;
+  triggerElement: Element | null;
+  positionerElement: HTMLElement | null;
+  setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+  setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  popupRef: React.RefObject<HTMLElement>;
 }
