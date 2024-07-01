@@ -160,6 +160,14 @@ function Styles() {
 
     .CustomMenuIntroduction {
       z-index: 1;
+      
+      &:focus-visible {
+        outline: 0;
+      }
+
+      &[data-state='closed'] {
+        pointer-events: none;
+      }
     }
     `}</style>
   );

@@ -50,7 +50,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
   }
 
-  const { state: parentState, dispatch: parentDispatch } = parentContext;
+  const { state: parentState, dispatch: parentDispatch, getItemProps } = parentContext;
 
   const highlighted = parentState.highlightedValue === id;
   const { orientation, direction } = parentState.settings;
@@ -76,7 +76,8 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     render: render || 'div',
     className,
     ownerState,
-    propGetter: (externalProps: GenericHTMLProps) => getTriggerProps(getRootProps(externalProps)),
+    propGetter: (externalProps: GenericHTMLProps) =>
+      getTriggerProps(getItemProps(getRootProps(externalProps))),
     extraProps: other,
   });
 

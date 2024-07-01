@@ -81,15 +81,13 @@ export function useSubmenuTrigger(
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
-      return mergeReactProps(
-        externalProps,
-        {
+      return getMenuItemProps(
+        mergeReactProps(externalProps, {
           'aria-haspopup': 'menu' as const,
           'aria-expanded': state.open,
           'aria-controls': state.popupId ?? undefined,
           ref: menuTriggerRef,
-        },
-        getMenuItemProps(),
+        }),
       );
     },
     [getMenuItemProps, menuTriggerRef, state.open, state.popupId],

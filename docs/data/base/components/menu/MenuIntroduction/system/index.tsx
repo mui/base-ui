@@ -12,7 +12,7 @@ export default function MenuIntroduction() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <Menu.Positioner>
+      <MenuPositioner alignment="start">
         <MenuPopup>
           <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
           <MenuItem onClick={createHandleMenuClick('Language settings')}>
@@ -20,7 +20,7 @@ export default function MenuIntroduction() {
           </MenuItem>
           <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
         </MenuPopup>
-      </Menu.Positioner>
+      </MenuPositioner>
     </Menu.Root>
   );
 }
@@ -138,3 +138,13 @@ const MenuButton = styled(Menu.Trigger)(
   }
   `,
 );
+
+const MenuPositioner = styled(Menu.Positioner)`
+  &:focus-visible {
+    outline: 0;
+  }
+
+  &[data-state='closed'] {
+    pointer-events: none;
+  }
+`;

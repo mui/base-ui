@@ -4,29 +4,25 @@ import { MenuReducerAction, MenuActionTypes, MenuReducerState } from './useMenuR
 export function menuReducer(state: MenuReducerState, action: MenuReducerAction): MenuReducerState {
   switch (action.type) {
     case ListActionTypes.itemHover:
-      return {
-        ...state,
-        highlightedValue: action.item,
-      };
+      return state;
 
     case MenuActionTypes.toggle:
       return {
         ...state,
         open: !state.open,
-        highlightedValue: state.open
-          ? null
-          : moveHighlight(null, 'start', state.items, state.settings),
       };
 
-    case MenuActionTypes.open:
+    case MenuActionTypes.open: {
+      const updateHighlight = action.event instanceof KeyboardEvent;
+
       return {
         ...state,
         open: true,
-        highlightedValue:
-          action.highlightRequest === 'last'
-            ? moveHighlight(null, 'end', state.items, state.settings)
-            : moveHighlight(null, 'start', state.items, state.settings),
+        highlightedValue: updateHighlight
+          ? moveHighlight(null, 'start', state.items, state.settings)
+          : state.highlightedValue,
       };
+    }
 
     case MenuActionTypes.close:
       return { ...state, open: false };

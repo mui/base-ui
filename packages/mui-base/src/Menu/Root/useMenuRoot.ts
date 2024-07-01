@@ -17,6 +17,8 @@ import { menuReducer } from './menuReducer';
 import { IndexableMap } from '../../utils/IndexableMap';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { ListActionTypes } from '../../useList';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 
 const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   highlightedValue: null,
@@ -144,9 +146,10 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     },
   });
 
+  const [hoverEnabled, setHoverEnabled] = React.useState(true);
+
   const hover = useHover(floatingRootContext, {
-    enabled: isNested,
-    // enabled: false,
+    enabled: hoverEnabled && isNested,
     handleClose: safePolygon({ blockPointerEvents: true }),
     delay: {
       open: 75,
@@ -192,8 +195,9 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
   const typeahead = useTypeahead(floatingRootContext, {
     listRef: itemLabels,
     activeIndex,
+    resetMs: 350,
     onMatch: (index) => {
-      if (index !== activeIndex) {
+      if (state.open && index !== activeIndex) {
         dispatch({
           type: ListActionTypes.highlight,
           item: index == null ? null : state.items.keyAt(index) ?? null,
@@ -211,15 +215,39 @@ export function useMenuRoot(parameters: UseMenuRootParameters) {
     typeahead,
   ]);
 
+  const getTriggerProps = React.useCallback(
+    (externalProps: GenericHTMLProps) =>
+      getReferenceProps(
+        mergeReactProps(externalProps, {
+          onMouseEnter: () => {
+            setHoverEnabled(true);
+          },
+        }),
+      ),
+    [getReferenceProps],
+  );
+
+  const getPositionerProps = React.useCallback(
+    (externalProps: GenericHTMLProps) =>
+      getFloatingProps(
+        mergeReactProps(externalProps, {
+          onMouseEnter: () => {
+            setHoverEnabled(false);
+          },
+        }),
+      ),
+    [getFloatingProps],
+  );
+
   return React.useMemo(
     () => ({
       state,
       dispatch,
       floatingRootContext,
-      getTriggerProps: getReferenceProps,
-      getPositionerProps: getFloatingProps,
+      getTriggerProps,
+      getPositionerProps,
       getItemProps,
     }),
-    [state, dispatch, floatingRootContext, getReferenceProps, getFloatingProps, getItemProps],
+    [state, dispatch, floatingRootContext, getTriggerProps, getPositionerProps, getItemProps],
   );
 }

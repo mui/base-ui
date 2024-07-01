@@ -121,6 +121,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render: render ?? 'div',
     className,
     ownerState,
+    customStyleHookMapping: {
+      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+    },
     ref: mergedRef,
     extraProps: otherProps,
   });

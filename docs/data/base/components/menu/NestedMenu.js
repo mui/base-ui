@@ -137,6 +137,10 @@ const MenuPositioner = styled(Menu.Positioner)`
   &:focus-visible {
     outline: 0;
   }
+
+  &[data-state='closed'] {
+    pointer-events: none;
+  }
 `;
 
 const MenuItem = styled(Menu.Item)(
@@ -151,8 +155,7 @@ const MenuItem = styled(Menu.Item)(
     border-bottom: none;
   }
     
-  &:focus,
-  &:hover {
+  &:focus {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
@@ -184,8 +187,7 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
     float: right;
   }
 
-  &:focus,
-  &:hover {
+  &:focus {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }

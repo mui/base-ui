@@ -314,10 +314,7 @@ function handleBlur<ItemValue, State extends ListState<ItemValue>>(state: State)
     return state;
   }
 
-  return {
-    ...state,
-    highlightedValue: null,
-  };
+  return state;
 }
 
 function textCriteriaMatches<ItemValue>(
