@@ -106,7 +106,9 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     return render(thumbProps, inputProps, ownerState);
   }
 
-  const { children, ...otherRenderProps } = render.props;
+  const { children: renderPropsChildren, ...otherRenderProps } = render.props;
+
+  const children = thumbProps.children ?? renderPropsChildren;
 
   return React.cloneElement(
     render,
