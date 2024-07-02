@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useSliderRoot",
+  "filename": "/packages/mui-base/src/Slider/Root/useSliderRoot.ts",
+  "imports": ["import { useSliderRoot } from '@base_ui/react/Slider';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
+}

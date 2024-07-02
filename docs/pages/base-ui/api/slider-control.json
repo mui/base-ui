@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "SliderControl",
+  "imports": [
+    "import * as Slider from '@base_ui/react/Slider';\nconst SliderControl = Slider.Control;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SliderControl",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Slider/Control/SliderControl.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/\">Slider</a></li></ul>",
+  "cssComponent": false
+}
