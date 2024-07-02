@@ -91,7 +91,7 @@
     }
   },
   "name": "useSliderControl",
-  "filename": "/packages/mui-base/src/Slider/SliderControl/useSliderControl.ts",
+  "filename": "/packages/mui-base/src/Slider/Control/useSliderControl.ts",
   "imports": ["import { useSliderControl } from '@base_ui/react/Slider';"],
   "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
 }

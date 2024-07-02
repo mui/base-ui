@@ -25,7 +25,7 @@
     "onValueCommitted": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(value: number | Array<number>, event: React.SyntheticEvent | Event) => void",
+        "type": "function(value: number | Array<number>, event: Event) => void",
         "describedArgs": ["value", "event"]
       }
     },

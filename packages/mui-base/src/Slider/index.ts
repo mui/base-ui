@@ -12,38 +12,38 @@ export {
 export { useSliderRoot } from './Root/useSliderRoot';
 export * from './Root/SliderProvider';
 
-export { SliderOutput as Output } from './SliderOutput/SliderOutput';
+export { SliderOutput as Output } from './Output/SliderOutput';
 export type {
   SliderOutputProps as OutputProps,
   UseSliderOutputParameters,
   UseSliderOutputReturnValue,
-} from './SliderOutput/SliderOutput.types';
-export { useSliderOutput } from './SliderOutput/useSliderOutput';
+} from './Output/SliderOutput.types';
+export { useSliderOutput } from './Output/useSliderOutput';
 
-export { SliderControl as Control } from './SliderControl/SliderControl';
+export { SliderControl as Control } from './Control/SliderControl';
 export type {
   SliderControlProps as ControlProps,
   UseSliderControlParameters,
   UseSliderControlReturnValue,
-} from './SliderControl/SliderControl.types';
-export { useSliderControl } from './SliderControl/useSliderControl';
+} from './Control/SliderControl.types';
+export { useSliderControl } from './Control/useSliderControl';
 
-export { SliderTrack as Track } from './SliderTrack/SliderTrack';
-export type { SliderTrackProps as TrackProps } from './SliderTrack/SliderTrack.types';
+export { SliderTrack as Track } from './Track/SliderTrack';
+export type { SliderTrackProps as TrackProps } from './Track/SliderTrack.types';
 
-export { SliderThumb as Thumb } from './SliderThumb/SliderThumb';
+export { SliderThumb as Thumb } from './Thumb/SliderThumb';
 export type {
   SliderThumbOwnerState as ThumbOwnerState,
   SliderThumbProps as ThumbProps,
   UseSliderThumbParameters,
   UseSliderThumbReturnValue,
-} from './SliderThumb/SliderThumb.types';
-export { useSliderThumb } from './SliderThumb/useSliderThumb';
+} from './Thumb/SliderThumb.types';
+export { useSliderThumb } from './Thumb/useSliderThumb';
 
-export { SliderIndicator as Indicator } from './SliderIndicator/SliderIndicator';
+export { SliderIndicator as Indicator } from './Indicator/SliderIndicator';
 export type {
   SliderIndicatorProps as IndicatorProps,
   UseSliderIndicatorParameters,
   UseSliderIndicatorReturnValue,
-} from './SliderIndicator/SliderIndicator.types';
-export { useSliderIndicator } from './SliderIndicator/useSliderIndicator';
+} from './Indicator/SliderIndicator.types';
+export { useSliderIndicator } from './Indicator/useSliderIndicator';

@@ -24,7 +24,7 @@
     }
   },
   "name": "useSliderOutput",
-  "filename": "/packages/mui-base/src/Slider/SliderOutput/useSliderOutput.ts",
+  "filename": "/packages/mui-base/src/Slider/Output/useSliderOutput.ts",
   "imports": ["import { useSliderOutput } from '@base_ui/react/Slider';"],
   "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
 }
