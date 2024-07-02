@@ -4,29 +4,30 @@ import PropTypes from 'prop-types';
 import type { PreviewCardRootProps } from './PreviewCardRoot.types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
+import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function PreviewCardRoot(props: PreviewCardRootProps) {
   const { delayType = 'rest', delay, closeDelay, animated = true } = props;
 
-  const delayWithDefault = delay ?? 400;
-  const closeDelayWithDefault = closeDelay ?? 250;
-
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const delayWithDefault = delay ?? OPEN_DELAY;
+  const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
   const {
     open,
     setOpen,
     mounted,
     setMounted,
+    triggerElement,
+    setTriggerElement,
+    positionerElement,
+    setPositionerElement,
+    popupRef,
     instantType,
     getRootTriggerProps,
     getRootPopupProps,
     floatingRootContext,
     transitionStatus,
   } = usePreviewCardRoot({
-    positionerElement,
-    triggerElement,
     animated,
     delay,
     delayType,
@@ -47,6 +48,7 @@ function PreviewCardRoot(props: PreviewCardRootProps) {
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      popupRef,
       mounted,
       setMounted,
       instantType,
@@ -62,7 +64,10 @@ function PreviewCardRoot(props: PreviewCardRootProps) {
       open,
       setOpen,
       triggerElement,
+      setTriggerElement,
       positionerElement,
+      setPositionerElement,
+      popupRef,
       mounted,
       setMounted,
       instantType,
@@ -101,18 +106,20 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Specifies whether the preview card is open initially when uncontrolled.
+   * Whether the preview card popup is open by default. Use when uncontrolled.
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the preview card popup is opened.
-   * @default 400
+   * @default 600
    */
   delay: PropTypes.number,
   /**
-   * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the trigger before the preview card popup is opened. `hover` means the `delay` represents
-   * how long to wait as soon as the user's cursor has entered the trigger.
+   * The delay type to use when the preview card is triggered by hover. `rest` means the `delay`
+   * represents how long the user's cursor must rest on the trigger before the preview card popup is
+   * opened. `hover` means the `delay` represents how long to wait as soon as the user's cursor has
+   * entered the trigger.
    * @default 'rest'
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
@@ -122,7 +129,8 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   onOpenChange: PropTypes.func,
   /**
-   * If `true`, the preview card popup is open. Use when controlled.
+   * Whether the preview card popup is open. Use when controlled.
+   * @default false
    */
   open: PropTypes.bool,
 } as any;

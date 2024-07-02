@@ -1,13 +1,10 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import useEventCallback from '@mui/utils/useEventCallback';
 import {
   safePolygon,
-  useDelayGroup,
   useDismiss,
   useFloatingRootContext,
-  useFocus,
   useHover,
   useInteractions,
   type OpenChangeReason,
@@ -19,6 +16,9 @@ import type {
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useFocusExtended } from '../utils/useFocusExtended';
+import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 
 /**
  * Manages the root state for a preview card.
@@ -35,18 +35,20 @@ export function usePreviewCardRoot(
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
     keepMounted = false,
-    triggerElement = null,
-    positionerElement = null,
     animated = true,
     delayType = 'rest',
     delay,
     closeDelay,
   } = params;
 
-  const delayWithDefault = delay ?? 400;
-  const closeDelayWithDefault = closeDelay ?? 300;
+  const delayWithDefault = delay ?? OPEN_DELAY;
+  const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
+
+  const popupRef = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -57,17 +59,23 @@ export function usePreviewCardRoot(
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
+
   const setOpen = React.useCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
+      if (!keepMounted && !nextOpen) {
+        if (animated) {
+          runOnceAnimationsFinish(() => setMounted(false));
+        } else {
+          setMounted(false);
+        }
+      }
     },
-    [onOpenChange, setOpenUnwrapped],
+    [onOpenChange, setOpenUnwrapped, keepMounted, animated, runOnceAnimationsFinish, setMounted],
   );
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
-
-  const runOnceAnimationsFinish = useAnimationsFinished(() => positionerElement?.firstElementChild);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -95,46 +103,15 @@ export function usePreviewCardRoot(
       } else if (reasonValue === 'hover') {
         setInstantTypeState(undefined);
       }
-
-      if (!keepMounted && !openValue) {
-        if (animated) {
-          runOnceAnimationsFinish(() => setMounted(false));
-        } else {
-          setMounted(false);
-        }
-      }
     },
   });
 
-  const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
-  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : groupDelay;
-  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : groupDelay;
-
-  let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
-  if (!open && context.floatingId === currentId) {
-    instantType = instantTypeState;
-  }
-
-  const computedRestMs = delayType === 'rest' ? openGroupDelay || delayWithDefault : undefined;
+  const instantType = instantTypeState;
+  const computedRestMs = delayType === 'rest' ? delayWithDefault : undefined;
   let computedOpenDelay: number | undefined = delayType === 'hover' ? delayWithDefault : undefined;
-  let computedCloseDelay: number | undefined = closeDelayWithDefault;
 
   if (delayType === 'hover') {
-    if (delay == null) {
-      computedOpenDelay =
-        groupDelay === 0
-          ? // A provider is not present.
-            delayWithDefault
-          : // A provider is present.
-            openGroupDelay;
-    } else {
-      computedOpenDelay = delay;
-    }
-  }
-
-  // A provider is present and the close delay is not set.
-  if (closeDelay == null && groupDelay !== 0) {
-    computedCloseDelay = closeGroupDelay;
+    computedOpenDelay = delay == null ? delayWithDefault : delay;
   }
 
   const hover = useHover(context, {
@@ -144,10 +121,10 @@ export function usePreviewCardRoot(
     restMs: computedRestMs,
     delay: {
       open: computedOpenDelay,
-      close: computedCloseDelay,
+      close: closeDelayWithDefault,
     },
   });
-  const focus = useFocus(context);
+  const focus = useFocusExtended(context);
   const dismiss = useDismiss(context);
 
   const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
@@ -159,6 +136,11 @@ export function usePreviewCardRoot(
       setOpen,
       mounted,
       setMounted,
+      triggerElement,
+      setTriggerElement,
+      positionerElement,
+      setPositionerElement,
+      popupRef,
       getRootTriggerProps,
       getRootPopupProps,
       floatingRootContext: context,
@@ -170,6 +152,8 @@ export function usePreviewCardRoot(
       open,
       setMounted,
       setOpen,
+      triggerElement,
+      positionerElement,
       getRootTriggerProps,
       getRootPopupProps,
       context,

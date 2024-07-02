@@ -6,6 +6,7 @@ import { PreviewCardPopupOwnerState, PreviewCardPopupProps } from './PreviewCard
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
 import { usePreviewCardPopup } from './usePreviewCardPopup';
+import { useForkRef } from '../../utils/useForkRef';
 
 const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   props: PreviewCardPopupProps,
@@ -13,7 +14,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, transitionStatus, getRootPopupProps } = usePreviewCardRootContext();
+  const { open, transitionStatus, getRootPopupProps, popupRef } = usePreviewCardRootContext();
   const { side, alignment } = usePreviewCardPositionerContext();
 
   const { getPopupProps } = usePreviewCardPopup({
@@ -31,9 +32,11 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     [open, side, alignment, transitionStatus],
   );
 
+  const mergedRef = useForkRef(popupRef, forwardedRef);
+
   const { renderElement } = useComponentRenderer({
     propGetter: getPopupProps,
-    ref: forwardedRef,
+    ref: mergedRef,
     render: render ?? 'div',
     className,
     ownerState,

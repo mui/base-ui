@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -18,6 +19,7 @@ export interface PreviewCardRootContextValue {
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   floatingRootContext: FloatingRootContext;
   transitionStatus: TransitionStatus;
+  popupRef: React.RefObject<HTMLElement>;
 }
 
 export type PreviewCardRootOwnerState = {};
@@ -25,7 +27,8 @@ export type PreviewCardRootOwnerState = {};
 export interface PreviewCardRootProps {
   children: React.ReactNode;
   /**
-   * If `true`, the preview card popup is open. Use when controlled.
+   * Whether the preview card popup is open. Use when controlled.
+   * @default false
    */
   open?: boolean;
   /**
@@ -34,12 +37,13 @@ export interface PreviewCardRootProps {
    */
   onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   /**
-   * Specifies whether the preview card is open initially when uncontrolled.
+   * Whether the preview card popup is open by default. Use when uncontrolled.
+   * @default false
    */
   defaultOpen?: boolean;
   /**
    * The delay in milliseconds until the preview card popup is opened.
-   * @default 400
+   * @default 600
    */
   delay?: number;
   /**
@@ -48,9 +52,10 @@ export interface PreviewCardRootProps {
    */
   closeDelay?: number;
   /**
-   * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the trigger before the preview card popup is opened. `hover` means the `delay` represents
-   * how long to wait as soon as the user's cursor has entered the trigger.
+   * The delay type to use when the preview card is triggered by hover. `rest` means the `delay`
+   * represents how long the user's cursor must rest on the trigger before the preview card popup is
+   * opened. `hover` means the `delay` represents how long to wait as soon as the user's cursor has
+   * entered the trigger.
    * @default 'rest'
    */
   delayType?: 'rest' | 'hover';
