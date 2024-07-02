@@ -3,12 +3,16 @@ import * as PreviewCard from '@base_ui/react/PreviewCard';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { OPEN_DELAY } from '../utils/constants';
+import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 const waitForPosition = async () => act(async () => {});
 
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;
+}
+
+function Trigger(props: PreviewCard.TriggerProps) {
+  return <PreviewCard.Trigger href="#" {...props} />;
 }
 
 describe('<PreviewCard.Root />', () => {
@@ -20,14 +24,14 @@ describe('<PreviewCard.Root />', () => {
     it('should open when the trigger is hovered', async () => {
       render(
         <Root>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
       fireEvent.mouseEnter(trigger);
@@ -43,14 +47,14 @@ describe('<PreviewCard.Root />', () => {
     it('should close when the trigger is unhovered', async () => {
       render(
         <Root>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
       fireEvent.mouseEnter(trigger);
@@ -61,6 +65,8 @@ describe('<PreviewCard.Root />', () => {
       await waitForPosition();
 
       fireEvent.mouseLeave(trigger);
+
+      clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -73,16 +79,18 @@ describe('<PreviewCard.Root />', () => {
 
       render(
         <Root>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       act(() => trigger.focus());
+
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 
@@ -92,14 +100,14 @@ describe('<PreviewCard.Root />', () => {
     it('should close when the trigger is blurred', async () => {
       render(
         <Root>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       act(() => trigger.focus());
 
@@ -156,7 +164,7 @@ describe('<PreviewCard.Root />', () => {
               setOpen(nextOpen);
             }}
           >
-            <PreviewCard.Trigger />
+            <Trigger />
             <PreviewCard.Positioner>
               <PreviewCard.Popup>Content</PreviewCard.Popup>
             </PreviewCard.Positioner>
@@ -168,7 +176,7 @@ describe('<PreviewCard.Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -180,6 +188,8 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByText('Content')).not.to.equal(null);
 
       fireEvent.mouseLeave(trigger);
+
+      clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
       expect(handleChange.callCount).to.equal(2);
@@ -201,7 +211,7 @@ describe('<PreviewCard.Root />', () => {
               setOpen(nextOpen);
             }}
           >
-            <PreviewCard.Trigger />
+            <Trigger />
             <PreviewCard.Positioner>
               <PreviewCard.Popup>Content</PreviewCard.Popup>
             </PreviewCard.Positioner>
@@ -213,7 +223,7 @@ describe('<PreviewCard.Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -229,10 +239,12 @@ describe('<PreviewCard.Root />', () => {
   });
 
   describe('prop: defaultOpen', () => {
+    clock.withFakeTimers();
+
     it('should open when the component is rendered', async () => {
       render(
         <Root defaultOpen>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
@@ -247,7 +259,7 @@ describe('<PreviewCard.Root />', () => {
     it('should not open when the component is rendered and open is controlled', async () => {
       render(
         <Root defaultOpen open={false}>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
@@ -262,7 +274,7 @@ describe('<PreviewCard.Root />', () => {
     it('should not close when the component is rendered and open is controlled', async () => {
       render(
         <Root defaultOpen open>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
@@ -277,7 +289,7 @@ describe('<PreviewCard.Root />', () => {
     it('should remain uncontrolled', async () => {
       render(
         <Root defaultOpen>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
@@ -288,11 +300,11 @@ describe('<PreviewCard.Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.mouseLeave(trigger);
 
-      await waitForPosition();
+      clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -304,14 +316,14 @@ describe('<PreviewCard.Root />', () => {
     it('should open after delay with rest type by default', async () => {
       render(
         <Root delay={100}>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -330,14 +342,14 @@ describe('<PreviewCard.Root />', () => {
     it('should open after delay with hover type', async () => {
       render(
         <Root delayType="hover">
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.mouseEnter(trigger);
       clock.tick(OPEN_DELAY - 100);
@@ -360,14 +372,14 @@ describe('<PreviewCard.Root />', () => {
     it('should close after delay', async () => {
       render(
         <Root closeDelay={100}>
-          <PreviewCard.Trigger />
+          <Trigger />
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </Root>,
       );
 
-      const trigger = screen.getByRole('button');
+      const trigger = screen.getByRole('link');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);

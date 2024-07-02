@@ -114,17 +114,17 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the popover element to the anchor element along its cross axis.
+   * The alignment of the preview card element to the anchor element along its cross axis.
    * @default 'center'
    */
   alignment: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the popover element along its alignment axis.
+   * The offset of the preview card element along its alignment axis.
    * @default 0
    */
   alignmentOffset: PropTypes.number,
   /**
-   * The anchor element to which the popover popup will be placed at.
+   * The anchor element to which the preview card popup will be placed at.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -132,8 +132,8 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the popover popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Determines the padding between the arrow and the preview card popup's edges. Useful when the
+   * preview card popup has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -146,7 +146,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the popover element should be constrained to.
+   * The boundary that the preview card element should be constrained to.
    * @default 'clippingAncestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -174,25 +174,25 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the popover popup will be appended to.
+   * The container element to which the preview card popup will be appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
     PropTypes.func,
   ]),
   /**
-   * If `true`, the popover will be hidden if it is detached from its anchor element due to
+   * If `true`, the preview card will be hidden if it is detached from its anchor element due to
    * differing clipping contexts.
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, popover stays mounted in the DOM when closed.
+   * If `true`, preview card stays mounted in the DOM when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the popover popup element.
+   * The CSS position strategy for positioning the preview card popup element.
    * @default 'absolute'
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
@@ -201,18 +201,18 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the popover element should align to.
+   * The side of the anchor element that the preview card element should align to.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the popover element.
+   * The gap between the anchor element and the preview card element.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the popover to remain in stuck view while the anchor element is scrolled out
-   * of view.
+   * If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled
+   * out of view.
    * @default false
    */
   sticky: PropTypes.bool,
