@@ -3,6 +3,7 @@ import * as Tooltip from '@base_ui/react/Tooltip';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { OPEN_DELAY } from '../utils/constants';
 
 const waitForPosition = async () => act(async () => {});
 
@@ -32,7 +33,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 
@@ -55,7 +56,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 
@@ -102,13 +103,13 @@ describe('<Tooltip.Root />', () => {
 
       act(() => trigger.focus());
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 
       act(() => trigger.blur());
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -172,7 +173,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 
@@ -217,7 +218,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 
@@ -339,7 +340,7 @@ describe('<Tooltip.Root />', () => {
       const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
-      clock.tick(200);
+      clock.tick(OPEN_DELAY - 100);
 
       await waitForPosition();
 
@@ -371,7 +372,7 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 

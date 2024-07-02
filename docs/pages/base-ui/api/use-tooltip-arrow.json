@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useTooltipArrow",
+  "filename": "/packages/mui-base/src/Tooltip/Arrow/useTooltipArrow.ts",
+  "imports": ["import { useTooltipArrow } from '@base_ui/react/Tooltip';"],
+  "demos": "<ul></ul>"
+}

@@ -20,9 +20,6 @@ import { OPEN_DELAY } from '../utils/constants';
 function PopoverRoot(props: PopoverRootProps) {
   const { openOnHover = false, delayType = 'rest', delay, closeDelay = 0, animated = true } = props;
 
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-
   const delayWithDefault = delay ?? OPEN_DELAY;
 
   const {
@@ -30,6 +27,11 @@ function PopoverRoot(props: PopoverRootProps) {
     setOpen,
     mounted,
     setMounted,
+    triggerElement,
+    setTriggerElement,
+    positionerElement,
+    setPositionerElement,
+    popupRef,
     instantType,
     transitionStatus,
     floatingRootContext,
@@ -41,8 +43,6 @@ function PopoverRoot(props: PopoverRootProps) {
     setDescriptionId,
   } = usePopoverRoot({
     openOnHover,
-    positionerElement,
-    triggerElement,
     delay: delayWithDefault,
     delayType,
     closeDelay,
@@ -64,6 +64,7 @@ function PopoverRoot(props: PopoverRootProps) {
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      popupRef,
       mounted,
       setMounted,
       instantType,
@@ -84,7 +85,10 @@ function PopoverRoot(props: PopoverRootProps) {
       open,
       setOpen,
       triggerElement,
+      setTriggerElement,
       positionerElement,
+      setPositionerElement,
+      popupRef,
       mounted,
       setMounted,
       instantType,
@@ -128,7 +132,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
-   * @default 500
+   * @default 300
    */
   delay: PropTypes.number,
   /**

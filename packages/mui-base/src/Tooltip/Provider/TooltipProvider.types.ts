@@ -2,12 +2,10 @@ export interface TooltipProviderProps {
   children?: React.ReactNode;
   /**
    * The delay in milliseconds until tooltips within the group are open.
-   * @default 0
    */
   delay?: number;
   /**
-   * he delay in milliseconds until tooltips within the group are closed.
-   * @default 0
+   * The delay in milliseconds until tooltips within the group are closed.
    */
   closeDelay?: number;
   /**

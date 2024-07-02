@@ -5,6 +5,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * The basic building block for creating custom switches.
@@ -23,11 +24,13 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     defaultChecked,
     disabled,
     name,
-    onChange,
+    onCheckedChange: onCheckedChangeProp = () => {},
     readOnly,
     required,
     inputRef: externalInputRef,
   } = params;
+
+  const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef);
@@ -76,11 +79,13 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
             return;
           }
 
-          setCheckedState(event.target.checked);
-          onChange?.(event);
+          const nextChecked = event.target.checked;
+
+          setCheckedState(nextChecked);
+          onCheckedChange?.(nextChecked, event);
         },
       }),
-    [checked, disabled, name, required, handleInputRef, onChange, setCheckedState],
+    [checked, disabled, name, required, handleInputRef, onCheckedChange, setCheckedState],
   );
 
   return React.useMemo(

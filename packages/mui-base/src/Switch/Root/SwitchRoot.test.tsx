@@ -81,16 +81,15 @@ describe('<Switch.Root />', () => {
   describe('prop: onChange', () => {
     it('should call onChange when clicked', () => {
       const handleChange = spy();
-      const { getByRole, container } = render(<Switch.Root onChange={handleChange} />);
+      const { getByRole } = render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = getByRole('switch');
-      const internalInput = container.querySelector('input[type="checkbox"]')!;
 
       act(() => {
         switchElement.click();
       });
 
       expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0].target).to.equal(internalInput);
+      expect(handleChange.firstCall.args[0]).to.equal(true);
     });
   });
 

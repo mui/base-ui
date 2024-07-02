@@ -34,6 +34,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     className,
     anchor,
     container,
+    keepMounted = false,
     positionStrategy = 'absolute',
     side = 'top',
     alignment = 'center',
@@ -43,7 +44,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,
-    keepMounted = false,
     sticky = false,
     ...otherProps
   } = props;
@@ -51,22 +51,17 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const {
     open,
     triggerElement,
-    setPopupElement,
-    getRootPositionerProps,
+    setPositionerElement,
     mounted,
-    setMounted,
-    rootContext,
+    floatingRootContext,
     followCursorAxis,
   } = useTooltipRootContext();
 
   const positioner = useTooltipPositioner({
     anchor: anchor || triggerElement,
-    rootContext,
+    floatingRootContext,
     positionStrategy,
     open,
-    mounted,
-    setMounted,
-    getRootPositionerProps,
     keepMounted,
     side,
     sideOffset,
@@ -80,7 +75,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding,
   });
 
-  const mergedRef = useForkRef(setPopupElement, forwardedRef);
+  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const ownerState: TooltipPositionerOwnerState = React.useMemo(
     () => ({
@@ -95,10 +90,10 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     () => ({
       ...ownerState,
       arrowRef: positioner.arrowRef,
-      getArrowProps: positioner.getArrowProps,
+      arrowStyles: positioner.arrowStyles,
       arrowUncentered: positioner.arrowUncentered,
     }),
-    [ownerState, positioner.arrowRef, positioner.getArrowProps, positioner.arrowUncentered],
+    [ownerState, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -107,13 +102,10 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     className,
     ownerState,
     ref: mergedRef,
-    extraProps: {
-      role: 'presentation',
-      ...otherProps,
-    },
+    extraProps: otherProps,
   });
 
-  const shouldRender = keepMounted || positioner.mounted;
+  const shouldRender = keepMounted || mounted;
   if (!shouldRender) {
     return null;
   }
@@ -131,17 +123,17 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the tooltip element to the anchor element along its cross axis.
+   * The alignment of the tooltip popup element to the anchor element along its cross axis.
    * @default 'center'
    */
   alignment: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the tooltip element along its alignment axis.
+   * The offset of the tooltip popup element along its alignment axis.
    * @default 0
    */
   alignmentOffset: PropTypes.number,
   /**
-   * The anchor element of the tooltip popup.
+   * The element to which the tooltip popup element is anchored to.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -150,7 +142,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   ]),
   /**
    * Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip
-   * popup has rounded corners via `border-radius`.
+   * popup element has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -163,7 +155,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the tooltip element should be constrained to.
+   * The boundary that the tooltip popup element should be constrained to.
    * @default 'clippingAncestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -178,8 +170,8 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary to add whitespace between the tooltip popup and the
-   * boundary edges to prevent them from touching.
+   * The padding between the tooltip popup element and the edges of the collision boundary to add
+   * whitespace between them to prevent them from touching.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -199,13 +191,13 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * If `true`, the tooltip will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
+   * Whether the tooltip popup element is hidden if it appears detached from its anchor element due
+   * to the anchor element being clipped (or hidden) from view.
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * If `true`, the tooltip popup remains mounted in the DOM even when closed.
+   * Whether the tooltip popup remains mounted in the DOM while closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -219,17 +211,17 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the tooltip element should be placed at.
+   * The side of the anchor element that the tooltip popup element should be placed at.
    * @default 'top'
    */
   side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the tooltip element.
+   * The gap between the anchor element and the tooltip popup element.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the tooltip to remain stuck in view while the anchor element is scrolled out
+   * Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out
    * of view.
    * @default false
    */

@@ -1,7 +1,7 @@
 {
   "props": {
-    "closeDelay": { "type": { "name": "number" }, "default": "0" },
-    "delay": { "type": { "name": "number" }, "default": "0" },
+    "closeDelay": { "type": { "name": "number" } },
+    "delay": { "type": { "name": "number" } },
     "timeout": { "type": { "name": "number" }, "default": "400" }
   },
   "name": "TooltipProvider",
