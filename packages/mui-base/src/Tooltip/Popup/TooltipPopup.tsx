@@ -3,9 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { TooltipPopupOwnerState, TooltipPopupProps } from './TooltipPopup.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { tooltipPopupStyleHookMapping } from './styleHooks';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
+import { useTooltipPopup } from './useTooltipPopup';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The tooltip popup element.
@@ -24,8 +25,13 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus } = useTooltipRootContext();
+  const { open, instantType, transitionStatus, getRootPopupProps, popupRef } =
+    useTooltipRootContext();
   const { side, alignment } = useTooltipPositionerContext();
+
+  const { getPopupProps } = useTooltipPopup({
+    getProps: getRootPopupProps,
+  });
 
   const ownerState: TooltipPopupOwnerState = React.useMemo(
     () => ({
@@ -39,22 +45,30 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, alignment, instantType, transitionStatus],
   );
 
+  const mergedRef = useForkRef(popupRef, forwardedRef);
+
   // The content element needs to be a child of a wrapper floating element in order to avoid
   // conflicts with CSS transitions and the positioning transform.
   const { renderElement } = useComponentRenderer({
+    propGetter: getPopupProps,
     render: render ?? 'div',
     className,
     ownerState,
-    extraProps: {
-      ...otherProps,
-      style: {
-        // <Tooltip.Arrow> must be relative to the inner popup element.
-        position: 'relative',
-        ...otherProps.style,
+    ref: mergedRef,
+    extraProps: otherProps,
+    customStyleHookMapping: {
+      entering(value) {
+        return value ? { 'data-entering': '' } : null;
+      },
+      exiting(value) {
+        return value ? { 'data-exiting': '' } : null;
+      },
+      open(value) {
+        return {
+          'data-state': value ? 'open' : 'closed',
+        };
       },
     },
-    ref: forwardedRef,
-    customStyleHookMapping: tooltipPopupStyleHookMapping,
   });
 
   return renderElement();
@@ -77,10 +91,6 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
 } as any;
 
 export { TooltipPopup };

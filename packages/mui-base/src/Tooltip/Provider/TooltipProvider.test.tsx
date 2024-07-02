@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
 import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { OPEN_DELAY } from '../utils/constants';
 
 const waitForPosition = async () => act(async () => {});
 
@@ -62,7 +63,7 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       await waitForPosition();
 

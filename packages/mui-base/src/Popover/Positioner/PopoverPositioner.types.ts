@@ -19,4 +19,9 @@ export type PopoverPositionerOwnerState = {
 
 export interface PopoverPositionerProps
   extends PopoverPositionerParameters,
-    BaseUIComponentProps<'div', PopoverPositionerOwnerState> {}
+    BaseUIComponentProps<'div', PopoverPositionerOwnerState> {
+  /**
+   * The container element to which the popover positioner is appended to.
+   */
+  container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+}
