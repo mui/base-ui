@@ -254,7 +254,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         }
 
         if (onValueCommitted) {
-          onValueCommitted(newValue, event);
+          onValueCommitted(newValue, event.nativeEvent);
         }
       }
     },

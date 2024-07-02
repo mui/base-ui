@@ -73,8 +73,8 @@
     },
     "onValueCommitted": {
       "type": {
-        "name": "(value: number | number[], event: React.SyntheticEvent | Event) =&gt; void",
-        "description": "(value: number | number[], event: React.SyntheticEvent | Event) =&gt; void"
+        "name": "(value: number | number[], event: Event) =&gt; void",
+        "description": "(value: number | number[], event: Event) =&gt; void"
       }
     },
     "rootRef": {

@@ -136,9 +136,10 @@ export interface UseSliderParameters {
    * Callback function that is fired when the `pointerup` is triggered.
    *
    * @param {number | number[]} value The new value.
-   * @param {React.SyntheticEvent | Event} event The event source of the callback. **Warning**: This is a generic event not a change event.
+   * @param {Event} event The event source of the callback.
+   * **Warning**: This is a generic event not a change event.
    */
-  onValueCommitted?: (value: number | number[], event: React.SyntheticEvent | Event) => void;
+  onValueCommitted?: (value: number | number[], event: Event) => void;
   /**
    * The component orientation.
    * @default 'horizontal'
@@ -258,7 +259,7 @@ export interface UseSliderReturnValue {
    */
   minStepsBetweenValues: number;
   name?: string;
-  onValueCommitted?: (value: number | number[], event: React.SyntheticEvent | Event) => void;
+  onValueCommitted?: (value: number | number[], event: Event) => void;
   /**
    * The component orientation.
    * @default 'horizontal'

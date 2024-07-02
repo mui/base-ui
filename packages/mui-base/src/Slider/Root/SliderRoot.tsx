@@ -161,7 +161,8 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * Callback function that is fired when the `pointerup` is triggered.
    *
    * @param {number | number[]} value The new value.
-   * @param {React.SyntheticEvent | Event} event The event source of the callback. **Warning**: This is a generic event not a change event.
+   * @param {Event} event The event source of the callback.
+   * **Warning**: This is a generic event not a change event.
    */
   onValueCommitted: PropTypes.func,
   /**
