@@ -108,7 +108,7 @@ const nextConfig = {
         redirects: async () => [
           {
             source: '/',
-            destination: '/base-ui/',
+            destination: '/base-ui/getting-started/',
             permanent: false,
           },
         ],
