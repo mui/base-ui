@@ -28,6 +28,7 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   positionerElement: null,
   popupId: null,
   hasNestedMenuOpen: false,
+  clickAndDragging: false,
 };
 
 /**
@@ -146,6 +147,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
   });
 
   const click = useClick(floatingRootContext, {
+    enabled: isNested,
     event: 'mousedown',
     toggle: !isNested,
     ignoreMouse: isNested,

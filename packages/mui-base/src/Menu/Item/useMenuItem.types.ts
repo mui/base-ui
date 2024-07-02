@@ -24,6 +24,7 @@ export interface UseMenuItemParameters {
   isNested: boolean;
   orientation: ListOrientation;
   direction: ListDirection;
+  clickAndDragSupport?: boolean;
 }
 
 export interface UseMenuItemReturnValue {

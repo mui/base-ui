@@ -25,6 +25,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     rootRef: externalRef,
     closeOnClick,
     highlighted,
+    clickAndDragSupport,
   } = params;
 
   const itemRef = React.useRef<HTMLElement>(null);
@@ -58,6 +59,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
         externalProps,
         {
           ref: handleRef,
+          'data-handle-mouseup': clickAndDragSupport || undefined,
         },
         getButtonProps({
           id,
@@ -74,7 +76,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
         }),
       );
     },
-    [closeOnClick, getButtonProps, handleRef, rootDispatch, highlighted, id],
+    [closeOnClick, getButtonProps, handleRef, rootDispatch, highlighted, id, clickAndDragSupport],
   );
 
   return {

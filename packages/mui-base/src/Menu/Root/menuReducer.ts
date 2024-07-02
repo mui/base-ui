@@ -7,6 +7,7 @@ export const MenuActionTypes = {
   registerPopup: 'menu:registerPopup',
   registerTrigger: 'menu:registerTrigger',
   registerPositioner: 'menu:registerPositioner',
+  resetClickAndDragging: 'menu:resetClickAndDragging',
 } as const;
 
 export function menuReducer(state: MenuReducerState, action: MenuReducerAction): MenuReducerState {
@@ -22,6 +23,7 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
 
     case MenuActionTypes.open: {
       const updateHighlight = action.event instanceof KeyboardEvent;
+      const clickAndDragging = action.event?.type === 'mousedown';
 
       return {
         ...state,
@@ -29,8 +31,12 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
         highlightedValue: updateHighlight
           ? moveHighlight(null, 'start', state.items, state.settings)
           : state.highlightedValue,
+        clickAndDragging,
       };
     }
+
+    case MenuActionTypes.resetClickAndDragging:
+      return { ...state, clickAndDragging: false };
 
     case MenuActionTypes.close:
       return { ...state, open: false };
@@ -83,6 +89,10 @@ interface MenuRegisterPositionerAction {
   positionerElement: HTMLElement | null;
 }
 
+interface MenuResetClickAndDraggingAction {
+  type: typeof MenuActionTypes.resetClickAndDragging;
+}
+
 export type MenuReducerAction =
   | MenuToggleAction
   | MenuOpenAction
@@ -90,6 +100,7 @@ export type MenuReducerAction =
   | MenuRegisterPopupAction
   | MenuRegisterTriggerAction
   | MenuRegisterPositionerAction
+  | MenuResetClickAndDraggingAction
   | ListAction<string>;
 
 export type MenuReducerState = ListState<string> & {
@@ -98,4 +109,5 @@ export type MenuReducerState = ListState<string> & {
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   hasNestedMenuOpen: boolean;
+  clickAndDragging: boolean;
 };

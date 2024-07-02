@@ -27,6 +27,7 @@ namespace useSubmenuTrigger {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }
+
 /**
  *
  * API:

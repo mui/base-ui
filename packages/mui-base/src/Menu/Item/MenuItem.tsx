@@ -18,6 +18,7 @@ interface InnerMenuItemProps extends MenuItemProps {
   orientation: ListOrientation;
   direction: ListDirection;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  clickAndDragSupport: boolean;
 }
 
 const InnerMenuItem = React.memo(
@@ -37,6 +38,7 @@ const InnerMenuItem = React.memo(
       orientation,
       direction,
       propGetter,
+      clickAndDragSupport,
       ...other
     } = props;
 
@@ -55,6 +57,7 @@ const InnerMenuItem = React.memo(
       isNested: rootDispatch !== dispatch,
       orientation,
       direction,
+      clickAndDragSupport,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };
@@ -92,6 +95,8 @@ const MenuItem = React.forwardRef(function MenuItem(
   const id = useId(idProp);
 
   const highlighted = state.highlightedValue === id;
+  const clickAndDragSupport =
+    topmostContext?.state?.clickAndDragging ?? state.clickAndDragging ?? false;
 
   // This wrapper component is used as a performance optimization.
   // MenuItem reads the context and re-renders the actual MenuItem
@@ -108,6 +113,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       orientation={orientation}
       direction={direction}
       propGetter={getItemProps}
+      clickAndDragSupport={clickAndDragSupport}
     />
   );
 });

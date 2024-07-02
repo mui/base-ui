@@ -6,7 +6,6 @@ import {
   FloatingNode,
   FloatingPortal,
   useFloatingNodeId,
-  useFloatingParentNodeId,
 } from '@floating-ui/react';
 import type {
   MenuPositionerContextValue,
@@ -55,7 +54,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const { state, dispatch, floatingRootContext, getPositionerProps } = useMenuRootContext();
+  const { state, dispatch, floatingRootContext, getPositionerProps, isNested } =
+    useMenuRootContext();
 
   const { open, triggerElement } = state;
 
@@ -127,8 +127,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ref: mergedRef,
     extraProps: otherProps,
   });
-
-  const isNested = useFloatingParentNodeId() !== null;
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
