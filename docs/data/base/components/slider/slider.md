@@ -217,11 +217,11 @@ Use the `render` prop to override the rendered elements with your own components
 
 All subcomponents accept the `render` prop.
 
-The `Slider.Thumb` component renders a child `input` element by default. If your custom Thumb component needs to accept children, the `render` prop contains an additional `inputProps` argument for rendering an `input` element attached to the thumb:
+The `Slider.Thumb` component's `render` prop contains an additional `inputProps` argument for rendering an `input` element attached to the thumb:
 
 ```jsx
 <Slider.Thumb
-  render={(props, ownerState, inputProps) => {
+  render={(props, inputProps) => {
     const { children, ...rest } = props;
     return (
       <MyCustomThumb {...rest}>

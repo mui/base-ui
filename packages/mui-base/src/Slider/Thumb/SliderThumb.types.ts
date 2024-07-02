@@ -17,8 +17,8 @@ export interface SliderThumbProps
   render?:
     | ((
         props: React.ComponentPropsWithRef<'span'>,
-        state: SliderThumbOwnerState,
         inputProps: React.ComponentPropsWithRef<'input'>,
+        state: SliderThumbOwnerState,
       ) => React.ReactElement)
     | (React.ReactElement & { ref: React.Ref<Element> });
 }
