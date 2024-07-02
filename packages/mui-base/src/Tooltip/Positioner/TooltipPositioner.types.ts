@@ -1,5 +1,6 @@
+import type * as React from 'react';
 import type { Side } from '@floating-ui/react';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { TooltipPositionerParameters } from './useTooltipPositioner.types';
 
 export interface TooltipPositionerContextValue {
@@ -8,7 +9,7 @@ export interface TooltipPositionerContextValue {
   alignment: 'start' | 'end' | 'center';
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
-  getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  arrowStyles: React.CSSProperties;
 }
 
 export type TooltipPositionerOwnerState = {

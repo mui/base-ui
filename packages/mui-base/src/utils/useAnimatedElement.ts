@@ -14,7 +14,7 @@ export function useAnimatedElement(params: UseAnimatedElementParameters) {
   const { open, ref, enabled } = params;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, enabled);
-  const runOnceAnimationsFinish = useAnimationsFinished(() => ref.current);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref);
 
   React.useEffect(() => {
     if (!open) {

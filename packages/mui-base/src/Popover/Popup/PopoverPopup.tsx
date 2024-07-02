@@ -6,6 +6,7 @@ import { PopoverPopupOwnerState, PopoverPopupProps } from './PopoverPopup.types'
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
 import { usePopoverPopup } from './usePopoverPopup';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * Renders the popover popup element.
@@ -24,8 +25,15 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, titleId, descriptionId } =
-    usePopoverRootContext();
+  const {
+    open,
+    instantType,
+    transitionStatus,
+    getRootPopupProps,
+    titleId,
+    descriptionId,
+    popupRef,
+  } = usePopoverRootContext();
   const { side, alignment } = usePopoverPositionerContext();
 
   const { getPopupProps } = usePopoverPopup({
@@ -46,9 +54,11 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, side, alignment, instantType, transitionStatus],
   );
 
+  const mergedRef = useForkRef(popupRef, forwardedRef);
+
   const { renderElement } = useComponentRenderer({
     propGetter: getPopupProps,
-    ref: forwardedRef,
+    ref: mergedRef,
     render: render ?? 'div',
     className,
     ownerState,

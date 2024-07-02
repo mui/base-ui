@@ -9,8 +9,6 @@ import TooltipPositionerApiJsonPageContent from '../../api/tooltip-positioner.js
 import TooltipProviderApiJsonPageContent from '../../api/tooltip-provider.json';
 import TooltipRootApiJsonPageContent from '../../api/tooltip-root.json';
 import TooltipTriggerApiJsonPageContent from '../../api/tooltip-trigger.json';
-import useTooltipPositionerApiJsonPageContent from '../../api/use-tooltip-positioner.json';
-import useTooltipRootApiJsonPageContent from '../../api/use-tooltip-root.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -71,20 +69,6 @@ export const getStaticProps = () => {
   );
   const TooltipTriggerApiDescriptions = mapApiPageTranslations(TooltipTriggerApiReq);
 
-  const useTooltipPositionerApiReq = require.context(
-    'docs-base/translations/api-docs/use-tooltip-positioner',
-    false,
-    /\.\/use-tooltip-positioner.*.json$/,
-  );
-  const useTooltipPositionerApiDescriptions = mapApiPageTranslations(useTooltipPositionerApiReq);
-
-  const useTooltipRootApiReq = require.context(
-    'docs-base/translations/api-docs/use-tooltip-root',
-    false,
-    /\.\/use-tooltip-root.*.json$/,
-  );
-  const useTooltipRootApiDescriptions = mapApiPageTranslations(useTooltipRootApiReq);
-
   return {
     props: {
       componentsApiDescriptions: {
@@ -103,14 +87,8 @@ export const getStaticProps = () => {
         TooltipRoot: TooltipRootApiJsonPageContent,
         TooltipTrigger: TooltipTriggerApiJsonPageContent,
       },
-      hooksApiDescriptions: {
-        useTooltipPositioner: useTooltipPositionerApiDescriptions,
-        useTooltipRoot: useTooltipRootApiDescriptions,
-      },
-      hooksApiPageContents: {
-        useTooltipPositioner: useTooltipPositionerApiJsonPageContent,
-        useTooltipRoot: useTooltipRootApiJsonPageContent,
-      },
+      hooksApiDescriptions: {},
+      hooksApiPageContents: {},
     },
   };
 };

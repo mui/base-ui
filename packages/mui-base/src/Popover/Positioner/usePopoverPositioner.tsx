@@ -38,7 +38,8 @@ export function usePopoverPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(externalProps, {
+        return mergeReactProps<'div'>(externalProps, {
+          role: 'presentation',
           style: {
             ...positionerStyles,
             ...hiddenStyles,

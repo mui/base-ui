@@ -30,8 +30,6 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
     keepMounted = false,
-    triggerElement = null,
-    positionerElement = null,
     delayType = 'rest',
     delay,
     closeDelay,
@@ -45,6 +43,10 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [titleId, setTitleId] = React.useState<string>();
   const [descriptionId, setDescriptionId] = React.useState<string>();
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+
+  const popupRef = React.useRef<HTMLElement>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -57,7 +59,7 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(() => positionerElement?.firstElementChild);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -130,6 +132,11 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       mounted,
       setMounted,
       transitionStatus,
+      triggerElement,
+      setTriggerElement,
+      positionerElement,
+      setPositionerElement,
+      popupRef,
       titleId,
       setTitleId,
       descriptionId,
@@ -145,6 +152,8 @@ export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRoot
       setMounted,
       setOpen,
       transitionStatus,
+      triggerElement,
+      positionerElement,
       titleId,
       descriptionId,
       getReferenceProps,

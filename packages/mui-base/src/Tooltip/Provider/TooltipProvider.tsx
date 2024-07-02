@@ -17,9 +17,9 @@ import type { TooltipProviderProps } from './TooltipProvider.types';
  * - [TooltipProvider API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-provider)
  */
 function TooltipProvider(props: TooltipProviderProps) {
-  const { delay = 0, closeDelay = 0, timeout = 400 } = props;
+  const { delay, closeDelay, timeout = 400 } = props;
   return (
-    <FloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
+    <FloatingDelayGroup delay={{ open: delay ?? 0, close: closeDelay ?? 0 }} timeoutMs={timeout}>
       {props.children}
     </FloatingDelayGroup>
   );
@@ -35,13 +35,11 @@ TooltipProvider.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * he delay in milliseconds until tooltips within the group are closed.
-   * @default 0
+   * The delay in milliseconds until tooltips within the group are closed.
    */
   closeDelay: PropTypes.number,
   /**
    * The delay in milliseconds until tooltips within the group are open.
-   * @default 0
    */
   delay: PropTypes.number,
   /**
