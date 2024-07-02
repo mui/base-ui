@@ -87,13 +87,13 @@ When Number Field is uncontrolled, the `defaultValue` prop sets the initial valu
 
 ### Controlled
 
-The `value` prop holds the number value, and `onChange` is called when it updates.
+The `value` prop holds the number value, and `onValueChange` is called when it updates.
 
 ```jsx
 function App() {
   const [value, setValue] = useState(0);
   return (
-    <NumberField.Root value={value} onChange={setValue}>
+    <NumberField.Root value={value} onValueChange={setValue}>
       <NumberField.Group>
         <NumberField.Decrement>&minus;</NumberField.Decrement>
         <NumberField.Input />
