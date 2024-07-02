@@ -120,7 +120,6 @@ export function trackFinger(
   };
 }
 
-export const Identity = (x: any) => x;
 /**
  *
  * Demos:
@@ -146,7 +145,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     onValueCommitted,
     orientation = 'horizontal',
     rootRef,
-    scale = Identity,
     step = 1,
     tabIndex,
     value: valueProp,
@@ -403,7 +401,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       orientation,
       percentageValues: values.map((v) => valueToPercent(v, min, max)),
       registerSliderControl,
-      scale,
       setActive,
       setDragging,
       setValueState,
@@ -433,7 +430,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       onValueCommitted,
       orientation,
       registerSliderControl,
-      scale,
       setActive,
       setDragging,
       setValueState,

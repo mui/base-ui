@@ -66,7 +66,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     name,
     orientation,
     rootRef: externalRef,
-    scale,
     step,
     tabIndex,
     percentageValues,
@@ -216,11 +215,11 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
         'aria-orientation': orientation,
-        'aria-valuemax': scale(max),
-        'aria-valuemin': scale(min),
-        'aria-valuenow': scale(thumbValue),
+        'aria-valuemax': max,
+        'aria-valuemin': min,
+        'aria-valuenow': thumbValue,
         'aria-valuetext': getAriaValueText
-          ? getAriaValueText(scale(thumbValue), index)
+          ? getAriaValueText(thumbValue, index)
           : ariaValuetext ?? getDefaultAriaValueText(sliderValues, index),
         'data-index': index,
         disabled,
@@ -261,7 +260,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       min,
       name,
       orientation,
-      scale,
       sliderValues,
       step,
       thumbValue,

@@ -34,11 +34,6 @@
       "default": "'horizontal'"
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "scale": {
-      "type": { "name": "func" },
-      "default": "function Identity(x) {\n  return x;\n}",
-      "signature": { "type": "function(x: any) => any", "describedArgs": [] }
-    },
     "step": { "type": { "name": "number" }, "default": "1" },
     "tabIndex": { "type": { "name": "number" } },
     "value": {

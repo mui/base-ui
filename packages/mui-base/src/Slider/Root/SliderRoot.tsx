@@ -175,15 +175,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * A transformation function, to change the scale of the slider.
-   * @param {any} x
-   * @returns {any}
-   * @default function Identity(x) {
-   *   return x;
-   * }
-   */
-  scale: PropTypes.func,
-  /**
    * The granularity with which the slider can step through values. (A "discrete" slider.)
    * The `min` prop serves as the origin for the valid values.
    * We recommend (max - min) to be evenly divisible by the step.

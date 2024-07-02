@@ -33,13 +33,6 @@
       "type": { "name": "readonly number[]", "description": "readonly number[]" },
       "required": true
     },
-    "scale": {
-      "type": {
-        "name": "(value: number) =&gt; number",
-        "description": "(value: number) =&gt; number"
-      },
-      "required": true
-    },
     "step": {
       "type": { "name": "number", "description": "number" },
       "default": "1",

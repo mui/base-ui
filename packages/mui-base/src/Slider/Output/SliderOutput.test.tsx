@@ -48,7 +48,6 @@ describe('<Slider.Output />', () => {
     },
     percentageValues: [0],
     registerSliderControl: NOOP,
-    scale: (val) => val,
     setActive: NOOP,
     setDragging: NOOP,
     setValueState: NOOP,
