@@ -25,10 +25,7 @@
       "required": true
     },
     "orientation": {
-      "type": {
-        "name": "&#39;horizontal&#39; | &#39;vertical&#39;",
-        "description": "&#39;horizontal&#39; | &#39;vertical&#39;"
-      },
+      "type": { "name": "SliderOrientation", "description": "SliderOrientation" },
       "default": "'horizontal'",
       "required": true
     },

@@ -20,6 +20,8 @@ export type SliderProviderValue = SliderContextValue & {
 
 export type SliderDirection = 'ltr' | 'rtl';
 
+export type SliderOrientation = 'horizontal' | 'vertical';
+
 export interface SliderRootOwnerState {
   /**
    * The index of the active thumb.
@@ -44,7 +46,7 @@ export interface SliderRootOwnerState {
   /**
    * The component orientation.
    */
-  orientation: 'horizontal' | 'vertical';
+  orientation: SliderOrientation;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap
    * to multiples of this value. Decimal values are supported.
@@ -141,7 +143,7 @@ export interface UseSliderParameters {
    * The component orientation.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: SliderOrientation;
   /**
    * The ref attached to the root of the Slider.
    */
@@ -178,7 +180,7 @@ export interface UseSliderParameters {
   value?: number | ReadonlyArray<number>;
 }
 
-export type Axis = 'horizontal' | 'vertical' | 'horizontal-reverse';
+export type Axis = SliderOrientation | 'horizontal-reverse';
 
 export interface AxisProps<T extends Axis> {
   offset: (
@@ -261,7 +263,7 @@ export interface UseSliderReturnValue {
    * The component orientation.
    * @default 'horizontal'
    */
-  orientation: 'horizontal' | 'vertical';
+  orientation: SliderOrientation;
   registerSliderControl: (element: HTMLElement | null) => void;
   /**
    * The value(s) of the slider as percentages
