@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useMenuPositioner",
+  "filename": "/packages/mui-base/src/Menu/Positioner/useMenuPositioner.ts",
+  "imports": ["import { useMenuPositioner } from '@base_ui/react/Menu';"],
+  "demos": "<ul></ul>"
+}

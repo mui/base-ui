@@ -1,15 +1,6 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Dropdown } from '@base_ui/react/legacy/Dropdown';
-import { Menu } from '@base_ui/react/legacy/Menu';
-import { MenuButton as BaseMenuButton } from '@base_ui/react/legacy/MenuButton';
-import {
-  MenuItem as BaseMenuItem,
-  menuItemClasses,
-} from '@base_ui/react/legacy/MenuItem';
+import * as Menu from '@base_ui/react/Menu';
 import { styled } from '@mui/system';
-import { CssTransition } from '@base_ui/react/legacy/Transitions';
-import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem) => {
@@ -19,16 +10,18 @@ export default function MenuIntroduction() {
   };
 
   return (
-    <Dropdown>
+    <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <Menu slots={{ listbox: AnimatedListbox }}>
-        <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-        <MenuItem onClick={createHandleMenuClick('Language settings')}>
-          Language settings
-        </MenuItem>
-        <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
-      </Menu>
-    </Dropdown>
+      <MenuPositioner alignment="start">
+        <MenuPopup>
+          <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+          <MenuItem onClick={createHandleMenuClick('Language settings')}>
+            Language settings
+          </MenuItem>
+          <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+        </MenuPopup>
+      </MenuPositioner>
+    </Menu.Root>
   );
 }
 
@@ -58,7 +51,7 @@ const grey = {
   900: '#1C2025',
 };
 
-const Listbox = styled('ul')(
+const MenuPopup = styled(Menu.Popup)(
   ({ theme }) => `
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
@@ -74,57 +67,23 @@ const Listbox = styled('ul')(
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
   z-index: 1;
+  transform-origin: var(--transform-origin);
 
-  .closed & {
+  &[data-state='closed'] {
     opacity: 0;
     transform: scale(0.95, 0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;
   }
   
-  .open & {
+  &[data-state='open'] {
     opacity: 1;
     transform: scale(1, 1);
     transition: opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
   }
-
-  .placement-top & {
-    transform-origin: bottom;
-  }
-
-  .placement-bottom & {
-    transform-origin: top;
-  }
   `,
 );
 
-const AnimatedListbox = React.forwardRef(function AnimatedListbox(props, ref) {
-  const { ownerState, ...other } = props;
-  const popupContext = React.useContext(PopupContext);
-
-  if (popupContext == null) {
-    throw new Error(
-      'The `AnimatedListbox` component cannot be rendered outside a `Popup` component',
-    );
-  }
-
-  const verticalPlacement = popupContext.placement.split('-')[0];
-
-  return (
-    <CssTransition
-      className={`placement-${verticalPlacement}`}
-      enterClassName="open"
-      exitClassName="closed"
-    >
-      <Listbox {...other} ref={ref} />
-    </CssTransition>
-  );
-});
-
-AnimatedListbox.propTypes = {
-  ownerState: PropTypes.object.isRequired,
-};
-
-const MenuItem = styled(BaseMenuItem)(
+const MenuItem = styled(Menu.Item)(
   ({ theme }) => `
   list-style: none;
   padding: 8px;
@@ -142,13 +101,13 @@ const MenuItem = styled(BaseMenuItem)(
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
 
-  &.${menuItemClasses.disabled} {
+  &.[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
   `,
 );
 
-const MenuButton = styled(BaseMenuButton)(
+const MenuButton = styled(Menu.Trigger)(
   ({ theme }) => `
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 600;
@@ -179,3 +138,13 @@ const MenuButton = styled(BaseMenuButton)(
   }
   `,
 );
+
+const MenuPositioner = styled(Menu.Positioner)`
+  &:focus-visible {
+    outline: 0;
+  }
+
+  &[data-state='closed'] {
+    pointer-events: none;
+  }
+`;

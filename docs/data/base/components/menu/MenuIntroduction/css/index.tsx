@@ -1,11 +1,6 @@
 import * as React from 'react';
-import { Menu, MenuListboxSlotProps } from '@base_ui/react/legacy/Menu';
-import { MenuItem, menuItemClasses } from '@base_ui/react/legacy/MenuItem';
-import { MenuButton } from '@base_ui/react/legacy/MenuButton';
-import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import * as Menu from '@base_ui/react/Menu';
 import { useTheme } from '@mui/system';
-import { CssTransition } from '@base_ui/react/legacy/Transitions';
-import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem: string) => {
@@ -15,67 +10,35 @@ export default function MenuIntroduction() {
   };
 
   return (
-    <Dropdown>
-      <MenuButton className="TriggerButtonIntroduction">My account</MenuButton>
+    <Menu.Root>
+      <Menu.Trigger className="TriggerButtonIntroduction">My account</Menu.Trigger>
 
-      <Menu
-        className="CustomMenuIntroduction"
-        slots={{
-          listbox: Listbox,
-        }}
-        slotProps={{
-          listbox: { className: 'CustomMenuIntroduction--listbox' },
-        }}
-      >
-        <MenuItem
-          className="CustomMenuIntroduction--item"
-          onClick={createHandleMenuClick('Profile')}
-        >
-          Profile
-        </MenuItem>
-        <MenuItem
-          className="CustomMenuIntroduction--item"
-          onClick={createHandleMenuClick('Language settings')}
-        >
-          Language settings
-        </MenuItem>
-        <MenuItem
-          className="CustomMenuIntroduction--item"
-          onClick={createHandleMenuClick('Log out')}
-        >
-          Log out
-        </MenuItem>
-      </Menu>
+      <Menu.Positioner className="CustomMenuIntroduction">
+        <Menu.Popup className="CustomMenuIntroduction--listbox">
+          <Menu.Item
+            className="CustomMenuIntroduction--item"
+            onClick={createHandleMenuClick('Profile')}
+          >
+            Profile
+          </Menu.Item>
+          <Menu.Item
+            className="CustomMenuIntroduction--item"
+            onClick={createHandleMenuClick('Language settings')}
+          >
+            Language settings
+          </Menu.Item>
+          <Menu.Item
+            className="CustomMenuIntroduction--item"
+            onClick={createHandleMenuClick('Log out')}
+          >
+            Log out
+          </Menu.Item>
+        </Menu.Popup>
+      </Menu.Positioner>
       <Styles />
-    </Dropdown>
+    </Menu.Root>
   );
 }
-
-const Listbox = React.forwardRef(function Listbox(
-  props: MenuListboxSlotProps,
-  ref: React.ForwardedRef<HTMLUListElement>,
-) {
-  const { ownerState, ...other } = props;
-  const popupContext = React.useContext(PopupContext);
-
-  if (popupContext == null) {
-    throw new Error(
-      'The `Listbox` component cannot be rendered outside a `Popup` component',
-    );
-  }
-
-  const verticalPlacement = popupContext.placement.split('-')[0];
-
-  return (
-    <CssTransition
-      className={`placement-${verticalPlacement}`}
-      enterClassName="open"
-      exitClassName="closed"
-    >
-      <ul {...other} ref={ref} />
-    </CssTransition>
-  );
-});
 
 const cyan = {
   50: '#E9F8FC',
@@ -128,25 +91,18 @@ function Styles() {
       border: 1px solid ${isDarkMode ? grey[700] : grey[200]};
       color: ${isDarkMode ? grey[300] : grey[900]};
       box-shadow: 0px 4px 30px ${isDarkMode ? grey[900] : grey[200]};
+      transform-origin: var(--transform-origin);
 
-      .closed & {
+      &[data-state='closed'] {
         opacity: 0;
         transform: scale(0.95, 0.8);
         transition: opacity 200ms ease-in, transform 200ms ease-in;
       }
       
-      .open & {
+      &[data-state='open'] {
         opacity: 1;
         transform: scale(1, 1);
         transition: opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
-      }
-    
-      .placement-top & {
-        transform-origin: bottom;
-      }
-    
-      .placement-bottom & {
-        transform-origin: top;
       }
     }
 
@@ -168,7 +124,7 @@ function Styles() {
       color: ${isDarkMode ? grey[300] : grey[900]};
     }
 
-    .CustomMenuIntroduction--item.${menuItemClasses.disabled} {
+    .CustomMenuIntroduction--item.[data-disabled] {
       color: ${isDarkMode ? grey[700] : grey[400]};
     }
 
@@ -204,6 +160,14 @@ function Styles() {
 
     .CustomMenuIntroduction {
       z-index: 1;
+      
+      &:focus-visible {
+        outline: 0;
+      }
+
+      &[data-state='closed'] {
+        pointer-events: none;
+      }
     }
     `}</style>
   );

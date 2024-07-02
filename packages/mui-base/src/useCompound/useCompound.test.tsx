@@ -1,24 +1,31 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { render } from '@mui/internal-test-utils';
-import { CompoundComponentContext, useCompoundParent } from './useCompoundParent';
+import { useCompoundParent } from './useCompoundParent';
 import { useCompoundItem } from './useCompoundItem';
+import { CompoundParentContextValue } from './useCompound.types';
+import { IndexableMap } from '../utils/IndexableMap';
 
-type ItemValue = { value: string; ref: React.RefObject<HTMLSpanElement> };
+type ItemValue = { value?: string; ref: React.RefObject<HTMLSpanElement> };
+
+const CompoundComponentContext = React.createContext<CompoundParentContextValue<
+  string,
+  ItemValue
+> | null>(null);
 
 describe('compound components', () => {
   describe('useCompoundParent', () => {
     it('knows about children from the whole subtree', () => {
-      let parentSubitems: Map<string, ItemValue>;
+      let parentSubitems: IndexableMap<string, ItemValue>;
 
       function Parent(props: React.PropsWithChildren<{}>) {
         const { children } = props;
-        const { subitems, contextValue } = useCompoundParent<string, ItemValue>();
+        const { subitems, context } = useCompoundParent<string, ItemValue>();
 
         parentSubitems = subitems;
 
         return (
-          <CompoundComponentContext.Provider value={contextValue}>
+          <CompoundComponentContext.Provider value={context}>
             {children}
           </CompoundComponentContext.Provider>
         );
@@ -27,10 +34,13 @@ describe('compound components', () => {
       function Child(props: React.PropsWithChildren<{ id: string; value: string }>) {
         const { id, value, children } = props;
         const ref = React.useRef<HTMLSpanElement>(null);
-        useCompoundItem(
-          id,
-          React.useMemo(() => ({ value, ref }), [value]),
-        );
+        const parentContext = React.useContext(CompoundComponentContext)!;
+
+        useCompoundItem({
+          key: id,
+          itemMetadata: React.useMemo(() => ({ value, ref }), [value, ref]),
+          parentContext,
+        });
 
         return <span ref={ref}>{children}</span>;
       }
@@ -72,16 +82,16 @@ describe('compound components', () => {
     });
 
     it('knows about children rendered by other components', () => {
-      let parentSubitems: Map<string, ItemValue>;
+      let parentSubitems: IndexableMap<string, ItemValue>;
 
       function Parent(props: React.PropsWithChildren<{}>) {
         const { children } = props;
-        const { subitems, contextValue } = useCompoundParent<string, ItemValue>();
+        const { subitems, context } = useCompoundParent<string, ItemValue>();
 
         parentSubitems = subitems;
 
         return (
-          <CompoundComponentContext.Provider value={contextValue}>
+          <CompoundComponentContext.Provider value={context}>
             {children}
           </CompoundComponentContext.Provider>
         );
@@ -90,10 +100,13 @@ describe('compound components', () => {
       function Child(props: { id: string; value: string }) {
         const { id, value } = props;
         const ref = React.useRef<HTMLSpanElement>(null);
-        useCompoundItem(
-          id,
-          React.useMemo(() => ({ value, ref }), [value]),
-        );
+        const parentContext = React.useContext(CompoundComponentContext)!;
+
+        useCompoundItem({
+          key: id,
+          itemMetadata: React.useMemo(() => ({ value, ref }), [value, ref]),
+          parentContext,
+        });
 
         return <span ref={ref} />;
       }
@@ -129,17 +142,17 @@ describe('compound components', () => {
 
     // https://github.com/mui/material-ui/issues/36800
     it('maintains the correct order of children when they are inserted in the middle', () => {
-      let parentSubitems: Map<string, ItemValue>;
+      let parentSubitems: IndexableMap<string, ItemValue>;
       let subitemsToRender = ['1', '4', '5'];
 
       function Parent(props: React.PropsWithChildren<{}>) {
         const { children } = props;
-        const { subitems, contextValue } = useCompoundParent<string, ItemValue>();
+        const { subitems, context } = useCompoundParent<string, ItemValue>();
 
         parentSubitems = subitems;
 
         return (
-          <CompoundComponentContext.Provider value={contextValue}>
+          <CompoundComponentContext.Provider value={context}>
             {children}
           </CompoundComponentContext.Provider>
         );
@@ -148,10 +161,13 @@ describe('compound components', () => {
       function Child(props: React.PropsWithChildren<{ id: string; value: string }>) {
         const { id, value, children } = props;
         const ref = React.useRef<HTMLSpanElement>(null);
-        useCompoundItem(
-          id,
-          React.useMemo(() => ({ value, ref }), [value]),
-        );
+        const parentContext = React.useContext(CompoundComponentContext)!;
+
+        useCompoundItem({
+          key: id,
+          itemMetadata: React.useMemo(() => ({ value, ref }), [value, ref]),
+          parentContext,
+        });
 
         return <span ref={ref}>{children}</span>;
       }
@@ -180,102 +196,7 @@ describe('compound components', () => {
     // TODO: test if removed children are removed from the map
 
     // TODO: test if parent is notified about updated metadata
-  });
 
-  describe('useCompoundItem', () => {
-    it('knows its position within the parent and total number of registered items', () => {
-      function Parent(props: React.PropsWithChildren<{}>) {
-        const { children } = props;
-        const { contextValue } = useCompoundParent<
-          string,
-          { ref: React.RefObject<HTMLSpanElement> }
-        >();
-
-        return (
-          <CompoundComponentContext.Provider value={contextValue}>
-            {children}
-          </CompoundComponentContext.Provider>
-        );
-      }
-
-      function Child() {
-        const id = React.useId();
-        const ref = React.useRef<HTMLSpanElement>(null);
-        const { index, totalItemCount } = useCompoundItem(
-          id,
-          React.useMemo(() => ({ ref }), []),
-        );
-
-        return (
-          <span data-testid="child" ref={ref}>
-            {index + 1} of {totalItemCount}
-          </span>
-        );
-      }
-
-      const { getAllByTestId } = render(
-        <Parent>
-          <Child />
-          <Child />
-          <React.Fragment>
-            <p>Unrelated element 1</p>
-            <Child />
-          </React.Fragment>
-          <p>Unrelated element 2</p>
-          <div>
-            <Child />
-          </div>
-        </Parent>,
-      );
-
-      const children = getAllByTestId('child');
-
-      children.forEach((child, index) => {
-        expect(child.innerHTML).to.equal(`${index + 1} of 4`);
-      });
-    });
-
-    it('gets assigned a generated id if none is provided', () => {
-      function Parent(props: React.PropsWithChildren<{}>) {
-        const { children } = props;
-        const { contextValue } = useCompoundParent<
-          number,
-          { ref: React.RefObject<HTMLLIElement> }
-        >();
-
-        return (
-          <CompoundComponentContext.Provider value={contextValue}>
-            <ul>{children}</ul>
-          </CompoundComponentContext.Provider>
-        );
-      }
-
-      function idGenerator(existingIds: Set<string>) {
-        return `item-${existingIds.size}`;
-      }
-
-      function Child() {
-        const ref = React.useRef<HTMLLIElement>(null);
-        const { id } = useCompoundItem<string, { ref: React.RefObject<HTMLLIElement> }>(
-          idGenerator,
-          React.useMemo(() => ({ ref }), []),
-        );
-
-        return <li ref={ref}>{id}</li>;
-      }
-
-      const { getAllByRole } = render(
-        <Parent>
-          <Child />
-          <Child />
-          <Child />
-        </Parent>,
-      );
-
-      const children = getAllByRole('listitem');
-      expect(children[0].innerHTML).to.equal('item-0');
-      expect(children[1].innerHTML).to.equal('item-1');
-      expect(children[2].innerHTML).to.equal('item-2');
-    });
+    // TODO: test getRegisteredItemCount
   });
 });

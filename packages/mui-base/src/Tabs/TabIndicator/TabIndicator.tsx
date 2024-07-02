@@ -7,6 +7,7 @@ import { script as prehydrationScript } from './prehydrationScript.min';
 import { useTabsContext } from '../Root/TabsContext';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useTabsListContext } from '../TabsList/TabsListContext';
 
 const noop = () => null;
 
@@ -16,19 +17,27 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
 
     const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
     const [isMounted, setIsMounted] = React.useState(false);
-    const { value: activeTabValue } = useTabsContext();
+    const {
+      orientation,
+      direction,
+      value: activeTabValue,
+      tabActivationDirection,
+    } = useTabsContext();
+
+    const {
+      getTabElement,
+      state: { tabsListRef },
+    } = useTabsListContext();
 
     React.useEffect(() => {
       setIsMounted(true);
     }, []);
 
-    const {
-      direction,
-      getRootProps,
-      orientation,
-      activeTabPosition: selectedTabPosition,
-      tabActivationDirection,
-    } = useTabIndicator();
+    const { getRootProps, activeTabPosition: selectedTabPosition } = useTabIndicator({
+      tabsListRef,
+      getTabElement,
+      selectedValue: activeTabValue,
+    });
 
     const ownerState: TabIndicatorOwnerState = {
       selectedTabPosition,

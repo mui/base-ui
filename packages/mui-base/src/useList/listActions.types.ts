@@ -1,3 +1,6 @@
+import { IndexableMap } from '../utils/IndexableMap';
+import type { ListItemMetadata } from './useList.types';
+
 export const ListActionTypes = {
   blur: 'list:blur',
   focus: 'list:focus',
@@ -6,6 +9,7 @@ export const ListActionTypes = {
   itemsChange: 'list:itemsChange',
   keyDown: 'list:keyDown',
   resetHighlight: 'list:resetHighlight',
+  highlight: 'list:highlight',
   highlightLast: 'list:highlightLast',
   textNavigation: 'list:textNavigation',
   clearSelection: 'list:clearSelection',
@@ -48,13 +52,18 @@ interface TextNavigationAction {
 interface ItemsChangeAction<ItemValue> {
   type: typeof ListActionTypes.itemsChange;
   event: null;
-  items: ItemValue[];
-  previousItems: ItemValue[];
+  items: IndexableMap<ItemValue, ListItemMetadata>;
 }
 
 interface ResetHighlightAction {
   type: typeof ListActionTypes.resetHighlight;
   event: React.SyntheticEvent | null;
+}
+
+interface HighlightAction<ItemValue> {
+  type: typeof ListActionTypes.highlight;
+  event: React.SyntheticEvent | null;
+  item: ItemValue | null;
 }
 
 interface HighlightLastAction {
@@ -77,6 +86,7 @@ export type ListAction<ItemValue> =
   | ItemsChangeAction<ItemValue>
   | KeyDownAction
   | ResetHighlightAction
+  | HighlightAction<ItemValue>
   | HighlightLastAction
   | TextNavigationAction
   | ClearSelectionAction;

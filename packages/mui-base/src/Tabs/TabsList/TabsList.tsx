@@ -3,9 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabsListOwnerState, TabsListProps } from './TabsList.types';
 import { useTabsList } from './useTabsList';
-import { TabsListProvider } from './TabsListProvider';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { TabsListContext } from './TabsListContext';
 
 /**
  *
@@ -48,7 +48,9 @@ const TabsList = React.forwardRef(function TabsList(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return <TabsListProvider value={contextValue}>{renderElement()}</TabsListProvider>;
+  return (
+    <TabsListContext.Provider value={contextValue}>{renderElement()}</TabsListContext.Provider>
+  );
 });
 
 TabsList.propTypes /* remove-proptypes */ = {

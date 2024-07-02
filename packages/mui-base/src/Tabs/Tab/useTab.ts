@@ -1,17 +1,16 @@
 'use client';
 import * as React from 'react';
-import { UseTabParameters, UseTabReturnValue } from './Tab.types';
-import { useTabsContext } from '../Root/TabsContext';
-import { TabMetadata } from '../Root/useTabsRoot';
+import { TabMetadata, UseTabParameters, UseTabReturnValue } from './Tab.types';
 import { useCompoundItem } from '../../useCompound';
 import { useListItem } from '../../useList';
 import { useButton } from '../../useButton';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 
-function tabValueGenerator(otherTabValues: Set<any>) {
-  return otherTabValues.size;
+function keyGenerator(index: number): number {
+  return index;
 }
 
 /**
@@ -25,23 +24,42 @@ function tabValueGenerator(otherTabValues: Set<any>) {
  * - [useTab API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab)
  */
 function useTab(parameters: UseTabParameters): UseTabReturnValue {
-  const { value: valueParam, rootRef: externalRef, disabled = false, id: idParam } = parameters;
+  const {
+    value: valueParam,
+    rootRef: externalRef,
+    disabled = false,
+    id: idParam,
+    compoundParentContext,
+    state,
+    orientation,
+    getTabPanelId,
+    dispatch,
+  } = parameters;
 
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
 
-  const { value: selectedValue, getTabPanelId, orientation } = useTabsContext();
+  const tabMetadata: TabMetadata = React.useMemo(
+    () => ({ disabled, ref: tabRef, idAttribute: id }),
+    [disabled, tabRef, id],
+  );
 
-  const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
+  const { key: value } = useCompoundItem<any, TabMetadata>({
+    key: valueParam,
+    keyGenerator,
+    itemMetadata: tabMetadata,
+    parentContext: compoundParentContext,
+  });
 
-  const {
-    id: value,
-    index,
-    totalItemCount: totalTabsCount,
-  } = useCompoundItem<any, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
+  const selected = state.selectedValues.includes(value);
+  const highlighted = state.highlightedValue === value;
 
-  const { getRootProps: getListItemProps, selected } = useListItem({
+  const { getRootProps: getListItemProps } = useListItem({
     item: value,
+    dispatch,
+    focusable: true,
+    highlighted,
+    selected,
   });
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
@@ -55,8 +73,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const tabPanelId = value !== undefined ? getTabPanelId(value) : undefined;
 
   const getRootProps = React.useCallback(
-    (externalProps = {}) => {
-      //
+    (externalProps?: GenericHTMLProps) => {
       return mergeReactProps<'button'>(
         externalProps,
         mergeReactProps<'button'>(
@@ -76,13 +93,10 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   return {
     getRootProps,
-    index,
     rootRef: handleRef,
-    // the `selected` state isn't set on the server (it relies on effects to be calculated),
-    // so we fall back to checking the `value` prop with the selectedValue from the TabsContext
-    selected: selected || value === selectedValue,
-    totalTabsCount,
+    selected,
     orientation,
+    value,
   };
 }
 

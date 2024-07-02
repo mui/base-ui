@@ -57,3 +57,8 @@ export interface UseTabPanelReturnValue {
   direction: TabsDirection;
   tabActivationDirection: TabActivationDirection;
 }
+
+export type TabPanelMetadata = {
+  id: string | undefined;
+  ref: React.RefObject<HTMLElement>;
+};

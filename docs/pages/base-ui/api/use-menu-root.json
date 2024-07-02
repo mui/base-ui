@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useMenuRoot",
+  "filename": "/packages/mui-base/src/Menu/Root/useMenuRoot.ts",
+  "imports": ["import { useMenuRoot } from '@base_ui/react/Menu';"],
+  "demos": "<ul></ul>"
+}

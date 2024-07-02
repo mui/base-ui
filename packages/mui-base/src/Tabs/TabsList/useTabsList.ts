@@ -4,17 +4,38 @@ import {
   TabsListActionTypes,
   type UseTabsListParameters,
   type UseTabsListReturnValue,
-  type ValueChangeAction,
 } from './TabsList.types';
-import { tabsListReducer } from './tabsListReducer';
+import { TabsReducerState, tabsListReducer } from './tabsListReducer';
 import { useTabsContext } from '../Root/TabsContext';
-import { type TabMetadata } from '../Root/useTabsRoot';
+import { type TabMetadata } from '../Tab/Tab.types';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot.types';
 import { useCompoundParent } from '../../useCompound';
-import { useList, ListState, UseListParameters } from '../../useList';
+import { useList, ListActionTypes } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { TabsListContextValue } from './TabsListContext';
+import { useControllableReducer } from '../../utils/useControllableReducer';
+import { IndexableMap } from '../../utils/IndexableMap';
+import { StateChangeCallback } from '../../utils/useControllableReducer.types';
+import { areArraysEqual } from '../../utils/areArraysEqual';
+
+const INITIAL_STATE: TabsReducerState = {
+  highlightedValue: null,
+  selectedValues: [],
+  items: new IndexableMap(),
+  tabsListRef: { current: null },
+  settings: {
+    activateOnFocus: false,
+    disabledItemsFocusable: false,
+    disableListWrap: false,
+    focusManagement: 'DOM',
+    orientation: 'horizontal',
+    direction: 'ltr',
+    pageSize: 1,
+    selectionMode: 'single',
+  },
+};
 
 /**
  *
@@ -38,21 +59,16 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     tabActivationDirection,
   } = useTabsContext();
 
-  const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
-    any,
-    TabMetadata
-  >();
+  const { subitems, context: compoundParentContext } = useCompoundParent<any, TabMetadata>();
 
   const tabIdLookup = React.useCallback(
     (tabValue: any) => {
-      return subitems.get(tabValue)?.id;
+      return subitems.get(tabValue)?.idAttribute;
     },
     [subitems],
   );
 
   registerTabIdLookup(tabIdLookup);
-
-  const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
 
   const getTabElement = React.useCallback(
     (tabValue: any) => {
@@ -65,13 +81,6 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     [subitems],
   );
 
-  let listOrientation: UseListParameters<any, any>['orientation'];
-  if (orientation === 'vertical') {
-    listOrientation = 'vertical';
-  } else {
-    listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
-  }
-
   const tabsListRef = React.useRef<HTMLElement | null>(null);
   const detectActivationDirection = useActivationDirectionDetector(
     value,
@@ -80,18 +89,30 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     getTabElement,
   );
 
-  const handleChange = React.useCallback(
-    (
-      event:
-        | React.FocusEvent<Element, Element>
-        | React.KeyboardEvent<Element>
-        | React.MouseEvent<Element, MouseEvent>
-        | null,
-      newValue: any[],
-    ) => {
-      const newSelectedValue = newValue[0] ?? null;
-      const activationDirection = detectActivationDirection(newSelectedValue);
-      onSelected(event, newValue[0] ?? null, activationDirection);
+  const handleChange: StateChangeCallback<TabsReducerState> = React.useCallback(
+    (event, field, newValue, reason, newState) => {
+      switch (field) {
+        case 'selectedValues': {
+          const newSelectedValue = newValue[0] ?? null;
+          const activationDirection = detectActivationDirection(newSelectedValue);
+          onSelected(event, newValue[0] ?? null, activationDirection);
+          break;
+        }
+
+        case 'highlightedValue': {
+          if (
+            newValue != null &&
+            (reason === ListActionTypes.itemClick ||
+              reason === ListActionTypes.keyDown ||
+              reason === ListActionTypes.textNavigation)
+          ) {
+            newState.items.get(newValue)?.ref.current?.focus();
+          }
+          break;
+        }
+
+        default:
+      }
     },
     [onSelected, detectActivationDirection],
   );
@@ -100,31 +121,40 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     return value != null ? { selectedValues: [value] } : { selectedValues: [] };
   }, [value]);
 
-  const isItemDisabled = React.useCallback(
-    (item: any) => subitems.get(item)?.disabled ?? false,
-    [subitems],
+  const initialState: TabsReducerState = React.useMemo(
+    () => ({
+      ...INITIAL_STATE,
+      tabsListRef,
+      settings: {
+        ...INITIAL_STATE.settings,
+        activateOnFocus,
+        orientation,
+        direction,
+        disableListWrap: !loop,
+      },
+    }),
+    [activateOnFocus, orientation, direction, loop],
   );
 
-  const {
-    contextValue: listContextValue,
-    dispatch,
-    getRootProps: getListboxRootProps,
-    state: { highlightedValue, selectedValues },
-    rootRef: mergedRootRef,
-  } = useList<any, ListState<any>, ValueChangeAction, { activateOnFocus: boolean }>({
+  const [state, dispatch] = useControllableReducer({
+    reducer: tabsListReducer,
     controlledProps,
-    disabledItemsFocusable: !activateOnFocus,
+    initialState,
+    onStateChange: handleChange,
+    stateComparers: {
+      selectedValues: areArraysEqual,
+    },
+  });
+
+  const { getRootProps: getListboxRootProps, rootRef: mergedRootRef } = useList({
+    dispatch,
     focusManagement: 'DOM',
-    getItemDomElement: getTabElement,
-    isItemDisabled,
-    items: subitemKeys,
+    items: subitems,
     rootRef: externalRef,
-    onChange: handleChange,
-    orientation: listOrientation,
-    reducerActionContext: React.useMemo(() => ({ activateOnFocus }), [activateOnFocus]),
-    selectionMode: 'single',
-    stateReducer: tabsListReducer,
-    disableListWrap: !loop,
+    orientation,
+    direction,
+    highlightedValue: state.highlightedValue,
+    selectedValues: state.selectedValues,
   });
 
   React.useEffect(() => {
@@ -159,34 +189,26 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     );
   };
 
-  const contextValue = React.useMemo(
+  const contextValue: TabsListContextValue = React.useMemo(
     () => ({
-      ...compoundComponentContextValue,
-      ...listContextValue,
-      activateOnFocus,
+      compoundParentContext,
       getTabElement,
       value,
-      tabsListRef,
+      state,
+      dispatch,
     }),
-    [
-      compoundComponentContextValue,
-      listContextValue,
-      activateOnFocus,
-      getTabElement,
-      value,
-      tabsListRef,
-    ],
+    [compoundParentContext, getTabElement, value, state, dispatch],
   );
 
   return {
     contextValue,
     dispatch,
     getRootProps,
-    highlightedValue,
+    highlightedValue: state.highlightedValue,
     direction,
     orientation,
     rootRef: handleRef,
-    selectedValue: selectedValues[0] ?? null,
+    selectedValue: state.selectedValues[0] ?? null,
     tabActivationDirection,
   };
 }

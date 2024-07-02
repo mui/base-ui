@@ -45,6 +45,7 @@ interface UseAnchorPositioningParameters {
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
+  nodeId?: string;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -83,6 +84,7 @@ export function useAnchorPositioning(
     keepMounted = false,
     arrowPadding = 5,
     mounted = true,
+    nodeId,
   } = params;
 
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
@@ -196,6 +198,7 @@ export function useAnchorPositioning(
     middleware,
     strategy: positionStrategy,
     whileElementsMounted: keepMounted ? undefined : autoUpdate,
+    nodeId,
   });
 
   // We can assume that element anchors are stable across renders, and thus can be reactive.

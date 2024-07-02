@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Simplify } from '@mui/types';
-import { UseOptionRootSlotProps } from '../useOption';
 import { PolymorphicProps } from '../utils/PolymorphicComponent';
 import { SlotComponentProps } from '../utils/types';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface OptionRootSlotPropsOverrides {}
 
@@ -75,12 +75,11 @@ export type OptionOwnerState<OptionValue> = Simplify<
   OptionOwnProps<OptionValue> & {
     selected: boolean;
     highlighted: boolean;
-    index: number;
   }
 >;
 
 export type OptionRootSlotProps<OptionValue> = Simplify<
-  UseOptionRootSlotProps & {
+  GenericHTMLProps & {
     children?: React.ReactNode;
     className: string;
     ref: React.Ref<HTMLElement>;

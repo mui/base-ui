@@ -2,9 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TabsRootOwnerState, TabsRootProps } from './TabsRoot.types';
+import { TabsContext } from './TabsContext';
 import { useTabsRoot } from './useTabsRoot';
 import { tabsStyleHookMapping } from './styleHooks';
-import { TabsProvider } from './TabsProvider';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
@@ -56,7 +56,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return <TabsProvider value={contextValue}>{renderElement()}</TabsProvider>;
+  return <TabsContext.Provider value={contextValue}>{renderElement()}</TabsContext.Provider>;
 });
 
 TabsRoot.propTypes /* remove-proptypes */ = {

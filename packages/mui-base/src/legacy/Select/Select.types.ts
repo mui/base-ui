@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { Simplify } from '@mui/types';
-import { SelectValue, UseSelectButtonSlotProps, UseSelectListboxSlotProps } from '../useSelect';
+import { SelectValue } from '../useSelect';
 import { SelectOption } from '../useOption';
 import { PopupProps } from '../Unstable_Popup';
 import { PolymorphicProps } from '../utils/PolymorphicComponent';
 import { SlotComponentProps } from '../utils/types';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface SelectRootSlotPropsOverrides {}
 export interface SelectListboxSlotPropsOverrides {}
@@ -139,6 +140,7 @@ export interface SelectOwnProps<OptionValue extends {}, Multiple extends boolean
    * Set to `null` to deselect all options.
    */
   value?: SelectValue<OptionValue, Multiple>;
+  keyExtractor?: (option: SelectOption<OptionValue>) => any;
 }
 
 export interface SelectSlots {
@@ -199,15 +201,13 @@ export interface SelectType {
 
 export type SelectOwnerState<OptionValue extends {}, Multiple extends boolean> = Simplify<
   SelectOwnProps<OptionValue, Multiple> & {
-    active: boolean;
     disabled: boolean;
-    focusVisible: boolean;
     open: boolean;
   }
 >;
 
 export type SelectRootSlotProps<OptionValue extends {}, Multiple extends boolean> = Simplify<
-  UseSelectButtonSlotProps & {
+  GenericHTMLProps & {
     className?: string;
     children?: React.ReactNode;
     ownerState: SelectOwnerState<OptionValue, Multiple>;
@@ -215,7 +215,7 @@ export type SelectRootSlotProps<OptionValue extends {}, Multiple extends boolean
 >;
 
 export type SelectListboxSlotProps<OptionValue extends {}, Multiple extends boolean> = Simplify<
-  UseSelectListboxSlotProps & {
+  GenericHTMLProps & {
     className?: string;
     children?: React.ReactNode;
     ownerState: SelectOwnerState<OptionValue, Multiple>;
