@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -47,12 +48,7 @@ export interface UsePopoverRootParameters {
    */
   keepMounted?: boolean;
   /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis?: 'none' | 'x' | 'y';
-  /**
-   * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
+   * Whether the popover can animate, adding animation-related attributes and allowing for exit
    * animations to play. Useful to disable in tests to remove async behavior.
    * @default true
    */
@@ -74,8 +70,8 @@ export interface UsePopoverRootReturnValue {
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   instantType: 'dismiss' | 'click' | undefined;
   triggerElement: Element | null;
-  positionerElement: HTMLElement | null;
   setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+  positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLElement>;
 }
