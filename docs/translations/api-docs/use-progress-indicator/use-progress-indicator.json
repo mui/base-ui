@@ -1,0 +1,12 @@
+{
+  "hookDescription": "",
+  "parametersDescriptions": {
+    "direction": { "description": "The direction that progress bars fill in" },
+    "max": { "description": "The maximum value" },
+    "min": { "description": "The minimum value" },
+    "value": {
+      "description": "The current value. The component is indeterminate when value is <code>null</code>."
+    }
+  },
+  "returnValueDescriptions": {}
+}

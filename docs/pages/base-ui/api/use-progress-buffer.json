@@ -1,0 +1,24 @@
+{
+  "parameters": {
+    "bufferValue": { "type": { "name": "number", "description": "number" }, "required": true },
+    "direction": {
+      "type": { "name": "ProgressDirection", "description": "ProgressDirection" },
+      "default": "'ltr'"
+    },
+    "max": { "type": { "name": "number", "description": "number" }, "default": "100" },
+    "min": { "type": { "name": "number", "description": "number" }, "default": "0" }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    }
+  },
+  "name": "useProgressBuffer",
+  "filename": "/packages/mui-base/src/Progress/ProgressBuffer/useProgressBuffer.ts",
+  "imports": ["import { useProgressBuffer } from '@base_ui/react/Progress';"],
+  "demos": "<ul></ul>"
+}
