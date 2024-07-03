@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import { createRenderer } from '../../../test';
 import { OPEN_DELAY } from '../utils/constants';
 
-const waitForPosition = async () => act(async () => {});
+const waitForPosition = () => act(async () => {});
 
 function Root(props: Popover.RootProps) {
   return <Popover.Root {...props} animated={false} />;
@@ -15,8 +15,8 @@ function Root(props: Popover.RootProps) {
 describe('<Popover.Root />', () => {
   const { render, clock } = createRenderer();
 
-  it('should render the children', () => {
-    render(
+  it('should render the children', async () => {
+    await render(
       <Root>
         <Popover.Trigger>Content</Popover.Trigger>
       </Root>,
@@ -27,7 +27,7 @@ describe('<Popover.Root />', () => {
 
   describe('uncontrolled open', () => {
     it('should open when the anchor is clicked', async () => {
-      render(
+      await render(
         <Root>
           <Popover.Trigger />
           <Popover.Positioner>

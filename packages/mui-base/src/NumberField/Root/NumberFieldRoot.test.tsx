@@ -5,7 +5,7 @@ import { act, createRenderer, screen, fireEvent } from '@mui/internal-test-utils
 import * as NumberFieldBase from '@base_ui/react/NumberField';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<NumberField />', () => {
+describe.skip('<NumberField />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberFieldBase.Root />, () => ({

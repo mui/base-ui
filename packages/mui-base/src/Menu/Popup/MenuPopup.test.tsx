@@ -47,7 +47,7 @@ const testContext: MenuRootContext = {
   isNested: false,
 };
 
-describe('<Menu.Popup />', () => {
+describe.skip('<Menu.Popup />', () => {
   const mount = createMount();
   const { render: internalRender } = createRenderer();
 

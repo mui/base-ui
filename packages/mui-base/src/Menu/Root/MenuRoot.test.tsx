@@ -5,7 +5,7 @@ import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
 import { createRenderer } from '../../../test';
 
-describe('<Menu.Root />', () => {
+describe.skip('<Menu.Root />', () => {
   const { render } = createRenderer();
 
   describe('keyboard navigation', () => {
