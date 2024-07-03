@@ -32,7 +32,8 @@ export function useCompoundItem<Key, Subitem extends { ref: any }>(
       return deregister;
     }
 
-    const { deregister } = registerItem(keyParam, itemMetadata);
+    const { deregister, index: itemIndex } = registerItem(keyParam, itemMetadata);
+    setIndex(itemIndex);
     return deregister;
   }, [registerItem, itemMetadata, keyParam, getRegisteredItemCount, keyGenerator]);
 
