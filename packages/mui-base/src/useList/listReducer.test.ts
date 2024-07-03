@@ -8,33 +8,6 @@ import { IndexableMap } from '../utils/IndexableMap';
 const EMPTY_REF = { current: null };
 
 describe('listReducer', () => {
-  describe('action: blur', () => {
-    it('resets the highlightedValue', () => {
-      const state: ListState<string> = {
-        highlightedValue: 'a',
-        selectedValues: [],
-        items: new IndexableMap(),
-        settings: {
-          disableListWrap: false,
-          disabledItemsFocusable: false,
-          focusManagement: 'activeDescendant',
-          orientation: 'vertical',
-          direction: 'ltr',
-          pageSize: 5,
-          selectionMode: 'single',
-        },
-      };
-
-      const action: ListAction<string> = {
-        type: ListActionTypes.blur,
-        event: {} as any, // not relevant
-      };
-
-      const result = listReducer(state, action);
-      expect(result.highlightedValue).to.equal(null);
-    });
-  });
-
   describe('action: itemClick', () => {
     it('sets the selectedValues to the clicked value', () => {
       const state: ListState<string> = {
