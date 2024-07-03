@@ -51,6 +51,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: MouseEvent) => {
+            event.preventDefault();
             dispatch({ type: MenuActionTypes.open, event });
             const mousedownTarget = event.target as Element;
             function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {
@@ -64,6 +65,9 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
             }
 
             ownerDocument(mousedownTarget).addEventListener('mouseup', handleDocumentMouseUp);
+          },
+          onClick: (event: MouseEvent) => {
+            dispatch({ type: MenuActionTypes.open, event });
           },
         },
         getButtonRootProps(),

@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
 import { FloatingRootContext } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuPopupContext, MenuPopupContextValue, MenuRootContext } from '@base_ui/react/Menu';
-import { describeConformance } from '../../../test';
+import { describeConformance, createRenderer } from '../../../test';
 import { IndexableMap } from '../../utils/IndexableMap';
 
 const testRootContext: MenuRootContext = {
@@ -17,6 +16,7 @@ const testRootContext: MenuRootContext = {
     triggerElement: null,
     positionerElement: null,
     hasNestedMenuOpen: false,
+    clickAndDragging: false,
     settings: {
       disabledItemsFocusable: false,
       disableListWrap: false,
@@ -28,9 +28,9 @@ const testRootContext: MenuRootContext = {
     },
   },
   floatingRootContext: {} as FloatingRootContext,
-  getPositionerProps: () => ({}),
-  getTriggerProps: () => ({}),
-  getItemProps: () => ({}),
+  getPositionerProps: (p) => ({ ...p }),
+  getTriggerProps: (p) => ({ ...p }),
+  getItemProps: (p) => ({ ...p }),
   parentContext: null,
   topmostContext: null,
   isNested: false,

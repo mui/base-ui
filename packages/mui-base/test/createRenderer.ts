@@ -6,14 +6,6 @@ import {
   MuiRenderResult,
 } from '@mui/internal-test-utils';
 
-function safeAct(callback: () => void) {
-  if (navigator.userAgent.includes('jsdom')) {
-    return act(callback);
-  }
-
-  return callback();
-}
-
 interface Clock {
   /**
    * Runs all timers until there are no more remaining.
@@ -58,7 +50,7 @@ export function createRenderer(globalOptions?: CreateRendererOptions): CreateRen
     const result = await originalRender(element, options);
 
     // flush microtasks
-    await safeAct(() => async () => {});
+    await act(async () => {});
 
     return result;
   };

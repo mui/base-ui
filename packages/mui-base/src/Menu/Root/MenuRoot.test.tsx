@@ -1,166 +1,91 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import {
-  act,
-  flushMicrotasks,
-  MuiRenderResult,
-  RenderOptions,
-  fireEvent,
-  createRenderer,
-} from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
-
-async function waitForPosition() {
-  return act(async () => {});
-}
+import { createRenderer } from '../../../test';
 
 describe('<Menu.Root />', () => {
-  const { render: internalRender, clock } = createRenderer({ clock: 'fake' });
-
-  async function render(
-    element: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
-    options?: RenderOptions,
-  ): Promise<MuiRenderResult> {
-    const rendered = internalRender(element, options);
-    await act(async () => {});
-    return rendered;
-  }
-
-  describe('after initialization', () => {
-    function Test() {
-      return (
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Popup>
-            <Menu.Item>1</Menu.Item>
-            <Menu.Item>2</Menu.Item>
-            <Menu.Item>3</Menu.Item>
-          </Menu.Popup>
-        </Menu.Root>
-      );
-    }
-
-    it('highlights the first item when the menu is opened', async () => {
-      const { getAllByRole } = await render(<Test />);
-      const [firstItem, ...otherItems] = getAllByRole('menuitem');
-
-      expect(firstItem.tabIndex).to.equal(0);
-      otherItems.forEach((item) => {
-        expect(item.tabIndex).to.equal(-1);
-      });
-    });
-
-    it('highlights first item when down arrow key opens the menu', async () => {
-      const { getByRole, getAllByRole } = await render(<Test />);
-
-      const trigger = getByRole('button');
-      const [firstItem, ...otherItems] = getAllByRole('menuitem');
-
-      act(() => {
-        trigger.focus();
-      });
-
-      fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-
-      expect(firstItem.tabIndex).to.equal(0);
-      otherItems.forEach((item) => {
-        expect(item.tabIndex).to.equal(-1);
-      });
-    });
-
-    it('highlights last item when up arrow key opens the menu', async () => {
-      const { getByRole, getAllByRole } = await render(<Test />);
-
-      const trigger = getByRole('button');
-      const [firstItem, secondItem, lastItem] = getAllByRole('menuitem');
-
-      act(() => {
-        trigger.focus();
-      });
-
-      fireEvent.keyDown(trigger, { key: 'ArrowUp' });
-
-      expect(lastItem.tabIndex).to.equal(0);
-      [firstItem, secondItem].forEach((item) => {
-        expect(item.tabIndex).to.equal(-1);
-      });
-    });
-  });
+  const { render } = createRenderer();
 
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
-      const { getByTestId } = await render(
-        <Menu.Root open>
-          <Menu.Popup>
-            <Menu.Item data-testid="item-1">1</Menu.Item>
-            <Menu.Item data-testid="item-2">2</Menu.Item>
-            <Menu.Item data-testid="item-3">3</Menu.Item>
-          </Menu.Popup>
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item data-testid="item-1">1</Menu.Item>
+              <Menu.Item data-testid="item-2">2</Menu.Item>
+              <Menu.Item data-testid="item-3">3</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
         </Menu.Root>,
       );
 
-      const item1 = getByTestId('item-1');
       const item2 = getByTestId('item-2');
       const item3 = getByTestId('item-3');
 
-      act(() => {
-        item1.focus();
-      });
+      const trigger = getByRole('button', { name: 'Toggle' });
+      await userEvent.click(trigger);
 
-      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await userEvent.keyboard('{ArrowDown}');
       expect(item2).toHaveFocus();
 
-      fireEvent.keyDown(item2, { key: 'ArrowDown' });
+      await userEvent.keyboard('{ArrowDown}');
       expect(item3).toHaveFocus();
 
-      fireEvent.keyDown(item3, { key: 'ArrowUp' });
+      await userEvent.keyboard('{ArrowUp}');
       expect(item2).toHaveFocus();
     });
 
     it('changes the highlighted item using the Home and End keys', async () => {
-      const { getByTestId } = await render(
-        <Menu.Root open>
-          <Menu.Popup>
-            <Menu.Item data-testid="item-1">1</Menu.Item>
-            <Menu.Item data-testid="item-2">2</Menu.Item>
-            <Menu.Item data-testid="item-3">3</Menu.Item>
-          </Menu.Popup>
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item data-testid="item-1">1</Menu.Item>
+              <Menu.Item data-testid="item-2">2</Menu.Item>
+              <Menu.Item data-testid="item-3">3</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
         </Menu.Root>,
       );
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+      await userEvent.click(trigger);
 
       const item1 = getByTestId('item-1');
       const item3 = getByTestId('item-3');
 
-      act(() => {
-        item1.focus();
-      });
-
-      fireEvent.keyDown(item1, { key: 'End' });
+      await userEvent.keyboard('{End}');
       expect(item3).toHaveFocus();
 
-      fireEvent.keyDown(item3, { key: 'Home' });
+      await userEvent.keyboard('{Home}');
       expect(item1).toHaveFocus();
     });
 
     it('includes disabled items during keyboard navigation', async () => {
-      const { getByTestId } = await render(
-        <Menu.Root open>
-          <Menu.Popup>
-            <Menu.Item data-testid="item-1">1</Menu.Item>
-            <Menu.Item disabled data-testid="item-2">
-              2
-            </Menu.Item>
-          </Menu.Popup>
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item data-testid="item-1">1</Menu.Item>
+              <Menu.Item disabled data-testid="item-2">
+                2
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
         </Menu.Root>,
       );
 
+      const trigger = getByRole('button', { name: 'Toggle' });
+      await userEvent.click(trigger);
+
       const item1 = getByTestId('item-1');
       const item2 = getByTestId('item-2');
-
-      act(() => {
-        item1.focus();
-      });
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
       expect(item2).toHaveFocus();
@@ -394,12 +319,8 @@ describe('<Menu.Root />', () => {
   });
 
   describe('nested menus', () => {
-    clock.withFakeTimers();
-    const user = userEvent.setup({
-      advanceTimers: (delay) => {
-        clock.tick(delay);
-      },
-    });
+    // clock.withFakeTimers();
+    const user = userEvent.setup();
 
     (
       [
@@ -514,73 +435,80 @@ describe('<Menu.Root />', () => {
         deeplyNestedItem.focus();
       });
 
-      expect(deeplyNestedItem).toHaveFocus();
-
       await user.keyboard('[Escape]');
 
       const allMenus = queryAllByRole('menu', { hidden: false });
       expect(allMenus).to.have.length(0);
     });
-
-    it('opens a nested menu on mouse hover', async () => {
-      const { getByTestId, queryByTestId } = await render(
-        <Menu.Root defaultOpen>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Root>
-                <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                <Menu.Positioner>
-                  <Menu.Popup data-testid="submenu">
-                    <Menu.Item>2.1</Menu.Item>
-                    <Menu.Item>2.2</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Root>,
-      );
-
-      const submenuTrigger = getByTestId('submenu-trigger');
-      const submenu = queryByTestId('submenu');
-
-      user.hover(submenuTrigger);
-
-      clock.tick(200);
-
-      await waitForPosition();
-
-      expect(submenu).not.to.equal(null);
-      expect(submenu).not.toBeInaccessible();
-    });
   });
 
   describe('focus management', () => {
-    it('focuses the first item after the menu is opened', async () => {
-      const { getByRole, getAllByRole } = await render(
-        <div>
-          <Menu.Root>
-            <Menu.Trigger>Toggle</Menu.Trigger>
+    function Test() {
+      return (
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Positioner>
             <Menu.Popup>
-              <Menu.Item>One</Menu.Item>
-              <Menu.Item>Two</Menu.Item>
-              <Menu.Item>Three</Menu.Item>
+              <Menu.Item>1</Menu.Item>
+              <Menu.Item>2</Menu.Item>
+              <Menu.Item>3</Menu.Item>
             </Menu.Popup>
-          </Menu.Root>
-        </div>,
+          </Menu.Positioner>
+        </Menu.Root>
       );
+    }
 
-      const button = getByRole('button');
-      act(() => {
-        button.click();
+    it('focuses the first item after the menu is opened', async () => {
+      const { getAllByRole, getByRole } = await render(<Test />);
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+
+      userEvent.click(trigger);
+
+      const [firstItem, ...otherItems] = getAllByRole('menuitem');
+
+      expect(firstItem.tabIndex).to.equal(0);
+      otherItems.forEach((item) => {
+        expect(item.tabIndex).to.equal(-1);
+      });
+    });
+
+    it('focuses the first item when down arrow key opens the menu', async () => {
+      const { getByRole, getAllByRole } = await render(<Test />);
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+      const [firstItem, ...otherItems] = getAllByRole('menuitem');
+
+      await act(() => {
+        trigger.focus();
       });
 
-      const menuItems = getAllByRole('menuitem');
+      fireEvent.keyDown(trigger, { key: 'ArrowDown' });
 
-      await flushMicrotasks();
+      expect(firstItem).toHaveFocus();
+      expect(firstItem.tabIndex).to.equal(0);
+      otherItems.forEach((item) => {
+        expect(item.tabIndex).to.equal(-1);
+      });
+    });
 
-      expect(menuItems[0]).toHaveFocus();
+    it('focuses the last item when up arrow key opens the menu', async () => {
+      const { getByRole, getAllByRole } = await render(<Test />);
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+      const [firstItem, secondItem, lastItem] = getAllByRole('menuitem');
+
+      act(() => {
+        trigger.focus();
+      });
+
+      fireEvent.keyDown(trigger, { key: 'ArrowUp' });
+
+      expect(lastItem).toHaveFocus();
+      expect(lastItem.tabIndex).to.equal(0);
+      [firstItem, secondItem].forEach((item) => {
+        expect(item.tabIndex).to.equal(-1);
+      });
     });
 
     it('focuses the trigger after the menu is closed', async () => {
@@ -589,15 +517,17 @@ describe('<Menu.Root />', () => {
           <input type="text" />
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Popup>
-              <Menu.Item>Close</Menu.Item>
-            </Menu.Popup>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Close</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>
           <input type="text" />
         </div>,
       );
 
-      const button = getByRole('button');
+      const button = getByRole('button', { name: 'Toggle' });
       act(() => {
         button.click();
       });

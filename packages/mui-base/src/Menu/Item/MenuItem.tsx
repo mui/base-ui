@@ -87,9 +87,9 @@ const InnerMenuItem = React.memo(
  */
 const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItemProps,
-  ref: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp } = props;
+  const { id: idProp, ...other } = props;
   const { dispatch, topmostContext, state, getItemProps } = useMenuRootContext();
   const { orientation, direction } = state.settings;
   const id = useId(idProp);
@@ -104,9 +104,9 @@ const MenuItem = React.forwardRef(function MenuItem(
 
   return (
     <InnerMenuItem
-      {...props}
+      {...other}
       id={id}
-      ref={ref}
+      ref={forwardedRef}
       dispatch={dispatch}
       rootDispatch={topmostContext?.dispatch ?? dispatch}
       highlighted={highlighted}

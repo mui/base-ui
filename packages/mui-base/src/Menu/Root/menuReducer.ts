@@ -22,7 +22,7 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       };
 
     case MenuActionTypes.open: {
-      const updateHighlight = action.event instanceof KeyboardEvent;
+      const updateHighlight = action.event instanceof window.KeyboardEvent;
       const clickAndDragging = action.event?.type === 'mousedown';
 
       return {

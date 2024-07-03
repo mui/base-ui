@@ -27,6 +27,7 @@ const testContext: MenuRootContext = {
     triggerElement: null,
     positionerElement: null,
     hasNestedMenuOpen: false,
+    clickAndDragging: false,
     settings: {
       disabledItemsFocusable: true,
       disableListWrap: false,
@@ -40,9 +41,9 @@ const testContext: MenuRootContext = {
   parentContext: null,
   topmostContext: null,
   floatingRootContext: {} as FloatingRootContext,
-  getPositionerProps: () => ({}),
-  getTriggerProps: () => ({}),
-  getItemProps: () => ({}),
+  getPositionerProps: (p) => ({ ...p }),
+  getTriggerProps: (p) => ({ ...p }),
+  getItemProps: (p) => ({ ...p }),
   isNested: false,
 };
 
