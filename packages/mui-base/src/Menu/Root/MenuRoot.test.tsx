@@ -5,7 +5,7 @@ import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
 import { createRenderer } from '../../../test';
 
-describe.skip('<Menu.Root />', () => {
+describe('<Menu.Root />', () => {
   const { render } = createRenderer();
 
   describe('keyboard navigation', () => {
@@ -319,7 +319,6 @@ describe.skip('<Menu.Root />', () => {
   });
 
   describe('nested menus', () => {
-    // clock.withFakeTimers();
     const user = userEvent.setup();
 
     (
