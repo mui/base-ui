@@ -30,6 +30,7 @@ export interface UseMenuRootParameters {
   parentState?: MenuReducerState;
   orientation: MenuOrientation;
   direction: MenuDirection;
+  disabled: boolean;
 }
 
 export interface UseMenuRootReturnValue {

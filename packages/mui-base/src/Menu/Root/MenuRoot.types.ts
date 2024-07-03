@@ -20,4 +20,5 @@ export interface MenuRootProps {
   open?: boolean;
   orientation?: ListOrientation;
   dir?: ListDirection;
+  disabled?: boolean;
 }

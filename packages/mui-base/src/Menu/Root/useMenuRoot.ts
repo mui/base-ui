@@ -31,6 +31,8 @@ const INITIAL_STATE: Omit<MenuReducerState, 'open' | 'settings'> = {
   clickAndDragging: false,
 };
 
+const EMPTY_ARRAY: never[] = [];
+
 /**
  *
  * API:
@@ -46,6 +48,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
     parentState,
     orientation,
     direction,
+    disabled,
   } = parameters;
 
   const lastActionType = React.useRef<string | null>(null);
@@ -139,7 +142,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && isNested,
+    enabled: hoverEnabled && isNested && !disabled,
     handleClose: safePolygon({ blockPointerEvents: true }),
     delay: {
       open: 75,
@@ -147,7 +150,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: isNested,
+    enabled: isNested && !disabled,
     event: 'mousedown',
     toggle: !isNested,
     ignoreMouse: isNested,
@@ -168,10 +171,14 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
   }, [state.items]);
 
   const listNavigation = useListNavigation(floatingRootContext, {
+    enabled: !disabled,
     listRef: itemDomElements,
     activeIndex,
     nested: isNested,
     loop: true,
+    orientation,
+    rtl: direction === 'rtl',
+    disabledIndices: EMPTY_ARRAY,
     onNavigate: (index) => {
       if (index !== activeIndex) {
         dispatch({

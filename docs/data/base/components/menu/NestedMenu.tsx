@@ -60,6 +60,23 @@ export default function NestedMenu() {
                 <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                   Paragraph
                 </MenuItem>
+                <Menu.Root disabled>
+                  <SubmenuTrigger disabled>List</SubmenuTrigger>
+                  <MenuPositioner alignment="start" side="right">
+                    <MenuPopup>
+                      <MenuItem
+                        onClick={createHandleMenuClick('Style/List/Ordered')}
+                      >
+                        Ordered
+                      </MenuItem>
+                      <MenuItem
+                        onClick={createHandleMenuClick('Style/List/Unordered')}
+                      >
+                        Unordered
+                      </MenuItem>
+                    </MenuPopup>
+                  </MenuPositioner>
+                </Menu.Root>
               </MenuPopup>
             </MenuPositioner>
           </Menu.Root>
@@ -164,7 +181,7 @@ const MenuItem = styled(Menu.Item)(
     outline: none;
   }
 
-  &.[data-disabled] {
+  &[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
   `,
@@ -196,7 +213,7 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
     outline: none;
   }
 
-  &.[data-disabled] {
+  &[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
   `,

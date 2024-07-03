@@ -9,22 +9,24 @@ import { useMenuRoot } from './useMenuRoot';
 function MenuRoot(props: MenuRootProps) {
   const {
     children,
-    open,
     defaultOpen,
-    onOpenChange,
-    orientation = 'vertical',
     dir: direction = 'ltr',
+    disabled = false,
+    onOpenChange,
+    open,
+    orientation = 'vertical',
   } = props;
 
   const parentContext = useMenuRootContext(true);
 
   const menuRoot = useMenuRoot({
     defaultOpen,
+    direction,
+    disabled,
     onOpenChange,
     open,
-    parentState: parentContext?.state,
     orientation,
-    direction,
+    parentState: parentContext?.state,
   });
 
   const context: MenuRootContext = React.useMemo(
