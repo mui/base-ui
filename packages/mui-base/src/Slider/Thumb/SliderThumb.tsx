@@ -5,7 +5,7 @@ import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSliderContext } from '../Root/SliderProvider';
+import { useSliderContext } from '../Root/SliderContext';
 import { SliderThumbProps } from './SliderThumb.types';
 import { useSliderThumb } from './useSliderThumb';
 
@@ -58,6 +58,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     step,
     tabIndex,
     values,
+    compoundParentContext,
   } = useSliderContext();
 
   const mergedRef = useForkRef(typeof render === 'function' ? null : render.ref, forwardedRef);
@@ -69,6 +70,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-valuetext': ariaValuetext,
     axis,
     changeValue,
+    compoundParentContext,
     direction,
     disabled: disabledProp || contextDisabled,
     getAriaLabel,

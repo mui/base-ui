@@ -38,7 +38,7 @@ const testRootContext: MenuRootContext = {
 
 const testPopupContext: MenuPopupContextValue = {
   compoundParentContext: {
-    registerItem: () => ({ deregister: () => {} }),
+    registerItem: () => ({ deregister: () => {}, index: 0 }),
     getRegisteredItemCount: () => 0,
   },
 };

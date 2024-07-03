@@ -12,7 +12,7 @@ describe('<Tabs.Tab />', () => {
   const testTabsListContext: TabsListContextValue = {
     dispatch: () => {},
     compoundParentContext: {
-      registerItem: () => ({ deregister: () => {} }),
+      registerItem: () => ({ deregister: () => {}, index: 0 }),
       getRegisteredItemCount: () => 0,
     },
     state: {
@@ -46,6 +46,7 @@ describe('<Tabs.Tab />', () => {
     compoundParentContext: {
       registerItem: () => ({
         deregister: () => {},
+        index: 0,
       }),
       getRegisteredItemCount: () => 0,
     },

@@ -171,7 +171,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     name: 'Slider',
   });
 
-  const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
+  const { context: compoundComponentContext, subitems } = useCompoundParent<
     string,
     SliderThumbMetadata
   >();
@@ -386,7 +386,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       'aria-labelledby': ariaLabelledby,
       axis,
       changeValue,
-      compoundComponentContextValue,
+      compoundParentContext: compoundComponentContext,
       dragging,
       direction,
       disabled,
@@ -416,7 +416,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       ariaLabelledby,
       axis,
       changeValue,
-      compoundComponentContextValue,
+      compoundComponentContext,
       dragging,
       direction,
       disabled,

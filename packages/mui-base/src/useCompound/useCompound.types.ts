@@ -5,6 +5,7 @@ export interface RegisterItemReturnValue {
    * A function that deregisters the item.
    */
   deregister: () => void;
+  index: number;
 }
 
 export type WithRef = { ref: React.RefObject<Node> };
@@ -48,4 +49,5 @@ export interface UseCompoundItemParameters<Key, Subitem extends WithRef> {
 
 export interface UseCompoundItemReturnValue<Key> {
   key: Key | undefined;
+  index: number;
 }

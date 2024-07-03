@@ -5,12 +5,11 @@ export {
   UseSliderParameters,
   UseSliderReturnValue,
   SliderContextValue,
-  SliderProviderValue,
   SliderThumbMetadata,
   Axis,
 } from './Root/SliderRoot.types';
 export { useSliderRoot } from './Root/useSliderRoot';
-export * from './Root/SliderProvider';
+export * from './Root/SliderContext';
 
 export { SliderOutput as Output } from './Output/SliderOutput';
 export type {

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
-import { SliderProvider } from './SliderProvider';
+import { SliderContext } from './SliderContext';
 import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
 
 const SliderRoot = React.forwardRef(function SliderRoot(
@@ -86,7 +86,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return <SliderProvider value={contextValue}>{renderElement()}</SliderProvider>;
+  return <SliderContext.Provider value={contextValue}>{renderElement()}</SliderContext.Provider>;
 });
 
 SliderRoot.propTypes /* remove-proptypes */ = {

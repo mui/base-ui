@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderProvider';
+import { useSliderContext } from '../Root/SliderContext';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderOutputProps } from './SliderOutput.types';
 import { useSliderOutput } from './useSliderOutput';

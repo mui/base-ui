@@ -23,7 +23,7 @@ describe('<Tabs.List />', () => {
             direction: 'ltr',
             tabActivationDirection: 'none',
             compoundParentContext: {
-              registerItem: () => ({ deregister: () => {} }),
+              registerItem: () => ({ deregister: () => {}, index: 0 }),
               getRegisteredItemCount: () => 0,
             },
           }}

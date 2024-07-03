@@ -36,7 +36,7 @@ export function useCompoundParent<Key, Subitem extends WithRef>(): UseCompoundPa
   const registerItem = React.useCallback(
     function registerItem(key: Key | undefined, item: Subitem) {
       if (key === undefined) {
-        return { deregister: NOOP };
+        return { deregister: NOOP, index: -1 };
       }
 
       subitemKeys.current.add(key);
@@ -49,6 +49,7 @@ export function useCompoundParent<Key, Subitem extends WithRef>(): UseCompoundPa
 
       return {
         deregister: () => deregisterItem(key),
+        index: subitemKeys.current.size - 1,
       };
     },
     [deregisterItem],

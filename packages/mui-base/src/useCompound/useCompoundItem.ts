@@ -20,13 +20,15 @@ export function useCompoundItem<Key, Subitem extends { ref: any }>(
   const { key: keyParam, keyGenerator, itemMetadata, parentContext } = parameters;
   const { registerItem, getRegisteredItemCount } = parentContext;
   const [key, setKey] = React.useState<Key | undefined>(keyParam);
+  const [index, setIndex] = React.useState<number>(-1);
 
   useEnhancedEffect(() => {
     if (keyParam == null && keyGenerator != null) {
       const registeredItemsCount = getRegisteredItemCount();
       const generatedKey = keyGenerator(registeredItemsCount);
       setKey(generatedKey);
-      const { deregister } = registerItem(generatedKey, itemMetadata);
+      const { deregister, index: itemIndex } = registerItem(generatedKey, itemMetadata);
+      setIndex(itemIndex);
       return deregister;
     }
 
@@ -34,5 +36,5 @@ export function useCompoundItem<Key, Subitem extends { ref: any }>(
     return deregister;
   }, [registerItem, itemMetadata, keyParam, getRegisteredItemCount, keyGenerator]);
 
-  return React.useMemo(() => ({ key }), [key]);
+  return React.useMemo(() => ({ key, index }), [key, index]);
 }
