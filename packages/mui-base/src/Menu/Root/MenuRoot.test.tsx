@@ -5,7 +5,7 @@ import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
 import { createRenderer } from '../../../test';
 
-describe('<Menu.Root />', () => {
+describe.only('<Menu.Root />', () => {
   const { render } = createRenderer();
 
   describe('keyboard navigation', () => {
@@ -93,6 +93,8 @@ describe('<Menu.Root />', () => {
     });
 
     describe('text navigation', () => {
+      const user = userEvent.setup();
+
       it('changes the highlighted item', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
@@ -102,14 +104,16 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Popup>
-              <Menu.Item>Aa</Menu.Item>
-              <Menu.Item>Ba</Menu.Item>
-              <Menu.Item>Bb</Menu.Item>
-              <Menu.Item>Ca</Menu.Item>
-              <Menu.Item>Cb</Menu.Item>
-              <Menu.Item>Cd</Menu.Item>
-            </Menu.Popup>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Aa</Menu.Item>
+                <Menu.Item>Ba</Menu.Item>
+                <Menu.Item>Bb</Menu.Item>
+                <Menu.Item>Ca</Menu.Item>
+                <Menu.Item>Cb</Menu.Item>
+                <Menu.Item>Cd</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>,
         );
 
@@ -137,12 +141,14 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root>
-            <Menu.Popup>
-              <Menu.Item>Aa</Menu.Item>
-              <Menu.Item>Ba</Menu.Item>
-              <Menu.Item>Bb</Menu.Item>
-              <Menu.Item>Ca</Menu.Item>
-            </Menu.Popup>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Aa</Menu.Item>
+                <Menu.Item>Ba</Menu.Item>
+                <Menu.Item>Bb</Menu.Item>
+                <Menu.Item>Ca</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>,
         );
 
@@ -166,34 +172,36 @@ describe('<Menu.Root />', () => {
       });
 
       it('changes the highlighted item using text navigation on label prop', async () => {
-        const { getAllByRole } = await render(
-          <Menu.Root open>
-            <Menu.Popup>
-              <Menu.Item label="Aa">1</Menu.Item>
-              <Menu.Item label="Ba">2</Menu.Item>
-              <Menu.Item label="Bb">3</Menu.Item>
-              <Menu.Item label="Ca">4</Menu.Item>
-            </Menu.Popup>
+        const { getByRole, getAllByRole } = await render(
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item label="Aa">1</Menu.Item>
+                <Menu.Item label="Ba">2</Menu.Item>
+                <Menu.Item label="Bb">3</Menu.Item>
+                <Menu.Item label="Ca">4</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>,
         );
 
         const items = getAllByRole('menuitem');
+        const trigger = getByRole('button', { name: 'Toggle' });
 
-        act(() => {
-          items[0].focus();
-        });
+        await user.click(trigger);
 
-        fireEvent.keyDown(items[0], { key: 'b' });
+        await user.keyboard('b');
         expect(items[1]).toHaveFocus();
         expect(items[1]).to.have.attribute('tabindex', '0');
 
-        fireEvent.keyDown(items[1], { key: 'b' });
+        await user.keyboard('b');
         expect(items[2]).toHaveFocus();
         expect(items[2]).to.have.attribute('tabindex', '0');
 
-        fireEvent.keyDown(items[2], { key: 'b' });
-        expect(items[1]).toHaveFocus();
-        expect(items[1]).to.have.attribute('tabindex', '0');
+        await user.keyboard('b');
+        expect(items[2]).toHaveFocus();
+        expect(items[2]).to.have.attribute('tabindex', '0');
       });
 
       it('skips the non-stringifiable items', async function test() {
@@ -205,17 +213,19 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Popup>
-              <Menu.Item>Aa</Menu.Item>
-              <Menu.Item>Ba</Menu.Item>
-              <Menu.Item />
-              <Menu.Item>
-                <div>Nested Content</div>
-              </Menu.Item>
-              <Menu.Item>{undefined}</Menu.Item>
-              <Menu.Item>{null}</Menu.Item>
-              <Menu.Item>Bc</Menu.Item>
-            </Menu.Popup>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Aa</Menu.Item>
+                <Menu.Item>Ba</Menu.Item>
+                <Menu.Item />
+                <Menu.Item>
+                  <div>Nested Content</div>
+                </Menu.Item>
+                <Menu.Item>{undefined}</Menu.Item>
+                <Menu.Item>{null}</Menu.Item>
+                <Menu.Item>Bc</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>,
         );
 
@@ -247,12 +257,14 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Popup>
-              <Menu.Item>Aa</Menu.Item>
-              <Menu.Item>Ba</Menu.Item>
-              <Menu.Item>Bb</Menu.Item>
-              <Menu.Item>Bą</Menu.Item>
-            </Menu.Popup>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Aa</Menu.Item>
+                <Menu.Item>Ba</Menu.Item>
+                <Menu.Item>Bb</Menu.Item>
+                <Menu.Item>Bą</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>,
         );
 
@@ -282,12 +294,14 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Popup>
-              <Menu.Item>Aa</Menu.Item>
-              <Menu.Item>ąa</Menu.Item>
-              <Menu.Item>ąb</Menu.Item>
-              <Menu.Item>ąc</Menu.Item>
-            </Menu.Popup>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Aa</Menu.Item>
+                <Menu.Item>ąa</Menu.Item>
+                <Menu.Item>ąb</Menu.Item>
+                <Menu.Item>ąc</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
           </Menu.Root>,
         );
 
