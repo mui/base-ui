@@ -9,7 +9,6 @@ import {
   SlotTestingOptions,
   describeRef,
   randomStringValue,
-  testClassName,
   testComponentProp,
   testReactTestRenderer,
 } from '@mui/internal-test-utils';
@@ -377,6 +376,25 @@ function testDisablingClassGeneration(
       // There can be empty class attributes as clsx returns an empty string given falsy arguments.
       expect(el.className.trim()).to.equal('');
     });
+  });
+}
+
+function testClassName(element: React.ReactElement, getOptions: () => ConformanceOptions) {
+  it('applies the className to the root component', async () => {
+    const { render } = getOptions();
+
+    if (!render) {
+      throwMissingPropError('render');
+    }
+
+    const className = randomStringValue();
+    const testId = randomStringValue();
+
+    const { getByTestId } = await render(
+      React.cloneElement(element, { className, 'data-testid': testId }),
+    );
+
+    expect(getByTestId(testId)).to.have.class(className);
   });
 }
 

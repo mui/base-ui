@@ -80,7 +80,7 @@
     "@mui/internal-docs-utils": "^1.0.7",
     "@mui/internal-markdown": "^1.0.6",
     "@mui/internal-scripts": "^1.0.11",
-    "@mui/internal-test-utils": "1.0.0-dev.20240529-082515-213b5e33ab",
+    "@mui/internal-test-utils": "1.0.3",
     "@mui/material": "6.0.0-alpha.13",
     "@mui/monorepo": "github:mui/material-ui#v6.0.0-alpha.12",
     "@mui/utils": "6.0.0-alpha.13",

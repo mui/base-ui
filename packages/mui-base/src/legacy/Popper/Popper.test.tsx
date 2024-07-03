@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer, createMount, screen } from '@mui/internal-test-utils';
+import { createRenderer, screen } from '@mui/internal-test-utils';
 import { Popper, popperClasses } from '@base_ui/react/legacy/Popper';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
@@ -12,7 +12,6 @@ function createAnchor() {
 
 describe('<Popper />', () => {
   const { render } = createRenderer();
-  const mount = createMount();
 
   const defaultProps = {
     anchorEl: () => createAnchor(),
@@ -23,7 +22,6 @@ describe('<Popper />', () => {
   describeConformanceUnstyled(<Popper {...defaultProps} />, () => ({
     inheritComponent: 'div',
     render,
-    mount,
     refInstanceof: window.HTMLDivElement,
     skip: [
       // https://github.com/facebook/react/issues/11565
