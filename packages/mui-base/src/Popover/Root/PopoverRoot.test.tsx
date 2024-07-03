@@ -13,8 +13,8 @@ function Root(props: Popover.RootProps) {
 describe('<Popover.Root />', () => {
   const { render, clock } = createRenderer();
 
-  it('should render the children', () => {
-    render(
+  it('should render the children', async () => {
+    await render(
       <Root>
         <Popover.Trigger>Content</Popover.Trigger>
       </Root>,
