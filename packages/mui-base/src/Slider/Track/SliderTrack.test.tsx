@@ -65,8 +65,5 @@ describe('<Slider.Track />', () => {
       return { container, ...other };
     },
     refInstanceof: window.HTMLSpanElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with SliderProvider
-    ],
   }));
 });

@@ -68,11 +68,7 @@ describe('<Popup />', () => {
       return result;
     },
     refInstanceof: window.HTMLDivElement,
-    skip: [
-      // https://github.com/facebook/react/issues/11565
-      'reactTestRenderer',
-      'componentProp',
-    ],
+    skip: ['componentProp'],
     slots: {
       root: {
         expectedClassName: popupClasses.root,

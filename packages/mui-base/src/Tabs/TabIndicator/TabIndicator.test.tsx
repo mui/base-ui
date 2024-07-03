@@ -31,9 +31,6 @@ describe('<Tabs.Indicator />', () => {
     },
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'div',
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with TabsContext
-    ],
   }));
 
   describe('rendering', () => {

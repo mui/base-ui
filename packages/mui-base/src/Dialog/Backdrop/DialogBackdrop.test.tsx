@@ -16,7 +16,6 @@ describe('<Dialog.Backdrop />', () => {
         </Dialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has role="presentation"', () => {

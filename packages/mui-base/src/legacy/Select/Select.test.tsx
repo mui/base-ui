@@ -60,7 +60,7 @@ describe('<Select />', () => {
         testWithElement: 'span',
       },
     },
-    skip: ['componentProp', 'reactTestRenderer'],
+    skip: ['componentProp'],
   }));
 
   describe('selected option rendering', () => {

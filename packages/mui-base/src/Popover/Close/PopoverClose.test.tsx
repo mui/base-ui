@@ -20,7 +20,6 @@ describe('<Popover.Close />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should close popover when clicked', async () => {

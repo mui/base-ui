@@ -16,7 +16,6 @@ describe('<AlertDialog.Popup />', () => {
         </AlertDialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should have role="alertdialog"', async () => {
