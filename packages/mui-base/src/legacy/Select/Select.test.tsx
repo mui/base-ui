@@ -2,7 +2,6 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import {
-  createMount,
   createRenderer,
   fireEvent,
   act,
@@ -26,7 +25,6 @@ import { describeConformanceUnstyled } from '../../../test/describeConformanceUn
 // TODO: re-enable once Select is fully migrated to the new API
 // eslint-disable-next-line mocha/no-skipped-tests
 describe.skip('<Select />', () => {
-  const mount = createMount();
   const { render: internalRender } = createRenderer();
 
   async function render(
@@ -49,7 +47,6 @@ describe.skip('<Select />', () => {
   describeConformanceUnstyled(componentToTest, () => ({
     inheritComponent: 'button',
     render,
-    mount,
     refInstanceof: window.HTMLButtonElement,
     testComponentPropWith: 'span',
     slots: {
@@ -65,7 +62,7 @@ describe.skip('<Select />', () => {
         testWithElement: 'span',
       },
     },
-    skip: ['componentProp', 'reactTestRenderer'],
+    skip: ['componentProp'],
   }));
 
   describe('selected option rendering', () => {
@@ -788,7 +785,7 @@ describe.skip('<Select />', () => {
       expect(onChange.notCalled).to.equal(true);
     });
 
-    it('is not called after initial render when when controlled value is set to null', () => {
+    it('is not called after initial render when when controlled value is set to null', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const [value, setValue] = React.useState<string | null>(null);
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -805,12 +802,12 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
-      render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
-    it('is not called after initial render when when the default uncontrolled value is set to null', () => {
+    it('is not called after initial render when when the default uncontrolled value is set to null', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
           onChange(newValue);
@@ -825,12 +822,12 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
-      render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
-    it('is not called after initial render when the controlled value is set to a valid option', () => {
+    it('is not called after initial render when the controlled value is set to a valid option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const [value, setValue] = React.useState<string | null>('1');
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -847,12 +844,12 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
-      render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
-    it('is not called after initial render when when the default uncontrolled value is set to a valid option', () => {
+    it('is not called after initial render when when the default uncontrolled value is set to a valid option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
           onChange(newValue);
@@ -867,12 +864,12 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
-      render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
-    it('is called after initial render with `null` when the controlled value is set to a nonexistent option', () => {
+    it('is called after initial render with `null` when the controlled value is set to a nonexistent option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const [value, setValue] = React.useState<string | null>('42');
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -889,13 +886,13 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
-      render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.called).to.equal(true);
       expect(onChange.args[0][0]).to.equal(null);
     });
 
-    it('is called after initial render when when the default uncontrolled value is set to a nonexistent option', () => {
+    it('is called after initial render when when the default uncontrolled value is set to a nonexistent option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
           onChange(newValue);
@@ -910,7 +907,7 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
-      render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.called).to.equal(true);
       expect(onChange.args[0][0]).to.equal(null);
@@ -1017,8 +1014,8 @@ describe.skip('<Select />', () => {
 
   // according to WAI-ARIA 1.2 (https://www.w3.org/TR/wai-aria-1.2/#combobox)
   describe('a11y attributes', () => {
-    it('should have the `combobox` role', () => {
-      render(
+    it('should have the `combobox` role', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,
@@ -1027,8 +1024,8 @@ describe.skip('<Select />', () => {
       expect(screen.queryByRole('combobox')).not.to.equal(null);
     });
 
-    it('should have the aria-expanded attribute', () => {
-      render(
+    it('should have the aria-expanded attribute', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,
@@ -1037,8 +1034,8 @@ describe.skip('<Select />', () => {
       expect(screen.getByRole('combobox')).to.have.attribute('aria-expanded', 'false');
     });
 
-    it('should have the aria-expanded attribute set to true when the listbox is open', () => {
-      render(
+    it('should have the aria-expanded attribute set to true when the listbox is open', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,
@@ -1052,8 +1049,8 @@ describe.skip('<Select />', () => {
       expect(select).to.have.attribute('aria-expanded', 'true');
     });
 
-    it('should have the aria-controls attribute', () => {
-      render(
+    it('should have the aria-controls attribute', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,
@@ -1072,8 +1069,8 @@ describe.skip('<Select />', () => {
       expect(select).to.have.attribute('aria-controls', listboxId!);
     });
 
-    it('should have the correct tabindex attribute', () => {
-      render(
+    it('should have the correct tabindex attribute', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,

@@ -1,12 +1,10 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '../../../test';
 import { OPEN_DELAY } from '../utils/constants';
-
-const waitForPosition = () => act(async () => {});
 
 function Root(props: Popover.RootProps) {
   return <Popover.Root {...props} animated={false} />;
@@ -40,13 +38,13 @@ describe('<Popover.Root />', () => {
 
       fireEvent.click(anchor);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should close when the anchor is clicked twice', async () => {
-      render(
+      await render(
         <Root>
           <Popover.Trigger />
           <Popover.Positioner>
@@ -59,7 +57,7 @@ describe('<Popover.Root />', () => {
 
       fireEvent.click(anchor);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -116,7 +114,7 @@ describe('<Popover.Root />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -124,7 +122,7 @@ describe('<Popover.Root />', () => {
 
       fireEvent.click(anchor);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -158,7 +156,7 @@ describe('<Popover.Root />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -166,7 +164,7 @@ describe('<Popover.Root />', () => {
 
       fireEvent.click(anchor);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
       expect(handleChange.callCount).to.equal(1);
@@ -238,7 +236,7 @@ describe('<Popover.Root />', () => {
     clock.withFakeTimers();
 
     it('should open after delay with rest type by default', async () => {
-      render(
+      await render(
         <Root openOnHover delay={100}>
           <Popover.Trigger />
           <Popover.Positioner>
@@ -252,19 +250,19 @@ describe('<Popover.Root />', () => {
       fireEvent.mouseEnter(anchor);
       fireEvent.mouseMove(anchor);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should open after delay with hover type', async () => {
-      render(
+      await render(
         <Root openOnHover delayType="hover">
           <Popover.Trigger />
           <Popover.Positioner>
@@ -278,13 +276,13 @@ describe('<Popover.Root />', () => {
       fireEvent.mouseEnter(anchor);
       clock.tick(OPEN_DELAY / 2);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(OPEN_DELAY / 2);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -294,7 +292,7 @@ describe('<Popover.Root />', () => {
     clock.withFakeTimers();
 
     it('should close after delay', async () => {
-      render(
+      await render(
         <Root openOnHover closeDelay={100}>
           <Popover.Trigger />
           <Popover.Positioner>
@@ -310,7 +308,7 @@ describe('<Popover.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 

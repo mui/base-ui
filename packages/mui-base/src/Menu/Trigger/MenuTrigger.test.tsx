@@ -50,7 +50,6 @@ describe('<Menu.Trigger />', () => {
       );
     },
     refInstanceof: window.HTMLButtonElement,
-    skip: ['reactTestRenderer'],
   }));
 
   describe('prop: disabled', () => {

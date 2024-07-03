@@ -1,0 +1,97 @@
+{
+  "parameters": {
+    "areValuesEqual": {
+      "type": {
+        "name": "(newValue: number | ReadonlyArray&lt;number&gt;) =&gt; boolean",
+        "description": "(newValue: number | ReadonlyArray&lt;number&gt;) =&gt; boolean"
+      },
+      "required": true
+    },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "dragging": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "getFingerNewValue": {
+      "type": {
+        "name": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null",
+        "description": "(args: { finger: { x: number; y: number }; move?: boolean; offset?: number; activeIndex?: number }) =&gt; { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null"
+      },
+      "required": true
+    },
+    "handleValueChange": {
+      "type": {
+        "name": "(value: number | number[], activeThumb: number, event: React.SyntheticEvent | Event) =&gt; void",
+        "description": "(value: number | number[], activeThumb: number, event: React.SyntheticEvent | Event) =&gt; void"
+      },
+      "required": true
+    },
+    "minStepsBetweenValues": {
+      "type": { "name": "number", "description": "number" },
+      "required": true
+    },
+    "percentageValues": {
+      "type": { "name": "readonly number[]", "description": "readonly number[]" },
+      "required": true
+    },
+    "registerSliderControl": {
+      "type": {
+        "name": "(element: HTMLElement | null) =&gt; void",
+        "description": "(element: HTMLElement | null) =&gt; void"
+      },
+      "required": true
+    },
+    "setActive": {
+      "type": {
+        "name": "(activeIndex: number) =&gt; void",
+        "description": "(activeIndex: number) =&gt; void"
+      },
+      "required": true
+    },
+    "setDragging": {
+      "type": {
+        "name": "(isDragging: boolean) =&gt; void",
+        "description": "(isDragging: boolean) =&gt; void"
+      },
+      "required": true
+    },
+    "setValueState": {
+      "type": {
+        "name": "(newValue: number | number[]) =&gt; void",
+        "description": "(newValue: number | number[]) =&gt; void"
+      },
+      "required": true
+    },
+    "step": {
+      "type": { "name": "number", "description": "number" },
+      "default": "1",
+      "required": true
+    },
+    "subitems": {
+      "type": {
+        "name": "Map&lt;string, SliderThumbMetadata&gt;",
+        "description": "Map&lt;string, SliderThumbMetadata&gt;"
+      },
+      "required": true
+    },
+    "onValueCommitted": {
+      "type": {
+        "name": "(value: number | number[], event: Event) =&gt; void",
+        "description": "(value: number | number[], event: Event) =&gt; void"
+      }
+    },
+    "rootRef": {
+      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
+    }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    }
+  },
+  "name": "useSliderControl",
+  "filename": "/packages/mui-base/src/Slider/Control/useSliderControl.ts",
+  "imports": ["import { useSliderControl } from '@base_ui/react/Slider';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
+}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createMount, createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '@mui/internal-test-utils';
 import { Option, optionClasses } from '@base_ui/react/legacy/Option';
 import { SelectContext } from '../useSelect/SelectContext';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
@@ -27,7 +27,6 @@ const DUMMY_STATE: SelectInternalState<string> = {
 // TODO: re-enable once Select is fully migrated to the new API
 // eslint-disable-next-line mocha/no-skipped-tests
 describe.skip('<Option />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
 
   describeConformanceUnstyled(<Option value={42} />, () => ({
@@ -46,21 +45,6 @@ describe.skip('<Option />', () => {
         </SelectContext.Provider>,
       );
     },
-    mount: (node: React.ReactNode) => {
-      const wrapper = mount(
-        <SelectContext.Provider
-          value={{
-            dispatch: () => {},
-            state: DUMMY_STATE,
-            compoundParentContext: {} as CompoundParentContextValue<any, SelectOption<string>>,
-            keyExtractor: (option) => option.value,
-          }}
-        >
-          {node}
-        </SelectContext.Provider>,
-      );
-      return wrapper.childAt(0);
-    },
     refInstanceof: window.HTMLLIElement,
     testComponentPropWith: 'span',
     slots: {
@@ -68,9 +52,6 @@ describe.skip('<Option />', () => {
         expectedClassName: optionClasses.root,
       },
     },
-    skip: [
-      'componentProp',
-      'reactTestRenderer', // Need to be wrapped in SelectContext
-    ],
+    skip: ['componentProp'],
   }));
 });

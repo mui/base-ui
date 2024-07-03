@@ -18,7 +18,6 @@ describe('<Popover.Popup />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should render the children', async () => {

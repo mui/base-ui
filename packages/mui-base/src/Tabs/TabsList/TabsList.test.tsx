@@ -35,9 +35,6 @@ describe('<Tabs.List />', () => {
       return { container, ...other };
     },
     refInstanceof: window.HTMLDivElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with TabsContext
-    ],
   }));
 
   describe('accessibility attributes', () => {

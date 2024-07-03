@@ -1,0 +1,32 @@
+{
+  "props": {
+    "aria-label": { "type": { "name": "string" } },
+    "aria-valuetext": { "type": { "name": "string" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "getAriaLabel": {
+      "type": { "name": "func" },
+      "signature": { "type": "function(index: number) => string", "describedArgs": ["index"] }
+    },
+    "getAriaValueText": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(value: number, index: number) => string",
+        "describedArgs": ["value", "index"]
+      }
+    },
+    "render": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;node" } }
+  },
+  "name": "SliderThumb",
+  "imports": [
+    "import * as Slider from '@base_ui/react/Slider';\nconst SliderThumb = Slider.Thumb;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SliderThumb",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Slider/Thumb/SliderThumb.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/\">Slider</a></li></ul>",
+  "cssComponent": false
+}

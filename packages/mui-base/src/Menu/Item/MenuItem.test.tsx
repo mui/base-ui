@@ -55,8 +55,5 @@ describe('<Menu.Item />', () => {
       );
     },
     refInstanceof: window.HTMLDivElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped in MenuContext
-    ],
   }));
 });

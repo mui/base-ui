@@ -2,7 +2,6 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import {
-  createMount,
   createRenderer,
   fireEvent,
   act,
@@ -48,7 +47,6 @@ const testContext: MenuRootContext = {
 };
 
 describe.skip('<Menu.Popup />', () => {
-  const mount = createMount();
   const { render: internalRender } = createRenderer();
 
   async function render(
@@ -67,14 +65,7 @@ describe.skip('<Menu.Popup />', () => {
         <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
       );
     },
-    mount: (node: React.ReactNode) => {
-      const wrapper = mount(
-        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
-      );
-      return wrapper.childAt(0);
-    },
     refInstanceof: window.HTMLDivElement,
-    skip: ['reactTestRenderer'],
   }));
 
   describe('prop: anchor', () => {
