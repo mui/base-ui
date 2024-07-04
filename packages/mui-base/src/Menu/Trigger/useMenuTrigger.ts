@@ -39,6 +39,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
   );
 
   const handleRef = useForkRef(buttonRootRef, registerTrigger);
+  const ignoreNextClick = React.useRef(false);
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
@@ -51,9 +52,18 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: MouseEvent) => {
+            if (menuState.open) {
+              return;
+            }
+
+            // prevents closing the menu right after it was opened
+            ignoreNextClick.current = true;
             event.preventDefault();
+
             dispatch({ type: MenuActionTypes.open, event });
+
             const mousedownTarget = event.target as Element;
+
             function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {
               const mouseupTarget = mouseUpEvent.target as HTMLElement;
               if (mouseupTarget?.dataset?.handleMouseup === 'true') {
@@ -67,7 +77,16 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
             ownerDocument(mousedownTarget).addEventListener('mouseup', handleDocumentMouseUp);
           },
           onClick: (event: MouseEvent) => {
-            dispatch({ type: MenuActionTypes.open, event });
+            if (ignoreNextClick.current) {
+              ignoreNextClick.current = false;
+              return;
+            }
+
+            if (menuState.open) {
+              dispatch({ type: MenuActionTypes.close, event });
+            } else {
+              dispatch({ type: MenuActionTypes.open, event });
+            }
           },
         },
         getButtonRootProps(),

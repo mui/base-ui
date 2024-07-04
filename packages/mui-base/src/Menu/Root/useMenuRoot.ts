@@ -152,8 +152,8 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
   const click = useClick(floatingRootContext, {
     enabled: isNested && !disabled,
     event: 'mousedown',
-    toggle: !isNested,
-    ignoreMouse: isNested,
+    toggle: false,
+    ignoreMouse: true,
   });
 
   const dismiss = useDismiss(floatingRootContext, { bubbles: true });
