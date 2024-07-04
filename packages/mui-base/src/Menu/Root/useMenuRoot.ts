@@ -8,6 +8,7 @@ import {
   useHover,
   useInteractions,
   useListNavigation,
+  useRole,
   useTypeahead,
 } from '@floating-ui/react';
 import { UseMenuRootParameters, UseMenuRootReturnValue } from './useMenuRoot.types';
@@ -58,6 +59,10 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
 
   const dismiss = useDismiss(floatingRootContext, { bubbles: true });
 
+  const role = useRole(floatingRootContext, {
+    role: 'menu',
+  });
+
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
   const itemLabels = React.useRef<(string | null)[]>([]);
 
@@ -88,6 +93,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
     hover,
     click,
     dismiss,
+    role,
     listNavigation,
     typeahead,
   ]);

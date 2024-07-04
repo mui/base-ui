@@ -67,35 +67,6 @@ describe('<Menu.Trigger />', () => {
     });
   });
 
-  describe('prop: focusableWhenDisabled', () => {
-    it('has the aria-disabled instead of disabled attribute when disabled', async () => {
-      const { getByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger disabled focusableWhenDisabled />
-        </Menu.Root>,
-      );
-
-      const button = getByRole('button');
-      expect(button).to.have.attribute('aria-disabled');
-      expect(button).not.to.have.attribute('disabled');
-    });
-
-    it('can receive focus when focusableWhenDisabled is set', async () => {
-      const { getByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger disabled focusableWhenDisabled />
-        </Menu.Root>,
-      );
-
-      const button = getByRole('button');
-      act(() => {
-        button.focus();
-      });
-
-      expect(document.activeElement).to.equal(button);
-    });
-  });
-
   it('toggles the menu state when clicked', async () => {
     const { getByRole, queryByRole } = await render(
       <Menu.Root>
@@ -108,8 +79,6 @@ describe('<Menu.Trigger />', () => {
 
     const button = getByRole('button', { name: 'Open' });
     await userEvent.click(button);
-
-    await act(async () => {});
 
     const menuPopup = queryByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);

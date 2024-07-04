@@ -140,7 +140,7 @@ describe('<Menu.Popup />', () => {
   });
 
   // TODO: fix
-  it.skip('perf: does not rerender menu items unnecessarily', async () => {
+  it('perf: does not rerender menu items unnecessarily', async () => {
     const renderItem1Spy = spy();
     const renderItem2Spy = spy();
     const renderItem3Spy = spy();
