@@ -1,7 +1,6 @@
 import { GenericHTMLProps } from '../../utils/types';
 import { MenuReducerAction } from '../Root/menuReducer';
-import { CompoundParentContextValue } from '../../useCompound/useCompound.types';
-import { ListDirection, ListItemMetadata, ListOrientation } from '../../useList';
+import { ListDirection, ListOrientation } from '../../useList';
 
 export interface UseMenuItemParameters {
   dispatch: React.Dispatch<MenuReducerAction>;
@@ -18,8 +17,6 @@ export interface UseMenuItemParameters {
    */
   disableFocusOnHover?: boolean;
   highlighted: boolean;
-  compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
-
   closeOnClick: boolean;
   isNested: boolean;
   orientation: ListOrientation;

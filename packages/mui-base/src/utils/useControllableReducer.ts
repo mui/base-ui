@@ -184,6 +184,7 @@ export function useControllableReducer<State extends {}, Action extends Controll
       lastActionRef.current = action;
       const controlledState = getControlledState(state, controlledProps);
       const newState = reducer(controlledState, action);
+
       return newState;
     },
     [controlledProps, reducer],

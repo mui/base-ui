@@ -394,7 +394,7 @@ function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
   if (state.highlightedValue != null && items.has(state.highlightedValue)) {
     newHighlightedValue = state.highlightedValue;
   } else if (focusManagement === 'DOM' && (state.items == null || state.items.size === 0)) {
-    newHighlightedValue = moveHighlight(null, 'reset', items, state.settings);
+    newHighlightedValue = null;
   }
 
   // exclude selected values that are no longer in the items list
@@ -408,7 +408,7 @@ function handleItemsChange<ItemValue, State extends ListState<ItemValue>>(
   return {
     ...state,
     items,
-    highlightedValue: newHighlightedValue,
+    // highlightedValue: newHighlightedValue,
     selectedValues: newSelectedValues,
   };
 }

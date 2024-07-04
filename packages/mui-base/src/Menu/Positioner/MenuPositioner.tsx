@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   FloatingFocusManager,
+  FloatingList,
   FloatingNode,
   FloatingPortal,
   useFloatingNodeId,
@@ -54,8 +55,15 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const { state, dispatch, floatingRootContext, getPositionerProps, isNested } =
-    useMenuRootContext();
+  const {
+    state,
+    dispatch,
+    floatingRootContext,
+    getPositionerProps,
+    isNested,
+    itemDomElements,
+    itemLabels,
+  } = useMenuRootContext();
 
   const { open, triggerElement } = state;
 
@@ -117,7 +125,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const { renderElement } = useComponentRenderer({
     propGetter: (externalProps: GenericHTMLProps) =>
-      getPositionerProps(positioner.getPositionerProps(externalProps)),
+      positioner.getPositionerProps(getPositionerProps(externalProps)),
     render: render ?? 'div',
     className,
     ownerState,
@@ -131,18 +139,20 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
-        <FloatingPortal root={props.container}>
-          {open && (
-            <FloatingFocusManager
-              context={positioner.floatingContext}
-              modal={false}
-              initialFocus={isNested ? -1 : 0}
-              returnFocus={isNested}
-            >
-              {renderElement()}
-            </FloatingFocusManager>
-          )}
-        </FloatingPortal>
+        <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
+          <FloatingPortal root={props.container}>
+            {open && (
+              <FloatingFocusManager
+                context={positioner.floatingContext}
+                modal={false}
+                initialFocus={isNested ? -1 : 0}
+                returnFocus
+              >
+                {renderElement()}
+              </FloatingFocusManager>
+            )}
+          </FloatingPortal>
+        </FloatingList>
       </FloatingNode>
     </MenuPositionerContext.Provider>
   );

@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useListItem } from '@floating-ui/react';
 import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useMenuPopupContext } from '../Popup/MenuPopupContext';
 import { useId } from '../../utils/useId';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { MenuReducerAction } from '../Root/menuReducer';
 import { ListDirection, ListOrientation } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
+import { useForkRef } from '../../utils/useForkRef';
 
 interface InnerMenuItemProps extends MenuItemProps {
   highlighted: boolean;
@@ -42,17 +43,19 @@ const InnerMenuItem = React.memo(
       ...other
     } = props;
 
-    const { compoundParentContext } = useMenuPopupContext();
+    const itemRef = React.useRef<HTMLElement>(null);
+
+    const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+    const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
     const { getRootProps } = useMenuItem({
-      compoundParentContext,
       disabled,
       dispatch,
       rootDispatch,
       highlighted,
       id,
       label,
-      rootRef: forwardedRef,
+      rootRef: mergedRef,
       closeOnClick: true,
       isNested: rootDispatch !== dispatch,
       orientation,

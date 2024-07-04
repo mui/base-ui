@@ -1,11 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useListItem } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuPopupContext } from '../Popup/MenuPopupContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useId } from '../../utils/useId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
+import { useForkRef } from '../../utils/useForkRef';
 
 namespace SubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
@@ -55,6 +57,9 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const highlighted = parentState.highlightedValue === id;
   const { orientation, direction } = parentState.settings;
 
+  const item = useListItem();
+  const mergedRef = useForkRef(forwardedRef, item.ref);
+
   const { getRootProps } = useSubmenuTrigger({
     dispatch,
     parentDispatch,
@@ -62,7 +67,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     id,
     highlighted,
     compoundParentContext,
-    rootRef: forwardedRef,
+    rootRef: mergedRef,
     label,
     disabled,
     orientation,

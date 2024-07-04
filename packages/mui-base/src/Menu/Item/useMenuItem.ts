@@ -6,8 +6,6 @@ import { useButton } from '../../useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
-import { useCompoundItem } from '../../useCompound';
-import { ListItemMetadata } from '../../useList';
 
 /**
  *
@@ -17,41 +15,21 @@ import { ListItemMetadata } from '../../useList';
  */
 export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
-    compoundParentContext,
     disabled = false,
     rootDispatch,
     id,
-    label,
     rootRef: externalRef,
     closeOnClick,
     highlighted,
     clickAndDragSupport,
   } = params;
 
-  const itemRef = React.useRef<HTMLElement>(null);
-
-  const itemMetadata: ListItemMetadata = React.useMemo(
-    () => ({
-      id,
-      valueAsString: label ?? itemRef.current?.innerText,
-      ref: itemRef,
-      disabled,
-    }),
-    [id, label, disabled],
-  );
-
-  useCompoundItem({
-    key: id ?? '',
-    itemMetadata,
-    parentContext: compoundParentContext,
-  });
-
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: true,
   });
 
-  const handleRef = useForkRef(buttonRefHandler, externalRef, itemRef);
+  const handleRef = useForkRef(buttonRefHandler, externalRef);
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {

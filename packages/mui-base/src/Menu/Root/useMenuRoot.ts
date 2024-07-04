@@ -160,15 +160,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
 
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
   const itemLabels = React.useRef<(string | null)[]>([]);
-  const activeIndex =
-    state.highlightedValue == null ? null : state.items.indexOf(state.highlightedValue);
-
-  React.useEffect(() => {
-    itemDomElements.current = state.items.mapValues((item) => item.ref.current);
-    itemLabels.current = state.items.mapValues(
-      (item) => item.valueAsString ?? item.ref.current?.textContent ?? null,
-    );
-  }, [state.items]);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
@@ -186,6 +178,8 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
           item: index == null ? null : state.items.keyAt(index) ?? null,
           event: null,
         });
+
+        setActiveIndex(index);
       }
     },
   });
@@ -245,6 +239,8 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
       getTriggerProps,
       getPositionerProps,
       getItemProps,
+      itemDomElements,
+      itemLabels,
     }),
     [state, dispatch, floatingRootContext, getTriggerProps, getPositionerProps, getItemProps],
   );
