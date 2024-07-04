@@ -1,42 +1,28 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { FloatingRootContext } from '@floating-ui/react';
+import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { act } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '../../../test';
-import { IndexableMap } from '../../utils/IndexableMap';
 
-const testContext: MenuRootContext = {
-  dispatch: () => {},
-  state: {
-    open: true,
-    items: new IndexableMap(),
-    highlightedValue: null,
-    selectedValues: [],
-    popupId: 'menu-popup',
-    triggerElement: null,
-    positionerElement: null,
-    hasNestedMenuOpen: false,
-    clickAndDragging: false,
-    settings: {
-      disabledItemsFocusable: true,
-      disableListWrap: false,
-      focusManagement: 'DOM',
-      orientation: 'vertical',
-      direction: 'ltr',
-      pageSize: 1,
-      selectionMode: 'none',
-    },
-  },
-  parentContext: null,
-  topmostContext: null,
+const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
   getPositionerProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
-  isNested: false,
+  parentContext: null,
+  nested: false,
+  triggerElement: null,
+  setTriggerElement: () => {},
+  setPositionerElement: () => {},
+  activeIndex: null,
+  disabled: false,
+  itemDomElements: { current: [] },
+  itemLabels: { current: [] },
+  open: true,
+  setOpen: () => {},
 };
 
 describe('<Menu.Trigger />', () => {
@@ -46,7 +32,9 @@ describe('<Menu.Trigger />', () => {
     inheritComponent: 'button',
     render: (node) => {
       return render(
-        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
+        <FloatingTree>
+          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
+        </FloatingTree>,
       );
     },
     refInstanceof: window.HTMLButtonElement,

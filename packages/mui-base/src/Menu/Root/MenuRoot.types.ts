@@ -9,10 +9,7 @@ export interface MenuRootProps {
   /**
    * Callback fired when the component requests to be opened or closed.
    */
-  onOpenChange?: (
-    event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-    open: boolean,
-  ) => void;
+  onOpenChange?: (open: boolean, event: Event | undefined) => void;
   /**
    * Allows to control whether the dropdown is open.
    * This is a controlled counterpart of `defaultOpen`.

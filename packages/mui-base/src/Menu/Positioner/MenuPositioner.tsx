@@ -19,7 +19,6 @@ import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositioner } from './useMenuPositioner';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
-import { MenuActionTypes } from '../Root/menuReducer';
 import { GenericHTMLProps } from '../../utils/types';
 
 /**
@@ -56,16 +55,15 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   } = props;
 
   const {
-    state,
-    dispatch,
+    open,
     floatingRootContext,
     getPositionerProps,
-    isNested,
+    setPositionerElement,
+    nested,
     itemDomElements,
     itemLabels,
+    triggerElement,
   } = useMenuRootContext();
-
-  const { open, triggerElement } = state;
 
   const nodeId = useFloatingNodeId();
 
@@ -75,7 +73,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionStrategy,
     container,
     open,
-    mounted: open,
+    mounted: open, // TODO: animations
     side,
     sideOffset,
     alignment,
@@ -114,13 +112,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ],
   );
 
-  const setPositionerElement = React.useCallback(
-    (element: HTMLDivElement | null) => {
-      dispatch({ type: MenuActionTypes.registerPositioner, positionerElement: element });
-    },
-    [dispatch],
-  );
-
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
@@ -145,7 +136,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
               <FloatingFocusManager
                 context={positioner.floatingContext}
                 modal={false}
-                initialFocus={isNested ? -1 : 0}
+                initialFocus={nested ? -1 : 0}
                 returnFocus
               >
                 {renderElement()}

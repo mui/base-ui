@@ -1,26 +1,28 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useFloatingTree } from '@floating-ui/react';
 import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
-import { MenuPopupContext, MenuPopupContextValue } from './MenuPopupContext';
-import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useMenuRootContext } from '../Root/MenuRootContext';
+
+const EMPTY_OBJECT = {};
 
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopupProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, id, ...other } = props;
-  const { state, dispatch } = useMenuRootContext();
+  const { render, className, ...other } = props;
+  const { setOpen } = useMenuRootContext();
+  const { events: menuEvents } = useFloatingTree()!;
 
-  const { getRootProps, compoundParentContext } = useMenuPopup({
-    state,
-    dispatch,
-    id,
+  const { getRootProps } = useMenuPopup({
+    setOpen,
+    menuEvents,
   });
 
-  const ownerState: MenuPopupOwnerState = { open: state.open };
+  const ownerState: MenuPopupOwnerState = EMPTY_OBJECT;
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
@@ -34,14 +36,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     ref: forwardedRef,
   });
 
-  const contextValue: MenuPopupContextValue = React.useMemo(
-    () => ({ compoundParentContext }),
-    [compoundParentContext],
-  );
-
-  return (
-    <MenuPopupContext.Provider value={contextValue}>{renderElement()}</MenuPopupContext.Provider>
-  );
+  return renderElement();
 });
 
 MenuPopup.propTypes /* remove-proptypes */ = {

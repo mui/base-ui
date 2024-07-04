@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { UseMenuTriggerParameters, UseMenuTriggerReturnValue } from './useMenuTrigger.types';
-import { MenuActionTypes } from '../Root/menuReducer';
 import { useButton } from '../../useButton/useButton';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -16,29 +15,20 @@ import { ownerDocument } from '../../utils/owner';
 export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTriggerReturnValue {
   const {
     disabled = false,
-    focusableWhenDisabled,
     rootRef: externalRef,
-    menuState,
-    dispatch,
+    open,
+    setOpen,
+    setTriggerElement,
+    menuEvents,
   } = parameters;
 
   const { getRootProps: getButtonRootProps, rootRef: buttonRootRef } = useButton({
     disabled,
-    focusableWhenDisabled,
+    focusableWhenDisabled: false,
     rootRef: externalRef,
   });
 
-  const registerTrigger = React.useCallback(
-    (element: HTMLElement | null) => {
-      dispatch({
-        type: MenuActionTypes.registerTrigger,
-        triggerElement: element,
-      });
-    },
-    [dispatch],
-  );
-
-  const handleRef = useForkRef(buttonRootRef, registerTrigger);
+  const handleRef = useForkRef(buttonRootRef, setTriggerElement);
   const ignoreNextClick = React.useRef(false);
 
   const getRootProps = React.useCallback(
@@ -47,12 +37,10 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
         externalProps,
         {
           'aria-haspopup': 'menu' as const,
-          'aria-expanded': menuState.open,
-          'aria-controls': menuState.popupId ?? undefined,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: MouseEvent) => {
-            if (menuState.open) {
+            if (open) {
               return;
             }
 
@@ -60,7 +48,8 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
             ignoreNextClick.current = true;
             event.preventDefault();
 
-            dispatch({ type: MenuActionTypes.open, event });
+            setOpen(true, event);
+            menuEvents.emit('click-and-drag:enabled', event);
 
             const mousedownTarget = event.target as Element;
 
@@ -70,7 +59,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
                 mouseupTarget.click();
               }
 
-              dispatch({ type: MenuActionTypes.resetClickAndDragging });
+              menuEvents.emit('click-and-drag:disabled', mouseUpEvent);
               ownerDocument(mousedownTarget).removeEventListener('mouseup', handleDocumentMouseUp);
             }
 
@@ -82,17 +71,13 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
               return;
             }
 
-            if (menuState.open) {
-              dispatch({ type: MenuActionTypes.close, event });
-            } else {
-              dispatch({ type: MenuActionTypes.open, event });
-            }
+            setOpen(!open, event);
           },
         },
         getButtonRootProps(),
       );
     },
-    [dispatch, getButtonRootProps, handleRef, menuState.open, menuState.popupId],
+    [getButtonRootProps, handleRef, open, menuEvents, setOpen],
   );
 
   return React.useMemo(

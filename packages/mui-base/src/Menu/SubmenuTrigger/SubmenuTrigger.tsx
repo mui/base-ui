@@ -1,8 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useListItem } from '@floating-ui/react';
+import { useFloatingTree, useListItem } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { useMenuPopupContext } from '../Popup/MenuPopupContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useId } from '../../utils/useId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -45,34 +44,28 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
   const id = useId(idProp);
 
-  const { dispatch, parentContext, topmostContext, getTriggerProps, state } = useMenuRootContext();
-  const { compoundParentContext } = useMenuPopupContext();
+  const { getTriggerProps, parentContext, setTriggerElement } = useMenuRootContext();
 
   if (parentContext === null) {
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
   }
 
-  const { state: parentState, dispatch: parentDispatch, getItemProps } = parentContext;
-
-  const highlighted = parentState.highlightedValue === id;
-  const { orientation, direction } = parentState.settings;
-
+  const { activeIndex, getItemProps } = parentContext;
   const item = useListItem();
+
+  const highlighted = activeIndex === item.index;
+
   const mergedRef = useForkRef(forwardedRef, item.ref);
 
+  const { events: menuEvents } = useFloatingTree()!;
+
   const { getRootProps } = useSubmenuTrigger({
-    dispatch,
-    parentDispatch,
-    rootDispatch: topmostContext?.dispatch ?? dispatch,
     id,
     highlighted,
-    compoundParentContext,
     rootRef: mergedRef,
-    label,
     disabled,
-    orientation,
-    direction,
-    state,
+    menuEvents,
+    setTriggerElement,
   });
 
   const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };
@@ -83,7 +76,11 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     ownerState,
     propGetter: (externalProps: GenericHTMLProps) =>
       getTriggerProps(getItemProps(getRootProps(externalProps))),
-    extraProps: other,
+    extraProps: {
+      ...other,
+      'data-index': item.index,
+      'data-activeindex': activeIndex,
+    },
   });
 
   return renderElement();

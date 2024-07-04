@@ -11,42 +11,28 @@ import {
 } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
-import { FloatingRootContext } from '@floating-ui/react';
+import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { describeConformance } from '../../../test/describeConformance';
-import { IndexableMap } from '../../utils/IndexableMap';
 
-const testContext: MenuRootContext = {
-  dispatch: () => {},
-  state: {
-    open: true,
-    items: new IndexableMap(),
-    highlightedValue: null,
-    selectedValues: [],
-    popupId: 'menu-popup',
-    triggerElement: null,
-    positionerElement: null,
-    hasNestedMenuOpen: false,
-    clickAndDragging: false,
-    settings: {
-      disabledItemsFocusable: true,
-      disableListWrap: false,
-      focusManagement: 'DOM',
-      orientation: 'vertical',
-      direction: 'ltr',
-      pageSize: 1,
-      selectionMode: 'none',
-    },
-  },
-  parentContext: null,
-  topmostContext: null,
+const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
   getPositionerProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
-  isNested: false,
+  parentContext: null,
+  nested: false,
+  triggerElement: null,
+  setTriggerElement: () => {},
+  setPositionerElement: () => {},
+  activeIndex: null,
+  disabled: false,
+  itemDomElements: { current: [] },
+  itemLabels: { current: [] },
+  open: true,
+  setOpen: () => {},
 };
 
-describe.skip('<Menu.Popup />', () => {
+describe('<Menu.Popup />', () => {
   const { render: internalRender } = createRenderer();
 
   async function render(
@@ -62,7 +48,9 @@ describe.skip('<Menu.Popup />', () => {
     inheritComponent: 'div',
     render: (node) => {
       return render(
-        <MenuRootContext.Provider value={testContext}>{node}</MenuRootContext.Provider>,
+        <FloatingTree>
+          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>,
+        </FloatingTree>,
       );
     },
     refInstanceof: window.HTMLDivElement,
@@ -79,14 +67,14 @@ describe.skip('<Menu.Popup />', () => {
 
         return (
           <div>
-            <MenuRootContext.Provider value={testContext}>
+            <Menu.Root open>
               <Menu.Positioner side="bottom" alignment="start" anchor={anchor}>
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
                   <Menu.Item>2</Menu.Item>
                 </Menu.Popup>
               </Menu.Positioner>
-            </MenuRootContext.Provider>
+            </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={setAnchor} />
           </div>
         );
@@ -130,14 +118,14 @@ describe.skip('<Menu.Popup />', () => {
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
       const { getByTestId } = await render(
-        <MenuRootContext.Provider value={testContext}>
+        <Menu.Root open>
           <Menu.Positioner side="bottom" alignment="start" anchor={virtualElement}>
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
               <Menu.Item>2</Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
-        </MenuRootContext.Provider>,
+        </Menu.Root>,
       );
       const popup = getByTestId('popup');
 

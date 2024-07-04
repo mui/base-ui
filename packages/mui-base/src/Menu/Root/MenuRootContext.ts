@@ -1,18 +1,23 @@
 import * as React from 'react';
 import { FloatingRootContext } from '@floating-ui/react';
-import { MenuReducerAction, MenuReducerState } from './menuReducer';
 import { GenericHTMLProps } from '../../utils/types';
 
 export interface MenuRootContext {
-  dispatch: React.Dispatch<MenuReducerAction>;
-  state: MenuReducerState;
   floatingRootContext: FloatingRootContext;
-  parentContext: MenuRootContext | null;
-  topmostContext: MenuRootContext | null;
   getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  isNested: boolean;
+  triggerElement: HTMLElement | null;
+  setTriggerElement: (element: HTMLElement | null) => void;
+  setPositionerElement: (element: HTMLElement | null) => void;
+  nested: boolean;
+  parentContext: MenuRootContext | null;
+  activeIndex: number | null;
+  itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
+  itemLabels: React.MutableRefObject<(string | null)[]>;
+  open: boolean;
+  setOpen: (open: boolean, event: Event | undefined) => void;
+  disabled: boolean;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);

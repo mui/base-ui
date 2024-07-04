@@ -1,5 +1,5 @@
+import { FloatingEvents } from '@floating-ui/react';
 import { GenericHTMLProps } from '../../utils/types';
-import { MenuReducerAction, MenuReducerState } from '../Root/menuReducer';
 
 export interface UseMenuTriggerParameters {
   /**
@@ -8,17 +8,13 @@ export interface UseMenuTriggerParameters {
    */
   disabled?: boolean;
   /**
-   * If `true`, allows a disabled button to receive focus.
-   * @default false
-   */
-  focusableWhenDisabled?: boolean;
-  /**
    * The ref to the root element.
    */
   rootRef?: React.Ref<HTMLElement>;
-
-  menuState: MenuReducerState;
-  dispatch: React.Dispatch<MenuReducerAction>;
+  setTriggerElement: (element: HTMLElement | null) => void;
+  open: boolean;
+  setOpen: (open: boolean, event: Event | undefined) => void;
+  menuEvents: FloatingEvents;
 }
 
 export interface UseMenuTriggerReturnValue {

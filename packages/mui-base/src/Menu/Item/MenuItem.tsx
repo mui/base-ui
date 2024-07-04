@@ -1,25 +1,19 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
 import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
 import { useMenuRootContext } from '../Root/MenuRootContext';
-import { MenuReducerAction } from '../Root/menuReducer';
-import { ListDirection, ListOrientation } from '../../useList';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 
 interface InnerMenuItemProps extends MenuItemProps {
   highlighted: boolean;
-  dispatch: React.Dispatch<MenuReducerAction>;
-  rootDispatch: React.Dispatch<MenuReducerAction>;
-  orientation: ListOrientation;
-  direction: ListDirection;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  clickAndDragSupport: boolean;
+  menuEvents: FloatingEvents;
 }
 
 const InnerMenuItem = React.memo(
@@ -28,39 +22,23 @@ const InnerMenuItem = React.memo(
     forwardedRef: React.ForwardedRef<Element>,
   ) {
     const {
-      render,
       className,
       disabled = false,
-      label,
-      id,
       highlighted,
-      dispatch,
-      rootDispatch,
-      orientation,
-      direction,
+      id,
+      menuEvents,
       propGetter,
-      clickAndDragSupport,
+      render,
       ...other
     } = props;
 
-    const itemRef = React.useRef<HTMLElement>(null);
-
-    const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
-    const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
-
     const { getRootProps } = useMenuItem({
+      closeOnClick: true,
       disabled,
-      dispatch,
-      rootDispatch,
       highlighted,
       id,
-      label,
-      rootRef: mergedRef,
-      closeOnClick: true,
-      isNested: rootDispatch !== dispatch,
-      orientation,
-      direction,
-      clickAndDragSupport,
+      menuEvents,
+      rootRef: forwardedRef,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };
@@ -92,14 +70,17 @@ const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItemProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, ...other } = props;
-  const { dispatch, topmostContext, state, getItemProps } = useMenuRootContext();
-  const { orientation, direction } = state.settings;
+  const { id: idProp, label, ...other } = props;
+
+  const itemRef = React.useRef<HTMLElement>(null);
+  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+
+  const { getItemProps, activeIndex } = useMenuRootContext();
   const id = useId(idProp);
 
-  const highlighted = state.highlightedValue === id;
-  const clickAndDragSupport =
-    topmostContext?.state?.clickAndDragging ?? state.clickAndDragging ?? false;
+  const highlighted = listItem.index === activeIndex;
+  const { events: menuEvents } = useFloatingTree()!;
 
   // This wrapper component is used as a performance optimization.
   // MenuItem reads the context and re-renders the actual MenuItem
@@ -109,14 +90,10 @@ const MenuItem = React.forwardRef(function MenuItem(
     <InnerMenuItem
       {...other}
       id={id}
-      ref={forwardedRef}
-      dispatch={dispatch}
-      rootDispatch={topmostContext?.dispatch ?? dispatch}
+      ref={mergedRef}
       highlighted={highlighted}
-      orientation={orientation}
-      direction={direction}
+      menuEvents={menuEvents}
       propGetter={getItemProps}
-      clickAndDragSupport={clickAndDragSupport}
     />
   );
 });

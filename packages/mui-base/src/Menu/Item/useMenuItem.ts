@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
-import { MenuActionTypes } from '../Root/menuReducer';
 import { useButton } from '../../useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -15,19 +14,33 @@ import { GenericHTMLProps } from '../../utils/types';
  */
 export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
-    disabled = false,
-    rootDispatch,
-    id,
-    rootRef: externalRef,
     closeOnClick,
+    disabled = false,
     highlighted,
-    clickAndDragSupport,
+    id,
+    menuEvents,
+    rootRef: externalRef,
   } = params;
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: true,
   });
+
+  const [clickAndDrag, setClickAndDrag] = React.useState(false);
+
+  React.useEffect(() => {
+    function handleClickAndDragEnabled() {
+      setClickAndDrag(true);
+    }
+
+    function handleClickAndDragDisabled() {
+      setClickAndDrag(false);
+    }
+
+    menuEvents.on('click-and-drag:enabled', handleClickAndDragEnabled);
+    menuEvents.on('click-and-drag:disabled', handleClickAndDragDisabled);
+  }, [menuEvents]);
 
   const handleRef = useForkRef(buttonRefHandler, externalRef);
 
@@ -37,7 +50,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
         externalProps,
         {
           ref: handleRef,
-          'data-handle-mouseup': clickAndDragSupport || undefined,
+          'data-handle-mouseup': clickAndDrag || undefined,
         },
         getButtonProps({
           id,
@@ -45,16 +58,13 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
           tabIndex: highlighted ? 0 : -1,
           onClick: (event: React.MouseEvent) => {
             if (closeOnClick) {
-              rootDispatch({
-                type: MenuActionTypes.close,
-                event,
-              });
+              menuEvents.emit('close', event);
             }
           },
         }),
       );
     },
-    [closeOnClick, getButtonProps, handleRef, rootDispatch, highlighted, id, clickAndDragSupport],
+    [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, clickAndDrag],
   );
 
   return {

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useFloatingTree } from '@floating-ui/react';
 import { MenuTriggerOwnerState, MenuTriggerProps } from './MenuTrigger.types';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -10,27 +11,29 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    render,
-    className,
-    disabled = false,
-    label,
-    focusableWhenDisabled = false,
-    ...other
-  } = props;
+  const { render, className, disabled = false, label, ...other } = props;
 
-  const { state, dispatch, getTriggerProps } = useMenuRootContext();
+  const {
+    getTriggerProps,
+    disabled: menuDisabled,
+    setTriggerElement,
+    open,
+    setOpen,
+  } = useMenuRootContext();
+
+  const { events: menuEvents } = useFloatingTree()!;
 
   const { getRootProps } = useMenuTrigger({
-    disabled,
-    focusableWhenDisabled,
+    disabled: disabled || menuDisabled,
     rootRef: forwardedRef,
-    menuState: state,
-    dispatch,
+    menuEvents,
+    setTriggerElement,
+    open,
+    setOpen,
   });
 
   const ownerState: MenuTriggerOwnerState = {
-    open: state.open,
+    open,
   };
 
   const { renderElement } = useComponentRenderer({

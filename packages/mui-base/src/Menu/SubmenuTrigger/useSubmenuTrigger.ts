@@ -1,26 +1,18 @@
 import * as React from 'react';
-import { ListDirection, ListItemMetadata, ListOrientation } from '@base_ui/react/useList';
-import { CompoundParentContextValue } from '../../useCompound';
+import { FloatingEvents } from '@floating-ui/react';
 import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { MenuActionTypes, MenuReducerAction, MenuReducerState } from '../Root/menuReducer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 
 namespace useSubmenuTrigger {
   export interface Parameters {
-    dispatch: React.Dispatch<MenuReducerAction>;
-    parentDispatch: React.Dispatch<MenuReducerAction>;
-    rootDispatch: React.Dispatch<MenuReducerAction>;
     id: string | undefined;
     highlighted: boolean;
-    compoundParentContext: CompoundParentContextValue<string, ListItemMetadata>;
     disabled: boolean;
-    label: string | undefined;
     rootRef?: React.Ref<Element>;
-    orientation: ListOrientation;
-    direction: ListDirection;
-    state: MenuReducerState;
+    menuEvents: FloatingEvents;
+    setTriggerElement: (element: HTMLElement | null) => void;
   }
 
   export interface ReturnValue {
@@ -37,61 +29,29 @@ namespace useSubmenuTrigger {
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
 ): useSubmenuTrigger.ReturnValue {
-  const {
-    dispatch,
-    parentDispatch,
-    rootDispatch,
-    id,
-    highlighted,
-    compoundParentContext,
-    disabled,
-    label,
-    rootRef,
-    orientation,
-    direction,
-    state,
-  } = parameters;
+  const { id, highlighted, disabled, rootRef, menuEvents, setTriggerElement } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
-    compoundParentContext,
+    closeOnClick: false,
     disabled,
-    dispatch: parentDispatch,
-    rootDispatch,
     highlighted,
     id,
-    label,
+    menuEvents,
     rootRef,
-    closeOnClick: false,
-    disableFocusOnHover: false,
-    isNested: parentDispatch !== rootDispatch,
-    orientation,
-    direction,
   });
 
-  const registerTrigger = React.useCallback(
-    (element: HTMLElement | null) => {
-      dispatch({
-        type: MenuActionTypes.registerTrigger,
-        triggerElement: element,
-      });
-    },
-    [dispatch],
-  );
-
-  const menuTriggerRef = useForkRef(menuItemRef, registerTrigger);
+  const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
       return getMenuItemProps(
         mergeReactProps(externalProps, {
           'aria-haspopup': 'menu' as const,
-          'aria-expanded': state.open,
-          'aria-controls': state.popupId ?? undefined,
           ref: menuTriggerRef,
         }),
       );
     },
-    [getMenuItemProps, menuTriggerRef, state.open, state.popupId],
+    [getMenuItemProps, menuTriggerRef],
   );
 
   return React.useMemo(

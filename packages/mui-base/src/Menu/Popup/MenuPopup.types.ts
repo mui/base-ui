@@ -9,6 +9,4 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupOwn
   id?: string;
 }
 
-export type MenuPopupOwnerState = {
-  open: boolean;
-};
+export type MenuPopupOwnerState = {};

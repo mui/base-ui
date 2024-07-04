@@ -1,27 +1,13 @@
+import { FloatingEvents } from '@floating-ui/react';
 import { GenericHTMLProps } from '../../utils/types';
-import { MenuReducerAction } from '../Root/menuReducer';
-import { ListDirection, ListOrientation } from '../../useList';
 
 export interface UseMenuItemParameters {
-  dispatch: React.Dispatch<MenuReducerAction>;
-  rootDispatch: React.Dispatch<MenuReducerAction>;
-  disabled: boolean;
-  id: string | undefined;
-  label?: string;
-  onClick?: React.MouseEventHandler<any>;
-  rootRef?: React.Ref<Element>;
-  /**
-   * If `true`, the menu item won't receive focus when the mouse moves over it.
-   *
-   * @default false
-   */
-  disableFocusOnHover?: boolean;
-  highlighted: boolean;
   closeOnClick: boolean;
-  isNested: boolean;
-  orientation: ListOrientation;
-  direction: ListDirection;
-  clickAndDragSupport?: boolean;
+  disabled: boolean;
+  highlighted: boolean;
+  id: string | undefined;
+  menuEvents: FloatingEvents;
+  rootRef?: React.Ref<Element>;
 }
 
 export interface UseMenuItemReturnValue {
