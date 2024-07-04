@@ -13,7 +13,7 @@ import {
 import { Menu, menuClasses } from '@base_ui/react/legacy/Menu';
 import { MenuItem, MenuItemRootSlotProps } from '@base_ui/react/legacy/MenuItem';
 import { DropdownContext, DropdownContextValue } from '@base_ui/react/legacy/useDropdown';
-import { Popper } from '@base_ui/react/legacy/Popper';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 import { MenuProvider, useMenu } from '@base_ui/react/legacy/useMenu';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
@@ -167,11 +167,11 @@ describe('<Menu />', () => {
         const anchorEl = triggerElement ?? createAnchor();
 
         return (
-          <Popper open={open} anchorEl={anchorEl}>
+          <Popup open={open} anchor={anchorEl}>
             <ul className="menu-root" {...other} {...getListboxProps()}>
               <MenuProvider value={contextValue}>{children}</MenuProvider>
             </ul>
-          </Popper>
+          </Popup>
         );
       });
 
