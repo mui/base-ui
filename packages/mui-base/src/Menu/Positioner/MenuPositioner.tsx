@@ -132,14 +132,16 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
         <FloatingPortal root={props.container}>
-          <FloatingFocusManager
-            context={positioner.floatingContext}
-            modal={false}
-            initialFocus={isNested ? -1 : 0}
-            returnFocus={isNested}
-          >
-            {renderElement()}
-          </FloatingFocusManager>
+          {open && (
+            <FloatingFocusManager
+              context={positioner.floatingContext}
+              modal={false}
+              initialFocus={isNested ? -1 : 0}
+              returnFocus={isNested}
+            >
+              {renderElement()}
+            </FloatingFocusManager>
+          )}
         </FloatingPortal>
       </FloatingNode>
     </MenuPositionerContext.Provider>

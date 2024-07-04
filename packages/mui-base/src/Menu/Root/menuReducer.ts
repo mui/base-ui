@@ -1,4 +1,4 @@
-import { ListAction, ListActionTypes, ListState, listReducer, moveHighlight } from '../../useList';
+import { ListAction, ListActionTypes, ListState, listReducer } from '../../useList';
 
 export const MenuActionTypes = {
   toggle: 'menu:toggle',
@@ -22,15 +22,11 @@ export function menuReducer(state: MenuReducerState, action: MenuReducerAction):
       };
 
     case MenuActionTypes.open: {
-      const updateHighlight = action.event instanceof window.KeyboardEvent;
       const clickAndDragging = action.event?.type === 'mousedown';
 
       return {
         ...state,
         open: true,
-        highlightedValue: updateHighlight
-          ? moveHighlight(null, 'start', state.items, state.settings)
-          : state.highlightedValue,
         clickAndDragging,
       };
     }
