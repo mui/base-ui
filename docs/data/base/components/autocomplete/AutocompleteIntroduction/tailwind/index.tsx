@@ -3,7 +3,7 @@ import {
   useAutocomplete,
   UseAutocompleteProps,
 } from '@base_ui/react/legacy/useAutocomplete';
-import { Popper } from '@base_ui/react/legacy/Popper';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -85,9 +85,9 @@ const Autocomplete = React.forwardRef(function Autocomplete(
         </button>
       </div>
       {anchorEl && (
-        <Popper
+        <Popup
           open={popupOpen}
-          anchorEl={anchorEl}
+          anchor={anchorEl}
           slotProps={{
             root: {
               className: 'relative z-[1001] w-80', // z-index: 1001 is needed to override ComponentPageTabs with z-index: 1000
@@ -119,7 +119,7 @@ const Autocomplete = React.forwardRef(function Autocomplete(
               <li className="list-none p-2 cursor-default">No results</li>
             )}
           </ul>
-        </Popper>
+        </Popup>
       )}
     </React.Fragment>
   );

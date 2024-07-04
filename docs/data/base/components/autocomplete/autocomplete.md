@@ -102,13 +102,13 @@ Learn more about controlled and uncontrolled components in the [React documentat
 
 React Portals can be used to render the listbox outside of the DOM hierarchy, making it easier to allow it to "float" above adjacent elements.
 
-Base UI provides a [Popper](/base-ui/react-popper/) component built around React's `createPortal()` for exactly this purpose, and additionally helps you manage keyboard focus as it moves in and out of the portal.
+Base UI provides a [Popup](/base-ui/react-popup/) component built around React's `createPortal()` for exactly this purpose, and additionally helps you manage keyboard focus as it moves in and out of the portal.
 
-To render the listbox in Base UI's Popper, the `ref`s must be merged as follows:
+To render the listbox in Base UI's Popup, the `ref`s must be merged as follows:
 
 ```jsx
 import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
-import { Popper } from '@base_ui/react/legacy/Popper';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 
 export default function App(props) {
@@ -131,7 +131,7 @@ export default function App(props) {
         <input {...getInputProps()} />
       </div>
       {anchorEl && (
-        <Popper open={popupOpen} anchorEl={anchorEl}>
+        <Popup open={popupOpen} anchor={anchorEl}>
           {groupedOptions.length > 0 && (
             <ul {...getListboxProps()}>
               {groupedOptions.map((option, index) => (
@@ -139,13 +139,13 @@ export default function App(props) {
               ))}
             </ul>
           )}
-        </Popper>
+        </Popup>
       )}
     </React.Fragment>
   );
 }
 ```
 
-Here's a complete demo that renders the listbox inside a Popper:
+Here's a complete demo that renders the listbox inside a Popup:
 
 {{"demo": "UseAutocompletePopper.js", "defaultCodeOpen": false}}

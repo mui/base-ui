@@ -35,7 +35,6 @@
     "@mui/system": "6.0.0-alpha.13",
     "@mui/types": "7.2.14",
     "@mui/utils": "6.0.0-alpha.13",
-    "@popperjs/core": "^2.11.8",
     "@react-spring/web": "^9.7.3",
     "autoprefixer": "^10.4.19",
     "autosuggest-highlight": "^3.3.4",

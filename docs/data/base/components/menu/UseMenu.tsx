@@ -2,7 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { useMenu, MenuProvider } from '@base_ui/react/legacy/useMenu';
 import { useMenuItem } from '@base_ui/react/legacy/useMenuItem';
-import { Popper } from '@base_ui/react/legacy/Popper';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 import { useDropdown, DropdownContext } from '@base_ui/react/legacy/useDropdown';
 import { useMenuButton } from '@base_ui/react/legacy/useMenuButton';
 import { useTheme } from '@mui/system';
@@ -18,11 +18,11 @@ const Menu = React.forwardRef(function Menu(
   });
 
   return (
-    <Popper open={open} anchorEl={triggerElement}>
+    <Popup open={open} anchor={triggerElement}>
       <ul className="menu-root" {...other} {...getListboxProps()}>
         <MenuProvider value={contextValue}>{children}</MenuProvider>
       </ul>
-    </Popper>
+    </Popup>
   );
 });
 

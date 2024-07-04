@@ -4,7 +4,7 @@ import {
   UseAutocompleteProps,
 } from '@base_ui/react/legacy/useAutocomplete';
 import { Input } from '@base_ui/react/legacy/Input';
-import { Popper } from '@base_ui/react/legacy/Popper';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 import { useTheme } from '@mui/system';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -90,11 +90,11 @@ const Autocomplete = React.forwardRef(function Autocomplete(
         </button>
       </div>
       {anchorEl ? (
-        <Popper
+        <Popup
           open={popupOpen}
-          anchorEl={anchorEl}
+          anchor={anchorEl}
           slotProps={{
-            root: { className: 'Autocomplete__popper' },
+            root: { className: 'Autocomplete__popup' },
           }}
           modifiers={[
             { name: 'flip', enabled: false },
@@ -116,7 +116,7 @@ const Autocomplete = React.forwardRef(function Autocomplete(
               <li className="Autocomplete__no-options">No results</li>
             )}
           </ul>
-        </Popper>
+        </Popup>
       ) : null}
       <Styles />
     </React.Fragment>
@@ -194,7 +194,7 @@ function Styles() {
         }
       }
 
-      .Autocomplete__popper {
+      .Autocomplete__popup {
         position: relative;
         z-index: 1001;
         width: 320px;

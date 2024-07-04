@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useAutocomplete } from '@base_ui/react/legacy/useAutocomplete';
-import { Popper } from '@base_ui/react/legacy/Popper';
+import { Unstable_Popup as Popup } from '@base_ui/react/legacy/Unstable_Popup';
 import { styled } from '@mui/system';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -65,11 +65,11 @@ const Autocomplete = React.forwardRef(function Autocomplete(props, ref) {
         </StyledPopupIndicator>
       </StyledAutocompleteRoot>
       {anchorEl ? (
-        <Popper
+        <Popup
           open={popupOpen}
           anchorEl={anchorEl}
           slots={{
-            root: StyledPopper,
+            root: StyledPopup,
           }}
           modifiers={[
             { name: 'flip', enabled: false },
@@ -87,7 +87,7 @@ const Autocomplete = React.forwardRef(function Autocomplete(props, ref) {
               <StyledNoOptions>No results</StyledNoOptions>
             )}
           </StyledListbox>
-        </Popper>
+        </Popup>
       ) : null}
     </React.Fragment>
   );
@@ -188,7 +188,7 @@ const StyledInput = styled('input')(
 );
 
 // ComponentPageTabs has z-index: 1000
-const StyledPopper = styled('div')`
+const StyledPopup = styled('div')`
   position: relative;
   z-index: 1001;
   width: 320px;

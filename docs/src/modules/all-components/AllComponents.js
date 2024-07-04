@@ -14,18 +14,6 @@ function components() {
     //   srcDark: '/static/base-ui/react-components/autocomplete-dark.png',
     //   href: '/base-ui/react-autocomplete/',
     // },
-    // {
-    //   title: 'Badge',
-    //   srcLight: '/static/base-ui/react-components/badge-light.png',
-    //   srcDark: '/static/base-ui/react-components/badge-dark.png',
-    //   href: '/base-ui/react-badge/',
-    // },
-    // {
-    //   title: 'Button',
-    //   srcLight: '/static/base-ui/react-components/button-light.png',
-    //   srcDark: '/static/base-ui/react-components/button-dark.png',
-    //   href: '/base-ui/react-button/',
-    // },
     {
       title: 'Checkbox',
       srcLight: '/static/base-ui/react-components/checkbox-light.png',
@@ -51,22 +39,10 @@ function components() {
     //   href: '/base-ui/react-form-control/',
     // },
     // {
-    //   title: 'Input',
-    //   srcLight: '/static/base-ui/react-components/input-light.png',
-    //   srcDark: '/static/base-ui/react-components/input-dark.png',
-    //   href: '/base-ui/react-input/',
-    // },
-    // {
     //   title: 'Menu',
     //   srcLight: '/static/base-ui/react-components/menu-light.png',
     //   srcDark: '/static/base-ui/react-components/menu-dark.png',
     //   href: '/base-ui/react-menu/',
-    // },
-    // {
-    //   title: 'Modal',
-    //   srcLight: '/static/base-ui/react-components/modal-light.png',
-    //   srcDark: '/static/base-ui/react-components/modal-dark.png',
-    //   href: '/base-ui/react-modal/',
     // },
     // {
     //   title: 'No-SSR',
@@ -80,12 +56,6 @@ function components() {
       srcDark: '/static/base-ui/react-components/number-field-dark.png',
       href: '/base-ui/react-number-field/',
     },
-    // {
-    //   title: 'Popper',
-    //   srcLight: '/static/base-ui/react-components/popper-light.png',
-    //   srcDark: '/static/base-ui/react-components/popper-dark.png',
-    //   href: '/base-ui/react-popper/',
-    // },
     // {
     //   title: 'Portal',
     //   srcLight: '/static/base-ui/react-components/portal-light.png',
