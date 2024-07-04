@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button as BaseButton, buttonClasses } from '@base_ui/react/legacy/Button';
+
 import { styled } from '@mui/system';
 import Stack from '@mui/material/Stack';
 
@@ -18,7 +18,7 @@ const blue = {
   700: '#0059B2',
 };
 
-const Button = styled(BaseButton)`
+const Button = styled('button')`
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -39,20 +39,20 @@ const Button = styled(BaseButton)`
     background-color: ${blue[700]};
   }
 
-  &.${buttonClasses.focusVisible} {
+  &:focus-visible {
     box-shadow:
       0 4px 20px 0 rgb(61 71 82 / 0.1),
       0 0 0 5px rgb(0 127 255 / 0.5);
     outline: none;
   }
 
-  &.${buttonClasses.disabled} {
+  &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `;
 
-const PoorContrastButton = styled(BaseButton)`
+const PoorContrastButton = styled('button')`
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -73,14 +73,14 @@ const PoorContrastButton = styled(BaseButton)`
     background-color: ${blue[700]};
   }
 
-  &.${buttonClasses.focusVisible} {
+  &:focus-visible {
     box-shadow:
       0 4px 20px 0 rgb(61 71 82 / 0.1),
       0 0 0 5px rgb(0 127 255 / 0.5);
     outline: none;
   }
 
-  &.${buttonClasses.disabled} {
+  &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }

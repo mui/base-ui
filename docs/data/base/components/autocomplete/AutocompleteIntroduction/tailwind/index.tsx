@@ -3,7 +3,6 @@ import {
   useAutocomplete,
   UseAutocompleteProps,
 } from '@base_ui/react/legacy/useAutocomplete';
-import { Button } from '@base_ui/react/legacy/Button';
 import { Popper } from '@base_ui/react/legacy/Popper';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -67,21 +66,23 @@ const Autocomplete = React.forwardRef(function Autocomplete(
           className="text-sm leading-[1.5] text-gray-900 dark:text-gray-300 bg-inherit border-0 rounded-[inherit] px-3 py-2 outline-0 grow shrink-0 basis-auto"
         />
         {hasClearIcon && (
-          <Button
+          <button
+            type="button"
             {...getClearProps()}
             className="self-center outline-0 shadow-none border-0 py-0 px-0.5 rounded-[4px] bg-transparent hover:bg-violet-100 dark:hover:bg-gray-700 hover:cursor-pointer"
           >
             <ClearIcon className="translate-y-[2px] scale-90" />
-          </Button>
+          </button>
         )}
-        <Button
+        <button
+          type="button"
           {...getPopupIndicatorProps()}
           className="self-center outline-0 shadow-none border-0 py-0 px-0.5 rounded-[4px] bg-transparent hover:bg-violet-100 dark:hover:bg-gray-700 hover:cursor-pointer"
         >
           <ArrowDropDownIcon
             className={clsx('translate-y-[2px]', popupOpen && 'rotate-180')}
           />
-        </Button>
+        </button>
       </div>
       {anchorEl && (
         <Popper

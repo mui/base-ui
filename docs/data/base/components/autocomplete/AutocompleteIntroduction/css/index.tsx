@@ -3,7 +3,6 @@ import {
   useAutocomplete,
   UseAutocompleteProps,
 } from '@base_ui/react/legacy/useAutocomplete';
-import { Button } from '@base_ui/react/legacy/Button';
 import { Input } from '@base_ui/react/legacy/Input';
 import { Popper } from '@base_ui/react/legacy/Popper';
 import { useTheme } from '@mui/system';
@@ -70,14 +69,16 @@ const Autocomplete = React.forwardRef(function Autocomplete(
           }}
         />
         {hasClearIcon && (
-          <Button
+          <button
+            type="button"
             {...getClearProps()}
             className="Autocomplete__indicator clear-indicator"
           >
             <ClearIcon />
-          </Button>
+          </button>
         )}
-        <Button
+        <button
+          type="button"
           {...getPopupIndicatorProps()}
           className={clsx(
             'Autocomplete__indicator',
@@ -86,7 +87,7 @@ const Autocomplete = React.forwardRef(function Autocomplete(
           )}
         >
           <ArrowDropDownIcon />
-        </Button>
+        </button>
       </div>
       {anchorEl ? (
         <Popper

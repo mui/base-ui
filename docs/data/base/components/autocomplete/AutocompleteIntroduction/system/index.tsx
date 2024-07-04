@@ -3,7 +3,6 @@ import {
   useAutocomplete,
   UseAutocompleteProps,
 } from '@base_ui/react/legacy/useAutocomplete';
-import { Button } from '@base_ui/react/legacy/Button';
 import { Popper } from '@base_ui/react/legacy/Popper';
 import { styled } from '@mui/system';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
@@ -241,7 +240,7 @@ const StyledOption = styled('li')(
   `,
 );
 
-const StyledPopupIndicator = styled(Button)(
+const StyledPopupIndicator = styled('button')(
   ({ theme }) => `
     outline: 0;
     box-shadow: none;
@@ -266,7 +265,7 @@ const StyledPopupIndicator = styled(Button)(
   `,
 );
 
-const StyledClearIndicator = styled(Button)(
+const StyledClearIndicator = styled('button')(
   ({ theme }) => `
     outline: 0;
     box-shadow: none;

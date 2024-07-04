@@ -8,7 +8,6 @@ const pages: readonly MuiPage[] = [
       { pathname: '/base-ui/getting-started', title: 'Overview' },
       { pathname: '/base-ui/getting-started/quickstart', title: 'Quickstart' },
       { pathname: '/base-ui/getting-started/usage', title: 'Usage' },
-      // { pathname: '/base-ui/getting-started/customization', title: 'Customization' },
       { pathname: '/base-ui/getting-started/accessibility', title: 'Accessibility' },
       { pathname: '/base-ui/getting-started/support' },
     ],
@@ -81,14 +80,6 @@ const pages: readonly MuiPage[] = [
     pathname: '/base-ui/guides',
     title: 'How-to guides',
     children: [
-      // {
-      //   pathname: '/base-ui/guides/working-with-tailwind-css',
-      //   title: 'Working with Tailwind CSS',
-      // },
-      // {
-      //   pathname: '/base-ui/guides/overriding-component-structure',
-      //   title: 'Overriding component structure',
-      // },
       {
         pathname: '/base-ui/guides/next-js-app-router',
         title: 'Next.js App Router',
