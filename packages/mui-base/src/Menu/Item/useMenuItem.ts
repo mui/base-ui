@@ -29,7 +29,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
 
   const [clickAndDrag, setClickAndDrag] = React.useState(false);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     function handleClickAndDragEnabled() {
       setClickAndDrag(true);
     }

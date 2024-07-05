@@ -22,10 +22,23 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
     menuEvents,
   } = parameters;
 
+  const [clickAndDragEnabled, setClickAndDragEnabled] = React.useState(false);
+  const triggerRef = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    if (clickAndDragEnabled) {
+      menuEvents.emit('click-and-drag:enabled');
+    } else {
+      menuEvents.emit('click-and-drag:disabled');
+    }
+  }, [clickAndDragEnabled, menuEvents]);
+
+  const mergedRef = useForkRef(externalRef, triggerRef);
+
   const { getRootProps: getButtonRootProps, rootRef: buttonRootRef } = useButton({
     disabled,
     focusableWhenDisabled: false,
-    rootRef: externalRef,
+    rootRef: mergedRef,
   });
 
   const handleRef = useForkRef(buttonRootRef, setTriggerElement);
@@ -49,7 +62,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
             event.preventDefault();
 
             setOpen(true, event);
-            menuEvents.emit('click-and-drag:enabled', event);
+            setClickAndDragEnabled(true);
 
             const mousedownTarget = event.target as Element;
 
@@ -57,9 +70,11 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
               const mouseupTarget = mouseUpEvent.target as HTMLElement;
               if (mouseupTarget?.dataset?.handleMouseup === 'true') {
                 mouseupTarget.click();
+              } else if (mouseupTarget !== triggerRef.current) {
+                setOpen(false, mouseUpEvent);
               }
 
-              menuEvents.emit('click-and-drag:disabled', mouseUpEvent);
+              setClickAndDragEnabled(false);
               ownerDocument(mousedownTarget).removeEventListener('mouseup', handleDocumentMouseUp);
             }
 
@@ -77,7 +92,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
         getButtonRootProps(),
       );
     },
-    [getButtonRootProps, handleRef, open, menuEvents, setOpen],
+    [getButtonRootProps, handleRef, open, setOpen],
   );
 
   return React.useMemo(
