@@ -63,6 +63,7 @@ describe.skip('<Select />', () => {
       },
     },
     skip: ['componentProp'],
+    skip: ['componentProp'],
   }));
 
   describe('selected option rendering', () => {
@@ -786,6 +787,7 @@ describe.skip('<Select />', () => {
     });
 
     it('is not called after initial render when when controlled value is set to null', async () => {
+    it('is not called after initial render when when controlled value is set to null', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const [value, setValue] = React.useState<string | null>(null);
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -803,10 +805,12 @@ describe.skip('<Select />', () => {
 
       const onChange = spy();
       await render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
+    it('is not called after initial render when when the default uncontrolled value is set to null', async () => {
     it('is not called after initial render when when the default uncontrolled value is set to null', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -823,10 +827,12 @@ describe.skip('<Select />', () => {
 
       const onChange = spy();
       await render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
+    it('is not called after initial render when the controlled value is set to a valid option', async () => {
     it('is not called after initial render when the controlled value is set to a valid option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const [value, setValue] = React.useState<string | null>('1');
@@ -845,10 +851,12 @@ describe.skip('<Select />', () => {
 
       const onChange = spy();
       await render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
+    it('is not called after initial render when when the default uncontrolled value is set to a valid option', async () => {
     it('is not called after initial render when when the default uncontrolled value is set to a valid option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -865,10 +873,12 @@ describe.skip('<Select />', () => {
 
       const onChange = spy();
       await render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.notCalled).to.equal(true);
     });
 
+    it('is called after initial render with `null` when the controlled value is set to a nonexistent option', async () => {
     it('is called after initial render with `null` when the controlled value is set to a nonexistent option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const [value, setValue] = React.useState<string | null>('42');
@@ -887,11 +897,13 @@ describe.skip('<Select />', () => {
 
       const onChange = spy();
       await render(<TestComponent onChange={onChange} />);
+      await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.called).to.equal(true);
       expect(onChange.args[0][0]).to.equal(null);
     });
 
+    it('is called after initial render when when the default uncontrolled value is set to a nonexistent option', async () => {
     it('is called after initial render when when the default uncontrolled value is set to a nonexistent option', async () => {
       function TestComponent({ onChange }: { onChange: (value: string | null) => void }) {
         const handleChange = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -907,6 +919,7 @@ describe.skip('<Select />', () => {
       }
 
       const onChange = spy();
+      await render(<TestComponent onChange={onChange} />);
       await render(<TestComponent onChange={onChange} />);
 
       expect(onChange.called).to.equal(true);
@@ -1016,6 +1029,8 @@ describe.skip('<Select />', () => {
   describe('a11y attributes', () => {
     it('should have the `combobox` role', async () => {
       await render(
+    it('should have the `combobox` role', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,
@@ -1026,6 +1041,8 @@ describe.skip('<Select />', () => {
 
     it('should have the aria-expanded attribute', async () => {
       await render(
+    it('should have the aria-expanded attribute', async () => {
+      await render(
         <Select>
           <Option value={1}>One</Option>
         </Select>,
@@ -1034,6 +1051,8 @@ describe.skip('<Select />', () => {
       expect(screen.getByRole('combobox')).to.have.attribute('aria-expanded', 'false');
     });
 
+    it('should have the aria-expanded attribute set to true when the listbox is open', async () => {
+      await render(
     it('should have the aria-expanded attribute set to true when the listbox is open', async () => {
       await render(
         <Select>
@@ -1049,6 +1068,8 @@ describe.skip('<Select />', () => {
       expect(select).to.have.attribute('aria-expanded', 'true');
     });
 
+    it('should have the aria-controls attribute', async () => {
+      await render(
     it('should have the aria-controls attribute', async () => {
       await render(
         <Select>
@@ -1069,6 +1090,8 @@ describe.skip('<Select />', () => {
       expect(select).to.have.attribute('aria-controls', listboxId!);
     });
 
+    it('should have the correct tabindex attribute', async () => {
+      await render(
     it('should have the correct tabindex attribute', async () => {
       await render(
         <Select>

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '@mui/internal-test-utils';
 import { Option, optionClasses } from '@base_ui/react/legacy/Option';
 import { SelectContext } from '../useSelect/SelectContext';
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
@@ -52,6 +53,7 @@ describe.skip('<Option />', () => {
         expectedClassName: optionClasses.root,
       },
     },
+    skip: ['componentProp'],
     skip: ['componentProp'],
   }));
 });
