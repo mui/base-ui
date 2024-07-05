@@ -17,7 +17,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   const { setOpen } = useMenuRootContext();
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getRootProps } = useMenuPopup({
+  useMenuPopup({
     setOpen,
     menuEvents,
   });
@@ -28,7 +28,6 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     render: render || 'div',
     className,
     ownerState,
-    propGetter: getRootProps,
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
     },

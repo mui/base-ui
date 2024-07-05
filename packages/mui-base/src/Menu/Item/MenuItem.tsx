@@ -17,7 +17,7 @@ interface InnerMenuItemProps extends MenuItemProps {
 }
 
 const InnerMenuItem = React.memo(
-  React.forwardRef(function MenuItem(
+  React.forwardRef(function InnerMenuItem(
     props: InnerMenuItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {

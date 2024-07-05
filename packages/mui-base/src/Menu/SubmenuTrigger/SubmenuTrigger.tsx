@@ -76,11 +76,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     ownerState,
     propGetter: (externalProps: GenericHTMLProps) =>
       getTriggerProps(getItemProps(getRootProps(externalProps))),
-    extraProps: {
-      ...other,
-      'data-index': item.index,
-      'data-activeindex': activeIndex,
-    },
+    extraProps: other,
   });
 
   return renderElement();

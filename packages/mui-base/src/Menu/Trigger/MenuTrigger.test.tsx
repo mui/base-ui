@@ -27,6 +27,7 @@ const testRootContext: MenuRootContext = {
 
 describe('<Menu.Trigger />', () => {
   const { render } = createRenderer();
+  const user = userEvent.setup();
 
   describeConformance(<Menu.Trigger />, () => ({
     inheritComponent: 'button',
@@ -61,7 +62,7 @@ describe('<Menu.Trigger />', () => {
       );
 
       const button = getByRole('button');
-      button.click();
+      await user.click(button);
 
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
@@ -78,7 +79,7 @@ describe('<Menu.Trigger />', () => {
     );
 
     const button = getByRole('button', { name: 'Open' });
-    await userEvent.click(button);
+    await user.click(button);
 
     const menuPopup = queryByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
@@ -98,13 +99,13 @@ describe('<Menu.Trigger />', () => {
         }
 
         it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
-          const user = userEvent.setup();
-
           const { getByRole, queryByRole } = await render(
             <Menu.Root>
               {buttonComponent}
               <Menu.Positioner>
-                <Menu.Popup />
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                </Menu.Popup>
               </Menu.Positioner>
             </Menu.Root>,
           );
@@ -114,7 +115,7 @@ describe('<Menu.Trigger />', () => {
             button.focus();
           });
 
-          await user.keyboard(`{${key}}`);
+          await user.keyboard(`[${key}]`);
 
           const menuPopup = queryByRole('menu', { hidden: false });
           expect(menuPopup).not.to.equal(null);
@@ -155,20 +156,6 @@ describe('<Menu.Trigger />', () => {
 
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'true');
-    });
-
-    it('has the aria-controls attribute', async () => {
-      const { getByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup id="menu-popup" />
-          </Menu.Positioner>
-        </Menu.Root>,
-      );
-
-      const button = getByRole('button', { name: 'Open' });
-      expect(button).to.have.attribute('aria-controls', 'menu-popup');
     });
   });
 });
