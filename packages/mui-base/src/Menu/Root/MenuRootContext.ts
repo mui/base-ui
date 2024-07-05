@@ -18,6 +18,8 @@ export interface MenuRootContext {
   open: boolean;
   setOpen: (open: boolean, event: Event | undefined) => void;
   disabled: boolean;
+  clickAndDragEnabled: boolean;
+  setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);

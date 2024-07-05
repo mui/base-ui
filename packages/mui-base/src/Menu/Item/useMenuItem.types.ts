@@ -8,6 +8,7 @@ export interface UseMenuItemParameters {
   id: string | undefined;
   menuEvents: FloatingEvents;
   rootRef?: React.Ref<Element>;
+  clickAndDragEnabled: boolean;
 }
 
 export interface UseMenuItemReturnValue {

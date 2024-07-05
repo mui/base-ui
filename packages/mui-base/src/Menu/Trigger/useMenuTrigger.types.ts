@@ -15,6 +15,7 @@ export interface UseMenuTriggerParameters {
   open: boolean;
   setOpen: (open: boolean, event: Event | undefined) => void;
   menuEvents: FloatingEvents;
+  setClickAndDragEnabled: (enabled: boolean) => void;
 }
 
 export interface UseMenuTriggerReturnValue {

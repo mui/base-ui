@@ -14,6 +14,7 @@ interface InnerMenuItemProps extends MenuItemProps {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
+  clickAndDragEnabled: boolean;
 }
 
 const InnerMenuItem = React.memo(
@@ -29,6 +30,7 @@ const InnerMenuItem = React.memo(
       menuEvents,
       propGetter,
       render,
+      clickAndDragEnabled,
       ...other
     } = props;
 
@@ -39,6 +41,7 @@ const InnerMenuItem = React.memo(
       id,
       menuEvents,
       rootRef: forwardedRef,
+      clickAndDragEnabled,
     });
 
     const ownerState: MenuItemOwnerState = { disabled, highlighted };
@@ -76,7 +79,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex } = useMenuRootContext();
+  const { getItemProps, activeIndex, clickAndDragEnabled } = useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -94,6 +97,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       highlighted={highlighted}
       menuEvents={menuEvents}
       propGetter={getItemProps}
+      clickAndDragEnabled={clickAndDragEnabled}
     />
   );
 });

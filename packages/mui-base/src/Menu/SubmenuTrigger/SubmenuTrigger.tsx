@@ -44,7 +44,8 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
   const id = useId(idProp);
 
-  const { getTriggerProps, parentContext, setTriggerElement } = useMenuRootContext();
+  const { getTriggerProps, parentContext, setTriggerElement, clickAndDragEnabled } =
+    useMenuRootContext();
 
   if (parentContext === null) {
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
@@ -66,6 +67,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     disabled,
     menuEvents,
     setTriggerElement,
+    clickAndDragEnabled,
   });
 
   const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };

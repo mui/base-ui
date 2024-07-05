@@ -19,6 +19,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setTriggerElement,
     open,
     setOpen,
+    setClickAndDragEnabled,
   } = useMenuRootContext();
 
   const { events: menuEvents } = useFloatingTree()!;
@@ -30,6 +31,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setTriggerElement,
     open,
     setOpen,
+    setClickAndDragEnabled,
   });
 
   const ownerState: MenuTriggerOwnerState = {

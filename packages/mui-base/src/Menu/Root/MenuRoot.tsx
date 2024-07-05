@@ -45,6 +45,15 @@ function MenuRoot(props: MenuRootProps) {
     nested,
   });
 
+  const [localClickAndDragEnabled, setLocalClickAndDragEnabled] = React.useState(false);
+  let clickAndDragEnabled = localClickAndDragEnabled;
+  let setClickAndDragEnabled = setLocalClickAndDragEnabled;
+
+  if (parentContext != null) {
+    clickAndDragEnabled = parentContext.clickAndDragEnabled;
+    setClickAndDragEnabled = parentContext.setClickAndDragEnabled;
+  }
+
   const context: MenuRootContext = React.useMemo(
     () => ({
       ...menuRoot,
@@ -53,8 +62,19 @@ function MenuRoot(props: MenuRootProps) {
       disabled,
       open,
       setOpen,
+      clickAndDragEnabled,
+      setClickAndDragEnabled,
     }),
-    [menuRoot, nested, parentContext, disabled, open, setOpen],
+    [
+      menuRoot,
+      nested,
+      parentContext,
+      disabled,
+      open,
+      setOpen,
+      clickAndDragEnabled,
+      setClickAndDragEnabled,
+    ],
   );
 
   if (!nested) {

@@ -13,6 +13,7 @@ namespace useSubmenuTrigger {
     rootRef?: React.Ref<Element>;
     menuEvents: FloatingEvents;
     setTriggerElement: (element: HTMLElement | null) => void;
+    clickAndDragEnabled: boolean;
   }
 
   export interface ReturnValue {
@@ -29,7 +30,8 @@ namespace useSubmenuTrigger {
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
 ): useSubmenuTrigger.ReturnValue {
-  const { id, highlighted, disabled, rootRef, menuEvents, setTriggerElement } = parameters;
+  const { id, highlighted, disabled, rootRef, menuEvents, setTriggerElement, clickAndDragEnabled } =
+    parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
     closeOnClick: false,
@@ -38,6 +40,7 @@ export function useSubmenuTrigger(
     id,
     menuEvents,
     rootRef,
+    clickAndDragEnabled,
   });
 
   const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);

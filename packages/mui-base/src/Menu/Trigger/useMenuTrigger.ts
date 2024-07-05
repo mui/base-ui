@@ -19,19 +19,10 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
     open,
     setOpen,
     setTriggerElement,
-    menuEvents,
+    setClickAndDragEnabled,
   } = parameters;
 
-  const [clickAndDragEnabled, setClickAndDragEnabled] = React.useState(false);
   const triggerRef = React.useRef<HTMLElement | null>(null);
-
-  React.useEffect(() => {
-    if (clickAndDragEnabled) {
-      menuEvents.emit('click-and-drag:enabled');
-    } else {
-      menuEvents.emit('click-and-drag:disabled');
-    }
-  }, [clickAndDragEnabled, menuEvents]);
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
@@ -92,7 +83,7 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
         getButtonRootProps(),
       );
     },
-    [getButtonRootProps, handleRef, open, setOpen],
+    [getButtonRootProps, handleRef, open, setOpen, setClickAndDragEnabled],
   );
 
   return React.useMemo(

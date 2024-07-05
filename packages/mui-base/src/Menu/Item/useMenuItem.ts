@@ -20,32 +20,13 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     id,
     menuEvents,
     rootRef: externalRef,
+    clickAndDragEnabled,
   } = params;
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: true,
   });
-
-  const [clickAndDrag, setClickAndDrag] = React.useState(false);
-
-  React.useLayoutEffect(() => {
-    function handleClickAndDragEnabled() {
-      setClickAndDrag(true);
-    }
-
-    function handleClickAndDragDisabled() {
-      setClickAndDrag(false);
-    }
-
-    menuEvents.on('click-and-drag:enabled', handleClickAndDragEnabled);
-    menuEvents.on('click-and-drag:disabled', handleClickAndDragDisabled);
-
-    return () => {
-      menuEvents.off('click-and-drag:enabled', handleClickAndDragEnabled);
-      menuEvents.off('click-and-drag:disabled', handleClickAndDragDisabled);
-    };
-  }, [menuEvents]);
 
   const handleRef = useForkRef(buttonRefHandler, externalRef);
 
@@ -55,7 +36,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
         externalProps,
         {
           ref: handleRef,
-          'data-handle-mouseup': clickAndDrag || undefined,
+          'data-handle-mouseup': clickAndDragEnabled || undefined,
         },
         getButtonProps({
           id,
@@ -69,7 +50,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
         }),
       );
     },
-    [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, clickAndDrag],
+    [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, clickAndDragEnabled],
   );
 
   return {
