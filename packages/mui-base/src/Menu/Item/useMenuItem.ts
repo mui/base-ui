@@ -40,6 +40,11 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
 
     menuEvents.on('click-and-drag:enabled', handleClickAndDragEnabled);
     menuEvents.on('click-and-drag:disabled', handleClickAndDragDisabled);
+
+    return () => {
+      menuEvents.off('click-and-drag:enabled', handleClickAndDragEnabled);
+      menuEvents.off('click-and-drag:disabled', handleClickAndDragDisabled);
+    };
   }, [menuEvents]);
 
   const handleRef = useForkRef(buttonRefHandler, externalRef);

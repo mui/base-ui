@@ -12,8 +12,14 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
   const { menuEvents, setOpen } = parameters;
 
   React.useEffect(() => {
-    menuEvents.on('close', (event: Event | undefined) => {
+    function handleClose(event: Event | undefined) {
       setOpen(false, event);
-    });
+    }
+
+    menuEvents.on('close', handleClose);
+
+    return () => {
+      menuEvents.off('close', handleClose);
+    };
   }, [menuEvents, setOpen]);
 }
