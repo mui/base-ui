@@ -77,7 +77,7 @@
     "@babel/plugin-transform-react-constant-elements": "^7.24.6",
     "@babel/preset-typescript": "^7.24.6",
     "@mui/internal-docs-utils": "^1.0.7",
-    "@mui/internal-test-utils": "1.0.0-dev.20240529-082515-213b5e33ab",
+    "@mui/internal-test-utils": "1.0.3",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/chai": "^4.3.16",
     "@types/node": "^18.19.33",

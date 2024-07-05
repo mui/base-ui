@@ -16,6 +16,5 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

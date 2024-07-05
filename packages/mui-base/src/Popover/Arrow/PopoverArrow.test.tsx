@@ -18,6 +18,5 @@ describe('<Popover.Arrow />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

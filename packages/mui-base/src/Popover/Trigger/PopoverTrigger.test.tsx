@@ -16,6 +16,5 @@ describe('<Popover.Trigger />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });
