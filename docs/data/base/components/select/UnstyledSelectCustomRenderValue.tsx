@@ -18,7 +18,7 @@ export default function UnstyledSelectCustomRenderValue() {
         if (option == null || option.value === 0) {
           return 'Select an option…';
         }
-        return `${option.valueAsString} (${option.value})`;
+        return `${option.label} (${option.value})`;
       }}
     >
       <Option value={0}>None</Option>

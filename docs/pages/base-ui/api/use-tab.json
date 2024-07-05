@@ -1,34 +1,5 @@
 {
   "parameters": {
-    "compoundParentContext": {
-      "type": {
-        "name": "CompoundParentContextValue&lt;any, TabMetadata&gt;",
-        "description": "CompoundParentContextValue&lt;any, TabMetadata&gt;"
-      },
-      "required": true
-    },
-    "dispatch": {
-      "type": {
-        "name": "React.Dispatch&lt;TabsReducerAction&gt;",
-        "description": "React.Dispatch&lt;TabsReducerAction&gt;"
-      },
-      "required": true
-    },
-    "getTabPanelId": {
-      "type": {
-        "name": "(value: any) =&gt; string | undefined",
-        "description": "(value: any) =&gt; string | undefined"
-      },
-      "required": true
-    },
-    "orientation": {
-      "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
-      "required": true
-    },
-    "state": {
-      "type": { "name": "TabsReducerState", "description": "TabsReducerState" },
-      "required": true
-    },
     "disabled": { "type": { "name": "boolean", "description": "boolean" } },
     "id": { "type": { "name": "string", "description": "string" } },
     "onClick": {
@@ -47,6 +18,7 @@
       },
       "required": true
     },
+    "index": { "type": { "name": "number", "description": "number" }, "required": true },
     "orientation": {
       "type": { "name": "TabsOrientation", "description": "TabsOrientation" },
       "required": true
@@ -59,7 +31,7 @@
       "required": true
     },
     "selected": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
-    "value": { "type": { "name": "any", "description": "any" }, "required": true }
+    "totalTabsCount": { "type": { "name": "number", "description": "number" }, "required": true }
   },
   "name": "useTab",
   "filename": "/packages/mui-base/src/Tabs/Tab/useTab.ts",

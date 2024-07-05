@@ -19,31 +19,31 @@ import { getSelectUtilityClass } from './selectClasses';
 import { defaultOptionStringifier } from '../useSelect/defaultOptionStringifier';
 import { useClassNamesOverride } from '../utils/ClassNameConfigurator';
 import { SelectOption } from '../useOption';
-import { SelectContext } from '../useSelect/SelectContext';
+import { SelectProvider } from '../useSelect/SelectProvider';
 
 function defaultRenderValue<OptionValue>(
   selectedOptions: SelectOption<OptionValue> | SelectOption<OptionValue>[] | null,
 ) {
   if (Array.isArray(selectedOptions)) {
-    return (
-      <React.Fragment>{selectedOptions.map((o) => o.valueAsString).join(', ')}</React.Fragment>
-    );
+    return <React.Fragment>{selectedOptions.map((o) => o.label).join(', ')}</React.Fragment>;
   }
 
-  return selectedOptions?.valueAsString ?? null;
-}
-
-function defaultKeyExtractor<OptionValue>(option: SelectOption<OptionValue>) {
-  return option.value;
+  return selectedOptions?.label ?? null;
 }
 
 function useUtilityClasses<OptionValue extends {}, Multiple extends boolean>(
   ownerState: SelectOwnerState<OptionValue, Multiple>,
 ) {
-  const { disabled, open } = ownerState;
+  const { active, disabled, open, focusVisible } = ownerState;
 
   const slots = {
-    root: ['root', disabled && 'disabled', open && 'expanded'],
+    root: [
+      'root',
+      disabled && 'disabled',
+      focusVisible && 'focusVisible',
+      active && 'active',
+      open && 'expanded',
+    ],
     listbox: ['listbox', disabled && 'disabled'],
     popup: ['popup'],
   };
@@ -77,9 +77,8 @@ const Select = React.forwardRef(function Select<
     children,
     defaultValue,
     defaultListboxOpen = false,
-    disabled = false,
+    disabled: disabledProp,
     getSerializedValue,
-    keyExtractor = defaultKeyExtractor,
     listboxId,
     listboxOpen: listboxOpenProp,
     multiple = false as Multiple,
@@ -120,12 +119,16 @@ const Select = React.forwardRef(function Select<
   }, [autoFocus]);
 
   const {
-    state,
-    dispatch,
-    compoundParentContext,
+    buttonActive,
+    buttonFocusVisible,
+    contextValue,
+    disabled,
     getButtonProps,
     getListboxProps,
     getHiddenInputProps,
+    getOptionMetadata,
+    value,
+    open,
   } = useSelect({
     name,
     required,
@@ -134,6 +137,7 @@ const Select = React.forwardRef(function Select<
     buttonRef: handleButtonRef,
     defaultOpen: defaultListboxOpen,
     defaultValue,
+    disabled: disabledProp,
     listboxId,
     multiple,
     open: listboxOpenProp,
@@ -146,11 +150,14 @@ const Select = React.forwardRef(function Select<
 
   const ownerState: SelectOwnerState<OptionValue, Multiple> = {
     ...props,
+    active: buttonActive,
     defaultListboxOpen,
     disabled,
-    open: state.open,
+    focusVisible: buttonFocusVisible,
+    open,
     multiple,
     renderValue,
+    value,
   };
 
   const classes = useUtilityClasses(ownerState);
@@ -184,7 +191,7 @@ const Select = React.forwardRef(function Select<
       additionalProps: {
         anchor: buttonRef.current,
         keepMounted: true,
-        open: state.open,
+        open,
         placement: 'bottom-start' as const,
         role: undefined,
       },
@@ -194,24 +201,15 @@ const Select = React.forwardRef(function Select<
 
   let selectedOptionsMetadata: SelectValue<SelectOption<OptionValue>, Multiple>;
   if (multiple) {
-    selectedOptionsMetadata = state.selectedValues
-      .map((v) => state.items.get(v))
+    selectedOptionsMetadata = (value as OptionValue[])
+      .map((v) => getOptionMetadata(v))
       .filter((o) => o !== undefined) as SelectValue<SelectOption<OptionValue>, Multiple>;
   } else {
-    selectedOptionsMetadata = (
-      state.selectedValues.length > 0 ? state.items.get(state.selectedValues[0]) : null
-    ) as SelectValue<SelectOption<OptionValue>, Multiple>;
+    selectedOptionsMetadata = (getOptionMetadata(value as OptionValue) ?? null) as SelectValue<
+      SelectOption<OptionValue>,
+      Multiple
+    >;
   }
-
-  const contextValue = React.useMemo(
-    () => ({
-      state,
-      dispatch,
-      compoundParentContext,
-      keyExtractor,
-    }),
-    [state, dispatch, compoundParentContext, keyExtractor],
-  );
 
   return (
     <React.Fragment>
@@ -225,7 +223,7 @@ const Select = React.forwardRef(function Select<
       {buttonDefined && (
         <Popup slots={{ root: PopupComponent }} {...popupProps}>
           <ListboxRoot {...listboxProps}>
-            <SelectContext.Provider value={contextValue}>{children}</SelectContext.Provider>
+            <SelectProvider value={contextValue}>{children}</SelectProvider>
           </ListboxRoot>
         </Popup>
       )}

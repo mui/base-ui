@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { getNumberLocaleDetails, parseNumber } from './parse';
 
-describe.skip('NumberField parse', () => {
+describe('NumberField parse', () => {
   describe('getNumberLocaleDetails', () => {
     it('returns the number locale details', () => {
       const details = getNumberLocaleDetails();

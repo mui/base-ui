@@ -1,10 +1,5 @@
-import { CompoundParentContextValue } from '@base_ui/react/useCompound';
 import { BaseUIComponentProps } from '../../utils/types';
-import {
-  SliderRootOwnerState,
-  SliderThumbMetadata,
-  UseSliderReturnValue,
-} from '../Root/SliderRoot.types';
+import { SliderRootOwnerState, UseSliderReturnValue } from '../Root/SliderRoot.types';
 
 export interface SliderThumbOwnerState extends SliderRootOwnerState {}
 
@@ -75,7 +70,6 @@ export interface UseSliderThumbParameters
   onFocus?: React.FocusEventHandler;
   onKeyDown?: React.KeyboardEventHandler;
   rootRef?: React.Ref<Element>;
-  compoundParentContext: CompoundParentContextValue<any, SliderThumbMetadata>;
 }
 
 export interface UseSliderThumbReturnValue {

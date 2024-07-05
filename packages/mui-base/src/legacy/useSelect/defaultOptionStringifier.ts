@@ -1,9 +1,9 @@
 import { SelectOption } from '../useOption';
 
 const defaultOptionStringifier = <OptionValue>(option: SelectOption<OptionValue>) => {
-  const { valueAsString, value } = option;
-  if (typeof valueAsString === 'string') {
-    return valueAsString;
+  const { label, value } = option;
+  if (typeof label === 'string') {
+    return label;
   }
 
   if (typeof value === 'string') {

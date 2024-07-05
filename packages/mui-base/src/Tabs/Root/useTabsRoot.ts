@@ -5,10 +5,16 @@ import type {
   UseTabsParameters,
   UseTabsReturnValue,
 } from './TabsRoot.types';
+import type { TabPanelMetadata } from './TabsProvider';
 import { useCompoundParent } from '../../useCompound';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
-import { TabPanelMetadata } from '../TabPanel/TabPanel.types';
+
+export interface TabMetadata {
+  disabled: boolean;
+  id: string | undefined;
+  ref: React.RefObject<HTMLElement>;
+}
 
 type IdLookupFunction = (id: any) => string | undefined;
 
@@ -43,7 +49,7 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
 
   const onSelected = React.useCallback(
     (
-      event: React.SyntheticEvent | Event | null,
+      event: React.SyntheticEvent | null,
       newValue: any | null,
       activationDirection: TabActivationDirection,
     ) => {
@@ -54,7 +60,7 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
     [onValueChange, setValue],
   );
 
-  const { subitems: tabPanels, context: compoundParentContext } = useCompoundParent<
+  const { subitems: tabPanels, contextValue: compoundComponentContextValue } = useCompoundParent<
     any,
     TabPanelMetadata
   >();
@@ -94,7 +100,7 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
       registerTabIdLookup,
       value,
       tabActivationDirection,
-      compoundParentContext,
+      ...compoundComponentContextValue,
     },
     getRootProps,
     tabActivationDirection,

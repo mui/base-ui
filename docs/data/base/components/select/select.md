@@ -210,6 +210,8 @@ The following example shows a select built with a hook.
 Note how this component does not include any built-in classes.
 The resulting HTML is much smaller compared with its prebuilt component counterpart, because the class names are not applied.
 
+{{"demo": "UseSelect.js", "defaultCodeOpen": false}}
+
 ### Performance
 
 The `useOption` hook listens to changes in a context that is set up by the parent Select component.

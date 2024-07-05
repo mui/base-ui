@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { type TabActivationDirection } from './TabsRoot.types';
-import { CompoundParentContextValue } from '../../useCompound/useCompound.types';
-import { TabPanelMetadata } from '../TabPanel/TabPanel.types';
 
 export interface TabsContextValue {
   /**
@@ -12,7 +10,7 @@ export interface TabsContextValue {
    * Callback for setting new value.
    */
   onSelected: (
-    event: React.SyntheticEvent | Event | null,
+    event: React.SyntheticEvent | null,
     value: any | null,
     activationDirection: TabActivationDirection,
   ) => void;
@@ -42,7 +40,6 @@ export interface TabsContextValue {
    * The position of the active tab relative to the previously active tab.
    */
   tabActivationDirection: TabActivationDirection;
-  compoundParentContext: CompoundParentContextValue<any, TabPanelMetadata>;
 }
 
 /**

@@ -2,11 +2,13 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef, unstable_useId as useId } from '@mui/utils';
 import { SelectOption, UseOptionParameters, UseOptionReturnValue } from './useOption.types';
+import { extractEventHandlers } from '../../utils/extractEventHandlers';
 import { useListItem } from '../../useList';
 import { useCompoundItem } from '../../useCompound';
 import { useButton } from '../../useButton';
-import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
+import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { EventHandlers } from '../../utils/types';
 
 /**
  *
@@ -19,26 +21,14 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useOption API](https://mui.com/base-ui/react-select/hooks-api/#use-option)
  */
 export function useOption<Value>(params: UseOptionParameters<Value>): UseOptionReturnValue {
-  const {
-    value,
-    label,
-    disabled,
-    rootRef: optionRefParam,
-    id: idParam,
-    highlighted,
-    selected,
-    dispatch,
-    compoundParentContext,
-    keyExtractor,
-  } = params;
+  const { value, label, disabled, rootRef: optionRefParam, id: idParam } = params;
 
-  const { getRootProps: getListItemProps } = useListItem({
-    item: value,
+  const {
+    getRootProps: getListItemProps,
     highlighted,
     selected,
-    dispatch,
-    focusable: true,
-    handlePointerOverEvents: true,
+  } = useListItem({
+    item: value,
   });
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
@@ -56,40 +46,53 @@ export function useOption<Value>(params: UseOptionParameters<Value>): UseOptionR
       label,
       value,
       ref: optionRef,
-      idAttribute: id,
+      id,
     }),
     [disabled, label, value, id],
   );
 
-  useCompoundItem({
-    key: keyExtractor(value),
-    itemMetadata: selectOption,
-    parentContext: compoundParentContext,
-  });
+  const { index } = useCompoundItem<Value, SelectOption<Value>>(value, selectOption);
 
   const handleRef = useForkRef(optionRefParam, optionRef, buttonRefHandler)!;
 
+  const createHandleKeyDown =
+    (otherHandlers: EventHandlers) => (event: React.KeyboardEvent & MuiCancellableEvent) => {
+      otherHandlers.onKeyDown?.(event);
+      if (event.defaultMuiPrevented) {
+        return;
+      }
+
+      if ([' ', 'Enter'].includes(event.key)) {
+        event.defaultMuiPrevented = true; // prevent listbox onKeyDown
+      }
+    };
+
+  const getOwnHandlers = (otherHandlers: EventHandlers = {}) => ({
+    onKeyDown: createHandleKeyDown(otherHandlers),
+  });
+
   return {
-    getRootProps: (externalProps?: GenericHTMLProps) => {
-      return mergeReactProps(
-        externalProps,
-        {
-          ref: handleRef,
-        },
-        getButtonProps(
-          getListItemProps({
-            id,
-            role: 'option',
-            'aria-selected': selected,
-            onKeyDown: (event: React.KeyboardEvent) => {
-              if ([' ', 'Enter'].includes(event.key)) {
-                (event as any).defaultMuiPrevented = true; // prevent listbox onKeyDown
-              }
-            },
-          }),
-        ),
+    getRootProps: <ExternalProps extends Record<string, unknown> = {}>(
+      externalProps: ExternalProps = {} as ExternalProps,
+    ) => {
+      const externalEventHandlers = extractEventHandlers(externalProps);
+      const getCombinedRootProps = combineHooksSlotProps(
+        getListItemProps,
+        combineHooksSlotProps(getButtonProps, getOwnHandlers),
       );
+      return {
+        ...externalProps,
+        ...externalEventHandlers,
+        ...getCombinedRootProps(externalEventHandlers),
+        id,
+        ref: handleRef,
+        role: 'option',
+        'aria-selected': selected,
+      };
     },
+    highlighted,
+    index,
+    selected,
     rootRef: handleRef,
   };
 }

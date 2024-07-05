@@ -3,8 +3,6 @@ import { expect } from 'chai';
 import { SinonSpy, spy } from 'sinon';
 import { createRenderer, createEvent, fireEvent } from '@mui/internal-test-utils';
 import { useList } from './useList';
-import { IndexableMap } from '../utils/IndexableMap';
-import { ListItemMetadata } from './useList.types';
 
 describe('useList', () => {
   const { render } = createRenderer();
@@ -14,13 +12,9 @@ describe('useList', () => {
       it(`prevents default behavior when ${key} is pressed in activeDescendant focus management mode`, () => {
         function Listbox() {
           const { getRootProps } = useList({
-            items: new IndexableMap<unknown, ListItemMetadata>(),
+            items: [],
             focusManagement: 'activeDescendant',
-            dispatch: () => {},
-            highlightedValue: null,
-            selectedValues: [],
-            orientation: 'vertical',
-            direction: 'ltr',
+            getItemId: () => undefined,
           });
           return <div role="listbox" {...getRootProps()} />;
         }
@@ -44,13 +38,9 @@ describe('useList', () => {
       it(`prevents default behavior when ${key} is pressed in DOM focus management mode`, () => {
         function Listbox() {
           const { getRootProps } = useList({
-            items: new IndexableMap<unknown, ListItemMetadata>(),
+            items: [],
             focusManagement: 'DOM',
-            dispatch: () => {},
-            highlightedValue: null,
-            selectedValues: [],
-            orientation: 'vertical',
-            direction: 'ltr',
+            getItemDomElement: () => null,
           });
           return <div role="listbox" {...getRootProps()} />;
         }
@@ -74,13 +64,9 @@ describe('useList', () => {
       it(`does not prevent default behavior when ${key} is pressed in DOM focus management mode`, () => {
         function Listbox() {
           const { getRootProps } = useList({
-            items: new IndexableMap<unknown, ListItemMetadata>(),
+            items: [],
             focusManagement: 'DOM',
-            dispatch: () => {},
-            highlightedValue: null,
-            selectedValues: [],
-            orientation: 'vertical',
-            direction: 'ltr',
+            getItemDomElement: () => null,
           });
           return <div role="listbox" {...getRootProps()} />;
         }
@@ -107,18 +93,13 @@ describe('useList', () => {
 
       function Listbox() {
         const { getRootProps } = useList({
-          items: new IndexableMap<unknown, ListItemMetadata>(),
-          focusManagement: 'activeDescendant',
-          dispatch: () => {},
-          highlightedValue: null,
-          selectedValues: [],
-          orientation: 'vertical',
-          direction: 'ltr',
+          items: [],
+          getItemId: () => undefined,
         });
         return (
           <div
             role="listbox"
-            {...getRootProps({ 'data-testid': 'test-listbox', onClick: handleClick } as any)}
+            {...getRootProps({ 'data-testid': 'test-listbox', onClick: handleClick })}
           />
         );
       }

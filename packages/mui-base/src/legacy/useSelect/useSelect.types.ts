@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { ListAction, ListState } from '../../useList';
+import { ListAction, ListState, UseListRootSlotProps } from '../../useList';
 import { SelectOption } from '../useOption/useOption.types';
-import { GenericHTMLProps } from '../../utils/types';
-import { CompoundParentContextValue } from '../../useCompound';
+import { SelectProviderValue } from './SelectProvider';
+import { MuiCancellableEventHandler } from '../../utils/MuiCancellableEvent';
+import { UseButtonRootSlotProps } from '../../useButton';
 
 export type SelectChangeEventType =
   | React.MouseEvent<Element, MouseEvent>
@@ -131,42 +132,118 @@ export interface UseSelectParameters<OptionValue, Multiple extends boolean = fal
   componentName?: string;
 }
 
-export interface UseSelectReturnValue<Value> {
+interface UseSelectButtonSlotEventHandlers {
+  onMouseDown: MuiCancellableEventHandler<React.MouseEvent>;
+}
+
+export type UseSelectButtonSlotProps<TOther = {}> = UseButtonRootSlotProps<
+  Omit<TOther, keyof UseSelectButtonSlotEventHandlers>
+> &
+  UseSelectButtonSlotEventHandlers & {
+    'aria-expanded': React.AriaAttributes['aria-expanded'];
+    'aria-controls': React.AriaAttributes['aria-controls'];
+    role: React.HTMLAttributes<Element>['role'];
+    ref: React.RefCallback<Element> | null;
+  };
+
+interface UseSelectHiddenInputSlotEventHandlers {
+  onChange: MuiCancellableEventHandler<React.ChangeEvent<HTMLInputElement>>;
+}
+
+export type UseSelectHiddenInputSlotProps<TOther = {}> = UseSelectHiddenInputSlotEventHandlers &
+  React.InputHTMLAttributes<HTMLInputElement> &
+  TOther;
+
+interface UseSelectListboxSlotEventHandlers {
+  onBlur: MuiCancellableEventHandler<React.FocusEvent<HTMLElement>>;
+}
+
+export type UseSelectListboxSlotProps<TOther = {}> = UseListRootSlotProps<
+  Omit<TOther, keyof UseSelectListboxSlotEventHandlers>
+> &
+  UseSelectListboxSlotEventHandlers & {
+    'aria-multiselectable': React.AriaAttributes['aria-multiselectable'];
+    id: string | undefined;
+    role: React.HTMLAttributes<Element>['role'];
+  };
+
+export interface UseSelectReturnValue<Value, Multiple> {
+  /**
+   * If `true`, the trigger button is active (pressed).
+   */
+  buttonActive: boolean;
+  /**
+   * If `true`, the trigger button has a visible focus.
+   */
+  buttonFocusVisible: boolean;
   /**
    * Ref to the button slot DOM node.
    */
   buttonRef: React.RefCallback<Element> | null;
   /**
-   * Ref to the listbox slot DOM node.
+   * If `true`, the select is disabled.
    */
-  listboxRef: React.RefCallback<Element> | null;
+  disabled: boolean;
   /**
    * Action dispatcher for the select component.
    * Allows to programmatically control the select.
    */
-  dispatch: (action: SelectAction<Value>) => void;
+  dispatch: (action: ListAction<Value> | SelectAction<Value>) => void;
   /**
    * Resolver for the button slot's props.
    * @param externalProps event handlers for the button slot
    * @returns props that should be spread on the button slot
    */
-  getButtonProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getButtonProps: <ExternalProps extends Record<string, unknown> = {}>(
+    externalProps?: ExternalProps,
+  ) => UseSelectButtonSlotProps<ExternalProps>;
   /**
    * Resolver for the hidden input slot's props.
    * @param externalProps event handlers for the hidden input slot
    * @returns HTML input attributes that should be spread on the hidden input slot
    */
-  getHiddenInputProps: (
-    externalProps?: React.InputHTMLAttributes<HTMLInputElement>,
-  ) => React.InputHTMLAttributes<HTMLInputElement>;
+  getHiddenInputProps: <ExternalProps extends Record<string, unknown> = {}>(
+    externalProps?: ExternalProps,
+  ) => UseSelectHiddenInputSlotProps<ExternalProps>;
   /**
    * Resolver for the listbox slot's props.
    * @param externalProps event handlers for the listbox slot
    * @returns props that should be spread on the listbox slot
    */
-  getListboxProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  state: SelectInternalState<Value>;
-  compoundParentContext: CompoundParentContextValue<any, SelectOption<Value>>;
+  getListboxProps: <ExternalProps extends Record<string, unknown> = {}>(
+    externalProps?: ExternalProps,
+  ) => UseSelectListboxSlotProps<ExternalProps>;
+  /**
+   * A function that returns the metadata of an option with a given value.
+   *
+   * @param optionValue the value of the option
+   * @returns
+   */
+  getOptionMetadata: (optionValue: Value) => SelectOption<Value> | undefined;
+  /**
+   * A value to be passed to the `SelectProvider` component.
+   */
+  contextValue: SelectProviderValue<Value>;
+  /**
+   * The value of the highlighted option.
+   */
+  highlightedOption: Value | null;
+  /**
+   * Ref to the listbox slot DOM node.
+   */
+  listboxRef: React.RefCallback<Element> | null;
+  /**
+   * If `true`, the listbox is open.
+   */
+  open: boolean;
+  /**
+   * Values of all the registered options.
+   */
+  options: Value[];
+  /**
+   * The value of the selected option(s).
+   */
+  value: SelectValue<Value, Multiple>;
 }
 
 export const SelectActionTypes = {
@@ -185,11 +262,7 @@ export interface BrowserAutofillAction<OptionValue> {
   event: React.ChangeEvent;
 }
 
-export type SelectAction<OptionValue> =
-  | ButtonClickAction
-  | BrowserAutofillAction<OptionValue>
-  | ListAction<OptionValue>;
-
+export type SelectAction<OptionValue> = ButtonClickAction | BrowserAutofillAction<OptionValue>;
 export interface SelectInternalState<OptionValue> extends ListState<OptionValue> {
   open: boolean;
 }

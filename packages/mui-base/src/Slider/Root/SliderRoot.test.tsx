@@ -1232,8 +1232,8 @@ describe('<Slider.Root />', () => {
         // pixel:  0   20  40  60  80  100
         // slider: |---|---|---|---|---|
         // values: 0   1   2   3   4   5
-        // value:      ï¿½ï¿½   ï¿½ï¿½
-        // mouse:           ï¿½ï¿½
+        // value:      ¡ü   ¡ü
+        // mouse:           ¡ü
 
         fireEvent.pointerDown(sliderControl, {
           buttons: 1,

@@ -1,6 +1,5 @@
-import { IndexableMap } from '../../utils/IndexableMap';
-import type { CompoundParentContextValue } from '../../useCompound';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { CompoundComponentContextValue } from '../../useCompound';
 
 export interface SliderThumbMetadata {
   inputId: string;
@@ -8,8 +7,15 @@ export interface SliderThumbMetadata {
   inputRef: React.RefObject<HTMLInputElement>;
 }
 
-export type SliderContextValue = Omit<UseSliderReturnValue, 'getRootProps'> & {
+export type SliderContextValue = Omit<
+  UseSliderReturnValue,
+  'compoundComponentContextValue' | 'getRootProps'
+> & {
   ownerState: SliderRootOwnerState;
+};
+
+export type SliderProviderValue = SliderContextValue & {
+  compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
 };
 
 export type SliderDirection = 'ltr' | 'rtl';
@@ -210,7 +216,7 @@ export interface UseSliderReturnValue {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
-  compoundParentContext: CompoundParentContextValue<any, SliderThumbMetadata>;
+  compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
   dragging: boolean;
   direction: SliderDirection;
   disabled: boolean;
@@ -267,7 +273,7 @@ export interface UseSliderReturnValue {
   /**
    * A map containing all the Thumb components registered to the slider
    */
-  subitems: IndexableMap<string, SliderThumbMetadata>;
+  subitems: Map<string, SliderThumbMetadata>;
   tabIndex?: number;
   /**
    * The value(s) of the slider

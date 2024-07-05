@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import { TabProps, TabOwnerState } from './Tab.types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useTabsContext } from '../Root/TabsContext';
-import { useTabsListContext } from '../TabsList/TabsListContext';
 
 /**
  *
@@ -21,25 +19,16 @@ const Tab = React.forwardRef(function Tab(
   props: TabProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { className, disabled = false, render, value: valueProp, ...other } = props;
+  const { className, disabled = false, render, value, ...other } = props;
 
-  const { getTabPanelId, orientation } = useTabsContext();
-  const { compoundParentContext, dispatch, state } = useTabsListContext();
-
-  const { getRootProps, value } = useTab({
+  const { selected, getRootProps, orientation } = useTab({
     ...props,
     rootRef: forwardedRef,
-    orientation,
-    getTabPanelId,
-    compoundParentContext,
-    state,
-    dispatch,
-    value: valueProp,
   });
 
   const ownerState: TabOwnerState = {
     disabled,
-    selected: state.selectedValues.includes(value),
+    selected,
     orientation,
   };
 

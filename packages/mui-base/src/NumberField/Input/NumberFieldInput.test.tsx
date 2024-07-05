@@ -16,7 +16,7 @@ const testContext = {
   },
 } as NumberFieldContextValue;
 
-describe.skip('<NumberField.Input />', () => {
+describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.Input />, () => ({

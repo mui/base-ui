@@ -1,3 +1,4 @@
+import { TabsListProviderValue } from './TabsListProvider';
 import {
   TabActivationDirection,
   TabsDirection,
@@ -6,7 +7,6 @@ import {
 } from '../Root/TabsRoot.types';
 import { ListAction } from '../../useList';
 import { BaseUIComponentProps } from '../../utils/types';
-import { TabsListContextValue } from './TabsListContext';
 
 export type TabsListOwnerState = TabsRootOwnerState;
 
@@ -46,7 +46,7 @@ export interface UseTabsListReturnValue {
   /**
    * The value to be passed to the TabListProvider above all the tabs.
    */
-  contextValue: TabsListContextValue;
+  contextValue: TabsListProviderValue;
   /**
    * Action dispatcher for the tabs list component.
    * Allows to programmatically control the tabs list.

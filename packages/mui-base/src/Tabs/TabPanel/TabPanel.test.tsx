@@ -1,32 +1,31 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
-import { TabsContext, TabsContextValue } from '@base_ui/react/Tabs';
+import { TabsProvider, TabsProviderValue } from '@base_ui/react/Tabs';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Tabs.Panel />', () => {
   const { render } = createRenderer();
 
-  const tabsProviderDefaultValue: TabsContextValue = {
+  const tabsProviderDefaultValue: TabsProviderValue = {
     value: '1',
     onSelected: () => {},
     registerTabIdLookup() {},
     getTabId: () => '',
     getTabPanelId: () => '',
+    getItemIndex: () => 0,
+    registerItem: () => ({ id: 0, deregister: () => {} }),
+    totalSubitemCount: 1,
     direction: 'ltr',
     orientation: 'horizontal',
     tabActivationDirection: 'none',
-    compoundParentContext: {
-      registerItem: () => ({ deregister: () => {}, index: 0 }),
-      getRegisteredItemCount: () => 0,
-    },
   };
 
   describeConformance(<Tabs.Panel value="1" />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
-        <TabsContext.Provider value={tabsProviderDefaultValue}>{node}</TabsContext.Provider>,
+        <TabsProvider value={tabsProviderDefaultValue}>{node}</TabsProvider>,
       );
 
       return { container, ...other };

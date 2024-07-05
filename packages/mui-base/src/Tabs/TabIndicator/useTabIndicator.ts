@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
-import { UseTabIndicatorParameters, UseTabIndicatorReturnValue } from './TabIndicator.types';
+import { UseTabIndicatorReturnValue } from './TabIndicator.types';
+import { useTabsListContext } from '../TabsList/TabsListContext';
+import { useTabsContext } from '../Root/TabsContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 
@@ -18,16 +20,13 @@ function round(value: number) {
  *
  * - [useTabIndicator API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab-indicator)
  */
-export function useTabIndicator(parameters: UseTabIndicatorParameters): UseTabIndicatorReturnValue {
-  const { tabsListRef, getTabElement, selectedValue } = parameters;
+export function useTabIndicator(): UseTabIndicatorReturnValue {
+  const { tabsListRef, getTabElement } = useTabsListContext();
+  const { orientation, direction, value, tabActivationDirection } = useTabsContext();
 
   const rerender = useForcedRerendering();
   React.useEffect(() => {
-    if (
-      selectedValue != null &&
-      tabsListRef.current != null &&
-      typeof ResizeObserver !== 'undefined'
-    ) {
+    if (value != null && tabsListRef.current != null && typeof ResizeObserver !== 'undefined') {
       const resizeObserver = new ResizeObserver(() => {
         rerender();
       });
@@ -40,7 +39,7 @@ export function useTabIndicator(parameters: UseTabIndicatorParameters): UseTabIn
     }
 
     return undefined;
-  }, [selectedValue, tabsListRef, rerender]);
+  }, [value, tabsListRef, rerender]);
 
   let left = 0;
   let right = 0;
@@ -51,8 +50,8 @@ export function useTabIndicator(parameters: UseTabIndicatorParameters): UseTabIn
 
   let isTabSelected = false;
 
-  if (selectedValue != null && tabsListRef.current != null) {
-    const selectedTabElement = getTabElement(selectedValue);
+  if (value != null && tabsListRef.current != null) {
+    const selectedTabElement = getTabElement(value);
     isTabSelected = true;
 
     if (selectedTabElement != null) {
@@ -120,5 +119,8 @@ export function useTabIndicator(parameters: UseTabIndicatorParameters): UseTabIn
   return {
     getRootProps,
     activeTabPosition,
+    orientation,
+    direction,
+    tabActivationDirection,
   };
 }

@@ -2,23 +2,23 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
 import * as Slider from '@base_ui/react/Slider';
-import { SliderContext, type SliderContextValue } from '@base_ui/react/Slider';
+import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
 import { describeConformance } from '../../../test/describeConformance';
-import { IndexableMap } from '../../utils/IndexableMap';
 
 const NOOP = () => {};
 
 describe('<Slider.Output />', () => {
   const { render } = createRenderer();
 
-  const testProviderValue: SliderContextValue = {
+  const testProviderValue: SliderProviderValue = {
     active: -1,
     areValuesEqual: () => true,
     axis: 'horizontal',
     changeValue: NOOP,
-    compoundParentContext: {
-      registerItem: () => ({ index: 0, deregister: () => {} }),
-      getRegisteredItemCount: () => 1,
+    compoundComponentContextValue: {
+      registerItem: () => ({ id: 0, deregister: () => {} }),
+      getItemIndex: () => 0,
+      totalSubitemCount: 1,
     },
     dragging: false,
     disabled: false,
@@ -52,7 +52,7 @@ describe('<Slider.Output />', () => {
     setDragging: NOOP,
     setValueState: NOOP,
     step: 1,
-    subitems: new IndexableMap(),
+    subitems: new Map(),
     values: [0],
   };
 
@@ -60,7 +60,7 @@ describe('<Slider.Output />', () => {
     inheritComponent: 'output',
     render: (node) => {
       const { container, ...other } = render(
-        <SliderContext.Provider value={testProviderValue}>{node}</SliderContext.Provider>,
+        <SliderProvider value={testProviderValue}>{node}</SliderProvider>,
       );
 
       return { container, ...other };

@@ -1,17 +1,29 @@
-import { moveHighlight, listReducer, ListActionTypes, handleItemSelection } from '../../useList';
+import {
+  ListAction,
+  ListActionContext,
+  moveHighlight,
+  listReducer,
+  ListActionTypes,
+  handleItemSelection,
+} from '../../useList';
+import { ActionWithContext } from '../../utils/useControllableReducer.types';
 import { SelectAction, SelectActionTypes, SelectInternalState } from './useSelect.types';
 
 export function selectReducer<OptionValue>(
   state: SelectInternalState<OptionValue>,
-  action: SelectAction<OptionValue>,
-): SelectInternalState<OptionValue> {
-  const { open, items, settings } = state;
-
-  const { selectionMode } = settings;
+  action: ActionWithContext<
+    ListAction<OptionValue> | SelectAction<OptionValue>,
+    ListActionContext<OptionValue>
+  >,
+) {
+  const { open } = state;
+  const {
+    context: { selectionMode },
+  } = action;
 
   if (action.type === SelectActionTypes.buttonClick) {
     const itemToHighlight =
-      state.selectedValues[0] ?? moveHighlight<OptionValue>(null, 'start', items, settings);
+      state.selectedValues[0] ?? moveHighlight<OptionValue>(null, 'start', action.context);
 
     return {
       ...state,
@@ -21,13 +33,17 @@ export function selectReducer<OptionValue>(
   }
 
   if (action.type === SelectActionTypes.browserAutoFill) {
-    return {
-      ...state,
-      ...handleItemSelection<OptionValue>(action.item, state),
-    };
+    return handleItemSelection<OptionValue, SelectInternalState<OptionValue>>(
+      action.item,
+      state,
+      action.context,
+    );
   }
 
-  const newState: SelectInternalState<OptionValue> = listReducer(state, action);
+  const newState: SelectInternalState<OptionValue> = listReducer(
+    state,
+    action as ActionWithContext<ListAction<OptionValue>, ListActionContext<OptionValue>>,
+  );
 
   switch (action.type) {
     case ListActionTypes.keyDown:
@@ -44,7 +60,7 @@ export function selectReducer<OptionValue>(
             ...state,
             open: true,
             highlightedValue:
-              state.selectedValues[0] ?? moveHighlight<OptionValue>(null, 'start', items, settings),
+              state.selectedValues[0] ?? moveHighlight<OptionValue>(null, 'start', action.context),
           };
         }
 
@@ -53,7 +69,7 @@ export function selectReducer<OptionValue>(
             ...state,
             open: true,
             highlightedValue:
-              state.selectedValues[0] ?? moveHighlight<OptionValue>(null, 'end', items, settings),
+              state.selectedValues[0] ?? moveHighlight<OptionValue>(null, 'end', action.context),
           };
         }
       }

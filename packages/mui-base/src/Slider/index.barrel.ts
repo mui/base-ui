@@ -1,7 +1,7 @@
 export { SliderRoot } from './Root/SliderRoot';
 export type * from './Root/SliderRoot.types';
 export { useSliderRoot } from './Root/useSliderRoot';
-export * from './Root/SliderContext';
+export * from './Root/SliderProvider';
 
 export { SliderOutput } from './Output/SliderOutput';
 export type {

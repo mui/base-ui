@@ -7,8 +7,8 @@ import { useCompoundItem } from '../../useCompound';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 
-function idGenerator(existingKeysCount: number) {
-  return `thumb-${existingKeysCount}`;
+function idGenerator(existingKeys: Set<string>) {
+  return `thumb-${existingKeys.size}`;
 }
 
 function getNewValue(
@@ -70,7 +70,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     tabIndex,
     percentageValues,
     values: sliderValues,
-    compoundParentContext,
   } = parameters;
 
   const thumbId = useId(idParam);
@@ -84,12 +83,10 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     [thumbId],
   );
 
-  const { key: compoundItemId, index } = useCompoundItem({
-    key: thumbId ? `${thumbId}-input` : thumbId,
-    keyGenerator: idGenerator,
-    itemMetadata: thumbMetadata,
-    parentContext: compoundParentContext,
-  });
+  const { id: compoundItemId, index } = useCompoundItem(
+    (thumbId ? `${thumbId}-input` : thumbId) ?? idGenerator,
+    thumbMetadata,
+  );
 
   const thumbValue = sliderValues[index];
 

@@ -1,17 +1,12 @@
 import * as React from 'react';
 import { TabsOrientation } from '../Root/TabsRoot.types';
 import { BaseUIComponentProps } from '../../utils/types';
-import { ListItemMetadata } from '../../useList';
-import type { TabsReducerAction, TabsReducerState } from '../TabsList/tabsListReducer';
-import { CompoundParentContextValue } from '../../useCompound';
 
 export type TabOwnerState = {
   disabled: boolean;
   selected: boolean;
   orientation: TabsOrientation;
 };
-
-export type TabMetadata = ListItemMetadata;
 
 export interface TabProps extends BaseUIComponentProps<'button', TabOwnerState> {
   /**
@@ -44,11 +39,6 @@ export interface UseTabParameters {
    * Ref to the root slot's DOM element.
    */
   rootRef?: React.Ref<Element>;
-  state: TabsReducerState;
-  dispatch: React.Dispatch<TabsReducerAction>;
-  compoundParentContext: CompoundParentContextValue<any, TabMetadata>;
-  orientation: TabsOrientation;
-  getTabPanelId: (value: any) => string | undefined;
 }
 
 export interface UseTabReturnValue {
@@ -63,6 +53,7 @@ export interface UseTabReturnValue {
   /**
    * 0-based index of the tab in the list of tabs.
    */
+  index: number;
   orientation: TabsOrientation;
   /**
    * Ref to the root slot's DOM element.
@@ -72,5 +63,9 @@ export interface UseTabReturnValue {
    * If `true`, the tab is selected.
    */
   selected: boolean;
-  value: any;
+  /**
+   * Total number of tabs in the nearest parent TabsList.
+   * This can be used to determine if the tab is the last one to style it accordingly.
+   */
+  totalTabsCount: number;
 }

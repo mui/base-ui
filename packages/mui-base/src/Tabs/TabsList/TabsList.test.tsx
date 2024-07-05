@@ -22,10 +22,6 @@ describe('<Tabs.List />', () => {
             orientation: 'horizontal',
             direction: 'ltr',
             tabActivationDirection: 'none',
-            compoundParentContext: {
-              registerItem: () => ({ deregister: () => {}, index: 0 }),
-              getRegisteredItemCount: () => 0,
-            },
           }}
         >
           {node}

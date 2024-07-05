@@ -2,20 +2,21 @@ import { TabsListActionTypes, ValueChangeAction } from './TabsList.types';
 import {
   ListState,
   ListAction,
-  ListSettings,
+  ListActionContext,
   listReducer,
   ListActionTypes,
   moveHighlight,
 } from '../../useList';
+import { ActionWithContext } from '../../utils/useControllableReducer.types';
 
-export interface TabsReducerState extends ListState<any> {
-  tabsListRef: React.RefObject<HTMLElement>;
-  settings: ListSettings & { activateOnFocus: boolean };
-}
+export type TabsListActionContext = ListActionContext<any> & {
+  activateOnFocus: boolean;
+};
 
-export type TabsReducerAction = ListAction<any> | ValueChangeAction;
-
-export function tabsListReducer(state: TabsReducerState, action: TabsReducerAction) {
+export function tabsListReducer(
+  state: ListState<any>,
+  action: ActionWithContext<ListAction<any> | ValueChangeAction, TabsListActionContext>,
+) {
   if (action.type === TabsListActionTypes.valueChange) {
     return {
       ...state,
@@ -25,6 +26,10 @@ export function tabsListReducer(state: TabsReducerState, action: TabsReducerActi
 
   const newState = listReducer(state, action);
 
+  const {
+    context: { activateOnFocus },
+  } = action;
+
   if (action.type === ListActionTypes.itemsChange) {
     if (newState.selectedValues.length > 0) {
       return {
@@ -33,10 +38,10 @@ export function tabsListReducer(state: TabsReducerState, action: TabsReducerActi
       };
     }
 
-    moveHighlight(null, 'reset', state.items, state.settings);
+    moveHighlight(null, 'reset', action.context);
   }
 
-  if (state.settings.activateOnFocus && newState.highlightedValue != null) {
+  if (activateOnFocus && newState.highlightedValue != null) {
     return {
       ...newState,
       selectedValues: [newState.highlightedValue],

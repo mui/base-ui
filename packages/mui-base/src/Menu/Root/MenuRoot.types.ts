@@ -1,4 +1,5 @@
-import { ListOrientation, ListDirection } from '../../useList';
+export type MenuOrientation = 'vertical' | 'horizontal';
+export type MenuDirection = 'ltr' | 'rtl';
 
 export interface MenuRootProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ export interface MenuRootProps {
    * This is a controlled counterpart of `defaultOpen`.
    */
   open?: boolean;
-  orientation?: ListOrientation;
-  dir?: ListDirection;
+  orientation?: MenuOrientation;
+  dir?: MenuDirection;
   disabled?: boolean;
 }

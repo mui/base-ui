@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import {
+  ActionWithContext,
   ControllableReducerAction,
   ControllableReducerParameters,
   StateChangeCallback,
@@ -128,13 +129,21 @@ function useStateChangeDetection<State extends {}>(
  * If a state item has a corresponding comparer, it will be used to determine if the state has changed.
  * This is useful when the state item is an object and you want to compare only a subset of its properties or if it's an array and you want to compare its contents.
  *
+ * An additional feature is the `actionContext` parameter. It allows you to add additional properties to every action object,
+ * similarly to how React context is implicitly available to every component.
+ *
  * @template State - The type of the state calculated by the reducer.
  * @template Action - The type of the actions that can be dispatched.
+ * @template ActionContext - The type of the additional properties that will be added to every action object.
  *
  * @ignore - internal hook.
  */
-export function useControllableReducer<State extends {}, Action extends ControllableReducerAction>(
-  parameters: ControllableReducerParameters<State, Action>,
+export function useControllableReducer<
+  State extends {},
+  Action extends ControllableReducerAction,
+  ActionContext = undefined,
+>(
+  parameters: ControllableReducerParameters<State, Action, ActionContext>,
 ): [State, (action: Action) => void] {
   const lastActionRef = React.useRef<Action | null>(null);
 
@@ -144,6 +153,7 @@ export function useControllableReducer<State extends {}, Action extends Controll
     controlledProps = EMPTY_OBJECT,
     stateComparers = EMPTY_OBJECT,
     onStateChange = NOOP,
+    actionContext,
     componentName = '',
   } = parameters;
 
@@ -180,17 +190,27 @@ export function useControllableReducer<State extends {}, Action extends Controll
 
   // The reducer that is passed to React.useReducer is wrapped with a function that augments the state with controlled values.
   const reducerWithControlledState = React.useCallback(
-    (state: State, action: Action) => {
+    (state: State, action: ActionWithContext<Action, ActionContext>) => {
       lastActionRef.current = action;
       const controlledState = getControlledState(state, controlledProps);
       const newState = reducer(controlledState, action);
-
       return newState;
     },
     [controlledProps, reducer],
   );
 
   const [nextState, dispatch] = React.useReducer(reducerWithControlledState, initialState);
+
+  // The action that is passed to dispatch is augmented with the actionContext.
+  const dispatchWithContext = React.useCallback(
+    (action: Action) => {
+      dispatch({
+        ...action,
+        context: actionContext,
+      } as ActionWithContext<Action, ActionContext>);
+    },
+    [actionContext],
+  );
 
   useStateChangeDetection<State>({
     nextState,
@@ -201,5 +221,5 @@ export function useControllableReducer<State extends {}, Action extends Controll
     lastActionRef,
   });
 
-  return [getControlledState(nextState, controlledProps), dispatch];
+  return [getControlledState(nextState, controlledProps), dispatchWithContext];
 }
