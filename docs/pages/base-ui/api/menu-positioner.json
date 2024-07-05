@@ -52,7 +52,10 @@
     "import * as Menu from '@base_ui/react/Menu';\nconst MenuPositioner = Menu.Positioner;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "MenuPositioner",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/Menu/Positioner/MenuPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-menu/\">Menu</a></li></ul>",

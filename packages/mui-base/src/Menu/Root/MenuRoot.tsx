@@ -107,6 +107,10 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   dir: PropTypes.oneOf(['ltr', 'rtl']),
   /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
+  /**
    * Callback fired when the component requests to be opened or closed.
    */
   onOpenChange: PropTypes.func,
