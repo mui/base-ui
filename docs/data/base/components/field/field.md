@@ -44,10 +44,16 @@ import * as Field from '@base_ui/react/Field';
 
 ## Anatomy
 
-Fields are composed of a root, label, and description:
+Fields are implemented using a collection of related components:
+
+- `<Field.Root />` is a top-level component that wraps all other components.
+- `<Field.Control />` renders a control to be labelled and/or described when not using a Base UI control.
+- `<Field.Label />` renders a label for the control.
+- `<Field.Description />` renders an optional description for the control.
 
 ```jsx
 <Field.Root>
+  <Field.Control />
   <Field.Label />
   <Field.Description />
 </Field.Root>
@@ -72,7 +78,7 @@ When using a native control like `input` or `select`, use `Field.Control` and th
 ```jsx
 <Field.Root>
   <Field.Control render={<input />} />
-  <Field.Label>My Input</Field.Label>
+  <Field.Label>My input</Field.Label>
   <Field.Description>My description</Field.Description>
 </Field.Root>
 ```
@@ -98,7 +104,7 @@ function App() {
   return (
     <Field.Root>
       <Field.Control render={input} />
-      <Field.Label>My Input</Field.Label>
+      <Field.Label>My input</Field.Label>
       {error && <Field.Description>{error}</Field.Description>}
     </Field.Root>
   );
