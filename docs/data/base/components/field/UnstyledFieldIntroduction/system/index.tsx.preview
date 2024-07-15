@@ -1,0 +1,13 @@
+<Field.Root>
+  <div style={{ display: 'flex', gap: 8 }}>
+    <Checkbox>
+      <Indicator>
+        <CheckIcon />
+      </Indicator>
+    </Checkbox>
+    <FieldLabel>Accept Terms and Conditions</FieldLabel>
+  </div>
+  <FieldDescription>
+    In order to proceed, you must accept the Terms and Conditions.
+  </FieldDescription>
+</Field.Root>

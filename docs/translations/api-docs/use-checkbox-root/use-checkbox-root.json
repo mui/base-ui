@@ -6,7 +6,9 @@
     "defaultChecked": {
       "description": "The default checked state. Use when the component is not controlled."
     },
+    "descriptionId": { "description": "The id of the description element." },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "id": { "description": "The id of the input element." },
     "indeterminate": { "description": "If <code>true</code>, the checkbox will be indeterminate." },
     "inputRef": { "description": "The ref to the input element." },
     "name": { "description": "Name of the underlying input element." },
@@ -14,7 +16,8 @@
     "readOnly": { "description": "If <code>true</code>, the component is read only." },
     "required": {
       "description": "If <code>true</code>, the <code>input</code> element is required."
-    }
+    },
+    "setControlId": { "description": "Sets the <code>id</code> of the input element." }
   },
   "returnValueDescriptions": {
     "checked": { "description": "If <code>true</code>, the checkbox is checked." },

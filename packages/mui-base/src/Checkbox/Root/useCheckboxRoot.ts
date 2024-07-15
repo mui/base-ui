@@ -5,6 +5,8 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useId } from '../../utils/useId';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -19,6 +21,9 @@ import { useEventCallback } from '../../utils/useEventCallback';
  */
 export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
   const {
+    id: idProp,
+    descriptionId,
+    setControlId,
     checked: externalChecked,
     inputRef: externalInputRef,
     name,
@@ -32,6 +37,14 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
   } = params;
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef);
@@ -58,6 +71,8 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-checked': indeterminate ? 'mixed' : checked,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        'aria-labelledby': id,
+        'aria-describedby': descriptionId,
         ...externalProps,
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -69,12 +84,13 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, indeterminate, readOnly],
+    [indeterminate, checked, disabled, readOnly, id, descriptionId],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
+        id,
         checked,
         disabled,
         name,
@@ -98,14 +114,15 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         },
       }),
     [
-      autoFocus,
+      id,
       checked,
       disabled,
       name,
-      onCheckedChange,
       required,
-      setCheckedState,
+      autoFocus,
       mergedInputRef,
+      setCheckedState,
+      onCheckedChange,
     ],
   );
 

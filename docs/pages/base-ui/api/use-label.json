@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useLabel",
+  "filename": "/packages/mui-base/src/Label/useLabel.ts",
+  "imports": ["import { useLabel } from '@base_ui/react/Label';"],
+  "demos": "<ul></ul>"
+}

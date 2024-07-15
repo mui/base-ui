@@ -69,6 +69,18 @@ module.exports = [
     title: 'DialogTrigger',
   },
   {
+    pathname: '/base-ui/react-field/components-api/#field-description',
+    title: 'FieldDescription',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-label',
+    title: 'FieldLabel',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-root',
+    title: 'FieldRoot',
+  },
+  {
     pathname: '/base-ui/react-focus-trap/components-api/#focus-trap',
     title: 'FocusTrap',
   },
@@ -77,6 +89,13 @@ module.exports = [
     title: 'FormControl',
   },
   { pathname: '/base-ui/react-menu/components-api/#menu-arrow', title: 'MenuArrow' },
+  { pathname: '/base-ui/react-input/components-api/#input', title: 'Input' },
+  { pathname: '/base-ui/react-label/components-api/#label', title: 'Label' },
+  { pathname: '/base-ui/react-menu/components-api/#menu', title: 'Menu' },
+  {
+    pathname: '/base-ui/react-menu/components-api/#menu-button',
+    title: 'MenuButton',
+  },
   { pathname: '/base-ui/react-menu/components-api/#menu-item', title: 'MenuItem' },
   { pathname: '/base-ui/react-menu/components-api/#menu-popup', title: 'MenuPopup' },
   {

@@ -10,12 +10,20 @@ export type CheckboxOwnerState = {
 };
 
 export interface CheckboxRootProps
-  extends UseCheckboxRootParameters,
+  extends Omit<UseCheckboxRootParameters, 'setControlId' | 'descriptionId'>,
     Omit<BaseUIComponentProps<'button', CheckboxOwnerState>, 'onChange'> {}
 
 export type CheckboxContextValue = CheckboxOwnerState;
 
 export interface UseCheckboxRootParameters {
+  /**
+   * The id of the input element.
+   */
+  id?: string;
+  /**
+   * The id of the description element.
+   */
+  descriptionId?: string;
   /**
    * Name of the underlying input element.
    *
@@ -75,6 +83,10 @@ export interface UseCheckboxRootParameters {
    * The ref to the input element.
    */
   inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * Sets the `id` of the input element.
+   */
+  setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export interface UseCheckboxRootReturnValue {

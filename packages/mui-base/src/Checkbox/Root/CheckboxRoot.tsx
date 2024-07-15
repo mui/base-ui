@@ -8,6 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -39,7 +40,13 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
+  const { setControlId, descriptionId } = useFieldRootContext();
+
+  const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
+    ...props,
+    descriptionId,
+    setControlId,
+  });
 
   const ownerState: CheckboxOwnerState = React.useMemo(
     () => ({
@@ -108,6 +115,10 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The id of the input element.
+   */
+  id: PropTypes.string,
   /**
    * If `true`, the checkbox will be indeterminate.
    *

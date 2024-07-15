@@ -1,0 +1,14 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "Label",
+  "imports": ["import { Label } from '@base_ui/react/Label';"],
+  "classes": [],
+  "muiName": "Label",
+  "filename": "/packages/mui-base/src/Label/Label.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-label/\">Label</a></li></ul>",
+  "cssComponent": false
+}
