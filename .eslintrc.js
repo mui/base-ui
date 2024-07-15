@@ -21,7 +21,7 @@ module.exports = {
    */
   rules: {
     ...baseline.rules,
-    // TODO move to @mui/monorepo, codebase is moving away from default exports
+    // TODO move to @mui/monorepo, codebase is moving away from default exports https://github.com/mui/material-ui/issues/21862
     'import/prefer-default-export': 'off',
     'no-restricted-imports': [
       'error',
