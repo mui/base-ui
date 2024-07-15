@@ -69,6 +69,10 @@ module.exports = [
     title: 'DialogTrigger',
   },
   {
+    pathname: '/base-ui/react-field/components-api/#field-control',
+    title: 'FieldControl',
+  },
+  {
     pathname: '/base-ui/react-field/components-api/#field-description',
     title: 'FieldDescription',
   },

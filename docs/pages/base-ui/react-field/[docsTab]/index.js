@@ -3,6 +3,7 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/field/field.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import FieldControlApiJsonPageContent from '../../api/field-control.json';
 import FieldDescriptionApiJsonPageContent from '../../api/field-description.json';
 import FieldLabelApiJsonPageContent from '../../api/field-label.json';
 import FieldRootApiJsonPageContent from '../../api/field-root.json';
@@ -24,6 +25,13 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
+  const FieldControlApiReq = require.context(
+    'docs-base/translations/api-docs/field-control',
+    false,
+    /\.\/field-control.*.json$/,
+  );
+  const FieldControlApiDescriptions = mapApiPageTranslations(FieldControlApiReq);
+
   const FieldDescriptionApiReq = require.context(
     'docs-base/translations/api-docs/field-description',
     false,
@@ -48,11 +56,13 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
+        FieldControl: FieldControlApiDescriptions,
         FieldDescription: FieldDescriptionApiDescriptions,
         FieldLabel: FieldLabelApiDescriptions,
         FieldRoot: FieldRootApiDescriptions,
       },
       componentsApiPageContents: {
+        FieldControl: FieldControlApiJsonPageContent,
         FieldDescription: FieldDescriptionApiJsonPageContent,
         FieldLabel: FieldLabelApiJsonPageContent,
         FieldRoot: FieldRootApiJsonPageContent,
