@@ -222,9 +222,9 @@ The `Slider.Thumb` component's `render` prop contains an additional `inputProps`
 ```jsx
 <Slider.Thumb
   render={(props, inputProps) => {
-    const { children, ...rest } = props;
+    const { children, ...other } = props;
     return (
-      <MyCustomThumb {...rest}>
+      <MyCustomThumb {...other}>
         {children}
         <input {...inputProps}>
       <MyCustomThumb/>
