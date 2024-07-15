@@ -564,19 +564,19 @@ importers:
         specifier: ^7.24.6
         version: 7.24.6
       '@floating-ui/react':
-        specifier: ^0.26.18
-        version: 0.26.18(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^0.26.19
+        version: 0.26.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/react-dom':
         specifier: ^2.1.1
         version: 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/utils':
-        specifier: ^0.2.3
-        version: 0.2.3
+        specifier: ^0.2.4
+        version: 0.2.4
       '@mui/types':
-        specifier: ^7.2.14
+        specifier: ^7.2.15
         version: 7.2.15(@types/react@18.3.1)
       '@mui/utils':
-        specifier: ^5.15.20
+        specifier: ^5.16.1
         version: 5.16.1(@types/react@18.3.1)(react@18.2.0)
       '@popperjs/core':
         specifier: ^2.11.8
@@ -1786,14 +1786,14 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.26.18':
-    resolution: {integrity: sha512-enDDX09Jpi3kmhcXXpvs+fvRXOfBj1jUV2KF6uDMf5HjS+SOZJzNTFUW71lKbFcxz0BkmQqwbvqdmHIxMq/fyQ==}
+  '@floating-ui/react@0.26.19':
+    resolution: {integrity: sha512-Jk6zITdjjIvjO/VdQFvpRaD3qPwOHH6AoDHxjhpy+oK4KFgaSP871HYWUAPdnLmx1gQ+w/pB312co3tVml+BXA==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/utils@0.2.3':
-    resolution: {integrity: sha512-XGndio0l5/Gvd6CLIABvsav9HHezgDFFhDfHk1bvLfr9ni8dojqLSvBbotJEjmIwNHL7vK4QzBJTdBRoB+c1ww==}
+  '@floating-ui/utils@0.2.4':
+    resolution: {integrity: sha512-dWO2pw8hhi+WrXq1YJy2yCuWoL20PddgGaqTgVe4cOS9Q6qklXCiA1tJEqX6BEwRNSCP84/afac9hd4MS+zEUA==}
 
   '@gitbeaker/core@38.12.1':
     resolution: {integrity: sha512-8XMVcBIdVAAoxn7JtqmZ2Ee8f+AZLcCPmqEmPFOXY2jPS84y/DERISg/+sbhhb18iRy+ZsZhpWgQ/r3CkYNJOQ==}
@@ -9789,12 +9789,12 @@ snapshots:
 
   '@floating-ui/core@1.6.3':
     dependencies:
-      '@floating-ui/utils': 0.2.3
+      '@floating-ui/utils': 0.2.4
 
   '@floating-ui/dom@1.6.6':
     dependencies:
       '@floating-ui/core': 1.6.3
-      '@floating-ui/utils': 0.2.3
+      '@floating-ui/utils': 0.2.4
 
   '@floating-ui/react-dom@2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
@@ -9802,15 +9802,15 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@floating-ui/react@0.26.18(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@floating-ui/react@0.26.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@floating-ui/utils': 0.2.3
+      '@floating-ui/utils': 0.2.4
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       tabbable: 6.2.0
 
-  '@floating-ui/utils@0.2.3': {}
+  '@floating-ui/utils@0.2.4': {}
 
   '@gitbeaker/core@38.12.1':
     dependencies:
