@@ -72,7 +72,7 @@ When using a native control like `input` or `select`, use `Field.Control` and th
 ```jsx
 <Field.Root>
   <Field.Control render={<input />} />
-  <Field.Label>My Checkbox</Field.Label>
+  <Field.Label>My Input</Field.Label>
   <Field.Description>My description</Field.Description>
 </Field.Root>
 ```
@@ -98,7 +98,7 @@ function App() {
   return (
     <Field.Root>
       <Field.Control render={input} />
-      <Field.Label>My Checkbox</Field.Label>
+      <Field.Label>My Input</Field.Label>
       {error && <Field.Description>{error}</Field.Description>}
     </Field.Root>
   );
