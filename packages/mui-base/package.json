@@ -38,12 +38,12 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.24.7",
-    "@floating-ui/react": "^0.26.18",
+    "@babel/runtime": "^7.24.8",
+    "@floating-ui/react": "^0.26.19",
     "@floating-ui/react-dom": "^2.1.1",
-    "@floating-ui/utils": "^0.2.3",
-    "@mui/types": "^7.2.14",
-    "@mui/utils": "^5.15.20",
+    "@floating-ui/utils": "^0.2.4",
+    "@mui/types": "^7.2.15",
+    "@mui/utils": "^5.16.1",
     "@popperjs/core": "^2.11.8",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1"
