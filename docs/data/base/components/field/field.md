@@ -18,7 +18,7 @@ packageName: '@base_ui/react'
 
 ## Installation
 
-Base UI components are all available as a single package.
+Base UI components are all available as a single package.
 
 <codeblock storageKey="package-manager">
 
@@ -47,7 +47,7 @@ import * as Field from '@base_ui/react/Field';
 Fields are implemented using a collection of related components:
 
 - `<Field.Root />` is a top-level component that wraps all other components.
-- `<Field.Control />` renders a control to be labelled and/or described when not using a Base UI control.
+- `<Field.Control />` renders a control to be labeled and/or described when not using a Base UI control.
 - `<Field.Label />` renders a label for the control.
 - `<Field.Description />` renders an optional description for the control.
 
@@ -61,7 +61,7 @@ Fields are implemented using a collection of related components:
 
 ## Accessibility
 
-When a Base UI form control is nested inside a `Field.Root`, the label and description will automatically be wired to it:
+When a Base UI form control component is nested inside a `Field.Root`, the label and description are automatically wired to it:
 
 ```jsx
 <Field.Root>
