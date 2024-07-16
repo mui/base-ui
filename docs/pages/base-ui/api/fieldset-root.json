@@ -1,0 +1,16 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "FieldsetRoot",
+  "imports": [
+    "import * as Fieldset from '@base_ui/react/Fieldset';\nconst FieldsetRoot = Fieldset.Root;"
+  ],
+  "classes": [],
+  "muiName": "FieldsetRoot",
+  "filename": "/packages/mui-base/src/Fieldset/Root/FieldsetRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-fieldset/\">Field</a></li></ul>",
+  "cssComponent": false
+}

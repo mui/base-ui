@@ -89,6 +89,14 @@ module.exports = [
     title: 'FieldValidity',
   },
   {
+    pathname: '/base-ui/react-fieldset/components-api/#fieldset-label',
+    title: 'FieldsetLabel',
+  },
+  {
+    pathname: '/base-ui/react-fieldset/components-api/#fieldset-root',
+    title: 'FieldsetRoot',
+  },
+  {
     pathname: '/base-ui/react-focus-trap/components-api/#focus-trap',
     title: 'FocusTrap',
   },

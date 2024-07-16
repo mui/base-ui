@@ -1,0 +1,16 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "FieldsetLabel",
+  "imports": [
+    "import * as Fieldset from '@base_ui/react/Fieldset';\nconst FieldsetLabel = Fieldset.Label;"
+  ],
+  "classes": [],
+  "muiName": "FieldsetLabel",
+  "filename": "/packages/mui-base/src/Fieldset/Label/FieldsetLabel.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-fieldset/\">Field</a></li></ul>",
+  "cssComponent": false
+}
