@@ -73,16 +73,20 @@ module.exports = [
     title: 'FieldControl',
   },
   {
-    pathname: '/base-ui/react-field/components-api/#field-description',
-    title: 'FieldMessage',
-  },
-  {
     pathname: '/base-ui/react-field/components-api/#field-label',
     title: 'FieldLabel',
   },
   {
+    pathname: '/base-ui/react-field/components-api/#field-message',
+    title: 'FieldMessage',
+  },
+  {
     pathname: '/base-ui/react-field/components-api/#field-root',
     title: 'FieldRoot',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-validity',
+    title: 'FieldValidity',
   },
   {
     pathname: '/base-ui/react-focus-trap/components-api/#focus-trap',
@@ -94,7 +98,6 @@ module.exports = [
   },
   { pathname: '/base-ui/react-menu/components-api/#menu-arrow', title: 'MenuArrow' },
   { pathname: '/base-ui/react-input/components-api/#input', title: 'Input' },
-  { pathname: '/base-ui/react-label/components-api/#label', title: 'Label' },
   { pathname: '/base-ui/react-menu/components-api/#menu', title: 'Menu' },
   {
     pathname: '/base-ui/react-menu/components-api/#menu-button',

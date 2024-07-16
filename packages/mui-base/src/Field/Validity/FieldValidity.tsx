@@ -1,4 +1,5 @@
 'use client';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import type { FieldValidityProps } from './FieldValidity.types';
@@ -16,7 +17,11 @@ import type { FieldValidityProps } from './FieldValidity.types';
  */
 function FieldValidity(props: FieldValidityProps) {
   const { validityData } = useFieldRootContext();
-  return props.children(validityData.validityState, validityData.value);
+  return (
+    <React.Fragment>
+      {props.children(validityData.validityState, validityData.value)}
+    </React.Fragment>
+  );
 }
 
 FieldValidity.propTypes /* remove-proptypes */ = {

@@ -4,9 +4,10 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/field/field.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import FieldControlApiJsonPageContent from '../../api/field-control.json';
-import FieldMessageApiJsonPageContent from '../../api/field-description.json';
 import FieldLabelApiJsonPageContent from '../../api/field-label.json';
+import FieldMessageApiJsonPageContent from '../../api/field-message.json';
 import FieldRootApiJsonPageContent from '../../api/field-root.json';
+import FieldValidityApiJsonPageContent from '../../api/field-validity.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -32,19 +33,19 @@ export const getStaticProps = () => {
   );
   const FieldControlApiDescriptions = mapApiPageTranslations(FieldControlApiReq);
 
-  const FieldMessageApiReq = require.context(
-    'docs-base/translations/api-docs/field-description',
-    false,
-    /\.\/field-description.*.json$/,
-  );
-  const FieldMessageApiDescriptions = mapApiPageTranslations(FieldMessageApiReq);
-
   const FieldLabelApiReq = require.context(
     'docs-base/translations/api-docs/field-label',
     false,
     /\.\/field-label.*.json$/,
   );
   const FieldLabelApiDescriptions = mapApiPageTranslations(FieldLabelApiReq);
+
+  const FieldMessageApiReq = require.context(
+    'docs-base/translations/api-docs/field-message',
+    false,
+    /\.\/field-message.*.json$/,
+  );
+  const FieldMessageApiDescriptions = mapApiPageTranslations(FieldMessageApiReq);
 
   const FieldRootApiReq = require.context(
     'docs-base/translations/api-docs/field-root',
@@ -53,19 +54,28 @@ export const getStaticProps = () => {
   );
   const FieldRootApiDescriptions = mapApiPageTranslations(FieldRootApiReq);
 
+  const FieldValidityApiReq = require.context(
+    'docs-base/translations/api-docs/field-validity',
+    false,
+    /\.\/field-validity.*.json$/,
+  );
+  const FieldValidityApiDescriptions = mapApiPageTranslations(FieldValidityApiReq);
+
   return {
     props: {
       componentsApiDescriptions: {
         FieldControl: FieldControlApiDescriptions,
-        FieldMessage: FieldMessageApiDescriptions,
         FieldLabel: FieldLabelApiDescriptions,
+        FieldMessage: FieldMessageApiDescriptions,
         FieldRoot: FieldRootApiDescriptions,
+        FieldValidity: FieldValidityApiDescriptions,
       },
       componentsApiPageContents: {
         FieldControl: FieldControlApiJsonPageContent,
-        FieldMessage: FieldMessageApiJsonPageContent,
         FieldLabel: FieldLabelApiJsonPageContent,
+        FieldMessage: FieldMessageApiJsonPageContent,
         FieldRoot: FieldRootApiJsonPageContent,
+        FieldValidity: FieldValidityApiJsonPageContent,
       },
       hooksApiDescriptions: {},
       hooksApiPageContents: {},
