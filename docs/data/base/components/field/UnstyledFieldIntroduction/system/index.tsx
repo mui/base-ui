@@ -1,20 +1,13 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import * as Field from '@base_ui/react/Field';
-import * as NumberField from '@base_ui/react/NumberField';
 
 export default function UnstyledSwitchIntroduction() {
   return (
     <Field.Root style={{ width: 250 }}>
       <div style={{ display: 'flex', gap: 8 }}>
         <Field.Label>Name</Field.Label>
-        <NumberField.Root>
-          <NumberField.Group>
-            <NumberField.Increment>+</NumberField.Increment>
-            <NumberField.Decrement>-</NumberField.Decrement>
-            <NumberField.Input required />
-          </NumberField.Group>
-        </NumberField.Root>
+        <Field.Control required pattern="[a-zA-Z0-9]+" />
       </div>
       <Field.Validity>
         {(validity, value) => {
@@ -31,7 +24,6 @@ export default function UnstyledSwitchIntroduction() {
           return null;
         }}
       </Field.Validity>
-      <FieldMessage data-error show="rangeUnderflow" />
       <FieldMessage data-error show="valueMissing" />
       <FieldMessage data-error show={(value) => value === 'admin'}>
         Name not allowed.
