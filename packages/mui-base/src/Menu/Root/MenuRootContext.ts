@@ -10,6 +10,7 @@ export interface MenuRootContext {
   triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
   setPositionerElement: (element: HTMLElement | null) => void;
+  popupRef: React.RefObject<HTMLElement | null>;
   nested: boolean;
   parentContext: MenuRootContext | null;
   activeIndex: number | null;
@@ -20,6 +21,8 @@ export interface MenuRootContext {
   disabled: boolean;
   clickAndDragEnabled: boolean;
   setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  mounted: boolean;
+  transitionStatus: 'entering' | 'exiting' | undefined;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);

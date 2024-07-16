@@ -6,15 +6,14 @@ import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuRootContext } from '../Root/MenuRootContext';
-
-const EMPTY_OBJECT = {};
+import { useForkRef } from '../../utils/useForkRef';
 
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopupProps,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...other } = props;
-  const { setOpen } = useMenuRootContext();
+  const { setOpen, popupRef, transitionStatus } = useMenuRootContext();
   const { events: menuEvents } = useFloatingTree()!;
 
   useMenuPopup({
@@ -22,17 +21,27 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     menuEvents,
   });
 
-  const ownerState: MenuPopupOwnerState = EMPTY_OBJECT;
+  const mergedRef = useForkRef(forwardedRef, popupRef);
+
+  const ownerState: MenuPopupOwnerState = {
+    entering: transitionStatus === 'entering',
+    exiting: transitionStatus === 'exiting',
+  };
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
     ownerState,
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-    },
     extraProps: other,
-    ref: forwardedRef,
+    customStyleHookMapping: {
+      entering(value) {
+        return value ? { 'data-entering': '' } : null;
+      },
+      exiting(value) {
+        return value ? { 'data-exiting': '' } : null;
+      },
+    },
+    ref: mergedRef,
   });
 
   return renderElement();

@@ -63,6 +63,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     itemDomElements,
     itemLabels,
     triggerElement,
+    mounted,
   } = useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
@@ -73,7 +74,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionStrategy,
     container,
     open,
-    mounted: open, // TODO: animations
+    mounted,
     side,
     sideOffset,
     alignment,
@@ -132,7 +133,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       <FloatingNode id={nodeId}>
         <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
           <FloatingPortal root={props.container}>
-            {open && (
+            {mounted && (
               <FloatingFocusManager
                 context={positioner.floatingContext}
                 modal={false}

@@ -22,6 +22,9 @@ const testRootContext: MenuRootContext = {
   setOpen: () => {},
   clickAndDragEnabled: false,
   setClickAndDragEnabled: () => {},
+  popupRef: { current: null },
+  mounted: true,
+  transitionStatus: undefined,
 };
 
 describe('<Menu.Popup />', () => {

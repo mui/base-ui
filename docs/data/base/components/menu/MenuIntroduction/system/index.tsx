@@ -68,17 +68,21 @@ const MenuPopup = styled(Menu.Popup)(
   box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
   z-index: 1;
   transform-origin: var(--transform-origin);
+  opacity: 1;
+  transform: scale(1, 1);
+  transition: opacity 100ms ease-in, transform 100ms ease-in;
 
-  &[data-state='closed'] {
-    opacity: 0;
-    transform: scale(0.95, 0.8);
-    transition: opacity 200ms ease-in, transform 200ms ease-in;
+  @starting-style {
+    & {
+      opacity: 0;
+      transform: scale(0.8);
+    }
   }
-  
-  &[data-state='open'] {
-    opacity: 1;
-    transform: scale(1, 1);
-    transition: opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
+      
+  &[data-exiting] {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 200ms ease-in, transform 200ms ease-in;
   }
   `,
 );

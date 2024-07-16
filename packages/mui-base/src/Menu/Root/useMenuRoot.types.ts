@@ -5,8 +5,10 @@ export type MenuOrientation = 'horizontal' | 'vertical';
 export type MenuDirection = 'ltr' | 'rtl';
 
 export interface UseMenuRootParameters {
-  setOpen: (open: boolean, event: Event | undefined) => void;
-  open: boolean;
+  animated: boolean;
+  open: boolean | undefined;
+  onOpenChange: ((open: boolean, event: Event | undefined) => void) | undefined;
+  defaultOpen: boolean;
   orientation: MenuOrientation;
   direction: MenuDirection;
   disabled: boolean;
@@ -24,4 +26,10 @@ export interface UseMenuRootReturnValue {
   itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
   itemLabels: React.MutableRefObject<(string | null)[]>;
   activeIndex: number | null;
+  mounted: boolean;
+  setMounted: React.Dispatch<React.SetStateAction<boolean>>;
+  transitionStatus: 'entering' | 'exiting' | undefined;
+  popupRef: React.RefObject<HTMLElement | null>;
+  open: boolean;
+  setOpen: (open: boolean, event: Event | undefined) => void;
 }

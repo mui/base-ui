@@ -14,6 +14,10 @@ import {
 import { UseMenuRootParameters, UseMenuRootReturnValue } from './useMenuRoot.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useControlled } from '../../utils/useControlled';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -24,12 +28,44 @@ const EMPTY_ARRAY: never[] = [];
  * - [useMenuRoot API](https://mui.com/base-ui/api/use-menu-root/)
  */
 export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootReturnValue {
-  const { setOpen, open, orientation, direction, disabled, nested } = parameters;
+  const {
+    animated,
+    open: openParam,
+    defaultOpen,
+    onOpenChange,
+    orientation,
+    direction,
+    disabled,
+    nested,
+  } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const popupRef = React.useRef<HTMLElement>(null);
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+
+  const [open, setOpenUnwrapped] = useControlled({
+    controlled: openParam,
+    default: defaultOpen,
+    name: 'useMenuRoot',
+    state: 'open',
+  });
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
+  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
+    onOpenChange?.(nextOpen, event);
+    setOpenUnwrapped(nextOpen);
+    if (!nextOpen) {
+      if (animated) {
+        runOnceAnimationsFinish(() => setMounted(false));
+      } else {
+        setMounted(false);
+      }
+    }
+  });
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -123,18 +159,25 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
   );
 
   return React.useMemo(
-    () => ({
-      activeIndex,
-      floatingRootContext,
-      triggerElement,
-      setTriggerElement,
-      getTriggerProps,
-      setPositionerElement,
-      getPositionerProps,
-      getItemProps,
-      itemDomElements,
-      itemLabels,
-    }),
+    () =>
+      ({
+        activeIndex,
+        floatingRootContext,
+        triggerElement,
+        setTriggerElement,
+        getTriggerProps,
+        setPositionerElement,
+        getPositionerProps,
+        getItemProps,
+        itemDomElements,
+        itemLabels,
+        mounted,
+        setMounted,
+        transitionStatus,
+        popupRef,
+        open,
+        setOpen,
+      }) satisfies UseMenuRootReturnValue,
     [
       activeIndex,
       floatingRootContext,
@@ -144,6 +187,11 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
       getItemProps,
       itemDomElements,
       itemLabels,
+      mounted,
+      setMounted,
+      transitionStatus,
+      open,
+      setOpen,
     ],
   );
 }

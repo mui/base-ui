@@ -5,41 +5,28 @@ import { FloatingTree } from '@floating-ui/react';
 import { MenuRootProps } from './MenuRoot.types';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { useMenuRoot } from './useMenuRoot';
-import { useControlled } from '../../utils/useControlled';
 
 function MenuRoot(props: MenuRootProps) {
   const {
+    animated = true,
     children,
-    defaultOpen,
+    defaultOpen = false,
     dir: direction = 'ltr',
     disabled = false,
     onOpenChange,
-    open: openProp,
+    open,
     orientation = 'vertical',
   } = props;
 
   const parentContext = useMenuRootContext(true);
   const nested = parentContext != null;
 
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: openProp,
-    default: defaultOpen ?? false,
-    name: 'useMenuRoot',
-    state: 'open',
-  });
-
-  const setOpen = React.useCallback(
-    (isOpen: boolean, event: Event | undefined) => {
-      setOpenUnwrapped(isOpen);
-      onOpenChange?.(isOpen, event);
-    },
-    [onOpenChange, setOpenUnwrapped],
-  );
-
   const menuRoot = useMenuRoot({
+    animated,
     direction,
     disabled,
-    setOpen,
+    onOpenChange,
+    defaultOpen,
     open,
     orientation,
     nested,
@@ -60,21 +47,10 @@ function MenuRoot(props: MenuRootProps) {
       nested,
       parentContext,
       disabled,
-      open,
-      setOpen,
       clickAndDragEnabled,
       setClickAndDragEnabled,
     }),
-    [
-      menuRoot,
-      nested,
-      parentContext,
-      disabled,
-      open,
-      setOpen,
-      clickAndDragEnabled,
-      setClickAndDragEnabled,
-    ],
+    [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled],
   );
 
   if (!nested) {
