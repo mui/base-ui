@@ -10,6 +10,7 @@
     "inputRef": {
       "type": { "name": "union", "description": "func<br>&#124;&nbsp;{ current?: object }" }
     },
+    "messageIds": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
     "name": { "type": { "name": "string" }, "default": "undefined" },
     "onCheckedChange": {
       "type": { "name": "func" },

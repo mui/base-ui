@@ -1,8 +1,10 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRootContextValue, FieldRootProps } from './FieldRoot.types';
+import { ValidityData, type FieldRootContextValue, type FieldRootProps } from './FieldRoot.types';
 import { FieldRootContext } from './FieldRootContext';
+import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 
 /**
  * The foundation for building custom-styled fields.
@@ -22,7 +24,13 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const { render, className, ...otherProps } = props;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
-  const [descriptionId, setDescriptionId] = React.useState<string | undefined>(undefined);
+  const [controlElement, setControlElement] = React.useState<Element | undefined>(undefined);
+  const [messageIds, setMessageIds] = React.useState<string[]>([]);
+  const [validityData, setValidityData] = React.useState<ValidityData>({
+    validityState: DEFAULT_VALIDITY_STATE,
+    validityMessage: '',
+    value: null,
+  });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -36,10 +44,14 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     () => ({
       controlId,
       setControlId,
-      descriptionId,
-      setDescriptionId,
+      messageIds,
+      setMessageIds,
+      validityData,
+      setValidityData,
+      controlElement,
+      setControlElement,
     }),
-    [controlId, descriptionId],
+    [controlId, messageIds, validityData, controlElement],
   );
 
   return (

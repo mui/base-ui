@@ -15,9 +15,9 @@ export default function UnstyledSwitchIntroduction() {
         </Checkbox>
         <FieldLabel>Accept Terms and Conditions</FieldLabel>
       </div>
-      <FieldDescription>
+      <FieldMessage>
         In order to proceed, you must accept the Terms and Conditions.
-      </FieldDescription>
+      </FieldMessage>
     </Field.Root>
   );
 }
@@ -81,7 +81,7 @@ const Indicator = styled(BaseCheckbox.Indicator)`
 
 export const FieldLabel = styled(Field.Label)``;
 
-export const FieldDescription = styled(Field.Description)`
+export const FieldMessage = styled(Field.Message)`
   font-size: 90%;
   color: ${grey[600]};
 `;

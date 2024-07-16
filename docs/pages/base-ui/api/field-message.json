@@ -3,16 +3,16 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "FieldDescription",
+  "name": "FieldMessage",
   "imports": [
-    "import * as Field from '@base_ui/react/Field';\nconst FieldDescription = Field.Description;"
+    "import * as Field from '@base_ui/react/Field';\nconst FieldMessage = Field.Message;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "FieldDescription",
+  "muiName": "FieldMessage",
   "forwardsRefTo": "HTMLParagraphElement",
-  "filename": "/packages/mui-base/src/Field/Description/FieldDescription.tsx",
+  "filename": "/packages/mui-base/src/Field/Message/FieldMessage.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-field/\">Field</a></li></ul>",
   "cssComponent": false

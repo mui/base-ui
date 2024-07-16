@@ -17,8 +17,17 @@ export function useFieldLabel(params: UseFieldLabelParameters) {
     (externalProps = {}) =>
       mergeReactProps<'label'>(externalProps, {
         htmlFor: controlId,
-        onMouseDown: (e) => e.preventDefault(),
-        ...externalProps,
+        onMouseDown(event) {
+          const selection = window.getSelection();
+
+          // If text is selected elsewhere on the document when clicking the label, it will not
+          // activate. Ensure the selection is not the label text so that selection remains.
+          if (selection && !selection.anchorNode?.contains(event.currentTarget)) {
+            selection.empty();
+          }
+
+          event.preventDefault();
+        },
       }),
     [controlId],
   );

@@ -1,7 +1,8 @@
 export { FieldRoot as Root } from './Root/FieldRoot';
 export { FieldLabel as Label } from './Label/FieldLabel';
-export { FieldDescription as Description } from './Description/FieldDescription';
+export { FieldMessage as Message } from './Message/FieldMessage';
 export { FieldControl as Control } from './Control/FieldControl';
+export { FieldValidity as Validity } from './Validity/FieldValidity';
 
 export type {
   FieldRootProps as RootProps,
@@ -12,10 +13,11 @@ export type {
   FieldLabelOwnerState as LabelOwnerState,
 } from './Label/FieldLabel.types';
 export type {
-  FieldDescriptionProps as DescriptionProps,
-  FieldDescriptionOwnerState as DescriptionOwnerState,
-} from './Description/FieldDescription.types';
+  FieldMessageProps as MessageProps,
+  FieldMessageOwnerState as MessageOwnerState,
+} from './Message/FieldMessage.types';
 export type {
   FieldControlProps as ControlProps,
   FieldControlOwnerState as ControlOwnerState,
 } from './Control/FieldControl.types';
+export type { FieldValidityProps as ValidityProps } from './Validity/FieldValidity.types';

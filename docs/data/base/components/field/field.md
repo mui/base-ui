@@ -1,14 +1,14 @@
 ---
 productId: base-ui
 title: React Field component and hook
-components: FieldRoot, FieldLabel, FieldDescription, FieldControl
+components: FieldRoot, FieldLabel, FieldMessage, FieldControl, FieldValidity
 githubLabel: 'component: field'
 packageName: '@base_ui/react'
 ---
 
 # Field
 
-<p class="description">Fields represent an individual section of a form containing an associated control, label, an optional description.</p>
+<p class="description">Fields represent an individual section of a form containing an associated control and label, as well as any description or validation messages.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
@@ -47,66 +47,86 @@ import * as Field from '@base_ui/react/Field';
 Fields are implemented using a collection of related components:
 
 - `<Field.Root />` is a top-level component that wraps all other components.
-- `<Field.Control />` renders a control to be labeled and/or described when not using a Base UI control.
+- `<Field.Control />` renders the control when not using a native Base UI component.
 - `<Field.Label />` renders a label for the control.
-- `<Field.Description />` renders an optional description for the control.
+- `<Field.Message />` renders an optional message for the control to describe it or show validation errors.
+- `<Field.Validity />` is an optional render prop component that enables reading raw `ValidityState` to render custom JSX.
 
 ```jsx
 <Field.Root>
   <Field.Control />
   <Field.Label />
-  <Field.Description />
+  <Field.Message />
+  <Field.Validity />
 </Field.Root>
 ```
 
 ## Accessibility
 
-When a Base UI form control component is nested inside a `Field.Root`, the label and description are automatically wired to it:
+All Base UI components are aware of Base UI's `Field` component. The label and description are automatically wired to it:
 
 ```jsx
 <Field.Root>
   <Checkbox.Root>
     <Checkbox.Indicator />
   </Checkbox.Root>
-  <Field.Label>My Checkbox</Field.Label>
+  <Field.Label>My checkbox</Field.Label>
   <Field.Description>My description</Field.Description>
 </Field.Root>
 ```
 
-When using a native control like `input` or `select`, use `Field.Control` and the `render` prop to ensure the label and descriptions are wired:
+When using a native control like `input` which is not aware of `Field` natively, use `Field.Control`, which renders an `input` by default:
 
 ```jsx
 <Field.Root>
-  <Field.Control render={<input />} />
+  <Field.Control />
   <Field.Label>My input</Field.Label>
   <Field.Description>My description</Field.Description>
 </Field.Root>
 ```
 
-### Error Messages
-
-`Field.Description` can be conditionally rendered to appear when the field's control has an error:
+The `render` prop allows you to pass a custom component or tag, different from `input`:
 
 ```jsx
-function App() {
-  const [error, setError] = React.useState('');
-
-  function handleBlur(event) {
-    if (event.currentTarget.value === '') {
-      setError('Field must be filled in.');
-    } else {
-      setError('');
-    }
-  }
-
-  const input = <input aria-invalid={Boolean(error)} onBlur={handleBlur} />;
-
-  return (
-    <Field.Root>
-      <Field.Control render={input} />
-      <Field.Label>My input</Field.Label>
-      {error && <Field.Description>{error}</Field.Description>}
-    </Field.Root>
-  );
-}
+<Field.Control render={<select />} />
 ```
+
+## Validation
+
+When adding native HTML validation props like `required` or `pattern`, the `show` prop on `Field.Message` will show the message only if the constraint validation fails:
+
+```jsx
+<Field.Root>
+  <Field.Label>My input</Field.Label>
+  <Field.Control required />
+  <Field.Message show="valueMissing" />
+</Field.Root>
+```
+
+The `children` by default is the browser's native message, which is automatically internationalized. You may pass custom `children` instead:
+
+```jsx
+<Field.Root>
+  <Field.Label>My input</Field.Label>
+  <Field.Control required />
+  <Field.Message show="valueMissing">Input is required</Field.Message>
+</Field.Root>
+```
+
+For the list of supported `show` strings, visit [`ValidityState` on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState#instance_properties).
+
+### Custom validation
+
+In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument:
+
+```jsx
+<Field.Root>
+  <Field.Control type="password" />
+  <Field.Label>Password</Field.Label>
+  <Field.Message show={(value, control) => value === 'password'}>
+    Cannot literally use `password` as your password.
+  </Field.Message>
+</Field.Root>
+```
+
+The control element itself is passed as a second argument in case the `value` prop is not suitable to perform the conditional checks.

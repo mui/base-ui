@@ -13,7 +13,6 @@
       "type": { "name": "boolean", "description": "boolean" },
       "default": "false"
     },
-    "descriptionId": { "type": { "name": "string", "description": "string" } },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "id": { "type": { "name": "string", "description": "string" } },
     "indeterminate": {
@@ -26,6 +25,7 @@
         "description": "React.Ref&lt;HTMLInputElement&gt;"
       }
     },
+    "messageIds": { "type": { "name": "string[]", "description": "string[]" } },
     "name": { "type": { "name": "string", "description": "string" }, "default": "undefined" },
     "onCheckedChange": {
       "type": {

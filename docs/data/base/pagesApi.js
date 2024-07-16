@@ -74,7 +74,7 @@ module.exports = [
   },
   {
     pathname: '/base-ui/react-field/components-api/#field-description',
-    title: 'FieldDescription',
+    title: 'FieldMessage',
   },
   {
     pathname: '/base-ui/react-field/components-api/#field-label',

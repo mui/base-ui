@@ -22,7 +22,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
   const {
     id: idProp,
-    descriptionId,
+    messageIds,
     setControlId,
     checked: externalChecked,
     inputRef: externalInputRef,
@@ -72,7 +72,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': id,
-        'aria-describedby': descriptionId,
+        'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
         ...externalProps,
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -84,7 +84,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [indeterminate, checked, disabled, readOnly, id, descriptionId],
+    [indeterminate, checked, disabled, readOnly, id, messageIds],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(

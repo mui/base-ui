@@ -6,7 +6,7 @@ import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 
 /**
- * The field's label.
+ * A label for the field's control.
  *
  * Demos:
  *

@@ -1,12 +1,13 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldDescriptionProps } from './FieldDescription.types';
+import type { FieldMessageProps } from './FieldMessage.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldDescription } from './useFieldDescription';
+import { useFieldMessage } from './useFieldMessage';
 
 /**
- * The field's description.
+ * A message for the field's control.
  *
  * Demos:
  *
@@ -14,20 +15,30 @@ import { useFieldDescription } from './useFieldDescription';
  *
  * API:
  *
- * - [FieldDescription API](https://mui.com/base-ui/react-field/components-api/#field-description)
+ * - [FieldMessage API](https://mui.com/base-ui/react-field/components-api/#field-description)
  */
-const FieldDescription = React.forwardRef(function FieldDescription(
-  props: FieldDescriptionProps,
+const FieldMessage = React.forwardRef(function FieldMessage(
+  props: FieldMessageProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id, className, ...otherProps } = props;
+  const { render, id, className, show, ...otherProps } = props;
 
-  const { setDescriptionId } = useFieldRootContext();
+  const { validityData, controlElement } = useFieldRootContext();
 
-  const { getDescriptionProps } = useFieldDescription({ setDescriptionId, id });
+  const element = controlElement as HTMLInputElement | null;
+
+  let rendered = show == null;
+  if (typeof show === 'string' && validityData.validityState[show]) {
+    rendered = true;
+  }
+  if (element && typeof show === 'function' && show(validityData.value, element)) {
+    rendered = true;
+  }
+
+  const { getMessageProps } = useFieldMessage({ id, rendered });
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getDescriptionProps,
+    propGetter: getMessageProps,
     render: render ?? 'p',
     ref: forwardedRef,
     className,
@@ -35,10 +46,14 @@ const FieldDescription = React.forwardRef(function FieldDescription(
     extraProps: otherProps,
   });
 
+  if (!rendered) {
+    return null;
+  }
+
   return renderElement();
 });
 
-FieldDescription.propTypes /* remove-proptypes */ = {
+FieldMessage.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -59,6 +74,25 @@ FieldDescription.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  show: PropTypes.oneOfType([
+    PropTypes.oneOf([
+      'badInput',
+      'customError',
+      'patternMismatch',
+      'rangeOverflow',
+      'rangeUnderflow',
+      'stepMismatch',
+      'tooLong',
+      'tooShort',
+      'typeMismatch',
+      'valid',
+      'valueMissing',
+    ]),
+    PropTypes.func,
+  ]),
 } as any;
 
-export { FieldDescription };
+export { FieldMessage };

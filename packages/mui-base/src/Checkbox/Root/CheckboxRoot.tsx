@@ -40,11 +40,11 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { setControlId, descriptionId } = useFieldRootContext();
+  const { setControlId, messageIds } = useFieldRootContext();
 
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
     ...props,
-    descriptionId,
+    messageIds,
     setControlId,
   });
 
@@ -134,6 +134,10 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
       current: PropTypes.object,
     }),
   ]),
+  /**
+   * The message id's of the component.
+   */
+  messageIds: PropTypes.arrayOf(PropTypes.string),
   /**
    * Name of the underlying input element.
    *

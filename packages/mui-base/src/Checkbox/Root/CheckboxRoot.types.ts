@@ -21,9 +21,9 @@ export interface UseCheckboxRootParameters {
    */
   id?: string;
   /**
-   * The id of the description element.
+   * The message id's of the component.
    */
-  descriptionId?: string;
+  messageIds?: string[];
   /**
    * Name of the underlying input element.
    *

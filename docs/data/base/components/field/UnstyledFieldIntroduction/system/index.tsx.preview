@@ -7,7 +7,7 @@
     </Checkbox>
     <FieldLabel>Accept Terms and Conditions</FieldLabel>
   </div>
-  <FieldDescription>
+  <FieldMessage>
     In order to proceed, you must accept the Terms and Conditions.
-  </FieldDescription>
+  </FieldMessage>
 </Field.Root>

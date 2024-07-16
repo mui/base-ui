@@ -1,9 +1,11 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldControlProps } from './FieldControl.types';
-import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldControl } from './useFieldControl';
+import { useFieldRootContext } from '../Root/FieldRootContext';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The field's control element.
@@ -18,18 +20,19 @@ import { useFieldControl } from './useFieldControl';
  */
 const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControlProps,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, id, className, ...otherProps } = props;
 
-  const { setControlId, descriptionId } = useFieldRootContext();
+  const { setControlElement } = useFieldRootContext();
+  const { getControlProps } = useFieldControl({ id });
 
-  const { getControlProps } = useFieldControl({ setControlId, descriptionId });
+  const mergedRef = useForkRef(setControlElement, forwardedRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getControlProps,
     render: render ?? 'input',
-    ref: forwardedRef,
+    ref: mergedRef,
     className,
     ownerState: {},
     extraProps: otherProps,
@@ -44,9 +47,17 @@ FieldControl.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */
