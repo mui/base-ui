@@ -124,14 +124,6 @@ export interface UseNumberFieldRootParameters {
    * @param {Event} event The event that triggered the change.
    */
   onValueChange?: (value: number | null, event?: Event) => void;
-  /**
-   * Message id's that describe the number field input.
-   */
-  messageIds?: string[];
-  /**
-   * Sets the id of the input element.
-   */
-  setControlId: (id: string | undefined) => void;
 }
 
 export interface UseNumberFieldRootReturnValue {

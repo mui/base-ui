@@ -74,7 +74,11 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': id,
         'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
-        onBlur() {
+        onBlur(event) {
+          if (event.defaultPrevented || readOnly) {
+            return;
+          }
+
           const element = inputRef.current;
           if (element) {
             setValidityData({

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldControlProps } from './FieldControl.types';
+import type { FieldControlElement, FieldControlProps } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
 
 /**
@@ -18,7 +18,7 @@ import { useFieldControl } from './useFieldControl';
  */
 const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControlProps,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<FieldControlElement>,
 ) {
   const { render, id, className, ...otherProps } = props;
 

@@ -1,6 +1,5 @@
 {
   "props": {
-    "setControlId": { "type": { "name": "func" }, "required": true },
     "allowWheelScrub": { "type": { "name": "bool" }, "default": "false" },
     "autoFocus": { "type": { "name": "bool" }, "default": "false" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
@@ -16,7 +15,6 @@
     "invalid": { "type": { "name": "bool" }, "default": "false" },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
     "max": { "type": { "name": "number" } },
-    "messageIds": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
     "min": { "type": { "name": "number" } },
     "name": { "type": { "name": "string" } },
     "onValueChange": {

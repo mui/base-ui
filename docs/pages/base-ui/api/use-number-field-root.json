@@ -1,12 +1,5 @@
 {
   "parameters": {
-    "setControlId": {
-      "type": {
-        "name": "(id: string | undefined) =&gt; void",
-        "description": "(id: string | undefined) =&gt; void"
-      },
-      "required": true
-    },
     "allowWheelScrub": {
       "type": { "name": "boolean", "description": "boolean" },
       "default": "false"
@@ -21,7 +14,6 @@
     "invalid": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "largeStep": { "type": { "name": "number", "description": "number" }, "default": "10" },
     "max": { "type": { "name": "number", "description": "number" } },
-    "messageIds": { "type": { "name": "string[]", "description": "string[]" } },
     "min": { "type": { "name": "number", "description": "number" } },
     "name": { "type": { "name": "string", "description": "string" } },
     "onValueChange": {

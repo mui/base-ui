@@ -65,7 +65,11 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         'aria-disabled': disabled,
         'aria-readonly': readOnly,
         'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
-        onBlur() {
+        onBlur(event) {
+          if (event.defaultPrevented || readOnly) {
+            return;
+          }
+
           const element = inputRef.current;
           if (element) {
             setValidityData({
