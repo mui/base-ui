@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as Field from '@base_ui/react/Field';
-import * as Fieldset from '@base_ui/react/FieldSet';
+import * as Fieldset from '@base_ui/react/Fieldset';
 import * as Checkbox from '@base_ui/react/Checkbox';
 
-export default function UnstyledSwitchIntroduction() {
+export default function UnstyledFieldsetIntroduction() {
   return (
     <Fieldset.Root>
       <Fieldset.Label>Fruits</Fieldset.Label>

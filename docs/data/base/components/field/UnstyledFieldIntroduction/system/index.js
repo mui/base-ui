@@ -2,7 +2,7 @@ import * as React from 'react';
 import { styled } from '@mui/system';
 import * as Field from '@base_ui/react/Field';
 
-export default function UnstyledSwitchIntroduction() {
+export default function UnstyledFieldIntroduction() {
   return (
     <Field.Root style={{ width: 250 }}>
       <div style={{ display: 'flex', gap: 8 }}>
