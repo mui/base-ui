@@ -5,9 +5,9 @@ import * as Field from '@base_ui/react/Field';
 export default function UnstyledFieldIntroduction() {
   return (
     <Field.Root style={{ width: 250 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Field.Label>Name</Field.Label>
-        <Field.Control required pattern="[a-zA-Z0-9]+" />
+        <FieldControl required pattern="[a-zA-Z0-9]+" />
       </div>
       <Field.Validity>
         {(validity, value) => {
@@ -35,9 +35,15 @@ export default function UnstyledFieldIntroduction() {
   );
 }
 
-export const FieldLabel = styled(Field.Label)``;
+const FieldControl = styled(Field.Control)`
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  padding: 6px;
+`;
 
-export const FieldMessage = styled(Field.Message)`
+const FieldMessage = styled(Field.Message)`
   font-size: 90%;
   margin: 0;
   margin-top: 4px;

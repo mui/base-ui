@@ -1,0 +1,15 @@
+<FieldsetRoot>
+  <FieldsetLegend>Account details</FieldsetLegend>
+  <Field.Root>
+    <Field.Label>Name</Field.Label>
+    <FieldControl />
+  </Field.Root>
+  <Field.Root>
+    <Field.Label>Address</Field.Label>
+    <FieldControl />
+  </Field.Root>
+  <Field.Root>
+    <Field.Label>Notes</Field.Label>
+    <FieldControl render={<textarea />} />
+  </Field.Root>
+</FieldsetRoot>

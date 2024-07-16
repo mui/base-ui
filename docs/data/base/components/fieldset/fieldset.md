@@ -6,7 +6,7 @@ githubLabel: 'component: fieldset'
 packageName: '@base_ui/react'
 ---
 
-# Field
+# Fieldset
 
 <p class="description">Fieldsets group multiple fields together with a label.</p>
 
@@ -61,18 +61,18 @@ Fieldsets are composed of two components:
 
 ```jsx
 <Fieldset.Root>
-  <Fieldset.Legend>Account details</Fieldset.Label>
+  <Fieldset.Legend>Account details</Fieldset.Legend>
   <Field.Root>
     <Field.Label>Name</Field.Label>
     <Field.Control />
   </Field.Root>
   <Field.Root>
-    <Field.Label>Password</Field.Label>
-    <Field.Control type="password" />
-  </Field.Root>
-  <Field.Root>
     <Field.Label>Address</Field.Label>
     <Field.Control />
+  </Field.Root>
+  <Field.Root>
+    <Field.Label>Notes</Field.Label>
+    <Field.Control render={<textarea />} />
   </Field.Root>
 </Fieldset.Root>
 ```
