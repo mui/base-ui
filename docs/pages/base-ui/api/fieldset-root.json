@@ -8,7 +8,10 @@
     "import * as Fieldset from '@base_ui/react/Fieldset';\nconst FieldsetRoot = Fieldset.Root;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "FieldsetRoot",
+  "forwardsRefTo": "HTMLFieldSetElement",
   "filename": "/packages/mui-base/src/Fieldset/Root/FieldsetRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-fieldset/\">Field</a></li></ul>",
