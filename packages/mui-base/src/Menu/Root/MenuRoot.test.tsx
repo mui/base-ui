@@ -75,9 +75,12 @@ describe('<Menu.Root />', () => {
       });
 
       await userEvent.keyboard('[Enter]');
-
       const item1 = getByTestId('item-1');
       const item3 = getByTestId('item-3');
+
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
 
       await userEvent.keyboard('{End}');
       await waitFor(() => {
