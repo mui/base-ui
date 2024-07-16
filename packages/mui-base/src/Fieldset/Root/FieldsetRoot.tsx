@@ -22,7 +22,7 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { labelId, setLabelId, getRootProps } = useFieldsetRoot();
+  const { legendId, setLegendId, getRootProps } = useFieldsetRoot();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -35,10 +35,10 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 
   const contextValue = React.useMemo(
     () => ({
-      labelId,
-      setLabelId,
+      legendId,
+      setLegendId,
     }),
-    [labelId, setLabelId],
+    [legendId, setLegendId],
   );
 
   return (

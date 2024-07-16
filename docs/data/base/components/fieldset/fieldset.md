@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Fieldset component and hook
-components: FieldsetRoot, FieldsetLabel
+components: FieldsetRoot, FieldsetLegend
 githubLabel: 'component: fieldset'
 packageName: '@base_ui/react'
 ---
@@ -14,7 +14,7 @@ packageName: '@base_ui/react'
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
-{{"demo": "UnstyledFieldIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+{{"demo": "UnstyledFieldsetIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
 ## Installation
 
@@ -47,11 +47,11 @@ import * as Fieldset from '@base_ui/react/Fieldset';
 Fieldsets are composed of two components:
 
 - `<Fieldset.Root />` renders the `fieldset` element.
-- `<Fieldset.Label />` renders a label for the fieldset.
+- `<Fieldset.Legend />` renders a label for the fieldset.
 
 ```jsx
 <Fieldset.Root>
-  <Fieldset.Label />
+  <Fieldset.Legend />
 </Fieldset.Root>
 ```
 
@@ -61,7 +61,7 @@ Fieldsets are composed of two components:
 
 ```jsx
 <Fieldset.Root>
-  <Fieldset.Label>Account details</Fieldset.Label>
+  <Fieldset.Legend>Account details</Fieldset.Label>
   <Field.Root>
     <Field.Label>Name</Field.Label>
     <Field.Control />

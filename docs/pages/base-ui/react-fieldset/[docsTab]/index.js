@@ -3,7 +3,7 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/fieldset/fieldset.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
-import FieldsetLabelApiJsonPageContent from '../../api/fieldset-label.json';
+import FieldsetLegendApiJsonPageContent from '../../api/fieldset-legend.json';
 import FieldsetRootApiJsonPageContent from '../../api/fieldset-root.json';
 
 export default function Page(props) {
@@ -23,12 +23,12 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const FieldsetLabelApiReq = require.context(
-    'docs-base/translations/api-docs/fieldset-label',
+  const FieldsetLegendApiReq = require.context(
+    'docs-base/translations/api-docs/fieldset-legend',
     false,
-    /\.\/fieldset-label.*.json$/,
+    /\.\/fieldset-legend.*.json$/,
   );
-  const FieldsetLabelApiDescriptions = mapApiPageTranslations(FieldsetLabelApiReq);
+  const FieldsetLegendApiDescriptions = mapApiPageTranslations(FieldsetLegendApiReq);
 
   const FieldsetRootApiReq = require.context(
     'docs-base/translations/api-docs/fieldset-root',
@@ -40,11 +40,11 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
-        FieldsetLabel: FieldsetLabelApiDescriptions,
+        FieldsetLegend: FieldsetLegendApiDescriptions,
         FieldsetRoot: FieldsetRootApiDescriptions,
       },
       componentsApiPageContents: {
-        FieldsetLabel: FieldsetLabelApiJsonPageContent,
+        FieldsetLegend: FieldsetLegendApiJsonPageContent,
         FieldsetRoot: FieldsetRootApiJsonPageContent,
       },
       hooksApiDescriptions: {},

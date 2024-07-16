@@ -4,30 +4,31 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
 
-interface UseFieldsetRootParameters {
+interface UseFieldsetLegendParameters {
   id?: string;
 }
+
 /**
  *
  * API:
  *
- * - [useFieldsetLabel API](https://mui.com/base-ui/api/use-fieldset-label/)
+ * - [useFieldsetLegend API](https://mui.com/base-ui/api/use-fieldset-legend/)
  */
-export function useFieldsetLabel(params: UseFieldsetRootParameters) {
+export function useFieldsetLegend(params: UseFieldsetLegendParameters) {
   const { id: idProp } = params;
 
-  const { setLabelId } = useFieldsetRootContext();
+  const { setLegendId } = useFieldsetRootContext();
 
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
-    setLabelId(id);
+    setLegendId(id);
     return () => {
-      setLabelId(undefined);
+      setLegendId(undefined);
     };
-  }, [setLabelId, id]);
+  }, [setLegendId, id]);
 
-  const getLabelProps = React.useCallback(
+  const getLegendProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
@@ -37,8 +38,8 @@ export function useFieldsetLabel(params: UseFieldsetRootParameters) {
 
   return React.useMemo(
     () => ({
-      getLabelProps,
+      getLegendProps,
     }),
-    [getLabelProps],
+    [getLegendProps],
   );
 }

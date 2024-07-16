@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 interface FieldsetRootContextValue {
-  labelId: string | undefined;
-  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  legendId: string | undefined;
+  setLegendId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export const FieldsetRootContext = React.createContext<FieldsetRootContextValue | null>(null);

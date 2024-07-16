@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { FieldsetLabelProps } from './FieldsetLabel.types';
+import type { FieldsetLegendProps } from './FieldsetLegend.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useFieldsetLabel } from './useFieldsetLabel';
+import { useFieldsetLegend } from './useFieldsetLegend';
 
 /**
  * Renders an element that labels the fieldset.
@@ -13,18 +13,18 @@ import { useFieldsetLabel } from './useFieldsetLabel';
  *
  * API:
  *
- * - [FieldsetLabel API](https://mui.com/base-ui/react-field/components-api/#fieldset-root)
+ * - [FieldsetLegend API](https://mui.com/base-ui/react-field/components-api/#fieldset-root)
  */
-const FieldsetLabel = React.forwardRef(function FieldsetLabel(
-  props: FieldsetLabelProps,
+const FieldsetLegend = React.forwardRef(function FieldsetLegend(
+  props: FieldsetLegendProps,
   forwardedRef: React.Ref<HTMLElement>,
 ) {
   const { render, className, id, ...otherProps } = props;
 
-  const { getLabelProps } = useFieldsetLabel({ id });
+  const { getLegendProps } = useFieldsetLegend({ id });
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getLabelProps,
+    propGetter: getLegendProps,
     ref: forwardedRef,
     render: render ?? 'span',
     className,
@@ -35,7 +35,7 @@ const FieldsetLabel = React.forwardRef(function FieldsetLabel(
   return renderElement();
 });
 
-FieldsetLabel.propTypes /* remove-proptypes */ = {
+FieldsetLegend.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -58,4 +58,4 @@ FieldsetLabel.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { FieldsetLabel };
+export { FieldsetLegend };

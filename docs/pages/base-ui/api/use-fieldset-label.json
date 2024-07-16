@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldsetLabel",
-  "filename": "/packages/mui-base/src/Fieldset/Label/useFieldsetLabel.ts",
-  "imports": ["import { useFieldsetLabel } from '@base_ui/react/Fieldset';"],
-  "demos": "<ul></ul>"
-}

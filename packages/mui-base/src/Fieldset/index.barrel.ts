@@ -1,5 +1,5 @@
 export * from './Root/FieldsetRoot';
-export * from './Label/FieldsetLabel';
+export * from './Legend/FieldsetLegend';
 
 export type * from './Root/FieldsetRoot.types';
-export type * from './Label/FieldsetLabel.types';
+export type * from './Legend/FieldsetLegend.types';

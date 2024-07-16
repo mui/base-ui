@@ -7,22 +7,22 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useFieldsetRoot API](https://mui.com/base-ui/api/use-fieldset-root/)
  */
 export function useFieldsetRoot() {
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+  const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
-        'aria-labelledby': labelId,
+        'aria-labelledby': legendId,
       }),
-    [labelId],
+    [legendId],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
-      labelId,
-      setLabelId,
+      legendId,
+      setLegendId,
     }),
-    [getRootProps, labelId],
+    [getRootProps, legendId],
   );
 }
