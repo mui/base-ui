@@ -31,8 +31,11 @@ describe('<Menu.Root />', () => {
 
       await userEvent.keyboard('[Enter]');
 
+      const item1 = getByTestId('item-1');
       const item2 = getByTestId('item-2');
       const item3 = getByTestId('item-3');
+
+      expect(item1).toHaveFocus();
 
       await userEvent.keyboard('{ArrowDown}');
       expect(item2).toHaveFocus();
@@ -351,7 +354,7 @@ describe('<Menu.Root />', () => {
         ['horizontal', 'rtl', 'ArrowDown', 'ArrowUp'],
       ] as const
     ).forEach(([orientation, direction, openKey, closeKey]) => {
-      it.skip(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu when the trigger is focused and the ${openKey} key is pressed`, async () => {
+      it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`, async () => {
         const { getByTestId, queryByTestId } = await render(
           <Menu.Root open orientation={orientation} dir={direction}>
             <Menu.Positioner>
@@ -379,46 +382,19 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard(`[${openKey}]`);
 
-        const submenu = queryByTestId('submenu');
+        let submenu = queryByTestId('submenu');
         expect(submenu).not.to.equal(null);
 
         const submenuItem1 = queryByTestId('submenu-item-1');
         expect(submenuItem1).not.to.equal(null);
         expect(submenuItem1).toHaveFocus();
-      });
-
-      it.skip(`closes a ${orientation} ${direction.toUpperCase()} nested menu when the trigger is focused and the ${closeKey} key is pressed`, async () => {
-        const { getByTestId } = await render(
-          <Menu.Root open orientation={orientation} dir={direction}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.Root defaultOpen orientation={orientation} dir={direction}>
-                  <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                  <Menu.Positioner>
-                    <Menu.Popup data-testid="submenu">
-                      <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
-                      <Menu.Item>2.2</Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Root>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Root>,
-        );
-
-        const submenuTrigger = getByTestId('submenu-trigger');
-        const submenu = getByTestId('submenu');
-        const submenuItem1 = getByTestId('submenu-item-1');
-
-        await act(() => {
-          submenuItem1.focus();
-        });
 
         await user.keyboard(`[${closeKey}]`);
 
+        submenu = queryByTestId('submenu');
+        expect(submenu).to.equal(null);
+
         expect(submenuTrigger).toHaveFocus();
-        expect(submenu).toBeInaccessible();
       });
     });
 

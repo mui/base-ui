@@ -23,6 +23,8 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
+  clickAndDragEnabled: false,
+  setClickAndDragEnabled: () => {},
 };
 
 describe('<Menu.Trigger />', () => {
@@ -30,7 +32,6 @@ describe('<Menu.Trigger />', () => {
   const user = userEvent.setup();
 
   describeConformance(<Menu.Trigger />, () => ({
-    inheritComponent: 'button',
     render: (node) => {
       return render(
         <FloatingTree>

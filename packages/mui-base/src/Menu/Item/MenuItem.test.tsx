@@ -23,6 +23,8 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
+  clickAndDragEnabled: false,
+  setClickAndDragEnabled: () => {},
 };
 
 describe('<Menu.Item />', () => {

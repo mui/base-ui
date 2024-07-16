@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '../../../test';
 
 const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
+  floatingRootContext: undefined as unknown as FloatingRootContext,
   getPositionerProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
@@ -21,6 +22,8 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
+  clickAndDragEnabled: false,
+  setClickAndDragEnabled: () => {},
 };
 
 describe('<Menu.Positioner />', () => {
@@ -44,7 +47,7 @@ describe('<Menu.Positioner />', () => {
       }
 
       function TestComponent() {
-        const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
+        const anchor = React.useRef<HTMLDivElement | null>(null);
 
         return (
           <div>
@@ -56,27 +59,23 @@ describe('<Menu.Positioner />', () => {
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Root>
-            <div data-testid="anchor" style={{ marginTop: '100px' }} ref={setAnchor} />
+            <div data-testid="anchor" style={{ marginTop: '100px' }} ref={anchor} />
           </div>
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      const { getByRole, getByTestId } = await render(<TestComponent />);
 
-      const popup = getByTestId('popup');
+      const popup = getByRole('menu');
       const anchor = getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
-      await new Promise<void>((resolve) => {
-        // position gets updated in the next frame
-        requestAnimationFrame(() => {
-          expect(popup.style.getPropertyValue('transform')).to.equal(
-            `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
-          );
-          resolve();
-        });
-      });
+      await flushMicrotasks();
+
+      expect(popup.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
+      );
     });
 
     it('should be placed at the specified position', async function test() {
@@ -98,7 +97,7 @@ describe('<Menu.Positioner />', () => {
 
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
-      const { getByTestId } = await render(
+      const { getByRole } = await render(
         <Menu.Root open>
           <Menu.Positioner side="bottom" alignment="start" anchor={virtualElement}>
             <Menu.Popup>
@@ -108,15 +107,9 @@ describe('<Menu.Positioner />', () => {
           </Menu.Positioner>
         </Menu.Root>,
       );
-      const popup = getByTestId('popup');
+      const popup = getByRole('menu');
 
-      await new Promise<void>((resolve) => {
-        // position gets updated in the next frame
-        requestAnimationFrame(() => {
-          expect(popup.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
-          resolve();
-        });
-      });
+      expect(popup.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
     });
   });
 });
