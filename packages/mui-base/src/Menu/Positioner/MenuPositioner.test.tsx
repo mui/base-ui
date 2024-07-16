@@ -52,7 +52,7 @@ describe('<Menu.Positioner />', () => {
         return (
           <div>
             <Menu.Root open>
-              <Menu.Positioner side="bottom" alignment="start" anchor={anchor}>
+              <Menu.Positioner side="bottom" alignment="start" anchor={anchor} arrowPadding={0}>
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
                   <Menu.Item>2</Menu.Item>
@@ -97,9 +97,9 @@ describe('<Menu.Positioner />', () => {
 
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
-      const { getByRole } = await render(
+      const { getByRole, debug } = await render(
         <Menu.Root open>
-          <Menu.Positioner side="bottom" alignment="start" anchor={virtualElement}>
+          <Menu.Positioner side="bottom" alignment="start" anchor={virtualElement} arrowPadding={0}>
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
               <Menu.Item>2</Menu.Item>

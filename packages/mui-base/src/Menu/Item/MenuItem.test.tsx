@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent, act } from '@mui/internal-test-utils';
+import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
@@ -78,7 +78,7 @@ describe('<Menu.Item />', () => {
     );
 
     const menuItems = getAllByRole('menuitem');
-    act(() => {
+    await act(() => {
       menuItems[0].focus();
     });
 
@@ -94,8 +94,10 @@ describe('<Menu.Item />', () => {
     // React renders twice in strict mode, so we expect twice the number of spy calls
     // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
-    expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
-    expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+    await waitFor(() => {
+      expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+      expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+    });
 
     // neither the highlighted nor the selected state of these options changed,
     // so they don't need to rerender:
