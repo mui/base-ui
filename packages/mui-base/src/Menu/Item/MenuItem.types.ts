@@ -26,4 +26,10 @@ export interface MenuItemProps extends BaseUIComponentProps<'div', MenuItemOwner
    */
   disableFocusOnHover?: boolean;
   id?: string;
+  /**
+   * If `true`, the menu will close when the menu item is clicked.
+   *
+   * @default true
+   */
+  closeOnClick?: boolean;
 }

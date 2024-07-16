@@ -1,5 +1,6 @@
 {
   "props": {
+    "closeOnClick": { "type": { "name": "bool" }, "default": "true" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "disableFocusOnHover": { "type": { "name": "bool" }, "default": "false" },
     "label": { "type": { "name": "string" } }

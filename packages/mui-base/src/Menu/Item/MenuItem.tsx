@@ -24,6 +24,7 @@ const InnerMenuItem = React.memo(
   ) {
     const {
       className,
+      closeOnClick = true,
       disabled = false,
       highlighted,
       id,
@@ -35,7 +36,7 @@ const InnerMenuItem = React.memo(
     } = props;
 
     const { getRootProps } = useMenuItem({
-      closeOnClick: true,
+      closeOnClick,
       disabled,
       highlighted,
       id,
@@ -111,6 +112,12 @@ MenuItem.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
+  /**
+   * If `true`, the menu will close when the menu item is clicked.
+   *
+   * @default true
+   */
+  closeOnClick: PropTypes.bool,
   /**
    * If `true`, the menu item will be disabled.
    * @default false

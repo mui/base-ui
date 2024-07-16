@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import userEvent from '@testing-library/user-event';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
@@ -29,6 +30,7 @@ const testRootContext: MenuRootContext = {
 
 describe('<Menu.Item />', () => {
   const { render } = createRenderer();
+  const user = userEvent.setup();
 
   describeConformance(<Menu.Item />, () => ({
     render: (node) => {
@@ -103,5 +105,49 @@ describe('<Menu.Item />', () => {
     // so they don't need to rerender:
     expect(renderItem3Spy.callCount).to.equal(0);
     expect(renderItem4Spy.callCount).to.equal(0);
+  });
+
+  describe('prop: closeOnClick', () => {
+    it('closes the menu when the item is clicked by default', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const item = getByRole('menuitem');
+      await user.click(item);
+
+      expect(queryByRole('menu')).to.equal(null);
+    });
+
+    it('when `closeOnClick=false` does not close the menu when the item is clicked', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item closeOnClick={false}>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const item = getByRole('menuitem');
+      await user.click(item);
+
+      expect(queryByRole('menu')).not.to.equal(null);
+    });
   });
 });
