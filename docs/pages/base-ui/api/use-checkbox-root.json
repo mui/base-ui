@@ -1,12 +1,5 @@
 {
   "parameters": {
-    "setControlId": {
-      "type": {
-        "name": "React.Dispatch&lt;React.SetStateAction&lt;string | undefined&gt;&gt;",
-        "description": "React.Dispatch&lt;React.SetStateAction&lt;string | undefined&gt;&gt;"
-      },
-      "required": true
-    },
     "autoFocus": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "checked": { "type": { "name": "boolean", "description": "boolean" }, "default": "undefined" },
     "defaultChecked": {
@@ -25,7 +18,6 @@
         "description": "React.Ref&lt;HTMLInputElement&gt;"
       }
     },
-    "messageIds": { "type": { "name": "string[]", "description": "string[]" } },
     "name": { "type": { "name": "string", "description": "string" }, "default": "undefined" },
     "onCheckedChange": {
       "type": {

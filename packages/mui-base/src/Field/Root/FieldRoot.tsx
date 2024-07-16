@@ -24,12 +24,11 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const { render, className, ...otherProps } = props;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
-  const [controlElement, setControlElement] = React.useState<Element | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
   const [validityData, setValidityData] = React.useState<ValidityData>({
     validityState: DEFAULT_VALIDITY_STATE,
     validityMessage: '',
-    value: null,
+    value: undefined,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -48,10 +47,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setMessageIds,
       validityData,
       setValidityData,
-      controlElement,
-      setControlElement,
     }),
-    [controlId, messageIds, validityData, controlElement],
+    [controlId, messageIds, validityData],
   );
 
   return (

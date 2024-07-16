@@ -6,6 +6,9 @@ import { useForkRef } from '../../utils/useForkRef';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useId } from '../../utils/useId';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The basic building block for creating custom switches.
@@ -20,6 +23,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
  */
 export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootReturnValue {
   const {
+    id: idProp,
     checked: checkedProp,
     defaultChecked,
     disabled,
@@ -30,7 +34,17 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     inputRef: externalInputRef,
   } = params;
 
+  const { setControlId, messageIds, setValidityData } = useFieldRootContext();
+
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef);
@@ -50,6 +64,17 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         'aria-checked': checked,
         'aria-disabled': disabled,
         'aria-readonly': readOnly,
+        'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
+        onBlur() {
+          const element = inputRef.current;
+          if (element) {
+            setValidityData({
+              validityState: element.validity,
+              validityMessage: element.validationMessage,
+              value: element.checked,
+            });
+          }
+        },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
             return;
@@ -58,7 +83,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, readOnly],
+    [checked, disabled, messageIds, readOnly, setValidityData],
   );
 
   const getInputProps = React.useCallback(

@@ -23,15 +23,13 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 ) {
   const { render, id, className, show, ...otherProps } = props;
 
-  const { validityData, controlElement } = useFieldRootContext();
-
-  const element = controlElement as HTMLInputElement | null;
+  const { validityData } = useFieldRootContext();
 
   let rendered = show == null;
   if (typeof show === 'string' && validityData.validityState[show]) {
     rendered = true;
   }
-  if (element && typeof show === 'function' && show(validityData.value, element)) {
+  if (typeof show === 'function' && show(validityData.value)) {
     rendered = true;
   }
 

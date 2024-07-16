@@ -7,8 +7,6 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   setControlId: () => {},
   messageIds: [],
   setMessageIds: () => {},
-  controlElement: undefined,
-  setControlElement: () => {},
   validityData: {
     validityState: DEFAULT_VALIDITY_STATE,
     validityMessage: '',

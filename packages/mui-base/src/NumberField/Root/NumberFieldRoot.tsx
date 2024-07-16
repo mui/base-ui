@@ -170,6 +170,10 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   max: PropTypes.number,
   /**
+   * Message id's that describe the number field input.
+   */
+  messageIds: PropTypes.arrayOf(PropTypes.string),
+  /**
    * The minimum value of the input element.
    */
   min: PropTypes.number,
@@ -197,6 +201,10 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
+  /**
+   * Sets the id of the input element.
+   */
+  setControlId: PropTypes.func.isRequired,
   /**
    * The small step value of the input element when incrementing while the meta key is held. Snaps
    * to multiples of this value.

@@ -16,6 +16,10 @@ export type SwitchContextValue = SwitchOwnerState;
 
 export interface UseSwitchRootParameters {
   /**
+   * The id of the switch element.
+   */
+  id?: string;
+  /**
    * If `true`, the switch is checked.
    */
   checked?: boolean;

@@ -21,10 +21,6 @@ export interface UseCheckboxRootParameters {
    */
   id?: string;
   /**
-   * The message id's of the component.
-   */
-  messageIds?: string[];
-  /**
    * Name of the underlying input element.
    *
    * @default undefined
@@ -83,10 +79,6 @@ export interface UseCheckboxRootParameters {
    * The ref to the input element.
    */
   inputRef?: React.Ref<HTMLInputElement>;
-  /**
-   * Sets the `id` of the input element.
-   */
-  setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export interface UseCheckboxRootReturnValue {

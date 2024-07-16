@@ -30,6 +30,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  * The basic building block for creating custom number fields.
@@ -65,12 +66,21 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
+  const { setControlId, setValidityData, messageIds } = useFieldRootContext();
+
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
   const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   const forceRender = useForcedRerendering();
 
@@ -150,6 +160,16 @@ export function useNumberFieldRoot(
 
     onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
+
+    if (inputRef.current) {
+      const element = inputRef.current;
+      setValidityData({
+        validityState: element.validity,
+        validityMessage: element.validationMessage,
+        value: validatedValue,
+      });
+    }
+
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
     // truth to sync the input value.
@@ -504,6 +524,7 @@ export function useNumberFieldRoot(
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
+        'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;
@@ -677,6 +698,7 @@ export function useNumberFieldRoot(
       readOnly,
       inputMode,
       invalid,
+      messageIds,
       inputValue,
       formatOptionsRef,
       setValue,

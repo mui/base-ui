@@ -13,7 +13,6 @@
     "id": { "description": "The id of the input element." },
     "indeterminate": { "description": "If <code>true</code>, the checkbox will be indeterminate." },
     "inputRef": { "description": "The ref to the input element." },
-    "messageIds": { "description": "The message id&#39;s of the component." },
     "name": { "description": "Name of the underlying input element." },
     "onCheckedChange": {
       "description": "Callback fired when the checked state is changed.",

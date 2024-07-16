@@ -7,6 +7,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -22,8 +23,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
   const {
     id: idProp,
-    messageIds,
-    setControlId,
     checked: externalChecked,
     inputRef: externalInputRef,
     name,
@@ -35,6 +34,8 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     autoFocus = false,
     indeterminate = false,
   } = params;
+
+  const { setControlId, messageIds, setValidityData } = useFieldRootContext();
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useId(idProp);
@@ -73,7 +74,16 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': id,
         'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
-        ...externalProps,
+        onBlur() {
+          const element = inputRef.current;
+          if (element) {
+            setValidityData({
+              validityState: element.validity,
+              validityMessage: element.validationMessage,
+              value: element.checked,
+            });
+          }
+        },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
             return;
@@ -84,7 +94,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [indeterminate, checked, disabled, readOnly, id, messageIds],
+    [indeterminate, checked, disabled, readOnly, id, messageIds, setValidityData],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(

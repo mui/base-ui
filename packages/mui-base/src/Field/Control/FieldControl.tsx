@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldControlProps } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The field's control element.
@@ -24,15 +22,12 @@ const FieldControl = React.forwardRef(function FieldControl(
 ) {
   const { render, id, className, ...otherProps } = props;
 
-  const { setControlElement } = useFieldRootContext();
   const { getControlProps } = useFieldControl({ id });
-
-  const mergedRef = useForkRef(setControlElement, forwardedRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getControlProps,
     render: render ?? 'input',
-    ref: mergedRef,
+    ref: forwardedRef,
     className,
     ownerState: {},
     extraProps: otherProps,

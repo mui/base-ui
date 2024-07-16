@@ -16,11 +16,13 @@
       "description": "The large step value of the input element when incrementing while the shift key is held. Snaps to multiples of this value."
     },
     "max": { "description": "The maximum value of the input element." },
+    "messageIds": { "description": "Message id&#39;s that describe the number field input." },
     "min": { "description": "The minimum value of the input element." },
     "name": { "description": "The name of the input element." },
     "onValueChange": { "description": "Callback fired when the number value changes." },
     "readOnly": { "description": "If <code>true</code>, the input element is read only." },
     "required": { "description": "If <code>true</code>, the input element is required." },
+    "setControlId": { "description": "Sets the id of the input element." },
     "smallStep": {
       "description": "The small step value of the input element when incrementing while the meta key is held. Snaps to multiples of this value."
     },

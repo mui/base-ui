@@ -123,10 +123,11 @@ In addition to the native HTML constraint validation, you can also add custom va
 <Field.Root>
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Message show={(value, control) => value === 'password'}>
+  <Field.Message show={(value) => value === 'password'}>
     Cannot literally use `password` as your password.
   </Field.Message>
 </Field.Root>
 ```
 
-The control element itself is passed as a second argument in case the `value` prop is not suitable to perform the conditional checks.
+- For Base UI Input components, this represents the component's value type. For `NumberField` or `Slider`, it's `number | null`, while for `Checkbox` and `Switch`, it's `boolean`.
+- For native elements, it is always the native `element.value` DOM property.
