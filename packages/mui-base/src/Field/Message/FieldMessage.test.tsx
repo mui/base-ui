@@ -6,7 +6,7 @@ import { describeConformance } from '../../../test/describeConformance';
 describe('<Field.Description />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Field.Description />, () => ({
+  describeConformance(<Field.Message />, () => ({
     inheritComponent: 'p',
     refInstanceof: window.HTMLParagraphElement,
     render(node) {
