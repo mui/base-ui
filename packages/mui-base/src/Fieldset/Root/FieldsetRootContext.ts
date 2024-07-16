@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface FieldsetRootContextValue {
+export interface FieldsetRootContextValue {
   legendId: string | undefined;
   setLegendId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }

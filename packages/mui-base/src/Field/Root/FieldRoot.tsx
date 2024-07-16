@@ -2,8 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { ValidityData, type FieldRootContextValue, type FieldRootProps } from './FieldRoot.types';
-import { FieldRootContext } from './FieldRootContext';
+import { ValidityData, type FieldRootProps } from './FieldRoot.types';
+import { FieldRootContext, FieldRootContextValue } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 
 /**

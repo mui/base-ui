@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { FieldsetRootProps } from './FieldsetRoot.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldsetRootContext } from './FieldsetRootContext';
+import { FieldsetRootContext, type FieldsetRootContextValue } from './FieldsetRootContext';
 import { useFieldsetRoot } from './useFieldsetRoot';
 
 /**
@@ -33,7 +33,7 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     extraProps: otherProps,
   });
 
-  const contextValue = React.useMemo(
+  const contextValue: FieldsetRootContextValue = React.useMemo(
     () => ({
       legendId,
       setLegendId,

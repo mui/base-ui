@@ -2,7 +2,7 @@ import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { ValidityData } from './FieldRoot.types';
 
-interface FieldRootContextValue {
+export interface FieldRootContextValue {
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
