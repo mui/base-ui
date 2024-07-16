@@ -97,7 +97,7 @@ describe('<Menu.Positioner />', () => {
 
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
-      const { getByRole, debug } = await render(
+      const { getByRole } = await render(
         <Menu.Root open>
           <Menu.Positioner side="bottom" alignment="start" anchor={virtualElement} arrowPadding={0}>
             <Menu.Popup>
@@ -107,8 +107,8 @@ describe('<Menu.Positioner />', () => {
           </Menu.Positioner>
         </Menu.Root>,
       );
-      const popup = getByRole('menu');
 
+      const popup = getByRole('menu');
       expect(popup.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
     });
   });
