@@ -71,7 +71,7 @@ All Base UI components are aware of Base UI's `Field` component. The label and d
     <Checkbox.Indicator />
   </Checkbox.Root>
   <Field.Label>My checkbox</Field.Label>
-  <Field.Description>My description</Field.Description>
+  <Field.Message>My description</Field.Message>
 </Field.Root>
 ```
 
@@ -81,7 +81,7 @@ When using a native control like `input` which is not aware of `Field` natively,
 <Field.Root>
   <Field.Control />
   <Field.Label>My input</Field.Label>
-  <Field.Description>My description</Field.Description>
+  <Field.Message>My description</Field.Message>
 </Field.Root>
 ```
 

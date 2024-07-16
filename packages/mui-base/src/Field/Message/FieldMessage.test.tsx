@@ -3,7 +3,7 @@ import { createRenderer } from '@mui/internal-test-utils';
 import * as Field from '@base_ui/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Field.Description />', () => {
+describe('<Field.Message />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Message />, () => ({
