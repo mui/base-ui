@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldMessageProps } from './FieldMessage.types';
+import type { FieldMessageOwnerState, FieldMessageProps } from './FieldMessage.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldMessage } from './useFieldMessage';
 
@@ -23,7 +23,7 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 ) {
   const { render, id, className, show, ...otherProps } = props;
 
-  const { validityData } = useFieldRootContext();
+  const { validityData, disabled } = useFieldRootContext();
 
   let rendered = show == null;
   if (typeof show === 'string' && validityData.validityState[show]) {
@@ -35,12 +35,16 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
   const { getMessageProps } = useFieldMessage({ id, rendered });
 
+  const ownerState: FieldMessageOwnerState = {
+    disabled,
+  };
+
   const { renderElement } = useComponentRenderer({
     propGetter: getMessageProps,
     render: render ?? 'p',
     ref: forwardedRef,
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
   });
 

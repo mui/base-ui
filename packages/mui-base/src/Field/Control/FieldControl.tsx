@@ -2,8 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldControlElement, FieldControlProps } from './FieldControl.types';
+import type {
+  FieldControlElement,
+  FieldControlOwnerState,
+  FieldControlProps,
+} from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
+import { useFieldRootContext } from '../Root/FieldRootContext';
 
 /**
  * The field's control element.
@@ -22,14 +27,20 @@ const FieldControl = React.forwardRef(function FieldControl(
 ) {
   const { render, id, className, ...otherProps } = props;
 
+  const { disabled } = useFieldRootContext();
+
   const { getControlProps } = useFieldControl({ id });
+
+  const ownerState: FieldControlOwnerState = {
+    disabled,
+  };
 
   const { renderElement } = useComponentRenderer({
     propGetter: getControlProps,
     render: render ?? 'input',
     ref: forwardedRef,
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
   });
 

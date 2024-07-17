@@ -26,7 +26,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     id: idProp,
     checked: checkedProp,
     defaultChecked,
-    disabled,
+    disabled: disabledProp,
     name,
     onCheckedChange: onCheckedChangeProp = () => {},
     readOnly,
@@ -34,7 +34,14 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     inputRef: externalInputRef,
   } = params;
 
-  const { setControlId, messageIds, setValidityData } = useFieldRootContext();
+  const {
+    setControlId,
+    messageIds,
+    setValidityData,
+    disabled: disabledContext,
+  } = useFieldRootContext();
+
+  const disabled = disabledContext ?? disabledProp;
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useId(idProp);

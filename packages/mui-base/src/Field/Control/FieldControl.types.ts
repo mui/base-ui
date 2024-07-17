@@ -1,7 +1,9 @@
-import { BaseUIComponentProps } from '@base_ui/react/utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 export type FieldControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
-export type FieldControlOwnerState = {};
+export type FieldControlOwnerState = {
+  disabled: boolean;
+};
 
 export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControlOwnerState> {}

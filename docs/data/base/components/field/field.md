@@ -63,7 +63,7 @@ Fields are implemented using a collection of related components:
 
 ## Accessibility
 
-All Base UI components are aware of Base UI's `Field` component. The label and description are automatically wired to it:
+All Base UI input components are aware of Base UI's `Field` component. The label and description are automatically wired to it when placed inside a `Field.Root`:
 
 ```jsx
 <Field.Root>
@@ -75,7 +75,7 @@ All Base UI components are aware of Base UI's `Field` component. The label and
 </Field.Root>
 ```
 
-When using a native control like `input` which is not aware of `Field` natively, use `Field.Control`, which renders an `input` by default:
+When using a native control like `input` or a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
 
 ```jsx
 <Field.Root>
@@ -85,7 +85,7 @@ When using a native control like `input` which is not aware of `Field` natively,
 </Field.Root>
 ```
 
-The `render` prop allows you to pass a custom component or tag, different from `input`:
+The `render` prop allows you to pass a custom component or tag, different from the default of `input`:
 
 ```jsx
 <Field.Control render={<select />} />
@@ -129,5 +129,4 @@ In addition to the native HTML constraint validation, you can also add custom va
 </Field.Root>
 ```
 
-- For Base UI Input components, this represents the component's value type. For `NumberField` or `Slider`, it's `number | null`, while for `Checkbox` and `Switch`, it's `boolean`.
-- For native elements, it is always the native `element.value` DOM property.
+For Base UI input components, this represents the component's value type, while for native elements, it is always the native `element.value` DOM property.

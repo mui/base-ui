@@ -6,6 +6,15 @@ export interface ValidityData {
   value: unknown;
 }
 
-export type FieldRootOwnerState = {};
+export type FieldRootOwnerState = {
+  disabled: boolean;
+};
 
-export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {}
+export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
+  /**
+   * Whether the field is disabled, adding a disabled style hook to all subcomponents as well as
+   * disabling the interactive control inside.
+   * @default false
+   */
+  disabled?: boolean;
+}

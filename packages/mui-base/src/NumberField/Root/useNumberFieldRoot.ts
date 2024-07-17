@@ -55,7 +55,7 @@ export function useNumberFieldRoot(
     step,
     largeStep = 10,
     required = false,
-    disabled = false,
+    disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
     autoFocus = false,
@@ -66,7 +66,14 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
-  const { setControlId, setValidityData, messageIds } = useFieldRootContext();
+  const {
+    setControlId,
+    setValidityData,
+    messageIds,
+    disabled: disabledContext,
+  } = useFieldRootContext();
+
+  const disabled = disabledContext ?? disabledProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { ValidityData, type FieldRootProps } from './FieldRoot.types';
+import { FieldRootOwnerState, ValidityData, type FieldRootProps } from './FieldRoot.types';
 import { FieldRootContext, FieldRootContextValue } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 
@@ -21,7 +21,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, disabled = false, ...otherProps } = props;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
@@ -31,11 +31,15 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     value: undefined,
   });
 
+  const ownerState: FieldRootOwnerState = {
+    disabled,
+  };
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     ref: forwardedRef,
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
   });
 
@@ -47,8 +51,9 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setMessageIds,
       validityData,
       setValidityData,
+      disabled,
     }),
-    [controlId, messageIds, validityData],
+    [controlId, messageIds, validityData, disabled],
   );
 
   return (
@@ -69,6 +74,12 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Whether the field is disabled, adding a disabled style hook to all subcomponents as well as
+   * disabling the interactive control inside.
+   * @default false
+   */
+  disabled: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

@@ -28,14 +28,21 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     name,
     onCheckedChange: onCheckedChangeProp = () => {},
     defaultChecked = false,
-    disabled = false,
+    disabled: disabledProp = false,
     readOnly = false,
     required = false,
     autoFocus = false,
     indeterminate = false,
   } = params;
 
-  const { setControlId, messageIds, setValidityData } = useFieldRootContext();
+  const {
+    setControlId,
+    messageIds,
+    setValidityData,
+    disabled: disabledContext,
+  } = useFieldRootContext();
+
+  const disabled = disabledContext ?? disabledProp;
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useId(idProp);

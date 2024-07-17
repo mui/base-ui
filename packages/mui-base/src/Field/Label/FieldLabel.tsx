@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldLabelProps } from './FieldLabel.types';
+import type { FieldLabelOwnerState, FieldLabelProps } from './FieldLabel.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 
@@ -22,16 +22,20 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { controlId } = useFieldRootContext();
+  const { controlId, disabled } = useFieldRootContext();
 
   const { getLabelProps } = useFieldLabel({ controlId });
+
+  const ownerState: FieldLabelOwnerState = {
+    disabled,
+  };
 
   const { renderElement } = useComponentRenderer({
     propGetter: getLabelProps,
     render: render ?? 'label',
     ref: forwardedRef,
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
   });
 

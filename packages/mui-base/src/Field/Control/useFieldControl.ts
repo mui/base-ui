@@ -17,7 +17,7 @@ interface UseFieldControlParameters {
 export function useFieldControl(params: UseFieldControlParameters) {
   const { id: idProp } = params;
 
-  const { setControlId, messageIds, setValidityData } = useFieldRootContext();
+  const { setControlId, messageIds, setValidityData, disabled } = useFieldRootContext();
 
   const id = useId(idProp);
 
@@ -32,6 +32,7 @@ export function useFieldControl(params: UseFieldControlParameters) {
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
         id,
+        disabled,
         'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
         onBlur(event) {
           const element = event.currentTarget;
@@ -42,7 +43,7 @@ export function useFieldControl(params: UseFieldControlParameters) {
           });
         },
       }),
-    [id, messageIds, setValidityData],
+    [id, disabled, messageIds, setValidityData],
   );
 
   return React.useMemo(

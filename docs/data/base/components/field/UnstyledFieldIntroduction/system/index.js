@@ -4,8 +4,8 @@ import * as Field from '@base_ui/react/Field';
 
 export default function UnstyledFieldIntroduction() {
   return (
-    <Field.Root style={{ width: 250 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
+    <Field.Root style={{ width: 250 }} disabled>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Field.Label>Name</Field.Label>
         <FieldControl required pattern="[a-zA-Z0-9]+" />
       </div>
@@ -40,6 +40,7 @@ const FieldControl = styled(Field.Control)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
+  padding: 6px;
 `;
 
 const FieldMessage = styled(Field.Message)`
