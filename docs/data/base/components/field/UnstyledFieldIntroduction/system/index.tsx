@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { styled } from '@mui/system';
 import * as Field from '@base_ui/react/Field';
+import { styled } from '@mui/system';
 
 export default function UnstyledFieldIntroduction() {
   return (
@@ -12,16 +12,16 @@ export default function UnstyledFieldIntroduction() {
       <Field.Validity>
         {(validity, value) => {
           if (
-            !validity.valueMissing &&
-            !validity.patternMismatch &&
-            value !== 'admin'
+            validity.valueMissing ||
+            validity.patternMismatch ||
+            value === 'admin'
           ) {
-            return (
-              <FieldMessage>Your name will be visible on your profile.</FieldMessage>
-            );
+            return null;
           }
 
-          return null;
+          return (
+            <FieldMessage>Your name will be visible on your profile.</FieldMessage>
+          );
         }}
       </Field.Validity>
       <FieldMessage data-error show="valueMissing" />
