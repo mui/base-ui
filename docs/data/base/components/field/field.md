@@ -75,7 +75,7 @@ All Base UI input components are aware of Base UI's `Field` component. The lab
 </Field.Root>
 ```
 
-When using a native control like `input` or a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
+When using a native control like `input` or a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
 
 ```jsx
 <Field.Root>
@@ -139,9 +139,9 @@ To access the raw `ValidityState` to render custom JSX, use the `Field.Validity`
 <Field.Root>
   <Field.Control />
   <Field.Validity>
-    {({validity, value}, ownerState) => /* ... */}
+    {({ validity, value }, ownerState) => <>{/* ... */}</>}
   </Field.Validity>
 </Field.Root>
 ```
 
-The first parameter contains the validity data and control value, while the second is the component's `ownerState` containing the `disabled: boolean` property.
+The first parameter contains the validity data and control value, while the second parameter is the `ownerState` containing the `disabled` state of the field.

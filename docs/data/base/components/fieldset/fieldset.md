@@ -71,7 +71,7 @@ Fieldsets are composed of two components:
     <Field.Control />
   </Field.Root>
   <Field.Root>
-    <Field.Label>Notes</Field.Label>
+    <Field.Label>Bio</Field.Label>
     <Field.Control render={<textarea />} />
   </Field.Root>
 </Fieldset.Root>

@@ -17,7 +17,7 @@ export default function UnstyledFieldsetIntroduction() {
       </Field.Root>
       <Field.Root>
         <Field.Label>Bio</Field.Label>
-        <FieldControl render={<textarea />} />
+        <FieldControl render={<textarea data-textarea />} />
       </Field.Root>
     </FieldsetRoot>
   );
@@ -25,6 +25,7 @@ export default function UnstyledFieldsetIntroduction() {
 
 const FieldsetRoot = styled(Fieldset.Root)`
   border: none;
+  width: 300px;
 `;
 
 const FieldsetLegend = styled(Fieldset.Legend)`
@@ -40,4 +41,10 @@ const FieldControl = styled(Field.Control)`
   width: 100%;
   padding: 6px;
   margin-bottom: 5px;
+
+  &[data-textarea] {
+    min-width: 300px;
+    max-width: 300px;
+    min-height: 100px;
+  }
 `;

@@ -10,6 +10,6 @@
   </Field.Root>
   <Field.Root>
     <Field.Label>Bio</Field.Label>
-    <FieldControl render={<textarea />} />
+    <FieldControl render={<textarea data-textarea />} />
   </Field.Root>
 </FieldsetRoot>
