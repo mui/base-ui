@@ -10,7 +10,7 @@ import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-fieldset/)
+ * - [Fieldset](https://mui.com/base-ui/react-fieldset/)
  *
  * API:
  *
