@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import { ValidityData } from './FieldRoot.types';
+import type { ValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
   controlId: string | undefined;

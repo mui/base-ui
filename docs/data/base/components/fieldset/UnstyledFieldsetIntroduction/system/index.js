@@ -35,7 +35,6 @@ const FieldsetLegend = styled(Fieldset.Legend)`
 `;
 
 const FieldControl = styled(Field.Control)`
-  padding: 4px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
