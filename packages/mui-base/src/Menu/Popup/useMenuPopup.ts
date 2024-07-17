@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.types';
+import { FloatingEvents } from '@floating-ui/react';
 
 /**
  *
@@ -8,7 +8,7 @@ import { UseMenuPopupParameters, UseMenuPopupReturnValue } from './useMenuPopup.
  *
  * - [useMenuPopup API](https://mui.com/base-ui/api/use-menu-popup/)
  */
-export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupReturnValue {
+export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.ReturnValue {
   const { menuEvents, setOpen } = parameters;
 
   React.useEffect(() => {
@@ -22,4 +22,13 @@ export function useMenuPopup(parameters: UseMenuPopupParameters): UseMenuPopupRe
       menuEvents.off('close', handleClose);
     };
   }, [menuEvents, setOpen]);
+}
+
+namespace useMenuPopup {
+  export interface Parameters {
+    menuEvents: FloatingEvents;
+    setOpen: (open: boolean, event: Event | undefined) => void;
+  }
+
+  export type ReturnValue = void;
 }

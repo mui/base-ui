@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
-import { UseMenuTriggerParameters, UseMenuTriggerReturnValue } from './useMenuTrigger.types';
+import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../useButton/useButton';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -12,7 +12,7 @@ import { ownerDocument } from '../../utils/owner';
  *
  * - [useMenuTrigger API](https://mui.com/base-ui/api/use-menu-trigger/)
  */
-export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTriggerReturnValue {
+export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const {
     disabled = false,
     rootRef: externalRef,
@@ -93,4 +93,36 @@ export function useMenuTrigger(parameters: UseMenuTriggerParameters): UseMenuTri
     }),
     [getRootProps, handleRef],
   );
+}
+
+export namespace useMenuTrigger {
+  export interface Parameters {
+    /**
+     * If `true`, the component is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * The ref to the root element.
+     */
+    rootRef?: React.Ref<HTMLElement>;
+    setTriggerElement: (element: HTMLElement | null) => void;
+    open: boolean;
+    setOpen: (open: boolean, event: Event | undefined) => void;
+    menuEvents: FloatingEvents;
+    setClickAndDragEnabled: (enabled: boolean) => void;
+  }
+
+  export interface ReturnValue {
+    /**
+     * Resolver for the root slot's props.
+     * @param externalProps props for the root slot
+     * @returns props that should be spread on the root slot
+     */
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    /**
+     * The ref to the root element.
+     */
+    rootRef: React.RefCallback<Element> | null;
+  }
 }

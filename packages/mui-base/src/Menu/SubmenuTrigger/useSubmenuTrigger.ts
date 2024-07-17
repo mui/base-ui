@@ -5,22 +5,6 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 
-namespace useSubmenuTrigger {
-  export interface Parameters {
-    id: string | undefined;
-    highlighted: boolean;
-    disabled: boolean;
-    rootRef?: React.Ref<Element>;
-    menuEvents: FloatingEvents;
-    setTriggerElement: (element: HTMLElement | null) => void;
-    clickAndDragEnabled: boolean;
-  }
-
-  export interface ReturnValue {
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  }
-}
-
 /**
  *
  * API:
@@ -64,4 +48,20 @@ export function useSubmenuTrigger(
     }),
     [getRootProps, menuTriggerRef],
   );
+}
+
+namespace useSubmenuTrigger {
+  export interface Parameters {
+    id: string | undefined;
+    highlighted: boolean;
+    disabled: boolean;
+    rootRef?: React.Ref<Element>;
+    menuEvents: FloatingEvents;
+    setTriggerElement: (element: HTMLElement | null) => void;
+    clickAndDragEnabled: boolean;
+  }
+
+  export interface ReturnValue {
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

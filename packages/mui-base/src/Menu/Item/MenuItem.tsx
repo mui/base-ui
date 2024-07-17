@@ -2,20 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
-import { MenuItemOwnerState, MenuItemProps } from './MenuItem.types';
 import { useMenuItem } from './useMenuItem';
+import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-
-interface InnerMenuItemProps extends MenuItemProps {
-  highlighted: boolean;
-  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  menuEvents: FloatingEvents;
-  clickAndDragEnabled: boolean;
-}
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -45,7 +37,7 @@ const InnerMenuItem = React.memo(
       clickAndDragEnabled,
     });
 
-    const ownerState: MenuItemOwnerState = { disabled, highlighted };
+    const ownerState: MenuItem.OwnerState = { disabled, highlighted };
 
     const { renderElement } = useComponentRenderer({
       render: render || 'div',
@@ -71,7 +63,7 @@ const InnerMenuItem = React.memo(
  * - [MenuItem API](https://mui.com/base-ui/react-menu/components-api/#menu-item)
  */
 const MenuItem = React.forwardRef(function MenuItem(
-  props: MenuItemProps,
+  props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { id: idProp, label, ...other } = props;
@@ -102,6 +94,48 @@ const MenuItem = React.forwardRef(function MenuItem(
     />
   );
 });
+
+interface InnerMenuItemProps extends MenuItem.Props {
+  highlighted: boolean;
+  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  menuEvents: FloatingEvents;
+  clickAndDragEnabled: boolean;
+}
+
+namespace MenuItem {
+  export type OwnerState = {
+    disabled: boolean;
+    highlighted: boolean;
+  };
+
+  export interface Props extends BaseUIComponentProps<'div', MenuItem.OwnerState> {
+    children?: React.ReactNode;
+    onClick?: React.MouseEventHandler<HTMLElement>;
+    /**
+     * If `true`, the menu item will be disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * A text representation of the menu item's content.
+     * Used for keyboard text navigation matching.
+     */
+    label?: string;
+    /**
+     * If `true`, the menu item won't receive focus when the mouse moves over it.
+     *
+     * @default false
+     */
+    disableFocusOnHover?: boolean;
+    id?: string;
+    /**
+     * If `true`, the menu will close when the menu item is clicked.
+     *
+     * @default true
+     */
+    closeOnClick?: boolean;
+  }
+}
 
 MenuItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

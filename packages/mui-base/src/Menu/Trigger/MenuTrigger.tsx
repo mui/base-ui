@@ -2,13 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
-import { MenuTriggerOwnerState, MenuTriggerProps } from './MenuTrigger.types';
 import { useMenuTrigger } from './useMenuTrigger';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { BaseUIComponentProps } from '../../utils/types';
 
 const MenuTrigger = React.forwardRef(function MenuTrigger(
-  props: MenuTriggerProps,
+  props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, disabled = false, label, ...other } = props;
@@ -34,7 +34,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setClickAndDragEnabled,
   });
 
-  const ownerState: MenuTriggerOwnerState = {
+  const ownerState: MenuTrigger.OwnerState = {
     open,
   };
 
@@ -51,6 +51,30 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   return renderElement();
 });
+
+export namespace MenuTrigger {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+    children?: React.ReactNode;
+    /**
+     * If `true`, the component is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * If `true`, allows a disabled button to receive focus.
+     * @default false
+     */
+    focusableWhenDisabled?: boolean;
+    /**
+     * Label of the button
+     */
+    label?: string;
+  }
+
+  export type OwnerState = {
+    open: boolean;
+  };
+}
 
 MenuTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

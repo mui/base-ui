@@ -33,18 +33,20 @@ export default function MenuIntroduction() {
   );
 }
 
-const MenuPopup = React.forwardRef<HTMLDivElement, Menu.PopupProps>((props, ref) => {
-  const classes = `
+const MenuPopup = React.forwardRef<HTMLDivElement, Menu.Popup.Props>(
+  (props, ref) => {
+    const classes = `
     text-sm box-border font-sans p-1.5 my-3 mx-0 rounded-xl overflow-auto outline-0
     bg-white dark:bg-slate-900 border border-solid border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-300
     min-w-listbox shadow-md dark:shadow-slate-900
     [.open_&]:opacity-100 [.open_&]:scale-100 [.closed_&]:opacity-0 [.closed_&]:scale-90
     transition-[opacity,transform]  [.placement-top_&]:origin-bottom [.placement-bottom_&]:origin-top`;
 
-  return <Menu.Popup ref={ref} {...props} className={classes} />;
-});
+    return <Menu.Popup ref={ref} {...props} className={classes} />;
+  },
+);
 
-const MenuButton = React.forwardRef<HTMLButtonElement, Menu.TriggerProps>(
+const MenuButton = React.forwardRef<HTMLButtonElement, Menu.Trigger.Props>(
   (props, ref) => {
     const classes = `
     cursor-pointer text-sm font-sans box-border rounded-lg font-semibold px-4 py-2 bg-white dark:bg-slate-900
@@ -56,7 +58,7 @@ const MenuButton = React.forwardRef<HTMLButtonElement, Menu.TriggerProps>(
   },
 );
 
-const MenuItem = React.forwardRef<HTMLLIElement, Menu.ItemProps>((props, ref) => {
+const MenuItem = React.forwardRef<HTMLLIElement, Menu.Item.Props>((props, ref) => {
   const classes = `
     list-none p-2 rounded-lg cursor-default select-none last-of-type:border-b-0 focus:shadow-outline-purple
     focus:outline-0 focus:bg-slate-100 focus:dark:bg-slate-800 focus:text-slate-900 focus:dark:text-slate-300 disabled:text-slate-400 disabled:dark:text-slate-700 disabled:hover:text-slate-400 disabled:hover:dark:text-slate-700

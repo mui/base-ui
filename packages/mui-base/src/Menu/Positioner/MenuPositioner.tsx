@@ -6,20 +6,16 @@ import {
   FloatingList,
   FloatingNode,
   FloatingPortal,
+  Side,
   useFloatingNodeId,
 } from '@floating-ui/react';
-import type {
-  MenuPositionerContextValue,
-  MenuPositionerOwnerState,
-  MenuPositionerProps,
-} from './MenuPositioner.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositioner } from './useMenuPositioner';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
-import { GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 
 /**
  * Renders the element that positions the Menu popup.
@@ -32,8 +28,8 @@ import { GenericHTMLProps } from '../../utils/types';
  *
  * - [MenuPositioner API](https://mui.com/base-ui/react-Menu/components-api/#Menu-positioner)
  */
-const MenuPositioner = React.forwardRef(function MenuPositioner(
-  props: MenuPositionerProps,
+const MenuPositioner = React.forwardRef(function MenuPositionerComponent(
+  props: MenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -87,7 +83,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     nodeId,
   });
 
-  const ownerState: MenuPositionerOwnerState = React.useMemo(
+  const ownerState: MenuPositioner.OwnerState = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -96,7 +92,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     [open, positioner.side, positioner.alignment],
   );
 
-  const contextValue: MenuPositionerContextValue = React.useMemo(
+  const contextValue: MenuPositionerContext = React.useMemo(
     () => ({
       side: positioner.side,
       alignment: positioner.alignment,
@@ -149,6 +145,20 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     </MenuPositionerContext.Provider>
   );
 });
+
+export { MenuPositioner };
+
+export namespace MenuPositioner {
+  export type OwnerState = {
+    open: boolean;
+    side: Side;
+    alignment: 'start' | 'end' | 'center';
+  };
+
+  export interface Props
+    extends useMenuPositioner.SharedParameters,
+      BaseUIComponentProps<'div', OwnerState> {}
+}
 
 MenuPositioner.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -254,5 +264,3 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   sticky: PropTypes.bool,
 } as any;
-
-export { MenuPositioner };

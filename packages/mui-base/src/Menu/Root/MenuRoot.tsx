@@ -2,11 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
-import { MenuRootProps } from './MenuRoot.types';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { useMenuRoot } from './useMenuRoot';
+import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
 
-function MenuRoot(props: MenuRootProps) {
+function MenuRoot(props: MenuRoot.Props) {
   const {
     animated = true,
     children,
@@ -65,6 +64,44 @@ function MenuRoot(props: MenuRootProps) {
   }
 
   return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+}
+
+namespace MenuRoot {
+  export interface Props {
+    /**
+     * If `true`, the menu supports CSS-based animations and transitions.
+     * It is kept in the DOM until the animation completes.
+     *
+     * @default true
+     */
+    animated?: boolean;
+    children: React.ReactNode;
+    /**
+     * If `true`, the dropdown is initially open.
+     */
+    defaultOpen?: boolean;
+    /**
+     * Callback fired when the component requests to be opened or closed.
+     */
+    onOpenChange?: (open: boolean, event: Event | undefined) => void;
+    /**
+     * Allows to control whether the dropdown is open.
+     * This is a controlled counterpart of `defaultOpen`.
+     */
+    open?: boolean;
+    orientation?: MenuOrientation;
+    dir?: MenuDirection;
+    disabled?: boolean;
+    /**
+     * Determines if pressing the Esc key closes the parent menus.
+     * This is only applicable for nested menus.
+     *
+     * If set to `false` pressing Esc closes only the current menu.
+     *
+     * @default true
+     */
+    escapeClosesParents?: boolean;
+  }
 }
 
 MenuRoot.propTypes /* remove-proptypes */ = {

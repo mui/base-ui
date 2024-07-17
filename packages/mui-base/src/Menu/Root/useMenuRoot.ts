@@ -10,8 +10,8 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
+  FloatingRootContext,
 } from '@floating-ui/react';
-import { UseMenuRootParameters, UseMenuRootReturnValue } from './useMenuRoot.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -27,7 +27,7 @@ const EMPTY_ARRAY: never[] = [];
  *
  * - [useMenuRoot API](https://mui.com/base-ui/api/use-menu-root/)
  */
-export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootReturnValue {
+export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
     animated,
     open: openParam,
@@ -173,12 +173,11 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
         itemDomElements,
         itemLabels,
         mounted,
-        setMounted,
         transitionStatus,
         popupRef,
         open,
         setOpen,
-      }) satisfies UseMenuRootReturnValue,
+      }) satisfies useMenuRoot.ReturnValue,
     [
       activeIndex,
       floatingRootContext,
@@ -189,10 +188,45 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
       itemDomElements,
       itemLabels,
       mounted,
-      setMounted,
       transitionStatus,
       open,
       setOpen,
     ],
   );
+}
+
+export type MenuOrientation = 'horizontal' | 'vertical';
+
+export type MenuDirection = 'ltr' | 'rtl';
+
+export namespace useMenuRoot {
+  export interface Parameters {
+    animated: boolean;
+    open: boolean | undefined;
+    onOpenChange: ((open: boolean, event: Event | undefined) => void) | undefined;
+    defaultOpen: boolean;
+    orientation: MenuOrientation;
+    direction: MenuDirection;
+    disabled: boolean;
+    nested: boolean;
+    escapeClosesParents: boolean;
+  }
+
+  export interface ReturnValue {
+    activeIndex: number | null;
+    floatingRootContext: FloatingRootContext;
+    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
+    itemLabels: React.MutableRefObject<(string | null)[]>;
+    mounted: boolean;
+    open: boolean;
+    popupRef: React.RefObject<HTMLElement | null>;
+    setOpen: (open: boolean, event: Event | undefined) => void;
+    setPositionerElement: (element: HTMLElement | null) => void;
+    setTriggerElement: (element: HTMLElement | null) => void;
+    transitionStatus: 'entering' | 'exiting' | undefined;
+    triggerElement: HTMLElement | null;
+  }
 }

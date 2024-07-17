@@ -1,28 +1,12 @@
 import * as React from 'react';
-import { FloatingRootContext } from '@floating-ui/react';
-import { GenericHTMLProps } from '../../utils/types';
+import type { useMenuRoot } from './useMenuRoot';
 
-export interface MenuRootContext {
-  floatingRootContext: FloatingRootContext;
-  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  triggerElement: HTMLElement | null;
-  setTriggerElement: (element: HTMLElement | null) => void;
-  setPositionerElement: (element: HTMLElement | null) => void;
-  popupRef: React.RefObject<HTMLElement | null>;
+export interface MenuRootContext extends useMenuRoot.ReturnValue {
+  clickAndDragEnabled: boolean;
+  disabled: boolean;
   nested: boolean;
   parentContext: MenuRootContext | null;
-  activeIndex: number | null;
-  itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
-  itemLabels: React.MutableRefObject<(string | null)[]>;
-  open: boolean;
-  setOpen: (open: boolean, event: Event | undefined) => void;
-  disabled: boolean;
-  clickAndDragEnabled: boolean;
   setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
-  mounted: boolean;
-  transitionStatus: 'entering' | 'exiting' | undefined;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);

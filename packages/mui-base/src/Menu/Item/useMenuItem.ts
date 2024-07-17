@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { UseMenuItemParameters, UseMenuItemReturnValue } from './useMenuItem.types';
+import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -12,7 +12,7 @@ import { GenericHTMLProps } from '../../utils/types';
  *
  * - [useMenuItem API](https://mui.com/base-ui/api/use-menu-item/)
  */
-export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
+export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTrigger.ReturnValue {
   const {
     closeOnClick,
     disabled = false,
@@ -57,4 +57,29 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     getRootProps,
     rootRef: handleRef,
   };
+}
+
+namespace useSubmenuTrigger {
+  export interface Parameters {
+    closeOnClick: boolean;
+    disabled: boolean;
+    highlighted: boolean;
+    id: string | undefined;
+    menuEvents: FloatingEvents;
+    rootRef?: React.Ref<Element>;
+    clickAndDragEnabled: boolean;
+  }
+
+  export interface ReturnValue {
+    /**
+     * Resolver for the root slot's props.
+     * @param externalProps event handlers for the root slot
+     * @returns props that should be spread on the root slot
+     */
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    /**
+     * The ref to the component's root DOM element.
+     */
+    rootRef: React.RefCallback<Element> | null;
+  }
 }

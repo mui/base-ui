@@ -23,6 +23,7 @@ module.exports = {
     ...baseline.rules,
     // TODO move to @mui/monorepo, codebase is moving away from default exports https://github.com/mui/material-ui/issues/21862
     'import/prefer-default-export': 'off',
+    'import/export': 'off', // Mostly handled by Typescript itself. ESLint produces false positives with declaration merging.
     'no-restricted-imports': [
       'error',
       {

@@ -2,14 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
-import { MenuPopupOwnerState, MenuPopupProps } from './MenuPopup.types';
 import { useMenuPopup } from './useMenuPopup';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useForkRef } from '../../utils/useForkRef';
+import { BaseUIComponentProps } from '../../utils/types';
 
 const MenuPopup = React.forwardRef(function MenuPopup(
-  props: MenuPopupProps,
+  props: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...other } = props;
@@ -23,7 +23,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const ownerState: MenuPopupOwnerState = {
+  const ownerState: MenuPopup.OwnerState = {
     entering: transitionStatus === 'entering',
     exiting: transitionStatus === 'exiting',
   };
@@ -46,6 +46,21 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   return renderElement();
 });
+
+namespace MenuPopup {
+  export interface Props extends BaseUIComponentProps<'div', MenuPopup.OwnerState> {
+    /**
+     * A ref with imperative actions that can be performed on the menu.
+     */
+    children?: React.ReactNode;
+    id?: string;
+  }
+
+  export type OwnerState = {
+    entering: boolean;
+    exiting: boolean;
+  };
+}
 
 MenuPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
