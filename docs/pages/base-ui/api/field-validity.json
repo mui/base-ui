@@ -5,6 +5,8 @@
     "import * as Field from '@base_ui/react/Field';\nconst FieldValidity = Field.Validity;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
   "muiName": "FieldValidity",
   "filename": "/packages/mui-base/src/Field/Validity/FieldValidity.tsx",
   "inheritance": null,

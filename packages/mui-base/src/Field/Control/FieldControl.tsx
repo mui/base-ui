@@ -9,7 +9,6 @@ import type {
 } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 
 /**
  * The field's control element.
@@ -26,12 +25,10 @@ const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControlProps,
   forwardedRef: React.ForwardedRef<FieldControlElement>,
 ) {
-  const { render, id, className, ...otherProps } = props;
+  const { render, id, className, disabled: disabledProp = false, ...otherProps } = props;
 
-  const { disabled: disabledFieldset } = useFieldsetRootContext();
   const { disabled: disabledField } = useFieldRootContext();
-
-  const disabled = disabledFieldset ?? disabledField;
+  const disabled = disabledField ?? disabledProp;
 
   const { getControlProps } = useFieldControl({ id });
 
@@ -64,6 +61,10 @@ FieldControl.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * @ignore
    */

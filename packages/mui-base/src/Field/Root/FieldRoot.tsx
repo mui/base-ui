@@ -33,7 +33,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [validityData, setValidityData] = React.useState<ValidityData>({
     validityState: DEFAULT_VALIDITY_STATE,
     validityMessage: '',
-    value: undefined,
+    value: '',
   });
 
   const ownerState: FieldRootOwnerState = {

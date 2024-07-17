@@ -9,7 +9,7 @@ export interface FieldRootContextValue {
   setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
   validityData: ValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<ValidityData>>;
-  disabled: boolean;
+  disabled: boolean | undefined;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
@@ -23,7 +23,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
     value: '',
   },
   setValidityData: () => {},
-  disabled: false,
+  disabled: undefined,
 });
 
 export function useFieldRootContext() {

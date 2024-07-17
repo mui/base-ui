@@ -4,7 +4,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldLabelOwnerState, FieldLabelProps } from './FieldLabel.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
-import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 
 /**
  * A label for the field's control.
@@ -23,10 +22,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { disabled: disabledFieldset } = useFieldsetRootContext();
-  const { controlId, disabled: disabledField } = useFieldRootContext();
-
-  const disabled = disabledFieldset ?? disabledField;
+  const { controlId, disabled = false } = useFieldRootContext();
 
   const { getLabelProps } = useFieldLabel({ controlId });
 

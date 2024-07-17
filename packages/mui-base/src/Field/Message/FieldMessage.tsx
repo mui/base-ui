@@ -5,7 +5,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldMessageOwnerState, FieldMessageProps } from './FieldMessage.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldMessage } from './useFieldMessage';
-import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 
 /**
  * A message for the field's control.
@@ -24,10 +23,7 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 ) {
   const { render, id, className, show, ...otherProps } = props;
 
-  const { disabled: disabledFieldset } = useFieldsetRootContext();
-  const { validityData, disabled: disabledField } = useFieldRootContext();
-
-  const disabled = disabledFieldset ?? disabledField;
+  const { validityData, disabled = false } = useFieldRootContext();
 
   let rendered = show == null;
   if (typeof show === 'string' && validityData.validityState[show]) {

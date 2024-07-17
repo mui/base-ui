@@ -130,3 +130,18 @@ In addition to the native HTML constraint validation, you can also add custom va
 ```
 
 For Base UI input components, this represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
+
+## Validity component
+
+To access the raw `ValidityState` to render custom JSX, use the `Field.Validity` component:
+
+```jsx
+<Field.Root>
+  <Field.Control />
+  <Field.Validity>
+    {({validity, value}, ownerState) => /* ... */}
+  </Field.Validity>
+</Field.Root>
+```
+
+The first parameter contains the validity data and control value, while the second is the component's `ownerState` containing the `disabled: boolean` property.
