@@ -53,7 +53,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
@@ -74,9 +74,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       floating: positionerElement,
     },
     open,
-    onOpenChange: (isOpen: boolean, event: Event | undefined) => {
-      setOpen(isOpen, event);
-    },
+    onOpenChange: setOpen,
   });
 
   const hover = useHover(floatingRootContext, {

@@ -28,7 +28,7 @@ import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
  *
  * - [MenuPositioner API](https://mui.com/base-ui/react-Menu/components-api/#Menu-positioner)
  */
-const MenuPositioner = React.forwardRef(function MenuPositionerComponent(
+const MenuPositioner = React.forwardRef(function MenuPositioner(
   props: MenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
