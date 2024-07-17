@@ -225,6 +225,7 @@
     "/base-ui/react-slider": "Slider",
     "/base-ui/react-switch": "Switch",
     "data-display": "Data display",
+    "/base-ui/react-collapsible": "Collapsible",
     "/base-ui/react-popover": "Popover",
     "/base-ui/react-preview-card": "Preview Card",
     "/base-ui/react-tooltip": "Tooltip",
