@@ -5,6 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRootOwnerState, ValidityData, type FieldRootProps } from './FieldRoot.types';
 import { FieldRootContext, FieldRootContextValue } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
+import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 
 /**
  * The foundation for building custom-styled fields.
@@ -21,7 +22,11 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled = false, ...otherProps } = props;
+  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
+
+  const { disabled: disabledFieldset } = useFieldsetRootContext();
+
+  const disabled = disabledFieldset ?? disabledProp;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);

@@ -1,8 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { FieldsetLegendProps } from './FieldsetLegend.types';
+import type { FieldsetLegendOwnerState, FieldsetLegendProps } from './FieldsetLegend.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldsetLegend } from './useFieldsetLegend';
+import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
 
 /**
  * Renders an element that labels the fieldset.
@@ -23,12 +24,18 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   const { getLegendProps } = useFieldsetLegend({ id });
 
+  const { disabled } = useFieldsetRootContext();
+
+  const ownerState: FieldsetLegendOwnerState = {
+    disabled,
+  };
+
   const { renderElement } = useComponentRenderer({
     propGetter: getLegendProps,
     ref: forwardedRef,
     render: render ?? 'span',
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
   });
 

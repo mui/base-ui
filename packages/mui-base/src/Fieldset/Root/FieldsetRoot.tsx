@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { FieldsetRootProps } from './FieldsetRoot.types';
+import type { FieldsetRootOwnerState, FieldsetRootProps } from './FieldsetRoot.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldsetRootContext, type FieldsetRootContextValue } from './FieldsetRootContext';
 import { useFieldsetRoot } from './useFieldsetRoot';
@@ -10,7 +10,7 @@ import { useFieldsetRoot } from './useFieldsetRoot';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-fieldset/)
+ * - [Fieldset](https://mui.com/base-ui/react-fieldset/)
  *
  * API:
  *
@@ -20,16 +20,20 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRootProps,
   forwardedRef: React.Ref<HTMLFieldSetElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, disabled = false, ...otherProps } = props;
 
   const { legendId, setLegendId, getRootProps } = useFieldsetRoot();
+
+  const ownerState: FieldsetRootOwnerState = {
+    disabled,
+  };
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     ref: forwardedRef,
     render: render ?? 'fieldset',
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
   });
 
@@ -37,8 +41,9 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     () => ({
       legendId,
       setLegendId,
+      disabled,
     }),
-    [legendId, setLegendId],
+    [legendId, setLegendId, disabled],
   );
 
   return (
@@ -61,6 +66,10 @@ FieldsetRoot.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

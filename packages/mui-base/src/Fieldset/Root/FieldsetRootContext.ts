@@ -3,14 +3,15 @@ import * as React from 'react';
 export interface FieldsetRootContextValue {
   legendId: string | undefined;
   setLegendId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  disabled: boolean;
 }
 
-export const FieldsetRootContext = React.createContext<FieldsetRootContextValue | null>(null);
+export const FieldsetRootContext = React.createContext<FieldsetRootContextValue>({
+  legendId: undefined,
+  setLegendId: () => {},
+  disabled: false,
+});
 
 export function useFieldsetRootContext() {
-  const context = React.useContext(FieldsetRootContext);
-  if (context === null) {
-    throw new Error('Fieldset components must be used within <Fieldset.Root>');
-  }
-  return context;
+  return React.useContext(FieldsetRootContext);
 }

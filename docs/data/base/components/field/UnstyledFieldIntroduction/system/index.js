@@ -4,7 +4,7 @@ import * as Field from '@base_ui/react/Field';
 
 export default function UnstyledFieldIntroduction() {
   return (
-    <Field.Root style={{ width: 250 }} disabled>
+    <Field.Root style={{ width: 250 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Field.Label>Name</Field.Label>
         <FieldControl required pattern="[a-zA-Z0-9]+" />

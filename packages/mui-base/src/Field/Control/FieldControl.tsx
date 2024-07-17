@@ -9,6 +9,7 @@ import type {
 } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
+import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 
 /**
  * The field's control element.
@@ -27,7 +28,10 @@ const FieldControl = React.forwardRef(function FieldControl(
 ) {
   const { render, id, className, ...otherProps } = props;
 
-  const { disabled } = useFieldRootContext();
+  const { disabled: disabledFieldset } = useFieldsetRootContext();
+  const { disabled: disabledField } = useFieldRootContext();
+
+  const disabled = disabledFieldset ?? disabledField;
 
   const { getControlProps } = useFieldControl({ id });
 
