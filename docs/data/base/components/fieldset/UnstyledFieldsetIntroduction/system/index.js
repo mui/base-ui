@@ -45,5 +45,6 @@ const FieldControl = styled(Field.Control)`
   &[data-textarea] {
     min-width: 300px;
     max-width: 300px;
+    min-height: 100px;
   }
 `;
