@@ -18,7 +18,7 @@ import { useFieldsetRoot } from './useFieldsetRoot';
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRootProps,
-  forwardedRef: React.Ref<HTMLFieldSetElement>,
+  forwardedRef: React.ForwardedRef<HTMLFieldSetElement>,
 ) {
   const { render, className, disabled = false, ...otherProps } = props;
 

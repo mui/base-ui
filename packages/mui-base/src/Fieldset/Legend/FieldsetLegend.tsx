@@ -18,7 +18,7 @@ import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegendProps,
-  forwardedRef: React.Ref<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, id, ...otherProps } = props;
 
