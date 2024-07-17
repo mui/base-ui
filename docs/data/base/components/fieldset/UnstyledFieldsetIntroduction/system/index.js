@@ -16,7 +16,7 @@ export default function UnstyledFieldsetIntroduction() {
         <FieldControl />
       </Field.Root>
       <Field.Root>
-        <Field.Label>Notes</Field.Label>
+        <Field.Label>Bio</Field.Label>
         <FieldControl render={<textarea />} />
       </Field.Root>
     </FieldsetRoot>

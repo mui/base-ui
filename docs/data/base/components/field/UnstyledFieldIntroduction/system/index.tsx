@@ -4,13 +4,13 @@ import { styled } from '@mui/system';
 
 export default function UnstyledFieldIntroduction() {
   return (
-    <Field.Root style={{ width: 275 }}>
+    <FieldRoot>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Field.Label>Name</Field.Label>
         <FieldControl required pattern="[a-zA-Z0-9]+" />
       </div>
       <Field.Validity>
-        {(validity, value) => {
+        {({ validity, value }) => {
           if (
             validity.valueMissing ||
             validity.patternMismatch ||
@@ -31,9 +31,13 @@ export default function UnstyledFieldIntroduction() {
       <FieldMessage data-error show="patternMismatch">
         Only alphanumeric characters are allowed (a-z, A-Z, 0-9).
       </FieldMessage>
-    </Field.Root>
+    </FieldRoot>
   );
 }
+
+const FieldRoot = styled(Field.Root)`
+  width: 275px;
+`;
 
 const FieldControl = styled(Field.Control)`
   padding: 4px 8px;
