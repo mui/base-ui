@@ -13,6 +13,7 @@ export interface UseMenuRootParameters {
   direction: MenuDirection;
   disabled: boolean;
   nested: boolean;
+  escapeClosesParents: boolean;
 }
 
 export interface UseMenuRootReturnValue {

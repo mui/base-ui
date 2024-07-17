@@ -37,6 +37,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
     direction,
     disabled,
     nested,
+    escapeClosesParents,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -93,7 +94,7 @@ export function useMenuRoot(parameters: UseMenuRootParameters): UseMenuRootRetur
     ignoreMouse: true,
   });
 
-  const dismiss = useDismiss(floatingRootContext, { bubbles: true });
+  const dismiss = useDismiss(floatingRootContext, { bubbles: escapeClosesParents });
 
   const role = useRole(floatingRootContext, {
     role: 'menu',

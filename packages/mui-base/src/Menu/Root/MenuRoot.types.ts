@@ -26,4 +26,13 @@ export interface MenuRootProps {
   orientation?: MenuOrientation;
   dir?: MenuDirection;
   disabled?: boolean;
+  /**
+   * Determines if pressing the Esc key closes the parent menus.
+   * This is only applicable for nested menus.
+   *
+   * If set to `false` pressing Esc closes only the current menu.
+   *
+   * @default true
+   */
+  escapeClosesParents?: boolean;
 }
