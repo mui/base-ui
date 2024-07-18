@@ -23,11 +23,13 @@ export default function KeyboardNavigation() {
 
       <Menu.Root>
         <MenuButton>Open menu</MenuButton>
-        <MenuPopup>
-          <MenuItem>Cut</MenuItem>
-          <MenuItem>Copy</MenuItem>
-          <MenuItem>Paste</MenuItem>
-        </MenuPopup>
+        <Menu.Positioner>
+          <MenuPopup>
+            <MenuItem>Cut</MenuItem>
+            <MenuItem>Copy</MenuItem>
+            <MenuItem>Paste</MenuItem>
+          </MenuPopup>
+        </Menu.Positioner>
       </Menu.Root>
     </Container>
   );
