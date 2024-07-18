@@ -6,6 +6,7 @@ import { useButton } from '../../useButton/useButton';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+
 /**
  *
  * API:
@@ -106,10 +107,25 @@ export namespace useMenuTrigger {
      * The ref to the root element.
      */
     rootRef?: React.Ref<HTMLElement>;
+    /**
+     * A callback to set the trigger element whenever it's mounted.
+     */
     setTriggerElement: (element: HTMLElement | null) => void;
+    /**
+     * If `true`, the Menu is open.
+     */
     open: boolean;
+    /**
+     * A callback to set the open state of the Menu.
+     */
     setOpen: (open: boolean, event: Event | undefined) => void;
+    /**
+     * The FloatingEvents instance of the menu's root.
+     */
     menuEvents: FloatingEvents;
+    /**
+     * A callback to enable/disable click and drag functionality.
+     */
     setClickAndDragEnabled: (enabled: boolean) => void;
   }
 

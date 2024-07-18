@@ -158,24 +158,23 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   );
 
   return React.useMemo(
-    () =>
-      ({
-        activeIndex,
-        floatingRootContext,
-        triggerElement,
-        setTriggerElement,
-        getTriggerProps,
-        setPositionerElement,
-        getPositionerProps,
-        getItemProps,
-        itemDomElements,
-        itemLabels,
-        mounted,
-        transitionStatus,
-        popupRef,
-        open,
-        setOpen,
-      }) satisfies useMenuRoot.ReturnValue,
+    () => ({
+      activeIndex,
+      floatingRootContext,
+      triggerElement,
+      setTriggerElement,
+      getTriggerProps,
+      setPositionerElement,
+      getPositionerProps,
+      getItemProps,
+      itemDomElements,
+      itemLabels,
+      mounted,
+      transitionStatus,
+      popupRef,
+      open,
+      setOpen,
+    }),
     [
       activeIndex,
       floatingRootContext,
@@ -199,14 +198,48 @@ export type MenuDirection = 'ltr' | 'rtl';
 
 export namespace useMenuRoot {
   export interface Parameters {
+    /**
+     * If `true`, the Menu supports CSS-based animations and transitions.
+     * It is kept in the DOM until the animation completes.
+     */
     animated: boolean;
+    /**
+     * Allows to control whether the Menu is open.
+     * This is a controlled counterpart of `defaultOpen`.
+     */
     open: boolean | undefined;
+    /**
+     * Callback fired when the component requests to be opened or closed.
+     */
     onOpenChange: ((open: boolean, event: Event | undefined) => void) | undefined;
+    /**
+     * If `true`, the Menu is initially open.
+     */
     defaultOpen: boolean;
+    /**
+     * The orientation of the Menu (horizontal or vertical).
+     */
     orientation: MenuOrientation;
+    /**
+     * The direction of the Menu (left-to-right or right-to-left).
+     */
     direction: MenuDirection;
+    /**
+     * If `true`, the Menu is disabled.
+     *
+     * @default false
+     */
     disabled: boolean;
+    /**
+     * Determines if the Menu is nested inside another Menu.
+     */
     nested: boolean;
+    /**
+     * Determines if pressing the Esc key closes the parent menus.
+     * This is only applicable for nested menus.
+     *
+     * If set to `false` pressing Esc closes only the current menu.
+     */
     escapeClosesParents: boolean;
   }
 

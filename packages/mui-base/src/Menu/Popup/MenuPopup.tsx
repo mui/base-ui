@@ -1,12 +1,23 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree } from '@floating-ui/react';
+import { Side, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const styleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
+  entering(value) {
+    return value ? { 'data-entering': '' } : null;
+  },
+  exiting(value) {
+    return value ? { 'data-exiting': '' } : null;
+  },
+};
 
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,
@@ -14,6 +25,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, ...other } = props;
   const { setOpen, popupRef, transitionStatus } = useMenuRootContext();
+  const { side, alignment } = useMenuPositionerContext();
   const { events: menuEvents } = useFloatingTree()!;
 
   useMenuPopup({
@@ -26,6 +38,8 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   const ownerState: MenuPopup.OwnerState = {
     entering: transitionStatus === 'entering',
     exiting: transitionStatus === 'exiting',
+    side,
+    alignment,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -33,14 +47,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     className,
     ownerState,
     extraProps: other,
-    customStyleHookMapping: {
-      entering(value) {
-        return value ? { 'data-entering': '' } : null;
-      },
-      exiting(value) {
-        return value ? { 'data-exiting': '' } : null;
-      },
-    },
+    customStyleHookMapping: styleHookMapping,
     ref: mergedRef,
   });
 
@@ -48,17 +55,19 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 });
 
 namespace MenuPopup {
-  export interface Props extends BaseUIComponentProps<'div', MenuPopup.OwnerState> {
-    /**
-     * A ref with imperative actions that can be performed on the menu.
-     */
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
+    /**
+     * The id of the popup element.
+     */
     id?: string;
   }
 
   export type OwnerState = {
     entering: boolean;
     exiting: boolean;
+    side: Side;
+    alignment: 'start' | 'end' | 'center';
   };
 }
 
@@ -68,7 +77,7 @@ MenuPopup.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * A ref with imperative actions that can be performed on the menu.
+   * @ignore
    */
   children: PropTypes.node,
   /**
@@ -76,7 +85,7 @@ MenuPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * The id of the popup element.
    */
   id: PropTypes.string,
   /**

@@ -14,8 +14,15 @@ import { GenericHTMLProps } from '../../utils/types';
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
 ): useSubmenuTrigger.ReturnValue {
-  const { id, highlighted, disabled, rootRef, menuEvents, setTriggerElement, clickAndDragEnabled } =
-    parameters;
+  const {
+    id,
+    highlighted,
+    disabled,
+    ref: externalRef,
+    menuEvents,
+    setTriggerElement,
+    treatMouseupAsClick,
+  } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
     closeOnClick: false,
@@ -23,8 +30,8 @@ export function useSubmenuTrigger(
     highlighted,
     id,
     menuEvents,
-    rootRef,
-    clickAndDragEnabled,
+    ref: externalRef,
+    treatMouseupAsClick,
   });
 
   const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
@@ -50,15 +57,30 @@ export function useSubmenuTrigger(
   );
 }
 
-namespace useSubmenuTrigger {
+export namespace useSubmenuTrigger {
   export interface Parameters {
     id: string | undefined;
     highlighted: boolean;
+    /**
+     * If `true`, the menu item will be disabled.
+     */
     disabled: boolean;
-    rootRef?: React.Ref<Element>;
+    /**
+     * The ref of the item.
+     */
+    ref?: React.Ref<Element>;
+    /**
+     * The FloatingEvents instance of the menu's root.
+     */
     menuEvents: FloatingEvents;
+    /**
+     * A callback to set the trigger element whenever it's mounted.
+     */
     setTriggerElement: (element: HTMLElement | null) => void;
-    clickAndDragEnabled: boolean;
+    /**
+     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     */
+    treatMouseupAsClick: boolean;
   }
 
   export interface ReturnValue {

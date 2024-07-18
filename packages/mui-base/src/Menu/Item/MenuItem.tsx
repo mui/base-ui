@@ -23,7 +23,7 @@ const InnerMenuItem = React.memo(
       menuEvents,
       propGetter,
       render,
-      clickAndDragEnabled,
+      treatMouseupAsClick,
       ...other
     } = props;
 
@@ -33,8 +33,8 @@ const InnerMenuItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      rootRef: forwardedRef,
-      clickAndDragEnabled,
+      ref: forwardedRef,
+      treatMouseupAsClick,
     });
 
     const ownerState: MenuItem.OwnerState = { disabled, highlighted };
@@ -90,7 +90,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       highlighted={highlighted}
       menuEvents={menuEvents}
       propGetter={getItemProps}
-      clickAndDragEnabled={clickAndDragEnabled}
+      treatMouseupAsClick={clickAndDragEnabled}
     />
   );
 });
@@ -99,7 +99,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
-  clickAndDragEnabled: boolean;
+  treatMouseupAsClick: boolean;
 }
 
 namespace MenuItem {
@@ -108,8 +108,11 @@ namespace MenuItem {
     highlighted: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', MenuItem.OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
+    /**
+     * The click handler for the menu item.
+     */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
      * If `true`, the menu item will be disabled.
@@ -122,11 +125,8 @@ namespace MenuItem {
      */
     label?: string;
     /**
-     * If `true`, the menu item won't receive focus when the mouse moves over it.
-     *
-     * @default false
+     * The id of the menu item.
      */
-    disableFocusOnHover?: boolean;
     id?: string;
     /**
      * If `true`, the menu will close when the menu item is clicked.
@@ -158,13 +158,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, the menu item won't receive focus when the mouse moves over it.
-   *
-   * @default false
-   */
-  disableFocusOnHover: PropTypes.bool,
-  /**
-   * @ignore
+   * The id of the menu item.
    */
   id: PropTypes.string,
   /**
@@ -173,7 +167,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * @ignore
+   * The click handler for the menu item.
    */
   onClick: PropTypes.func,
 } as any;

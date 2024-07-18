@@ -1,8 +1,19 @@
 {
   "props": {
-    "defaultOpen": { "type": { "name": "bool" } },
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
+    "dir": {
+      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
+      "default": "'ltr'"
+    },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "escapeClosesParents": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
-    "open": { "type": { "name": "bool" } }
+    "open": { "type": { "name": "bool" } },
+    "orientation": {
+      "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
+      "default": "'vertical'"
+    }
   },
   "name": "MenuRoot",
   "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuRoot = Menu.Root;"],

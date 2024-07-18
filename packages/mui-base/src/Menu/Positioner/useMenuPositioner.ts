@@ -54,16 +54,15 @@ export function useMenuPositioner(
   );
 
   return React.useMemo(
-    () =>
-      ({
-        getPositionerProps,
-        arrowRef,
-        arrowUncentered,
-        arrowStyles,
-        side: renderedSide,
-        alignment: renderedAlignment,
-        floatingContext,
-      }) satisfies useMenuPositioner.ReturnValue,
+    () => ({
+      getPositionerProps,
+      arrowRef,
+      arrowUncentered,
+      arrowStyles,
+      side: renderedSide,
+      alignment: renderedAlignment,
+      floatingContext,
+    }),
     [
       getPositionerProps,
       arrowRef,
@@ -160,6 +159,9 @@ export namespace useMenuPositioner {
      * The Menu root context.
      */
     floatingRootContext?: FloatingRootContext;
+    /**
+     * Floating node id.
+     */
     nodeId?: string;
   }
 

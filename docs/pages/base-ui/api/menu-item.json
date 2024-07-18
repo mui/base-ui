@@ -2,8 +2,9 @@
   "props": {
     "closeOnClick": { "type": { "name": "bool" }, "default": "true" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "disableFocusOnHover": { "type": { "name": "bool" }, "default": "false" },
-    "label": { "type": { "name": "string" } }
+    "id": { "type": { "name": "string" } },
+    "label": { "type": { "name": "string" } },
+    "onClick": { "type": { "name": "func" } }
   },
   "name": "MenuItem",
   "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuItem = Menu.Item;"],

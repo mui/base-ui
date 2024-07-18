@@ -8,6 +8,53 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 
+const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+  props: SubmenuTrigger.Props,
+  forwardedRef: React.ForwardedRef<Element>,
+) {
+  const { render, className, disabled = false, label, id: idProp, ...other } = props;
+  const id = useId(idProp);
+
+  const { getTriggerProps, parentContext, setTriggerElement, clickAndDragEnabled } =
+    useMenuRootContext();
+
+  if (parentContext === null) {
+    throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
+  }
+
+  const { activeIndex, getItemProps } = parentContext;
+  const item = useListItem();
+
+  const highlighted = activeIndex === item.index;
+
+  const mergedRef = useForkRef(forwardedRef, item.ref);
+
+  const { events: menuEvents } = useFloatingTree()!;
+
+  const { getRootProps } = useSubmenuTrigger({
+    id,
+    highlighted,
+    ref: mergedRef,
+    disabled,
+    menuEvents,
+    setTriggerElement,
+    treatMouseupAsClick: clickAndDragEnabled,
+  });
+
+  const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };
+
+  const { renderElement } = useComponentRenderer({
+    render: render || 'div',
+    className,
+    ownerState,
+    propGetter: (externalProps: GenericHTMLProps) =>
+      getTriggerProps(getItemProps(getRootProps(externalProps))),
+    extraProps: other,
+  });
+
+  return renderElement();
+});
+
 namespace SubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
@@ -36,53 +83,6 @@ namespace SubmenuTrigger {
     highlighted: boolean;
   }
 }
-
-const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
-  props: SubmenuTrigger.Props,
-  forwardedRef: React.ForwardedRef<Element>,
-) {
-  const { render, className, disabled = false, label, id: idProp, ...other } = props;
-  const id = useId(idProp);
-
-  const { getTriggerProps, parentContext, setTriggerElement, clickAndDragEnabled } =
-    useMenuRootContext();
-
-  if (parentContext === null) {
-    throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
-  }
-
-  const { activeIndex, getItemProps } = parentContext;
-  const item = useListItem();
-
-  const highlighted = activeIndex === item.index;
-
-  const mergedRef = useForkRef(forwardedRef, item.ref);
-
-  const { events: menuEvents } = useFloatingTree()!;
-
-  const { getRootProps } = useSubmenuTrigger({
-    id,
-    highlighted,
-    rootRef: mergedRef,
-    disabled,
-    menuEvents,
-    setTriggerElement,
-    clickAndDragEnabled,
-  });
-
-  const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };
-
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
-    ownerState,
-    propGetter: (externalProps: GenericHTMLProps) =>
-      getTriggerProps(getItemProps(getRootProps(externalProps))),
-    extraProps: other,
-  });
-
-  return renderElement();
-});
 
 SubmenuTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

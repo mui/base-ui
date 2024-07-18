@@ -24,9 +24,15 @@ export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.
   }, [menuEvents, setOpen]);
 }
 
-namespace useMenuPopup {
+export namespace useMenuPopup {
   export interface Parameters {
+    /**
+     * The FloatingEvents instance of the menu's root.
+     */
     menuEvents: FloatingEvents;
+    /**
+     * Callback to set the open state of the menu.
+     */
     setOpen: (open: boolean, event: Event | undefined) => void;
   }
 

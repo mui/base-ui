@@ -52,7 +52,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   return renderElement();
 });
 
-export namespace MenuTrigger {
+namespace MenuTrigger {
   export interface Props extends BaseUIComponentProps<'button', OwnerState> {
     children?: React.ReactNode;
     /**

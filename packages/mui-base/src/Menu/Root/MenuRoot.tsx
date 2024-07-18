@@ -69,7 +69,7 @@ function MenuRoot(props: MenuRoot.Props) {
 namespace MenuRoot {
   export interface Props {
     /**
-     * If `true`, the menu supports CSS-based animations and transitions.
+     * If `true`, the Menu supports CSS-based animations and transitions.
      * It is kept in the DOM until the animation completes.
      *
      * @default true
@@ -77,7 +77,9 @@ namespace MenuRoot {
     animated?: boolean;
     children: React.ReactNode;
     /**
-     * If `true`, the dropdown is initially open.
+     * If `true`, the Menu is initially open.
+     *
+     * @default false
      */
     defaultOpen?: boolean;
     /**
@@ -89,8 +91,23 @@ namespace MenuRoot {
      * This is a controlled counterpart of `defaultOpen`.
      */
     open?: boolean;
+    /**
+     * The orientation of the Menu (horizontal or vertical).
+     *
+     * @default 'vertical'
+     */
     orientation?: MenuOrientation;
+    /**
+     * The direction of the Menu (left-to-right or right-to-left).
+     *
+     * @default 'ltr'
+     */
     dir?: MenuDirection;
+    /**
+     * If `true`, the Menu is disabled.
+     *
+     * @default false
+     */
     disabled?: boolean;
     /**
      * Determines if pressing the Esc key closes the parent menus.
@@ -110,21 +127,43 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * If `true`, the Menu supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default true
+   */
+  animated: PropTypes.bool,
+  /**
    * @ignore
    */
   children: PropTypes.node,
   /**
-   * If `true`, the dropdown is initially open.
+   * If `true`, the Menu is initially open.
+   *
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * @ignore
+   * The direction of the Menu (left-to-right or right-to-left).
+   *
+   * @default 'ltr'
    */
   dir: PropTypes.oneOf(['ltr', 'rtl']),
   /**
-   * @ignore
+   * If `true`, the Menu is disabled.
+   *
+   * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * Determines if pressing the Esc key closes the parent menus.
+   * This is only applicable for nested menus.
+   *
+   * If set to `false` pressing Esc closes only the current menu.
+   *
+   * @default true
+   */
+  escapeClosesParents: PropTypes.bool,
   /**
    * Callback fired when the component requests to be opened or closed.
    */
@@ -135,7 +174,9 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
   /**
-   * @ignore
+   * The orientation of the Menu (horizontal or vertical).
+   *
+   * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
 } as any;

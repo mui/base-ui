@@ -1,7 +1,7 @@
 {
   "props": {
-    "children": { "type": { "name": "node" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "id": { "type": { "name": "string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuPopup",

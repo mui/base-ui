@@ -19,8 +19,8 @@ export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTri
     highlighted,
     id,
     menuEvents,
-    rootRef: externalRef,
-    clickAndDragEnabled,
+    ref: externalRef,
+    treatMouseupAsClick,
   } = params;
 
   const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
@@ -36,7 +36,7 @@ export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTri
         externalProps,
         {
           ref: handleRef,
-          'data-handle-mouseup': clickAndDragEnabled || undefined,
+          'data-handle-mouseup': treatMouseupAsClick || undefined,
         },
         getButtonProps({
           id,
@@ -50,7 +50,7 @@ export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTri
         }),
       );
     },
-    [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, clickAndDragEnabled],
+    [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, treatMouseupAsClick],
   );
 
   return {
@@ -59,15 +59,36 @@ export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTri
   };
 }
 
-namespace useSubmenuTrigger {
+export namespace useSubmenuTrigger {
   export interface Parameters {
+    /**
+     * If `true`, the menu will close when the menu item is clicked.
+     */
     closeOnClick: boolean;
+    /**
+     * If `true`, the menu item will be disabled.
+     */
     disabled: boolean;
+    /**
+     * Determines if the menu item is highlighted.
+     */
     highlighted: boolean;
+    /**
+     * The id of the menu item.
+     */
     id: string | undefined;
+    /**
+     * The FloatingEvents instance of the menu's root.
+     */
     menuEvents: FloatingEvents;
-    rootRef?: React.Ref<Element>;
-    clickAndDragEnabled: boolean;
+    /**
+     * The ref of the trigger element.
+     */
+    ref?: React.Ref<Element>;
+    /**
+     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     */
+    treatMouseupAsClick: boolean;
   }
 
   export interface ReturnValue {
