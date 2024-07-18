@@ -377,47 +377,6 @@ describe('<Menu.Root />', () => {
         expect(submenuTrigger).toHaveFocus();
       });
     });
-
-    // TODO: `defaultOpen` doesn't work in nested menus
-    it.skip('closes the whole tree when the Escape key is pressed on a nested menu', async () => {
-      const { getByTestId, queryAllByRole } = await render(
-        <Menu.Root defaultOpen animated={false}>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Root defaultOpen>
-                <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner>
-                  <Menu.Popup data-testid="submenu">
-                    <Menu.Item>2.1</Menu.Item>
-                    <Menu.Root defaultOpen>
-                      <Menu.SubmenuTrigger>2.2</Menu.SubmenuTrigger>
-                      <Menu.Positioner>
-                        <Menu.Popup data-testid="submenu">
-                          <Menu.Item data-testid="submenu-item-221">2.2.1</Menu.Item>
-                          <Menu.Item>2.2.2</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Root>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Root>,
-      );
-
-      const deeplyNestedItem = getByTestId('submenu-item-221');
-
-      await act(() => {
-        deeplyNestedItem.focus();
-      });
-
-      await user.keyboard('[Escape]');
-
-      const allMenus = queryAllByRole('menu', { hidden: false });
-      expect(allMenus).to.have.length(0);
-    });
   });
 
   describe('focus management', () => {
