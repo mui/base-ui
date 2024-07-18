@@ -61,7 +61,9 @@ describe('<Menu.Trigger />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger disabled />
-          <Menu.Popup />
+          <Menu.Positioner>
+            <Menu.Popup />
+          </Menu.Positioner>
         </Menu.Root>,
       );
 

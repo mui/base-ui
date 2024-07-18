@@ -3,6 +3,7 @@ import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { createRenderer, describeConformance } from '../../../test';
+import { MenuPositionerContext } from '../Positioner/MenuPositionerContext';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
@@ -27,6 +28,11 @@ const testRootContext: MenuRootContext = {
   transitionStatus: undefined,
 };
 
+const testPositionerContext: MenuPositionerContext = {
+  side: 'bottom',
+  alignment: 'start',
+};
+
 describe('<Menu.Popup />', () => {
   const { render } = createRenderer();
 
@@ -35,7 +41,12 @@ describe('<Menu.Popup />', () => {
     render: (node) => {
       return render(
         <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>,
+          <MenuRootContext.Provider value={testRootContext}>
+            <MenuPositionerContext.Provider value={testPositionerContext}>
+              {node}
+            </MenuPositionerContext.Provider>
+          </MenuRootContext.Provider>
+          ,
         </FloatingTree>,
       );
     },
