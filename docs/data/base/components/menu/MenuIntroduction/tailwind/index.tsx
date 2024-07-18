@@ -21,13 +21,15 @@ export default function MenuIntroduction() {
     <div className={`${isDarkMode ? 'dark' : ''}`}>
       <Menu.Root>
         <MenuButton>My account</MenuButton>
-        <MenuPopup>
-          <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-          <MenuItem onClick={createHandleMenuClick('Language settings')}>
-            Language settings
-          </MenuItem>
-          <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
-        </MenuPopup>
+        <MenuPositioner>
+          <MenuPopup>
+            <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+            <MenuItem onClick={createHandleMenuClick('Language settings')}>
+              Language settings
+            </MenuItem>
+            <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+          </MenuPopup>
+        </MenuPositioner>
       </Menu.Root>
     </div>
   );
@@ -65,3 +67,15 @@ const MenuItem = React.forwardRef<HTMLLIElement, Menu.Item.Props>((props, ref) =
   `;
   return <Menu.Item ref={ref} className={classes} {...props} />;
 });
+
+const MenuPositioner = React.forwardRef<HTMLDivElement, Menu.Positioner.Props>(
+  (props, ref) => {
+    return (
+      <Menu.Positioner
+        ref={ref}
+        className="focus-visible:outline-0 closed:pointer-events-none"
+        {...props}
+      />
+    );
+  },
+);

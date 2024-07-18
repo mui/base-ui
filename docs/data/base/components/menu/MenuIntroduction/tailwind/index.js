@@ -21,13 +21,15 @@ export default function MenuIntroduction() {
     <div className={`${isDarkMode ? 'dark' : ''}`}>
       <Menu.Root>
         <MenuButton>My account</MenuButton>
-        <MenuPopup>
-          <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-          <MenuItem onClick={createHandleMenuClick('Language settings')}>
-            Language settings
-          </MenuItem>
-          <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
-        </MenuPopup>
+        <MenuPositioner>
+          <MenuPopup>
+            <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+            <MenuItem onClick={createHandleMenuClick('Language settings')}>
+              Language settings
+            </MenuItem>
+            <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+          </MenuPopup>
+        </MenuPositioner>
       </Menu.Root>
     </div>
   );
@@ -60,4 +62,14 @@ const MenuItem = React.forwardRef((props, ref) => {
     focus:outline-0 focus:bg-slate-100 focus:dark:bg-slate-800 focus:text-slate-900 focus:dark:text-slate-300 disabled:text-slate-400 disabled:dark:text-slate-700 disabled:hover:text-slate-400 disabled:hover:dark:text-slate-700
   `;
   return <Menu.Item ref={ref} className={classes} {...props} />;
+});
+
+const MenuPositioner = React.forwardRef((props, ref) => {
+  return (
+    <Menu.Positioner
+      ref={ref}
+      className="focus-visible:outline-0 closed:pointer-events-none"
+      {...props}
+    />
+  );
 });
