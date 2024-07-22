@@ -194,7 +194,30 @@ module.exports = [
     title: 'PreviewCardTrigger',
   },
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
-  { pathname: '/base-ui/react-slider/components-api/#slider', title: 'Slider' },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-control',
+    title: 'SliderControl',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-indicator',
+    title: 'SliderIndicator',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-output',
+    title: 'SliderOutput',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-root',
+    title: 'SliderRoot',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-thumb',
+    title: 'SliderThumb',
+  },
+  {
+    pathname: '/base-ui/react-slider/components-api/#slider-track',
+    title: 'SliderTrack',
+  },
   {
     pathname: '/base-ui/react-snackbar/components-api/#snackbar',
     title: 'Snackbar',
@@ -300,7 +323,26 @@ module.exports = [
     title: 'useOptionContextStabilizer',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-select', title: 'useSelect' },
-  { pathname: '/base-ui/react-slider/hooks-api/#use-slider', title: 'useSlider' },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-control',
+    title: 'useSliderControl',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-indicator',
+    title: 'useSliderIndicator',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-output',
+    title: 'useSliderOutput',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-root',
+    title: 'useSliderRoot',
+  },
+  {
+    pathname: '/base-ui/react-slider/hooks-api/#use-slider-thumb',
+    title: 'useSliderThumb',
+  },
   {
     pathname: '/base-ui/react-snackbar/hooks-api/#use-snackbar',
     title: 'useSnackbar',

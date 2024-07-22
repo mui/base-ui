@@ -17,6 +17,5 @@ describe('<Tooltip.Arrow />', () => {
         </Tooltip.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

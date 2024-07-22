@@ -3,6 +3,7 @@ export * from './Checkbox/index.barrel';
 export * from './Dialog/index.barrel';
 export * from './NumberField/index.barrel';
 export * from './Popover/index.barrel';
+export * from './Slider/index.barrel';
 export * from './Switch/index.barrel';
 export * from './Tabs/index.barrel';
 export * from './Tooltip/index.barrel';

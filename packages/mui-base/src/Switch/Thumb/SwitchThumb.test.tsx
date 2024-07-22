@@ -20,6 +20,5 @@ describe('<Switch.Thumb />', () => {
     render: (node) => {
       return render(<SwitchContext.Provider value={testContext}>{node}</SwitchContext.Provider>);
     },
-    skip: ['reactTestRenderer'],
   }));
 });

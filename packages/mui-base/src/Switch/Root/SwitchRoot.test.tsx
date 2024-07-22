@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { act } from '@mui/internal-test-utils';
 import * as Switch from '@base_ui/react/Switch';
-import { describeConformance } from '../../../test/describeConformance';
+import { userEvent } from '@testing-library/user-event';
+import { describeConformance, createRenderer } from '../../../test';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
@@ -15,20 +16,20 @@ describe('<Switch.Root />', () => {
   }));
 
   describe('interaction', () => {
-    it('should change its state when clicked', () => {
-      const { getByRole } = render(<Switch.Root />);
+    it('should change its state when clicked', async () => {
+      const { getByRole } = await render(<Switch.Root />);
       const switchElement = getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         switchElement.click();
       });
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should update its state when changed from outside', () => {
+    it('should update its state when changed from outside', async () => {
       function Test() {
         const [checked, setChecked] = React.useState(false);
         return (
@@ -39,30 +40,30 @@ describe('<Switch.Root />', () => {
         );
       }
 
-      const { getByRole, getByText } = render(<Test />);
+      const { getByRole, getByText } = await render(<Test />);
       const switchElement = getByRole('switch');
       const button = getByText('Toggle');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
-      act(() => {
+      await act(() => {
         button.click();
       });
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
 
-      act(() => {
+      await act(() => {
         button.click();
       });
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
     });
 
-    it('should update its state if the underlying input is toggled', () => {
-      const { getByRole, container } = render(<Switch.Root />);
+    it('should update its state if the underlying input is toggled', async () => {
+      const { getByRole, container } = await render(<Switch.Root />);
       const switchElement = getByRole('switch');
       const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
-      act(() => {
+      await act(() => {
         internalInput.click();
       });
 
@@ -71,20 +72,20 @@ describe('<Switch.Root />', () => {
   });
 
   describe('extra props', () => {
-    it('should override the built-in attributes', () => {
-      const { container } = render(<Switch.Root data-state="checked" role="checkbox" />);
+    it('should override the built-in attributes', async () => {
+      const { container } = await render(<Switch.Root data-state="checked" role="checkbox" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'checkbox');
       expect(container.firstElementChild as HTMLElement).to.have.attribute('data-state', 'checked');
     });
   });
 
   describe('prop: onChange', () => {
-    it('should call onChange when clicked', () => {
+    it('should call onChange when clicked', async () => {
       const handleChange = spy();
-      const { getByRole } = render(<Switch.Root onCheckedChange={handleChange} />);
+      const { getByRole } = await render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = getByRole('switch');
 
-      act(() => {
+      await act(() => {
         switchElement.click();
       });
 
@@ -94,12 +95,12 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: onClick', () => {
-    it('should call onClick when clicked', () => {
+    it('should call onClick when clicked', async () => {
       const handleClick = spy();
-      const { getByRole } = render(<Switch.Root onClick={handleClick} />);
+      const { getByRole } = await render(<Switch.Root onClick={handleClick} />);
       const switchElement = getByRole('switch');
 
-      act(() => {
+      await act(() => {
         switchElement.click();
       });
 
@@ -108,23 +109,23 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should have the `aria-disabled` attribute', () => {
-      const { getByRole } = render(<Switch.Root disabled />);
+    it('should have the `aria-disabled` attribute', async () => {
+      const { getByRole } = await render(<Switch.Root disabled />);
       expect(getByRole('switch')).to.have.attribute('aria-disabled', 'true');
     });
 
-    it('should not have the aria attribute when `disabled` is not set', () => {
-      const { getByRole } = render(<Switch.Root />);
+    it('should not have the aria attribute when `disabled` is not set', async () => {
+      const { getByRole } = await render(<Switch.Root />);
       expect(getByRole('switch')).not.to.have.attribute('aria-disabled');
     });
 
-    it('should not change its state when clicked', () => {
-      const { getByRole } = render(<Switch.Root disabled />);
+    it('should not change its state when clicked', async () => {
+      const { getByRole } = await render(<Switch.Root disabled />);
       const switchElement = getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         switchElement.click();
       });
 
@@ -133,23 +134,23 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should have the `aria-readonly` attribute', () => {
-      const { getByRole } = render(<Switch.Root readOnly />);
+    it('should have the `aria-readonly` attribute', async () => {
+      const { getByRole } = await render(<Switch.Root readOnly />);
       expect(getByRole('switch')).to.have.attribute('aria-readonly', 'true');
     });
 
-    it('should not have the aria attribute when `readOnly` is not set', () => {
-      const { getByRole } = render(<Switch.Root />);
+    it('should not have the aria attribute when `readOnly` is not set', async () => {
+      const { getByRole } = await render(<Switch.Root />);
       expect(getByRole('switch')).not.to.have.attribute('aria-readonly');
     });
 
-    it('should not change its state when clicked', () => {
-      const { getByRole } = render(<Switch.Root readOnly />);
+    it('should not change its state when clicked', async () => {
+      const { getByRole } = await render(<Switch.Root readOnly />);
       const switchElement = getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         switchElement.click();
       });
 
@@ -158,9 +159,9 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: inputRef', () => {
-    it('should be able to access the native input', () => {
+    it('should be able to access the native input', async () => {
       const inputRef = React.createRef<HTMLInputElement>();
-      const { container } = render(<Switch.Root inputRef={inputRef} />);
+      const { container } = await render(<Switch.Root inputRef={inputRef} />);
       const internalInput = container.querySelector('input[type="checkbox"]')!;
 
       expect(inputRef.current).to.equal(internalInput);
@@ -168,10 +169,10 @@ describe('<Switch.Root />', () => {
   });
 
   describe('form handling', () => {
-    // TODO: when a label is clicked, mocha throws an error in unrelated tests. Uncomment when fixed or another test runner is used.
-    // eslint-disable-next-line mocha/no-skipped-tests
-    it.skip('should toggle the switch when a parent label is clicked', () => {
-      const { getByTestId, getByRole } = render(
+    const user = userEvent.setup();
+
+    it('should toggle the switch when a parent label is clicked', async () => {
+      const { getByTestId, getByRole } = await render(
         <label data-testid="label">
           <Switch.Root />
           Toggle
@@ -183,17 +184,13 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
-        label.click();
-      });
+      await user.click(label);
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    // TODO: when a label is clicked, mocha throws an error in unrelated tests. Uncomment when fixed or another test runner is used.
-    // eslint-disable-next-line mocha/no-skipped-tests
-    it.skip('should toggle the switch when a linked label is clicked', () => {
-      const { getByTestId, getByRole } = render(
+    it('should toggle the switch when a linked label is clicked', async () => {
+      const { getByTestId, getByRole } = await render(
         <div>
           <label htmlFor="test-switch" data-testid="label">
             Toggle
@@ -207,14 +204,12 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
-        label.click();
-      });
+      await user.click(label);
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should include the switch value in the form submission', function test() {
+    it('should include the switch value in the form submission', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
         this.skip();
@@ -222,7 +217,7 @@ describe('<Switch.Root />', () => {
 
       let stringifiedFormData = '';
 
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -242,7 +237,7 @@ describe('<Switch.Root />', () => {
 
       expect(stringifiedFormData).to.equal('test-switch=off');
 
-      act(() => {
+      await act(() => {
         switchElement.click();
       });
 
@@ -252,8 +247,8 @@ describe('<Switch.Root />', () => {
     });
   });
 
-  it('should place the style hooks on the root and the thumb', () => {
-    const { getByRole } = render(
+  it('should place the style hooks on the root and the thumb', async () => {
+    const { getByRole } = await render(
       <Switch.Root defaultChecked disabled readOnly required>
         <Switch.Thumb />
       </Switch.Root>,
@@ -273,8 +268,8 @@ describe('<Switch.Root />', () => {
     expect(thumb).to.have.attribute('data-required', 'true');
   });
 
-  it('should set the name attribute on the input', () => {
-    const { container } = render(<Switch.Root name="switch-name" />);
+  it('should set the name attribute on the input', async () => {
+    const { container } = await render(<Switch.Root name="switch-name" />);
     const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
     expect(internalInput).to.have.attribute('name', 'switch-name');

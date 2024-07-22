@@ -12,6 +12,5 @@ describe('<Tooltip.Positioner />', () => {
     render(node) {
       return render(<Tooltip.Root open>{node}</Tooltip.Root>);
     },
-    skip: ['reactTestRenderer'],
   }));
 });

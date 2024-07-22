@@ -16,6 +16,5 @@ describe('<Popover.Backdrop />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

@@ -222,6 +222,7 @@
     "inputs": "Inputs",
     "/base-ui/react-checkbox": "Checkbox",
     "/base-ui/react-number-field": "Number Field",
+    "/base-ui/react-slider": "Slider",
     "/base-ui/react-switch": "Switch",
     "data-display": "Data display",
     "/base-ui/react-preview-card": "Preview Card",

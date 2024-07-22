@@ -15,7 +15,6 @@ describe('<Dialog.Popup />', () => {
         </Dialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   describe('prop: keepMounted', () => {

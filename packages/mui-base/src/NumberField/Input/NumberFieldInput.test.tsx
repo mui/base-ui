@@ -27,7 +27,6 @@ describe('<NumberField.Input />', () => {
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has textbox role', () => {
