@@ -18,7 +18,11 @@ function CollapsibleRoot(props: CollapsibleRootProps) {
   const contextValue: CollapsibleContextValue = React.useMemo(
     () => ({
       ...collapsible,
-      ownerState: { open: collapsible.open, disabled: collapsible.disabled },
+      ownerState: {
+        open: collapsible.open,
+        disabled: collapsible.disabled,
+        transitionStatus: collapsible.transitionStatus,
+      },
     }),
     [collapsible],
   );

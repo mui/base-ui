@@ -2,26 +2,27 @@ import * as React from 'react';
 import { useTheme } from '@mui/system';
 import * as Collapsible from '@base_ui/react/Collapsible';
 
-export default function CollapsibleDemo() {
+export default function CssAnimatedCollapsible() {
+  const [open, setOpen] = React.useState(true);
   return (
-    <div className="CollapsibleDemo">
-      <Collapsible.Root>
-        <Collapsible.Trigger className="MyCollapsible-trigger">
+    <div className="CssAnimatedCollapsible">
+      <Collapsible.Root open={open} onOpenChange={setOpen}>
+        <Collapsible.Trigger className="CssAnimatedCollapsible-trigger">
           <span className="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 80 80"
+              focusable="false"
+            >
               <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
             </svg>
           </span>
-          Trigger
+          Show {open ? 'less' : 'more'}
         </Collapsible.Trigger>
-        <Collapsible.Content className="MyCollapsible-content">
+        <Collapsible.Content className="CssAnimatedCollapsible-content">
           <p>This is the collapsed content</p>
-          <p>
-            Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded cabbage & carrot
-            with mustard mayonnaise And Potato Wedges
-          </p>
-          <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
-          <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+          <p>This is the second paragraph</p>
+          <p>This is a longer sentence and also the third paragraph</p>
         </Collapsible.Content>
       </Collapsible.Root>
       <Styles />
@@ -51,30 +52,34 @@ export function Styles() {
   const isDarkMode = useIsDarkMode();
   return (
     <style suppressHydrationWarning>{`
-    .CollapsibleDemo {
+    .CssAnimatedCollapsible {
       font-family: system-ui, sans-serif;
       line-height: 1.4;
+      width: 480px;
     }
 
-    .CollapsibleDemo h3 {
+    .CssAnimatedCollapsible h3 {
       color: ${isDarkMode ? 'cyan' : 'blue'};
     }
 
-    .MyCollapsible-trigger {
-      border: .1em solid #ccc;
-      padding: .5em 1em .5em .5em;
+    .CssAnimatedCollapsible-trigger {
+      border: 0;
+      padding: .5rem 1rem .5rem 0;
       font: inherit;
-      background-color: ${grey[50]};
-      border-radius: .5em .5em 0 0;
+      background-color: transparent;
     }
 
-    .MyCollapsible-trigger .icon {
+    .CssAnimatedCollapsible-trigger:hover {
+      cursor: pointer;
+    }
+
+    .CssAnimatedCollapsible-trigger .icon {
       display: inline-block;
       font-size: 60%;
       color: #000;
-      background-color: #00f;
+      background-color: ${isDarkMode ? grey[50] : grey[700]};
       padding: 0.3em 0.2em 0 0.2em;
-      border: 0.2em solid #00f;
+      border: 0;
       border-radius: 50%;
       line-height: 1;
       text-align: center;
@@ -83,47 +88,32 @@ export function Styles() {
       margin-right: 0.6em;
     }
 
-    .MyCollapsible-trigger svg {
+    .CssAnimatedCollapsible-trigger svg {
       width: 1.25em;
       height: 1.25em;
-      fill: #fff;
+      fill: ${isDarkMode ? grey[900] : grey[300]};
       transition: transform 0.2s ease-in;
       transform-origin: center 45%;
     }
 
-    .MyCollapsible-trigger:hover,
-    .MyCollapsible-trigger:focus-visible {
-      background-color: #666;
-      color: #fff;
-      outline: none;
-      border-color: #666;
-    }
-
-    .MyCollapsible-trigger:hover .icon,
-    .MyCollapsible-trigger:focus-visible .icon {
-      background-color: #fff;
-      outline: none;
-    }
-
-    .MyCollapsible-trigger:hover svg,
-    .MyCollapsible-trigger:focus-visible svg {
-      fill: #00f;
-    }
-
-    .MyCollapsible-trigger[data-state='open'] svg {
+    .CssAnimatedCollapsible-trigger[data-state="open"] svg {
       transform: rotate(90deg);
     }
 
-    .MyCollapsible-content {
-      background-color: #eaeaea;
+    .CssAnimatedCollapsible-content {
+      background-color: ${isDarkMode ? grey[700] : grey[300]};
       overflow: hidden;
     }
 
-    .MyCollapsible-content[data-state='open'] {
-      animation: slideDown 600ms ease-out;
+    .CssAnimatedCollapsible-content p {
+      padding: 0 1rem;
     }
-    .MyCollapsible-content[data-state='closed'] {
-      animation: slideUp 600ms ease-out;
+
+    .CssAnimatedCollapsible-content[data-state='open'] {
+      animation: slideDown 300ms ease-out;
+    }
+    .CssAnimatedCollapsible-content[data-state='closed'] {
+      animation: slideUp 300ms ease-out;
     }
 
     @keyframes slideDown {
