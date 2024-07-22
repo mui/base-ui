@@ -1,8 +1,13 @@
+import { TransitionStatus } from '../../utils/useTransitionStatus';
+
 export interface CollapsibleContextValue extends UseCollapsibleRootReturnValue {
-  ownerState: Pick<UseCollapsibleRootReturnValue, 'open' | 'disabled'>;
+  ownerState: Pick<UseCollapsibleRootReturnValue, 'open' | 'disabled' | 'transitionStatus'>;
 }
 
-export type CollapsibleRootOwnerState = Pick<CollapsibleContextValue, 'open' | 'disabled'>;
+export type CollapsibleRootOwnerState = Pick<
+  CollapsibleContextValue,
+  'open' | 'disabled' | 'transitionStatus'
+>;
 
 export interface CollapsibleRootProps extends UseCollapsibleRootParameters {
   children: React.ReactNode;
@@ -37,10 +42,13 @@ export interface UseCollapsibleRootReturnValue {
    * The disabled state of the Collapsible
    */
   disabled: boolean;
+  mounted: boolean;
   /**
    * The open state of the Collapsible
    */
   open: boolean;
   setContentId: (id: string | undefined) => void;
+  setMounted: (open: boolean) => void;
   setOpen: (open: boolean) => void;
+  transitionStatus: TransitionStatus;
 }

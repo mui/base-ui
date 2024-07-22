@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useId } from '../../utils/useId';
 import {
   UseCollapsibleRootParameters,
@@ -21,27 +23,35 @@ function useCollapsibleRoot(
 ): UseCollapsibleRootReturnValue {
   const { open: openParam, defaultOpen = true, onOpenChange, disabled = false } = parameters;
 
-  const [open, setOpen] = useControlled({
+  const [open, setOpenState] = useControlled({
     controlled: openParam,
     default: defaultOpen,
-    name: 'CollapsibleRoot',
+    name: 'Collapsible',
+    state: 'open',
   });
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true); // TODO: the 2nd argument should be an `animated` prop?
 
   const [contentId, setContentId] = React.useState<string | undefined>(useId());
 
-  React.useEffect(() => {
-    if (onOpenChange) {
-      onOpenChange(open);
-    }
-  }, [onOpenChange, open]);
+  const setOpen = useEventCallback((nextOpen: boolean) => {
+    onOpenChange?.(nextOpen);
+    setOpenState(nextOpen);
+  });
 
-  return {
-    contentId,
-    disabled,
-    open,
-    setContentId,
-    setOpen,
-  };
+  return React.useMemo(
+    () => ({
+      contentId,
+      disabled,
+      mounted,
+      open,
+      setContentId,
+      setMounted,
+      setOpen,
+      transitionStatus,
+    }),
+    [contentId, disabled, mounted, open, setContentId, setMounted, setOpen, transitionStatus],
+  );
 }
 
 export { useCollapsibleRoot };

@@ -13,12 +13,16 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, contentId, setContentId, ownerState } = useCollapsibleContext();
+  const { mounted, open, contentId, setContentId, setMounted, ownerState } =
+    useCollapsibleContext();
 
-  const { getRootProps } = useCollapsibleContent({
+  const { getRootProps, height } = useCollapsibleContent({
     id: contentId,
+    mounted,
     open,
+    ref: forwardedRef,
     setContentId,
+    setMounted,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -26,8 +30,12 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
     render: render ?? 'div',
     ownerState,
     className,
-    ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      style: {
+        '--collapsible-content-height': height ? `${height}px` : undefined,
+      },
+    },
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 

@@ -16,6 +16,8 @@ packageName: '@base_ui/react'
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
+{{"demo": "UnstyledCollapsibleIntroduction.js", "defaultCodeOpen": false, "bg": "gradient"}}
+
 ## Installation
 
 Base UI components are all available as a single package.
@@ -53,4 +55,74 @@ import * as Collapsible from '@base_ui/react/Collapsible';
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
   <Collapsible.Content>This is the content</Collapsible.Content>
 </Collapsible.Root>
+```
+
+## Animations
+
+The Collapsible component can animate when opening or closing using either:
+
+- CSS animations
+- CSS transitions
+- JavaScript animations
+
+The height of the `Content` is provided as the `--collapsible-content-height` CSS variable
+
+### CSS Animations
+
+CSS animations can be used with two declarations:
+
+```css
+.Collapsible-content {
+  overflow: hidden;
+}
+
+.Collapsible-content[data-state='open'] {
+  animation: slideDown 300ms ease-out;
+}
+
+.Collapsible-content[data-state='closed'] {
+  animation: slideUp 300ms ease-in;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--collapsible-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+```
+
+{{"demo": "CssAnimatedCollapsible.js"}}
+
+### CSS Transitions
+
+```css
+.Collapsible-content {
+  overflow: hidden;
+}
+
+.Collapsible-content[data-entering] {
+  height: 0;
+}
+
+.Collapsible2-content[data-state='open'] {
+  height: var(--collapsible-content-height);
+  transition: height 300ms ease-out;
+}
+
+.Collapsible2-content[data-state='closed'] {
+  height: 0;
+  transition: height 300ms ease-in;
+}
 ```

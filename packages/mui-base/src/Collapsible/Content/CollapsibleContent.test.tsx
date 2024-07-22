@@ -8,12 +8,16 @@ import type { CollapsibleContextValue } from '../Root/CollapsibleRoot.types';
 const contextValue: CollapsibleContextValue = {
   contentId: 'ContentId',
   disabled: false,
+  mounted: true,
   open: true,
   setContentId() {},
+  setMounted() {},
   setOpen() {},
+  transitionStatus: undefined,
   ownerState: {
     open: true,
     disabled: false,
+    transitionStatus: undefined,
   },
 };
 
