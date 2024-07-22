@@ -1,10 +1,10 @@
-import type { Side } from '@floating-ui/react';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export type TooltipArrowOwnerState = {
   open: boolean;
   side: Side;
-  alignment: 'start' | 'center' | 'end';
+  alignment: Alignment;
 };
 
 export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrowOwnerState> {

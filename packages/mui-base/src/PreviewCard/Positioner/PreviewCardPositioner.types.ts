@@ -1,11 +1,11 @@
 import type * as React from 'react';
-import type { Side } from '@floating-ui/react';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { PreviewCardPositionerParameters } from './usePreviewCardPositioner.types';
 
 export interface PreviewCardPositionerContextValue {
   side: Side;
-  alignment: 'start' | 'end' | 'center';
+  alignment: Alignment;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
@@ -14,7 +14,7 @@ export interface PreviewCardPositionerContextValue {
 export type PreviewCardPositionerOwnerState = {
   open: boolean;
   side: Side;
-  alignment: 'start' | 'center' | 'end';
+  alignment: Alignment;
 };
 
 export interface PreviewCardPositionerProps
