@@ -7,6 +7,21 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
 import { usePreviewCardPopup } from './usePreviewCardPopup';
 import { useForkRef } from '../../utils/useForkRef';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopupOwnerState> = {
+  entering(value) {
+    return value ? { 'data-entering': '' } : null;
+  },
+  exiting(value) {
+    return value ? { 'data-exiting': '' } : null;
+  },
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   props: PreviewCardPopupProps,
@@ -41,19 +56,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      entering(value) {
-        return value ? { 'data-entering': '' } : null;
-      },
-      exiting(value) {
-        return value ? { 'data-exiting': '' } : null;
-      },
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
