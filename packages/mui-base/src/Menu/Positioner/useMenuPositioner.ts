@@ -21,7 +21,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { open = false } = params;
+  const { open = false, keepMounted } = params;
 
   const {
     positionerStyles,
@@ -38,7 +38,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if (!open || hidden) {
+      if ((keepMounted && !open) || hidden) {
         hiddenStyles.pointerEvents = 'none';
       }
 
@@ -48,9 +48,10 @@ export function useMenuPositioner(
           ...hiddenStyles,
           zIndex: 2147483647, // max z-index
         },
+        'aria-hidden': !open || undefined,
       });
     },
-    [positionerStyles, open, hidden],
+    [positionerStyles, open, keepMounted, hidden],
   );
 
   return React.useMemo(
@@ -135,6 +136,10 @@ export namespace useMenuPositioner {
      * @default false
      */
     hideWhenDetached?: boolean;
+    /**
+     * Whether the menu popup remains mounted in the DOM while closed.
+     */
+    keepMounted?: boolean;
     /**
      * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
      * of view.

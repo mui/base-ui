@@ -37,6 +37,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionStrategy = 'absolute',
     className,
     render,
+    keepMounted = false,
     side = 'bottom',
     alignment = 'center',
     sideOffset = 0,
@@ -124,21 +125,24 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     extraProps: otherProps,
   });
 
+  const shouldRender = keepMounted || mounted;
+  if (!shouldRender) {
+    return null;
+  }
+
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
         <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
           <FloatingPortal root={props.container}>
-            {mounted && (
-              <FloatingFocusManager
-                context={positioner.floatingContext}
-                modal={false}
-                initialFocus={nested ? -1 : 0}
-                returnFocus
-              >
-                {renderElement()}
-              </FloatingFocusManager>
-            )}
+            <FloatingFocusManager
+              context={positioner.floatingContext}
+              modal={false}
+              initialFocus={nested ? -1 : 0}
+              returnFocus
+            >
+              {renderElement()}
+            </FloatingFocusManager>
           </FloatingPortal>
         </FloatingList>
       </FloatingNode>
@@ -238,6 +242,10 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
+  /**
+   * Whether the menu popup remains mounted in the DOM while closed.
+   */
+  keepMounted: PropTypes.bool,
   /**
    * The CSS position strategy for positioning the Menu popup element.
    * @default 'absolute'

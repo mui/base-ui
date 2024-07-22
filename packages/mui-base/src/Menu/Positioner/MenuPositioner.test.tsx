@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
+import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
@@ -113,6 +114,64 @@ describe('<Menu.Positioner />', () => {
 
       const popup = getByRole('menu');
       expect(popup.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
+    });
+  });
+
+  describe('prop: keepMounted', () => {
+    const user = userEvent.setup();
+
+    it('when keepMounted=true, should keep the content mounted when closed', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root animated={false}>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Positioner keepMounted>
+            <Menu.Popup>
+              <Menu.Item>1</Menu.Item>
+              <Menu.Item>2</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+
+      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
+      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+
+      await user.click(trigger);
+      await flushMicrotasks();
+      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+
+      await user.click(trigger);
+      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
+      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+    });
+
+    it('when keepMounted=false, should unmount the content when closed', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root animated={false}>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Positioner keepMounted={false}>
+            <Menu.Popup>
+              <Menu.Item>1</Menu.Item>
+              <Menu.Item>2</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+
+      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+
+      await user.click(trigger);
+      await flushMicrotasks();
+      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+
+      await user.click(trigger);
+      expect(queryByRole('menu', { hidden: true })).to.equal(null);
     });
   });
 });
