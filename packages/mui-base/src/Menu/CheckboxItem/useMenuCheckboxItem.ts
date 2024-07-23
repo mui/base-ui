@@ -3,6 +3,7 @@ import { useMenuItem } from '../Item/useMenuItem';
 import { useControlled } from '../../utils/useControlled';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+
 /**
  *
  * API:
@@ -39,11 +40,14 @@ export function useMenuCheckboxItem(
     [checked, getMenuItemRootProps, onCheckedChange, setChecked],
   );
 
-  return {
-    ...menuItem,
-    getRootProps,
-    checked,
-  };
+  return React.useMemo(
+    () => ({
+      ...menuItem,
+      getRootProps,
+      checked,
+    }),
+    [checked, getRootProps, menuItem],
+  );
 }
 
 export namespace useMenuCheckboxItem {
