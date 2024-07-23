@@ -1,10 +1,10 @@
-import type { Side } from '@floating-ui/react';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export type PopoverPopupOwnerState = {
   open: boolean;
   side: Side;
-  alignment: 'start' | 'end' | 'center';
+  alignment: Alignment;
   entering: boolean;
   exiting: boolean;
 };
