@@ -24,6 +24,9 @@
     "hideWhenDetached": {
       "description": "If <code>true</code>, the Menu will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
+    "keepMounted": {
+      "description": "Whether the menu popup remains mounted in the DOM while closed."
+    },
     "positionStrategy": {
       "description": "The CSS position strategy for positioning the Menu popup element."
     },

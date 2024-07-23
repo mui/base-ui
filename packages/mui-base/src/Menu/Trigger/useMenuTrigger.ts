@@ -53,9 +53,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             ignoreNextClick.current = true;
             event.preventDefault();
 
-            setOpen(true, event);
             setClickAndDragEnabled(true);
-
             const mousedownTarget = event.target as Element;
 
             function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {
@@ -72,13 +70,10 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
             ownerDocument(mousedownTarget).addEventListener('mouseup', handleDocumentMouseUp);
           },
-          onClick: (event: MouseEvent) => {
+          onClick: () => {
             if (ignoreNextClick.current) {
               ignoreNextClick.current = false;
-              return;
             }
-
-            setOpen(!open, event);
           },
         },
         getButtonRootProps(),

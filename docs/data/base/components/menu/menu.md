@@ -144,6 +144,24 @@ You can change this with the `orientation` prop"
 </Menu.Root>
 ```
 
+## Hover
+
+To open the Menu on hover, add the `openOnHover` prop:
+
+```jsx
+<Menu.Root openOnHover>
+```
+
+By default submenus are opened on hover, but top-level menus aren't.
+
+### Delay
+
+To change how long the menu waits until it opens or closes when `openOnHover` is enabled, use the `delay` prop, which represent how long the Menu waits after the cursor enters the trigger, in milliseconds:
+
+```jsx
+<Menu.Root openOnHover delay={200}>
+```
+
 ## Nested menu
 
 Menu items can open submenus.

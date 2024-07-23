@@ -138,6 +138,7 @@ export namespace useMenuPositioner {
     hideWhenDetached?: boolean;
     /**
      * Whether the menu popup remains mounted in the DOM while closed.
+     * @default false
      */
     keepMounted?: boolean;
     /**

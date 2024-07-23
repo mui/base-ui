@@ -38,6 +38,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     disabled,
     nested,
     escapeClosesParents,
+    delay,
+    openOnHover,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -78,18 +80,20 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && nested && !disabled,
+    enabled: hoverEnabled && openOnHover && !disabled,
     handleClose: safePolygon(),
+    mouseOnly: true,
+    move: false,
     delay: {
-      open: 75,
+      open: delay,
     },
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: nested && !disabled,
+    enabled: !disabled,
     event: 'mousedown',
-    toggle: false,
-    ignoreMouse: true,
+    toggle: !nested,
+    ignoreMouse: nested,
   });
 
   const dismiss = useDismiss(floatingRootContext, { bubbles: escapeClosesParents });
@@ -217,6 +221,10 @@ export namespace useMenuRoot {
      */
     defaultOpen: boolean;
     /**
+     * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+     */
+    delay: number;
+    /**
      * The orientation of the Menu (horizontal or vertical).
      */
     orientation: MenuOrientation;
@@ -226,8 +234,6 @@ export namespace useMenuRoot {
     direction: MenuDirection;
     /**
      * If `true`, the Menu is disabled.
-     *
-     * @default false
      */
     disabled: boolean;
     /**
@@ -241,6 +247,10 @@ export namespace useMenuRoot {
      * If set to `false` pressing Esc closes only the current menu.
      */
     escapeClosesParents: boolean;
+    /**
+     * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
+     */
+    openOnHover: boolean;
   }
 
   export interface ReturnValue {

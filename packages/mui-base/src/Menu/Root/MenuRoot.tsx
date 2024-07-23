@@ -16,10 +16,14 @@ function MenuRoot(props: MenuRoot.Props) {
     onOpenChange,
     open,
     orientation = 'vertical',
+    delay = 100,
+    openOnHover: openOnHoverProp,
   } = props;
 
   const parentContext = useMenuRootContext(true);
   const nested = parentContext != null;
+
+  const openOnHover = openOnHoverProp ?? nested;
 
   const menuRoot = useMenuRoot({
     animated,
@@ -31,6 +35,8 @@ function MenuRoot(props: MenuRoot.Props) {
     open,
     orientation,
     nested,
+    openOnHover,
+    delay,
   });
 
   const [localClickAndDragEnabled, setLocalClickAndDragEnabled] = React.useState(false);
@@ -118,6 +124,18 @@ namespace MenuRoot {
      * @default true
      */
     escapeClosesParents?: boolean;
+    /**
+     * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+     *
+     * @default 100
+     */
+    delay?: number;
+    /**
+     * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
+     *
+     * @default nested
+     */
+    openOnHover?: boolean;
   }
 }
 
@@ -143,6 +161,12 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   defaultOpen: PropTypes.bool,
+  /**
+   * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+   *
+   * @default 100
+   */
+  delay: PropTypes.number,
   /**
    * The direction of the Menu (left-to-right or right-to-left).
    *
@@ -173,6 +197,12 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * This is a controlled counterpart of `defaultOpen`.
    */
   open: PropTypes.bool,
+  /**
+   * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
+   *
+   * @default nested
+   */
+  openOnHover: PropTypes.bool,
   /**
    * The orientation of the Menu (horizontal or vertical).
    *
