@@ -226,6 +226,7 @@
     "/base-ui/react-switch": "Switch",
     "data-display": "Data display",
     "/base-ui/react-popover": "Popover",
+    "/base-ui/react-preview-card": "Preview Card",
     "/base-ui/react-tooltip": "Tooltip",
     "feedback": "Feedback",
     "/base-ui/react-alert-dialog": "Alert Dialog",

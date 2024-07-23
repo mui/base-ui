@@ -12,7 +12,6 @@ import {
   hide,
   type UseFloatingOptions,
   type Placement,
-  type Side,
   type Boundary,
   type FloatingRootContext,
   type VirtualElement,
@@ -23,6 +22,9 @@ import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useLatestRef } from './useLatestRef';
+
+export type Side = 'top' | 'bottom' | 'left' | 'right';
+export type Alignment = 'start' | 'center' | 'end';
 
 interface UseAnchorPositioningParameters {
   anchor?:

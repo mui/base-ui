@@ -1,10 +1,10 @@
-import type { Side } from '@floating-ui/react';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export type TooltipPopupOwnerState = {
   open: boolean;
   side: Side;
-  alignment: 'start' | 'end' | 'center';
+  alignment: Alignment;
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
   entering: boolean;
   exiting: boolean;
