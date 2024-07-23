@@ -16,6 +16,5 @@ describe('<PreviewCard.Trigger />', () => {
         </PreviewCard.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

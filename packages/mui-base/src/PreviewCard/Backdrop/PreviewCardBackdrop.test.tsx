@@ -16,6 +16,5 @@ describe('<PreviewCard.Backdrop />', () => {
         </PreviewCard.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

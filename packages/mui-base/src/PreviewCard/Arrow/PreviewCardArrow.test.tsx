@@ -18,6 +18,5 @@ describe('<PreviewCard.Arrow />', () => {
         </PreviewCard.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

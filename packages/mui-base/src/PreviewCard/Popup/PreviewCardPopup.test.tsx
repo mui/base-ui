@@ -18,7 +18,6 @@ describe('<Popover.Popup />', () => {
         </PreviewCard.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should render the children', async () => {
