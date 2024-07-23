@@ -4,10 +4,12 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/menu/menu.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import MenuArrowApiJsonPageContent from '../../api/menu-arrow.json';
+import MenuGroupApiJsonPageContent from '../../api/menu-group.json';
 import MenuItemApiJsonPageContent from '../../api/menu-item.json';
 import MenuPopupApiJsonPageContent from '../../api/menu-popup.json';
 import MenuPositionerApiJsonPageContent from '../../api/menu-positioner.json';
 import MenuRootApiJsonPageContent from '../../api/menu-root.json';
+import MenuSeparatorApiJsonPageContent from '../../api/menu-separator.json';
 import MenuTriggerApiJsonPageContent from '../../api/menu-trigger.json';
 import SubmenuTriggerApiJsonPageContent from '../../api/submenu-trigger.json';
 
@@ -34,6 +36,13 @@ export const getStaticProps = () => {
     /\.\/menu-arrow.*.json$/,
   );
   const MenuArrowApiDescriptions = mapApiPageTranslations(MenuArrowApiReq);
+
+  const MenuGroupApiReq = require.context(
+    'docs-base/translations/api-docs/menu-group',
+    false,
+    /\.\/menu-group.*.json$/,
+  );
+  const MenuGroupApiDescriptions = mapApiPageTranslations(MenuGroupApiReq);
 
   const MenuItemApiReq = require.context(
     'docs-base/translations/api-docs/menu-item',
@@ -63,6 +72,13 @@ export const getStaticProps = () => {
   );
   const MenuRootApiDescriptions = mapApiPageTranslations(MenuRootApiReq);
 
+  const MenuSeparatorApiReq = require.context(
+    'docs-base/translations/api-docs/menu-separator',
+    false,
+    /\.\/menu-separator.*.json$/,
+  );
+  const MenuSeparatorApiDescriptions = mapApiPageTranslations(MenuSeparatorApiReq);
+
   const MenuTriggerApiReq = require.context(
     'docs-base/translations/api-docs/menu-trigger',
     false,
@@ -81,19 +97,23 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         MenuArrow: MenuArrowApiDescriptions,
+        MenuGroup: MenuGroupApiDescriptions,
         MenuItem: MenuItemApiDescriptions,
         MenuPopup: MenuPopupApiDescriptions,
         MenuPositioner: MenuPositionerApiDescriptions,
         MenuRoot: MenuRootApiDescriptions,
+        MenuSeparator: MenuSeparatorApiDescriptions,
         MenuTrigger: MenuTriggerApiDescriptions,
         SubmenuTrigger: SubmenuTriggerApiDescriptions,
       },
       componentsApiPageContents: {
         MenuArrow: MenuArrowApiJsonPageContent,
+        MenuGroup: MenuGroupApiJsonPageContent,
         MenuItem: MenuItemApiJsonPageContent,
         MenuPopup: MenuPopupApiJsonPageContent,
         MenuPositioner: MenuPositionerApiJsonPageContent,
         MenuRoot: MenuRootApiJsonPageContent,
+        MenuSeparator: MenuSeparatorApiJsonPageContent,
         MenuTrigger: MenuTriggerApiJsonPageContent,
         SubmenuTrigger: SubmenuTriggerApiJsonPageContent,
       },

@@ -1,6 +1,8 @@
 export { MenuArrow as Arrow } from './Arrow/MenuArrow';
 export { useMenuArrow } from './Arrow/useMenuArrow';
 
+export { MenuGroup as Group } from './Group/MenuGroup';
+
 export { MenuItem as Item } from './Item/MenuItem';
 export { useMenuItem } from './Item/useMenuItem';
 
@@ -20,6 +22,8 @@ export { MenuRootContext, useMenuRootContext } from './Root/MenuRootContext';
 
 export { MenuTrigger as Trigger } from './Trigger/MenuTrigger';
 export { useMenuTrigger } from './Trigger/useMenuTrigger';
+
+export { MenuSeparator as Separator } from './Separator/MenuSeparator';
 
 export { SubmenuTrigger } from './SubmenuTrigger/SubmenuTrigger';
 export { useSubmenuTrigger } from './SubmenuTrigger/useSubmenuTrigger';

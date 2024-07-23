@@ -15,18 +15,23 @@ export default function MenuIntroduction() {
 
       <Menu.Positioner className="CustomMenuIntroduction">
         <Menu.Popup className="CustomMenuIntroduction--listbox">
-          <Menu.Item
-            className="CustomMenuIntroduction--item"
-            onClick={createHandleMenuClick('Profile')}
-          >
-            Profile
-          </Menu.Item>
-          <Menu.Item
-            className="CustomMenuIntroduction--item"
-            onClick={createHandleMenuClick('Language settings')}
-          >
-            Language settings
-          </Menu.Item>
+          <Menu.Group>
+            <Menu.Item
+              className="CustomMenuIntroduction--item"
+              onClick={createHandleMenuClick('Profile')}
+            >
+              Profile
+            </Menu.Item>
+            <Menu.Item
+              className="CustomMenuIntroduction--item"
+              onClick={createHandleMenuClick('Language settings')}
+            >
+              Language settings
+            </Menu.Item>
+          </Menu.Group>
+
+          <Menu.Separator className="CustomMenuIntroduction--separator" />
+
           <Menu.Item
             className="CustomMenuIntroduction--item"
             onClick={createHandleMenuClick('Log out')}
@@ -168,6 +173,11 @@ function Styles() {
       &[data-state='closed'] {
         pointer-events: none;
       }
+    }
+
+    .CustomMenuIntroduction--separator {
+      border-top: 1px solid ${isDarkMode ? grey[700] : grey[200]};
+      margin: 8px 0;
     }
     `}</style>
   );
