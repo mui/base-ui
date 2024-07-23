@@ -11,6 +11,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 const styleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
+  open: (value: boolean) => ({ 'data-state': value ? 'open' : 'closed' }),
   entering(value) {
     return value ? { 'data-entering': '' } : null;
   },
@@ -24,7 +25,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...other } = props;
-  const { setOpen, popupRef, transitionStatus } = useMenuRootContext();
+  const { open, setOpen, popupRef, transitionStatus } = useMenuRootContext();
   const { side, alignment } = useMenuPositionerContext();
   const { events: menuEvents } = useFloatingTree()!;
 
@@ -40,6 +41,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     exiting: transitionStatus === 'exiting',
     side,
     alignment,
+    open,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -68,6 +70,7 @@ namespace MenuPopup {
     exiting: boolean;
     side: Side;
     alignment: 'start' | 'end' | 'center';
+    open: boolean;
   };
 }
 

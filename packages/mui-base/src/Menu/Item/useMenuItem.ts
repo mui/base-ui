@@ -12,7 +12,7 @@ import { GenericHTMLProps } from '../../utils/types';
  *
  * - [useMenuItem API](https://mui.com/base-ui/api/use-menu-item/)
  */
-export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTrigger.ReturnValue {
+export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
     closeOnClick,
     disabled = false,
@@ -32,34 +32,36 @@ export function useMenuItem(params: useSubmenuTrigger.Parameters): useSubmenuTri
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
-        externalProps,
-        {
-          ref: handleRef,
-          'data-handle-mouseup': treatMouseupAsClick || undefined,
-        },
-        getButtonProps({
-          id,
-          role: 'menuitem',
-          tabIndex: highlighted ? 0 : -1,
-          onClick: (event: React.MouseEvent) => {
-            if (closeOnClick) {
-              menuEvents.emit('close', event);
-            }
-          },
-        }),
-      );
+      return {
+        ...getButtonProps(
+          mergeReactProps(externalProps, {
+            'data-handle-mouseup': treatMouseupAsClick || undefined,
+            id,
+            role: 'menuitem',
+            tabIndex: highlighted ? 0 : -1,
+            onClick: (event: React.MouseEvent) => {
+              if (closeOnClick) {
+                menuEvents.emit('close', event);
+              }
+            },
+          }),
+        ),
+        ref: handleRef,
+      };
     },
     [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, treatMouseupAsClick],
   );
 
-  return {
-    getRootProps,
-    rootRef: handleRef,
-  };
+  return React.useMemo(
+    () => ({
+      getRootProps,
+      rootRef: handleRef,
+    }),
+    [getRootProps, handleRef],
+  );
 }
 
-export namespace useSubmenuTrigger {
+export namespace useMenuItem {
   export interface Parameters {
     /**
      * If `true`, the menu will close when the menu item is clicked.
