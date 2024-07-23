@@ -164,6 +164,10 @@ To change how long the menu waits until it opens or closes when `openOnHover` is
 <Menu.Root openOnHover delay={200}>
 ```
 
+## Radio items
+
+{{"demo": "RadioItems.js"}}
+
 ## Nested menu
 
 Menu items can open submenus.
