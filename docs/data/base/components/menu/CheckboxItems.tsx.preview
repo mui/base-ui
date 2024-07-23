@@ -1,0 +1,14 @@
+<Menu.Root>
+  <MenuButton>My account</MenuButton>
+  <MenuPositioner alignment="start" keepMounted>
+    <MenuPopup>
+      <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+      <MenuItem onClick={createHandleMenuClick('Language settings')}>
+        Language settings
+      </MenuItem>
+      <CheckboxItem>Mute notifications</CheckboxItem>
+      <CheckboxItem defaultChecked>Enable preview features</CheckboxItem>
+      <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+    </MenuPopup>
+  </MenuPositioner>
+</Menu.Root>

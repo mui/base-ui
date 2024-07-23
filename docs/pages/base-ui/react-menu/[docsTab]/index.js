@@ -4,6 +4,7 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/menu/menu.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import MenuArrowApiJsonPageContent from '../../api/menu-arrow.json';
+import MenuCheckboxItemApiJsonPageContent from '../../api/menu-checkbox-item.json';
 import MenuItemApiJsonPageContent from '../../api/menu-item.json';
 import MenuPopupApiJsonPageContent from '../../api/menu-popup.json';
 import MenuPositionerApiJsonPageContent from '../../api/menu-positioner.json';
@@ -34,6 +35,13 @@ export const getStaticProps = () => {
     /\.\/menu-arrow.*.json$/,
   );
   const MenuArrowApiDescriptions = mapApiPageTranslations(MenuArrowApiReq);
+
+  const MenuCheckboxItemApiReq = require.context(
+    'docs-base/translations/api-docs/menu-checkbox-item',
+    false,
+    /\.\/menu-checkbox-item.*.json$/,
+  );
+  const MenuCheckboxItemApiDescriptions = mapApiPageTranslations(MenuCheckboxItemApiReq);
 
   const MenuItemApiReq = require.context(
     'docs-base/translations/api-docs/menu-item',
@@ -81,6 +89,7 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         MenuArrow: MenuArrowApiDescriptions,
+        MenuCheckboxItem: MenuCheckboxItemApiDescriptions,
         MenuItem: MenuItemApiDescriptions,
         MenuPopup: MenuPopupApiDescriptions,
         MenuPositioner: MenuPositionerApiDescriptions,
@@ -90,6 +99,7 @@ export const getStaticProps = () => {
       },
       componentsApiPageContents: {
         MenuArrow: MenuArrowApiJsonPageContent,
+        MenuCheckboxItem: MenuCheckboxItemApiJsonPageContent,
         MenuItem: MenuItemApiJsonPageContent,
         MenuPopup: MenuPopupApiJsonPageContent,
         MenuPositioner: MenuPositionerApiJsonPageContent,

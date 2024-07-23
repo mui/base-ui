@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useMenuCheckboxItem",
+  "filename": "/packages/mui-base/src/Menu/CheckboxItem/useMenuCheckboxItem.ts",
+  "imports": ["import { useMenuCheckboxItem } from '@base_ui/react/Menu';"],
+  "demos": "<ul></ul>"
+}
