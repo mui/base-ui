@@ -34,7 +34,6 @@ describe('<NumberField.ScrubAreaCursor />', () => {
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has presentation role', () => {

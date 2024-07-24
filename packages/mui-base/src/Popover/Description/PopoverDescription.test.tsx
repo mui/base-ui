@@ -20,7 +20,6 @@ describe('<Popover.Description />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('describes the popup element with its id', async () => {

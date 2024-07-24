@@ -66,9 +66,6 @@ describe('<Slider.Output />', () => {
       return { container, ...other };
     },
     refInstanceof: window.HTMLOutputElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with SliderProvider
-    ],
   }));
 
   it('renders a single value', () => {

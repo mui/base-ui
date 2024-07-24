@@ -15,6 +15,5 @@ describe('<Dialog.Description />', () => {
         </Dialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

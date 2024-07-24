@@ -35,6 +35,7 @@ const pages: readonly MuiPage[] = [
         subheader: 'data-display',
         children: [
           { pathname: '/base-ui/react-popover', title: 'Popover' },
+          { pathname: '/base-ui/react-preview-card', title: 'Preview Card' },
           { pathname: '/base-ui/react-tooltip', title: 'Tooltip' },
         ],
       },

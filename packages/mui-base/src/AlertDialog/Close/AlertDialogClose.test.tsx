@@ -15,6 +15,5 @@ describe('<AlertDialog.Close />', () => {
         </AlertDialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

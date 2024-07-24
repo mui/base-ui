@@ -28,7 +28,6 @@ describe('<NumberField.Decrement />', () => {
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has decrease label', () => {

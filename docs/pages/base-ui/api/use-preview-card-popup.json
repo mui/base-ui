@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "usePreviewCardPopup",
+  "filename": "/packages/mui-base/src/PreviewCard/Popup/usePreviewCardPopup.ts",
+  "imports": ["import { usePreviewCardPopup } from '@base_ui/react/PreviewCard';"],
+  "demos": "<ul></ul>"
+}

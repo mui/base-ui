@@ -17,7 +17,6 @@ describe('<Tooltip.Popup />', () => {
         </Tooltip.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should render the children', () => {

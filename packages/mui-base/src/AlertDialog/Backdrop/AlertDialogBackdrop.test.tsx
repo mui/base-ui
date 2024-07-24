@@ -15,7 +15,6 @@ describe('<AlertDialog.Backdrop />', () => {
         </AlertDialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has role="presentation"', async () => {

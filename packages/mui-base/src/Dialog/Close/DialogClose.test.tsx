@@ -15,6 +15,5 @@ describe('<Dialog.Close />', () => {
         </Dialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

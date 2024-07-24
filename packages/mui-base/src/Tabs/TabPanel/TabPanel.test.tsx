@@ -31,8 +31,5 @@ describe('<Tabs.Panel />', () => {
       return { container, ...other };
     },
     refInstanceof: window.HTMLDivElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with TabsContext
-    ],
   }));
 });
