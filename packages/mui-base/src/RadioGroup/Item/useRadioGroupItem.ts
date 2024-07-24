@@ -5,6 +5,7 @@ import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
 
 interface UseRadioGroupItemParameters {
   value: string;
+  name?: string;
   disabled?: boolean;
   required?: boolean;
 }
@@ -16,7 +17,7 @@ interface UseRadioGroupItemParameters {
  * - [useRadioGroupItem API](https://mui.com/base-ui/api/use-radio-group-item/)
  */
 export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
-  const { disabled, value, required } = params;
+  const { disabled, value, name, required } = params;
 
   const { checkedItem, setCheckedItem } = useRadioGroupRootContext();
 
@@ -51,8 +52,8 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
         type: 'radio',
         ref: inputRef,
         tabIndex: -1,
+        name,
         disabled,
-        value,
         checked,
         required,
         style: visuallyHidden,
@@ -66,7 +67,7 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
           setCheckedItem(value);
         },
       }),
-    [disabled, checked, setCheckedItem, value, required],
+    [disabled, name, checked, setCheckedItem, value, required],
   );
 
   return React.useMemo(

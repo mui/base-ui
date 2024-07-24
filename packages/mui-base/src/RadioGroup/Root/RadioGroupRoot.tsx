@@ -5,7 +5,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { RadioGroupRootOwnerState, RadioGroupRootProps } from './RadioGroupRoot.types';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { type RadioGroupRootContextValue, RadioGroupRootContext } from './RadioGroupRootContext';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 
 const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   props: RadioGroupRootProps,
@@ -43,9 +42,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   return (
     <RadioGroupRootContext.Provider value={contextValue}>
       <CompositeRoot render={renderElement()} />
-      {checkedItem && props.name && (
-        <input type="hidden" name={props.name} value={checkedItem} style={visuallyHidden} />
-      )}
+      {checkedItem && props.name && <input type="hidden" name={props.name} value={checkedItem} />}
     </RadioGroupRootContext.Provider>
   );
 });

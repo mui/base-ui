@@ -60,7 +60,7 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
   return (
     <RadioGroupItemContext.Provider value={contextValue}>
       <CompositeItem render={renderElement()} />
-      {props.name && <input type="hidden" name={props.name} value={checked ? 'on' : 'off'} />}
+      {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
     </RadioGroupItemContext.Provider>
   );

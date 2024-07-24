@@ -4,20 +4,29 @@ import { styled } from '@mui/system';
 
 export default function UnstyledSwitchIntroduction() {
   return (
-    <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
-      <Item value="1" name="light">
-        <Indicator keepMounted />
-        Light
-      </Item>
-      <Item value="2" name="medium">
-        <Indicator keepMounted />
-        Medium
-      </Item>
-      <Item value="3" name="heavy">
-        <Indicator keepMounted />
-        Heavy
-      </Item>
-    </RadioGroup.Root>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        console.log(new URLSearchParams(formData).toString());
+      }}
+    >
+      <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
+        <Item value="1" name="light">
+          <Indicator keepMounted />
+          Light
+        </Item>
+        <Item value="2" name="medium">
+          <Indicator keepMounted />
+          Medium
+        </Item>
+        <Item value="3" name="heavy">
+          <Indicator keepMounted />
+          Heavy
+        </Item>
+      </RadioGroup.Root>
+      <button>Submit</button>
+    </form>
   );
 }
 
