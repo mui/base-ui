@@ -37,7 +37,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     direction,
     disabled,
     nested,
-    escapeClosesParents,
+    closeParentOnEscape,
     delay,
     openOnHover,
   } = parameters;
@@ -96,7 +96,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     ignoreMouse: nested,
   });
 
-  const dismiss = useDismiss(floatingRootContext, { bubbles: escapeClosesParents });
+  const dismiss = useDismiss(floatingRootContext, { bubbles: closeParentOnEscape });
 
   const role = useRole(floatingRootContext, {
     role: 'menu',
@@ -246,7 +246,7 @@ export namespace useMenuRoot {
      *
      * If set to `false` pressing Esc closes only the current menu.
      */
-    escapeClosesParents: boolean;
+    closeParentOnEscape: boolean;
     /**
      * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
      */

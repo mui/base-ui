@@ -4,15 +4,15 @@
     "animated": {
       "description": "If <code>true</code>, the Menu supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
     },
+    "closeParentOnEscape": {
+      "description": "Determines if pressing the Esc key closes the parent menus. This is only applicable for nested menus.<br>If set to <code>false</code> pressing Esc closes only the current menu."
+    },
     "defaultOpen": { "description": "If <code>true</code>, the Menu is initially open." },
     "delay": {
       "description": "The delay in milliseconds until the menu popup is opened when <code>openOnHover</code> is <code>true</code>."
     },
     "dir": { "description": "The direction of the Menu (left-to-right or right-to-left)." },
     "disabled": { "description": "If <code>true</code>, the Menu is disabled." },
-    "escapeClosesParents": {
-      "description": "Determines if pressing the Esc key closes the parent menus. This is only applicable for nested menus.<br>If set to <code>false</code> pressing Esc closes only the current menu."
-    },
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."
     },

@@ -172,7 +172,7 @@ To make this happen, place the `<Menu.Root>` with all its required children wher
 ### Escape key behavior
 
 You can control if pressing the <kbd class="key">Escape</kbd> key closes just the current submenu or the whole tree.
-By default, the whole menu closes, but setting the `escapeClosesParents` prop modifies this behavior:
+By default, the whole menu closes, but setting the `closeParentOnEscape` prop modifies this behavior:
 
 ```jsx
 <Menu.Root>
@@ -180,7 +180,7 @@ By default, the whole menu closes, but setting the `escapeClosesParents` prop mo
   <Menu.Positioner>
     <Menu.Popup>
       <Menu.Item>Item 1</Menu.Item>
-      <Menu.Root escapeClosesParents={false}>
+      <Menu.Root closeParentOnEscape={false}>
         <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
 
         <Menu.Positioner>

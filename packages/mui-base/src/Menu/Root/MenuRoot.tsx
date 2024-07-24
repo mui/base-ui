@@ -12,7 +12,7 @@ function MenuRoot(props: MenuRoot.Props) {
     defaultOpen = false,
     dir: direction = 'ltr',
     disabled = false,
-    escapeClosesParents = true,
+    closeParentOnEscape = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -29,7 +29,7 @@ function MenuRoot(props: MenuRoot.Props) {
     animated,
     direction,
     disabled,
-    escapeClosesParents,
+    closeParentOnEscape,
     onOpenChange,
     defaultOpen,
     open,
@@ -123,7 +123,7 @@ namespace MenuRoot {
      *
      * @default true
      */
-    escapeClosesParents?: boolean;
+    closeParentOnEscape?: boolean;
     /**
      * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
      *
@@ -156,6 +156,15 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * Determines if pressing the Esc key closes the parent menus.
+   * This is only applicable for nested menus.
+   *
+   * If set to `false` pressing Esc closes only the current menu.
+   *
+   * @default true
+   */
+  closeParentOnEscape: PropTypes.bool,
+  /**
    * If `true`, the Menu is initially open.
    *
    * @default false
@@ -179,15 +188,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * Determines if pressing the Esc key closes the parent menus.
-   * This is only applicable for nested menus.
-   *
-   * If set to `false` pressing Esc closes only the current menu.
-   *
-   * @default true
-   */
-  escapeClosesParents: PropTypes.bool,
   /**
    * Callback fired when the component requests to be opened or closed.
    */
