@@ -31,14 +31,6 @@ const Button = styled('button')`
   transition: all 150ms ease;
   border: none;
 
-  &:hover:not(:disabled) {
-    background-color: ${blue[600]};
-  }
-
-  &:active:not(:disabled) {
-    background-color: ${blue[700]};
-  }
-
   &:focus-visible {
     box-shadow:
       0 4px 20px 0 rgb(61 71 82 / 0.1),
@@ -49,6 +41,14 @@ const Button = styled('button')`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: ${blue[600]};
+  }
+
+  &:active:not(:disabled) {
+    background-color: ${blue[700]};
   }
 `;
 
@@ -65,14 +65,6 @@ const PoorContrastButton = styled('button')`
   transition: all 150ms ease;
   border: none;
 
-  &:hover:not(:disabled) {
-    background-color: ${blue[600]};
-  }
-
-  &:active:not(:disabled) {
-    background-color: ${blue[700]};
-  }
-
   &:focus-visible {
     box-shadow:
       0 4px 20px 0 rgb(61 71 82 / 0.1),
@@ -83,5 +75,13 @@ const PoorContrastButton = styled('button')`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: ${blue[600]};
+  }
+
+  &:active:not(:disabled) {
+    background-color: ${blue[700]};
   }
 `;
