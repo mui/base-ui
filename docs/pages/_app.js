@@ -20,10 +20,10 @@ import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl'
 import { CodeCopyProvider } from '@mui/docs/CodeCopy';
 import { DocsProvider } from '@mui/docs/DocsProvider';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
-import SvgBaseUiLogo, {
+import BaseUILogo, {
   baseSvgLogoString,
   baseSvgWordmarkString,
-} from 'docs/src/icons/SvgBaseUiLogo';
+} from 'docs-base/src/icons/BaseUILogo';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
@@ -157,7 +157,7 @@ function AppWrapper(props) {
       return {
         metadata: '',
         name: 'Base UI',
-        logo: SvgBaseUiLogo,
+        logo: BaseUILogo,
         logoSvg: baseSvgLogoString,
         wordmarkSvg: baseSvgWordmarkString,
         versions: [{ text: `v${basePkgJson.version}`, current: true }],
