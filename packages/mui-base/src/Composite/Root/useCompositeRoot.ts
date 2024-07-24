@@ -22,7 +22,7 @@ import {
 } from '../composite';
 
 export interface UseCompositeRootParameters {
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
   loop?: boolean;
   activeIndex?: number;
@@ -43,22 +43,24 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     cols = 1,
     loop = true,
     dense = false,
-    orientation = 'horizontal',
+    orientation = 'both',
     activeIndex: externalActiveIndex,
     onActiveIndexChange: externalSetActiveIndex,
   } = params;
 
   const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
 
+  const isGrid = cols > 1;
+
   const activeIndex = externalActiveIndex ?? internalActiveIndex;
   const onActiveIndexChange = useEventCallback(externalSetActiveIndex ?? internalSetActiveIndex);
+
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
-  const isGrid = cols > 1;
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        'aria-orientation': orientation,
+        'aria-orientation': orientation === 'both' ? undefined : orientation,
         onKeyDown(event) {
           if (!ALL_KEYS.includes(event.key)) {
             return;

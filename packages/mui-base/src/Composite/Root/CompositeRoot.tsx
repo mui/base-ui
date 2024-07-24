@@ -62,6 +62,19 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  dense: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  itemSizes: PropTypes.arrayOf(
+    PropTypes.shape({
+      height: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired,
+    }),
+  ),
+  /**
+   * @ignore
+   */
   loop: PropTypes.bool,
   /**
    * @ignore

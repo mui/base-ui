@@ -6,7 +6,7 @@ import type { RadioGroupItemOwnerState, RadioGroupItemProps } from './RadioGroup
 import { useRadioGroupItem } from './useRadioGroupItem';
 import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { RadioGroupItemContext, RadioGroupItemContextValue } from './RadioGroupItemContext';
+import { RadioGroupItemContext, type RadioGroupItemContextValue } from './RadioGroupItemContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioGroupItemOwnerState> = {
   checked(value) {
