@@ -9,7 +9,10 @@
     "import * as RadioGroup from '@base_ui/react/RadioGroup';\nconst RadioGroupIndicator = RadioGroup.Indicator;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "RadioGroupIndicator",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/RadioGroup/Indicator/RadioGroupIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-radio-group/\">Radio Group</a></li></ul>",

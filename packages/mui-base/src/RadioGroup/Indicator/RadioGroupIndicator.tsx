@@ -23,7 +23,7 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
 ) {
   const { render, className, keepMounted = false, ...otherProps } = props;
 
-  const { disabled, checked } = useRadioGroupItemContext();
+  const { disabled, checked, required, readOnly } = useRadioGroupItemContext();
 
   const { getIndicatorProps } = useRadioGroupIndicator();
 
@@ -31,8 +31,10 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
     () => ({
       disabled,
       checked,
+      required,
+      readOnly,
     }),
-    [disabled, checked],
+    [disabled, checked, required, readOnly],
   );
 
   const { renderElement } = useComponentRenderer({

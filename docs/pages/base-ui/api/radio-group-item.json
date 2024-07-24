@@ -3,15 +3,19 @@
     "value": { "type": { "name": "string" }, "required": true },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "required": { "type": { "name": "bool" } }
+    "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "RadioGroupItem",
   "imports": [
     "import * as RadioGroup from '@base_ui/react/RadioGroup';\nconst RadioGroupItem = RadioGroup.Item;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "RadioGroupItem",
+  "forwardsRefTo": "HTMLButtonElement",
   "filename": "/packages/mui-base/src/RadioGroup/Item/RadioGroupItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-radio-group/\">Radio Group</a></li></ul>",

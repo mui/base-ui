@@ -7,6 +7,7 @@ interface UseRadioGroupItemParameters {
   value: string;
   name?: string;
   disabled?: boolean;
+  readOnly?: boolean;
   required?: boolean;
 }
 
@@ -17,9 +18,9 @@ interface UseRadioGroupItemParameters {
  * - [useRadioGroupItem API](https://mui.com/base-ui/api/use-radio-group-item/)
  */
 export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
-  const { disabled, value, name, required } = params;
+  const { disabled, readOnly, value, name, required } = params;
 
-  const { checkedItem, setCheckedItem } = useRadioGroupRootContext();
+  const { checkedItem, setCheckedItem, onValueChange } = useRadioGroupRootContext();
 
   const checked = checkedItem === value;
 
@@ -33,8 +34,9 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
         'aria-checked': checked,
         'aria-required': required,
         'aria-disabled': disabled || undefined,
+        'aria-readonly': readOnly || undefined,
         onClick(event) {
-          if (event.defaultPrevented || disabled) {
+          if (event.defaultPrevented || disabled || readOnly) {
             return;
           }
 
@@ -43,7 +45,7 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, required],
+    [checked, disabled, readOnly, required],
   );
 
   const getInputProps = React.useCallback(
@@ -56,18 +58,24 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
         disabled,
         checked,
         required,
+        readOnly,
         style: visuallyHidden,
         'aria-hidden': true,
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented || disabled) {
+          if (event.nativeEvent.defaultPrevented) {
+            return;
+          }
+
+          if (disabled || readOnly) {
             return;
           }
 
           setCheckedItem(value);
+          onValueChange?.(value, event);
         },
       }),
-    [disabled, name, checked, setCheckedItem, value, required],
+    [disabled, readOnly, name, checked, setCheckedItem, value, required, onValueChange],
   );
 
   return React.useMemo(

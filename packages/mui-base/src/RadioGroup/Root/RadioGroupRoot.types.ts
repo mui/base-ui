@@ -2,14 +2,25 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 export type RadioGroupRootOwnerState = {
   disabled: boolean | undefined;
+  readOnly: boolean | undefined;
 };
 
 export interface RadioGroupRootProps extends BaseUIComponentProps<'div', RadioGroupRootOwnerState> {
   /**
-   * Whether the radio group is disabled.
+   * Determines if the radio group is disabled.
    * @default false
    */
   disabled?: boolean;
+  /**
+   * Determines if the radio group is readonly.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Determines if the radio group is required.
+   * @default false
+   */
+  required?: boolean;
   /**
    * The name of the radio group submitted with the form data.
    */
@@ -28,6 +39,7 @@ export interface RadioGroupRootProps extends BaseUIComponentProps<'div', RadioGr
   onValueChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
   /**
    * The orientation of the radio group.
+   * @default 'horizontal'
    */
   orientation?: 'horizontal' | 'vertical';
 }

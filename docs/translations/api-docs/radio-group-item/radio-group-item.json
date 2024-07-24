@@ -4,7 +4,8 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "disabled": { "description": "Whether the item is disabled." },
+    "disabled": { "description": "Determines if the item is disabled." },
+    "readOnly": { "description": "Determines if the item is readonly." },
     "render": { "description": "A function to customize rendering of the component." },
     "required": { "description": "Determines if the item is required." },
     "value": { "description": "The value of the item identified in the radio group." }
