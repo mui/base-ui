@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../useButton';
-import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 
@@ -23,41 +22,37 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     treatMouseupAsClick,
   } = params;
 
-  const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
+  const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
+    rootRef: externalRef,
   });
-
-  const handleRef = useForkRef(buttonRefHandler, externalRef);
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return {
-        ...getButtonProps(
-          mergeReactProps(externalProps, {
-            'data-handle-mouseup': treatMouseupAsClick || undefined,
-            id,
-            role: 'menuitem',
-            tabIndex: highlighted ? 0 : -1,
-            onClick: (event: React.MouseEvent) => {
-              if (closeOnClick) {
-                menuEvents.emit('close', event);
-              }
-            },
-          }),
-        ),
-        ref: handleRef,
-      };
+      return getButtonProps(
+        mergeReactProps(externalProps, {
+          'data-handle-mouseup': treatMouseupAsClick || undefined,
+          id,
+          role: 'menuitem',
+          tabIndex: highlighted ? 0 : -1,
+          onClick: (event: React.MouseEvent) => {
+            if (closeOnClick) {
+              menuEvents.emit('close', event);
+            }
+          },
+        }),
+      );
     },
-    [closeOnClick, getButtonProps, handleRef, highlighted, id, menuEvents, treatMouseupAsClick],
+    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
-      rootRef: handleRef,
+      rootRef: mergedRef,
     }),
-    [getRootProps, handleRef],
+    [getRootProps, mergedRef],
   );
 }
 

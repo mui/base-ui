@@ -2,7 +2,6 @@ import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 
 /**
@@ -38,12 +37,13 @@ export function useSubmenuTrigger(
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
-      return getMenuItemProps(
-        mergeReactProps(externalProps, {
+      return {
+        ...getMenuItemProps({
           'aria-haspopup': 'menu' as const,
-          ref: menuTriggerRef,
+          ...externalProps,
         }),
-      );
+        ref: menuTriggerRef,
+      };
     },
     [getMenuItemProps, menuTriggerRef],
   );
