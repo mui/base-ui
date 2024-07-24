@@ -2,7 +2,9 @@ import * as React from 'react';
 
 export interface RadioGroupItemContextValue {
   disabled: boolean;
+  readOnly: boolean;
   checked: boolean;
+  required: boolean;
 }
 
 export const RadioGroupItemContext = React.createContext<RadioGroupItemContextValue | null>(null);

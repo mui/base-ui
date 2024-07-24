@@ -5,29 +5,45 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { RadioGroupRootOwnerState, RadioGroupRootProps } from './RadioGroupRoot.types';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { type RadioGroupRootContextValue, RadioGroupRootContext } from './RadioGroupRootContext';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   props: RadioGroupRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled, ...otherProps } = props;
+  const {
+    render,
+    className,
+    disabled,
+    readOnly,
+    required,
+    onValueChange: onValueChangeProp,
+    ...otherProps
+  } = props;
 
   const { getRootProps, checkedItem, setCheckedItem } = useRadioGroupRoot(props);
+
+  const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
   const ownerState: RadioGroupRootOwnerState = React.useMemo(
     () => ({
       disabled: disabled ?? false,
+      required: required ?? false,
+      readOnly: readOnly ?? false,
     }),
-    [disabled],
+    [disabled, readOnly, required],
   );
 
   const contextValue: RadioGroupRootContextValue = React.useMemo(
     () => ({
       checkedItem,
       setCheckedItem,
+      onValueChange,
       disabled,
+      readOnly,
+      required,
     }),
-    [checkedItem, setCheckedItem, disabled],
+    [checkedItem, setCheckedItem, onValueChange, disabled, readOnly, required],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -42,7 +58,9 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   return (
     <RadioGroupRootContext.Provider value={contextValue}>
       <CompositeRoot render={renderElement()} />
-      {checkedItem && props.name && <input type="hidden" name={props.name} value={checkedItem} />}
+      {props.name && (
+        <input type="hidden" name={props.name} value={checkedItem ?? ''} required={required} />
+      )}
     </RadioGroupRootContext.Provider>
   );
 });
@@ -65,7 +83,7 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.string,
   /**
-   * Whether the radio group is disabled.
+   * Determines if the radio group is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -79,12 +97,23 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
   onValueChange: PropTypes.func,
   /**
    * The orientation of the radio group.
+   * @default 'horizontal'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  /**
+   * Determines if the radio group is readonly.
+   * @default false
+   */
+  readOnly: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * Determines if the radio group is required.
+   * @default false
+   */
+  required: PropTypes.bool,
   /**
    * The value of the selected radio button. Use when controlled.
    */

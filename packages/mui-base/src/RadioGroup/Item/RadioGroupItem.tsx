@@ -20,31 +20,50 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
   props: RadioGroupItemProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, value, ...otherProps } = props;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    readOnly: readOnlyProp = false,
+    required: requiredProp = false,
+    value,
+    ...otherProps
+  } = props;
 
-  const { disabled: disabledRoot } = useRadioGroupRootContext();
+  const {
+    disabled: disabledRoot,
+    readOnly: readOnlyRoot,
+    required: requiredRoot,
+  } = useRadioGroupRootContext();
 
   const disabled = disabledRoot ?? disabledProp;
+  const readOnly = readOnlyRoot ?? readOnlyProp;
+  const required = requiredRoot ?? requiredProp;
 
   const { getItemProps, getInputProps, checked } = useRadioGroupItem({
     ...props,
     disabled,
+    readOnly,
   });
 
   const ownerState: RadioGroupItemOwnerState = React.useMemo(
     () => ({
+      required,
       disabled,
+      readOnly,
       checked,
     }),
-    [disabled, checked],
+    [disabled, readOnly, checked, required],
   );
 
   const contextValue: RadioGroupItemContextValue = React.useMemo(
     () => ({
       checked,
       disabled,
+      readOnly,
+      required,
     }),
-    [checked, disabled],
+    [checked, disabled, readOnly, required],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -80,7 +99,7 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the item is disabled.
+   * Determines if the item is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -89,11 +108,17 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    */
   name: PropTypes.string,
   /**
+   * Determines if the item is readonly.
+   * @default false
+   */
+  readOnly: PropTypes.bool,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * Determines if the item is required.
+   * @default false
    */
   required: PropTypes.bool,
   /**

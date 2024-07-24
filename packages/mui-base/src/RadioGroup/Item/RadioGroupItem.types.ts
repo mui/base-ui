@@ -12,12 +12,18 @@ export interface RadioGroupItemProps
    */
   value: string;
   /**
-   * Whether the item is disabled.
+   * Determines if the item is disabled.
    * @default false
    */
   disabled?: boolean;
   /**
    * Determines if the item is required.
+   * @default false
    */
   required?: boolean;
+  /**
+   * Determines if the item is readonly.
+   * @default false
+   */
+  readOnly?: boolean;
 }

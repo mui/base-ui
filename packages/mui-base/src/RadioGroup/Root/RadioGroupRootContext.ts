@@ -2,8 +2,11 @@ import * as React from 'react';
 
 export interface RadioGroupRootContextValue {
   disabled: boolean | undefined;
+  readOnly: boolean | undefined;
+  required: boolean | undefined;
   checkedItem: string | null;
   setCheckedItem: React.Dispatch<React.SetStateAction<string | null>>;
+  onValueChange: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const RadioGroupRootContext = React.createContext<RadioGroupRootContextValue | null>(null);
