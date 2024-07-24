@@ -1,9 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import { Menu } from '@base_ui/react/legacy/Menu';
+import { MenuButton as BaseMenuButton } from '@base_ui/react/legacy/MenuButton';
+import {
+  MenuItem as BaseMenuItem,
+  menuItemClasses,
+} from '@base_ui/react/legacy/MenuItem';
 import { styled } from '@mui/system';
 
 function MenuSection({ children, label }) {

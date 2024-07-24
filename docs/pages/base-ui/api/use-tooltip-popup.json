@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useTooltipPopup",
+  "filename": "/packages/mui-base/src/Tooltip/Popup/useTooltipPopup.ts",
+  "imports": ["import { useTooltipPopup } from '@base_ui/react/Tooltip';"],
+  "demos": "<ul></ul>"
+}

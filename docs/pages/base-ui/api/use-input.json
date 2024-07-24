@@ -2,7 +2,7 @@
   "parameters": {},
   "returnValue": {},
   "name": "useInput",
-  "filename": "/packages/mui-base/src/useInput/useInput.ts",
-  "imports": ["import { useInput } from '@base_ui/react/useInput';"],
+  "filename": "/packages/mui-base/src/legacy/useInput/useInput.ts",
+  "imports": ["import { useInput } from '@base_ui/react/legacy/useInput';"],
   "demos": "<ul><li><a href=\"/base-ui/react-input/#hook\">Input</a></li></ul>"
 }

@@ -27,7 +27,6 @@ describe('<NumberField.Group />', () => {
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has role prop', () => {

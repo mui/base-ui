@@ -30,6 +30,7 @@
 # created by netlify dev (to perform local debug)
 .netlify
 build
+build-tests
 node_modules
 package-lock.json
 size-snapshot.json

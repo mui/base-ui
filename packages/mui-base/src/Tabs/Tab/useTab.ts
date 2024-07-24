@@ -8,7 +8,6 @@ import { useListItem } from '../../useList';
 import { useButton } from '../../useButton';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
-import { combineHooksSlotProps } from '../../utils/combineHooksSlotProps';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 function tabValueGenerator(otherTabValues: Set<any>) {
@@ -57,8 +56,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      const getCombinedRootProps = combineHooksSlotProps(getListItemProps, getButtonProps);
-
+      //
       return mergeReactProps<'button'>(
         externalProps,
         mergeReactProps<'button'>(
@@ -69,7 +67,7 @@ function useTab(parameters: UseTabParameters): UseTabReturnValue {
             id,
             ref: handleRef,
           },
-          getCombinedRootProps(),
+          mergeReactProps(getListItemProps(), getButtonProps()),
         ),
       );
     },

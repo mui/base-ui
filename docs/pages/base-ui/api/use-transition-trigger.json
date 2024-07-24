@@ -2,7 +2,7 @@
   "parameters": {},
   "returnValue": {},
   "name": "useTransitionTrigger",
-  "filename": "/packages/mui-base/src/useTransition/useTransitionTrigger.ts",
-  "imports": ["import { useTransitionTrigger } from '@base_ui/react/useTransition';"],
+  "filename": "/packages/mui-base/src/legacy/useTransition/useTransitionTrigger.ts",
+  "imports": ["import { useTransitionTrigger } from '@base_ui/react/legacy/useTransition';"],
   "demos": "<ul><li><a href=\"/base-ui/react-transitions/#hooks\">Transitions</a></li></ul>"
 }

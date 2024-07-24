@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { createRenderer, act, fireEvent } from '@mui/internal-test-utils';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -77,16 +77,15 @@ describe('<Checkbox.Root />', () => {
 
   it('should call onChange when clicked', () => {
     const handleChange = spy();
-    const { getAllByRole, container } = render(<Checkbox.Root onChange={handleChange} />);
+    const { getAllByRole } = render(<Checkbox.Root onCheckedChange={handleChange} />);
     const [checkbox] = getAllByRole('checkbox');
-    const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
     act(() => {
       checkbox.click();
     });
 
     expect(handleChange.callCount).to.equal(1);
-    expect(handleChange.firstCall.args[0].target).to.equal(input);
+    expect(handleChange.firstCall.args[0]).to.equal(true);
   });
 
   describe('prop: disabled', () => {
@@ -303,5 +302,26 @@ describe('<Checkbox.Root />', () => {
     submitButton.click();
 
     expect(stringifiedFormData).to.equal('test-checkbox=on');
+  });
+
+  it('should change state when clicking the checkbox if it has a wrapping label', () => {
+    const { getAllByRole } = render(
+      <label data-testid="label">
+        <Checkbox.Root />
+        Toggle
+      </label>,
+    );
+
+    const [checkbox] = getAllByRole('checkbox');
+
+    expect(checkbox).to.have.attribute('aria-checked', 'false');
+
+    fireEvent.click(checkbox);
+
+    expect(checkbox).to.have.attribute('aria-checked', 'true');
+
+    fireEvent.click(checkbox);
+
+    expect(checkbox).to.have.attribute('aria-checked', 'false');
   });
 });

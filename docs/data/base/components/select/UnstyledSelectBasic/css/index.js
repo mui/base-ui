@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Select, selectClasses } from '@base_ui/react/Select';
-import { Option, optionClasses } from '@base_ui/react/Option';
+import { Select, selectClasses } from '@base_ui/react/legacy/Select';
+import { Option, optionClasses } from '@base_ui/react/legacy/Option';
 import { useTheme } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 

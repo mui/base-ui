@@ -3,7 +3,7 @@ import { useTheme } from '@mui/system';
 import {
   TablePagination,
   tablePaginationClasses as classes,
-} from '@base_ui/react/TablePagination';
+} from '@base_ui/react/legacy/TablePagination';
 import FirstPageRoundedIcon from '@mui/icons-material/FirstPageRounded';
 import LastPageRoundedIcon from '@mui/icons-material/LastPageRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';

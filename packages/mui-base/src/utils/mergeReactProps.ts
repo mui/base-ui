@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './BaseUI.types';
+import type { BaseUIEvent, WithBaseUIEvent } from './types';
 
 /**
  * Merges two sets of React props such that their event handlers are called in sequence (the user's
@@ -17,7 +17,14 @@ export function mergeReactProps<T extends React.ElementType>(
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   return Object.entries(externalProps).reduce(
     (acc, [key, value]) => {
-      if (/^on[A-Z]/.test(key) && typeof value === 'function') {
+      if (
+        // This approach is more efficient than using a regex.
+        key[0] === 'o' &&
+        key[1] === 'n' &&
+        key.charCodeAt(2) >= 65 /* A */ &&
+        key.charCodeAt(2) <= 90 /* Z */ &&
+        typeof value === 'function'
+      ) {
         acc[key] = (event: React.SyntheticEvent) => {
           let isPrevented = false;
 

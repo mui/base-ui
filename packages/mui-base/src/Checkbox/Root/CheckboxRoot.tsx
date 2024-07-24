@@ -26,7 +26,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 ) {
   const {
     name,
-    onChange,
+    onCheckedChange,
     defaultChecked,
     disabled = false,
     readOnly = false,
@@ -130,13 +130,12 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
+   * @param {boolean} checked The new checked state.
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
-  onChange: PropTypes.func,
+  onCheckedChange: PropTypes.func,
   /**
    * If `true`, the component is read only.
    *

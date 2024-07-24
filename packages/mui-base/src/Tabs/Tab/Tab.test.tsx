@@ -50,8 +50,5 @@ describe('<Tabs.Tab />', () => {
       return { container, ...other };
     },
     refInstanceof: window.HTMLButtonElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with TabsContext
-    ],
   }));
 });

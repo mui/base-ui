@@ -1,10 +1,9 @@
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { fireEvent, screen } from '@testing-library/react';
-
-const waitForPosition = async () => act(async () => {});
+import { OPEN_DELAY } from '../utils/constants';
+import { createRenderer } from '../../../test';
 
 describe('<Tooltip.Provider />', () => {
   const { render, clock } = createRenderer();
@@ -13,7 +12,7 @@ describe('<Tooltip.Provider />', () => {
     clock.withFakeTimers();
 
     it('waits for the delay before showing the tooltip', async () => {
-      render(
+      await render(
         <Tooltip.Provider delay={10_000}>
           <Tooltip.Root animated={false}>
             <Tooltip.Trigger />
@@ -37,7 +36,7 @@ describe('<Tooltip.Provider />', () => {
 
       clock.tick(9_000);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).not.to.equal(null);
     });
@@ -47,7 +46,7 @@ describe('<Tooltip.Provider />', () => {
     clock.withFakeTimers();
 
     it('waits for the closeDelay before hiding the tooltip', async () => {
-      render(
+      await render(
         <Tooltip.Provider closeDelay={400}>
           <Tooltip.Root animated={false}>
             <Tooltip.Trigger />
@@ -63,9 +62,9 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).not.to.equal(null);
 

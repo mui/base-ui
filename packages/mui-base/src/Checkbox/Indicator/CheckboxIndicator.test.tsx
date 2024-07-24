@@ -24,7 +24,6 @@ describe('<Checkbox.Indicator />', () => {
         <CheckboxContext.Provider value={testContext}>{node}</CheckboxContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should not render indicator by default', () => {

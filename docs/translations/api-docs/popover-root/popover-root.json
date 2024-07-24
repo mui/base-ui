@@ -1,0 +1,33 @@
+{
+  "componentDescription": "The foundation for building custom-styled popovers.",
+  "propDescriptions": {
+    "animated": {
+      "description": "Whether the tooltip can animate, adding animation-related attributes and allowing for exit animations to play. Useful to disable in tests to remove async behavior."
+    },
+    "closeDelay": {
+      "description": "The delay in milliseconds until the popover popup is closed when <code>openOnHover</code> is <code>true</code>."
+    },
+    "defaultOpen": {
+      "description": "Specifies whether the popover is open initially when uncontrolled."
+    },
+    "delay": {
+      "description": "The delay in milliseconds until the popover popup is opened when <code>openOnHover</code> is <code>true</code>."
+    },
+    "delayType": {
+      "description": "The delay type to use when <code>openOnHover</code> is <code>true</code>. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the popover popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
+    },
+    "followCursorAxis": {
+      "description": "Determines which axis the tooltip should follow the cursor on."
+    },
+    "onOpenChange": {
+      "description": "Callback fired when the popover popup is requested to be opened or closed. Use when controlled."
+    },
+    "open": {
+      "description": "If <code>true</code>, the popover popup is open. Use when controlled."
+    },
+    "openOnHover": {
+      "description": "If <code>true</code>, the popover popup opens when the trigger is hovered."
+    }
+  },
+  "classDescriptions": {}
+}

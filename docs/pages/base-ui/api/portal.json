@@ -5,12 +5,12 @@
     "disablePortal": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "Portal",
-  "imports": ["import { Portal } from '@base_ui/react/Portal';"],
+  "imports": ["import { Portal } from '@base_ui/react/legacy/Portal';"],
   "classes": [],
   "spread": false,
   "themeDefaultProps": null,
   "muiName": "Portal",
-  "filename": "/packages/mui-base/src/Portal/Portal.tsx",
+  "filename": "/packages/mui-base/src/legacy/Portal/Portal.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-portal/\">Portal</a></li></ul>",
   "cssComponent": false

@@ -1,17 +1,17 @@
-import type {
-  FloatingRootContext,
-  OpenChangeReason,
-  UseInteractionsReturn,
-} from '@floating-ui/react';
+import type * as React from 'react';
+import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { GenericHTMLProps } from '../../utils/types';
 
 export interface UseTooltipRootParameters {
   /**
-   * If `true`, the tooltip popup will be open by default. Use when uncontrolled.
+   * Whether the tooltip popup is open by default. Use when uncontrolled.
+   * @default false
    */
   defaultOpen?: boolean;
   /**
-   * If `true`, the tooltip popup will be open. Use when controlled.
+   * Whether the tooltip popup is open. Use when controlled.
+   * @default false
    */
   open?: boolean;
   /**
@@ -19,17 +19,8 @@ export interface UseTooltipRootParameters {
    */
   onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   /**
-   * The trigger element. Store in state.
-   * @default null
-   */
-  triggerElement?: Element | null;
-  /**
-   * The popup element. Store in state.
-   * @default null
-   */
-  popupElement?: HTMLElement | null;
-  /**
-   * If `true`, the user can move from the trigger toward the tooltip without it closing.
+   * Whether the can move their cursor from the trigger element toward the tooltip popup element
+   * without it closing using a "safe polygon" technique.
    * @default true
    */
   hoverable?: boolean;
@@ -46,7 +37,7 @@ export interface UseTooltipRootParameters {
   followCursorAxis?: 'none' | 'x' | 'y' | 'both';
   /**
    * The delay in milliseconds until the tooltip popup is opened.
-   * @default 300
+   * @default 600
    */
   delay?: number;
   /**
@@ -62,47 +53,25 @@ export interface UseTooltipRootParameters {
    */
   delayType?: 'rest' | 'hover';
   /**
-   * If `true`, the tooltip popup remains mounted in the DOM even when closed.
+   * Whether the tooltip popup element stays mounted in the DOM when closed.
    * @default false
    */
   keepMounted?: boolean;
 }
 
 export interface UseTooltipRootReturnValue {
-  /**
-   * If `true`, the tooltip is open.
-   */
   open: boolean;
-  /**
-   * Sets the open state of the tooltip.
-   */
   setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  /**
-   * If `true`, the tooltip is mounted.
-   */
   mounted: boolean;
-  /**
-   * Sets the mounted state of the tooltip.
-   */
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  /**
-   * Prop getter to spread props on the trigger element.
-   */
-  getTriggerProps: UseInteractionsReturn['getReferenceProps'];
-  /**
-   * Prop getter to spread root props on the positioner element.
-   */
-  getRootPositionerProps: UseInteractionsReturn['getFloatingProps'];
-  /**
-   * The root context object.
-   */
-  rootContext: FloatingRootContext;
-  /**
-   * The type of instant phase the tooltip is in to remove animations.
-   */
+  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  floatingRootContext: FloatingRootContext;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
-  /**
-   * The transition status of the tooltip.
-   */
   transitionStatus: TransitionStatus;
+  triggerElement: Element | null;
+  positionerElement: HTMLElement | null;
+  setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+  setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  popupRef: React.RefObject<HTMLElement>;
 }

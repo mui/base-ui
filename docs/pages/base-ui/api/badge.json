@@ -19,12 +19,12 @@
     }
   },
   "name": "Badge",
-  "imports": ["import { Badge } from '@base_ui/react/Badge';"],
+  "imports": ["import { Badge } from '@base_ui/react/legacy/Badge';"],
   "classes": [],
   "spread": true,
   "muiName": "Badge",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Badge/Badge.tsx",
+  "filename": "/packages/mui-base/src/legacy/Badge/Badge.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-badge/\">Badge</a></li></ul>",
   "cssComponent": false

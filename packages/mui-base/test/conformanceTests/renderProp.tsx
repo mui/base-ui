@@ -59,10 +59,10 @@ export function testRenderProp(
         }),
       );
 
-      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
+      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).not.to.equal(null);
     });
 
-    it('should pass the ref to the custom component', () => {
+    it('should pass the ref to the custom component', async () => {
       let instanceFromRef = null;
 
       function Test() {
@@ -75,12 +75,12 @@ export function testRenderProp(
         });
       }
 
-      render(<Test />);
+      await render(<Test />);
       expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
       expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
     });
 
-    it('should merge the rendering element ref with the custom component ref', () => {
+    it('should merge the rendering element ref with the custom component ref', async () => {
       let refA = null;
       let refB = null;
 
@@ -100,9 +100,12 @@ export function testRenderProp(
         });
       }
 
-      render(<Test />);
+      await render(<Test />);
+
+      expect(refA).not.to.equal(null);
       expect(refA!.tagName).to.equal(Element.toUpperCase());
       expect(refA!).to.have.attribute('data-testid', 'wrapped');
+      expect(refB).not.to.equal(null);
       expect(refB!.tagName).to.equal(Element.toUpperCase());
       expect(refB!).to.have.attribute('data-testid', 'wrapped');
     });
