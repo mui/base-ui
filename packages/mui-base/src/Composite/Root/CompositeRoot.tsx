@@ -13,7 +13,18 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
   props: CompositeRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const {
+    render,
+    className,
+    activeIndex: activeIndexProp,
+    onActiveIndexChange: onActiveIndexChangeProp,
+    orientation,
+    dense,
+    itemSizes,
+    loop,
+    cols,
+    ...otherProps
+  } = props;
 
   const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot(props);
 
