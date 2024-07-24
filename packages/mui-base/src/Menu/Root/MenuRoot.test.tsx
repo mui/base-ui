@@ -476,6 +476,31 @@ describe('<Menu.Root />', () => {
 
       expect(button).toHaveFocus();
     });
+
+    it('focuses the trigger after the menu is closed but not unmounted', async () => {
+      const { getByRole } = await render(
+        <div>
+          <input type="text" />
+          <Menu.Root animated={false}>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Positioner keepMounted>
+              <Menu.Popup>
+                <Menu.Item>Close</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Root>
+          <input type="text" />
+        </div>,
+      );
+
+      const button = getByRole('button', { name: 'Toggle' });
+      await user.click(button);
+
+      const menuItem = getByRole('menuitem');
+      await user.click(menuItem);
+
+      expect(button).toHaveFocus();
+    });
   });
 
   describe('prop: closeParentOnEscape', () => {
