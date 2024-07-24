@@ -12,6 +12,5 @@ describe('<Tooltip.Trigger />', () => {
     render(node) {
       return render(<Tooltip.Root>{node}</Tooltip.Root>);
     },
-    skip: ['reactTestRenderer'],
   }));
 });

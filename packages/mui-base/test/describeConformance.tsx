@@ -4,7 +4,6 @@ import {
   MuiRenderResult,
   RenderOptions,
   createDescribe,
-  testReactTestRenderer,
 } from '@mui/internal-test-utils';
 import { testPropForwarding } from './conformanceTests/propForwarding';
 import { testRefForwarding } from './conformanceTests/refForwarding';
@@ -23,7 +22,6 @@ export interface BaseUiConformanceTestsOptions
 
 const fullSuite = {
   propsSpread: testPropForwarding,
-  reactTestRenderer: testReactTestRenderer,
   refForwarding: testRefForwarding,
   renderProp: testRenderProp,
   className: testClassName,

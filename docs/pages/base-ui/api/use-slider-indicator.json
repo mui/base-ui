@@ -1,0 +1,32 @@
+{
+  "parameters": {
+    "axis": { "type": { "name": "Axis", "description": "Axis" }, "required": true },
+    "direction": {
+      "type": { "name": "SliderDirection", "description": "SliderDirection" },
+      "required": true
+    },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" }, "required": true },
+    "orientation": {
+      "type": { "name": "SliderOrientation", "description": "SliderOrientation" },
+      "default": "'horizontal'",
+      "required": true
+    },
+    "percentageValues": {
+      "type": { "name": "readonly number[]", "description": "readonly number[]" },
+      "required": true
+    }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;span&#39;&gt;"
+      },
+      "required": true
+    }
+  },
+  "name": "useSliderIndicator",
+  "filename": "/packages/mui-base/src/Slider/Indicator/useSliderIndicator.ts",
+  "imports": ["import { useSliderIndicator } from '@base_ui/react/Slider';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
+}

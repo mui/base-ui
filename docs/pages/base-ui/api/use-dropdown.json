@@ -2,7 +2,7 @@
   "parameters": {},
   "returnValue": {},
   "name": "useDropdown",
-  "filename": "/packages/mui-base/src/useDropdown/useDropdown.ts",
-  "imports": ["import { useDropdown } from '@base_ui/react/useDropdown';"],
+  "filename": "/packages/mui-base/src/legacy/useDropdown/useDropdown.ts",
+  "imports": ["import { useDropdown } from '@base_ui/react/legacy/useDropdown';"],
   "demos": "<ul><li><a href=\"/base-ui/react-menu/#hooks\">Menu</a></li></ul>"
 }

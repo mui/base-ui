@@ -1,20 +1,21 @@
-import type { Side } from '@floating-ui/react';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/BaseUI.types';
+import type * as React from 'react';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { TooltipPositionerParameters } from './useTooltipPositioner.types';
 
 export interface TooltipPositionerContextValue {
   open: boolean;
   side: Side;
-  alignment: 'start' | 'end' | 'center';
+  alignment: Alignment;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
-  getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  arrowStyles: React.CSSProperties;
 }
 
 export type TooltipPositionerOwnerState = {
   open: boolean;
   side: Side;
-  alignment: 'start' | 'end' | 'center';
+  alignment: Alignment;
 };
 
 export interface TooltipPositionerProps

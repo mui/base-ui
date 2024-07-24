@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import type { TooltipRootProps } from './TooltipRoot.types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
+import { OPEN_DELAY } from '../utils/constants';
 
 /**
  * The foundation for building custom-styled tooltips.
@@ -26,25 +27,25 @@ function TooltipRoot(props: TooltipRootProps) {
     followCursorAxis = 'none',
   } = props;
 
-  const delayWithDefault = delay ?? 300;
+  const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
-
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const {
     open,
     setOpen,
     mounted,
     setMounted,
+    triggerElement,
+    setTriggerElement,
+    positionerElement,
+    setPositionerElement,
+    popupRef,
     instantType,
-    getTriggerProps,
-    getRootPositionerProps,
-    rootContext,
+    getRootTriggerProps,
+    getRootPopupProps,
+    floatingRootContext,
     transitionStatus,
   } = useTooltipRoot({
-    popupElement,
-    triggerElement,
     hoverable,
     animated,
     followCursorAxis,
@@ -65,14 +66,15 @@ function TooltipRoot(props: TooltipRootProps) {
       setOpen,
       triggerElement,
       setTriggerElement,
-      popupElement,
-      setPopupElement,
+      positionerElement,
+      setPositionerElement,
+      popupRef,
       mounted,
       setMounted,
       instantType,
-      getTriggerProps,
-      getRootPositionerProps,
-      rootContext,
+      getRootTriggerProps,
+      getRootPopupProps,
+      floatingRootContext,
       followCursorAxis,
       transitionStatus,
     }),
@@ -83,13 +85,16 @@ function TooltipRoot(props: TooltipRootProps) {
       open,
       setOpen,
       triggerElement,
-      popupElement,
+      setTriggerElement,
+      positionerElement,
+      setPositionerElement,
+      popupRef,
       mounted,
       setMounted,
       instantType,
-      getTriggerProps,
-      getRootPositionerProps,
-      rootContext,
+      getRootTriggerProps,
+      getRootPopupProps,
+      floatingRootContext,
       followCursorAxis,
       transitionStatus,
     ],
@@ -126,7 +131,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * The delay in milliseconds until the tooltip popup is opened.
-   * @default 300
+   * @default 600
    */
   delay: PropTypes.number,
   /**

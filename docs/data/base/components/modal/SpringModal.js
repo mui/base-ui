@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled, css } from '@mui/system';
-import { Modal as BaseModal } from '@base_ui/react/Modal';
-import { Button } from '@base_ui/react/Button';
+import { Modal as BaseModal } from '@base_ui/react/legacy/Modal';
+import { Button } from '@base_ui/react/legacy/Button';
 import { useSpring, animated } from '@react-spring/web';
 
 export default function SpringModal() {

@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
-import { fireEvent } from '@testing-library/react';
 import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
@@ -28,7 +27,6 @@ describe('<NumberField.Input />', () => {
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('has textbox role', () => {

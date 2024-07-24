@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Button } from '@base_ui/react/Button';
+import { Button } from '@base_ui/react/legacy/Button';
 import { prepareForSlot } from './prepareForSlot';
 
 describe('prepareForSlot', () => {

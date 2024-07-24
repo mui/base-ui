@@ -1,11 +1,14 @@
 import * as React from 'react';
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { Menu, MenuListboxSlotProps } from '@base_ui/react/Menu';
-import { MenuButton as BaseMenuButton } from '@base_ui/react/MenuButton';
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@base_ui/react/MenuItem';
+import { Dropdown } from '@base_ui/react/legacy/Dropdown';
+import { Menu, MenuListboxSlotProps } from '@base_ui/react/legacy/Menu';
+import { MenuButton as BaseMenuButton } from '@base_ui/react/legacy/MenuButton';
+import {
+  MenuItem as BaseMenuItem,
+  menuItemClasses,
+} from '@base_ui/react/legacy/MenuItem';
 import { styled } from '@mui/system';
-import { CssTransition } from '@base_ui/react/Transitions';
-import { PopupContext } from '@base_ui/react/Unstable_Popup';
+import { CssTransition } from '@base_ui/react/legacy/Transitions';
+import { PopupContext } from '@base_ui/react/legacy/Unstable_Popup';
 
 export default function MenuIntroduction() {
   const createHandleMenuClick = (menuItem: string) => {

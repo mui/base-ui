@@ -1,5 +1,5 @@
 import type { ScrubHandle } from './useScrub.types';
-import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 export type NumberFieldRootOwnerState = {
   /**
@@ -121,8 +121,9 @@ export interface UseNumberFieldRootParameters {
   /**
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
+   * @param {Event} event The event that triggered the change.
    */
-  onChange?: (value: number | null) => void;
+  onValueChange?: (value: number | null, event?: Event) => void;
 }
 
 export interface UseNumberFieldRootReturnValue {

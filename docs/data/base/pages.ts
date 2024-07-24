@@ -30,7 +30,7 @@ const pages: readonly MuiPage[] = [
           // { pathname: '/base-ui/react-radio-group', title: 'Radio Group', planned: true },
           // { pathname: '/base-ui/react-rating', title: 'Rating', planned: true },
           // { pathname: '/base-ui/react-select', title: 'Select' },
-          // { pathname: '/base-ui/react-slider', title: 'Slider' },
+          { pathname: '/base-ui/react-slider', title: 'Slider' },
           { pathname: '/base-ui/react-switch', title: 'Switch' },
           // { pathname: '/base-ui/react-toggle-button-group', title: 'Toggle Button Group', planned: true },
         ],
@@ -39,17 +39,20 @@ const pages: readonly MuiPage[] = [
         pathname: '/base-ui/components/data-display',
         subheader: 'data-display',
         children: [
-          //  { pathname: '/base-ui/react-badge', title: 'Badge' },
+          { pathname: '/base-ui/react-popover', title: 'Popover' },
+          { pathname: '/base-ui/react-preview-card', title: 'Preview Card' },
           { pathname: '/base-ui/react-tooltip', title: 'Tooltip' },
         ],
       },
-      // {
-      //   pathname: '/base-ui/components/feedback',
-      //   subheader: 'feedback',
-      //   children: [
-      //     { pathname: '/base-ui/react-snackbar', title: 'Snackbar' },
-      //   ],
-      // },
+      {
+        pathname: '/base-ui/components/feedback',
+        subheader: 'feedback',
+        children: [
+          { pathname: '/base-ui/react-alert-dialog', title: 'Alert Dialog' },
+          { pathname: '/base-ui/react-dialog', title: 'Dialog' },
+          //    { pathname: '/base-ui/react-snackbar', title: 'Snackbar' },
+        ],
+      },
       // {
       //   pathname: '/base-ui/components/surfaces',
       //   subheader: 'surfaces',

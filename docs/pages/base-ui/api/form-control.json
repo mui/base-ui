@@ -18,12 +18,12 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "FormControl",
-  "imports": ["import { FormControl } from '@base_ui/react/FormControl';"],
+  "imports": ["import { FormControl } from '@base_ui/react/legacy/FormControl';"],
   "classes": [],
   "spread": true,
   "muiName": "FormControl",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/FormControl/FormControl.tsx",
+  "filename": "/packages/mui-base/src/legacy/FormControl/FormControl.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-form-control/\">Form Control</a></li></ul>",
   "cssComponent": false
