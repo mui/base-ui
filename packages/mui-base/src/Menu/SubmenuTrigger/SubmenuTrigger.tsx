@@ -7,6 +7,11 @@ import { useId } from '../../utils/useId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<SubmenuTrigger.OwnerState> = {
+  open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+};
 
 const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: SubmenuTrigger.Props,
@@ -15,7 +20,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
   const id = useId(idProp);
 
-  const { getTriggerProps, parentContext, setTriggerElement, clickAndDragEnabled } =
+  const { getTriggerProps, parentContext, setTriggerElement, clickAndDragEnabled, open } =
     useMenuRootContext();
 
   if (parentContext === null) {
@@ -41,7 +46,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     treatMouseupAsClick: clickAndDragEnabled,
   });
 
-  const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted };
+  const ownerState: SubmenuTrigger.OwnerState = { disabled, highlighted, open };
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
@@ -49,6 +54,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     ownerState,
     propGetter: (externalProps: GenericHTMLProps) =>
       getTriggerProps(getItemProps(getRootProps(externalProps))),
+    customStyleHookMapping,
     extraProps: other,
   });
 
@@ -81,6 +87,7 @@ namespace SubmenuTrigger {
   export interface OwnerState {
     disabled: boolean;
     highlighted: boolean;
+    open: boolean;
   }
 }
 

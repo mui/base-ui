@@ -174,7 +174,8 @@ const MenuItem = styled(Menu.Item)(
     border-bottom: none;
   }
     
-  &:focus {
+  &:focus,
+  &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
@@ -206,7 +207,13 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
     float: right;
   }
 
-  &:focus {
+  &[data-state='open'] {
+    background-color: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  }
+
+  &:focus,
+  &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }

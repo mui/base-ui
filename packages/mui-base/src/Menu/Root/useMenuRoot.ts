@@ -81,7 +81,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const hover = useHover(floatingRootContext, {
     enabled: hoverEnabled && openOnHover && !disabled,
-    handleClose: safePolygon(),
+    handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
     delay: {
