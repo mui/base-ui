@@ -117,19 +117,31 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 
 ### Custom validation
 
-In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument:
+In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument on `Field.Root`:
 
 ```jsx
-<Field.Root>
+<Field.Root validate={(value) => value === 'password'}>
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Message show={(value) => value === 'password'}>
+  <Field.Message show="customError">
     Cannot literally use `password` as your password.
   </Field.Message>
 </Field.Root>
 ```
 
-For Base UI input components, this represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
+The message shows when `ValidityState`'s `customError` property is `true`.
+
+For Base UI input components, `value` represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
+
+### Styling
+
+After the field's control has been touched (or visited), `[data-invalid]` and `[data-valid]` style hooks are applied to each subcomponent based on the field's `ValidityState`.
+
+```css
+.FieldControl[data-invalid] {
+  color: red;
+}
+```
 
 ## Validity component
 
