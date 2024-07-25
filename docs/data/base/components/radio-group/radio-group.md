@@ -8,7 +8,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
 
 # Radio Group
 
-<p class="description">Radio Groups contain a set of checkable (radio) buttons where only one of the buttons can be checked at a time.</p>
+<p class="description">Radio Groups contain a set of checkable buttons where only one of the buttons can be checked at a time.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
@@ -50,7 +50,7 @@ Radio Group is composed of a collection of related components:
 
 - `<RadioGroup.Root />` is a top-level element that wraps the other components.
 - `<RadioGroup.Item />` renders an individual `<button>` radio item.
-- `<RadioGroup.Indicator />` renders a `<div>` for providing a visual indicator. You can style this itself, or place an icon inside.
+- `<RadioGroup.Indicator />` renders a `<span>` for providing a visual indicator. You can style this itself, or place an icon inside.
 
 ```jsx
 <RadioGroup.Root>
