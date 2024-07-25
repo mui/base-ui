@@ -1,10 +1,13 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { fireEvent, flushMicrotasks, screen, act } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '../../../test';
 import { OPEN_DELAY } from '../utils/constants';
+
+const user = userEvent.setup();
 
 function Root(props: Popover.RootProps) {
   return <Popover.Root {...props} animated={false} />;
@@ -342,16 +345,12 @@ describe('<Popover.Root />', () => {
 
     const toggle = screen.getByRole('button', { name: 'Toggle' });
 
-    act(() => {
-      toggle.focus();
-    });
-
-    fireEvent.click(toggle);
-
+    await user.click(toggle);
     await flushMicrotasks();
 
     const close = screen.getByRole('button', { name: 'Close' });
-    fireEvent.click(close);
+
+    await user.click(close);
 
     expect(toggle).toHaveFocus();
   });
