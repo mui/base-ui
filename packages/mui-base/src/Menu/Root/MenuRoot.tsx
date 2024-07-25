@@ -12,7 +12,7 @@ function MenuRoot(props: MenuRoot.Props) {
     defaultOpen = false,
     dir: direction = 'ltr',
     disabled = false,
-    closeParentOnEscape = true,
+    closeParentOnEsc = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -29,7 +29,7 @@ function MenuRoot(props: MenuRoot.Props) {
     animated,
     direction,
     disabled,
-    closeParentOnEscape,
+    closeParentOnEsc,
     onOpenChange,
     defaultOpen,
     open,
@@ -123,7 +123,7 @@ namespace MenuRoot {
      *
      * @default true
      */
-    closeParentOnEscape?: boolean;
+    closeParentOnEsc?: boolean;
     /**
      * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
      *
@@ -163,7 +163,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    *
    * @default true
    */
-  closeParentOnEscape: PropTypes.bool,
+  closeParentOnEsc: PropTypes.bool,
   /**
    * If `true`, the Menu is initially open.
    *

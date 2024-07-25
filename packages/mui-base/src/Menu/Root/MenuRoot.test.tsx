@@ -509,7 +509,7 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  describe('prop: closeParentOnEscape', () => {
+  describe('prop: closeParentOnEsc', () => {
     it('closes the parent menu when the Escape key is pressed by default', async () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root animated={false}>
@@ -557,14 +557,14 @@ describe('<Menu.Root />', () => {
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
 
-    it('does not close the parent menu when the Escape key is pressed if `closeParentOnEscape=false`', async () => {
+    it('does not close the parent menu when the Escape key is pressed if `closeParentOnEsc=false`', async () => {
       const { getByRole, queryAllByRole } = await render(
         <Menu.Root animated={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner id="parent-menu">
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
-              <Menu.Root animated={false} closeParentOnEscape={false}>
+              <Menu.Root animated={false} closeParentOnEsc={false}>
                 <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                 <Menu.Positioner id="submenu">
                   <Menu.Popup>
