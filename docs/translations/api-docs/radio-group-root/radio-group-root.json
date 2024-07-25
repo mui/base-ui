@@ -10,7 +10,6 @@
     "disabled": { "description": "Determines if the radio group is disabled." },
     "name": { "description": "The name of the radio group submitted with the form data." },
     "onValueChange": { "description": "Callback fired when the value changes." },
-    "orientation": { "description": "The orientation of the radio group." },
     "readOnly": { "description": "Determines if the radio group is readonly." },
     "render": { "description": "A function to customize rendering of the component." },
     "required": { "description": "Determines if the radio group is required." },

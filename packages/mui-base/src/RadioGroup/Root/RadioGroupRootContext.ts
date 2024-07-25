@@ -7,6 +7,7 @@ export interface RadioGroupRootContextValue {
   checkedItem: string | null;
   setCheckedItem: React.Dispatch<React.SetStateAction<string | null>>;
   onValueChange: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
+  touched: boolean;
 }
 
 export const RadioGroupRootContext = React.createContext<RadioGroupRootContextValue | null>(null);

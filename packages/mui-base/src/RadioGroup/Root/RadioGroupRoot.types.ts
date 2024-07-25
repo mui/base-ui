@@ -37,9 +37,4 @@ export interface RadioGroupRootProps extends BaseUIComponentProps<'div', RadioGr
    * Callback fired when the value changes.
    */
   onValueChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
-  /**
-   * The orientation of the radio group.
-   * @default 'horizontal'
-   */
-  orientation?: 'horizontal' | 'vertical';
 }
