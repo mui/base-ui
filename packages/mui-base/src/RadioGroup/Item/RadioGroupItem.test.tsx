@@ -6,7 +6,7 @@ import { describeConformance } from '../../../test/describeConformance';
 describe('<RadioGroup.Item />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<RadioGroup.Item name="" />, () => ({
+  describeConformance(<RadioGroup.Item value="" />, () => ({
     inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {

@@ -79,7 +79,6 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
   return (
     <RadioGroupItemContext.Provider value={contextValue}>
       <CompositeItem render={renderElement()} />
-      {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
     </RadioGroupItemContext.Provider>
   );
@@ -104,10 +103,6 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The unique identifying name of the radio button in the group.
-   */
-  name: PropTypes.string.isRequired,
-  /**
    * Determines if the item is readonly.
    * @default false
    */
@@ -121,6 +116,10 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
+  /**
+   * The unique identifying value of the radio button in the group.
+   */
+  value: PropTypes.string.isRequired,
 } as any;
 
 export { RadioGroupItem };

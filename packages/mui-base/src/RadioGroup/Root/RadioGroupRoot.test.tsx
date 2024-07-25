@@ -30,7 +30,7 @@ describe('<RadioGroup.Root />', () => {
     const handleChange = spy();
     render(
       <RadioGroup.Root onValueChange={handleChange}>
-        <RadioGroup.Item name="a" data-testid="item" />
+        <RadioGroup.Item value="a" data-testid="item" />
       </RadioGroup.Root>,
     );
 
@@ -58,7 +58,7 @@ describe('<RadioGroup.Root />', () => {
     it('should not change its state when clicked', () => {
       render(
         <RadioGroup.Root disabled>
-          <RadioGroup.Item name="" data-testid="item" />
+          <RadioGroup.Item value="" data-testid="item" />
         </RadioGroup.Root>,
       );
 
@@ -90,7 +90,7 @@ describe('<RadioGroup.Root />', () => {
     it('should not change its state when clicked', () => {
       render(
         <RadioGroup.Root readOnly>
-          <RadioGroup.Item name="" data-testid="item" />
+          <RadioGroup.Item value="" data-testid="item" />
         </RadioGroup.Root>,
       );
 
@@ -109,7 +109,7 @@ describe('<RadioGroup.Root />', () => {
   it('should update its state if the underlying input is toggled', () => {
     render(
       <RadioGroup.Root data-testid="root">
-        <RadioGroup.Item name="" data-testid="item" />
+        <RadioGroup.Item value="" data-testid="item" />
       </RadioGroup.Root>,
     );
 
@@ -128,7 +128,7 @@ describe('<RadioGroup.Root />', () => {
   it('should place the style hooks on the root and subcomponents', () => {
     render(
       <RadioGroup.Root defaultValue="1" disabled readOnly required>
-        <RadioGroup.Item name="1" data-testid="item">
+        <RadioGroup.Item value="1" data-testid="item">
           <RadioGroup.Indicator data-testid="indicator" />
         </RadioGroup.Item>
       </RadioGroup.Root>,
@@ -176,9 +176,9 @@ describe('<RadioGroup.Root />', () => {
         }}
       >
         <RadioGroup.Root name="group">
-          <RadioGroup.Item name="a" />
-          <RadioGroup.Item name="b" />
-          <RadioGroup.Item name="c" />
+          <RadioGroup.Item value="a" />
+          <RadioGroup.Item value="b" />
+          <RadioGroup.Item value="c" />
         </RadioGroup.Root>
         <button type="submit">Submit</button>
       </form>,
@@ -189,7 +189,7 @@ describe('<RadioGroup.Root />', () => {
 
     submitButton.click();
 
-    expect(stringifiedFormData).to.equal('a=off;b=off;c=off');
+    expect(stringifiedFormData).to.equal('');
 
     act(() => {
       radioA.click();
@@ -197,14 +197,14 @@ describe('<RadioGroup.Root />', () => {
 
     submitButton.click();
 
-    expect(stringifiedFormData).to.equal('a=on;b=off;c=off;group=a');
+    expect(stringifiedFormData).to.equal('group=a');
   });
 
   it('should automatically select item upon navigation', async () => {
     render(
       <RadioGroup.Root>
-        <RadioGroup.Item name="a" data-testid="a" />
-        <RadioGroup.Item name="b" data-testid="b" />
+        <RadioGroup.Item value="a" data-testid="a" />
+        <RadioGroup.Item value="b" data-testid="b" />
       </RadioGroup.Root>,
     );
 

@@ -62,14 +62,14 @@ Radio Group is composed of a collection of related components:
 
 ## Identifying items
 
-The `name` prop on `RadioGroup.Item` identifies it in the group and owning form.
+The `value` prop is required on `RadioGroup.Item` to identify it in the group.
 
 ```jsx
 <RadioGroup.Root>
-  <RadioGroup.Item name="a">
+  <RadioGroup.Item value="a">
     <RadioGroup.Indicator />
   </RadioGroup.Item>
-  <RadioGroup.Item name="b">
+  <RadioGroup.Item value="b">
     <RadioGroup.Indicator />
   </RadioGroup.Item>
 </RadioGroup.Root>
@@ -77,26 +77,26 @@ The `name` prop on `RadioGroup.Item` identifies it in the group and owning form.
 
 ## Default value
 
-The `defaultValue` prop determines the initial value of the component when uncontrolled, linked to the `name` prop on the items.
+The `defaultValue` prop determines the initial value of the component when uncontrolled, linked to the `value` prop on the items.
 
 ```jsx
 <RadioGroup.Root defaultValue="a">
-  <RadioGroup.Item name="a" />
-  <RadioGroup.Item name="b" />
+  <RadioGroup.Item value="a" />
+  <RadioGroup.Item value="b" />
 </RadioGroup.Root>
 ```
 
 ## Controlled
 
-The `value` and `onValueChange` props contain the `name` string of the currently selected item in the radio group.
+The `value` and `onValueChange` props contain the `value` string of the currently selected item in the radio group.
 
 ```jsx
 const [value, setValue] = React.useState('a');
 
 return (
   <RadioGroup.Root value={value} onValueChange={setValue}>
-    <RadioGroup.Item name="a" />
-    <RadioGroup.Item name="b" />
+    <RadioGroup.Item value="a" />
+    <RadioGroup.Item value="b" />
   </RadioGroup.Root>
 );
 ```
