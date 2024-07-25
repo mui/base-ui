@@ -6,12 +6,21 @@ import { spy } from 'sinon';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { createRenderer } from '../../../test';
 
+// const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+// const isFirefox = /Firefox/.test(window.navigator.userAgent);
+
+// const role = isFirefox ? 'button' : 'link';
+
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;
 }
 
 function Trigger(props: PreviewCard.TriggerProps) {
-  return <PreviewCard.Trigger render={<button />} {...props} />;
+  return (
+    <PreviewCard.Trigger href="#" {...props}>
+      Link
+    </PreviewCard.Trigger>
+  );
 }
 
 describe('<PreviewCard.Root />', () => {
