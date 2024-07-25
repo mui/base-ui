@@ -60,7 +60,10 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
               const mouseupTarget = mouseUpEvent.target as HTMLElement;
               if (mouseupTarget?.dataset?.handleMouseup === 'true') {
                 mouseupTarget.click();
-              } else if (mouseupTarget !== triggerRef.current) {
+              } else if (
+                mouseupTarget !== triggerRef.current &&
+                !triggerRef.current?.contains(mouseupTarget)
+              ) {
                 setOpen(false, mouseUpEvent);
               }
 
