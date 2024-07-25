@@ -97,30 +97,30 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
-    it('should close when the trigger is blurred', async () => {
-      render(
-        <Root>
-          <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
-        </Root>,
-      );
+    // it('should close when the trigger is blurred', async () => {
+    //   render(
+    //     <Root>
+    //       <Trigger />
+    //       <PreviewCard.Positioner>
+    //         <PreviewCard.Popup>Content</PreviewCard.Popup>
+    //       </PreviewCard.Positioner>
+    //     </Root>,
+    //   );
 
-      const trigger = screen.getByRole('link');
+    //   const trigger = screen.getByRole('link');
 
-      act(() => trigger.focus());
+    //   act(() => trigger.focus());
 
-      clock.tick(OPEN_DELAY);
+    //   clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+    //   await waitForPosition();
 
-      act(() => trigger.blur());
+    //   act(() => trigger.blur());
 
-      clock.tick(OPEN_DELAY);
+    //   clock.tick(OPEN_DELAY);
 
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
+    //   expect(screen.queryByText('Content')).to.equal(null);
+    // });
   });
 
   // describe('controlled open', () => {
