@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -352,6 +352,8 @@ describe('<Popover.Root />', () => {
 
     await user.click(close);
 
-    expect(toggle).toHaveFocus();
+    await waitFor(() => {
+      expect(toggle).toHaveFocus();
+    });
   });
 });
