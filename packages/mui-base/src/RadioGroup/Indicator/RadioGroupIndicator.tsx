@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useRadioGroupItemContext } from '../Item/RadioGroupItemContext';
-import { useRadioGroupIndicator } from './useRadioGroupIndicator';
 import type {
   RadioGroupIndicatorOwnerState,
   RadioGroupIndicatorProps,
@@ -26,8 +25,6 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
 
   const { disabled, checked, required, readOnly } = useRadioGroupItemContext();
 
-  const { getIndicatorProps } = useRadioGroupIndicator();
-
   const ownerState: RadioGroupIndicatorOwnerState = React.useMemo(
     () => ({
       disabled,
@@ -39,7 +36,6 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getIndicatorProps,
     render: render ?? 'span',
     ref: forwardedRef,
     className,
