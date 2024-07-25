@@ -7,7 +7,8 @@ describe('<RadioGroup.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<RadioGroup.Indicator />, () => ({
-    refInstanceof: window.HTMLDivElement,
+    inheritComponent: 'span',
+    refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
         <RadioGroup.Root defaultValue="1">
