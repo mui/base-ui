@@ -27,7 +27,7 @@ describe('<RadioGroup.Root />', () => {
     const handleChange = spy();
     render(
       <RadioGroup.Root onValueChange={handleChange}>
-        <RadioGroup.Item value="a" data-testid="item" />
+        <RadioGroup.Item name="a" data-testid="item" />
       </RadioGroup.Root>,
     );
 
@@ -55,7 +55,7 @@ describe('<RadioGroup.Root />', () => {
     it('should not change its state when clicked', () => {
       render(
         <RadioGroup.Root disabled>
-          <RadioGroup.Item value="" data-testid="item" />
+          <RadioGroup.Item name="" data-testid="item" />
         </RadioGroup.Root>,
       );
 
@@ -87,7 +87,7 @@ describe('<RadioGroup.Root />', () => {
     it('should not change its state when clicked', () => {
       render(
         <RadioGroup.Root readOnly>
-          <RadioGroup.Item value="" data-testid="item" />
+          <RadioGroup.Item name="" data-testid="item" />
         </RadioGroup.Root>,
       );
 
@@ -106,7 +106,7 @@ describe('<RadioGroup.Root />', () => {
   it('should update its state if the underlying input is toggled', () => {
     render(
       <RadioGroup.Root data-testid="root">
-        <RadioGroup.Item value="" data-testid="item" />
+        <RadioGroup.Item name="" data-testid="item" />
       </RadioGroup.Root>,
     );
 
@@ -125,7 +125,7 @@ describe('<RadioGroup.Root />', () => {
   it('should place the style hooks on the root and subcomponents', () => {
     render(
       <RadioGroup.Root defaultValue="1" disabled readOnly required>
-        <RadioGroup.Item value="1" data-testid="item">
+        <RadioGroup.Item name="1" data-testid="item">
           <RadioGroup.Indicator data-testid="indicator" />
         </RadioGroup.Item>
       </RadioGroup.Root>,
@@ -173,9 +173,9 @@ describe('<RadioGroup.Root />', () => {
         }}
       >
         <RadioGroup.Root name="group">
-          <RadioGroup.Item value="a" />
-          <RadioGroup.Item value="b" />
-          <RadioGroup.Item value="c" />
+          <RadioGroup.Item name="a" />
+          <RadioGroup.Item name="b" />
+          <RadioGroup.Item name="c" />
         </RadioGroup.Root>
         <button type="submit">Submit</button>
       </form>,

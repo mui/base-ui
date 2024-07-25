@@ -43,3 +43,60 @@ Once you have the package installed, import the component.
 ```ts
 import * as RadioGroup from '@base_ui/react/RadioGroup';
 ```
+
+## Anatomy
+
+Radio Group is composed of a collection of related components:
+
+- `<RadioGroup.Root />` is a top-level element that wraps the other components.
+- `<RadioGroup.Item />` renders an individual `<button>` radio item.
+- `<RadioGroup.Indicator />` renders a `<div>` for providing a visual indicator. You can style this itself, or place an icon inside.
+
+```jsx
+<RadioGroup.Root>
+  <RadioGroup.Item>
+    <RadioGroup.Indicator />
+  </RadioGroup.Item>
+</RadioGroup.Root>
+```
+
+## Identifying items
+
+The `name` prop on `RadioGroup.Item` identifies it in the group and owning form.
+
+```jsx
+<RadioGroup.Root>
+  <RadioGroup.Item name="a">
+    <RadioGroup.Indicator />
+  </RadioGroup.Item>
+  <RadioGroup.Item name="b">
+    <RadioGroup.Indicator />
+  </RadioGroup.Item>
+</RadioGroup.Root>
+```
+
+## Default value
+
+The `defaultValue` prop determines the initial value of the component when uncontrolled, linked to the `name` prop on the items.
+
+```jsx
+<RadioGroup.Root defaultValue="a">
+  <RadioGroup.Item name="a" />
+  <RadioGroup.Item name="b" />
+</RadioGroup.Root>
+```
+
+## Controlled
+
+The `value` and `onValueChange` props contain the `name` string of the currently selected item in the radio group.
+
+```jsx
+const [value, setValue] = React.useState('a');
+
+return (
+  <RadioGroup.Root value={value} onValueChange={setValue}>
+    <RadioGroup.Item name="a" />
+    <RadioGroup.Item name="b" />
+  </RadioGroup.Root>
+);
+```

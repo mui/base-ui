@@ -28,7 +28,7 @@ export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         role: 'radiogroup',
-        'aria-disabled': disabled,
+        'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
       }),
     [disabled, readOnly],

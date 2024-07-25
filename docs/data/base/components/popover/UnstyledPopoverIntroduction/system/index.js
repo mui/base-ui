@@ -6,7 +6,7 @@ export default function UnstyledPopoverIntroduction() {
   return (
     <Popover.Root>
       <AnchorButton>Trigger</AnchorButton>
-      <Popover.Positioner sideOffset={8}>
+      <Popover.Positioner sideOffset={8} keepMounted>
         <PopoverPopup>
           <PopoverTitle>Popover Title</PopoverTitle>
           <PopoverDescription>Popover Description</PopoverDescription>
@@ -31,6 +31,11 @@ export const PopoverPopup = styled(Popover.Popup)`
   filter: drop-shadow(0 2px 4px rgb(0 10 20 / 0.25));
   outline: 0;
   padding: 8px 16px;
+  visibility: hidden;
+
+  &[data-state='open'] {
+    visibility: visible;
+  }
 `;
 
 export const PopoverTitle = styled(Popover.Title)`
