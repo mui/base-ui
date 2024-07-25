@@ -28,7 +28,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   const { disabled } = useFieldsetRootContext();
 
   const ownerState: FieldsetLegendOwnerState = {
-    disabled,
+    disabled: disabled ?? false,
   };
 
   const { renderElement } = useComponentRenderer({
