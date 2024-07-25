@@ -18,6 +18,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     readOnly,
     required,
     onValueChange: onValueChangeProp,
+    name,
     ...otherProps
   } = props;
 

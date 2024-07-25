@@ -4,7 +4,6 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
 
 interface UseRadioGroupItemParameters {
-  value: string;
   name?: string;
   disabled?: boolean;
   readOnly?: boolean;
@@ -18,11 +17,11 @@ interface UseRadioGroupItemParameters {
  * - [useRadioGroupItem API](https://mui.com/base-ui/api/use-radio-group-item/)
  */
 export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
-  const { disabled, readOnly, value, name, required } = params;
+  const { disabled, readOnly, name, required } = params;
 
   const { checkedItem, setCheckedItem, onValueChange } = useRadioGroupRootContext();
 
-  const checked = checkedItem === value;
+  const checked = checkedItem === name;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -67,15 +66,15 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
             return;
           }
 
-          if (disabled || readOnly) {
+          if (disabled || readOnly || name == null) {
             return;
           }
 
-          setCheckedItem(value);
-          onValueChange?.(value, event);
+          setCheckedItem(name);
+          onValueChange?.(name, event);
         },
       }),
-    [disabled, readOnly, name, checked, setCheckedItem, value, required, onValueChange],
+    [disabled, readOnly, name, checked, setCheckedItem, required, onValueChange],
   );
 
   return React.useMemo(

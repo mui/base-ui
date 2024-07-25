@@ -5,15 +5,15 @@ import { styled } from '@mui/system';
 export default function UnstyledRadioGroupIntroduction() {
   return (
     <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
-      <Item value="1" name="light">
+      <Item name="light">
         <Indicator keepMounted />
         Light
       </Item>
-      <Item value="2" name="medium">
+      <Item name="medium">
         <Indicator keepMounted />
         Medium
       </Item>
-      <Item value="3" name="heavy">
+      <Item name="heavy">
         <Indicator keepMounted />
         Heavy
       </Item>

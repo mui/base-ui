@@ -26,7 +26,6 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
     disabled: disabledProp = false,
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
-    value,
     ...otherProps
   } = props;
 
@@ -104,9 +103,9 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * @ignore
+   * The unique identifying name of the radio button in the group.
    */
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   /**
    * Determines if the item is readonly.
    * @default false
@@ -121,10 +120,6 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
-  /**
-   * The value of the item identified in the radio group.
-   */
-  value: PropTypes.string.isRequired,
 } as any;
 
 export { RadioGroupItem };

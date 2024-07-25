@@ -11,7 +11,7 @@ describe('<RadioGroup.Indicator />', () => {
     render(node) {
       return render(
         <RadioGroup.Root defaultValue="1">
-          <RadioGroup.Item value="1">{node}</RadioGroup.Item>
+          <RadioGroup.Item name="1">{node}</RadioGroup.Item>
         </RadioGroup.Root>,
       );
     },
