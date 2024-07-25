@@ -41,7 +41,6 @@ const Item = styled(RadioGroup.Item)`
   border: none;
   background-color: ${grey[100]};
   color: black;
-  cursor: pointer;
   outline: none;
   font-size: 16px;
   cursor: default;
