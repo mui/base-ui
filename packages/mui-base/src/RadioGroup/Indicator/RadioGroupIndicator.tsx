@@ -19,7 +19,7 @@ const customStyleHookMapping: CustomStyleHookMapping<RadioGroupIndicatorOwnerSta
 
 const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
   props: RadioGroupIndicatorProps,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, keepMounted = false, ...otherProps } = props;
 
@@ -39,7 +39,7 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getIndicatorProps,
-    render: render ?? 'div',
+    render: render ?? 'span',
     ref: forwardedRef,
     className,
     ownerState,
