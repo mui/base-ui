@@ -11,6 +11,9 @@ export interface MenuPositionerContext {
    * The alignment of the anchor element the popup is positioned relative to.
    */
   alignment: 'start' | 'end' | 'center';
+  arrowRef: React.MutableRefObject<Element | null>;
+  arrowUncentered: boolean;
+  arrowStyles: React.CSSProperties;
 }
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | null>(null);

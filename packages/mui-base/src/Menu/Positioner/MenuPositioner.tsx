@@ -99,6 +99,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       alignment: positioner.alignment,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
+      arrowStyles: positioner.arrowStyles,
       floatingContext: positioner.floatingContext,
     }),
     [
@@ -106,6 +107,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.alignment,
       positioner.arrowRef,
       positioner.arrowUncentered,
+      positioner.arrowStyles,
       positioner.floatingContext,
     ],
   );
