@@ -10,6 +10,12 @@ import type {
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 
+const customStyleHookMapping = {
+  valid(value: boolean): Record<string, string> {
+    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
+  },
+};
+
 /**
  * The field's control element.
  *
@@ -27,7 +33,7 @@ const FieldControl = React.forwardRef(function FieldControl(
 ) {
   const { render, id, className, disabled: disabledProp = false, ...otherProps } = props;
 
-  const { disabled: disabledField } = useFieldRootContext();
+  const { disabled: disabledField, validityData } = useFieldRootContext();
   const disabled = disabledField ?? disabledProp;
 
   const { getControlProps } = useFieldControl({ id });
@@ -35,8 +41,9 @@ const FieldControl = React.forwardRef(function FieldControl(
   const ownerState: FieldControlOwnerState = React.useMemo(
     () => ({
       disabled,
+      valid: validityData.validityState.valid,
     }),
-    [disabled],
+    [disabled, validityData.validityState.valid],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -46,6 +53,7 @@ const FieldControl = React.forwardRef(function FieldControl(
     className,
     ownerState,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   return renderElement();

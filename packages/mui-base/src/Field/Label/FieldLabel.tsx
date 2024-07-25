@@ -6,6 +6,12 @@ import type { FieldLabelOwnerState, FieldLabelProps } from './FieldLabel.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 
+const customStyleHookMapping = {
+  valid(value: boolean): Record<string, string> {
+    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
+  },
+};
+
 /**
  * A label for the field's control.
  *
@@ -23,15 +29,16 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { controlId, disabled = false } = useFieldRootContext();
+  const { controlId, disabled = false, validityData } = useFieldRootContext();
 
   const { getLabelProps } = useFieldLabel({ controlId });
 
   const ownerState: FieldLabelOwnerState = React.useMemo(
     () => ({
       disabled,
+      valid: validityData.validityState.valid,
     }),
-    [disabled],
+    [disabled, validityData.validityState.valid],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -41,6 +48,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
     className,
     ownerState,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   return renderElement();

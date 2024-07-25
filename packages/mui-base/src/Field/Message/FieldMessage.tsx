@@ -8,6 +8,12 @@ import { useFieldMessage } from './useFieldMessage';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
+const customStyleHookMapping = {
+  valid(value: boolean): Record<string, string> {
+    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
+  },
+};
+
 /**
  * A message for the field's control.
  *
@@ -64,8 +70,9 @@ const FieldMessage = React.forwardRef(function FieldMessage(
   const ownerState: FieldMessageOwnerState = React.useMemo(
     () => ({
       disabled,
+      valid: validityData.validityState.valid,
     }),
-    [disabled],
+    [disabled, validityData.validityState.valid],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -75,6 +82,7 @@ const FieldMessage = React.forwardRef(function FieldMessage(
     className,
     ownerState,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   if (!rendered) {

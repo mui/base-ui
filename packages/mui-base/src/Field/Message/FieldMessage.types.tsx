@@ -2,6 +2,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 export type FieldMessageOwnerState = {
   disabled: boolean;
+  valid: boolean;
 };
 
 export interface FieldMessageProps extends BaseUIComponentProps<'p', FieldMessageOwnerState> {

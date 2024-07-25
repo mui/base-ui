@@ -8,6 +8,7 @@ export interface ValidityData {
 
 export type FieldRootOwnerState = {
   disabled: boolean;
+  valid: boolean;
 };
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {

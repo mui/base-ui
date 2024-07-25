@@ -7,6 +7,12 @@ import { FieldRootContext, type FieldRootContextValue } from './FieldRootContext
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 
+const customStyleHookMapping = {
+  valid(value: boolean): Record<string, string> {
+    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
+  },
+};
+
 /**
  * The foundation for building custom-styled fields.
  *
@@ -39,8 +45,9 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const ownerState: FieldRootOwnerState = React.useMemo(
     () => ({
       disabled,
+      valid: validityData.validityState.valid,
     }),
-    [disabled],
+    [disabled, validityData.validityState.valid],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -49,6 +56,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     className,
     ownerState,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const contextValue: FieldRootContextValue = React.useMemo(
