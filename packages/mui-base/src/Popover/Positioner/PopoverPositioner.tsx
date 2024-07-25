@@ -106,7 +106,11 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   return (
     <PopoverPositionerContext.Provider value={contextValue}>
       <FloatingPortal root={container}>
-        <FloatingFocusManager context={positioner.positionerContext} modal={false}>
+        <FloatingFocusManager
+          key={mounted.toString()}
+          context={positioner.positionerContext}
+          modal={false}
+        >
           {renderElement()}
         </FloatingFocusManager>
       </FloatingPortal>

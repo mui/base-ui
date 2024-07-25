@@ -30,14 +30,9 @@ async function getWebpackEntries() {
   const coreComponents = (await glob(path.join(corePackagePath, '([A-Z])*/index.js'))).map(
     (componentPath) => {
       const componentName = path.basename(path.dirname(componentPath));
-      let entryName = componentName;
-
-      if (['Popper'].indexOf(componentName) !== -1) {
-        entryName = `@material-ui/core/${componentName}`;
-      }
 
       return {
-        id: entryName,
+        id: componentName,
         path: path.relative(workspaceRoot, path.dirname(componentPath)),
       };
     },
