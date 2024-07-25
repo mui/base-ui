@@ -6,7 +6,7 @@ export type RadioGroupIndicatorOwnerState = {
 };
 
 export interface RadioGroupIndicatorProps
-  extends BaseUIComponentProps<'div', RadioGroupIndicatorOwnerState> {
+  extends BaseUIComponentProps<'span', RadioGroupIndicatorOwnerState> {
   /**
    * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
    * @default false
