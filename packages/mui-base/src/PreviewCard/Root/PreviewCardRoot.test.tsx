@@ -1,11 +1,9 @@
 import * as React from 'react';
 import * as PreviewCard from '@base_ui/react/PreviewCard';
-import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-
-const waitForPosition = async () => act(async () => {});
 
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;
@@ -39,37 +37,37 @@ describe('<PreviewCard.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
-    // it('should close when the trigger is unhovered', async () => {
-    //   render(
-    //     <Root>
-    //       <Trigger />
-    //       <PreviewCard.Positioner>
-    //         <PreviewCard.Popup>Content</PreviewCard.Popup>
-    //       </PreviewCard.Positioner>
-    //     </Root>,
-    //   );
+    it('should close when the trigger is unhovered', async () => {
+      render(
+        <Root>
+          <Trigger />
+          <PreviewCard.Positioner>
+            <PreviewCard.Popup>Content</PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </Root>,
+      );
 
-    //   const trigger = screen.getByRole('link');
+      const trigger = screen.getByRole('link');
 
-    //   fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-    //   fireEvent.mouseEnter(trigger);
-    //   fireEvent.mouseMove(trigger);
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
-    //   clock.tick(OPEN_DELAY);
+      clock.tick(OPEN_DELAY);
 
-    //   await waitForPosition();
+      await flushMicrotasks();
 
-    //   fireEvent.mouseLeave(trigger);
+      fireEvent.mouseLeave(trigger);
 
-    //   clock.tick(CLOSE_DELAY);
+      clock.tick(CLOSE_DELAY);
 
-    //   expect(screen.queryByText('Content')).to.equal(null);
-    // });
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
 
     it('should open when the trigger is focused', async () => {
       if (!/jsdom/.test(window.navigator.userAgent)) {
@@ -92,7 +90,7 @@ describe('<PreviewCard.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -113,7 +111,7 @@ describe('<PreviewCard.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       act(() => trigger.blur());
 
@@ -183,7 +181,7 @@ describe('<PreviewCard.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -230,7 +228,7 @@ describe('<PreviewCard.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
       expect(handleChange.callCount).to.equal(1);
@@ -251,7 +249,7 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -266,7 +264,7 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -281,7 +279,7 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -296,7 +294,7 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -328,13 +326,13 @@ describe('<PreviewCard.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -354,13 +352,13 @@ describe('<PreviewCard.Root />', () => {
       fireEvent.mouseEnter(trigger);
       clock.tick(OPEN_DELAY - 100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -386,7 +384,7 @@ describe('<PreviewCard.Root />', () => {
 
       clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
