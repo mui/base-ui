@@ -346,6 +346,8 @@ describe('<Popover.Root />', () => {
     const close = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(close);
 
+    await flushMicrotasks();
+
     expect(toggle).toHaveFocus();
   });
 });
