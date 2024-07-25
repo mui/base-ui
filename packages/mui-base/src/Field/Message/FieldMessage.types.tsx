@@ -5,5 +5,5 @@ export type FieldMessageOwnerState = {
 };
 
 export interface FieldMessageProps extends BaseUIComponentProps<'p', FieldMessageOwnerState> {
-  show?: keyof ValidityState | ((value: unknown) => boolean);
+  show?: keyof ValidityState | ((value: unknown) => boolean | Promise<boolean>);
 }

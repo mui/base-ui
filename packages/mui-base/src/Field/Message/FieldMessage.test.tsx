@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import * as Field from '@base_ui/react/Field';
@@ -84,7 +84,22 @@ describe('<Field.Message />', () => {
         textbox.blur();
       });
 
-      expect(handleShow.args[4][0]).to.equal('test');
+      expect(handleShow.args[2][0]).to.equal('test');
+    });
+
+    it('should support async show', async () => {
+      render(
+        <Field.Root>
+          <Field.Control required />
+          <Field.Message show={async () => true}>Message</Field.Message>
+        </Field.Root>,
+      );
+
+      expect(screen.queryByText('Message')).to.equal(null);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Message')).not.to.equal(null);
     });
   });
 });

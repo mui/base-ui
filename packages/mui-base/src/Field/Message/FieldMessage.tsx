@@ -5,6 +5,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldMessageOwnerState, FieldMessageProps } from './FieldMessage.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldMessage } from './useFieldMessage';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * A message for the field's control.
@@ -15,23 +17,49 @@ import { useFieldMessage } from './useFieldMessage';
  *
  * API:
  *
- * - [FieldMessage API](https://mui.com/base-ui/react-field/components-api/#field-description)
+ * - [FieldMessage API](https://mui.com/base-ui/react-field/components-api/#field-message)
  */
 const FieldMessage = React.forwardRef(function FieldMessage(
   props: FieldMessageProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id, className, show, ...otherProps } = props;
+  const { render, id, className, show: showProp, ...otherProps } = props;
 
   const { validityData, disabled = false } = useFieldRootContext();
 
-  let rendered = show == null;
-  if (typeof show === 'string' && validityData.validityState[show]) {
-    rendered = true;
+  const show = useEventCallback(typeof showProp === 'function' ? showProp : () => {});
+
+  let derivedRendered = showProp == null;
+
+  const [rendered, setRendered] = React.useState(derivedRendered);
+
+  if (typeof showProp === 'string' && validityData.validityState[showProp]) {
+    derivedRendered = true;
   }
-  if (typeof show === 'function' && show(validityData.value)) {
-    rendered = true;
-  }
+
+  useEnhancedEffect(() => {
+    const showResult = typeof show === 'function' && show(validityData.value);
+    const isPromise = typeof showResult === 'object' && 'then' in showResult;
+
+    let canceled = false;
+
+    async function waitForShowResult() {
+      const result = await showResult;
+      if (!canceled && result) {
+        setRendered(true);
+      }
+    }
+
+    if (isPromise) {
+      waitForShowResult();
+    } else {
+      setRendered(showResult || derivedRendered);
+    }
+
+    return () => {
+      canceled = true;
+    };
+  }, [derivedRendered, show, validityData.value]);
 
   const { getMessageProps } = useFieldMessage({ id, rendered });
 
