@@ -25,9 +25,12 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 
   const { legendId, setLegendId, getRootProps } = useFieldsetRoot();
 
-  const ownerState: FieldsetRootOwnerState = {
-    disabled,
-  };
+  const ownerState: FieldsetRootOwnerState = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,

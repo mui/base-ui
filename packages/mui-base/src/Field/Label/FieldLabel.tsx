@@ -27,9 +27,12 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 
   const { getLabelProps } = useFieldLabel({ controlId });
 
-  const ownerState: FieldLabelOwnerState = {
-    disabled,
-  };
+  const ownerState: FieldLabelOwnerState = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getLabelProps,

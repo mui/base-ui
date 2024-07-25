@@ -35,9 +35,12 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
   const { getMessageProps } = useFieldMessage({ id, rendered });
 
-  const ownerState: FieldMessageOwnerState = {
-    disabled,
-  };
+  const ownerState: FieldMessageOwnerState = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getMessageProps,

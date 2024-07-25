@@ -32,9 +32,12 @@ const FieldControl = React.forwardRef(function FieldControl(
 
   const { getControlProps } = useFieldControl({ id });
 
-  const ownerState: FieldControlOwnerState = {
-    disabled,
-  };
+  const ownerState: FieldControlOwnerState = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getControlProps,

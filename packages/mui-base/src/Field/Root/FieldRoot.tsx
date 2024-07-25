@@ -36,9 +36,12 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     value: '',
   });
 
-  const ownerState: FieldRootOwnerState = {
-    disabled,
-  };
+  const ownerState: FieldRootOwnerState = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
