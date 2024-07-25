@@ -11,7 +11,7 @@ function Root(props: PreviewCard.RootProps) {
 }
 
 function Trigger(props: PreviewCard.TriggerProps) {
-  return <PreviewCard.Trigger href="#" {...props} />;
+  return <PreviewCard.Trigger render={<button />} {...props} />;
 }
 
 describe('<PreviewCard.Root />', () => {
