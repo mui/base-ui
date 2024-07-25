@@ -193,16 +193,22 @@ describe('<Menu.Root />', () => {
         const items = getAllByRole('menuitem');
 
         await user.keyboard('b');
-        expect(items[1]).toHaveFocus();
-        expect(items[1]).to.have.attribute('tabindex', '0');
+        await waitFor(() => {
+          expect(items[1]).toHaveFocus();
+          expect(items[1]).to.have.attribute('tabindex', '0');
+        });
 
         await user.keyboard('b');
-        expect(items[2]).toHaveFocus();
-        expect(items[2]).to.have.attribute('tabindex', '0');
+        await waitFor(() => {
+          expect(items[2]).toHaveFocus();
+          expect(items[2]).to.have.attribute('tabindex', '0');
+        });
 
         await user.keyboard('b');
-        expect(items[2]).toHaveFocus();
-        expect(items[2]).to.have.attribute('tabindex', '0');
+        await waitFor(() => {
+          expect(items[2]).toHaveFocus();
+          expect(items[2]).to.have.attribute('tabindex', '0');
+        });
       });
 
       it('skips the non-stringifiable items', async function test() {
