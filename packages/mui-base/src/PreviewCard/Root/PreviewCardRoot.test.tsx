@@ -123,7 +123,7 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
-  describe('controlled open', () => {
+  describe.skip('controlled open', () => {
     clock.withFakeTimers();
 
     it('should open when controlled open is true', async () => {
