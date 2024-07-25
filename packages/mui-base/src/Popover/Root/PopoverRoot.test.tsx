@@ -324,8 +324,8 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  it('focuses the trigger after the menu is closed but not unmounted', async () => {
-    const { getByRole } = await render(
+  it('focuses the trigger after the popover is closed but not unmounted', async () => {
+    await render(
       <div>
         <input type="text" />
         <Popover.Root animated={false}>
@@ -340,10 +340,10 @@ describe('<Popover.Root />', () => {
       </div>,
     );
 
-    const toggle = getByRole('button', { name: 'Toggle' });
+    const toggle = screen.getByRole('button', { name: 'Toggle' });
     fireEvent.click(toggle);
 
-    const close = getByRole('button', { name: 'Close' });
+    const close = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(close);
 
     expect(toggle).toHaveFocus();
