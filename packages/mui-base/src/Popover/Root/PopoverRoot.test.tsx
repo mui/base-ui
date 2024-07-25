@@ -323,4 +323,29 @@ describe('<Popover.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
   });
+
+  it('focuses the trigger after the menu is closed but not unmounted', async () => {
+    const { getByRole } = await render(
+      <div>
+        <input type="text" />
+        <Popover.Root animated={false}>
+          <Popover.Trigger>Toggle</Popover.Trigger>
+          <Popover.Positioner keepMounted>
+            <Popover.Popup>
+              <Popover.Close>Close</Popover.Close>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Root>
+        <input type="text" />
+      </div>,
+    );
+
+    const toggle = getByRole('button', { name: 'Toggle' });
+    fireEvent.click(toggle);
+
+    const close = getByRole('button', { name: 'Close' });
+    fireEvent.click(close);
+
+    expect(toggle).toHaveFocus();
+  });
 });
