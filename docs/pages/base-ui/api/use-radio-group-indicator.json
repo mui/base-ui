@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useRadioGroupIndicator",
-  "filename": "/packages/mui-base/src/RadioGroup/Indicator/useRadioGroupIndicator.ts",
-  "imports": ["import { useRadioGroupIndicator } from '@base_ui/react/RadioGroup';"],
-  "demos": "<ul></ul>"
-}
