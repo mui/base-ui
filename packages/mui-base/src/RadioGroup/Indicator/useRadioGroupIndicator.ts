@@ -1,5 +1,7 @@
+'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+
 /**
  *
  * API:
