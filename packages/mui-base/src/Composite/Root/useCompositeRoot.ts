@@ -29,10 +29,9 @@ export interface UseCompositeRootParameters {
   onActiveIndexChange?: (index: number) => void;
   dense?: boolean;
   itemSizes?: Array<Dimensions>;
-  elementsRef?: React.MutableRefObject<Array<HTMLElement | null>>;
 }
 
-// TODO
+// Advanced options of Composite, to be implemented later if needed.
 const disabledIndices = undefined;
 
 /**
@@ -47,7 +46,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     orientation = 'both',
     activeIndex: externalActiveIndex,
     onActiveIndexChange: externalSetActiveIndex,
-    elementsRef: externalElementsRef,
   } = params;
 
   const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
@@ -57,9 +55,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const activeIndex = externalActiveIndex ?? internalActiveIndex;
   const onActiveIndexChange = useEventCallback(externalSetActiveIndex ?? internalSetActiveIndex);
 
-  const internalElementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
-
-  const elementsRef = externalElementsRef ?? internalElementsRef;
+  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>

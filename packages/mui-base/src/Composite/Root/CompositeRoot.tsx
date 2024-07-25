@@ -18,7 +18,6 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     className,
     activeIndex: activeIndexProp,
     onActiveIndexChange: onActiveIndexChangeProp,
-    elementsRef: elementsRefProp,
     orientation,
     dense,
     itemSizes,
@@ -78,18 +77,6 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  elementsRef: PropTypes.shape({
-    current: PropTypes.arrayOf(function (props, propName) {
-      if (props[propName] == null) {
-        return null;
-      } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error("Expected prop '" + propName + "' to be of type Element");
-      }
-    }).isRequired,
-  }),
-  /**
-   * @ignore
-   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,
@@ -107,7 +94,7 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  orientation: PropTypes.oneOf(['both', 'horizontal', 'vertical']),
   /**
    * A function to customize rendering of the component.
    */
