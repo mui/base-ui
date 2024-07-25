@@ -22,7 +22,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     ...otherProps
   } = props;
 
-  const { getRootProps, checkedItem, setCheckedItem } = useRadioGroupRoot(props);
+  const { getRootProps, checkedItem, setCheckedItem, touched } = useRadioGroupRoot(props);
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
@@ -43,8 +43,9 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
       disabled,
       readOnly,
       required,
+      touched,
     }),
-    [checkedItem, setCheckedItem, onValueChange, disabled, readOnly, required],
+    [checkedItem, setCheckedItem, onValueChange, disabled, readOnly, required, touched],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -96,11 +97,6 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
    * Callback fired when the value changes.
    */
   onValueChange: PropTypes.func,
-  /**
-   * The orientation of the radio group.
-   * @default 'horizontal'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
    * Determines if the radio group is readonly.
    * @default false

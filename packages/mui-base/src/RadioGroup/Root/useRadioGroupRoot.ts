@@ -24,12 +24,19 @@ export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
     state: 'value',
   });
 
+  const [touched, setTouched] = React.useState(false);
+
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         role: 'radiogroup',
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        onKeyDownCapture(event) {
+          if (event.key === ' ' || event.key.startsWith('Arrow')) {
+            setTouched(true);
+          }
+        },
       }),
     [disabled, readOnly],
   );
@@ -39,7 +46,9 @@ export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
       getRootProps,
       checkedItem,
       setCheckedItem,
+      touched,
+      setTouched,
     }),
-    [getRootProps, checkedItem, setCheckedItem],
+    [getRootProps, checkedItem, setCheckedItem, touched],
   );
 }

@@ -5,10 +5,6 @@
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "name": { "type": { "name": "string" } },
     "onValueChange": { "type": { "name": "func" } },
-    "orientation": {
-      "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
-      "default": "'horizontal'"
-    },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" },

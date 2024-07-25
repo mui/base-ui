@@ -2,10 +2,13 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act, screen } from '@mui/internal-test-utils';
+import userEvent from '@testing-library/user-event';
 import * as RadioGroup from '@base_ui/react/RadioGroup';
 import { describeConformance } from '../../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
+const user = userEvent.setup();
 
 describe('<RadioGroup.Root />', () => {
   const { render } = createRenderer();
@@ -195,5 +198,30 @@ describe('<RadioGroup.Root />', () => {
     submitButton.click();
 
     expect(stringifiedFormData).to.equal('a=on;b=off;c=off;group=a');
+  });
+
+  it('should automatically select item upon navigation', async () => {
+    render(
+      <RadioGroup.Root>
+        <RadioGroup.Item name="a" data-testid="a" />
+        <RadioGroup.Item name="b" data-testid="b" />
+      </RadioGroup.Root>,
+    );
+
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+
+    act(() => {
+      a.focus();
+    });
+
+    expect(a).to.have.attribute('aria-checked', 'false');
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(a).to.have.attribute('aria-checked', 'false');
+
+    expect(b).toHaveFocus();
+    expect(b).to.have.attribute('aria-checked', 'true');
   });
 });
