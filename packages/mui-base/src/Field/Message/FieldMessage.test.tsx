@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import * as Field from '@base_ui/react/Field';
@@ -91,13 +91,26 @@ describe('<Field.Message />', () => {
       render(
         <Field.Root>
           <Field.Control required />
-          <Field.Message show={async () => true}>Message</Field.Message>
+          <Field.Message
+            show={async () => {
+              await new Promise((res) => {
+                setTimeout(res);
+              });
+              return true;
+            }}
+          >
+            Message
+          </Field.Message>
         </Field.Root>,
       );
 
       expect(screen.queryByText('Message')).to.equal(null);
 
-      await flushMicrotasks();
+      await act(async () => {
+        return new Promise((res) => {
+          setTimeout(res);
+        });
+      });
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
