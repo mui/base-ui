@@ -4,6 +4,7 @@ import type { Dimensions } from '../composite';
 export type CompositeRootOwnerState = {};
 
 export interface CompositeRootProps extends BaseUIComponentProps<'div', CompositeRootOwnerState> {
+  elementsRef?: React.MutableRefObject<Array<HTMLElement | null>>;
   orientation?: 'horizontal' | 'vertical';
   cols?: number;
   loop?: boolean;

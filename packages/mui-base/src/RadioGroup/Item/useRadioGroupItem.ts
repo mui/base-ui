@@ -20,7 +20,8 @@ interface UseRadioGroupItemParameters {
 export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
   const { disabled, readOnly, name, required } = params;
 
-  const { checkedItem, setCheckedItem, onValueChange, touched } = useRadioGroupRootContext();
+  const { checkedItem, setCheckedItem, onValueChange, touched, setTouched } =
+    useRadioGroupRootContext();
 
   const checked = checkedItem === name;
 
@@ -55,9 +56,11 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
           }
 
           inputRef.current?.click();
+
+          setTouched(false);
         },
       }),
-    [checked, disabled, readOnly, required, touched],
+    [checked, disabled, readOnly, required, touched, setTouched],
   );
 
   const getInputProps = React.useCallback(

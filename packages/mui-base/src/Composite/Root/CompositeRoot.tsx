@@ -18,6 +18,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     className,
     activeIndex: activeIndexProp,
     onActiveIndexChange: onActiveIndexChangeProp,
+    elementsRef: elementsRefProp,
     orientation,
     dense,
     itemSizes,

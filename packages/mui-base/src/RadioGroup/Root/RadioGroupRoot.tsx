@@ -23,7 +23,8 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     ...otherProps
   } = props;
 
-  const { getRootProps, checkedItem, setCheckedItem, touched } = useRadioGroupRoot(props);
+  const { getRootProps, checkedItem, setCheckedItem, touched, setTouched } =
+    useRadioGroupRoot(props);
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
@@ -45,8 +46,9 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
       readOnly,
       required,
       touched,
+      setTouched,
     }),
-    [checkedItem, setCheckedItem, onValueChange, disabled, readOnly, required, touched],
+    [checkedItem, setCheckedItem, onValueChange, disabled, readOnly, required, touched, setTouched],
   );
 
   const { renderElement } = useComponentRenderer({
