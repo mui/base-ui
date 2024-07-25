@@ -120,12 +120,14 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument on `Field.Root`:
 
 ```jsx
-<Field.Root validate={(value) => value === 'password'}>
+<Field.Root
+  validate={(value) =>
+    value === 'password' ? 'Cannot literally use `password` as your password.' : null
+  }
+>
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Message show="customError">
-    Cannot literally use `password` as your password.
-  </Field.Message>
+  <Field.Message show="customError" />
 </Field.Root>
 ```
 
