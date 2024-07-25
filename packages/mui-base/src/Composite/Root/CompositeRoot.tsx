@@ -78,6 +78,18 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  elementsRef: PropTypes.shape({
+    current: PropTypes.arrayOf(function (props, propName) {
+      if (props[propName] == null) {
+        return null;
+      } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error("Expected prop '" + propName + "' to be of type Element");
+      }
+    }).isRequired,
+  }),
+  /**
+   * @ignore
+   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,

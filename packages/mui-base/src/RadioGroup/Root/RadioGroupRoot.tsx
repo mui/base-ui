@@ -3,10 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEventCallback } from '../../utils/useEventCallback';
 import type { RadioGroupRootOwnerState, RadioGroupRootProps } from './RadioGroupRoot.types';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { type RadioGroupRootContextValue, RadioGroupRootContext } from './RadioGroupRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 
 const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   props: RadioGroupRootProps,

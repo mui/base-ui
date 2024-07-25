@@ -7,7 +7,6 @@ interface UseRadioGroupRootParameters {
   readOnly?: boolean;
   defaultValue?: string;
   value?: string;
-  orientation?: 'horizontal' | 'vertical' | 'both';
 }
 /**
  *
@@ -16,7 +15,7 @@ interface UseRadioGroupRootParameters {
  * - [useRadioGroupRoot API](https://mui.com/base-ui/api/use-radio-group-root/)
  */
 export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
-  const { disabled, defaultValue, readOnly, orientation, value: externalValue } = params;
+  const { disabled, defaultValue, readOnly, value: externalValue } = params;
 
   const [checkedItem, setCheckedItem] = useControlled<string | null>({
     controlled: externalValue,
@@ -34,24 +33,12 @@ export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         onKeyDownCapture(event) {
-          let navigated = false;
-          switch (orientation) {
-            case 'vertical':
-              navigated = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-              break;
-            case 'horizontal':
-              navigated = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
-              break;
-            default:
-              navigated = event.key.startsWith('Arrow');
-          }
-
-          if (navigated) {
+          if (event.key.startsWith('Arrow')) {
             setTouched(true);
           }
         },
       }),
-    [disabled, readOnly, orientation],
+    [disabled, readOnly],
   );
 
   return React.useMemo(
