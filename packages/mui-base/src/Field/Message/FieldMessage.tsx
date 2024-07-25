@@ -29,12 +29,10 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
   const show = useEventCallback(typeof showProp === 'function' ? showProp : () => {});
 
-  let derivedRendered = showProp == null;
+  const [rendered, setRendered] = React.useState(showProp == null);
 
-  const [rendered, setRendered] = React.useState(derivedRendered);
-
-  if (typeof showProp === 'string' && validityData.validityState[showProp]) {
-    derivedRendered = true;
+  if (!rendered && typeof showProp === 'string' && validityData.validityState[showProp]) {
+    setRendered(true);
   }
 
   useEnhancedEffect(() => {
@@ -52,14 +50,14 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
     if (isPromise) {
       waitForShowResult();
-    } else {
-      setRendered(showResult || derivedRendered);
+    } else if (showResult) {
+      setRendered(showResult);
     }
 
     return () => {
       canceled = true;
     };
-  }, [derivedRendered, show, validityData.value]);
+  }, [show, validityData.value]);
 
   const { getMessageProps } = useFieldMessage({ id, rendered });
 
