@@ -44,7 +44,6 @@
     "@floating-ui/utils": "^0.2.5",
     "@mui/types": "^7.2.15",
     "@mui/utils": "^5.16.4",
-    "@popperjs/core": "^2.11.8",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1"
   },

@@ -373,9 +373,6 @@ importers:
       '@mui/utils':
         specifier: 6.0.0-beta.1
         version: 6.0.0-beta.1(@types/react@18.3.1)(react@18.2.0)
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       '@react-spring/web':
         specifier: ^9.7.3
         version: 9.7.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -578,9 +575,6 @@ importers:
       '@mui/utils':
         specifier: ^5.16.4
         version: 5.16.4(@types/react@18.3.1)(react@18.2.0)
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
