@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as PreviewCard from '@base_ui/react/PreviewCard';
-import { act, createRenderer, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { createRenderer } from '../../../test';
 
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;
@@ -20,7 +21,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when the trigger is hovered', async () => {
-      render(
+      await render(
         <Root>
           <Trigger />
           <PreviewCard.Positioner>
@@ -43,7 +44,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should close when the trigger is unhovered', async () => {
-      render(
+      await render(
         <Root>
           <Trigger />
           <PreviewCard.Positioner>
@@ -75,7 +76,7 @@ describe('<PreviewCard.Root />', () => {
         return;
       }
 
-      render(
+      await render(
         <Root>
           <Trigger />
           <PreviewCard.Positioner>
@@ -96,7 +97,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should close when the trigger is blurred', async () => {
-      render(
+      await render(
         <Root>
           <Trigger />
           <PreviewCard.Positioner>
@@ -115,7 +116,7 @@ describe('<PreviewCard.Root />', () => {
 
       act(() => trigger.blur());
 
-      clock.tick(OPEN_DELAY);
+      clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -125,7 +126,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when controlled open is true', async () => {
-      render(
+      await render(
         <Root open>
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -137,7 +138,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should close when controlled open is false', async () => {
-      render(
+      await render(
         <Root open={false}>
           <PreviewCard.Positioner>
             <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -170,7 +171,7 @@ describe('<PreviewCard.Root />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -217,7 +218,7 @@ describe('<PreviewCard.Root />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -240,7 +241,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when the component is rendered', async () => {
-      render(
+      await render(
         <Root defaultOpen>
           <Trigger />
           <PreviewCard.Positioner>
@@ -249,13 +250,11 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await flushMicrotasks();
-
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should not open when the component is rendered and open is controlled', async () => {
-      render(
+      await render(
         <Root defaultOpen open={false}>
           <Trigger />
           <PreviewCard.Positioner>
@@ -264,13 +263,11 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await flushMicrotasks();
-
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
     it('should not close when the component is rendered and open is controlled', async () => {
-      render(
+      await render(
         <Root defaultOpen open>
           <Trigger />
           <PreviewCard.Positioner>
@@ -279,13 +276,11 @@ describe('<PreviewCard.Root />', () => {
         </Root>,
       );
 
-      await flushMicrotasks();
-
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should remain uncontrolled', async () => {
-      render(
+      await render(
         <Root defaultOpen>
           <Trigger />
           <PreviewCard.Positioner>
@@ -293,8 +288,6 @@ describe('<PreviewCard.Root />', () => {
           </PreviewCard.Positioner>
         </Root>,
       );
-
-      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -312,7 +305,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should open after delay with rest type by default', async () => {
-      render(
+      await render(
         <Root delay={100}>
           <Trigger />
           <PreviewCard.Positioner>
@@ -338,7 +331,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should open after delay with hover type', async () => {
-      render(
+      await render(
         <Root delayType="hover">
           <Trigger />
           <PreviewCard.Positioner>
@@ -368,7 +361,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should close after delay', async () => {
-      render(
+      await render(
         <Root closeDelay={100}>
           <Trigger />
           <PreviewCard.Positioner>
