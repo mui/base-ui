@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
@@ -8,6 +9,7 @@ interface UseRadioGroupRootParameters {
   defaultValue?: string;
   value?: string;
 }
+
 /**
  *
  * API:
