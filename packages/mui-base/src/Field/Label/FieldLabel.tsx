@@ -5,12 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldLabelOwnerState, FieldLabelProps } from './FieldLabel.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
-
-const customStyleHookMapping = {
-  valid(value: boolean): Record<string, string> {
-    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
-  },
-};
+import { STYLE_HOOK_MAPPING } from '../utils/constants';
 
 /**
  * A label for the field's control.
@@ -48,7 +43,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
 
   return renderElement();

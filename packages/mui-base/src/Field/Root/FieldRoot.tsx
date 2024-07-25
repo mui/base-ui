@@ -4,14 +4,9 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRootOwnerState, ValidityData, FieldRootProps } from './FieldRoot.types';
 import { FieldRootContext, type FieldRootContextValue } from './FieldRootContext';
-import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
+import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
-
-const customStyleHookMapping = {
-  valid(value: boolean): Record<string, string> {
-    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
-  },
-};
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * The foundation for building custom-styled fields.
@@ -28,11 +23,19 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    validate: validateProp,
+    ...otherProps
+  } = props;
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
 
   const disabled = disabledFieldset ?? disabledProp;
+
+  const validate = useEventCallback(validateProp || (() => null));
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
@@ -56,7 +59,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
 
   const contextValue: FieldRootContextValue = React.useMemo(
@@ -68,8 +71,9 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validityData,
       setValidityData,
       disabled,
+      validate,
     }),
-    [controlId, messageIds, validityData, disabled],
+    [controlId, messageIds, validityData, disabled, validate],
   );
 
   return (
@@ -100,6 +104,10 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * Function to custom-validate the field's value.
+   */
+  validate: PropTypes.func,
 } as any;
 
 export { FieldRoot };

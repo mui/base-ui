@@ -4,7 +4,7 @@ export type FieldControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLS
 
 export type FieldControlOwnerState = {
   disabled: boolean;
-  valid: boolean;
+  valid: boolean | null;
 };
 
 export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControlOwnerState> {}

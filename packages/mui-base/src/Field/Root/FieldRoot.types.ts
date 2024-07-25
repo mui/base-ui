@@ -8,7 +8,7 @@ export interface ValidityData {
 
 export type FieldRootOwnerState = {
   disabled: boolean;
-  valid: boolean;
+  valid: boolean | null;
 };
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
@@ -18,4 +18,8 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwn
    * @default false
    */
   disabled?: boolean;
+  /**
+   * Function to custom-validate the field's value.
+   */
+  validate?: (value: unknown) => string | null | Promise<string | null>;
 }

@@ -17,7 +17,8 @@ interface UseFieldControlParameters {
 export function useFieldControl(params: UseFieldControlParameters) {
   const { id: idProp } = params;
 
-  const { setControlId, messageIds, setValidityData, disabled } = useFieldRootContext();
+  const { setControlId, messageIds, validityData, setValidityData, disabled, validate } =
+    useFieldRootContext();
 
   const id = useId(idProp);
 
@@ -34,16 +35,25 @@ export function useFieldControl(params: UseFieldControlParameters) {
         id,
         disabled,
         'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
-        onBlur(event) {
+        'aria-invalid': !validityData.validityState.valid ? 'true' : undefined,
+        async onBlur(event) {
           const element = event.currentTarget;
+          const result = await validate(element.value);
+
+          if (result !== null) {
+            element.setCustomValidity(result);
+          } else {
+            element.setCustomValidity('');
+          }
+
           setValidityData({
             validityState: element.validity,
-            validityMessage: element.validationMessage,
+            validityMessage: result ?? element.validationMessage,
             value: element.value,
           });
         },
       }),
-    [id, disabled, messageIds, setValidityData],
+    [id, disabled, messageIds, validityData.validityState.valid, validate, setValidityData],
   );
 
   return React.useMemo(

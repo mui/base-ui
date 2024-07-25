@@ -4,7 +4,7 @@ import { styled } from '@mui/system';
 
 export default function UnstyledFieldIntroduction() {
   return (
-    <FieldRoot>
+    <FieldRoot validate={(value) => (value === 'admin' ? 'Name not allowed' : null)}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Field.Label>Name</Field.Label>
         <FieldControl required pattern="[a-zA-Z0-9]+" />
@@ -25,9 +25,7 @@ export default function UnstyledFieldIntroduction() {
         }}
       </Field.Validity>
       <FieldMessage data-error show="valueMissing" />
-      <FieldMessage data-error show={(value) => value === 'admin'}>
-        Name not allowed.
-      </FieldMessage>
+      <FieldMessage data-error show="customError" />
       <FieldMessage data-error show="patternMismatch">
         Only alphanumeric characters are allowed (a-z, A-Z, 0-9).
       </FieldMessage>
@@ -44,6 +42,11 @@ const FieldControl = styled(Field.Control)`
   border-radius: 4px;
   width: 100%;
   padding: 6px;
+
+  &[data-invalid] {
+    border-color: red;
+    background-color: #fffbfb;
+  }
 `;
 
 const FieldMessage = styled(Field.Message)`

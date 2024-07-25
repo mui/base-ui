@@ -71,6 +71,7 @@ export function useNumberFieldRoot(
     setValidityData,
     messageIds,
     disabled: disabledContext,
+    validate,
   } = useFieldRootContext();
 
   const disabled = disabledContext ?? disabledProp;
@@ -168,14 +169,28 @@ export function useNumberFieldRoot(
     onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
 
-    if (inputRef.current) {
+    const handleValidate = async () => {
       const element = inputRef.current;
+      if (!element) {
+        return;
+      }
+
+      const result = await validate(element.value);
+
+      if (result !== null) {
+        element.setCustomValidity(result);
+      } else {
+        element.setCustomValidity('');
+      }
+
       setValidityData({
         validityState: element.validity,
         validityMessage: element.validationMessage,
         value: validatedValue,
       });
-    }
+    };
+
+    handleValidate();
 
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of

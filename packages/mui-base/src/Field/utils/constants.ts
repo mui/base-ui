@@ -11,3 +11,12 @@ export const DEFAULT_VALIDITY_STATE = {
   valid: true,
   valueMissing: false,
 };
+
+export const STYLE_HOOK_MAPPING = {
+  valid(value: boolean | null): Record<string, string> | null {
+    if (value === null) {
+      return null;
+    }
+    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
+  },
+};

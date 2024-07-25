@@ -5,14 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldMessageOwnerState, FieldMessageProps } from './FieldMessage.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldMessage } from './useFieldMessage';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-
-const customStyleHookMapping = {
-  valid(value: boolean): Record<string, string> {
-    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
-  },
-};
+import { STYLE_HOOK_MAPPING } from '../utils/constants';
 
 /**
  * A message for the field's control.
@@ -33,37 +26,7 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
   const { validityData, disabled = false } = useFieldRootContext();
 
-  const show = useEventCallback(typeof showProp === 'function' ? showProp : () => {});
-
-  const [rendered, setRendered] = React.useState(showProp == null);
-
-  if (!rendered && typeof showProp === 'string' && validityData.validityState[showProp]) {
-    setRendered(true);
-  }
-
-  useEnhancedEffect(() => {
-    const showResult = typeof show === 'function' && show(validityData.value);
-    const isPromise = typeof showResult === 'object' && 'then' in showResult;
-
-    let canceled = false;
-
-    async function waitForShowResult() {
-      const result = await showResult;
-      if (!canceled && result) {
-        setRendered(true);
-      }
-    }
-
-    if (isPromise) {
-      waitForShowResult();
-    } else if (showResult) {
-      setRendered(showResult);
-    }
-
-    return () => {
-      canceled = true;
-    };
-  }, [show, validityData.value]);
+  const rendered = showProp ? validityData.validityState[showProp] : true;
 
   const { getMessageProps } = useFieldMessage({ id, rendered });
 
@@ -82,7 +45,7 @@ const FieldMessage = React.forwardRef(function FieldMessage(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
 
   if (!rendered) {
@@ -116,21 +79,18 @@ FieldMessage.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  show: PropTypes.oneOfType([
-    PropTypes.oneOf([
-      'badInput',
-      'customError',
-      'patternMismatch',
-      'rangeOverflow',
-      'rangeUnderflow',
-      'stepMismatch',
-      'tooLong',
-      'tooShort',
-      'typeMismatch',
-      'valid',
-      'valueMissing',
-    ]),
-    PropTypes.func,
+  show: PropTypes.oneOf([
+    'badInput',
+    'customError',
+    'patternMismatch',
+    'rangeOverflow',
+    'rangeUnderflow',
+    'stepMismatch',
+    'tooLong',
+    'tooShort',
+    'typeMismatch',
+    'valid',
+    'valueMissing',
   ]),
 } as any;
 

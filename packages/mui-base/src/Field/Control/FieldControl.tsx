@@ -9,12 +9,7 @@ import type {
 } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-
-const customStyleHookMapping = {
-  valid(value: boolean): Record<string, string> {
-    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
-  },
-};
+import { STYLE_HOOK_MAPPING } from '../utils/constants';
 
 /**
  * The field's control element.
@@ -53,7 +48,7 @@ const FieldControl = React.forwardRef(function FieldControl(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
 
   return renderElement();

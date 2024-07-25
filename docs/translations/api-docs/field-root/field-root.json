@@ -7,7 +7,8 @@
     "disabled": {
       "description": "Whether the field is disabled, adding a disabled style hook to all subcomponents as well as disabling the interactive control inside."
     },
-    "render": { "description": "A function to customize rendering of the component." }
+    "render": { "description": "A function to customize rendering of the component." },
+    "validate": { "description": "Function to custom-validate the field&#39;s value." }
   },
   "classDescriptions": {}
 }

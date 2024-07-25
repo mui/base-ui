@@ -39,6 +39,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     messageIds,
     setValidityData,
     disabled: disabledContext,
+    validate,
   } = useFieldRootContext();
 
   const disabled = disabledContext ?? disabledProp;
@@ -72,13 +73,21 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         'aria-disabled': disabled,
         'aria-readonly': readOnly,
         'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
-        onBlur(event) {
+        async onBlur(event) {
           if (event.defaultPrevented || readOnly) {
             return;
           }
 
           const element = inputRef.current;
           if (element) {
+            const result = await validate(element.value);
+
+            if (result !== null) {
+              element.setCustomValidity(result);
+            } else {
+              element.setCustomValidity('');
+            }
+
             setValidityData({
               validityState: element.validity,
               validityMessage: element.validationMessage,
@@ -94,7 +103,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, messageIds, readOnly, setValidityData],
+    [checked, disabled, messageIds, readOnly, setValidityData, validate],
   );
 
   const getInputProps = React.useCallback(

@@ -40,6 +40,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     messageIds,
     setValidityData,
     disabled: disabledContext,
+    validate,
   } = useFieldRootContext();
 
   const disabled = disabledContext ?? disabledProp;
@@ -81,13 +82,21 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': id,
         'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
-        onBlur(event) {
+        async onBlur(event) {
           if (event.defaultPrevented || readOnly) {
             return;
           }
 
           const element = inputRef.current;
           if (element) {
+            const result = await validate(element.value);
+
+            if (result !== null) {
+              element.setCustomValidity(result);
+            } else {
+              element.setCustomValidity('');
+            }
+
             setValidityData({
               validityState: element.validity,
               validityMessage: element.validationMessage,
@@ -105,7 +114,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [indeterminate, checked, disabled, readOnly, id, messageIds, setValidityData],
+    [indeterminate, checked, disabled, readOnly, id, messageIds, setValidityData, validate],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(

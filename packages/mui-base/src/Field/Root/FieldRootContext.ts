@@ -10,6 +10,7 @@ export interface FieldRootContextValue {
   validityData: ValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<ValidityData>>;
   disabled: boolean | undefined;
+  validate: (value: unknown) => string | null | Promise<string | null>;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
@@ -24,6 +25,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   },
   setValidityData: () => {},
   disabled: undefined,
+  validate: () => null,
 });
 
 export function useFieldRootContext() {

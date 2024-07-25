@@ -2,7 +2,8 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "validate": { "type": { "name": "func" } }
   },
   "name": "FieldRoot",
   "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],
