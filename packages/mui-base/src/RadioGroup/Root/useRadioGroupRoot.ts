@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
@@ -8,8 +7,8 @@ interface UseRadioGroupRootParameters {
   readOnly?: boolean;
   defaultValue?: string;
   value?: string;
+  orientation?: 'horizontal' | 'vertical' | 'both';
 }
-
 /**
  *
  * API:
@@ -17,7 +16,7 @@ interface UseRadioGroupRootParameters {
  * - [useRadioGroupRoot API](https://mui.com/base-ui/api/use-radio-group-root/)
  */
 export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
-  const { disabled, defaultValue, readOnly, value: externalValue } = params;
+  const { disabled, defaultValue, readOnly, orientation, value: externalValue } = params;
 
   const [checkedItem, setCheckedItem] = useControlled<string | null>({
     controlled: externalValue,
@@ -35,12 +34,24 @@ export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         onKeyDownCapture(event) {
-          if (event.key === ' ' || event.key.startsWith('Arrow')) {
+          let navigated = false;
+          switch (orientation) {
+            case 'vertical':
+              navigated = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+              break;
+            case 'horizontal':
+              navigated = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
+              break;
+            default:
+              navigated = event.key.startsWith('Arrow');
+          }
+
+          if (navigated) {
             setTouched(true);
           }
         },
       }),
-    [disabled, readOnly],
+    [disabled, readOnly, orientation],
   );
 
   return React.useMemo(

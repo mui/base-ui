@@ -29,6 +29,7 @@ export interface UseCompositeRootParameters {
   onActiveIndexChange?: (index: number) => void;
   dense?: boolean;
   itemSizes?: Array<Dimensions>;
+  elementsRef?: React.MutableRefObject<Array<HTMLElement | null>>;
 }
 
 // TODO
@@ -46,6 +47,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     orientation = 'both',
     activeIndex: externalActiveIndex,
     onActiveIndexChange: externalSetActiveIndex,
+    elementsRef: externalElementsRef,
   } = params;
 
   const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
@@ -55,7 +57,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const activeIndex = externalActiveIndex ?? internalActiveIndex;
   const onActiveIndexChange = useEventCallback(externalSetActiveIndex ?? internalSetActiveIndex);
 
-  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const internalElementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+
+  const elementsRef = externalElementsRef ?? internalElementsRef;
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
@@ -184,7 +188,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
         },
       }),
-    [activeIndex, cols, dense, isGrid, itemSizes, loop, onActiveIndexChange, orientation],
+    [
+      activeIndex,
+      cols,
+      dense,
+      elementsRef,
+      isGrid,
+      itemSizes,
+      loop,
+      onActiveIndexChange,
+      orientation,
+    ],
   );
 
   return React.useMemo(
@@ -194,6 +208,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onActiveIndexChange,
       elementsRef,
     }),
-    [getRootProps, activeIndex, onActiveIndexChange],
+    [getRootProps, activeIndex, onActiveIndexChange, elementsRef],
   );
 }
