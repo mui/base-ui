@@ -1,4 +1,5 @@
 /* eslint-disable no-bitwise */
+'use client';
 import * as React from 'react';
 import { useEnhancedEffect } from '../../../utils/useEnhancedEffect';
 import { CompositeListContext } from './CompositeListContext';
