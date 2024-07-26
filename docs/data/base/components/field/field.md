@@ -166,7 +166,7 @@ To access the raw `ValidityState` to render custom JSX, particularly useful for 
 ```jsx
 <Field.Root>
   <Field.Control />
-  <Field.Validity>{(state) => <>{/* ... */}</>}</Field.Validity>
+  <Field.Validity>{(state) => null}</Field.Validity>
 </Field.Root>
 ```
 
