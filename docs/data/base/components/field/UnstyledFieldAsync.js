@@ -49,25 +49,27 @@ export default function UnstyledFieldAsync() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Field.Label>@</Field.Label>
           <Field.Validity>
-            {({ value }) => (
-              <FieldControl data-pending={value === '' || loading || undefined} />
+            {(state) => (
+              <FieldControl
+                data-pending={state.value === '' || loading || undefined}
+              />
             )}
           </Field.Validity>
         </div>
         <Field.Validity>
-          {({ validity, value }) => {
+          {(state) => {
             if (loading) {
               return <FieldMessage>Checking availability...</FieldMessage>;
             }
 
-            if (value === '') {
+            if (state.value === '') {
               return <FieldMessage>Enter a name</FieldMessage>;
             }
 
-            if (!validity.customError) {
+            if (!state.validity.customError) {
               return (
                 <FieldMessage data-type="success">
-                  <strong>@{value}</strong> is available
+                  <strong>@{state.value}</strong> is available
                 </FieldMessage>
               );
             }

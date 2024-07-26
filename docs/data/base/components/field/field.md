@@ -139,7 +139,7 @@ For Base UI input components, `value` represents the component's value type, wh
 
 The `validation` function can also be async by returning a promise. In the demo below, the taken names are `admin`, `root`, and `superuser` — every other name is available.
 
-For demonstration purposes, a fake network request that takes 500ms is initiated to mimic a sever request to check the name's availability.
+For demonstration purposes, a fake network request that takes 500ms is initiated to mimic a trip to the server to check for availability on the back-end.
 
 {{"demo": "UnstyledFieldAsync.js", "defaultCodeOpen": false}}
 
@@ -149,11 +149,12 @@ After the field's control has been touched (or visited), `[data-invalid]` and `[
 
 ```jsx
 <Field.Root>
-  <Field.Control className="FieldControl" />
+  <Field.Control required className="FieldControl" />
 </Field.Root>
 ```
 
 ```css
+/* Will be applied once the control has blurred */
 .FieldControl[data-invalid] {
   color: red;
 }
@@ -170,7 +171,7 @@ To access the raw `ValidityState` to render custom JSX, particularly useful for 
 </Field.Root>
 ```
 
-THe `state` parameter contains the following properties:
+The `state` parameter contains the following properties:
 
-- `state.validity` the field's `ValidityState`
-- `state.value` the field's control value
+- `state.validity`, the field's `ValidityState`
+- `state.value`, the field's control value
