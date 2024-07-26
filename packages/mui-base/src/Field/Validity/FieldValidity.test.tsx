@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import * as Field from '@base_ui/react/Field';
@@ -7,7 +7,7 @@ import * as Field from '@base_ui/react/Field';
 describe('<Field.Validity />', () => {
   const { render } = createRenderer();
 
-  it('should pass validity data and ownerState', () => {
+  it('should pass validity data and ownerState', async () => {
     const handleValidity = spy();
 
     render(
@@ -24,6 +24,8 @@ describe('<Field.Validity />', () => {
       input.value = 'test';
       input.blur();
     });
+
+    await flushMicrotasks();
 
     const [data, ownerState] = handleValidity.args[4];
 
