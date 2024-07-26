@@ -12,13 +12,14 @@ export default function MenuIntroduction() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <MenuPositioner alignment="start">
+      <MenuPositioner alignment="start" sideOffset={8}>
         <MenuPopup>
           <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
           <MenuItem onClick={createHandleMenuClick('Language settings')}>
             Language settings
           </MenuItem>
           <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+          <MenuArrow />
         </MenuPopup>
       </MenuPositioner>
     </Menu.Root>
@@ -53,14 +54,13 @@ const grey = {
 
 const MenuPopup = styled(Menu.Popup)(
   ({ theme }) => `
+  position: relative;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
   box-sizing: border-box;
   padding: 6px;
-  margin: 12px 0;
   min-width: 200px;
   border-radius: 12px;
-  overflow: auto;
   outline: 0;
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
@@ -152,3 +152,34 @@ const MenuPositioner = styled(Menu.Positioner)`
     pointer-events: none;
   }
 `;
+
+export const MenuArrow = styled(Menu.Arrow)(
+  ({ theme }) => `
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  background: white;
+  z-index: -1;
+  border: 1px ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
+
+  &[data-side='top'] {
+    border-style: none solid solid none;
+    bottom: -6px;
+  }
+
+  &[data-side='right'] {
+    border-style: none none solid solid;
+    left: -6px;
+  }
+
+  &[data-side='bottom'] {
+    border-style: solid none none solid;
+    top: -6px;
+  }
+
+  &[data-side='left'] {
+    border-style: solid solid none none;
+    right: -6px;
+  }
+`,
+);

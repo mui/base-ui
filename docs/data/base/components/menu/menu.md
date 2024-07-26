@@ -51,6 +51,7 @@ Menus are implemented using a collection of related components:
 - `<Menu.Positioner />` renders the element responsible for positioning the popup.
 - `<Menu.Popup />` is the menu popup.
 - `<Menu.Item />` is the menu item.
+- `<Popover.Arrow />` renders an optional pointing arrow, placed inside the popup.
 - `<Menu.SubmenuTrigger />` is a menu item that opens a submenu. See [Nested menu](#nested-menu) for more details.
 
 ```tsx
@@ -67,6 +68,7 @@ Menus are implemented using a collection of related components:
 
         <Menu.Positioner>
           <Menu.Popup>
+            <Menu.Arrow />
             <Menu.Item />
             <Menu.Item />
           </Menu.Popup>
@@ -194,6 +196,22 @@ By default, the whole menu closes, but setting the `closeParentOnEsc` prop modif
   </Menu.Positioner>
 </Menu.Root>
 ```
+
+## Arrow
+
+To add an arrow (caret or triangle) inside the menu popup that points toward the center of the anchor element, use the `Menu.Arrow` component:
+
+```jsx
+<Menu.Positioner>
+  <Menu.Popup>
+    <Menu.Arrow />
+    <Menu.Item>Item 1</Menu.Item>
+    <Menu.Item>Item 2</Menu.Item>
+  </Menu.Popup>
+</Menu.Positioner>
+```
+
+It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
 
 ## Animations
 
