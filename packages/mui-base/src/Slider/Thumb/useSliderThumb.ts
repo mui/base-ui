@@ -6,6 +6,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompoundItem } from '../../useCompound';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
@@ -72,10 +73,13 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     values: sliderValues,
   } = parameters;
 
+  const { getInputValidationProps, inputRef: inputValidationRef } = useFieldControlValidation();
+
   const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const mergedInputRef = useForkRef(inputRef, inputValidationRef);
   const handleRef = useForkRef(externalRef, thumbRef);
 
   const thumbMetadata: SliderThumbMetadata = React.useMemo(
@@ -211,7 +215,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
 
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
+      return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
         'aria-orientation': orientation,
@@ -231,7 +235,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           // @ts-ignore
           changeValue(event.target.valueAsNumber, index, event);
         },
-        ref: inputRef,
+        ref: mergedInputRef,
         step,
         style: {
           ...visuallyHidden,
@@ -263,6 +267,8 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       sliderValues,
       step,
       thumbValue,
+      getInputValidationProps,
+      mergedInputRef,
     ],
   );
 

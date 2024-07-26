@@ -31,6 +31,8 @@ import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The basic building block for creating custom number fields.
@@ -66,14 +68,14 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
+  const { name: nameContext, disabled: disabledContext, setControlId } = useFieldRootContext();
+
   const {
-    name: nameContext,
-    setControlId,
-    setValidityData,
-    messageIds,
-    disabled: disabledContext,
-    validate,
-  } = useFieldRootContext();
+    getInputValidationProps,
+    getValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const disabled = disabledContext ?? disabledProp;
   const name = nameContext ?? nameProp;
@@ -98,6 +100,7 @@ export function useNumberFieldRoot(
   const onValueChange = useEventCallback(onValueChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
@@ -170,43 +173,7 @@ export function useNumberFieldRoot(
 
     onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
-
-    const handleValidate = async () => {
-      const element = inputRef.current;
-      if (!element) {
-        return;
-      }
-
-      const nextValidityData = {
-        state: element.validity,
-        message: '',
-        value: validatedValue,
-      };
-
-      setValidityData(nextValidityData);
-      element.setCustomValidity('');
-
-      const resultOrPromise = validate(nextValidityData.value);
-      let result;
-      if (
-        typeof resultOrPromise === 'object' &&
-        resultOrPromise !== null &&
-        'then' in resultOrPromise
-      ) {
-        result = await resultOrPromise;
-      } else {
-        result = resultOrPromise;
-      }
-
-      element.setCustomValidity(result !== null ? result : '');
-
-      setValidityData({
-        ...nextValidityData,
-        message: result ?? element.validationMessage,
-      });
-    };
-
-    handleValidate();
+    commitValidation(validatedValue);
 
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
@@ -547,7 +514,7 @@ export function useNumberFieldRoot(
 
   const getInputProps: UseNumberFieldRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(externalProps, {
+      mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
         id,
         required,
         autoFocus,
@@ -555,14 +522,13 @@ export function useNumberFieldRoot(
         disabled,
         readOnly,
         inputMode,
-        ref: inputRef,
+        ref: mergedRef,
         type: 'text',
         autoComplete: 'off',
         autoCorrect: 'off',
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
-        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;
@@ -728,6 +694,8 @@ export function useNumberFieldRoot(
         },
       }),
     [
+      getInputValidationProps,
+      getValidationProps,
       id,
       required,
       autoFocus,
@@ -735,8 +703,8 @@ export function useNumberFieldRoot(
       disabled,
       readOnly,
       inputMode,
+      mergedRef,
       invalid,
-      messageIds,
       inputValue,
       formatOptionsRef,
       setValue,

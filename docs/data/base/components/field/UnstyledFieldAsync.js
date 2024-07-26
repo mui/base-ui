@@ -22,6 +22,7 @@ export default function UnstyledFieldAsync() {
     <div>
       <h3>Handle availability checker</h3>
       <FieldRoot
+        validateOnChange
         validate={async (value) => {
           const name = value;
 
@@ -109,6 +110,7 @@ const FieldControl = styled(Field.Control)`
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
     &[data-invalid] {
+      border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }
 

@@ -4,7 +4,9 @@
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "name": { "type": { "name": "string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "validate": { "type": { "name": "func" } }
+    "validate": { "type": { "name": "func" } },
+    "validateOnChange": { "type": { "name": "bool" }, "default": "false" },
+    "validationDebounceMs": { "type": { "name": "number" }, "default": "500" }
   },
   "name": "FieldRoot",
   "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],

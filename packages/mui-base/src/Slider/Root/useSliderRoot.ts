@@ -12,6 +12,7 @@ import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
 import { SliderThumbMetadata, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 function asc(a: number, b: number) {
   return a - b;
@@ -153,14 +154,13 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
+  const { name: nameContext, setControlId, disabled: disabledContext } = useFieldRootContext();
+
   const {
-    name: nameContext,
-    setControlId,
-    setValidityData,
-    messageIds,
-    disabled: disabledContext,
-    validate,
-  } = useFieldRootContext();
+    getValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const disabled = disabledContext ?? disabledProp;
   const name = nameContext ?? nameProp;
@@ -183,11 +183,15 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
-  const registerSliderControl = React.useCallback((element: HTMLElement | null) => {
-    if (element) {
-      controlRef.current = element;
-    }
-  }, []);
+  const registerSliderControl = React.useCallback(
+    (element: HTMLElement | null) => {
+      if (element) {
+        controlRef.current = element;
+        inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
+      }
+    },
+    [inputValidationRef],
+  );
 
   const [valueState, setValueState] = useControlled({
     controlled: valueProp,
@@ -277,60 +281,22 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
         if (onValueCommitted) {
           onValueCommitted(newValue, event.nativeEvent);
-
-          const handleValidate = async () => {
-            const element =
-              controlRef.current?.querySelector<HTMLInputElement>('input[type="range"]');
-            if (!element) {
-              return;
-            }
-
-            const nextValidityData = {
-              state: element.validity,
-              message: '',
-              value: newValue,
-            };
-
-            setValidityData(nextValidityData);
-            element.setCustomValidity('');
-
-            const resultOrPromise = validate(nextValidityData.value);
-            let result;
-            if (
-              typeof resultOrPromise === 'object' &&
-              resultOrPromise !== null &&
-              'then' in resultOrPromise
-            ) {
-              result = await resultOrPromise;
-            } else {
-              result = resultOrPromise;
-            }
-
-            element.setCustomValidity(result !== null ? result : '');
-
-            setValidityData({
-              ...nextValidityData,
-              message: result ?? element.validationMessage,
-            });
-          };
-
-          handleValidate();
+          commitValidation(newValue);
         }
       }
     },
     [
-      areValuesEqual,
-      handleValueChange,
-      max,
       min,
-      minStepsBetweenValues,
-      onValueCommitted,
+      max,
       range,
-      setValueState,
       step,
+      minStepsBetweenValues,
       values,
-      validate,
-      setValidityData,
+      setValueState,
+      handleValueChange,
+      areValuesEqual,
+      onValueCommitted,
+      commitValidation,
     ],
   );
 
@@ -433,14 +399,13 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const getRootProps: UseSliderReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
+      mergeReactProps(getValidationProps(externalProps), {
         'aria-labelledby': ariaLabelledby,
-        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
         dir: direction,
         ref: handleRootRef,
         role: 'group',
       }),
-    [ariaLabelledby, direction, handleRootRef, messageIds],
+    [ariaLabelledby, direction, getValidationProps, handleRootRef],
   );
 
   return React.useMemo(

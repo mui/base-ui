@@ -29,6 +29,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     name,
     disabled: disabledProp = false,
     validate: validateProp,
+    validationDebounceMs = 500,
+    validateOnChange = false,
     ...otherProps
   } = props;
 
@@ -54,15 +56,6 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     [disabled, validityData.state.valid],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    ref: forwardedRef,
-    className,
-    ownerState,
-    extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
-  });
-
   const contextValue: FieldRootContextValue = React.useMemo(
     () => ({
       name,
@@ -74,9 +67,29 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setValidityData,
       disabled,
       validate,
+      validateOnChange,
+      validationDebounceMs,
     }),
-    [name, controlId, messageIds, validityData, disabled, validate],
+    [
+      name,
+      controlId,
+      messageIds,
+      validityData,
+      disabled,
+      validate,
+      validateOnChange,
+      validationDebounceMs,
+    ],
   );
+
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'div',
+    ref: forwardedRef,
+    className,
+    ownerState,
+    extraProps: otherProps,
+    customStyleHookMapping: STYLE_HOOK_MAPPING,
+  });
 
   return (
     <FieldRootContext.Provider value={contextValue}>{renderElement()}</FieldRootContext.Provider>
@@ -111,9 +124,22 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Function to custom-validate the field's value.
+   * Function to custom-validate the field's value. Return a string with an error message if the
+   * value is invalid, or `null` if the value is valid. The function can also return a promise that
+   * resolves to a string or `null`.
    */
   validate: PropTypes.func,
+  /**
+   * Determines if the validation should be triggered on the `change` event, rather than only on
+   * commit (blur).
+   * @default false
+   */
+  validateOnChange: PropTypes.bool,
+  /**
+   * The debounce time in milliseconds for the validation function for the `change` phase.
+   * @default 500
+   */
+  validationDebounceMs: PropTypes.number,
 } as any;
 
 export { FieldRoot };

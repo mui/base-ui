@@ -9,6 +9,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 /**
  * The basic building block for creating custom switches.
@@ -34,14 +35,14 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     inputRef: externalInputRef,
   } = params;
 
+  const { name: nameContext, disabled: disabledContext, setControlId } = useFieldRootContext();
+
   const {
-    name: nameContext,
-    setControlId,
-    messageIds,
-    setValidityData,
-    disabled: disabledContext,
-    validate,
-  } = useFieldRootContext();
+    getValidationProps,
+    getInputValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const disabled = disabledContext ?? disabledProp;
   const name = nameContext ?? nameProp;
@@ -57,7 +58,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
   }, [id, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const handleInputRef = useForkRef(inputRef, externalInputRef);
+  const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -68,47 +69,14 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
 
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'button'>(otherProps, {
+      mergeReactProps<'button'>(getValidationProps(otherProps), {
         type: 'button',
         role: 'switch',
         'aria-checked': checked,
         'aria-disabled': disabled,
         'aria-readonly': readOnly,
-        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
-        async onBlur(event) {
-          const element = inputRef.current;
-
-          if (event.defaultPrevented || readOnly || !element) {
-            return;
-          }
-
-          const nextValidityData = {
-            state: element.validity,
-            message: '',
-            value: element.checked,
-          };
-
-          setValidityData(nextValidityData);
-          element.setCustomValidity('');
-
-          const resultOrPromise = validate(nextValidityData.value);
-          let result;
-          if (
-            typeof resultOrPromise === 'object' &&
-            resultOrPromise !== null &&
-            'then' in resultOrPromise
-          ) {
-            result = await resultOrPromise;
-          } else {
-            result = resultOrPromise;
-          }
-
-          element.setCustomValidity(result !== null ? result : '');
-
-          setValidityData({
-            ...nextValidityData,
-            message: result ?? element.validationMessage,
-          });
+        onBlur(event) {
+          commitValidation(event.currentTarget.value);
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -118,12 +86,12 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, messageIds, readOnly, setValidityData, validate],
+    [checked, disabled, getValidationProps, readOnly, commitValidation],
   );
 
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'input'>(otherProps, {
+      mergeReactProps<'input'>(getInputValidationProps(otherProps), {
         checked,
         disabled,
         name,
@@ -145,7 +113,16 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           onCheckedChange?.(nextChecked, event);
         },
       }),
-    [checked, disabled, name, required, handleInputRef, onCheckedChange, setCheckedState],
+    [
+      getInputValidationProps,
+      checked,
+      disabled,
+      name,
+      required,
+      handleInputRef,
+      setCheckedState,
+      onCheckedChange,
+    ],
   );
 
   return React.useMemo(

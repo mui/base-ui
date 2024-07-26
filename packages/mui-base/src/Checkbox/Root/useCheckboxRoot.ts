@@ -8,6 +8,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -35,14 +36,14 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     indeterminate = false,
   } = params;
 
+  const { name: nameContext, disabled: disabledContext, setControlId } = useFieldRootContext();
+
   const {
-    name: nameContext,
-    setControlId,
-    messageIds,
-    setValidityData,
-    disabled: disabledContext,
-    validate,
-  } = useFieldRootContext();
+    getValidationProps,
+    getInputValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const disabled = disabledContext ?? disabledProp;
   const name = nameContext ?? nameProp;
@@ -58,7 +59,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
   }, [id, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(externalInputRef, inputRef);
+  const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
   React.useEffect(() => {
     if (inputRef.current) {
@@ -75,49 +76,15 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
   const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'button'>(externalProps, {
+      mergeReactProps<'button'>(getValidationProps(externalProps), {
         value: 'off',
         type: 'button',
         role: 'checkbox',
         'aria-checked': indeterminate ? 'mixed' : checked,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
-        'aria-labelledby': id,
-        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
-        async onBlur(event) {
-          const element = inputRef.current;
-
-          if (event.defaultPrevented || readOnly || !element) {
-            return;
-          }
-
-          const nextValidityData = {
-            state: element.validity,
-            message: '',
-            value: element.checked,
-          };
-
-          setValidityData(nextValidityData);
-          element.setCustomValidity('');
-
-          const resultOrPromise = validate(nextValidityData.value);
-          let result;
-          if (
-            typeof resultOrPromise === 'object' &&
-            resultOrPromise !== null &&
-            'then' in resultOrPromise
-          ) {
-            result = await resultOrPromise;
-          } else {
-            result = resultOrPromise;
-          }
-
-          element.setCustomValidity(result !== null ? result : '');
-
-          setValidityData({
-            ...nextValidityData,
-            message: result ?? element.validationMessage,
-          });
+        onBlur(event) {
+          commitValidation(event.currentTarget.value);
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -129,12 +96,12 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [indeterminate, checked, disabled, readOnly, id, messageIds, setValidityData, validate],
+    [getValidationProps, indeterminate, checked, disabled, readOnly, commitValidation],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(externalProps, {
+      mergeReactProps<'input'>(getInputValidationProps(externalProps), {
         id,
         checked,
         disabled,
@@ -168,6 +135,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       mergedInputRef,
       setCheckedState,
       onCheckedChange,
+      getInputValidationProps,
     ],
   );
 

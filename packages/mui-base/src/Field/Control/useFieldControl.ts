@@ -3,6 +3,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useFieldRootContext } from '../Root/FieldRootContext';
+import { useFieldControlValidation } from './useFieldControlValidation';
 
 interface UseFieldControlParameters {
   id?: string;
@@ -17,8 +18,10 @@ interface UseFieldControlParameters {
 export function useFieldControl(params: UseFieldControlParameters) {
   const { id: idProp } = params;
 
-  const { name, setControlId, messageIds, validityData, setValidityData, disabled, validate } =
-    useFieldRootContext();
+  const { name, setControlId, disabled } = useFieldRootContext();
+
+  const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
+    useFieldControlValidation();
 
   const id = useId(idProp);
 
@@ -31,45 +34,16 @@ export function useFieldControl(params: UseFieldControlParameters) {
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(externalProps, {
+      mergeReactProps<'input'>(getValidationProps(getInputValidationProps(externalProps)), {
         id,
         disabled,
         name,
-        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
-        'aria-invalid': !validityData.state.valid ? 'true' : undefined,
-        async onBlur(event) {
-          const element = event.currentTarget;
-
-          const nextValidityData = {
-            state: element.validity,
-            message: '',
-            value: element.value,
-          };
-
-          setValidityData(nextValidityData);
-          element.setCustomValidity('');
-
-          const resultOrPromise = validate(nextValidityData.value);
-          let result;
-          if (
-            typeof resultOrPromise === 'object' &&
-            resultOrPromise !== null &&
-            'then' in resultOrPromise
-          ) {
-            result = await resultOrPromise;
-          } else {
-            result = resultOrPromise;
-          }
-
-          element.setCustomValidity(result !== null ? result : '');
-
-          setValidityData({
-            ...nextValidityData,
-            message: result ?? element.validationMessage,
-          });
+        ref: inputRef,
+        onBlur(event) {
+          commitValidation(event.currentTarget.value);
         },
       }),
-    [id, disabled, name, messageIds, validityData.state.valid, validate, setValidityData],
+    [getValidationProps, getInputValidationProps, inputRef, id, disabled, name, commitValidation],
   );
 
   return React.useMemo(
