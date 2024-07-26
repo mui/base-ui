@@ -10,6 +10,8 @@ import { useCompoundParent } from '../../useCompound';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
 import { SliderThumbMetadata, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useId } from '../../utils/useId';
 
 function asc(a: number, b: number) {
   return a - b;
@@ -133,9 +135,10 @@ export function trackFinger(
 function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
+    id: idProp,
     defaultValue,
     direction = 'ltr',
-    disabled = false,
+    disabled: disabledProp = false,
     largeStep = 10,
     max = 100,
     min = 0,
@@ -149,6 +152,25 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     tabIndex,
     value: valueProp,
   } = parameters;
+
+  const {
+    setControlId,
+    setValidityData,
+    messageIds,
+    disabled: disabledContext,
+    validate,
+  } = useFieldRootContext();
+
+  const disabled = disabledContext ?? disabledProp;
+
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -253,6 +275,33 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
         if (onValueCommitted) {
           onValueCommitted(newValue, event.nativeEvent);
+
+          const handleValidate = async () => {
+            const element = controlRef.current as HTMLInputElement;
+            if (!element) {
+              return;
+            }
+
+            const nextValidityData = {
+              state: element.validity,
+              message: '',
+              value: newValue,
+            };
+
+            setValidityData(nextValidityData);
+            element.setCustomValidity('');
+
+            const result = await validate(newValue);
+
+            element.setCustomValidity(result !== null ? result : '');
+
+            setValidityData({
+              ...nextValidityData,
+              message: result ?? element.validationMessage,
+            });
+          };
+
+          handleValidate();
         }
       }
     },
@@ -267,6 +316,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       setValueState,
       step,
       values,
+      validate,
+      setValidityData,
     ],
   );
 
@@ -371,11 +422,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-labelledby': ariaLabelledby,
+        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
         dir: direction,
         ref: handleRootRef,
         role: 'group',
       }),
-    [ariaLabelledby, direction, handleRootRef],
+    [ariaLabelledby, direction, handleRootRef, messageIds],
   );
 
   return React.useMemo(

@@ -1,8 +1,8 @@
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export interface ValidityData {
-  validityState: ValidityState;
-  validityMessage: string;
+  state: ValidityState;
+  message: string;
   value: unknown;
 }
 

@@ -26,16 +26,16 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
   const { validityData, disabled = false } = useFieldRootContext();
 
-  const rendered = showProp ? validityData.validityState[showProp] : true;
+  const rendered = showProp ? validityData.state[showProp] : true;
 
   const { getMessageProps } = useFieldMessage({ id, rendered });
 
   const ownerState: FieldMessageOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.validityState.valid,
+      valid: validityData.state.valid,
     }),
-    [disabled, validityData.validityState.valid],
+    [disabled, validityData.state.valid],
   );
 
   const { renderElement } = useComponentRenderer({

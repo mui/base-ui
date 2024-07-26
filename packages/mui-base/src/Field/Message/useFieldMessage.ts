@@ -38,7 +38,7 @@ export function useFieldMessage(params: UseFieldMessageParameters) {
     (externalProps = {}) =>
       mergeReactProps<'p'>(externalProps, {
         id,
-        children: validityData?.validityMessage,
+        children: validityData.message,
       }),
     [id, validityData],
   );

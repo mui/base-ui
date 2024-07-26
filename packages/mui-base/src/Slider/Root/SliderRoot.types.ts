@@ -83,6 +83,10 @@ export interface SliderRootProps
 
 export interface UseSliderParameters {
   /**
+   * The id of the slider element.
+   */
+  id?: string;
+  /**
    * The id of the element containing a label for the slider.
    */
   'aria-labelledby'?: string;

@@ -175,18 +175,22 @@ export function useNumberFieldRoot(
         return;
       }
 
-      const result = await validate(element.value);
+      const nextValidityData = {
+        state: element.validity,
+        message: '',
+        value: validatedValue,
+      };
 
-      if (result !== null) {
-        element.setCustomValidity(result);
-      } else {
-        element.setCustomValidity('');
-      }
+      setValidityData(nextValidityData);
+      element.setCustomValidity('');
+
+      const result = await validate(validatedValue);
+
+      element.setCustomValidity(result !== null ? result : '');
 
       setValidityData({
-        validityState: element.validity,
-        validityMessage: element.validationMessage,
-        value: validatedValue,
+        ...nextValidityData,
+        message: result ?? element.validationMessage,
       });
     };
 
@@ -546,7 +550,7 @@ export function useNumberFieldRoot(
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
-        'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
+        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;

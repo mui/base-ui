@@ -5,6 +5,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { focusThumb, trackFinger, validateMinimumDistance } from '../Root/useSliderRoot';
 import { UseSliderControlParameters, UseSliderControlReturnValue } from './SliderControl.types';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 /**
@@ -37,6 +38,8 @@ export function useSliderControl(
     step,
     subitems,
   } = parameters;
+
+  const { setValidityData, validate } = useFieldRootContext();
 
   const controlRef = React.useRef<HTMLElement>(null);
 
@@ -124,6 +127,33 @@ export function useSliderControl(
 
     if (onValueCommitted) {
       onValueCommitted(newFingerValue.newValue, nativeEvent);
+
+      const handleValidate = async () => {
+        const element = controlRef.current as HTMLInputElement;
+        if (!element) {
+          return;
+        }
+
+        const nextValidityData = {
+          state: element.validity,
+          message: '',
+          value: newFingerValue.newValue,
+        };
+
+        setValidityData(nextValidityData);
+        element.setCustomValidity('');
+
+        const result = await validate(newFingerValue.newValue);
+
+        element.setCustomValidity(result !== null ? result : '');
+
+        setValidityData({
+          ...nextValidityData,
+          message: result ?? element.validationMessage,
+        });
+      };
+
+      handleValidate();
     }
 
     touchIdRef.current = undefined;

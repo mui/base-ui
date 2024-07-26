@@ -40,17 +40,17 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
   const [validityData, setValidityData] = React.useState<ValidityData>({
-    validityState: DEFAULT_VALIDITY_STATE,
-    validityMessage: '',
+    state: DEFAULT_VALIDITY_STATE,
+    message: '',
     value: '',
   });
 
   const ownerState: FieldRootOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.validityState.valid,
+      valid: validityData.state.valid,
     }),
-    [disabled, validityData.validityState.valid],
+    [disabled, validityData.state.valid],
   );
 
   const { renderElement } = useComponentRenderer({

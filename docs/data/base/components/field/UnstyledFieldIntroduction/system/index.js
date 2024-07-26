@@ -42,6 +42,7 @@ const FieldControl = styled(Field.Control)`
   border-radius: 4px;
   width: 100%;
   padding: 6px;
+  font-size: 100%;
 
   &[data-invalid] {
     border-color: red;

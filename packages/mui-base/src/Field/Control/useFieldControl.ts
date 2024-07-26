@@ -35,25 +35,30 @@ export function useFieldControl(params: UseFieldControlParameters) {
         id,
         disabled,
         'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
-        'aria-invalid': !validityData.validityState.valid ? 'true' : undefined,
+        'aria-invalid': !validityData.state.valid ? 'true' : undefined,
         async onBlur(event) {
           const element = event.currentTarget;
+
+          const nextValidityData = {
+            state: element.validity,
+            message: '',
+            value: element.value,
+          };
+
+          setValidityData(nextValidityData);
+          element.setCustomValidity('');
+
           const result = await validate(element.value);
 
-          if (result !== null) {
-            element.setCustomValidity(result);
-          } else {
-            element.setCustomValidity('');
-          }
+          element.setCustomValidity(result !== null ? result : '');
 
           setValidityData({
-            validityState: element.validity,
-            validityMessage: result ?? element.validationMessage,
-            value: element.value,
+            ...nextValidityData,
+            message: result ?? element.validationMessage,
           });
         },
       }),
-    [id, disabled, messageIds, validityData.validityState.valid, validate, setValidityData],
+    [id, disabled, messageIds, validityData.state.valid, validate, setValidityData],
   );
 
   return React.useMemo(

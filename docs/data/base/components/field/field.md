@@ -135,9 +135,17 @@ The message shows when `ValidityState`'s `customError` property is `true`.
 
 For Base UI input components, `value` represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
 
+### Async validation
+
+The `validation` function can also be async by returning a promise. In the demo below, the taken names are `admin`, `root`, and `superuser` — every other name is available.
+
+For demonstration purposes, a fake network request that takes 500ms is initiated to mimic a sever request to check the name's availability.
+
+{{"demo": "UnstyledFieldAsync.js", "defaultCodeOpen": false}}
+
 ### Styling
 
-After the field's control has been touched (or visited), `[data-invalid]` and `[data-valid]` style hooks are applied to each subcomponent based on the field's `ValidityState`.
+After the field's control has been touched (or visited), `[data-invalid]` and `[data-valid]` style hooks are applied to each subcomponent based on the field's `ValidityState`:
 
 ```css
 .FieldControl[data-invalid] {
@@ -147,7 +155,7 @@ After the field's control has been touched (or visited), `[data-invalid]` and `[
 
 ## Validity component
 
-To access the raw `ValidityState` to render custom JSX, use the `Field.Validity` component:
+To access the raw `ValidityState` to render custom JSX, particularly useful for `Field.Message` control flow, use the `Field.Validity` component:
 
 ```jsx
 <Field.Root>

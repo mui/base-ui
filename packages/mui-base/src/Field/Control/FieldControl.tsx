@@ -36,9 +36,9 @@ const FieldControl = React.forwardRef(function FieldControl(
   const ownerState: FieldControlOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.validityState.valid,
+      valid: validityData.state.valid,
     }),
-    [disabled, validityData.validityState.valid],
+    [disabled, validityData.state.valid],
   );
 
   const { renderElement } = useComponentRenderer({

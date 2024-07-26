@@ -121,6 +121,10 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * The id of the slider element.
+   */
+  id: PropTypes.string,
+  /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10
    */

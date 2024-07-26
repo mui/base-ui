@@ -81,28 +81,31 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': id,
-        'aria-describedby': messageIds && messageIds.length ? messageIds.join(' ') : undefined,
+        'aria-describedby': messageIds.length ? messageIds.join(' ') : undefined,
         async onBlur(event) {
-          if (event.defaultPrevented || readOnly) {
+          const element = inputRef.current;
+
+          if (event.defaultPrevented || readOnly || !element) {
             return;
           }
 
-          const element = inputRef.current;
-          if (element) {
-            const result = await validate(element.value);
+          const nextValidityData = {
+            state: element.validity,
+            message: '',
+            value: element.checked,
+          };
 
-            if (result !== null) {
-              element.setCustomValidity(result);
-            } else {
-              element.setCustomValidity('');
-            }
+          setValidityData(nextValidityData);
+          element.setCustomValidity('');
 
-            setValidityData({
-              validityState: element.validity,
-              validityMessage: element.validationMessage,
-              value: element.checked,
-            });
-          }
+          const result = await validate(element.checked);
+
+          element.setCustomValidity(result !== null ? result : '');
+
+          setValidityData({
+            ...nextValidityData,
+            message: result ?? element.validationMessage,
+          });
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {

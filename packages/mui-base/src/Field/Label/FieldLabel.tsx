@@ -31,9 +31,9 @@ const FieldLabel = React.forwardRef(function FieldLabel(
   const ownerState: FieldLabelOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.validityState.valid,
+      valid: validityData.state.valid,
     }),
-    [disabled, validityData.validityState.valid],
+    [disabled, validityData.state.valid],
   );
 
   const { renderElement } = useComponentRenderer({

@@ -30,7 +30,7 @@ function FieldValidity(props: FieldValidityProps) {
       {props.children(
         {
           value: validityData.value,
-          validity: validityData.validityState,
+          validity: validityData.state,
         },
         ownerState,
       )}
