@@ -145,7 +145,7 @@ For demonstration purposes, a fake network request that takes 500ms is initiated
 
 ### Realtime validation
 
-The `validateOnChange` prop will report the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control. By default, the validation is debounced by `500ms` but this can be configured using the `validationDebounceMs` prop.
+The `validateOnChange` prop reports the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control. By default, the validation is debounced by `500ms` but this can be configured using the `validationDebounceMs` prop.
 
 ```jsx
 <Field.Root validateOnChange validationDebounceMs={0}>
