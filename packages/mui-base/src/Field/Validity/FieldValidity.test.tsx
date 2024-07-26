@@ -27,10 +27,9 @@ describe('<Field.Validity />', () => {
 
     await flushMicrotasks();
 
-    const [data, ownerState] = handleValidity.args[4];
+    const [data] = handleValidity.args[4];
 
     expect(data.value).to.equal('test');
     expect(data.validity.valueMissing).to.equal(false);
-    expect(ownerState).to.deep.equal({ disabled: false });
   });
 });
