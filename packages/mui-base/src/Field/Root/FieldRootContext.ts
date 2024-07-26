@@ -19,8 +19,8 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   messageIds: [],
   setMessageIds: () => {},
   validityData: {
-    validityState: DEFAULT_VALIDITY_STATE,
-    validityMessage: '',
+    state: DEFAULT_VALIDITY_STATE,
+    message: '',
     value: '',
   },
   setValidityData: () => {},
