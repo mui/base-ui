@@ -18,7 +18,9 @@ export interface MenuPositionerContext {
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | null>(null);
 
-MenuPositionerContext.displayName = 'MenuPositionerContext';
+if (process.env.NODE_ENV !== 'production') {
+  MenuPositionerContext.displayName = 'MenuPositionerContext';
+}
 
 export function useMenuPositionerContext() {
   const context = React.useContext(MenuPositionerContext);

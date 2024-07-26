@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { useMenuRoot } from './useMenuRoot';
 
@@ -11,7 +12,9 @@ export interface MenuRootContext extends useMenuRoot.ReturnValue {
 
 export const MenuRootContext = React.createContext<MenuRootContext | null>(null);
 
-MenuRootContext.displayName = 'MenuRootContext';
+if (process.env.NODE_ENV !== 'production') {
+  MenuRootContext.displayName = 'MenuRootContext';
+}
 
 function useMenuRootContext(optional?: false): MenuRootContext;
 function useMenuRootContext(optional: true): MenuRootContext | null;
