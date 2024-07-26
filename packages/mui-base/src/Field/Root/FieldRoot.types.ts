@@ -13,7 +13,7 @@ export type FieldRootOwnerState = {
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
   /**
-   * The field's name, used to identify the field in the form.
+   * The field's name, used to identify the field's control in the form.
    */
   name?: string;
   /**

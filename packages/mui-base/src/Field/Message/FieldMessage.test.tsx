@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { spy } from 'sinon';
 import * as Field from '@base_ui/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -31,7 +30,7 @@ describe('<Field.Message />', () => {
   });
 
   describe('prop: show', () => {
-    it('should only render when `show` matches constraint validation', () => {
+    it('should only render when `show` matches constraint validation', async () => {
       render(
         <Field.Root>
           <Field.Control required />
@@ -46,71 +45,26 @@ describe('<Field.Message />', () => {
         screen.getByRole('textbox').blur();
       });
 
-      expect(screen.queryByText('Message')).not.to.equal(null);
-    });
-
-    it('should only show when function value returns a boolean', () => {
-      render(
-        <Field.Root>
-          <Field.Control required />
-          <Field.Message show={() => true}>Message</Field.Message>
-        </Field.Root>,
-      );
-
-      expect(screen.queryByText('Message')).not.to.equal(null);
-
-      act(() => {
-        screen.getByRole('textbox').focus();
-        screen.getByRole('textbox').blur();
-      });
+      await flushMicrotasks();
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
 
-    it('should pass value as an argument to function', () => {
-      const handleShow = spy();
-
+    it('should show custom errors', async () => {
       render(
-        <Field.Root>
-          <Field.Control required />
-          <Field.Message show={handleShow}>Message</Field.Message>
+        <Field.Root validate={() => 'error'}>
+          <Field.Control />
+          <Field.Message show="customError">Message</Field.Message>
         </Field.Root>,
       );
 
       act(() => {
         const textbox = screen.getByRole<HTMLInputElement>('textbox');
         textbox.focus();
-        textbox.value = 'test';
         textbox.blur();
       });
 
-      expect(handleShow.args[2][0]).to.equal('test');
-    });
-
-    it('should support async show', async () => {
-      render(
-        <Field.Root>
-          <Field.Control required />
-          <Field.Message
-            show={async () => {
-              await new Promise((res) => {
-                setTimeout(res);
-              });
-              return true;
-            }}
-          >
-            Message
-          </Field.Message>
-        </Field.Root>,
-      );
-
-      expect(screen.queryByText('Message')).to.equal(null);
-
-      await act(async () => {
-        return new Promise((res) => {
-          setTimeout(res);
-        });
-      });
+      await flushMicrotasks();
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
