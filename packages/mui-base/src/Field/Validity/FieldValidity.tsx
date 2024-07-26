@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-import type { FieldValidityOwnerState, FieldValidityProps } from './FieldValidity.types';
+import type { FieldValidityProps } from './FieldValidity.types';
 
 /**
  * Render prop component that provides the field's validity state and value to its children.
@@ -16,26 +16,8 @@ import type { FieldValidityOwnerState, FieldValidityProps } from './FieldValidit
  * - [FieldValidity API](https://mui.com/base-ui/react-field/components-api/#field-validity)
  */
 function FieldValidity(props: FieldValidityProps) {
-  const { validityData, disabled = false } = useFieldRootContext();
-
-  const ownerState: FieldValidityOwnerState = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
-
-  return (
-    <React.Fragment>
-      {props.children(
-        {
-          value: validityData.value,
-          validity: validityData.state,
-        },
-        ownerState,
-      )}
-    </React.Fragment>
-  );
+  const { validityData } = useFieldRootContext();
+  return <React.Fragment>{props.children(validityData.state, validityData.value)}</React.Fragment>;
 }
 
 FieldValidity.propTypes /* remove-proptypes */ = {

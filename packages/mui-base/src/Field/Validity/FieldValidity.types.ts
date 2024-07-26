@@ -5,13 +5,8 @@ export interface FieldValidityParameters {
   value: unknown;
 }
 
-export type FieldValidityOwnerState = {
-  disabled: boolean;
-};
+export type FieldValidityOwnerState = {};
 
 export interface FieldValidityProps {
-  children: (
-    params: FieldValidityParameters,
-    ownerState: FieldValidityOwnerState,
-  ) => React.ReactNode;
+  children: (validity: ValidityState, value: unknown) => React.ReactNode;
 }
