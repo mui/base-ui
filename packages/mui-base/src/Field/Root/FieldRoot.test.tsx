@@ -87,23 +87,27 @@ describe('<Field.Root />', () => {
     });
 
     it('[Checkbox] forwards the disabled prop to Base UI input components', () => {
-      render(
+      const { container } = render(
         <Field.Root disabled>
           <Checkbox.Root />
         </Field.Root>,
       );
 
-      expect(screen.getAllByRole('checkbox')[1]).to.have.attribute('disabled');
+      const input = container.querySelector('input');
+
+      expect(input).to.have.attribute('disabled');
     });
 
     it('[Switch] forwards the disabled prop to Base UI input components', () => {
-      render(
+      const { container } = render(
         <Field.Root disabled>
           <Switch.Root />
         </Field.Root>,
       );
 
-      expect(screen.getAllByRole('checkbox')[0]).to.have.attribute('disabled');
+      const input = container.querySelector('input');
+
+      expect(input).to.have.attribute('disabled');
     });
 
     it('[NumberField] forwards the disabled prop to Base UI input components', () => {
@@ -151,23 +155,27 @@ describe('<Field.Root />', () => {
     });
 
     it('[Checkbox] forwards the name to Base UI input components', () => {
-      render(
+      const { container } = render(
         <Field.Root name="field">
           <Checkbox.Root />
         </Field.Root>,
       );
 
-      expect(screen.getAllByRole('checkbox')[1]).to.have.attribute('name', 'field');
+      const input = container.querySelector('input');
+
+      expect(input).to.have.attribute('name', 'field');
     });
 
     it('[Switch] forwards the name to Base UI input components', () => {
-      render(
+      const { container } = render(
         <Field.Root name="field">
           <Switch.Root />
         </Field.Root>,
       );
 
-      expect(screen.getAllByRole('checkbox')[0]).to.have.attribute('name', 'field');
+      const input = container.querySelector('input');
+
+      expect(input).to.have.attribute('name', 'field');
     });
 
     it('[NumberField] forwards the name to Base UI input components', () => {

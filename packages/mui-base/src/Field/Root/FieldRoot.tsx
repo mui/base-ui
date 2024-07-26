@@ -103,7 +103,7 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The field's name, used to identify the field in the form.
+   * The field's name, used to identify the field's control in the form.
    */
   name: PropTypes.string,
   /**

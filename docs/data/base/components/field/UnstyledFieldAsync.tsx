@@ -8,9 +8,8 @@ function checkAvailability(name: string) {
   const takenNames = ['admin', 'root', 'superuser'];
   return new Promise<string | null>((resolve) => {
     setTimeout(() => {
-      const value = name as string;
-      const result = takenNames.includes(value) ? 'Name taken' : null;
-      cache.set(value, result);
+      const result = takenNames.includes(name) ? 'Name taken' : null;
+      cache.set(name, result);
       resolve(result);
     }, 500);
   });
@@ -67,13 +66,13 @@ export default function UnstyledFieldAsync() {
 
             if (!validity.customError) {
               return (
-                <FieldMessage data-success>
+                <FieldMessage data-type="success">
                   <strong>@{value as string}</strong> is available
                 </FieldMessage>
               );
             }
 
-            return <FieldMessage data-error show="customError" />;
+            return <FieldMessage data-type="error" show="customError" />;
           }}
         </Field.Validity>
       </FieldRoot>
@@ -92,20 +91,6 @@ const FieldControl = styled(Field.Control)`
   padding: 6px;
   font-size: 100%;
 
-  &:focus {
-    outline: 0;
-    border-color: #0078d4;
-    box-shadow: 0 0 0 3px rgba(0, 100, 255, 0.3);
-
-    &[data-invalid] {
-      box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.3);
-    }
-
-    &[data-valid]:not([data-pending]) {
-      box-shadow: 0 0 0 3px rgba(100, 200, 100, 0.3);
-    }
-  }
-
   &[data-invalid] {
     border-color: red;
     background-color: #fffbfb;
@@ -114,6 +99,20 @@ const FieldControl = styled(Field.Control)`
   &[data-valid]:not([data-pending]) {
     border-color: green;
     background-color: #f0fff0;
+  }
+
+  &:focus {
+    outline: 0;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
+
+    &[data-invalid] {
+      box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
+    }
+
+    &[data-valid]:not([data-pending]) {
+      box-shadow: 0 0 0 3px rgba(100 200 100 / 0.3);
+    }
   }
 `;
 
@@ -124,11 +123,11 @@ const FieldMessage = styled(Field.Message)`
   line-height: 1.1;
   color: #666;
 
-  &[data-error] {
+  &[data-type='error'] {
     color: red;
   }
 
-  &[data-success] {
+  &[data-type='success'] {
     color: green;
   }
 `;
