@@ -17,7 +17,14 @@ import type { FieldValidityProps } from './FieldValidity.types';
  */
 function FieldValidity(props: FieldValidityProps) {
   const { validityData } = useFieldRootContext();
-  return <React.Fragment>{props.children(validityData.state, validityData.value)}</React.Fragment>;
+  return (
+    <React.Fragment>
+      {props.children({
+        validity: validityData.state,
+        value: validityData.value,
+      })}
+    </React.Fragment>
+  );
 }
 
 FieldValidity.propTypes /* remove-proptypes */ = {
