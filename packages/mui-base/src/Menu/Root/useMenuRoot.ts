@@ -84,7 +84,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     enabled: hoverEnabled && openOnHover && !disabled,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
-    move: false,
     delay: {
       open: delay,
     },
