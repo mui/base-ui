@@ -3,6 +3,7 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/menu/menu.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import MenuArrowApiJsonPageContent from '../../api/menu-arrow.json';
 import MenuItemApiJsonPageContent from '../../api/menu-item.json';
 import MenuPopupApiJsonPageContent from '../../api/menu-popup.json';
 import MenuPositionerApiJsonPageContent from '../../api/menu-positioner.json';
@@ -27,6 +28,13 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
+  const MenuArrowApiReq = require.context(
+    'docs-base/translations/api-docs/menu-arrow',
+    false,
+    /\.\/menu-arrow.*.json$/,
+  );
+  const MenuArrowApiDescriptions = mapApiPageTranslations(MenuArrowApiReq);
+
   const MenuItemApiReq = require.context(
     'docs-base/translations/api-docs/menu-item',
     false,
@@ -72,6 +80,7 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
+        MenuArrow: MenuArrowApiDescriptions,
         MenuItem: MenuItemApiDescriptions,
         MenuPopup: MenuPopupApiDescriptions,
         MenuPositioner: MenuPositionerApiDescriptions,
@@ -80,6 +89,7 @@ export const getStaticProps = () => {
         SubmenuTrigger: SubmenuTriggerApiDescriptions,
       },
       componentsApiPageContents: {
+        MenuArrow: MenuArrowApiJsonPageContent,
         MenuItem: MenuItemApiJsonPageContent,
         MenuPopup: MenuPopupApiJsonPageContent,
         MenuPositioner: MenuPositionerApiJsonPageContent,

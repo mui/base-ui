@@ -9,6 +9,7 @@
       "default": "'ltr'"
     },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "loop": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } },
     "openOnHover": { "type": { "name": "bool" }, "default": "nested" },

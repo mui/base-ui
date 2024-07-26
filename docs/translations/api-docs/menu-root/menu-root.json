@@ -13,6 +13,9 @@
     },
     "dir": { "description": "The direction of the Menu (left-to-right or right-to-left)." },
     "disabled": { "description": "If <code>true</code>, the Menu is disabled." },
+    "loop": {
+      "description": "If <code>true</code>, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
+    },
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."
     },

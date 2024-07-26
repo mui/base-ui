@@ -38,6 +38,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     disabled,
     nested,
     closeParentOnEsc,
+    loop,
     delay,
     openOnHover,
   } = parameters;
@@ -110,7 +111,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     listRef: itemDomElements,
     activeIndex,
     nested,
-    loop: true,
+    loop,
     orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
@@ -220,6 +221,10 @@ export namespace useMenuRoot {
      * If `true`, the Menu is initially open.
      */
     defaultOpen: boolean;
+    /**
+     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     */
+    loop: boolean;
     /**
      * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
      */

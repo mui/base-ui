@@ -13,6 +13,7 @@ function MenuRoot(props: MenuRoot.Props) {
     dir: direction = 'ltr',
     disabled = false,
     closeParentOnEsc = true,
+    loop = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -31,6 +32,7 @@ function MenuRoot(props: MenuRoot.Props) {
     disabled,
     closeParentOnEsc,
     onOpenChange,
+    loop,
     defaultOpen,
     open,
     orientation,
@@ -88,6 +90,11 @@ namespace MenuRoot {
      * @default false
      */
     defaultOpen?: boolean;
+    /**
+     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * @default true
+     */
+    loop?: boolean;
     /**
      * Callback fired when the component requests to be opened or closed.
      */
@@ -188,6 +195,11 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   * @default true
+   */
+  loop: PropTypes.bool,
   /**
    * Callback fired when the component requests to be opened or closed.
    */

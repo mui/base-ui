@@ -76,6 +76,7 @@ module.exports = [
     pathname: '/base-ui/react-form-control/components-api/#form-control',
     title: 'FormControl',
   },
+  { pathname: '/base-ui/react-menu/components-api/#menu-arrow', title: 'MenuArrow' },
   { pathname: '/base-ui/react-menu/components-api/#menu-item', title: 'MenuItem' },
   { pathname: '/base-ui/react-menu/components-api/#menu-popup', title: 'MenuPopup' },
   {
