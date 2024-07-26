@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+
 /**
  *
  * API:
@@ -27,7 +28,14 @@ export function useFieldControlValidation() {
     };
   }, []);
 
-  const performValidation = useEventCallback(async (element: HTMLInputElement, value: unknown) => {
+  const commitValidation = useEventCallback(async (value: unknown) => {
+    const element = inputRef.current;
+    if (!element) {
+      return;
+    }
+
+    window.clearTimeout(timeoutRef.current);
+
     const nextValidityData = {
       state: element.validity,
       message: '',
@@ -57,15 +65,6 @@ export function useFieldControlValidation() {
     });
   });
 
-  const commitValidation = useEventCallback((value: unknown) => {
-    const element = inputRef.current;
-    if (!element) {
-      return;
-    }
-    window.clearTimeout(timeoutRef.current);
-    performValidation(element, value);
-  });
-
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
@@ -88,11 +87,11 @@ export function useFieldControlValidation() {
 
           window.clearTimeout(timeoutRef.current);
           timeoutRef.current = window.setTimeout(() => {
-            performValidation(element, element.value);
+            commitValidation(element.value);
           }, validationDebounceMs);
         },
       }),
-    [getValidationProps, performValidation, validateOnChange, validationDebounceMs],
+    [commitValidation, getValidationProps, validateOnChange, validationDebounceMs],
   );
 
   return React.useMemo(
