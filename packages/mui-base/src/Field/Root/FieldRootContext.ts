@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { ValidityData } from './FieldRoot.types';
