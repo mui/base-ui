@@ -306,6 +306,39 @@ CSS animations can also be used, requiring only two separate declarations:
 }
 ```
 
+### JavaScript animations
+
+The `keepMounted` prop lets an external library control the mounting, for example `framer-motion`'s `AnimatePresence` component.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Menu.Root open={open} onOpenChange={setOpen}>
+      <Menu.Trigger>Trigger</Menu.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Menu.Positioner keepMounted>
+            <Menu.Popup
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              <Menu.Item>Item 1</Menu.Item>
+              <Menu.Item>Item 2</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        )}
+      </AnimatePresence>
+    </Menu.Root>
+  );
+}
+```
+
 ### Animation states
 
 Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
