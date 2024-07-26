@@ -40,7 +40,7 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validate', () => {
-    it('should validate the field on blur', async () => {
+    it('should validate the field on blur', () => {
       render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
@@ -57,8 +57,6 @@ describe('<Field.Root />', () => {
         control.focus();
         control.blur();
       });
-
-      await flushMicrotasks();
 
       expect(screen.queryByText('error')).not.to.equal(null);
     });

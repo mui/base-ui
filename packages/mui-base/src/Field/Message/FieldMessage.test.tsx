@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, screen, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import * as Field from '@base_ui/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
@@ -30,7 +30,7 @@ describe('<Field.Message />', () => {
   });
 
   describe('prop: show', () => {
-    it('should only render when `show` matches constraint validation', async () => {
+    it('should only render when `show` matches constraint validation', () => {
       render(
         <Field.Root>
           <Field.Control required />
@@ -45,12 +45,10 @@ describe('<Field.Message />', () => {
         screen.getByRole('textbox').blur();
       });
 
-      await flushMicrotasks();
-
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
 
-    it('should show custom errors', async () => {
+    it('should show custom errors', () => {
       render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
@@ -63,8 +61,6 @@ describe('<Field.Message />', () => {
         textbox.focus();
         textbox.blur();
       });
-
-      await flushMicrotasks();
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
