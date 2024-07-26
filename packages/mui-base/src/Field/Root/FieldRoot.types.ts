@@ -13,6 +13,10 @@ export type FieldRootOwnerState = {
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
   /**
+   * The field's name, used to identify the field in the form.
+   */
+  name?: string;
+  /**
    * Whether the field is disabled, adding a disabled style hook to all subcomponents as well as
    * disabling the interactive control inside.
    * @default false

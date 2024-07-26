@@ -3,6 +3,7 @@ import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { ValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
+  name: string | undefined;
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
@@ -14,6 +15,7 @@ export interface FieldRootContextValue {
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
+  name: undefined,
   controlId: undefined,
   setControlId: () => {},
   messageIds: [],

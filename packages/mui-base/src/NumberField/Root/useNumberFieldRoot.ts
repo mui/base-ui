@@ -48,7 +48,7 @@ export function useNumberFieldRoot(
 ): UseNumberFieldRootReturnValue {
   const {
     id: idProp,
-    name,
+    name: nameProp,
     min,
     max,
     smallStep = 0.1,
@@ -67,6 +67,7 @@ export function useNumberFieldRoot(
   } = params;
 
   const {
+    name: nameContext,
     setControlId,
     setValidityData,
     messageIds,
@@ -75,6 +76,7 @@ export function useNumberFieldRoot(
   } = useFieldRootContext();
 
   const disabled = disabledContext ?? disabledProp;
+  const name = nameContext ?? nameProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;

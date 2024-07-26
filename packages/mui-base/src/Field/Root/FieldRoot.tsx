@@ -26,6 +26,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const {
     render,
     className,
+    name,
     disabled: disabledProp = false,
     validate: validateProp,
     ...otherProps
@@ -64,6 +65,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const contextValue: FieldRootContextValue = React.useMemo(
     () => ({
+      name,
       controlId,
       setControlId,
       messageIds,
@@ -73,7 +75,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       disabled,
       validate,
     }),
-    [controlId, messageIds, validityData, disabled, validate],
+    [name, controlId, messageIds, validityData, disabled, validate],
   );
 
   return (
@@ -100,6 +102,10 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The field's name, used to identify the field in the form.
+   */
+  name: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

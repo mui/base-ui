@@ -143,7 +143,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
-    name,
+    name: nameProp,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
@@ -154,6 +154,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   } = parameters;
 
   const {
+    name: nameContext,
     setControlId,
     setValidityData,
     messageIds,
@@ -162,6 +163,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   } = useFieldRootContext();
 
   const disabled = disabledContext ?? disabledProp;
+  const name = nameContext ?? nameProp;
 
   const id = useId(idProp);
 
