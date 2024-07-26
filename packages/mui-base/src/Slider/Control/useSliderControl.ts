@@ -129,7 +129,7 @@ export function useSliderControl(
       onValueCommitted(newFingerValue.newValue, nativeEvent);
 
       const handleValidate = async () => {
-        const element = controlRef.current as HTMLInputElement;
+        const element = controlRef.current?.querySelector<HTMLInputElement>('input[type="range"]');
         if (!element) {
           return;
         }
@@ -143,7 +143,17 @@ export function useSliderControl(
         setValidityData(nextValidityData);
         element.setCustomValidity('');
 
-        const result = await validate(newFingerValue.newValue);
+        const resultOrPromise = validate(nextValidityData.value);
+        let result;
+        if (
+          typeof resultOrPromise === 'object' &&
+          resultOrPromise !== null &&
+          'then' in resultOrPromise
+        ) {
+          result = await resultOrPromise;
+        } else {
+          result = resultOrPromise;
+        }
 
         element.setCustomValidity(result !== null ? result : '');
 

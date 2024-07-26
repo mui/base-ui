@@ -186,7 +186,17 @@ export function useNumberFieldRoot(
       setValidityData(nextValidityData);
       element.setCustomValidity('');
 
-      const result = await validate(validatedValue);
+      const resultOrPromise = validate(nextValidityData.value);
+      let result;
+      if (
+        typeof resultOrPromise === 'object' &&
+        resultOrPromise !== null &&
+        'then' in resultOrPromise
+      ) {
+        result = await resultOrPromise;
+      } else {
+        result = resultOrPromise;
+      }
 
       element.setCustomValidity(result !== null ? result : '');
 
