@@ -4,7 +4,7 @@ import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Switch from '@base_ui/react/Switch';
 import * as NumberField from '@base_ui/react/NumberField';
 import * as Slider from '@base_ui/react/Slider';
-import { act, createRenderer, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -81,7 +81,9 @@ describe('<Field.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('error')).not.to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByText('error')).not.to.equal(null);
+      });
     });
 
     it('[Checkbox] forwards the disabled prop to Base UI input components', () => {

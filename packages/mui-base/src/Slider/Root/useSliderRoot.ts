@@ -279,7 +279,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
           onValueCommitted(newValue, event.nativeEvent);
 
           const handleValidate = async () => {
-            const element = controlRef.current as HTMLInputElement;
+            const element =
+              controlRef.current?.querySelector<HTMLInputElement>('input[type="range"]');
             if (!element) {
               return;
             }
