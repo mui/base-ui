@@ -14,7 +14,7 @@ export interface FieldRootContextValue {
   disabled: boolean | undefined;
   validate: (value: unknown) => string | null | Promise<string | null>;
   validateOnChange: boolean;
-  validationDebounceMs: number;
+  validateDebounceMs: number;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
@@ -32,7 +32,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   disabled: undefined,
   validate: () => null,
   validateOnChange: false,
-  validationDebounceMs: 500,
+  validateDebounceMs: 0,
 });
 
 export function useFieldRootContext() {

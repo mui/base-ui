@@ -29,7 +29,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     name,
     disabled: disabledProp = false,
     validate: validateProp,
-    validationDebounceMs = 500,
+    validateDebounceMs = 0,
     validateOnChange = false,
     ...otherProps
   } = props;
@@ -68,7 +68,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       disabled,
       validate,
       validateOnChange,
-      validationDebounceMs,
+      validateDebounceMs,
     }),
     [
       name,
@@ -78,7 +78,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       disabled,
       validate,
       validateOnChange,
-      validationDebounceMs,
+      validateDebounceMs,
     ],
   );
 
@@ -130,16 +130,16 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   validate: PropTypes.func,
   /**
+   * The debounce time in milliseconds for the validation function for the `change` phase.
+   * @default 0
+   */
+  validateDebounceMs: PropTypes.number,
+  /**
    * Determines if the validation should be triggered on the `change` event, rather than only on
    * commit (blur).
    * @default false
    */
   validateOnChange: PropTypes.bool,
-  /**
-   * The debounce time in milliseconds for the validation function for the `change` phase.
-   * @default 500
-   */
-  validationDebounceMs: PropTypes.number,
 } as any;
 
 export { FieldRoot };

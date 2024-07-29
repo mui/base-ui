@@ -17,7 +17,7 @@ export function useFieldControlValidation() {
     messageIds,
     validityData,
     validateOnChange,
-    validationDebounceMs,
+    validateDebounceMs,
   } = useFieldRootContext();
 
   const timeoutRef = React.useRef(-1);
@@ -89,10 +89,10 @@ export function useFieldControlValidation() {
           window.clearTimeout(timeoutRef.current);
           timeoutRef.current = window.setTimeout(() => {
             commitValidation(element.value);
-          }, validationDebounceMs);
+          }, validateDebounceMs);
         },
       }),
-    [commitValidation, getValidationProps, validateOnChange, validationDebounceMs],
+    [commitValidation, getValidationProps, validateOnChange, validateDebounceMs],
   );
 
   return React.useMemo(

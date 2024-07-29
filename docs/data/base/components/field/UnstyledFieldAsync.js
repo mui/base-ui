@@ -18,35 +18,34 @@ function checkAvailability(name) {
 export default function UnstyledFieldAsync() {
   const [loading, setLoading] = React.useState(false);
 
+  async function handleValidate(value) {
+    const name = value;
+
+    if (name === '') {
+      return null;
+    }
+
+    const isCached = cache.has(name);
+    if (isCached) {
+      return cache.get(name);
+    }
+
+    setLoading(true);
+
+    try {
+      const error = await checkAvailability(name);
+      setLoading(false);
+      return error;
+    } catch (e) {
+      setLoading(false);
+      return 'Failed to fetch name availability';
+    }
+  }
+
   return (
     <div>
       <h3>Handle availability checker</h3>
-      <FieldRoot
-        validateOnChange
-        validate={async (value) => {
-          const name = value;
-
-          if (name === '') {
-            return null;
-          }
-
-          const isCached = cache.has(name);
-          if (isCached) {
-            return cache.get(name);
-          }
-
-          setLoading(true);
-
-          try {
-            const error = await checkAvailability(name);
-            setLoading(false);
-            return error;
-          } catch (e) {
-            setLoading(false);
-            return 'Failed to fetch name availability';
-          }
-        }}
-      >
+      <FieldRoot validate={handleValidate} validateOnChange validateDebounceMs={500}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Field.Label>@</Field.Label>
           <Field.Validity>

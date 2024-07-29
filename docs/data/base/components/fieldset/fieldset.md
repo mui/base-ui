@@ -8,7 +8,7 @@ packageName: '@base_ui/react'
 
 # Fieldset
 
-<p class="description">Fieldsets group multiple fields together with a label.</p>
+<p class="description">Fieldsets group multiple fields together with a label. This is a light wrapper over the native `fieldset` and `legend` elements, but makes the `legend` element easily stylable.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 

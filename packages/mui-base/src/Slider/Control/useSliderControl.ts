@@ -5,7 +5,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { focusThumb, trackFinger, validateMinimumDistance } from '../Root/useSliderRoot';
 import { UseSliderControlParameters, UseSliderControlReturnValue } from './SliderControl.types';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 /**
@@ -39,7 +39,7 @@ export function useSliderControl(
     subitems,
   } = parameters;
 
-  const { setValidityData, validate } = useFieldRootContext();
+  const { commitValidation } = useFieldControlValidation();
 
   const controlRef = React.useRef<HTMLElement>(null);
 
@@ -127,43 +127,7 @@ export function useSliderControl(
 
     if (onValueCommitted) {
       onValueCommitted(newFingerValue.newValue, nativeEvent);
-
-      const handleValidate = async () => {
-        const element = controlRef.current?.querySelector<HTMLInputElement>('input[type="range"]');
-        if (!element) {
-          return;
-        }
-
-        const nextValidityData = {
-          state: element.validity,
-          message: '',
-          value: newFingerValue.newValue,
-        };
-
-        setValidityData(nextValidityData);
-        element.setCustomValidity('');
-
-        const resultOrPromise = validate(nextValidityData.value);
-        let result;
-        if (
-          typeof resultOrPromise === 'object' &&
-          resultOrPromise !== null &&
-          'then' in resultOrPromise
-        ) {
-          result = await resultOrPromise;
-        } else {
-          result = resultOrPromise;
-        }
-
-        element.setCustomValidity(result !== null ? result : '');
-
-        setValidityData({
-          ...nextValidityData,
-          message: result ?? element.validationMessage,
-        });
-      };
-
-      handleValidate();
+      commitValidation(newFingerValue.newValue);
     }
 
     touchIdRef.current = undefined;

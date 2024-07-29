@@ -36,7 +36,7 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwn
   validateOnChange?: boolean;
   /**
    * The debounce time in milliseconds for the validation function for the `change` phase.
-   * @default 500
+   * @default 0
    */
-  validationDebounceMs?: number;
+  validateDebounceMs?: number;
 }
