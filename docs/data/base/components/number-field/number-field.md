@@ -20,7 +20,7 @@ packageName: '@base_ui/react'
 
 ## Installation
 
-Base UI components are all available as a single package.
+Base UI components are all available as a single package.
 
 <codeblock storageKey="package-manager">
 
