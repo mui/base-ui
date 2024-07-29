@@ -373,9 +373,6 @@ importers:
       '@mui/utils':
         specifier: 6.0.0-beta.1
         version: 6.0.0-beta.1(@types/react@18.3.1)(react@18.2.0)
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       '@react-spring/web':
         specifier: ^9.7.3
         version: 9.7.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -564,23 +561,20 @@ importers:
         specifier: ^7.24.6
         version: 7.24.6
       '@floating-ui/react':
-        specifier: ^0.26.19
-        version: 0.26.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^0.26.20
+        version: 0.26.20(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/react-dom':
         specifier: ^2.1.1
         version: 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@floating-ui/utils':
-        specifier: ^0.2.4
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
       '@mui/types':
         specifier: ^7.2.15
         version: 7.2.15(@types/react@18.3.1)
       '@mui/utils':
-        specifier: ^5.16.4
-        version: 5.16.4(@types/react@18.3.1)(react@18.2.0)
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
+        specifier: ^5.16.5
+        version: 5.16.5(@types/react@18.3.1)(react@18.2.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -590,7 +584,7 @@ importers:
     devDependencies:
       '@mui/internal-babel-macros':
         specifier: ^1.0.1
-        version: 1.0.1(@mui/utils@5.16.4(@types/react@18.3.1)(react@18.2.0))
+        version: 1.0.1(@mui/utils@5.16.5(@types/react@18.3.1)(react@18.2.0))
       '@mui/internal-test-utils':
         specifier: 1.0.5
         version: 1.0.5(@babel/core@7.24.6)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1786,14 +1780,14 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.26.19':
-    resolution: {integrity: sha512-Jk6zITdjjIvjO/VdQFvpRaD3qPwOHH6AoDHxjhpy+oK4KFgaSP871HYWUAPdnLmx1gQ+w/pB312co3tVml+BXA==}
+  '@floating-ui/react@0.26.20':
+    resolution: {integrity: sha512-RixKJJG92fcIsVoqrFr4Onpzh7hlOx4U7NV4aLhMLmtvjZ5oTB/WzXaANYUZATKqXvvW7t9sCxtzejip26N5Ag==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/utils@0.2.4':
-    resolution: {integrity: sha512-dWO2pw8hhi+WrXq1YJy2yCuWoL20PddgGaqTgVe4cOS9Q6qklXCiA1tJEqX6BEwRNSCP84/afac9hd4MS+zEUA==}
+  '@floating-ui/utils@0.2.5':
+    resolution: {integrity: sha512-sTcG+QZ6fdEUObICavU+aB3Mp8HY4n14wYHdxK4fXjPmv3PXZZeY5RaguJmGyeH/CJQhX3fqKUtS4qc1LoHwhQ==}
 
   '@gitbeaker/core@38.12.1':
     resolution: {integrity: sha512-8XMVcBIdVAAoxn7JtqmZ2Ee8f+AZLcCPmqEmPFOXY2jPS84y/DERISg/+sbhhb18iRy+ZsZhpWgQ/r3CkYNJOQ==}
@@ -2219,8 +2213,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/utils@5.16.4':
-    resolution: {integrity: sha512-nlppYwq10TBIFqp7qxY0SvbACOXeOjeVL3pOcDsK0FT8XjrEXh9/+lkg8AEIzD16z7YfiJDQjaJG2OLkE7BxNg==}
+  '@mui/utils@5.16.5':
+    resolution: {integrity: sha512-CwhcA9y44XwK7k2joL3Y29mRUnoBt+gOZZdGyw7YihbEwEErJYBtDwbZwVgH68zAljGe/b+Kd5bzfl63Gi3R2A==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@types/react': ^18.3.1
@@ -9799,12 +9793,12 @@ snapshots:
 
   '@floating-ui/core@1.6.3':
     dependencies:
-      '@floating-ui/utils': 0.2.4
+      '@floating-ui/utils': 0.2.5
 
   '@floating-ui/dom@1.6.6':
     dependencies:
       '@floating-ui/core': 1.6.3
-      '@floating-ui/utils': 0.2.4
+      '@floating-ui/utils': 0.2.5
 
   '@floating-ui/react-dom@2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
@@ -9812,15 +9806,15 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@floating-ui/react@0.26.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@floating-ui/react@0.26.20(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@floating-ui/utils': 0.2.4
+      '@floating-ui/utils': 0.2.5
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       tabbable: 6.2.0
 
-  '@floating-ui/utils@0.2.4': {}
+  '@floating-ui/utils@0.2.5': {}
 
   '@gitbeaker/core@38.12.1':
     dependencies:
@@ -10064,7 +10058,7 @@ snapshots:
       '@babel/runtime': 7.24.6
       '@floating-ui/react-dom': 2.1.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/types': 7.2.15(@types/react@18.3.1)
-      '@mui/utils': 5.16.4(@types/react@18.3.1)(react@18.2.0)
+      '@mui/utils': 5.16.5(@types/react@18.3.1)(react@18.2.0)
       '@popperjs/core': 2.11.8
       clsx: 2.1.1
       prop-types: 15.8.1
@@ -10117,11 +10111,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.1
 
-  '@mui/internal-babel-macros@1.0.1(@mui/utils@5.16.4(@types/react@18.3.1)(react@18.2.0))':
+  '@mui/internal-babel-macros@1.0.1(@mui/utils@5.16.5(@types/react@18.3.1)(react@18.2.0))':
     dependencies:
       '@babel/helper-module-imports': 7.24.7
       '@babel/runtime': 7.24.6
-      '@mui/utils': 5.16.4(@types/react@18.3.1)(react@18.2.0)
+      '@mui/utils': 5.16.5(@types/react@18.3.1)(react@18.2.0)
       babel-plugin-macros: 3.1.0
     transitivePeerDependencies:
       - supports-color
@@ -10193,7 +10187,7 @@ snapshots:
       '@mui/core-downloads-tracker': 5.16.1
       '@mui/system': 5.16.1(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0)
       '@mui/types': 7.2.15(@types/react@18.3.1)
-      '@mui/utils': 5.16.4(@types/react@18.3.1)(react@18.2.0)
+      '@mui/utils': 5.16.5(@types/react@18.3.1)(react@18.2.0)
       clsx: 2.1.1
       prop-types: 15.8.1
       react: 18.2.0
@@ -10252,7 +10246,7 @@ snapshots:
   '@mui/private-theming@5.16.1(@types/react@18.3.1)(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.24.6
-      '@mui/utils': 5.16.4(@types/react@18.3.1)(react@18.2.0)
+      '@mui/utils': 5.16.5(@types/react@18.3.1)(react@18.2.0)
       prop-types: 15.8.1
       react: 18.2.0
     optionalDependencies:
@@ -10318,7 +10312,7 @@ snapshots:
       '@mui/private-theming': 5.16.1(@types/react@18.3.1)(react@18.2.0)
       '@mui/styled-engine': 5.16.1(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.1)(react@18.2.0))(@types/react@18.3.1)(react@18.2.0))(react@18.2.0)
       '@mui/types': 7.2.15(@types/react@18.3.1)
-      '@mui/utils': 5.16.4(@types/react@18.3.1)(react@18.2.0)
+      '@mui/utils': 5.16.5(@types/react@18.3.1)(react@18.2.0)
       clsx: 2.1.1
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -10348,9 +10342,10 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.1
 
-  '@mui/utils@5.16.4(@types/react@18.3.1)(react@18.2.0)':
+  '@mui/utils@5.16.5(@types/react@18.3.1)(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.24.6
+      '@mui/types': 7.2.15(@types/react@18.3.1)
       '@types/prop-types': 15.7.12
       clsx: 2.1.1
       prop-types: 15.8.1

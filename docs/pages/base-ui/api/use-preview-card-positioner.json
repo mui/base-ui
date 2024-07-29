@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "usePreviewCardPositioner",
+  "filename": "/packages/mui-base/src/PreviewCard/Positioner/usePreviewCardPositioner.ts",
+  "imports": ["import { usePreviewCardPositioner } from '@base_ui/react/PreviewCard';"],
+  "demos": "<ul></ul>"
+}
