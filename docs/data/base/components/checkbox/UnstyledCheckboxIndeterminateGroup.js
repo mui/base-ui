@@ -30,7 +30,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             {isIndeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}
           </Indicator>
         </Checkbox>
-        <Label htmlFor={id} onMouseDown={(e) => e.preventDefault()}>
+        <Label htmlFor={id} onMouseDown={(event) => event.preventDefault()}>
           Colors
         </Label>
       </ListRoot>
@@ -52,7 +52,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             </Checkbox>
             <Label
               htmlFor={`${id}-${color}`}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={(event) => event.preventDefault()}
             >
               {color}
             </Label>
