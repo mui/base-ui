@@ -4,13 +4,13 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
-      <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
+      <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
     </picture>
   </a>
 </p>
 
 <p align="center">
-Base UI is an unstyled UI component library for building accessible user interfaces while maintaining complete control over styling.
+Base UI is an unstyled UI component library for building accessible user interfaces while maintaining complete control over styling.
 </p>
 
 <div align="center">
