@@ -180,6 +180,18 @@ module.exports = [
     pathname: '/base-ui/react-preview-card/components-api/#preview-card-trigger',
     title: 'PreviewCardTrigger',
   },
+  {
+    pathname: '/base-ui/react-progress/components-api/#progress-indicator',
+    title: 'ProgressIndicator',
+  },
+  {
+    pathname: '/base-ui/react-progress/components-api/#progress-root',
+    title: 'ProgressRoot',
+  },
+  {
+    pathname: '/base-ui/react-progress/components-api/#progress-track',
+    title: 'ProgressTrack',
+  },
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
   {
     pathname: '/base-ui/react-slider/components-api/#slider-control',
@@ -304,6 +316,14 @@ module.exports = [
   {
     pathname: '/base-ui/react-select/hooks-api/#use-option-context-stabilizer',
     title: 'useOptionContextStabilizer',
+  },
+  {
+    pathname: '/base-ui/react-progress/hooks-api/#use-progress-indicator',
+    title: 'useProgressIndicator',
+  },
+  {
+    pathname: '/base-ui/react-progress/hooks-api/#use-progress-root',
+    title: 'useProgressRoot',
   },
   { pathname: '/base-ui/react-select/hooks-api/#use-select', title: 'useSelect' },
   {
