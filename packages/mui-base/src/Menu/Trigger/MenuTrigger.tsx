@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 
@@ -43,9 +44,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     className,
     ownerState,
     propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-    },
+    customStyleHookMapping: commonStyleHooks,
     extraProps: other,
   });
 

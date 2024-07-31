@@ -90,7 +90,7 @@ describe('<Menu.Trigger />', () => {
     const menuPopup = queryByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
 
-    expect(menuPopup).to.have.attribute('data-state', 'open');
+    expect(menuPopup).to.have.attribute('data-menu', 'open');
   });
 
   describe('keyboard navigation', () => {

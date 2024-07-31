@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useMenuArrow } from './useMenuArrow';
 import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
@@ -53,13 +54,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping: commonStyleHooks,
   });
 
   return renderElement();

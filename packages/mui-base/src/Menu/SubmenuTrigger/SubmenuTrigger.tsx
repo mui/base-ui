@@ -3,15 +3,11 @@ import PropTypes from 'prop-types';
 import { useFloatingTree, useListItem } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../Root/MenuRootContext';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useId } from '../../utils/useId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-
-const customStyleHookMapping: CustomStyleHookMapping<SubmenuTrigger.OwnerState> = {
-  open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-};
 
 const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: SubmenuTrigger.Props,
@@ -54,7 +50,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     ownerState,
     propGetter: (externalProps: GenericHTMLProps) =>
       getTriggerProps(getItemProps(getRootProps(externalProps))),
-    customStyleHookMapping,
+    customStyleHookMapping: commonStyleHooks,
     extraProps: other,
   });
 

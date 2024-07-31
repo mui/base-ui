@@ -5,18 +5,19 @@ import { Side, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
-const styleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
-  open: (value: boolean) => ({ 'data-state': value ? 'open' : 'closed' }),
+const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
+  ...commonStyleHooks,
   entering(value) {
-    return value ? { 'data-entering': '' } : null;
+    return value ? { 'data-menu-entering': '' } : null;
   },
   exiting(value) {
-    return value ? { 'data-exiting': '' } : null;
+    return value ? { 'data-menu-exiting': '' } : null;
   },
 };
 
@@ -49,7 +50,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     className,
     ownerState,
     extraProps: other,
-    customStyleHookMapping: styleHookMapping,
+    customStyleHookMapping,
     ref: mergedRef,
   });
 

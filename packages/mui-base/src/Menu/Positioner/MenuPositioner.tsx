@@ -9,11 +9,12 @@ import {
   Side,
   useFloatingNodeId,
 } from '@floating-ui/react';
+import { MenuPositionerContext } from './MenuPositionerContext';
+import { useMenuRootContext } from '../Root/MenuRootContext';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositioner } from './useMenuPositioner';
-import { MenuPositionerContext } from './MenuPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 
@@ -120,9 +121,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render: render ?? 'div',
     className,
     ownerState,
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-    },
+    customStyleHookMapping: commonStyleHooks,
     ref: mergedRef,
     extraProps: otherProps,
   });
