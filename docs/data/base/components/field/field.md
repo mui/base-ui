@@ -154,12 +154,10 @@ To customize the rendering of multiple messages, you can use the `Validity` subc
 >
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Message show="customError">
-    <ul>
-      <Field.Validity>
-        {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
-      </Field.Validity>
-    </ul>
+  <Field.Message show="customError" render={<ul />}>
+    <Field.Validity>
+      {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
+    </Field.Validity>
   </Field.Message>
 </Field.Root>
 ```
@@ -174,15 +172,21 @@ For demonstration purposes, a fake network request that takes 500ms is initiated
 
 ### Realtime validation
 
-The `validateOnChange` prop reports the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control. By default, the validation is debounced by `500ms` but this can be configured using the `validationDebounceMs` prop.
+The `validateOnChange` prop reports the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control.
 
 ```jsx
-<Field.Root validateOnChange validationDebounceMs={0}>
+<Field.Root validateOnChange>
+```
+
+This mechanism can also be debounced, useful for async realtime validation:
+
+```jsx
+<Field.Root validateOnChange validationDebounceMs={500}>
 ```
 
 ## Styling
 
-After the field's control has been touched (or visited), `[data-invalid]` and `[data-valid]` style hooks are applied to each subcomponent based on the field's `ValidityState`:
+After the field's control has been validated, `[data-invalid]` and `[data-valid]` style hooks are applied to each subcomponent based on the field's `ValidityState`:
 
 ```jsx
 <Field.Root>
@@ -191,7 +195,7 @@ After the field's control has been touched (or visited), `[data-invalid]` and `[
 ```
 
 ```css
-/* Will be applied once the control has blurred */
+/* Applied once validation has been reported */
 .FieldControl[data-invalid] {
   color: red;
 }
@@ -210,5 +214,7 @@ To access the raw `ValidityState` to render custom JSX, particularly useful for 
 
 The `state` parameter contains the following properties:
 
+- `state.errors`, an array of custom errors returned from the `validate` prop (if present)
+- `state.error`, a custom error string returned from the `validate` prop (if present)
 - `state.validity`, the field's `ValidityState`
 - `state.value`, the field's control value
