@@ -66,7 +66,7 @@
     "react-runner": "^1.0.3",
     "react-simple-code-editor": "^0.13.1",
     "react-transition-group": "^4.4.5",
-    "rimraf": "^5.0.7",
+    "rimraf": "^5.0.10",
     "styled-components": "^6.1.11",
     "stylis": "4.3.2",
     "stylis-plugin-rtl": "^2.1.1",
