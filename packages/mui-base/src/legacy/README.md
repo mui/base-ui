@@ -1,4 +1,4 @@
-# Legacy Base UI components
+# Legacy Base UI components
 
 The components and hooks in this directory expose an older version of the customization API.
 They are kept in the repository to maintain history, but they are not published in the npm package.

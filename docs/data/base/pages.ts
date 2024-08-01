@@ -45,7 +45,7 @@ const pages: readonly MuiPage[] = [
         children: [
           { pathname: '/base-ui/react-alert-dialog', title: 'Alert Dialog' },
           { pathname: '/base-ui/react-dialog', title: 'Dialog' },
-          //    { pathname: '/base-ui/react-snackbar', title: 'Snackbar' },
+          { pathname: '/base-ui/react-progress', title: 'Progress' },
         ],
       },
       {

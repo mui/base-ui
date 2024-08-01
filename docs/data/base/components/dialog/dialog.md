@@ -19,7 +19,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 
 ## Installation
 
-Base UI components are all available as a single package.
+Base UI components are all available as a single package.
 
 <codeblock storageKey="package-manager">
 
@@ -153,7 +153,7 @@ If a component has a transition or animation applied to it when it closes, it wi
 As this detection of exit animations requires an extra render, you may opt out of it by setting the `animated` prop on Root to `false`.
 We also recommend doing so in automated tests, to avoid asynchronous behavior and make testing easier.
 
-Alternatively, you can use JS-based animations with a library like framer-motion, React Spring, or similar.
+Alternatively, you can use JavaScript-based animations with a library like framer-motion, React Spring, or similar.
 With this approach set the `keepMounted` to `true` and let the animation library control mounting and unmounting.
 
 ### CSS transitions
