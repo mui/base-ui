@@ -83,7 +83,7 @@
     "@mui/material": "6.0.0-beta.2",
     "@mui/monorepo": "github:mui/material-ui#v6.0.0-beta.2",
     "@mui/utils": "6.0.0-beta.1",
-    "@next/eslint-plugin-next": "^14.2.3",
+    "@next/eslint-plugin-next": "^14.2.5",
     "@octokit/rest": "^20.1.1",
     "@playwright/test": "1.45.1",
     "@types/fs-extra": "^11.0.4",
