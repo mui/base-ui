@@ -63,7 +63,7 @@
     "react-draggable": "^4.4.6",
     "react-is": "^18.2.0",
     "react-router-dom": "^6.23.1",
-    "react-runner": "^1.0.3",
+    "react-runner": "^1.0.5",
     "react-simple-code-editor": "^0.13.1",
     "react-transition-group": "^4.4.5",
     "rimraf": "^5.0.7",
