@@ -117,7 +117,7 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 
 ### Custom validation
 
-In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument on `Field.Root`:
+In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument on `Field.Root` and returns a string or array of them if the field is invalid, and `null` otherwise.
 
 ```jsx
 <Field.Root
@@ -133,7 +133,36 @@ In addition to the native HTML constraint validation, you can also add custom va
 
 The message shows when `ValidityState`'s `customError` property is `true`.
 
+:::info
 For Base UI input components, `value` represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
+:::
+
+To customize the rendering of multiple messages, you can use the `Validity` subcomponent:
+
+```jsx
+<Field.Root
+  validate={(value) => {
+    const errors = [];
+    if (value.length < 8) {
+      errors.push('Password must be at least 8 characters long.');
+    }
+    if (value === 'password') {
+      errors.push('Cannot literally use `password` as your password.');
+    }
+    return errors;
+  }}
+>
+  <Field.Control type="password" />
+  <Field.Label>Password</Field.Label>
+  <Field.Message show="customError">
+    <ul>
+      <Field.Validity>
+        {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
+      </Field.Validity>
+    </ul>
+  </Field.Message>
+</Field.Root>
+```
 
 ### Async validation
 

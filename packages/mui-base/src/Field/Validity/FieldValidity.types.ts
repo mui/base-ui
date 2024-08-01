@@ -2,6 +2,8 @@ import type * as React from 'react';
 
 export interface FieldValidityState {
   validity: ValidityState;
+  errors: string[];
+  error: string;
   value: unknown;
 }
 

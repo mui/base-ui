@@ -37,9 +37,18 @@ export function useFieldMessage(params: UseFieldMessageParameters) {
 
   const getMessageProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'p'>(externalProps, {
+      mergeReactProps<'span'>(externalProps, {
         id,
-        children: validityData.message,
+        children:
+          validityData.errors.length > 1
+            ? React.createElement(
+                'ul',
+                {},
+                validityData.errors.map((message) =>
+                  React.createElement('li', { key: message }, message),
+                ),
+              )
+            : validityData.error,
       }),
     [id, validityData],
   );

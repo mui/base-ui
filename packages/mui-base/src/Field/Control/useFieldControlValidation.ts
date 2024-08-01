@@ -39,7 +39,8 @@ export function useFieldControlValidation() {
 
     const nextValidityData = {
       state: element.validity,
-      message: '',
+      error: '',
+      errors: [],
       value,
     };
 
@@ -47,7 +48,7 @@ export function useFieldControlValidation() {
     element.setCustomValidity('');
 
     const resultOrPromise = validate(nextValidityData.value);
-    let result;
+    let result: null | string | string[] = null;
     if (
       typeof resultOrPromise === 'object' &&
       resultOrPromise !== null &&
@@ -58,11 +59,17 @@ export function useFieldControlValidation() {
       result = resultOrPromise;
     }
 
-    element.setCustomValidity(result !== null ? result : '');
+    let errorMessage = '';
+    if (result !== null) {
+      errorMessage = Array.isArray(result) ? result.join('\n') : result;
+    }
+    element.setCustomValidity(errorMessage);
 
     setValidityData({
       ...nextValidityData,
-      message: result ?? element.validationMessage,
+      error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
+      // eslint-disable-next-line no-nested-ternary
+      errors: Array.isArray(result) ? result : result ? [result] : [],
     });
   });
 

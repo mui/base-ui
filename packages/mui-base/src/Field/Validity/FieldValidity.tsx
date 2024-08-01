@@ -21,6 +21,8 @@ function FieldValidity(props: FieldValidityProps) {
     <React.Fragment>
       {props.children({
         validity: validityData.state,
+        errors: validityData.errors,
+        error: validityData.error,
         value: validityData.value,
       })}
     </React.Fragment>

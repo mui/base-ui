@@ -5,6 +5,6 @@ export type FieldMessageOwnerState = {
   valid: boolean | null;
 };
 
-export interface FieldMessageProps extends BaseUIComponentProps<'p', FieldMessageOwnerState> {
+export interface FieldMessageProps extends BaseUIComponentProps<'span', FieldMessageOwnerState> {
   show?: keyof ValidityState;
 }

@@ -12,7 +12,7 @@ export interface FieldRootContextValue {
   setValidityData: React.Dispatch<React.SetStateAction<ValidityData>>;
   disabled: boolean | undefined;
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
-  validate: (value: unknown) => string | null | Promise<string | null>;
+  validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
   validateOnChange: boolean;
   validateDebounceMs: number;
 }
@@ -24,7 +24,8 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   setMessageIds: () => {},
   validityData: {
     state: DEFAULT_VALIDITY_STATE,
-    message: '',
+    errors: [],
+    error: '',
     value: '',
   },
   setValidityData: () => {},

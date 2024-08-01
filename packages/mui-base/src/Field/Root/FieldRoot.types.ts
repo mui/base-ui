@@ -2,7 +2,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 export interface ValidityData {
   state: ValidityState;
-  message: string;
+  error: string;
+  errors: string[];
   value: unknown;
 }
 
@@ -17,7 +18,7 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwn
    * value is invalid, or `null` if the value is valid. The function can also return a promise that
    * resolves to a string or `null`.
    */
-  validate?: (value: unknown) => string | null | Promise<string | null>;
+  validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
   /**
    * Determines if the validation should be triggered on the `change` event, rather than only on
    * commit (blur).

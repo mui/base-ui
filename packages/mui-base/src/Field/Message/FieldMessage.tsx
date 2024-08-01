@@ -20,7 +20,7 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  */
 const FieldMessage = React.forwardRef(function FieldMessage(
   props: FieldMessageProps,
-  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, id, className, show: showProp, ...otherProps } = props;
 
@@ -40,7 +40,7 @@ const FieldMessage = React.forwardRef(function FieldMessage(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getMessageProps,
-    render: render ?? 'p',
+    render: render ?? 'span',
     ref: forwardedRef,
     className,
     ownerState,
