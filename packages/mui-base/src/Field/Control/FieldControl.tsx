@@ -10,6 +10,7 @@ import type {
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The field's control element.
@@ -26,12 +27,15 @@ const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControlProps,
   forwardedRef: React.ForwardedRef<FieldControlElement>,
 ) {
-  const { render, id, className, disabled: disabledProp = false, ...otherProps } = props;
+  const { render, className, id, disabled = false, name, ...otherProps } = props;
 
-  const { disabled: disabledField, validityData } = useFieldRootContext();
-  const disabled = disabledField ?? disabledProp;
+  const { validityData, setDisabled } = useFieldRootContext();
 
-  const { getControlProps } = useFieldControl({ id });
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
+  const { getControlProps } = useFieldControl({ id, name });
 
   const ownerState: FieldControlOwnerState = React.useMemo(
     () => ({
@@ -75,6 +79,10 @@ FieldControl.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
+  /**
+   * @ignore
+   */
+  name: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

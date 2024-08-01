@@ -8,6 +8,7 @@ import { useFieldControlValidation } from './useFieldControlValidation';
 
 interface UseFieldControlParameters {
   id?: string;
+  name?: string;
 }
 
 /**
@@ -17,9 +18,9 @@ interface UseFieldControlParameters {
  * - [useFieldControl API](https://mui.com/base-ui/api/use-field-control/)
  */
 export function useFieldControl(params: UseFieldControlParameters) {
-  const { id: idProp } = params;
+  const { id: idProp, name } = params;
 
-  const { name, setControlId, disabled } = useFieldRootContext();
+  const { setControlId, disabled } = useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();

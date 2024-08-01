@@ -137,14 +137,14 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
     id: idProp,
+    name,
     defaultValue,
     direction = 'ltr',
-    disabled: disabledProp = false,
+    disabled = false,
     largeStep = 10,
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
-    name: nameProp,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
@@ -154,16 +154,17 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
-  const { name: nameContext, setControlId, disabled: disabledContext } = useFieldRootContext();
+  const { setDisabled, setControlId } = useFieldRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const {
     getValidationProps,
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
-
-  const disabled = disabledContext ?? disabledProp;
-  const name = nameContext ?? nameProp;
 
   const id = useId(idProp);
 

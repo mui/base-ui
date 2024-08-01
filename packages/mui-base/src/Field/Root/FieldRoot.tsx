@@ -26,8 +26,6 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const {
     render,
     className,
-    name,
-    disabled: disabledProp = false,
     validate: validateProp,
     validateDebounceMs = 0,
     validateOnChange = false,
@@ -36,9 +34,10 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
 
-  const disabled = disabledFieldset ?? disabledProp;
-
   const validate = useEventCallback(validateProp || (() => null));
+
+  const [internalDisabled, setDisabled] = React.useState(false);
+  const disabled = disabledFieldset ?? internalDisabled;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
@@ -58,7 +57,6 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const contextValue: FieldRootContextValue = React.useMemo(
     () => ({
-      name,
       controlId,
       setControlId,
       messageIds,
@@ -66,20 +64,12 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validityData,
       setValidityData,
       disabled,
+      setDisabled,
       validate,
       validateOnChange,
       validateDebounceMs,
     }),
-    [
-      name,
-      controlId,
-      messageIds,
-      validityData,
-      disabled,
-      validate,
-      validateOnChange,
-      validateDebounceMs,
-    ],
+    [controlId, messageIds, validityData, disabled, validate, validateOnChange, validateDebounceMs],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -109,16 +99,6 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the field is disabled, adding a disabled style hook to all subcomponents as well as
-   * disabling the interactive control inside.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * The field's name, used to identify the field's control in the form.
-   */
-  name: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

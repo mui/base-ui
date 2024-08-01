@@ -4,7 +4,6 @@ import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { ValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
-  name: string | undefined;
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
@@ -12,13 +11,13 @@ export interface FieldRootContextValue {
   validityData: ValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<ValidityData>>;
   disabled: boolean | undefined;
+  setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
   validate: (value: unknown) => string | null | Promise<string | null>;
   validateOnChange: boolean;
   validateDebounceMs: number;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
-  name: undefined,
   controlId: undefined,
   setControlId: () => {},
   messageIds: [],
@@ -30,6 +29,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   },
   setValidityData: () => {},
   disabled: undefined,
+  setDisabled: () => {},
   validate: () => null,
   validateOnChange: false,
   validateDebounceMs: 0,

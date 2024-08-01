@@ -26,17 +26,21 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     id: idProp,
     checked: externalChecked,
     inputRef: externalInputRef,
-    name: nameProp,
     onCheckedChange: onCheckedChangeProp = () => {},
+    name,
     defaultChecked = false,
-    disabled: disabledProp = false,
     readOnly = false,
     required = false,
     autoFocus = false,
     indeterminate = false,
+    disabled = false,
   } = params;
 
-  const { name: nameContext, disabled: disabledContext, setControlId } = useFieldRootContext();
+  const { setDisabled, setControlId } = useFieldRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const {
     getValidationProps,
@@ -44,9 +48,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
-
-  const disabled = disabledContext ?? disabledProp;
-  const name = nameContext ?? nameProp;
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useId(idProp);

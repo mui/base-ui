@@ -1,9 +1,5 @@
 import * as React from 'react';
 import * as Field from '@base_ui/react/Field';
-import * as Checkbox from '@base_ui/react/Checkbox';
-import * as Switch from '@base_ui/react/Switch';
-import * as NumberField from '@base_ui/react/NumberField';
-import * as Slider from '@base_ui/react/Slider';
 import { act, createRenderer, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
@@ -18,10 +14,10 @@ describe('<Field.Root />', () => {
   }));
 
   describe('prop: disabled', () => {
-    it('should add data-disabled style hook to all components', () => {
+    it('should add data-disabled style hook to all components when `disabled` is on Control', () => {
       render(
-        <Field.Root disabled data-testid="field">
-          <Field.Control data-testid="control" />
+        <Field.Root data-testid="field">
+          <Field.Control disabled data-testid="control" />
           <Field.Label data-testid="label" />
           <Field.Message data-testid="message" />
         </Field.Root>,
@@ -84,130 +80,6 @@ describe('<Field.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByText('error')).not.to.equal(null);
       });
-    });
-
-    it('[Checkbox] forwards the disabled prop to Base UI input components', () => {
-      const { container } = render(
-        <Field.Root disabled>
-          <Checkbox.Root />
-        </Field.Root>,
-      );
-
-      const input = container.querySelector('input');
-
-      expect(input).to.have.attribute('disabled');
-    });
-
-    it('[Switch] forwards the disabled prop to Base UI input components', () => {
-      const { container } = render(
-        <Field.Root disabled>
-          <Switch.Root />
-        </Field.Root>,
-      );
-
-      const input = container.querySelector('input');
-
-      expect(input).to.have.attribute('disabled');
-    });
-
-    it('[NumberField] forwards the disabled prop to Base UI input components', () => {
-      render(
-        <Field.Root disabled>
-          <NumberField.Root>
-            <NumberField.Group>
-              <NumberField.Input />
-            </NumberField.Group>
-          </NumberField.Root>
-        </Field.Root>,
-      );
-
-      expect(screen.getByRole('textbox')).to.have.attribute('disabled');
-    });
-
-    it('[Slider] forwards the disabled prop to Base UI input components', () => {
-      render(
-        <Field.Root disabled>
-          <Slider.Root>
-            <Slider.Output />
-            <Slider.Control>
-              <Slider.Track>
-                <Slider.Indicator />
-                <Slider.Thumb />
-              </Slider.Track>
-            </Slider.Control>
-          </Slider.Root>
-        </Field.Root>,
-      );
-
-      expect(screen.getByRole('slider')).to.have.attribute('disabled');
-    });
-  });
-
-  describe('prop: name', () => {
-    it('forwards the name to the control', () => {
-      render(
-        <Field.Root name="field">
-          <Field.Control />
-        </Field.Root>,
-      );
-
-      expect(screen.getByRole('textbox')).to.have.attribute('name', 'field');
-    });
-
-    it('[Checkbox] forwards the name to Base UI input components', () => {
-      const { container } = render(
-        <Field.Root name="field">
-          <Checkbox.Root />
-        </Field.Root>,
-      );
-
-      const input = container.querySelector('input');
-
-      expect(input).to.have.attribute('name', 'field');
-    });
-
-    it('[Switch] forwards the name to Base UI input components', () => {
-      const { container } = render(
-        <Field.Root name="field">
-          <Switch.Root />
-        </Field.Root>,
-      );
-
-      const input = container.querySelector('input');
-
-      expect(input).to.have.attribute('name', 'field');
-    });
-
-    it('[NumberField] forwards the name to Base UI input components', () => {
-      render(
-        <Field.Root name="field">
-          <NumberField.Root>
-            <NumberField.Group>
-              <NumberField.Input />
-            </NumberField.Group>
-          </NumberField.Root>
-        </Field.Root>,
-      );
-
-      expect(screen.getByRole('textbox')).to.have.attribute('name', 'field');
-    });
-
-    it('[Slider] forwards the name to Base UI input components', () => {
-      render(
-        <Field.Root name="field">
-          <Slider.Root>
-            <Slider.Output />
-            <Slider.Control>
-              <Slider.Track>
-                <Slider.Indicator />
-                <Slider.Thumb />
-              </Slider.Track>
-            </Slider.Control>
-          </Slider.Root>
-        </Field.Root>,
-      );
-
-      expect(screen.getByRole('slider')).to.have.attribute('name', 'field');
     });
   });
 });

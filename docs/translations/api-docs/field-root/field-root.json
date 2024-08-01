@@ -4,12 +4,6 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "disabled": {
-      "description": "Whether the field is disabled, adding a disabled style hook to all subcomponents as well as disabling the interactive control inside."
-    },
-    "name": {
-      "description": "The field&#39;s name, used to identify the field&#39;s control in the form."
-    },
     "render": { "description": "A function to customize rendering of the component." },
     "validate": {
       "description": "Function to custom-validate the field&#39;s value. Return a string with an error message if the value is invalid, or <code>null</code> if the value is valid. The function can also return a promise that resolves to a string or <code>null</code>."

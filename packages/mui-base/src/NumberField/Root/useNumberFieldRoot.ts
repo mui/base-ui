@@ -50,14 +50,14 @@ export function useNumberFieldRoot(
 ): UseNumberFieldRootReturnValue {
   const {
     id: idProp,
-    name: nameProp,
+    name,
     min,
     max,
     smallStep = 0.1,
     step,
     largeStep = 10,
     required = false,
-    disabled: disabledProp = false,
+    disabled = false,
     invalid = false,
     readOnly = false,
     autoFocus = false,
@@ -68,7 +68,11 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
-  const { name: nameContext, disabled: disabledContext, setControlId } = useFieldRootContext();
+  const { setDisabled, setControlId } = useFieldRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const {
     getInputValidationProps,
@@ -76,9 +80,6 @@ export function useNumberFieldRoot(
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
-
-  const disabled = disabledContext ?? disabledProp;
-  const name = nameContext ?? nameProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
