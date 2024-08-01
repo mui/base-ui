@@ -8,8 +8,8 @@ describe('<Field.Message />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Message />, () => ({
-    inheritComponent: 'p',
-    refInstanceof: window.HTMLParagraphElement,
+    inheritComponent: 'span',
+    refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Field.Root>{node}</Field.Root>);
     },
