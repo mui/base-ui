@@ -181,7 +181,7 @@ The `validateOnChange` prop reports the control's validity state on every `chang
 This mechanism can also be debounced, useful for async realtime validation:
 
 ```jsx
-<Field.Root validateOnChange validationDebounceMs={500}>
+<Field.Root validateOnChange validateDebounceMs={500}>
 ```
 
 ## Styling
