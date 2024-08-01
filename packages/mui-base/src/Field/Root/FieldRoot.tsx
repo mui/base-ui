@@ -43,7 +43,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
   const [validityData, setValidityData] = React.useState<ValidityData>({
     state: DEFAULT_VALIDITY_STATE,
-    message: '',
+    error: '',
+    errors: [],
     value: '',
   });
 
