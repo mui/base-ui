@@ -50,7 +50,7 @@ Fields are implemented using a collection of related components:
 - `<Field.Control />` renders the control when not using a native Base UI component.
 - `<Field.Label />` renders a label for the control.
 - `<Field.Message />` renders an optional message for the control to describe it or show validation errors.
-- `<Field.Validity />` is an optional render prop component that enables reading raw `ValidityState` to render custom JSX.
+- `<Field.Validity />` accepts a function as a child that enables reading raw `ValidityState` to render custom JSX.
 
 ```jsx
 <Field.Root>
