@@ -74,7 +74,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         type: 'button',
         role: 'switch',
         'aria-checked': checked,
-        'aria-disabled': disabled,
+        'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly,
         onBlur(event) {
           commitValidation(event.currentTarget.value);
