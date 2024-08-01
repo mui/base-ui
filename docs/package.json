@@ -19,7 +19,7 @@
     "@babel/runtime": "^7.24.6",
     "@babel/runtime-corejs3": "^7.24.6",
     "@base_ui/react": "workspace:*",
-    "@docsearch/react": "^3.6.0",
+    "@docsearch/react": "^3.6.1",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/server": "^11.11.0",
