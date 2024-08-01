@@ -31,6 +31,9 @@ const testRootContext: MenuRootContext = {
 const testPositionerContext: MenuPositionerContext = {
   side: 'bottom',
   alignment: 'start',
+  arrowRef: { current: null },
+  arrowStyles: {},
+  arrowUncentered: false,
 };
 
 describe('<Menu.Popup />', () => {
