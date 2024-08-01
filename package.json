@@ -148,7 +148,7 @@
     "react-docgen": "^5.4.3",
     "recast": "^0.23.9",
     "remark": "^13.0.0",
-    "rimraf": "^5.0.7",
+    "rimraf": "^5.0.10",
     "serve": "^14.2.3",
     "stylelint": "^16.4.0",
     "stylelint-config-standard": "^36.0.0",
