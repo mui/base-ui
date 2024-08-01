@@ -87,7 +87,7 @@
     "@octokit/rest": "^20.1.1",
     "@playwright/test": "1.45.1",
     "@types/fs-extra": "^11.0.4",
-    "@types/lodash": "^4.17.4",
+    "@types/lodash": "^4.17.7",
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.19.33",
     "@types/react": "^18.3.1",
