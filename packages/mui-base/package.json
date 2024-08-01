@@ -38,12 +38,12 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.24.8",
+    "@babel/runtime": "^7.25.0",
     "@floating-ui/react": "^0.26.20",
     "@floating-ui/react-dom": "^2.1.1",
     "@floating-ui/utils": "^0.2.5",
     "@mui/types": "^7.2.15",
-    "@mui/utils": "^5.16.5",
+    "@mui/utils": "^5.16.6",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1"
   },
