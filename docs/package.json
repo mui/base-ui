@@ -79,7 +79,7 @@
     "@mui/internal-test-utils": "1.0.5",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/chai": "^4.3.16",
-    "@types/node": "^18.19.33",
+    "@types/node": "^18.19.42",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
