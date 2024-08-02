@@ -47,6 +47,7 @@ interface UseAnchorPositioningParameters {
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
+  trackAnchor?: boolean;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -85,6 +86,7 @@ export function useAnchorPositioning(
     keepMounted = false,
     arrowPadding = 5,
     mounted = true,
+    trackAnchor = true,
   } = params;
 
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
@@ -197,7 +199,7 @@ export function useAnchorPositioning(
     placement,
     middleware,
     strategy: positionStrategy,
-    whileElementsMounted: keepMounted ? undefined : autoUpdate,
+    whileElementsMounted: keepMounted || !trackAnchor ? undefined : autoUpdate,
   });
 
   // We can assume that element anchors are stable across renders, and thus can be reactive.
