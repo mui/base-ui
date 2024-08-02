@@ -10,8 +10,7 @@ packageName: '@base_ui/react'
 
 # Slider
 
-<p class="description">The Slider component provides users with an input for a one or more numerical values within a given range.
-</p>
+<p class="description">The Slider component provides users with an input for a one or more numerical values within a given range.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 

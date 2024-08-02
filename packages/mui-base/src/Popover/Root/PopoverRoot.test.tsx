@@ -1,10 +1,13 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '../../../test';
 import { OPEN_DELAY } from '../utils/constants';
+
+const user = userEvent.setup();
 
 function Root(props: Popover.RootProps) {
   return <Popover.Root {...props} animated={false} />;
@@ -321,6 +324,36 @@ describe('<Popover.Root />', () => {
       clock.tick(50);
 
       expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
+  it('focuses the trigger after the popover is closed but not unmounted', async () => {
+    await render(
+      <div>
+        <input type="text" />
+        <Popover.Root animated={false}>
+          <Popover.Trigger>Toggle</Popover.Trigger>
+          <Popover.Positioner keepMounted>
+            <Popover.Popup>
+              <Popover.Close>Close</Popover.Close>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Root>
+        <input type="text" />
+      </div>,
+    );
+
+    const toggle = screen.getByRole('button', { name: 'Toggle' });
+
+    await user.click(toggle);
+    await flushMicrotasks();
+
+    const close = screen.getByRole('button', { name: 'Close' });
+
+    await user.click(close);
+
+    await waitFor(() => {
+      expect(toggle).toHaveFocus();
     });
   });
 });

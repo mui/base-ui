@@ -25,6 +25,31 @@ describe('mergeReactProps', () => {
     expect(ourProps.onPaste.callCount).to.equal(1);
   });
 
+  it('merges multiple event handlers', () => {
+    const log: string[] = [];
+
+    const mergedProps = mergeReactProps<'button'>(
+      {
+        onClick() {
+          log.push('1');
+        },
+      },
+      {
+        onClick() {
+          log.push('2');
+        },
+      },
+      {
+        onClick() {
+          log.push('3');
+        },
+      },
+    );
+
+    mergedProps.onClick?.({} as any);
+    expect(log).to.deep.equal(['1', '2', '3']);
+  });
+
   it('merges styles', () => {
     const theirProps = {
       style: { color: 'red' },
@@ -99,10 +124,29 @@ describe('mergeReactProps', () => {
           ran = true;
         },
       },
+      {
+        onClick() {
+          ran = true;
+        },
+      },
     );
 
     mergedProps.onClick?.({} as any);
 
     expect(ran).to.equal(false);
+  });
+
+  it('merges internal event handlers so that the ones defined first override the ones defined later', () => {
+    const mergedProps = mergeReactProps<'button'>(
+      {},
+      {
+        title: 'internal title 1',
+      },
+      {
+        title: 'internal title 2',
+      },
+    );
+
+    expect(mergedProps.title).to.equal('internal title 1');
   });
 });

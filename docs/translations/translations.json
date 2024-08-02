@@ -231,7 +231,9 @@
     "feedback": "Feedback",
     "/base-ui/react-alert-dialog": "Alert Dialog",
     "/base-ui/react-dialog": "Dialog",
+    "/base-ui/react-progress": "Progress",
     "navigation": "Navigation",
+    "/base-ui/react-menu": "Menu",
     "/base-ui/react-tabs": "Tabs",
     "/base-ui/guides": "How-to guides",
     "/base-ui/guides/next-js-app-router": "Next.js App Router"

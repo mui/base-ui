@@ -3,15 +3,13 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/menu/menu.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
-import DropdownApiJsonPageContent from '../../api/dropdown.json';
-import MenuApiJsonPageContent from '../../api/menu.json';
-import MenuButtonApiJsonPageContent from '../../api/menu-button.json';
+import MenuArrowApiJsonPageContent from '../../api/menu-arrow.json';
 import MenuItemApiJsonPageContent from '../../api/menu-item.json';
-import useDropdownApiJsonPageContent from '../../api/use-dropdown.json';
-import useMenuApiJsonPageContent from '../../api/use-menu.json';
-import useMenuButtonApiJsonPageContent from '../../api/use-menu-button.json';
-import useMenuItemApiJsonPageContent from '../../api/use-menu-item.json';
-import useMenuItemContextStabilizerApiJsonPageContent from '../../api/use-menu-item-context-stabilizer.json';
+import MenuPopupApiJsonPageContent from '../../api/menu-popup.json';
+import MenuPositionerApiJsonPageContent from '../../api/menu-positioner.json';
+import MenuRootApiJsonPageContent from '../../api/menu-root.json';
+import MenuTriggerApiJsonPageContent from '../../api/menu-trigger.json';
+import SubmenuTriggerApiJsonPageContent from '../../api/submenu-trigger.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -30,26 +28,12 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
-  const DropdownApiReq = require.context(
-    'docs-base/translations/api-docs/dropdown',
+  const MenuArrowApiReq = require.context(
+    'docs-base/translations/api-docs/menu-arrow',
     false,
-    /\.\/dropdown.*.json$/,
+    /\.\/menu-arrow.*.json$/,
   );
-  const DropdownApiDescriptions = mapApiPageTranslations(DropdownApiReq);
-
-  const MenuApiReq = require.context(
-    'docs-base/translations/api-docs/menu',
-    false,
-    /\.\/menu.*.json$/,
-  );
-  const MenuApiDescriptions = mapApiPageTranslations(MenuApiReq);
-
-  const MenuButtonApiReq = require.context(
-    'docs-base/translations/api-docs/menu-button',
-    false,
-    /\.\/menu-button.*.json$/,
-  );
-  const MenuButtonApiDescriptions = mapApiPageTranslations(MenuButtonApiReq);
+  const MenuArrowApiDescriptions = mapApiPageTranslations(MenuArrowApiReq);
 
   const MenuItemApiReq = require.context(
     'docs-base/translations/api-docs/menu-item',
@@ -58,71 +42,63 @@ export const getStaticProps = () => {
   );
   const MenuItemApiDescriptions = mapApiPageTranslations(MenuItemApiReq);
 
-  const useDropdownApiReq = require.context(
-    'docs-base/translations/api-docs/use-dropdown',
+  const MenuPopupApiReq = require.context(
+    'docs-base/translations/api-docs/menu-popup',
     false,
-    /\.\/use-dropdown.*.json$/,
+    /\.\/menu-popup.*.json$/,
   );
-  const useDropdownApiDescriptions = mapApiPageTranslations(useDropdownApiReq);
+  const MenuPopupApiDescriptions = mapApiPageTranslations(MenuPopupApiReq);
 
-  const useMenuApiReq = require.context(
-    'docs-base/translations/api-docs/use-menu',
+  const MenuPositionerApiReq = require.context(
+    'docs-base/translations/api-docs/menu-positioner',
     false,
-    /\.\/use-menu.*.json$/,
+    /\.\/menu-positioner.*.json$/,
   );
-  const useMenuApiDescriptions = mapApiPageTranslations(useMenuApiReq);
+  const MenuPositionerApiDescriptions = mapApiPageTranslations(MenuPositionerApiReq);
 
-  const useMenuButtonApiReq = require.context(
-    'docs-base/translations/api-docs/use-menu-button',
+  const MenuRootApiReq = require.context(
+    'docs-base/translations/api-docs/menu-root',
     false,
-    /\.\/use-menu-button.*.json$/,
+    /\.\/menu-root.*.json$/,
   );
-  const useMenuButtonApiDescriptions = mapApiPageTranslations(useMenuButtonApiReq);
+  const MenuRootApiDescriptions = mapApiPageTranslations(MenuRootApiReq);
 
-  const useMenuItemApiReq = require.context(
-    'docs-base/translations/api-docs/use-menu-item',
+  const MenuTriggerApiReq = require.context(
+    'docs-base/translations/api-docs/menu-trigger',
     false,
-    /\.\/use-menu-item.*.json$/,
+    /\.\/menu-trigger.*.json$/,
   );
-  const useMenuItemApiDescriptions = mapApiPageTranslations(useMenuItemApiReq);
+  const MenuTriggerApiDescriptions = mapApiPageTranslations(MenuTriggerApiReq);
 
-  const useMenuItemContextStabilizerApiReq = require.context(
-    'docs-base/translations/api-docs/use-menu-item-context-stabilizer',
+  const SubmenuTriggerApiReq = require.context(
+    'docs-base/translations/api-docs/submenu-trigger',
     false,
-    /\.\/use-menu-item-context-stabilizer.*.json$/,
+    /\.\/submenu-trigger.*.json$/,
   );
-  const useMenuItemContextStabilizerApiDescriptions = mapApiPageTranslations(
-    useMenuItemContextStabilizerApiReq,
-  );
+  const SubmenuTriggerApiDescriptions = mapApiPageTranslations(SubmenuTriggerApiReq);
 
   return {
     props: {
       componentsApiDescriptions: {
-        Dropdown: DropdownApiDescriptions,
-        Menu: MenuApiDescriptions,
-        MenuButton: MenuButtonApiDescriptions,
+        MenuArrow: MenuArrowApiDescriptions,
         MenuItem: MenuItemApiDescriptions,
+        MenuPopup: MenuPopupApiDescriptions,
+        MenuPositioner: MenuPositionerApiDescriptions,
+        MenuRoot: MenuRootApiDescriptions,
+        MenuTrigger: MenuTriggerApiDescriptions,
+        SubmenuTrigger: SubmenuTriggerApiDescriptions,
       },
       componentsApiPageContents: {
-        Dropdown: DropdownApiJsonPageContent,
-        Menu: MenuApiJsonPageContent,
-        MenuButton: MenuButtonApiJsonPageContent,
+        MenuArrow: MenuArrowApiJsonPageContent,
         MenuItem: MenuItemApiJsonPageContent,
+        MenuPopup: MenuPopupApiJsonPageContent,
+        MenuPositioner: MenuPositionerApiJsonPageContent,
+        MenuRoot: MenuRootApiJsonPageContent,
+        MenuTrigger: MenuTriggerApiJsonPageContent,
+        SubmenuTrigger: SubmenuTriggerApiJsonPageContent,
       },
-      hooksApiDescriptions: {
-        useDropdown: useDropdownApiDescriptions,
-        useMenu: useMenuApiDescriptions,
-        useMenuButton: useMenuButtonApiDescriptions,
-        useMenuItem: useMenuItemApiDescriptions,
-        useMenuItemContextStabilizer: useMenuItemContextStabilizerApiDescriptions,
-      },
-      hooksApiPageContents: {
-        useDropdown: useDropdownApiJsonPageContent,
-        useMenu: useMenuApiJsonPageContent,
-        useMenuButton: useMenuButtonApiJsonPageContent,
-        useMenuItem: useMenuItemApiJsonPageContent,
-        useMenuItemContextStabilizer: useMenuItemContextStabilizerApiJsonPageContent,
-      },
+      hooksApiDescriptions: {},
+      hooksApiPageContents: {},
     },
   };
 };

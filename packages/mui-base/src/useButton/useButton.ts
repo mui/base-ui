@@ -13,15 +13,9 @@ import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { useRootElementName } from '../utils/useRootElementName';
 import { EventHandlers } from '../utils/types';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
+
 /**
- *
- * Demos:
- *
- * - [Button](https://mui.com/base-ui/react-button/#hook)
- *
- * API:
- *
- * - [useButton API](https://mui.com/base-ui/react-button/hooks-api/#use-button)
+ * @ignore - internal hook.
  */
 export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {

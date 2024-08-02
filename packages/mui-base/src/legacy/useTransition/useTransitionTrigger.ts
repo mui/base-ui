@@ -5,13 +5,7 @@ import { TransitionContextValue } from './TransitionContext';
 /**
  * Allows child elements to be transitioned in and out.
  *
- * Demos:
- *
- * - [Transitions](https://mui.com/base-ui/react-transitions/#hooks)
- *
- * API:
- *
- * - [useTransitionTrigger API](https://mui.com/base-ui/react-transitions/hooks-api/#use-transition-trigger)
+ * @ignore - internal hook.
  */
 export function useTransitionTrigger(requestEnter: boolean): UseTransitionTriggerReturnValue {
   const [exitTransitionFinished, setExitTransitionFinished] = React.useState(true);

@@ -38,19 +38,18 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.24.8",
-    "@floating-ui/react": "^0.26.19",
+    "@babel/runtime": "^7.25.0",
+    "@floating-ui/react": "^0.26.20",
     "@floating-ui/react-dom": "^2.1.1",
-    "@floating-ui/utils": "^0.2.4",
+    "@floating-ui/utils": "^0.2.5",
     "@mui/types": "^7.2.15",
-    "@mui/utils": "^5.16.4",
-    "@popperjs/core": "^2.11.8",
+    "@mui/utils": "^5.16.6",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1"
   },
   "devDependencies": {
     "@mui/internal-babel-macros": "^1.0.1",
-    "@mui/internal-test-utils": "1.0.5",
+    "@mui/internal-test-utils": "1.0.6",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.5.2",
     "@types/chai": "^4.3.16",
@@ -62,8 +61,8 @@
     "chai": "^4.4.1",
     "fast-glob": "^3.3.2",
     "lodash": "^4.17.21",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "sinon": "^17.0.1",
     "typescript": "^5.4.5"
   },
