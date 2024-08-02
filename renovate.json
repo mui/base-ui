@@ -136,6 +136,11 @@
       "groupName": "react-docgen - incompatible versions",
       "matchPackageNames": ["react-docgen"],
       "allowedVersions": "< 6.0.0"
+    },
+    {
+      "groupName": "eslint - incompatible versions",
+      "matchPackageNames": ["eslint"],
+      "allowedVersions": "< 9.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],
