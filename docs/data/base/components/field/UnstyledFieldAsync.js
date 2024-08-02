@@ -59,22 +59,22 @@ export default function UnstyledFieldAsync() {
         <Field.Validity>
           {(state) => {
             if (loading) {
-              return <FieldMessage>Checking availability...</FieldMessage>;
+              return <FieldDescription>Checking availability...</FieldDescription>;
             }
 
             if (state.value === '') {
-              return <FieldMessage>Enter a name</FieldMessage>;
+              return <FieldDescription>Enter a name</FieldDescription>;
             }
 
             if (!state.validity.customError) {
               return (
-                <FieldMessage data-type="success">
+                <FieldDescription data-type="success">
                   <strong>@{state.value}</strong> is available
-                </FieldMessage>
+                </FieldDescription>
               );
             }
 
-            return <FieldMessage data-type="error" show="customError" />;
+            return <FieldError show="customError" />;
           }}
         </Field.Validity>
       </FieldRoot>
@@ -119,18 +119,23 @@ const FieldControl = styled(Field.Control)`
   }
 `;
 
-const FieldMessage = styled(Field.Message)`
+const FieldDescription = styled(Field.Description)`
   font-size: 90%;
   margin: 0;
   margin-top: 4px;
   line-height: 1.1;
   color: #666;
 
-  &[data-type='error'] {
-    color: red;
-  }
-
   &[data-type='success'] {
     color: green;
   }
+`;
+
+const FieldError = styled(Field.Error)`
+  display: block;
+  font-size: 90%;
+  margin: 0;
+  margin-top: 4px;
+  line-height: 1.1;
+  color: red;
 `;

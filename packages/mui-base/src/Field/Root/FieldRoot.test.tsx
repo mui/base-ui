@@ -19,7 +19,7 @@ describe('<Field.Root />', () => {
         <Field.Root data-testid="field">
           <Field.Control disabled data-testid="control" />
           <Field.Label data-testid="label" />
-          <Field.Message data-testid="message" />
+          <Field.Description data-testid="message" />
         </Field.Root>,
       );
 
@@ -40,7 +40,7 @@ describe('<Field.Root />', () => {
       render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
-          <Field.Message show="customError" />
+          <Field.Error />
         </Field.Root>,
       );
 
@@ -61,7 +61,7 @@ describe('<Field.Root />', () => {
       render(
         <Field.Root validate={() => Promise.resolve('error')}>
           <Field.Control />
-          <Field.Message show="customError" />
+          <Field.Error />
         </Field.Root>,
       );
 

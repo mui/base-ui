@@ -2,13 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldMessageOwnerState, FieldMessageProps } from './FieldMessage.types';
+import type { FieldDescriptionProps, FieldDescriptionOwnerState } from './FieldDescription.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldMessage } from './useFieldMessage';
+import { useFieldDescription } from './useFieldDescription';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 
 /**
- * A message for the field's control.
+ * A description message for the field's control.
  *
  * Demos:
  *
@@ -16,21 +16,19 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  *
  * API:
  *
- * - [FieldMessage API](https://mui.com/base-ui/react-field/components-api/#field-message)
+ * - [FieldDescription API](https://mui.com/base-ui/react-field/components-api/#field-description)
  */
-const FieldMessage = React.forwardRef(function FieldMessage(
-  props: FieldMessageProps,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+const FieldDescription = React.forwardRef(function FieldDescription(
+  props: FieldDescriptionProps,
+  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id, className, show: showProp, ...otherProps } = props;
+  const { render, id, className, ...otherProps } = props;
 
   const { validityData, disabled = false } = useFieldRootContext();
 
-  const rendered = showProp ? validityData.state[showProp] : true;
+  const { getDescriptionProps } = useFieldDescription({ id });
 
-  const { getMessageProps } = useFieldMessage({ id, rendered });
-
-  const ownerState: FieldMessageOwnerState = React.useMemo(
+  const ownerState: FieldDescriptionOwnerState = React.useMemo(
     () => ({
       disabled,
       valid: validityData.state.valid,
@@ -39,8 +37,8 @@ const FieldMessage = React.forwardRef(function FieldMessage(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getMessageProps,
-    render: render ?? 'span',
+    propGetter: getDescriptionProps,
+    render: render ?? 'p',
     ref: forwardedRef,
     className,
     ownerState,
@@ -48,14 +46,10 @@ const FieldMessage = React.forwardRef(function FieldMessage(
     customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
 
-  if (!rendered) {
-    return null;
-  }
-
   return renderElement();
 });
 
-FieldMessage.propTypes /* remove-proptypes */ = {
+FieldDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -76,22 +70,6 @@ FieldMessage.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  show: PropTypes.oneOf([
-    'badInput',
-    'customError',
-    'patternMismatch',
-    'rangeOverflow',
-    'rangeUnderflow',
-    'stepMismatch',
-    'tooLong',
-    'tooShort',
-    'typeMismatch',
-    'valid',
-    'valueMissing',
-  ]),
 } as any;
 
-export { FieldMessage };
+export { FieldDescription };

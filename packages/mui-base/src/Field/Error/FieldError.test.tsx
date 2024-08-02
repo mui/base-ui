@@ -4,10 +4,10 @@ import { expect } from 'chai';
 import * as Field from '@base_ui/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Field.Message />', () => {
+describe('<Field.Error />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Field.Message />, () => ({
+  describeConformance(<Field.Error forceShow />, () => ({
     inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
@@ -19,7 +19,7 @@ describe('<Field.Message />', () => {
     render(
       <Field.Root>
         <Field.Control />
-        <Field.Message>Message</Field.Message>
+        <Field.Error forceShow>Message</Field.Error>
       </Field.Root>,
     );
 
@@ -29,12 +29,30 @@ describe('<Field.Message />', () => {
     );
   });
 
+  it('should show error messages by default', () => {
+    render(
+      <Field.Root>
+        <Field.Control required />
+        <Field.Error>Message</Field.Error>
+      </Field.Root>,
+    );
+
+    expect(screen.queryByText('Message')).to.equal(null);
+
+    act(() => {
+      screen.getByRole('textbox').focus();
+      screen.getByRole('textbox').blur();
+    });
+
+    expect(screen.queryByText('Message')).not.to.equal(null);
+  });
+
   describe('prop: show', () => {
     it('should only render when `show` matches constraint validation', () => {
       render(
         <Field.Root>
           <Field.Control required />
-          <Field.Message show="valueMissing">Message</Field.Message>
+          <Field.Error show="valueMissing">Message</Field.Error>
         </Field.Root>,
       );
 
@@ -52,7 +70,7 @@ describe('<Field.Message />', () => {
       render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
-          <Field.Message show="customError">Message</Field.Message>
+          <Field.Error show="customError">Message</Field.Error>
         </Field.Root>,
       );
 

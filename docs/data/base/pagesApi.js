@@ -73,12 +73,16 @@ module.exports = [
     title: 'FieldControl',
   },
   {
-    pathname: '/base-ui/react-field/components-api/#field-label',
-    title: 'FieldLabel',
+    pathname: '/base-ui/react-field/components-api/#field-description',
+    title: 'FieldDescription',
   },
   {
-    pathname: '/base-ui/react-field/components-api/#field-message',
-    title: 'FieldMessage',
+    pathname: '/base-ui/react-field/components-api/#field-error',
+    title: 'FieldError',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-label',
+    title: 'FieldLabel',
   },
   {
     pathname: '/base-ui/react-field/components-api/#field-root',

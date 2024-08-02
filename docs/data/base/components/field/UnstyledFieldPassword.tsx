@@ -24,28 +24,18 @@ function validate(value: string) {
 export default function UnstyledFieldPassword() {
   function handleValidate(value: unknown) {
     const password = value as string;
-    const errors = validate(password);
-    return errors.length ? 'error' : null;
+    return validate(password);
   }
 
   return (
     <Field.Root validate={handleValidate} validateOnChange>
       <Field.Control type="password" />
       <Field.Label>Password</Field.Label>
-      <Field.Message show="customError" render={<ul />} data-error>
+      <Field.Error render={<ul />}>
         <Field.Validity>
-          {(state) => {
-            const password = state.value as string;
-            const errors = validate(password);
-
-            if (!errors.length) {
-              return null;
-            }
-
-            return errors.map((error) => <li key={error}>{error}</li>);
-          }}
+          {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
         </Field.Validity>
-      </Field.Message>
+      </Field.Error>
     </Field.Root>
   );
 }

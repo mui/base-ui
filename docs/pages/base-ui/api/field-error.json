@@ -1,0 +1,17 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "FieldError",
+  "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldError = Field.Error;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "FieldError",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Field/Error/FieldError.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-field/\">Field</a></li></ul>",
+  "cssComponent": false
+}

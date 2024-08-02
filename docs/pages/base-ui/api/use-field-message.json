@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldMessage",
-  "filename": "/packages/mui-base/src/Field/Message/useFieldMessage.ts",
-  "imports": ["import { useFieldMessage } from '@base_ui/react/Field';"],
-  "demos": "<ul></ul>"
-}

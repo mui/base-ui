@@ -5,7 +5,7 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 
-interface UseFieldMessageParameters {
+interface UseFieldErrorParameters {
   id: string | undefined;
   rendered: boolean;
 }
@@ -14,9 +14,9 @@ interface UseFieldMessageParameters {
  *
  * API:
  *
- * - [useFieldMessage API](https://mui.com/base-ui/api/use-field-message/)
+ * - [useFieldError API](https://mui.com/base-ui/api/use-field-error/)
  */
-export function useFieldMessage(params: UseFieldMessageParameters) {
+export function useFieldError(params: UseFieldErrorParameters) {
   const { id: idProp, rendered } = params;
 
   const { setMessageIds, validityData } = useFieldRootContext();
@@ -35,7 +35,7 @@ export function useFieldMessage(params: UseFieldMessageParameters) {
     };
   }, [rendered, id, setMessageIds]);
 
-  const getMessageProps = React.useCallback(
+  const getErrorProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'span'>(externalProps, {
         id,
@@ -55,8 +55,8 @@ export function useFieldMessage(params: UseFieldMessageParameters) {
 
   return React.useMemo(
     () => ({
-      getMessageProps,
+      getErrorProps,
     }),
-    [getMessageProps],
+    [getErrorProps],
   );
 }

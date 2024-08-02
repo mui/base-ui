@@ -20,15 +20,16 @@ export default function UnstyledFieldIntroduction() {
           }
 
           return (
-            <FieldMessage>Your name will be visible on your profile.</FieldMessage>
+            <FieldDescription>
+              Your name will be visible on your profile.
+            </FieldDescription>
           );
         }}
       </Field.Validity>
-      <FieldMessage data-error show="valueMissing" />
-      <FieldMessage data-error show="customError" />
-      <FieldMessage data-error show="patternMismatch">
+      <FieldError show="valueMissing" />
+      <FieldError show="patternMismatch">
         Only alphanumeric characters are allowed (a-z, A-Z, 0-9).
-      </FieldMessage>
+      </FieldError>
     </FieldRoot>
   );
 }
@@ -50,9 +51,9 @@ const FieldControl = styled(Field.Control)`
   }
 `;
 
-const FieldMessage = styled(Field.Message)`
+const FieldDescription = styled(Field.Description)`
   font-size: 90%;
-  margin: 0;
+  margin-bottom: 0;
   margin-top: 4px;
   line-height: 1.1;
   color: #666;
@@ -60,4 +61,14 @@ const FieldMessage = styled(Field.Message)`
   &[data-error] {
     color: red;
   }
+`;
+
+const FieldError = styled(Field.Error)`
+  display: block;
+  font-size: 90%;
+  margin: 0;
+  margin-bottom: 0;
+  margin-top: 4px;
+  line-height: 1.1;
+  color: red;
 `;

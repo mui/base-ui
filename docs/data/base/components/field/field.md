@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Field component and hook
-components: FieldRoot, FieldLabel, FieldMessage, FieldControl, FieldValidity
+components: FieldRoot, FieldLabel, FieldDescription, FieldError, FieldControl, FieldValidity
 githubLabel: 'component: field'
 packageName: '@base_ui/react'
 ---
@@ -49,14 +49,16 @@ Fields are implemented using a collection of related components:
 - `<Field.Root />` is a top-level component that wraps all other components.
 - `<Field.Control />` renders the control when not using a native Base UI component.
 - `<Field.Label />` renders a label for the control.
-- `<Field.Message />` renders an optional message for the control to describe it or show validation errors.
+- `<Field.Description />` renders an optional description for the control to provide additional information.
+- `<Field.Error />` renders error messages for the control.
 - `<Field.Validity />` accepts a function as a child that enables reading raw `ValidityState` to render custom JSX.
 
 ```jsx
 <Field.Root>
   <Field.Control />
   <Field.Label />
-  <Field.Message />
+  <Field.Description />
+  <Field.Error />
   <Field.Validity />
 </Field.Root>
 ```
@@ -71,7 +73,7 @@ All Base UI input components are aware of Base UI's `Field` component. The lab
     <Checkbox.Indicator />
   </Checkbox.Root>
   <Field.Label>My checkbox</Field.Label>
-  <Field.Message>My description</Field.Message>
+  <Field.Description>My description</Field.Description>
 </Field.Root>
 ```
 
@@ -81,7 +83,7 @@ When using a native control like `input` or a custom component which is not awar
 <Field.Root>
   <Field.Control />
   <Field.Label>My input</Field.Label>
-  <Field.Message>My description</Field.Message>
+  <Field.Description>My description</Field.Description>
 </Field.Root>
 ```
 
@@ -93,13 +95,13 @@ The `render` prop allows you to pass a custom component or tag, different from t
 
 ## Validation
 
-When adding native HTML validation props like `required` or `pattern`, the `show` prop on `Field.Message` shows the message only if the constraint validation fails:
+When adding native HTML validation props like `required` or `pattern`, `Field.Error` will render error messages inside of it automatically:
 
 ```jsx
 <Field.Root>
   <Field.Label>My input</Field.Label>
   <Field.Control required />
-  <Field.Message show="valueMissing" />
+  <Field.Error />
 </Field.Root>
 ```
 
@@ -107,13 +109,35 @@ The `children` by default is the browser's native message, which is automaticall
 
 ```jsx
 <Field.Root>
-  <Field.Label>My input</Field.Label>
   <Field.Control required />
-  <Field.Message show="valueMissing">Input is required</Field.Message>
+  <Field.Error>Field is required</Field.Error>
+</Field.Root>
+```
+
+### Error messages for individual constraint validation failures
+
+To render custom content when there are multiple HTML validation props, you can target individual validity state failures using the `show` prop:
+
+```jsx
+<Field.Root>
+  <Field.Control required pattern="[a-zA-Z0-9]+" />
+  <Field.Error show="valueMissing">Field is required</Field.Error>
+  <Field.Error show="patternMismatch">
+    Only alphanumeric characters allowed
+  </Field.Error>
 </Field.Root>
 ```
 
 For the list of supported `show` strings, visit [`ValidityState` on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState#instance_properties).
+
+The `Field.Error` component can also be forced to be shown, such as after server-side validation has been performed and came back with an error, or during testing:
+
+```jsx
+<Field.Root>
+  <Field.Control required />
+  <Field.Error forceShow>Server-side error message</Field.Error>
+</Field.Root>
+```
 
 ### Custom validation
 
@@ -127,11 +151,9 @@ In addition to the native HTML constraint validation, you can also add custom va
 >
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Message show="customError" />
+  <Field.Error />
 </Field.Root>
 ```
-
-The message shows when `ValidityState`'s `customError` property is `true`.
 
 :::info
 For Base UI input components, `value` represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
@@ -154,17 +176,17 @@ To customize the rendering of multiple messages, you can use the `Validity` subc
 >
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Message show="customError" render={<ul />}>
+  <Field.Error render={<ul />}>
     <Field.Validity>
       {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
     </Field.Validity>
-  </Field.Message>
+  </Field.Error>
 </Field.Root>
 ```
 
 ### Async validation
 
-The `validation` function can also be async by returning a promise. In the demo below, the taken names are `admin`, `root`, and `superuser` — every other name is available.
+The `validate` function can also be async by returning a promise. In the demo below, the taken names are `admin`, `root`, and `superuser` — every other name is available.
 
 For demonstration purposes, a fake network request that takes 500ms is initiated to mimic a trip to the server to check for availability on the back-end.
 
@@ -172,13 +194,13 @@ For demonstration purposes, a fake network request that takes 500ms is initiated
 
 ### Realtime validation
 
-The `validateOnChange` prop reports the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control.
+The `validateOnChange` prop reports the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control:
 
 ```jsx
 <Field.Root validateOnChange>
 ```
 
-This mechanism can also be debounced, useful for async realtime validation:
+This mechanism can also be debounced, useful for async realtime validation to avoid firing a network request on every keystroke:
 
 ```jsx
 <Field.Root validateOnChange validateDebounceMs={500}>
@@ -203,7 +225,7 @@ After the field's control has been validated, `[data-invalid]` and `[data-valid]
 
 ## Validity component
 
-To access the raw `ValidityState` to render custom JSX, particularly useful for `Field.Message` control flow, use the `Field.Validity` component:
+To access the raw `ValidityState` to render custom JSX, particularly useful for messaging control flow, use the `Field.Validity` component:
 
 ```jsx
 <Field.Root>
