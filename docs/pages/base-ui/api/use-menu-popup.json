@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useMenuPopup",
+  "filename": "/packages/mui-base/src/Menu/Popup/useMenuPopup.ts",
+  "imports": ["import { useMenuPopup } from '@base_ui/react/Menu';"],
+  "demos": "<ul></ul>"
+}

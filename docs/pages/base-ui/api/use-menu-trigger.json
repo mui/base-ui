@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useMenuTrigger",
+  "filename": "/packages/mui-base/src/Menu/Trigger/useMenuTrigger.ts",
+  "imports": ["import { useMenuTrigger } from '@base_ui/react/Menu';"],
+  "demos": "<ul></ul>"
+}

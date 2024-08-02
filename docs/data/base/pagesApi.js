@@ -68,7 +68,6 @@ module.exports = [
     pathname: '/base-ui/react-dialog/components-api/#dialog-trigger',
     title: 'DialogTrigger',
   },
-  { pathname: '/base-ui/react-menu/components-api/#dropdown', title: 'Dropdown' },
   {
     pathname: '/base-ui/react-focus-trap/components-api/#focus-trap',
     title: 'FocusTrap',
@@ -77,12 +76,18 @@ module.exports = [
     pathname: '/base-ui/react-form-control/components-api/#form-control',
     title: 'FormControl',
   },
-  { pathname: '/base-ui/react-menu/components-api/#menu', title: 'Menu' },
-  {
-    pathname: '/base-ui/react-menu/components-api/#menu-button',
-    title: 'MenuButton',
-  },
+  { pathname: '/base-ui/react-menu/components-api/#menu-arrow', title: 'MenuArrow' },
   { pathname: '/base-ui/react-menu/components-api/#menu-item', title: 'MenuItem' },
+  { pathname: '/base-ui/react-menu/components-api/#menu-popup', title: 'MenuPopup' },
+  {
+    pathname: '/base-ui/react-menu/components-api/#menu-positioner',
+    title: 'MenuPositioner',
+  },
+  { pathname: '/base-ui/react-menu/components-api/#menu-root', title: 'MenuRoot' },
+  {
+    pathname: '/base-ui/react-menu/components-api/#menu-trigger',
+    title: 'MenuTrigger',
+  },
   { pathname: '/base-ui/react-no-ssr/components-api/#no-ssr', title: 'NoSsr' },
   {
     pathname: '/base-ui/react-number-field/components-api/#number-field-decrement',
@@ -222,6 +227,10 @@ module.exports = [
     title: 'Snackbar',
   },
   {
+    pathname: '/base-ui/react-menu/components-api/#submenu-trigger',
+    title: 'SubmenuTrigger',
+  },
+  {
     pathname: '/base-ui/react-switch/components-api/#switch-root',
     title: 'SwitchRoot',
   },
@@ -293,20 +302,9 @@ module.exports = [
     pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-trigger',
     title: 'useDialogTrigger',
   },
-  { pathname: '/base-ui/react-menu/hooks-api/#use-dropdown', title: 'useDropdown' },
   {
     pathname: '/base-ui/react-form-control/hooks-api/#use-form-control-context',
     title: 'useFormControlContext',
-  },
-  { pathname: '/base-ui/react-menu/hooks-api/#use-menu', title: 'useMenu' },
-  {
-    pathname: '/base-ui/react-menu/hooks-api/#use-menu-button',
-    title: 'useMenuButton',
-  },
-  { pathname: '/base-ui/react-menu/hooks-api/#use-menu-item', title: 'useMenuItem' },
-  {
-    pathname: '/base-ui/react-menu/hooks-api/#use-menu-item-context-stabilizer',
-    title: 'useMenuItemContextStabilizer',
   },
   {
     pathname: '/base-ui/react-number-field/hooks-api/#use-number-field-root',
