@@ -133,7 +133,7 @@ describe('<NumberField.Input />', () => {
     fireEvent.change(input, { target: { value: '1234' } });
     expect(input).to.have.value('1234');
     fireEvent.blur(input);
-    expect(input).to.have.value('1,234');
+    expect(input).to.have.value((1234).toLocaleString());
   });
 
   it('should commit validated number on blur (min)', () => {
