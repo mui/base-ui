@@ -19,7 +19,11 @@ describe('NumberField format', () => {
 
   describe('formatNumber', () => {
     it('formats a number', () => {
-      expect(getFormatter(undefined, getOptions()).format(1234.56)).to.equal('$1,234.56');
+      const expected = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: 'USD',
+      }).format(1234.56);
+      expect(getFormatter(undefined, getOptions()).format(1234.56)).to.equal(expected);
     });
 
     it('formats a number with different options', () => {
