@@ -373,7 +373,7 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
-      expect(input).to.have.value('5.1');
+      expect(input).to.have.value((5.1).toLocaleString());
     });
 
     it('should decrement the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
@@ -381,7 +381,7 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
-      expect(input).to.have.value('5.9');
+      expect(input).to.have.value((5.9).toLocaleString());
     });
 
     it('should use explicit `smallStep` value if provided while holding the alt key', () => {
@@ -389,7 +389,7 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
-      expect(input).to.have.value('5.5');
+      expect(input).to.have.value((5.5).toLocaleString());
     });
 
     it('should not use the `smallStep` prop if no longer holding the alt key', () => {
@@ -398,10 +398,10 @@ describe('<NumberField />', () => {
       const button = screen.getByLabelText('Increase');
       fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(button);
-      expect(input).to.have.value('5.5');
+      expect(input).to.have.value((5.5).toLocaleString());
       fireEvent.keyUp(input, { altKey: false });
       fireEvent.pointerDown(button);
-      expect(input).to.have.value('6.5');
+      expect(input).to.have.value((6.5).toLocaleString());
     });
   });
 
@@ -409,7 +409,11 @@ describe('<NumberField />', () => {
     it('should format the value using the provided options', () => {
       render(<NumberField defaultValue={1000} format={{ style: 'currency', currency: 'USD' }} />);
       const input = screen.getByRole('textbox');
-      expect(input).to.have.value('$1,000.00');
+      const expectedValue = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: 'USD',
+      }).format(1000);
+      expect(input).to.have.value(expectedValue);
     });
   });
 
