@@ -6,13 +6,13 @@
     },
     "render": { "description": "A function to customize rendering of the component." },
     "validate": {
-      "description": "Function to custom-validate the field&#39;s value. Return a string with an error message if the value is invalid, or <code>null</code> if the value is valid. The function can also return a promise that resolves to a string or <code>null</code>."
+      "description": "Function to custom-validate the field&#39;s value. Return a string or array of strings with error messages if the value is invalid, or <code>null</code> if the value is valid. The function can also return a promise that resolves to a string, array of strings, or <code>null</code>."
     },
     "validateDebounceMs": {
-      "description": "The debounce time in milliseconds for the validation function for the <code>change</code> phase."
+      "description": "The debounce time in milliseconds for the <code>validate</code> function for the <code>change</code> phase."
     },
     "validateOnChange": {
-      "description": "Determines if the validation should be triggered on the <code>change</code> event, rather than only on commit (blur)."
+      "description": "Determines if validation should be triggered on the <code>change</code> event, rather than only on commit (blur)."
     }
   },
   "classDescriptions": {}

@@ -26,7 +26,9 @@ const FieldError = React.forwardRef(function FieldError(
 
   const { validityData, disabled = false } = useFieldRootContext();
 
-  const rendered = showProp ? validityData.state[showProp] : forceShow || !validityData.state.valid;
+  const rendered = showProp
+    ? Boolean(validityData.state[showProp])
+    : forceShow || validityData.state.valid === false;
 
   const { getErrorProps } = useFieldError({ id, rendered });
 

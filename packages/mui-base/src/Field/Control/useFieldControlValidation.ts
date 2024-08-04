@@ -77,7 +77,7 @@ export function useFieldControlValidation() {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-        ...(!validityData.state.valid && { 'aria-invalid': true }),
+        ...(validityData.state.valid === false && { 'aria-invalid': true }),
       }),
     [messageIds, validityData.state.valid],
   );
@@ -94,9 +94,14 @@ export function useFieldControlValidation() {
           const element = event.currentTarget;
 
           window.clearTimeout(timeoutRef.current);
-          timeoutRef.current = window.setTimeout(() => {
+
+          if (validateDebounceMs) {
+            timeoutRef.current = window.setTimeout(() => {
+              commitValidation(element.value);
+            }, validateDebounceMs);
+          } else {
             commitValidation(element.value);
-          }, validateDebounceMs);
+          }
         },
       }),
     [commitValidation, getValidationProps, validateOnChange, validateDebounceMs],

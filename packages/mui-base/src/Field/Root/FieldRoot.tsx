@@ -105,19 +105,19 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Function to custom-validate the field's value. Return a string with an error message if the
-   * value is invalid, or `null` if the value is valid. The function can also return a promise that
-   * resolves to a string or `null`.
+   * Function to custom-validate the field's value. Return a string or array of strings with error
+   * messages if the value is invalid, or `null` if the value is valid. The function can also return
+   * a promise that resolves to a string, array of strings, or `null`.
    */
   validate: PropTypes.func,
   /**
-   * The debounce time in milliseconds for the validation function for the `change` phase.
+   * The debounce time in milliseconds for the `validate` function for the `change` phase.
    * @default 0
    */
   validateDebounceMs: PropTypes.number,
   /**
-   * Determines if the validation should be triggered on the `change` event, rather than only on
-   * commit (blur).
+   * Determines if validation should be triggered on the `change` event, rather than only on commit
+   * (blur).
    * @default false
    */
   validateOnChange: PropTypes.bool,
