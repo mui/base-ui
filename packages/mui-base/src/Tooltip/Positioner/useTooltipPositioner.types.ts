@@ -76,6 +76,12 @@ export interface TooltipPositionerParameters {
    * @default false
    */
   keepMounted?: boolean;
+  /**
+   * Whether the tooltip popup continuously tracks its anchor after the initial positioning upon
+   * mount.
+   * @default true
+   */
+  trackAnchor?: boolean;
 }
 
 export interface UseTooltipPositionerParameters extends TooltipPositionerParameters {
