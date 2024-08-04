@@ -163,7 +163,7 @@
     "yargs": "^17.7.2"
   },
   "engines": {
-    "pnpm": ">=9.0.0"
+    "pnpm": "^9.0.0"
   },
   "resolutions": {
     "@babel/core": "^7.25.2",
