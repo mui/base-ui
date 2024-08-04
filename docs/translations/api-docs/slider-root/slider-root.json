@@ -13,7 +13,7 @@
     "direction": {
       "description": "Sets the direction. For right-to-left languages, the lowest value is on the right-hand side."
     },
-    "disabled": { "description": "/** If <code>true</code>, the component is disabled." },
+    "disabled": { "description": "If <code>true</code>, the component is disabled." },
     "largeStep": {
       "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
     },
