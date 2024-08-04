@@ -156,7 +156,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
             case 'PageDown':
               newValue = getNewValue(thumbValue, largeStep, -1, min, max);
               break;
-            case 'Home':
+            case 'End':
               newValue = max;
 
               if (isRange) {
@@ -165,7 +165,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
                   : max;
               }
               break;
-            case 'End':
+            case 'Home':
               newValue = min;
 
               if (isRange) {
