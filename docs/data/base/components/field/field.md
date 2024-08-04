@@ -95,7 +95,7 @@ The `render` prop allows you to pass a custom component or tag, different from t
 
 ## Validation
 
-When adding native HTML validation props like `required` or `pattern`, `Field.Error` will render error messages inside of it automatically:
+When adding native HTML validation props like `required` or `pattern`, `Field.Error` renders error messages inside of it automatically:
 
 ```jsx
 <Field.Root>
