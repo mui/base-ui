@@ -26,7 +26,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 
   const { controlId, disabled = false, validityData } = useFieldRootContext();
 
-  const { getLabelProps } = useFieldLabel({ controlId });
+  const { getLabelProps } = useFieldLabel({ controlId, customTag: render != null });
 
   const ownerState: FieldLabelOwnerState = React.useMemo(
     () => ({

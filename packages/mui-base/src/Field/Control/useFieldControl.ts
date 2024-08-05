@@ -41,6 +41,7 @@ export function useFieldControl(params: UseFieldControlParameters) {
         disabled,
         name,
         ref: inputRef,
+        'aria-labelledby': `${id}-label`,
         onBlur(event) {
           commitValidation(event.currentTarget.value);
         },

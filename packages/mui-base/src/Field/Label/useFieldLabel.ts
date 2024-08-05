@@ -4,7 +4,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 
 interface UseFieldLabelParameters {
   controlId: string | undefined;
+  customTag: boolean;
 }
+
 /**
  *
  * API:
@@ -12,12 +14,13 @@ interface UseFieldLabelParameters {
  * - [useFieldLabel API](https://mui.com/base-ui/api/use-field-label/)
  */
 export function useFieldLabel(params: UseFieldLabelParameters) {
-  const { controlId } = params;
+  const { controlId, customTag } = params;
 
   const getLabelProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'label'>(externalProps, {
-        htmlFor: controlId,
+        id: `${controlId}-label`,
+        ...(!customTag && { htmlFor: controlId }),
         onMouseDown(event) {
           const selection = window.getSelection();
 
@@ -30,7 +33,7 @@ export function useFieldLabel(params: UseFieldLabelParameters) {
           event.preventDefault();
         },
       }),
-    [controlId],
+    [controlId, customTag],
   );
 
   return React.useMemo(

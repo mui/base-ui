@@ -6,6 +6,7 @@ import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderProvider } from './SliderProvider';
 import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRootProps,
@@ -27,8 +28,10 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps
   } = props;
 
+  const { controlId } = useFieldRootContext();
+
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': ariaLabelledby,
+    'aria-labelledby': ariaLabelledby ?? (controlId ? `${controlId}-label` : undefined),
     defaultValue,
     disabled,
     direction,

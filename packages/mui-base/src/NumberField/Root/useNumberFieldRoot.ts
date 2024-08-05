@@ -68,7 +68,7 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
-  const { setDisabled, setControlId } = useFieldRootContext();
+  const { setDisabled, setControlId, validateOnChange } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -124,6 +124,7 @@ export function useNumberFieldRoot(
   });
 
   const value = valueUnwrapped ?? null;
+  const valueRef = useLatestRef(value);
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
@@ -174,7 +175,10 @@ export function useNumberFieldRoot(
 
     onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
-    commitValidation(validatedValue);
+
+    if (validateOnChange) {
+      commitValidation(validatedValue);
+    }
 
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
@@ -548,6 +552,8 @@ export function useNumberFieldRoot(
             return;
           }
 
+          commitValidation(valueRef.current);
+
           allowInputSyncRef.current = true;
 
           if (inputValue.trim() === '') {
@@ -714,6 +720,8 @@ export function useNumberFieldRoot(
       min,
       max,
       incrementValue,
+      commitValidation,
+      valueRef,
     ],
   );
 
@@ -732,7 +740,7 @@ export function useNumberFieldRoot(
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
-      inputRef,
+      inputRef: mergedRef,
       inputValue,
       value,
       ...scrub,
@@ -742,6 +750,7 @@ export function useNumberFieldRoot(
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
+      mergedRef,
       inputValue,
       value,
       scrub,

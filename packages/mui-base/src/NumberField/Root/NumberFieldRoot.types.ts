@@ -148,7 +148,7 @@ export interface UseNumberFieldRootReturnValue {
   inputValue: string;
   value: number | null;
   isScrubbing: boolean;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: ((instance: HTMLInputElement | null) => void) | null;
   scrubHandleRef: React.RefObject<ScrubHandle | null>;
   scrubAreaRef: React.RefObject<HTMLSpanElement>;
   scrubAreaCursorRef: React.RefObject<HTMLSpanElement>;
