@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as PreviewCard from '@base_ui/react/PreviewCard';
-import { describeConformance } from '../../../test/describeConformance';
-import { createRenderer } from '../../../test';
+import { createRenderer, describeConformance } from '../../../test';
 
 describe('<PreviewCard.Trigger />', () => {
   const { render } = createRenderer();

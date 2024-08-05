@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Progress from '@base_ui/react/Progress';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 import type { ProgressRootProps } from './ProgressRoot.types';
 
 function TestProgress(props: ProgressRootProps) {
@@ -23,8 +22,8 @@ describe('<Progress.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('renders a progressbar', () => {
-    const { getByRole } = render(
+  it('renders a progressbar', async () => {
+    const { getByRole } = await render(
       <Progress.Root value={30}>
         <Progress.Track>
           <Progress.Indicator />
@@ -36,8 +35,8 @@ describe('<Progress.Root />', () => {
   });
 
   describe('ARIA attributes', () => {
-    it('sets the correct aria attributes', () => {
-      const { getByRole } = render(
+    it('sets the correct aria attributes', async () => {
+      const { getByRole } = await render(
         <Progress.Root value={30}>
           <Progress.Track>
             <Progress.Indicator />
@@ -53,8 +52,8 @@ describe('<Progress.Root />', () => {
       expect(progressbar).to.have.attribute('aria-valuetext', '30%');
     });
 
-    it('should update aria-valuenow when value changes', () => {
-      const { getByRole, setProps } = render(<TestProgress value={50} />);
+    it('should update aria-valuenow when value changes', async () => {
+      const { getByRole, setProps } = await render(<TestProgress value={50} />);
       const progressbar = getByRole('progressbar');
       setProps({ value: 77 });
       expect(progressbar).to.have.attribute('aria-valuenow', '77');

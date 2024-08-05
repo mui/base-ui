@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 
 const testContext = {
   getGroupProps: (externalProps) => ({ role: 'group', ...externalProps }),
@@ -28,8 +28,8 @@ describe('<NumberField.Group />', () => {
     },
   }));
 
-  it('has role prop', () => {
-    render(
+  it('has role prop', async () => {
+    await render(
       <NumberField.Root>
         <NumberField.Group />
       </NumberField.Root>,

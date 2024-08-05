@@ -100,7 +100,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
-    it.only('should close when the trigger is blurred', async () => {
+    it('should close when the trigger is blurred', async () => {
       await render(
         <Root>
           <Trigger />

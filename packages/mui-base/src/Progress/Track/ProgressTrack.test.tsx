@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Progress from '@base_ui/react/Progress';
 import { ProgressContext } from '@base_ui/react/Progress';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 import type { ProgressContextValue } from '../Root/ProgressRoot.types';
 
 const contextValue: ProgressContextValue = {
@@ -23,11 +22,9 @@ describe('<Progress.Track />', () => {
 
   describeConformance(<Progress.Track />, () => ({
     render: (node) => {
-      const { container, ...other } = render(
+      return render(
         <ProgressContext.Provider value={contextValue}>{node}</ProgressContext.Provider>,
       );
-
-      return { container, ...other };
     },
     refInstanceof: window.HTMLSpanElement,
   }));

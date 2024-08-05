@@ -100,13 +100,16 @@ describe('<Tooltip.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      await act(() => trigger.focus());
+      await act(async () => {
+        trigger.focus();
+      });
 
       clock.tick(OPEN_DELAY);
-
       await flushMicrotasks();
 
-      await act(() => trigger.blur());
+      await act(async () => {
+        trigger.blur();
+      });
 
       clock.tick(OPEN_DELAY);
 

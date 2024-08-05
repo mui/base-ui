@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { createRenderer } from '../../../test';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 
 describe('<Popover.Positioner />', () => {
   const { render } = createRenderer();

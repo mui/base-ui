@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 
 const testContext = {
   getInputProps: (externalProps) => externalProps,
@@ -28,8 +28,8 @@ describe('<NumberField.Input />', () => {
     },
   }));
 
-  it('has textbox role', () => {
-    render(
+  it('has textbox role', async () => {
+    await render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
@@ -38,7 +38,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should not allow non-numeric characters on change', async () => {
-    render(
+    await render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
@@ -50,7 +50,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should not allow non-numeric characters on keydown', async () => {
-    render(
+    await render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
@@ -62,7 +62,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should allow numeric characters on change', async () => {
-    render(
+    await render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
@@ -74,7 +74,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should increment on keydown ArrowUp', async () => {
-    render(
+    await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -86,7 +86,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should decrement on keydown ArrowDown', async () => {
-    render(
+    await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -98,7 +98,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should increment to min on keydown Home', async () => {
-    render(
+    await render(
       <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -110,7 +110,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should decrement to max on keydown End', async () => {
-    render(
+    await render(
       <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -122,7 +122,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('commits formatted value only on blur', async () => {
-    render(
+    await render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
@@ -136,7 +136,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should commit validated number on blur (min)', async () => {
-    render(
+    await render(
       <NumberField.Root min={0}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -150,7 +150,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should commit validated number on blur (max)', async () => {
-    render(
+    await render(
       <NumberField.Root max={0}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -164,7 +164,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should commit validated number on blur (step)', async () => {
-    render(
+    await render(
       <NumberField.Root step={0.5}>
         <NumberField.Input />
       </NumberField.Root>,
@@ -178,7 +178,7 @@ describe('<NumberField.Input />', () => {
   });
 
   it('should commit validated number on blur (step and min)', async () => {
-    render(
+    await render(
       <NumberField.Root min={2} step={2}>
         <NumberField.Input />
       </NumberField.Root>,

@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer } from '@mui/internal-test-utils';
+import { act } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
 import { TabsContext } from '@base_ui/react/Tabs';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 
 describe('<Tabs.List />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.List />, () => ({
     render: (node) => {
-      const { container, ...other } = render(
+      return render(
         <TabsContext.Provider
           value={{
             value: '1',
@@ -26,15 +26,13 @@ describe('<Tabs.List />', () => {
           {node}
         </TabsContext.Provider>,
       );
-
-      return { container, ...other };
     },
     refInstanceof: window.HTMLDivElement,
   }));
 
   describe('accessibility attributes', () => {
     it('sets the aria-selected attribute on the selected tab', async () => {
-      const { getByText } = render(
+      const { getByText } = await render(
         <Tabs.Root defaultValue={1}>
           <Tabs.List>
             <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
@@ -78,8 +76,8 @@ describe('<Tabs.List />', () => {
     });
   });
 
-  it('can be named via `aria-label`', () => {
-    const { getByRole } = render(
+  it('can be named via `aria-label`', async () => {
+    const { getByRole } = await render(
       <Tabs.Root defaultValue={0}>
         <Tabs.List aria-label="string label">
           <Tabs.Tab value={0} />
@@ -90,8 +88,8 @@ describe('<Tabs.List />', () => {
     expect(getByRole('tablist')).toHaveAccessibleName('string label');
   });
 
-  it('can be named via `aria-labelledby`', () => {
-    const { getByRole } = render(
+  it('can be named via `aria-labelledby`', async () => {
+    const { getByRole } = await render(
       <React.Fragment>
         <h3 id="label-id">complex name</h3>
         <Tabs.Root defaultValue={0}>

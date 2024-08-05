@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import * as Slider from '@base_ui/react/Slider';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '../../../test';
 import type { SliderRootProps } from './SliderRoot.types';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
@@ -80,8 +80,8 @@ describe('<Slider.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('renders a slider', () => {
-    render(
+  it('renders a slider', async () => {
+    await render(
       <Slider.Root defaultValue={30}>
         <Slider.Output />
         <Slider.Control>
@@ -96,8 +96,8 @@ describe('<Slider.Root />', () => {
     expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '30');
   });
 
-  it('should not break when initial value is out of range', () => {
-    const { getByTestId } = render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
+  it('should not break when initial value is out of range', async () => {
+    const { getByTestId } = await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
 
     const sliderControl = getByTestId('control');
 
@@ -114,8 +114,8 @@ describe('<Slider.Root />', () => {
   });
 
   describe('ARIA attributes', () => {
-    it('it has the correct aria attributes', () => {
-      const { container, getByRole, getByTestId } = render(
+    it('it has the correct aria attributes', async () => {
+      const { container, getByRole, getByTestId } = await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Output />
           <Slider.Control>
@@ -143,7 +143,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should update aria-valuenow', async () => {
-      const { getByRole } = render(<TestSlider defaultValue={50} />);
+      const { getByRole } = await render(<TestSlider defaultValue={50} />);
       const slider = getByRole('slider');
       await act(() => {
         slider.focus();
@@ -156,8 +156,8 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '52');
     });
 
-    it('should set default aria-valuetext on range slider thumbs', () => {
-      const { getByTestId } = render(<TestRangeSlider defaultValue={[44, 50]} />);
+    it('should set default aria-valuetext on range slider thumbs', async () => {
+      const { getByTestId } = await render(<TestRangeSlider defaultValue={[44, 50]} />);
 
       const thumbOne = getByTestId('thumb-0');
       const thumbTwo = getByTestId('thumb-1');
@@ -168,9 +168,9 @@ describe('<Slider.Root />', () => {
   });
 
   describe('rtl', () => {
-    it('should handle RTL', () => {
+    it('should handle RTL', async () => {
       const handleValueChange = spy();
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestSlider direction="rtl" value={30} onValueChange={handleValueChange} />,
       );
       const sliderControl = getByTestId('control');
@@ -198,7 +198,7 @@ describe('<Slider.Root />', () => {
 
     it('increments on ArrowUp', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -221,7 +221,7 @@ describe('<Slider.Root />', () => {
 
     it('increments on ArrowLeft', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -244,7 +244,7 @@ describe('<Slider.Root />', () => {
 
     it('decrements on ArrowDown', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -267,7 +267,7 @@ describe('<Slider.Root />', () => {
 
     it('decrements on ArrowRight', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -290,8 +290,8 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should render data-disabled on all subcomponents', () => {
-      const { getByTestId } = render(
+    it('should render data-disabled on all subcomponents', async () => {
+      const { getByTestId } = await render(
         <Slider.Root defaultValue={30} disabled data-testid="root">
           <Slider.Output data-testid="output" />
           <Slider.Control data-testid="control">
@@ -315,13 +315,13 @@ describe('<Slider.Root />', () => {
       });
     });
 
-    it('should not respond to drag events after becoming disabled', function test() {
+    it('should not respond to drag events after becoming disabled', async function test() {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      const { getByRole, setProps, getByTestId } = render(
+      const { getByRole, setProps, getByTestId } = await render(
         <TestSlider defaultValue={0} data-testid="slider-root" />,
       );
 
@@ -352,13 +352,13 @@ describe('<Slider.Root />', () => {
       expect(thumb).to.have.attribute('aria-valuenow', '21');
     });
 
-    it('should not respond to drag events if disabled', function test() {
+    it('should not respond to drag events if disabled', async function test() {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={21} data-testid="slider-root" disabled />,
       );
 
@@ -389,15 +389,15 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: orientation', () => {
-    it('sets the orientation via ARIA', () => {
-      render(<TestSlider orientation="vertical" />);
+    it('sets the orientation via ARIA', async () => {
+      await render(<TestSlider orientation="vertical" />);
 
       const sliderRoot = screen.getByRole('slider');
       expect(sliderRoot).to.have.attribute('aria-orientation', 'vertical');
     });
 
-    it('sets the data-orientation attribute', () => {
-      const { getByTestId } = render(<TestSlider />);
+    it('sets the data-orientation attribute', async () => {
+      const { getByTestId } = await render(<TestSlider />);
 
       const sliderRoot = screen.getByRole('group');
       expect(sliderRoot).to.have.attribute('data-orientation', 'horizontal');
@@ -407,12 +407,12 @@ describe('<Slider.Root />', () => {
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    it('does not set the orientation via appearance for WebKit browsers', function test() {
+    it('does not set the orientation via appearance for WebKit browsers', async function test() {
       if (/jsdom/.test(window.navigator.userAgent) || !/WebKit/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      render(<TestSlider orientation="vertical" />);
+      await render(<TestSlider orientation="vertical" />);
 
       const slider = screen.getByRole('slider');
 
@@ -423,9 +423,9 @@ describe('<Slider.Root />', () => {
       expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
     });
 
-    it('should report the right position', () => {
+    it('should report the right position', async () => {
       const handleValueChange = spy();
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -459,7 +459,7 @@ describe('<Slider.Root />', () => {
 
   describe('prop: step', () => {
     it('supports non-integer values', async () => {
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <TestSlider defaultValue={0.2} min={-100} max={100} step={0.00000001} />,
       );
       const slider = getByRole('slider');
@@ -479,7 +479,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should round value to step precision', async () => {
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.2} min={0} max={1} step={0.1} />,
       );
       const slider = getByRole('slider');
@@ -518,7 +518,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should not fail to round value to step precision when step is very small', async () => {
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.00000002} min={0} max={0.0000001} step={0.00000001} />,
       );
       const slider = getByRole('slider');
@@ -551,7 +551,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should not fail to round value to step precision when step is very small and negative', async () => {
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={-0.00000002} min={-0.0000001} max={0} step={0.00000001} />,
       );
       const slider = getByRole('slider');
@@ -587,8 +587,8 @@ describe('<Slider.Root />', () => {
   describe('prop: max', () => {
     const MAX = 750;
 
-    it('should set the max and aria-valuemax on the input', () => {
-      const { getByRole } = render(
+    it('should set the max and aria-valuemax on the input', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={MAX} min={150} />,
       );
       const slider = getByRole('slider');
@@ -598,7 +598,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should not go more than the max', async () => {
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={MAX} min={150} />,
       );
 
@@ -612,7 +612,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should reach right edge value', async () => {
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
 
@@ -663,8 +663,8 @@ describe('<Slider.Root />', () => {
   describe('prop: min', () => {
     const MIN = 150;
 
-    it('should set the min and aria-valuemin on the input', () => {
-      const { getByRole } = render(
+    it('should set the min and aria-valuemin on the input', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
@@ -674,7 +674,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should use min as the step origin', async () => {
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
@@ -686,7 +686,7 @@ describe('<Slider.Root />', () => {
     });
 
     it('should not go less than the min', async () => {
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
@@ -703,7 +703,7 @@ describe('<Slider.Root />', () => {
     it('should enforce a minimum difference between range slider values', async () => {
       const handleValueChange = spy();
 
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestRangeSlider
           onValueChange={handleValueChange}
           defaultValue={[44, 50]}
@@ -744,7 +744,7 @@ describe('<Slider.Root />', () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider
           onValueChange={handleValueChange}
           onValueCommitted={handleValueCommitted}
@@ -783,9 +783,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(2);
     });
 
-    it('should support touch events', () => {
+    it('should support touch events', async () => {
       const handleValueChange = spy();
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
       );
       const sliderControl = getByTestId('control');
@@ -843,11 +843,11 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal([22, 30]);
     });
 
-    it('should only listen to changes from the same touchpoint', () => {
+    it('should only listen to changes from the same touchpoint', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestSlider
           onValueChange={handleValueChange}
           onValueCommitted={handleValueCommitted}
@@ -894,10 +894,12 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(1);
     });
 
-    it('should hedge against a dropped mouseup event', () => {
+    it('should hedge against a dropped mouseup event', async () => {
       const handleValueChange = spy();
 
-      const { getByTestId } = render(<TestSlider onValueChange={handleValueChange} value={0} />);
+      const { getByTestId } = await render(
+        <TestSlider onValueChange={handleValueChange} value={0} />,
+      );
 
       const sliderControl = getByTestId('control');
 
@@ -927,8 +929,8 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
     });
 
-    it('should focus the slider when touching', () => {
-      const { getByRole, getByTestId } = render(<TestSlider defaultValue={30} />);
+    it('should focus the slider when touching', async () => {
+      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} />);
       const slider = getByRole('slider');
       const sliderControl = getByTestId('control');
 
@@ -944,8 +946,8 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveFocus();
     });
 
-    it('should focus the slider when dragging', () => {
-      const { getByRole, getByTestId } = render(<TestSlider defaultValue={30} step={10} />);
+    it('should focus the slider when dragging', async () => {
+      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} step={10} />);
       const slider = getByRole('slider');
       const sliderThumb = getByTestId('thumb');
       const sliderControl = getByTestId('control');
@@ -962,7 +964,7 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveFocus();
     });
 
-    it('should not override the event.target on touch events', () => {
+    it('should not override the event.target on touch events', async () => {
       const handleValueChange = spy();
       const handleNativeEvent = spy();
       const handleEvent = spy();
@@ -981,7 +983,7 @@ describe('<Slider.Root />', () => {
         );
       }
 
-      const { getByTestId } = render(<Test />);
+      const { getByTestId } = await render(<Test />);
       const sliderControl = getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
@@ -1000,7 +1002,7 @@ describe('<Slider.Root />', () => {
       expect(handleEvent.firstCall.args[0]).to.have.property('target', sliderControl);
     });
 
-    it('should not override the event.target on mouse events', () => {
+    it('should not override the event.target on mouse events', async () => {
       const handleValueChange = spy();
       const handleNativeEvent = spy();
       const handleEvent = spy();
@@ -1018,7 +1020,7 @@ describe('<Slider.Root />', () => {
           </div>
         );
       }
-      const { getByTestId } = render(<Test />);
+      const { getByTestId } = await render(<Test />);
       const sliderControl = getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
@@ -1036,8 +1038,8 @@ describe('<Slider.Root />', () => {
   });
 
   describe('dragging state', () => {
-    it('should not apply data-dragging for click modality', () => {
-      const { getByTestId } = render(<TestSlider defaultValue={90} />);
+    it('should not apply data-dragging for click modality', async () => {
+      const { getByTestId } = await render(<TestSlider defaultValue={90} />);
 
       const sliderControl = getByTestId('control');
 
@@ -1057,8 +1059,8 @@ describe('<Slider.Root />', () => {
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
     });
 
-    it('should apply data-dragging for dragging modality', () => {
-      const { getByTestId } = render(<TestSlider defaultValue={90} />);
+    it('should apply data-dragging for dragging modality', async () => {
+      const { getByTestId } = await render(<TestSlider defaultValue={90} />);
 
       const sliderControl = getByTestId('control');
 
@@ -1110,7 +1112,7 @@ describe('<Slider.Root />', () => {
         expect(Object.keys(formDataAsObject).length).to.equal(1);
       };
 
-      const { getByText } = render(
+      const { getByText } = await render(
         <form onSubmit={handleSubmit}>
           <TestSlider defaultValue={51} name="sliderField" />
           <button type="submit">Submit</button>
@@ -1125,9 +1127,9 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('is called when clicking on the control', () => {
+    it('is called when clicking on the control', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
 
@@ -1143,9 +1145,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(1);
     });
 
-    it('is not called when clicking on the thumb', () => {
+    it('is not called when clicking on the thumb', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
       const sliderThumb = screen.getByTestId('thumb');
@@ -1162,9 +1164,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
-    it('should not react to right clicks', () => {
+    it('should not react to right clicks', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
 
@@ -1180,9 +1182,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
-    it('should fire only when the value changes', () => {
+    it('should fire only when the value changes', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
 
@@ -1217,10 +1219,12 @@ describe('<Slider.Root />', () => {
       ['range', [2, 1]],
     ] as Values;
     values.forEach(([valueLabel, value]) => {
-      it(`is called even if the ${valueLabel} did not change`, () => {
+      it(`is called even if the ${valueLabel} did not change`, async () => {
         const handleValueChange = spy();
 
-        render(<TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />);
+        await render(
+          <TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />,
+        );
 
         const sliderControl = screen.getByTestId('control');
 
@@ -1248,7 +1252,7 @@ describe('<Slider.Root />', () => {
     it('should pass "name" and "value" as part of the event.target for onValueChange', async () => {
       const handleValueChange = stub().callsFake((newValue, thumbIndex, event) => event.target);
 
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
       );
       const slider = getByRole('slider');
@@ -1274,7 +1278,7 @@ describe('<Slider.Root />', () => {
   describe('keyboard interactions', () => {
     it('increments on ArrowUp', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1297,7 +1301,7 @@ describe('<Slider.Root />', () => {
 
     it('increments on ArrowRight', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1320,7 +1324,7 @@ describe('<Slider.Root />', () => {
 
     it('decrements on ArrowDown', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1343,7 +1347,7 @@ describe('<Slider.Root />', () => {
 
     it('decrements on ArrowLeft', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1367,7 +1371,7 @@ describe('<Slider.Root />', () => {
     describe('key: Home', () => {
       it('sets value to max in a single value slider', async () => {
         const handleValueChange = spy();
-        const { container } = render(
+        const { container } = await render(
           <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
         );
 
@@ -1386,7 +1390,7 @@ describe('<Slider.Root />', () => {
 
       it('sets value to the maximum possible value in a range slider', async () => {
         const handleValueChange = spy();
-        const { getByTestId } = render(
+        const { getByTestId } = await render(
           <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} max={77} />,
         );
 
@@ -1416,7 +1420,7 @@ describe('<Slider.Root />', () => {
     describe('key: End', () => {
       it('sets value to min on End', async () => {
         const handleValueChange = spy();
-        const { container } = render(
+        const { container } = await render(
           <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
         );
 
@@ -1435,7 +1439,7 @@ describe('<Slider.Root />', () => {
 
       it('sets value to the minimum possible value in a range slider', async () => {
         const handleValueChange = spy();
-        const { getByTestId } = render(
+        const { getByTestId } = await render(
           <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} min={7} />,
         );
 
@@ -1464,7 +1468,7 @@ describe('<Slider.Root />', () => {
 
     it('should support Shift + Left Arrow / Right Arrow keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1487,7 +1491,7 @@ describe('<Slider.Root />', () => {
 
     it('should support Shift + Up Arrow / Down Arrow keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1509,7 +1513,7 @@ describe('<Slider.Root />', () => {
 
     it('should support PageUp / PageDown keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1534,7 +1538,7 @@ describe('<Slider.Root />', () => {
       const DEFAULT_VALUE = 20;
       const LARGE_STEP = 15;
       const STEP = 5;
-      const { container } = render(
+      const { container } = await render(
         <TestSlider
           defaultValue={DEFAULT_VALUE}
           onValueChange={handleValueChange}
@@ -1563,7 +1567,7 @@ describe('<Slider.Root />', () => {
 
     it('should stop at max/min when using Shift + Left Arrow / Right Arrow keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={5} max={8} onValueChange={handleValueChange} />,
       );
 
@@ -1583,8 +1587,8 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(8);
     });
 
-    it('can be removed from the tab sequence', () => {
-      render(<TestSlider tabIndex={-1} value={30} />);
+    it('can be removed from the tab sequence', async () => {
+      await render(<TestSlider tabIndex={-1} value={30} />);
       expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
     });
   });

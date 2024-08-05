@@ -191,6 +191,7 @@ describe('<Menu.Root />', () => {
         await user.click(trigger);
 
         const items = getAllByRole('menuitem');
+        await flushMicrotasks();
 
         await user.keyboard('b');
         await waitFor(() => {
