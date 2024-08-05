@@ -36,7 +36,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     disabled = false,
   } = params;
 
-  const { setDisabled, setControlId } = useFieldRootContext();
+  const { labelId, setDisabled, setControlId } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -84,6 +84,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-checked': indeterminate ? 'mixed' : checked,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        'aria-labelledby': labelId,
         onBlur(event) {
           commitValidation(event.currentTarget.value);
         },
@@ -97,7 +98,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [getValidationProps, indeterminate, checked, disabled, readOnly, commitValidation],
+    [getValidationProps, indeterminate, checked, disabled, readOnly, labelId, commitValidation],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(

@@ -35,7 +35,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     inputRef: externalInputRef,
   } = params;
 
-  const { setDisabled, setControlId } = useFieldRootContext();
+  const { labelId, setDisabled, setControlId } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -76,6 +76,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         'aria-checked': checked,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly,
+        'aria-labelledby': labelId,
         onBlur(event) {
           commitValidation(event.currentTarget.value);
         },
@@ -87,7 +88,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           inputRef.current?.click();
         },
       }),
-    [checked, disabled, getValidationProps, readOnly, commitValidation],
+    [getValidationProps, checked, disabled, readOnly, labelId, commitValidation],
   );
 
   const getInputProps = React.useCallback(

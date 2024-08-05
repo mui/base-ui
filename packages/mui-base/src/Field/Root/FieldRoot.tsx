@@ -40,6 +40,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const disabled = disabledFieldset ?? internalDisabled;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
+  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
   const [validityData, setValidityData] = React.useState<ValidityData>({
     state: DEFAULT_VALIDITY_STATE,
@@ -60,6 +61,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     () => ({
       controlId,
       setControlId,
+      labelId,
+      setLabelId,
       messageIds,
       setMessageIds,
       validityData,
@@ -70,7 +73,16 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validateOnChange,
       validateDebounceMs,
     }),
-    [controlId, messageIds, validityData, disabled, validate, validateOnChange, validateDebounceMs],
+    [
+      controlId,
+      labelId,
+      messageIds,
+      validityData,
+      disabled,
+      validate,
+      validateOnChange,
+      validateDebounceMs,
+    ],
   );
 
   const { renderElement } = useComponentRenderer({

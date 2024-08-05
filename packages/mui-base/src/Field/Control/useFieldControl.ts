@@ -20,7 +20,7 @@ interface UseFieldControlParameters {
 export function useFieldControl(params: UseFieldControlParameters) {
   const { id: idProp, name } = params;
 
-  const { setControlId, disabled } = useFieldRootContext();
+  const { setControlId, labelId, disabled } = useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
@@ -41,12 +41,21 @@ export function useFieldControl(params: UseFieldControlParameters) {
         disabled,
         name,
         ref: inputRef,
-        'aria-labelledby': `${id}-label`,
+        'aria-labelledby': labelId,
         onBlur(event) {
           commitValidation(event.currentTarget.value);
         },
       }),
-    [getValidationProps, getInputValidationProps, inputRef, id, disabled, name, commitValidation],
+    [
+      getValidationProps,
+      getInputValidationProps,
+      id,
+      disabled,
+      name,
+      inputRef,
+      labelId,
+      commitValidation,
+    ],
   );
 
   return React.useMemo(

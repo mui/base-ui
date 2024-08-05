@@ -6,6 +6,8 @@ import type { FieldLabelOwnerState, FieldLabelProps } from './FieldLabel.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useId } from '../../utils/useId';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * A label for the field's control.
@@ -22,11 +24,20 @@ const FieldLabel = React.forwardRef(function FieldLabel(
   props: FieldLabelProps,
   forwardedRef: React.ForwardedRef<HTMLLabelElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, id: idProp, ...otherProps } = props;
 
-  const { controlId, disabled = false, validityData } = useFieldRootContext();
+  const { setLabelId, disabled = false, validityData } = useFieldRootContext();
 
-  const { getLabelProps } = useFieldLabel({ controlId, customTag: render != null });
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setLabelId(id);
+    return () => {
+      setLabelId(undefined);
+    };
+  }, [id, setLabelId]);
+
+  const { getLabelProps } = useFieldLabel({ customTag: render != null });
 
   const ownerState: FieldLabelOwnerState = React.useMemo(
     () => ({
@@ -62,6 +73,10 @@ FieldLabel.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

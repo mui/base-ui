@@ -28,10 +28,10 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps
   } = props;
 
-  const { controlId } = useFieldRootContext();
+  const { labelId } = useFieldRootContext();
 
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': ariaLabelledby ?? (controlId ? `${controlId}-label` : undefined),
+    'aria-labelledby': ariaLabelledby ?? labelId,
     defaultValue,
     disabled,
     direction,

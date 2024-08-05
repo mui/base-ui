@@ -6,6 +6,8 @@ import type { ValidityData } from './FieldRoot.types';
 export interface FieldRootContextValue {
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  labelId: string | undefined;
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
   setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
   validityData: ValidityData;
@@ -20,6 +22,8 @@ export interface FieldRootContextValue {
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
   controlId: undefined,
   setControlId: () => {},
+  labelId: undefined,
+  setLabelId: () => {},
   messageIds: [],
   setMessageIds: () => {},
   validityData: {

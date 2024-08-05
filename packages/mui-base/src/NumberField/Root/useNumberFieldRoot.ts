@@ -68,7 +68,7 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
-  const { setDisabled, setControlId, validateOnChange } = useFieldRootContext();
+  const { labelId, setDisabled, setControlId, validateOnChange } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -534,6 +534,7 @@ export function useNumberFieldRoot(
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
+        'aria-labelledby': labelId,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;
@@ -712,6 +713,9 @@ export function useNumberFieldRoot(
       inputMode,
       mergedRef,
       invalid,
+      labelId,
+      commitValidation,
+      valueRef,
       inputValue,
       formatOptionsRef,
       setValue,
@@ -720,8 +724,6 @@ export function useNumberFieldRoot(
       min,
       max,
       incrementValue,
-      commitValidation,
-      valueRef,
     ],
   );
 
