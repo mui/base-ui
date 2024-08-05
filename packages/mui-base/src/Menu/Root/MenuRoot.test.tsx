@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
 import { createRenderer } from '../../../test';
@@ -552,7 +552,7 @@ describe('<Menu.Root />', () => {
       });
 
       await user.keyboard('[Escape]');
-      await act(async () => {});
+      await flushMicrotasks();
 
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
