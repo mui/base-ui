@@ -21,7 +21,6 @@ describe('<NumberField.Decrement />', () => {
   const { render, clock } = createRenderer();
 
   describeConformance(<NumberField.Decrement />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(

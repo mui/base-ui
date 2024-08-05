@@ -29,7 +29,6 @@ describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.ScrubArea />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(

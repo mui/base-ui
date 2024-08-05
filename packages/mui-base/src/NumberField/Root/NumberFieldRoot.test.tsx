@@ -9,7 +9,6 @@ describe('<NumberField />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberFieldBase.Root />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));
@@ -418,20 +417,20 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: allowWheelScrub', () => {
-    it('should allow the user to scrub the input value with the mouse wheel', () => {
+    it('should allow the user to scrub the input value with the mouse wheel', async () => {
       render(<NumberField defaultValue={5} allowWheelScrub />);
       const input = screen.getByRole('textbox');
-      act(() => input.focus());
+      await act(() => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('4');
       fireEvent.wheel(input, { deltaY: -1 });
       expect(input).to.have.value('5');
     });
 
-    it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', () => {
+    it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', async () => {
       render(<NumberField defaultValue={5} allowWheelScrub={false} />);
       const input = screen.getByRole('textbox');
-      act(() => input.focus());
+      await act(() => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('5');
       fireEvent.wheel(input, { deltaY: -5 });
@@ -440,7 +439,7 @@ describe('<NumberField />', () => {
   });
 
   describe('form handling', () => {
-    it('should include the input value in the form submission', function test() {
+    it('should include the input value in the form submission', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
         this.skip();
@@ -466,13 +465,13 @@ describe('<NumberField />', () => {
       const numberField = screen.getByRole('textbox');
       const submitButton = screen.getByTestId('submit');
 
-      act(() => submitButton.click());
+      await act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=');
 
       fireEvent.change(numberField, { target: { value: '5' } });
 
-      act(() => submitButton.click());
+      await act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
     });

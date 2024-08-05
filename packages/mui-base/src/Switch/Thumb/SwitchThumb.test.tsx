@@ -15,7 +15,6 @@ describe('<Switch.Thumb />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Switch.Thumb />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render: (node) => {
       return render(<SwitchContext.Provider value={testContext}>{node}</SwitchContext.Provider>);

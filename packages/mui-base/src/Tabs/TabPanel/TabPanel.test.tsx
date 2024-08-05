@@ -22,7 +22,6 @@ describe('<Tabs.Panel />', () => {
   };
 
   describeConformance(<Tabs.Panel value="1" />, () => ({
-    inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
         <TabsProvider value={tabsProviderDefaultValue}>{node}</TabsProvider>,

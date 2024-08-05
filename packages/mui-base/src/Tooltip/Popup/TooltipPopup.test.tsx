@@ -8,7 +8,6 @@ describe('<Tooltip.Popup />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tooltip.Popup />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

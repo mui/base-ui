@@ -10,7 +10,6 @@ describe('<Switch.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Switch.Root />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render,
   }));

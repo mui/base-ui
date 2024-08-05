@@ -7,7 +7,6 @@ describe('<Tooltip.Positioner />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tooltip.Positioner />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(<Tooltip.Root open>{node}</Tooltip.Root>);

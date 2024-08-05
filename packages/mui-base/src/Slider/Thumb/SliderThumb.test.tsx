@@ -56,7 +56,6 @@ describe('<Slider.Thumb />', () => {
   };
 
   describeConformance(<Slider.Thumb />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
         <SliderProvider value={testProviderValue}>{node}</SliderProvider>,

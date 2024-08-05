@@ -7,7 +7,6 @@ describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(

@@ -9,7 +9,6 @@ describe('<Popover.Title />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Title />, () => ({
-    inheritComponent: 'h2',
     refInstanceof: window.HTMLHeadingElement,
     render(node) {
       return render(

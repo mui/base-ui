@@ -16,7 +16,6 @@ describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.Indicator />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
         <Tabs.Root defaultValue={1}>

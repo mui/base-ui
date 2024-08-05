@@ -20,7 +20,6 @@ describe('<NumberField.Group />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.Group />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

@@ -21,7 +21,6 @@ describe('<NumberField.Increment />', () => {
   const { render, clock } = createRenderer();
 
   describeConformance(<NumberField.Increment />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(

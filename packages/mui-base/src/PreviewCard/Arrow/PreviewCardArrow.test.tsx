@@ -7,7 +7,6 @@ describe('<PreviewCard.Arrow />', () => {
   const { render } = createRenderer();
 
   describeConformance(<PreviewCard.Arrow />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

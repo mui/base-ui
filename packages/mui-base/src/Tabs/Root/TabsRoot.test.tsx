@@ -21,7 +21,6 @@ describe('<Tabs.Root />', () => {
   });
 
   describeConformance(<Tabs.Root value={0} />, () => ({
-    inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
   }));
@@ -128,7 +127,7 @@ describe('<Tabs.Root />', () => {
       expect(tabElements[1]).to.have.attribute('aria-selected', 'true');
     });
 
-    it('should support values of different types', () => {
+    it('should support values of different types', async () => {
       const tabValues = [0, '1', { value: 2 }, () => 3, Symbol('4'), /5/];
 
       const { getAllByRole } = render(
@@ -147,10 +146,10 @@ describe('<Tabs.Root />', () => {
       const tabElements = getAllByRole('tab');
       const tabPanelElements = getAllByRole('tabpanel', { hidden: true });
 
-      tabValues.forEach((value, index) => {
+      tabValues.forEach(async (value, index) => {
         expect(tabPanelElements[index]).to.have.attribute('aria-labelledby', tabElements[index].id);
 
-        act(() => {
+        await act(() => {
           tabElements[index].click();
         });
 
@@ -191,7 +190,7 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.callCount).to.equal(0);
     });
 
-    it('should call onValueChange if an unselected tab gets focused', () => {
+    it('should call onValueChange if an unselected tab gets focused', async () => {
       const handleChange = spy();
       const { getAllByRole } = render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -203,7 +202,7 @@ describe('<Tabs.Root />', () => {
       );
       const [firstTab] = getAllByRole('tab');
 
-      act(() => {
+      await act(() => {
         firstTab.focus();
       });
 
@@ -213,7 +212,7 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
-    it('when `activateOnFocus = false` should not call onValueChange if an unselected tab gets focused', () => {
+    it('when `activateOnFocus = false` should not call onValueChange if an unselected tab gets focused', async () => {
       const handleChange = spy();
       const { getAllByRole } = render(
         <Tabs.Root value={1} onValueChange={handleChange}>
@@ -226,7 +225,7 @@ describe('<Tabs.Root />', () => {
 
       const [firstTab] = getAllByRole('tab');
 
-      act(() => {
+      await act(() => {
         firstTab.focus();
       });
 
@@ -271,7 +270,7 @@ describe('<Tabs.Root />', () => {
       describe(`when focus is on a tab element in a ${orientation} ${direction} tablist`, () => {
         describe(previousItemKey ?? '', () => {
           describe('with `activateOnFocus = false`', () => {
-            it('moves focus to the last tab without activating it if focus is on the first tab', () => {
+            it('moves focus to the last tab without activating it if focus is on the first tab', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -290,7 +289,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 firstTab.focus();
               });
 
@@ -302,7 +301,7 @@ describe('<Tabs.Root />', () => {
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
 
-            it('moves focus to the previous tab without activating it', () => {
+            it('moves focus to the previous tab without activating it', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -321,7 +320,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 secondTab.focus();
               });
 
@@ -335,7 +334,7 @@ describe('<Tabs.Root />', () => {
           });
 
           describe('with `activateOnFocus = true`', () => {
-            it('moves focus to the last tab while activating it if focus is on the first tab', () => {
+            it('moves focus to the last tab while activating it if focus is on the first tab', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -354,7 +353,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 firstTab.focus();
               });
 
@@ -367,7 +366,7 @@ describe('<Tabs.Root />', () => {
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
 
-            it('moves focus to the previous tab while activating it', () => {
+            it('moves focus to the previous tab while activating it', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -386,7 +385,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 secondTab.focus();
               });
 
@@ -400,7 +399,7 @@ describe('<Tabs.Root />', () => {
             });
           });
 
-          it('skips over disabled tabs', () => {
+          it('skips over disabled tabs', async () => {
             const handleKeyDown = spy();
             const { getAllByRole } = render(
               <Tabs.Root
@@ -417,7 +416,7 @@ describe('<Tabs.Root />', () => {
               </Tabs.Root>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
-            act(() => {
+            await act(() => {
               lastTab.focus();
             });
 
@@ -431,7 +430,7 @@ describe('<Tabs.Root />', () => {
 
         describe(nextItemKey ?? '', () => {
           describe('with `activateOnFocus = false`', () => {
-            it('moves focus to the first tab without activating it if focus is on the last tab', () => {
+            it('moves focus to the first tab without activating it if focus is on the last tab', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -450,7 +449,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 lastTab.focus();
               });
 
@@ -462,7 +461,7 @@ describe('<Tabs.Root />', () => {
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
 
-            it('moves focus to the next tab without activating it', () => {
+            it('moves focus to the next tab without activating it', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -481,7 +480,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 secondTab.focus();
               });
 
@@ -495,7 +494,7 @@ describe('<Tabs.Root />', () => {
           });
 
           describe('with `activateOnFocus = true`', () => {
-            it('moves focus to the first tab while activating it if focus is on the last tab', () => {
+            it('moves focus to the first tab while activating it if focus is on the last tab', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -514,7 +513,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 lastTab.focus();
               });
 
@@ -527,7 +526,7 @@ describe('<Tabs.Root />', () => {
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
             });
 
-            it('moves focus to the next tab while activating it', () => {
+            it('moves focus to the next tab while activating it', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
               const { getAllByRole } = render(
@@ -546,7 +545,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
-              act(() => {
+              await act(() => {
                 secondTab.focus();
               });
 
@@ -560,7 +559,7 @@ describe('<Tabs.Root />', () => {
             });
           });
 
-          it('skips over disabled tabs', () => {
+          it('skips over disabled tabs', async () => {
             const handleKeyDown = spy();
             const { getAllByRole } = render(
               <Tabs.Root
@@ -577,7 +576,7 @@ describe('<Tabs.Root />', () => {
               </Tabs.Root>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
-            act(() => {
+            await act(() => {
               firstTab.focus();
             });
 
@@ -593,7 +592,7 @@ describe('<Tabs.Root />', () => {
 
     describe('when focus is on a tab regardless of orientation', () => {
       describe('Home', () => {
-        it('when `activateOnFocus = false`, moves focus to the first tab without activating it', () => {
+        it('when `activateOnFocus = false`, moves focus to the first tab without activating it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
@@ -606,7 +605,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          act(() => {
+          await act(() => {
             lastTab.focus();
           });
 
@@ -618,7 +617,7 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('when `activateOnFocus = true`, moves focus to the first tab while activating it', () => {
+        it('when `activateOnFocus = true`, moves focus to the first tab while activating it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
@@ -631,7 +630,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          act(() => {
+          await act(() => {
             lastTab.focus();
           });
 
@@ -644,7 +643,7 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('moves focus to first non-disabled tab', () => {
+        it('moves focus to first non-disabled tab', async () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs.Root onKeyDown={handleKeyDown} value={2}>
@@ -656,7 +655,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [, secondTab, lastTab] = getAllByRole('tab');
-          act(() => {
+          await act(() => {
             lastTab.focus();
           });
 
@@ -669,7 +668,7 @@ describe('<Tabs.Root />', () => {
       });
 
       describe('End', () => {
-        it('when `activateOnFocus = false`, moves focus to the last tab without activating it', () => {
+        it('when `activateOnFocus = false`, moves focus to the last tab without activating it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
@@ -682,7 +681,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          act(() => {
+          await act(() => {
             firstTab.focus();
           });
 
@@ -694,7 +693,7 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('when `activateOnFocus = true`, moves focus to the last tab while activating it', () => {
+        it('when `activateOnFocus = true`, moves focus to the last tab while activating it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
           const { getAllByRole } = render(
@@ -707,7 +706,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          act(() => {
+          await act(() => {
             firstTab.focus();
           });
 
@@ -720,7 +719,7 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('moves focus to first non-disabled tab', () => {
+        it('moves focus to first non-disabled tab', async () => {
           const handleKeyDown = spy();
           const { getAllByRole } = render(
             <Tabs.Root onKeyDown={handleKeyDown} value={0}>
@@ -732,7 +731,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, secondTab] = getAllByRole('tab');
-          act(() => {
+          await act(() => {
             firstTab.focus();
           });
 
@@ -769,7 +768,7 @@ describe('<Tabs.Root />', () => {
       }
     });
 
-    it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', () => {
+    it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       const { getAllByRole, getByTestId } = render(
         <Tabs.Root data-testid="root">
           <Tabs.List>
@@ -783,20 +782,20 @@ describe('<Tabs.Root />', () => {
       const tabs = getAllByRole('tab');
 
       expect(root).to.have.attribute('data-activation-direction', 'none');
-      act(() => {
+      await act(() => {
         tabs[1].click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'right');
 
-      act(() => {
+      await act(() => {
         tabs[0].click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'left');
     });
 
-    it('should set the `data-activation-direction` attribute on the tabs root with orientation=vertical', () => {
+    it('should set the `data-activation-direction` attribute on the tabs root with orientation=vertical', async () => {
       const { getAllByRole, getByTestId } = render(
         <Tabs.Root data-testid="root" orientation="vertical">
           <Tabs.List>
@@ -810,13 +809,13 @@ describe('<Tabs.Root />', () => {
       const tabs = getAllByRole('tab');
 
       expect(root).to.have.attribute('data-activation-direction', 'none');
-      act(() => {
+      await act(() => {
         tabs[1].click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'down');
 
-      act(() => {
+      await act(() => {
         tabs[0].click();
       });
 

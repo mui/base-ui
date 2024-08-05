@@ -56,7 +56,6 @@ describe('<Slider.Track />', () => {
   };
 
   describeConformance(<Slider.Track />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
         <SliderProvider value={testProviderValue}>{node}</SliderProvider>,

@@ -22,7 +22,6 @@ describe('<Progress.Track />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Progress.Track />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
         <ProgressContext.Provider value={contextValue}>{node}</ProgressContext.Provider>,

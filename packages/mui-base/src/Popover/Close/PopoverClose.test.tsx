@@ -9,7 +9,6 @@ describe('<Popover.Close />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Close />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(

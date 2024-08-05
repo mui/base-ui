@@ -7,7 +7,6 @@ describe('<Popover.Backdrop />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Backdrop />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

@@ -17,7 +17,6 @@ describe('<Checkbox.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Checkbox.Indicator />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(

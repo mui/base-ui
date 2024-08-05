@@ -40,7 +40,6 @@ describe('<Menu.Popup />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Menu.Popup />, () => ({
-    inheritComponent: 'div',
     render: (node) => {
       return render(
         <FloatingTree>

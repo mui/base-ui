@@ -52,7 +52,6 @@ describe('<Popup />', () => {
   };
 
   describeConformanceUnstyled(<Popup {...defaultProps} />, () => ({
-    inheritComponent: 'div',
     render: async (...renderArgs) => {
       const result = render(...renderArgs);
       await flushMicrotasks();

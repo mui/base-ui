@@ -7,7 +7,6 @@ describe('<Popover.Arrow />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Arrow />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

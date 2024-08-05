@@ -7,7 +7,6 @@ describe('<Tooltip.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tooltip.Trigger />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(<Tooltip.Root>{node}</Tooltip.Root>);

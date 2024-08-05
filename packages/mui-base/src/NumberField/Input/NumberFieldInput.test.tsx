@@ -20,7 +20,6 @@ describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.Input />, () => ({
-    inheritComponent: 'input',
     refInstanceof: window.HTMLInputElement,
     render(node) {
       return render(
@@ -38,154 +37,154 @@ describe('<NumberField.Input />', () => {
     expect(screen.queryByRole('textbox')).not.to.equal(null);
   });
 
-  it('should not allow non-numeric characters on change', () => {
+  it('should not allow non-numeric characters on change', async () => {
     render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: 'abc' } });
     expect(input).to.have.value('');
   });
 
-  it('should not allow non-numeric characters on keydown', () => {
+  it('should not allow non-numeric characters on keydown', async () => {
     render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.keyDown(input, { key: 'a' });
     expect(input).to.have.value('');
   });
 
-  it('should allow numeric characters on change', () => {
+  it('should allow numeric characters on change', async () => {
     render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: '123' } });
     expect(input).to.have.value('123');
   });
 
-  it('should increment on keydown ArrowUp', () => {
+  it('should increment on keydown ArrowUp', async () => {
     render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.keyDown(input, { key: 'ArrowUp' });
     expect(input).to.have.value('1');
   });
 
-  it('should decrement on keydown ArrowDown', () => {
+  it('should decrement on keydown ArrowDown', async () => {
     render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     expect(input).to.have.value('-1');
   });
 
-  it('should increment to min on keydown Home', () => {
+  it('should increment to min on keydown Home', async () => {
     render(
       <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.keyDown(input, { key: 'Home' });
     expect(input).to.have.value('-10');
   });
 
-  it('should decrement to max on keydown End', () => {
+  it('should decrement to max on keydown End', async () => {
     render(
       <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.keyDown(input, { key: 'End' });
     expect(input).to.have.value('10');
   });
 
-  it('commits formatted value only on blur', () => {
+  it('commits formatted value only on blur', async () => {
     render(
       <NumberField.Root>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: '1234' } });
     expect(input).to.have.value('1234');
     fireEvent.blur(input);
     expect(input).to.have.value((1234).toLocaleString());
   });
 
-  it('should commit validated number on blur (min)', () => {
+  it('should commit validated number on blur (min)', async () => {
     render(
       <NumberField.Root min={0}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: '-1' } });
     expect(input).to.have.value('-1');
     fireEvent.blur(input);
     expect(input).to.have.value('0');
   });
 
-  it('should commit validated number on blur (max)', () => {
+  it('should commit validated number on blur (max)', async () => {
     render(
       <NumberField.Root max={0}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: '1' } });
     expect(input).to.have.value('1');
     fireEvent.blur(input);
     expect(input).to.have.value('0');
   });
 
-  it('should commit validated number on blur (step)', () => {
+  it('should commit validated number on blur (step)', async () => {
     render(
       <NumberField.Root step={0.5}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: '1.1' } });
     expect(input).to.have.value('1.1');
     fireEvent.blur(input);
     expect(input).to.have.value('1');
   });
 
-  it('should commit validated number on blur (step and min)', () => {
+  it('should commit validated number on blur (step and min)', async () => {
     render(
       <NumberField.Root min={2} step={2}>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    act(() => input.focus());
+    await act(() => input.focus());
     fireEvent.change(input, { target: { value: '3' } });
     expect(input).to.have.value('3');
     fireEvent.blur(input);

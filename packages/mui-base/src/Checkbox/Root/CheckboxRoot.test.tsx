@@ -11,7 +11,6 @@ describe('<Checkbox.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Checkbox.Root />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render,
   }));
@@ -23,7 +22,7 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should change its state when clicked', () => {
+  it('should change its state when clicked', async () => {
     const { getAllByRole, container } = render(<Checkbox.Root />);
     const [checkbox] = getAllByRole('checkbox');
     const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
@@ -31,14 +30,14 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).to.have.attribute('aria-checked', 'false');
     expect(input.checked).to.equal(false);
 
-    act(() => {
+    await act(() => {
       checkbox.click();
     });
 
     expect(checkbox).to.have.attribute('aria-checked', 'true');
     expect(input.checked).to.equal(true);
 
-    act(() => {
+    await act(() => {
       checkbox.click();
     });
 
@@ -46,7 +45,7 @@ describe('<Checkbox.Root />', () => {
     expect(input.checked).to.equal(false);
   });
 
-  it('should update its state when changed from outside', () => {
+  it('should update its state when changed from outside', async () => {
     function Test() {
       const [checked, setChecked] = React.useState(false);
       return (
@@ -62,25 +61,25 @@ describe('<Checkbox.Root />', () => {
     const button = getByText('Toggle');
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
-    act(() => {
+    await act(() => {
       button.click();
     });
 
     expect(checkbox).to.have.attribute('aria-checked', 'true');
 
-    act(() => {
+    await act(() => {
       button.click();
     });
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
   });
 
-  it('should call onChange when clicked', () => {
+  it('should call onChange when clicked', async () => {
     const handleChange = spy();
     const { getAllByRole } = render(<Checkbox.Root onCheckedChange={handleChange} />);
     const [checkbox] = getAllByRole('checkbox');
 
-    act(() => {
+    await act(() => {
       checkbox.click();
     });
 
@@ -99,13 +98,13 @@ describe('<Checkbox.Root />', () => {
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-disabled');
     });
 
-    it('should not change its state when clicked', () => {
+    it('should not change its state when clicked', async () => {
       const { getAllByRole } = render(<Checkbox.Root disabled />);
       const [checkbox] = getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         checkbox.click();
       });
 
@@ -124,13 +123,13 @@ describe('<Checkbox.Root />', () => {
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-readonly');
     });
 
-    it('should not change its state when clicked', () => {
+    it('should not change its state when clicked', async () => {
       const { getAllByRole } = render(<Checkbox.Root readOnly />);
       const [checkbox] = getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         checkbox.click();
       });
 
@@ -144,13 +143,13 @@ describe('<Checkbox.Root />', () => {
       expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
     });
 
-    it('should not change its state when clicked', () => {
+    it('should not change its state when clicked', async () => {
       const { getAllByRole } = render(<Checkbox.Root indeterminate />);
       const [checkbox] = getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'mixed');
 
-      act(() => {
+      await act(() => {
         checkbox.click();
       });
 
@@ -173,12 +172,12 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should update its state if the underlying input is toggled', () => {
+  it('should update its state if the underlying input is toggled', async () => {
     const { getAllByRole, container } = render(<Checkbox.Root />);
     const [checkbox] = getAllByRole('checkbox');
     const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
-    act(() => {
+    await act(() => {
       input.click();
     });
 
@@ -214,7 +213,7 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('form handling', () => {
-    it('should toggle the checkbox when a parent label is clicked', function test() {
+    it('should toggle the checkbox when a parent label is clicked', async function test() {
       // Clicking the label causes unrelated browser tests to fail.
       if (!isJSDOM) {
         this.skip();
@@ -232,14 +231,14 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         label.click();
       });
 
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should toggle the checkbox when a linked label is clicked', function test() {
+    it('should toggle the checkbox when a linked label is clicked', async function test() {
       // Clicking the label causes unrelated browser tests to fail.
       if (!isJSDOM) {
         this.skip();
@@ -259,7 +258,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
+      await act(() => {
         label.click();
       });
 
@@ -267,7 +266,7 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should include the checkbox value in the form submission', function test() {
+  it('should include the checkbox value in the form submission', async function test() {
     if (isJSDOM) {
       // FormData is not available in JSDOM
       this.skip();
@@ -295,7 +294,7 @@ describe('<Checkbox.Root />', () => {
 
     expect(stringifiedFormData).to.equal('test-checkbox=off');
 
-    act(() => {
+    await act(() => {
       checkbox.click();
     });
 

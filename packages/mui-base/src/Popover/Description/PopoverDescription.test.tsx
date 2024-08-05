@@ -9,7 +9,6 @@ describe('<Popover.Description />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Description />, () => ({
-    inheritComponent: 'p',
     refInstanceof: window.HTMLParagraphElement,
     render(node) {
       return render(

@@ -23,7 +23,6 @@ describe('<Progress.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Progress.Indicator />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
         <ProgressContext.Provider value={contextValue}>{node}</ProgressContext.Provider>,

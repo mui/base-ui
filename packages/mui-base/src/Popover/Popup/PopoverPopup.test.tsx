@@ -9,7 +9,6 @@ describe('<Popover.Popup />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Popup />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

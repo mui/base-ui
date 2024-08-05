@@ -91,7 +91,7 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger = screen.getByRole('link');
 
-      act(() => trigger.focus());
+      await act(() => trigger.focus());
 
       clock.tick(OPEN_DELAY);
 
@@ -100,7 +100,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
-    it('should close when the trigger is blurred', async () => {
+    it.only('should close when the trigger is blurred', async () => {
       await render(
         <Root>
           <Trigger />
@@ -112,13 +112,14 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger = screen.getByRole('link');
 
-      act(() => trigger.focus());
+      await act(() => trigger.focus());
 
       clock.tick(OPEN_DELAY);
 
-      await flushMicrotasks();
+      await act(async () => {});
+      // flushMicrotasks();
 
-      act(() => trigger.blur());
+      await act(() => trigger.blur());
 
       clock.tick(CLOSE_DELAY);
 

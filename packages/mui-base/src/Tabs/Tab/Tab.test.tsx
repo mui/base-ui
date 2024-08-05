@@ -39,7 +39,6 @@ describe('<Tabs.Tab />', () => {
   };
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
-    inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
         <TabsContext.Provider value={testTabsContext}>

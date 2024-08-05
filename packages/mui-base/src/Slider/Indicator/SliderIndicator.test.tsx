@@ -56,7 +56,6 @@ describe('<Slider.Indicator />', () => {
   };
 
   describeConformance(<Slider.Indicator />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
       const { container, ...other } = render(
         <SliderProvider value={testProviderValue}>{node}</SliderProvider>,

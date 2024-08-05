@@ -27,7 +27,6 @@ describe('<NumberField.ScrubAreaCursor />', () => {
   }
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(

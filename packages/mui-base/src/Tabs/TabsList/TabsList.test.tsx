@@ -9,7 +9,6 @@ describe('<Tabs.List />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.List />, () => ({
-    inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
         <TabsContext.Provider
@@ -34,7 +33,7 @@ describe('<Tabs.List />', () => {
   }));
 
   describe('accessibility attributes', () => {
-    it('sets the aria-selected attribute on the selected tab', () => {
+    it('sets the aria-selected attribute on the selected tab', async () => {
       const { getByText } = render(
         <Tabs.Root defaultValue={1}>
           <Tabs.List>
@@ -53,7 +52,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'false');
 
-      act(() => {
+      await act(() => {
         tab2.click();
       });
 
@@ -61,7 +60,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'true');
       expect(tab3).to.have.attribute('aria-selected', 'false');
 
-      act(() => {
+      await act(() => {
         tab3.click();
       });
 
@@ -69,7 +68,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'true');
 
-      act(() => {
+      await act(() => {
         tab1.click();
       });
 

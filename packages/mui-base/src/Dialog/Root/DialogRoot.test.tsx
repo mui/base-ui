@@ -28,7 +28,7 @@ describe('<Dialog.Root />', () => {
       const button = getByRole('button');
       expect(queryByRole('dialog')).to.equal(null);
 
-      act(() => {
+      await act(() => {
         button.click();
       });
 
@@ -199,7 +199,7 @@ describe('<Dialog.Root />', () => {
       );
 
       const trigger = getByText('Open');
-      act(() => {
+      await act(() => {
         trigger.click();
       });
 

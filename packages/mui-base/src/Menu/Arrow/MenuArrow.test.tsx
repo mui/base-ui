@@ -6,7 +6,6 @@ describe('<Menu.Arrow />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Menu.Arrow />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

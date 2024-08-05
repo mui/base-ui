@@ -7,7 +7,6 @@ describe('<PreviewCard.Backdrop />', () => {
   const { render } = createRenderer();
 
   describeConformance(<PreviewCard.Backdrop />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

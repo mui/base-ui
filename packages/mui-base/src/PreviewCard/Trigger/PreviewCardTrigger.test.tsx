@@ -7,7 +7,6 @@ describe('<PreviewCard.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<PreviewCard.Trigger />, () => ({
-    inheritComponent: 'a',
     refInstanceof: window.HTMLAnchorElement,
     render(node) {
       return render(

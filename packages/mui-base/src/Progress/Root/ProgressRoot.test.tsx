@@ -19,7 +19,6 @@ describe('<Progress.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Progress.Root value={50} />, () => ({
-    inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
   }));
