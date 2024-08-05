@@ -82,6 +82,12 @@ export interface PopoverPositionerParameters {
    * @default false
    */
   keepMounted?: boolean;
+  /**
+   * Whether the popover popup continuously tracks its anchor after the initial positioning upon
+   * mount.
+   * @default true
+   */
+  trackAnchor?: boolean;
 }
 
 export interface UsePopoverPositionerParameters extends PopoverPositionerParameters {
