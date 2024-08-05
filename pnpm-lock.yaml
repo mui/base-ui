@@ -498,8 +498,8 @@ importers:
         specifier: ^3.2.3
         version: 3.2.3
       '@types/chai':
-        specifier: ^4.3.16
-        version: 4.3.16
+        specifier: ^4.3.17
+        version: 4.3.17
       '@types/node':
         specifier: ^18.19.42
         version: 18.19.42
@@ -595,8 +595,8 @@ importers:
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@10.4.0)
       '@types/chai':
-        specifier: ^4.3.16
-        version: 4.3.16
+        specifier: ^4.3.17
+        version: 4.3.17
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
@@ -665,8 +665,8 @@ importers:
         specifier: ^10.1.0
         version: 10.4.0
       '@types/chai':
-        specifier: ^4.3.16
-        version: 4.3.16
+        specifier: ^4.3.17
+        version: 4.3.17
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -2838,8 +2838,8 @@ packages:
   '@types/chai-dom@1.11.3':
     resolution: {integrity: sha512-EUEZI7uID4ewzxnU7DJXtyvykhQuwe+etJ1wwOiJyQRTH/ifMWKX+ghiXkxCUvNJ6IQDodf0JXhuP6zZcy2qXQ==}
 
-  '@types/chai@4.3.16':
-    resolution: {integrity: sha512-PatH4iOdyh3MyWtmHVFXLWCCIhUbopaltqddG9BzB+gMIzee2MJrvd+jouii9Z3wzQJruGWAm7WOMjgfG8hQlQ==}
+  '@types/chai@4.3.17':
+    resolution: {integrity: sha512-zmZ21EWzR71B4Sscphjief5djsLre50M6lI622OSySTmn9DB3j+C3kWroHfBQWXbOBwbgg/M8CG/hUxDLIloow==}
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
@@ -11160,9 +11160,9 @@ snapshots:
 
   '@types/chai-dom@1.11.3':
     dependencies:
-      '@types/chai': 4.3.16
+      '@types/chai': 4.3.17
 
-  '@types/chai@4.3.16': {}
+  '@types/chai@4.3.17': {}
 
   '@types/connect@3.4.38':
     dependencies:
