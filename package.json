@@ -79,7 +79,7 @@
     "@mui/internal-docs-utils": "^1.0.8",
     "@mui/internal-markdown": "^1.0.8",
     "@mui/internal-scripts": "^1.0.14",
-    "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils",
+    "@mui/internal-test-utils": "1.0.6-dev.20240805-092432-9f940a61d6",
     "@mui/material": "6.0.0-beta.4",
     "@mui/monorepo": "github:mui/material-ui#v6.0.0-beta.4",
     "@mui/utils": "6.0.0-beta.4",

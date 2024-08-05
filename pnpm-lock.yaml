@@ -65,8 +65,8 @@ importers:
         specifier: ^1.0.14
         version: 1.0.14
       '@mui/internal-test-utils':
-        specifier: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils
-        version: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.6-dev.20240805-092432-9f940a61d6
+        version: 1.0.6-dev.20240805-092432-9f940a61d6(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/material':
         specifier: 6.0.0-beta.4
         version: 6.0.0-beta.4(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -492,8 +492,8 @@ importers:
         specifier: ^1.0.8
         version: 1.0.8
       '@mui/internal-test-utils':
-        specifier: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils
-        version: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.6-dev.20240805-092432-9f940a61d6
+        version: 1.0.6-dev.20240805-092432-9f940a61d6(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/autosuggest-highlight':
         specifier: ^3.2.3
         version: 3.2.3
@@ -586,8 +586,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(@mui/utils@5.16.6(@types/react@18.3.1)(react@18.3.1))
       '@mui/internal-test-utils':
-        specifier: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils
-        version: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.6-dev.20240805-092432-9f940a61d6
+        version: 1.0.6-dev.20240805-092432-9f940a61d6(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/react':
         specifier: ^15.0.7
         version: 15.0.7(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -650,8 +650,8 @@ importers:
         specifier: ^11.11.4
         version: 11.13.0(@types/react@18.3.1)(react@18.3.1)
       '@mui/internal-test-utils':
-        specifier: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils
-        version: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.6-dev.20240805-092432-9f940a61d6
+        version: 1.0.6-dev.20240805-092432-9f940a61d6(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/joy':
         specifier: 5.0.0-beta.48
         version: 5.0.0-beta.48(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2077,9 +2077,8 @@ packages:
   '@mui/internal-scripts@1.0.14':
     resolution: {integrity: sha512-v2HQWzssX8l+WAZh4JpgAtnxvwi4ZEm7+spi3e/1zxTXz/k3aWlcc50lpfeAtD6TGbegN2/j0OCORfDHTDQdbQ==}
 
-  '@mui/internal-test-utils@https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils':
-    resolution: {tarball: https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils}
-    version: 1.0.6
+  '@mui/internal-test-utils@1.0.6-dev.20240805-092432-9f940a61d6':
+    resolution: {integrity: sha512-bagoSVQFWUJaHK2iJkTLGSUxTchucNEpQorfFNjv0Ep2I/LBnmnLWJZG0vhKq0dljgZj5Y9UYaCjClfLrjTvCA==}
     peerDependencies:
       react: ^18.2.0
       react-dom: ^18.2.0
@@ -10217,7 +10216,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-test-utils@https://pkg.csb.dev/mui/material-ui/commit/a09cbe73/@mui/internal-test-utils(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mui/internal-test-utils@1.0.6-dev.20240805-092432-9f940a61d6(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/plugin-transform-modules-commonjs': 7.24.8(@babel/core@7.25.2)
       '@babel/preset-typescript': 7.24.7(@babel/core@7.25.2)
