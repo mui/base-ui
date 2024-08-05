@@ -342,7 +342,7 @@ importers:
         version: 11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
       '@mui/docs':
         specifier: 6.0.0-beta.4
-        version: 6.0.0-beta.4(vunuo4wz5aeoo5x5zjit7veshq)
+        version: 6.0.0-beta.4(27mu7mxfggguzp6mzqgbtkliam)
       '@mui/icons-material':
         specifier: 6.0.0-beta.4
         version: 6.0.0-beta.4(@mui/material@6.0.0-beta.4(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
@@ -519,8 +519,8 @@ importers:
         specifier: ^4.2.6
         version: 4.2.6
       chai:
-        specifier: ^4.4.1
-        version: 4.4.1
+        specifier: ^4.5.0
+        version: 4.5.0
       cross-fetch:
         specifier: ^4.0.0
         version: 4.0.0(encoding@0.1.13)
@@ -613,8 +613,8 @@ importers:
         specifier: ^17.0.3
         version: 17.0.3
       chai:
-        specifier: ^4.4.1
-        version: 4.4.1
+        specifier: ^4.5.0
+        version: 4.5.0
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -677,8 +677,8 @@ importers:
         specifier: ^17.0.3
         version: 17.0.3
       chai:
-        specifier: ^4.4.1
-        version: 4.4.1
+        specifier: ^4.5.0
+        version: 4.5.0
       docs:
         specifier: workspace:^
         version: link:../docs
@@ -3634,8 +3634,8 @@ packages:
     peerDependencies:
       chai: '>= 3'
 
-  chai@4.4.1:
-    resolution: {integrity: sha512-13sOfMv2+DWduEU+/xbun3LScLoqN17nBeTLUsmDfKdoiC1fr0n9PU4guu4AhRcOVFk/sW8LyZWHuhWtQZiF+g==}
+  chai@4.5.0:
+    resolution: {integrity: sha512-RITGBfijLkBddZvnn8jdqoTypxvqbOLYQkGGxXzeFjVHvudaPw0HNFD9x928/eUwYWd2dPCugVqspGALTZZQKw==}
     engines: {node: '>=4'}
 
   chalk-template@0.4.0:
@@ -8065,6 +8065,10 @@ packages:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}
     engines: {node: '>=4'}
 
+  type-detect@4.1.0:
+    resolution: {integrity: sha512-Acylog8/luQ8L7il+geoSxhEkazvkslg7PSNKOX59mbB9cOveP5aq9h74Y7YU8yDpJwetzQQrfIwtf4Wp4LKcw==}
+    engines: {node: '>=4'}
+
   type-fest@0.18.1:
     resolution: {integrity: sha512-OIAYXk8+ISY+qTOwkHtKqzAuxchoMiD9Udx+FSGQDuiRR+PJKJHc2NJAXlbhkGwTt/4/nKZxELY1w3ReWOL8mw==}
     engines: {node: '>=10'}
@@ -10149,7 +10153,7 @@ snapshots:
 
   '@mui/core-downloads-tracker@6.0.0-dev.240424162023-9968b4889d': {}
 
-  '@mui/docs@6.0.0-beta.4(vunuo4wz5aeoo5x5zjit7veshq)':
+  '@mui/docs@6.0.0-beta.4(27mu7mxfggguzp6mzqgbtkliam)':
     dependencies:
       '@babel/runtime': 7.25.0
       '@mui/base': 5.0.0-beta.53(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -10157,7 +10161,7 @@ snapshots:
       '@mui/internal-markdown': 1.0.8
       '@mui/material': 6.0.0-beta.4(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/system': 6.0.0-beta.4(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
-      chai: 4.4.1
+      chai: 4.5.0
       clipboard-copy: 4.0.1
       clsx: 2.1.1
       csstype: 3.1.3
@@ -10223,8 +10227,8 @@ snapshots:
       '@testing-library/dom': 10.4.0
       '@testing-library/react': 16.0.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event': 14.5.2(@testing-library/dom@10.4.0)
-      chai: 4.4.1
-      chai-dom: 1.12.0(chai@4.4.1)
+      chai: 4.5.0
+      chai-dom: 1.12.0(chai@4.5.0)
       dom-accessibility-api: 0.6.3
       format-util: 1.0.5
       fs-extra: 11.2.0
@@ -11015,7 +11019,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 2.0.0
       lodash.get: 4.4.2
-      type-detect: 4.0.8
+      type-detect: 4.1.0
 
   '@sinonjs/text-encoding@0.7.2': {}
 
@@ -12148,11 +12152,11 @@ snapshots:
 
   caniuse-lite@1.0.30001646: {}
 
-  chai-dom@1.12.0(chai@4.4.1):
+  chai-dom@1.12.0(chai@4.5.0):
     dependencies:
-      chai: 4.4.1
+      chai: 4.5.0
 
-  chai@4.4.1:
+  chai@4.5.0:
     dependencies:
       assertion-error: 1.1.0
       check-error: 1.0.3
@@ -12160,7 +12164,7 @@ snapshots:
       get-func-name: 2.0.2
       loupe: 2.3.7
       pathval: 1.1.1
-      type-detect: 4.0.8
+      type-detect: 4.1.0
 
   chalk-template@0.4.0:
     dependencies:
@@ -12707,7 +12711,7 @@ snapshots:
 
   deep-eql@4.1.3:
     dependencies:
-      type-detect: 4.0.8
+      type-detect: 4.1.0
 
   deep-extend@0.6.0: {}
 
@@ -17416,6 +17420,8 @@ snapshots:
       prelude-ls: 1.2.1
 
   type-detect@4.0.8: {}
+
+  type-detect@4.1.0: {}
 
   type-fest@0.18.1: {}
 
