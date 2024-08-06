@@ -5,8 +5,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "validate": { "type": { "name": "func" } },
     "validateDebounceTime": { "type": { "name": "number" }, "default": "0" },
-    "validateOnChange": { "type": { "name": "bool" }, "default": "false" },
-    "validateOnMount": { "type": { "name": "bool" }, "default": "false" }
+    "validateOnChange": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "FieldRoot",
   "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],

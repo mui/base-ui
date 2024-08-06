@@ -17,7 +17,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     className,
     defaultValue,
     direction = 'ltr',
-    disabled = false,
+    disabled: disabledProp = false,
     largeStep,
     render,
     minStepsBetweenValues,
@@ -28,7 +28,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps
   } = props;
 
-  const { labelId } = useFieldRootContext();
+  const { labelId, ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled ?? disabledProp;
 
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId,
@@ -47,6 +48,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
 
   const ownerState: SliderRootOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       activeThumbIndex: slider.active,
       direction,
       disabled,
@@ -59,6 +61,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       values: slider.values,
     }),
     [
+      fieldOwnerState,
       direction,
       disabled,
       orientation,

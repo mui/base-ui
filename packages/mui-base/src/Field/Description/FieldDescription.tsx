@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldDescriptionProps, FieldDescriptionOwnerState } from './FieldDescription.types';
+import type { FieldDescriptionProps } from './FieldDescription.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldDescription } from './useFieldDescription';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
@@ -24,21 +24,9 @@ const FieldDescription = React.forwardRef(function FieldDescription(
 ) {
   const { render, id, className, ...otherProps } = props;
 
-  const { validityData, touched, dirty, disabled = false, invalid } = useFieldRootContext();
-
-  const valid = !invalid && validityData.state.valid;
+  const { ownerState } = useFieldRootContext(false);
 
   const { getDescriptionProps } = useFieldDescription({ id });
-
-  const ownerState: FieldDescriptionOwnerState = React.useMemo(
-    () => ({
-      disabled,
-      touched,
-      dirty,
-      valid,
-    }),
-    [disabled, touched, dirty, valid],
-  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getDescriptionProps,

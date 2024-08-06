@@ -29,7 +29,6 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     validate: validateProp,
     validateDebounceTime = 0,
     validateOnChange = false,
-    validateOnMount = false,
     invalid = false,
     ...otherProps
   } = props;
@@ -51,7 +50,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [validityData, setValidityData] = React.useState<ValidityData>({
     state: DEFAULT_VALIDITY_STATE,
     error: '',
-    errors: validateOnMount ? (validate('') as string[]) : [],
+    errors: [],
     value: '',
     initialValue: null,
   });
@@ -87,8 +86,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setDirty,
       validate,
       validateOnChange,
-      validateOnMount,
       validateDebounceTime,
+      ownerState,
     }),
     [
       invalid,
@@ -101,8 +100,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       dirty,
       validate,
       validateOnChange,
-      validateOnMount,
       validateDebounceTime,
+      ownerState,
     ],
   );
 
@@ -159,11 +158,6 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   validateOnChange: PropTypes.bool,
-  /**
-   * Determines if validation should be triggered as soon as the field is mounted.
-   * @default false
-   */
-  validateOnMount: PropTypes.bool,
 } as any;
 
 export { FieldRoot };

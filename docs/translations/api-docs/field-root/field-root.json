@@ -14,9 +14,6 @@
     },
     "validateOnChange": {
       "description": "Determines if validation should be triggered on the <code>change</code> event, rather than only on commit (blur)."
-    },
-    "validateOnMount": {
-      "description": "Determines if validation should be triggered as soon as the field is mounted."
     }
   },
   "classDescriptions": {}

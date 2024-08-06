@@ -7,6 +7,7 @@ import { useCompoundItem } from '../../useCompound';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
@@ -73,7 +74,12 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     values: sliderValues,
   } = parameters;
 
-  const { getInputValidationProps, inputRef: inputValidationRef } = useFieldControlValidation();
+  const { setTouched } = useFieldRootContext();
+  const {
+    getInputValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
@@ -126,6 +132,13 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: idParam,
+        onBlur() {
+          if (!thumbRef.current) {
+            return;
+          }
+          setTouched(true);
+          commitValidation((thumbRef.current as HTMLInputElement).valueAsNumber);
+        },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
           const isRange = sliderValues.length > 1;
@@ -195,21 +208,23 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       });
     },
     [
-      changeValue,
-      getThumbStyle,
-      handleRef,
-      idParam,
       index,
-      isRtl,
-      disabled,
-      largeStep,
-      max,
-      min,
-      minStepsBetweenValues,
-      sliderValues,
-      step,
+      idParam,
+      handleRef,
+      getThumbStyle,
       tabIndex,
+      disabled,
+      setTouched,
+      commitValidation,
+      sliderValues,
       thumbValue,
+      largeStep,
+      step,
+      min,
+      max,
+      isRtl,
+      minStepsBetweenValues,
+      changeValue,
     ],
   );
 

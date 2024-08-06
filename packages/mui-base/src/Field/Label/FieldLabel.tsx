@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldLabelOwnerState, FieldLabelProps } from './FieldLabel.types';
+import type { FieldLabelProps } from './FieldLabel.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
@@ -22,20 +22,11 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
  */
 const FieldLabel = React.forwardRef(function FieldLabel(
   props: FieldLabelProps,
-  forwardedRef: React.ForwardedRef<HTMLLabelElement>,
+  forwardedRef: React.ForwardedRef<any>,
 ) {
   const { render, className, id: idProp, ...otherProps } = props;
 
-  const {
-    setLabelId,
-    touched,
-    dirty,
-    disabled = false,
-    invalid,
-    validityData,
-  } = useFieldRootContext();
-
-  const valid = !invalid && validityData.state.valid;
+  const { setLabelId, ownerState } = useFieldRootContext(false);
 
   const id = useId(idProp);
 
@@ -47,16 +38,6 @@ const FieldLabel = React.forwardRef(function FieldLabel(
   }, [id, setLabelId]);
 
   const { getLabelProps } = useFieldLabel({ customTag: render != null });
-
-  const ownerState: FieldLabelOwnerState = React.useMemo(
-    () => ({
-      disabled,
-      touched,
-      dirty,
-      valid,
-    }),
-    [dirty, disabled, touched, valid],
-  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getLabelProps,

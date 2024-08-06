@@ -543,6 +543,7 @@ export function useNumberFieldRoot(
         disabled,
         readOnly,
         inputMode,
+        value: inputValue,
         ref: mergedRef,
         type: 'text',
         autoComplete: 'off',
@@ -551,6 +552,9 @@ export function useNumberFieldRoot(
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
         'aria-labelledby': labelId,
+        // If the server's locale does not match the client's locale, the formatting may not match,
+        // causing a hydration mismatch.
+        suppressHydrationWarning: true,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;

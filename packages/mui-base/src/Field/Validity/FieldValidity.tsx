@@ -16,15 +16,10 @@ import type { FieldValidityProps } from './FieldValidity.types';
  * - [FieldValidity API](https://mui.com/base-ui/react-field/components-api/#field-validity)
  */
 function FieldValidity(props: FieldValidityProps) {
-  const { validityData } = useFieldRootContext();
+  const { validityData } = useFieldRootContext(false);
   return (
     <React.Fragment>
-      {props.children({
-        validity: validityData.state,
-        errors: validityData.errors,
-        error: validityData.error,
-        value: validityData.value,
-      })}
+      {props.children({ ...validityData, validity: validityData.state })}
     </React.Fragment>
   );
 }

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldErrorOwnerState, FieldErrorProps } from './FieldError.types';
+import type { FieldErrorProps } from './FieldError.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldError } from './useFieldError';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
@@ -24,23 +24,12 @@ const FieldError = React.forwardRef(function FieldError(
 ) {
   const { render, id, className, show, ...otherProps } = props;
 
-  const { validityData, touched, dirty, disabled = false, invalid } = useFieldRootContext();
+  const { validityData, ownerState, invalid } = useFieldRootContext(false);
 
-  const valid = !invalid && validityData.state.valid;
   const rendered =
     invalid || (show ? Boolean(validityData.state[show]) : validityData.state.valid === false);
 
   const { getErrorProps } = useFieldError({ id, rendered });
-
-  const ownerState: FieldErrorOwnerState = React.useMemo(
-    () => ({
-      disabled,
-      touched,
-      dirty,
-      valid,
-    }),
-    [dirty, disabled, touched, valid],
-  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getErrorProps,

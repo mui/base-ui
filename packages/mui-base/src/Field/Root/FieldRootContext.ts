@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import type { ValidityData } from './FieldRoot.types';
+import type { FieldRootOwnerState, ValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
   invalid: boolean;
@@ -21,8 +21,8 @@ export interface FieldRootContextValue {
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
   validateOnChange: boolean;
-  validateOnMount: boolean;
   validateDebounceTime: number;
+  ownerState: FieldRootOwnerState;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
@@ -49,14 +49,25 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   setDisabled: () => {},
   validate: () => null,
   validateOnChange: false,
-  validateOnMount: false,
   validateDebounceTime: 0,
+  ownerState: {
+    disabled: false,
+    valid: null,
+    touched: false,
+    dirty: false,
+  },
 });
 
 if (process.env.NODE_ENV !== 'production') {
   FieldRootContext.displayName = 'FieldRootContext';
 }
 
-export function useFieldRootContext() {
-  return React.useContext(FieldRootContext);
+export function useFieldRootContext(optional = true) {
+  const context = React.useContext(FieldRootContext);
+
+  if (context === null && !optional) {
+    throw new Error('Base UI: FieldRootContext is not defined.');
+  }
+
+  return context;
 }

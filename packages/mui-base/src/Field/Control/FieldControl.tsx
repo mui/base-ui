@@ -2,18 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type {
-  FieldControlElement,
-  FieldControlOwnerState,
-  FieldControlProps,
-} from './FieldControl.types';
+import type { FieldControlElement, FieldControlProps } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
- * The field's control element.
+ * The field's control element. This is not necessary to use when using a native Base UI input
+ * component (Checkbox, Switch, NumberField, Slider).
  *
  * Demos:
  *
@@ -38,25 +35,13 @@ const FieldControl = React.forwardRef(function FieldControl(
     ...otherProps
   } = props;
 
-  const { validityData, setDisabled, touched, dirty, invalid } = useFieldRootContext();
-
-  const valid = !invalid && validityData.state.valid;
+  const { setDisabled, ownerState } = useFieldRootContext(false);
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
   }, [disabled, setDisabled]);
 
   const { getControlProps } = useFieldControl({ id, name, value: value ?? defaultValue ?? '' });
-
-  const ownerState: FieldControlOwnerState = React.useMemo(
-    () => ({
-      disabled,
-      touched,
-      dirty,
-      valid,
-    }),
-    [dirty, disabled, touched, valid],
-  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getControlProps,

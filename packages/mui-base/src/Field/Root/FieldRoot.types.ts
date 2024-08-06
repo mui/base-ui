@@ -8,12 +8,12 @@ export interface ValidityData {
   initialValue: unknown;
 }
 
-export type FieldRootOwnerState = {
+export interface FieldRootOwnerState {
   disabled: boolean;
   touched: boolean;
   dirty: boolean;
-  valid: boolean;
-};
+  valid: boolean | null;
+}
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
   /**
@@ -28,11 +28,6 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwn
    * @default false
    */
   validateOnChange?: boolean;
-  /**
-   * Determines if validation should be triggered as soon as the field is mounted.
-   * @default false
-   */
-  validateOnMount?: boolean;
   /**
    * The debounce time in milliseconds for the `validate` function in the `change` phase.
    * @default 0

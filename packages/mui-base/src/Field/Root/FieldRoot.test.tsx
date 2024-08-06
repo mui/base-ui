@@ -3,6 +3,7 @@ import * as Field from '@base_ui/react/Field';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Switch from '@base_ui/react/Switch';
 import * as NumberField from '@base_ui/react/NumberField';
+import * as Slider from '@base_ui/react/Slider';
 import {
   act,
   createRenderer,
@@ -59,10 +60,8 @@ describe('<Field.Root />', () => {
 
       expect(message).to.equal(null);
 
-      act(() => {
-        control.focus();
-        control.blur();
-      });
+      fireEvent.focus(control);
+      fireEvent.blur(control);
 
       expect(screen.queryByText('error')).not.to.equal(null);
     });
@@ -80,10 +79,8 @@ describe('<Field.Root />', () => {
 
       expect(message).to.equal(null);
 
-      act(() => {
-        control.focus();
-        control.blur();
-      });
+      fireEvent.focus(control);
+      fireEvent.blur(control);
 
       await flushMicrotasks();
 
@@ -150,81 +147,90 @@ describe('<Field.Root />', () => {
 
       expect(control).not.to.have.attribute('aria-invalid');
 
-      act(() => {
-        control.focus();
-        control.blur();
-      });
+      fireEvent.focus(control);
+      fireEvent.blur(control);
 
       expect(control).to.have.attribute('aria-invalid', 'true');
     });
 
     describe('component integration', () => {
-      describe('Checkbox', () => {
-        it('supports Checkbox', () => {
-          render(
-            <Field.Root validate={() => 'error'}>
-              <Checkbox.Root data-testid="button" />
-              <Field.Error data-testid="error" />
-            </Field.Root>,
-          );
+      it('supports Checkbox', () => {
+        render(
+          <Field.Root validate={() => 'error'}>
+            <Checkbox.Root data-testid="button" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-          const button = screen.getByTestId('button');
+        const button = screen.getByTestId('button');
 
-          expect(button).not.to.have.attribute('aria-invalid');
+        expect(button).not.to.have.attribute('aria-invalid');
 
-          act(() => {
-            button.focus();
-            button.blur();
-          });
+        fireEvent.focus(button);
+        fireEvent.blur(button);
 
-          expect(button).to.have.attribute('aria-invalid', 'true');
-        });
+        expect(button).to.have.attribute('aria-invalid', 'true');
       });
 
-      describe('Switch', () => {
-        it('supports Switch', () => {
-          render(
-            <Field.Root validate={() => 'error'}>
-              <Switch.Root data-testid="button" />
-              <Field.Error data-testid="error" />
-            </Field.Root>,
-          );
+      it('supports Switch', () => {
+        render(
+          <Field.Root validate={() => 'error'}>
+            <Switch.Root data-testid="button" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-          const button = screen.getByTestId('button');
+        const button = screen.getByTestId('button');
 
-          expect(button).not.to.have.attribute('aria-invalid');
+        expect(button).not.to.have.attribute('aria-invalid');
 
-          act(() => {
-            button.focus();
-            button.blur();
-          });
+        fireEvent.focus(button);
+        fireEvent.blur(button);
 
-          expect(button).to.have.attribute('aria-invalid', 'true');
-        });
+        expect(button).to.have.attribute('aria-invalid', 'true');
       });
 
-      describe('NumberField', () => {
-        it('supports NumberField', () => {
-          render(
-            <Field.Root validate={() => 'error'}>
-              <NumberField.Root>
-                <NumberField.Input />
-              </NumberField.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>,
-          );
+      it('supports NumberField', () => {
+        render(
+          <Field.Root validate={() => 'error'}>
+            <NumberField.Root>
+              <NumberField.Input />
+            </NumberField.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-          const input = screen.getByRole('textbox');
+        const input = screen.getByRole('textbox');
 
-          expect(input).not.to.have.attribute('aria-invalid');
+        expect(input).not.to.have.attribute('aria-invalid');
 
-          act(() => {
-            input.focus();
-            input.blur();
-          });
+        fireEvent.focus(input);
+        fireEvent.blur(input);
 
-          expect(input).to.have.attribute('aria-invalid', 'true');
-        });
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('supports Slider', () => {
+        const { container } = render(
+          <Field.Root validate={() => 'error'}>
+            <Slider.Root>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Control>
+            </Slider.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const input = container.querySelector<HTMLInputElement>('input')!;
+        const thumb = screen.getByTestId('thumb');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.focus(thumb);
+        fireEvent.blur(thumb);
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
       });
     });
   });
@@ -300,73 +306,213 @@ describe('<Field.Root />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply [data-touched] style hook to all components when touched', () => {
-      render(
-        <Field.Root data-testid="root">
-          <Field.Control data-testid="control" />
-          <Field.Label data-testid="label" />
-          <Field.Description data-testid="description" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+    describe('touched', () => {
+      it('should apply [data-touched] style hook to all components when touched', () => {
+        render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" />
+            <Field.Label data-testid="label" />
+            <Field.Description data-testid="description" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-      const root = screen.getByTestId('root');
-      const control = screen.getByTestId('control');
-      const label = screen.getByTestId('label');
-      const description = screen.getByTestId('description');
-      const error = screen.queryByTestId('error');
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+        const error = screen.queryByTestId('error');
 
-      expect(root).not.to.have.attribute('data-touched');
-      expect(control).not.to.have.attribute('data-touched');
-      expect(label).not.to.have.attribute('data-touched');
-      expect(description).not.to.have.attribute('data-touched');
-      expect(error).to.equal(null);
+        expect(root).not.to.have.attribute('data-touched');
+        expect(control).not.to.have.attribute('data-touched');
+        expect(label).not.to.have.attribute('data-touched');
+        expect(description).not.to.have.attribute('data-touched');
+        expect(error).to.equal(null);
 
-      act(() => {
         fireEvent.focus(control);
         fireEvent.blur(control);
+
+        expect(root).to.have.attribute('data-touched', 'true');
+        expect(control).to.have.attribute('data-touched', 'true');
+        expect(label).to.have.attribute('data-touched', 'true');
+        expect(description).to.have.attribute('data-touched', 'true');
+        expect(error).to.equal(null);
       });
 
-      expect(root).to.have.attribute('data-touched', 'true');
-      expect(control).to.have.attribute('data-touched', 'true');
-      expect(label).to.have.attribute('data-touched', 'true');
-      expect(description).to.have.attribute('data-touched', 'true');
-      expect(error).to.equal(null);
+      it('supports Checkbox', () => {
+        render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        fireEvent.focus(button);
+        fireEvent.blur(button);
+
+        expect(button).to.have.attribute('data-touched', 'true');
+      });
+
+      it('supports Switch', () => {
+        render(
+          <Field.Root>
+            <Switch.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        fireEvent.focus(button);
+        fireEvent.blur(button);
+
+        expect(button).to.have.attribute('data-touched', 'true');
+      });
+
+      it('supports NumberField', () => {
+        render(
+          <Field.Root>
+            <NumberField.Root>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('textbox');
+
+        fireEvent.focus(input);
+        fireEvent.blur(input);
+
+        expect(input).to.have.attribute('data-touched', 'true');
+      });
+
+      it('supports Slider', () => {
+        render(
+          <Field.Root>
+            <Slider.Root data-testid="root">
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const thumb = screen.getByTestId('thumb');
+
+        fireEvent.focus(thumb);
+        fireEvent.blur(thumb);
+
+        expect(root).to.have.attribute('data-touched', 'true');
+      });
     });
-  });
 
-  it('should apply [data-dirty] style hook to all components when dirty', () => {
-    render(
-      <Field.Root data-testid="root">
-        <Field.Control data-testid="control" />
-        <Field.Label data-testid="label" />
-        <Field.Description data-testid="description" />
-        <Field.Error data-testid="error" />
-      </Field.Root>,
-    );
+    describe('dirty', () => {
+      it('should apply [data-dirty] style hook to all components when dirty', () => {
+        render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" />
+            <Field.Label data-testid="label" />
+            <Field.Description data-testid="description" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-    const root = screen.getByTestId('root');
-    const control = screen.getByTestId('control');
-    const label = screen.getByTestId('label');
-    const description = screen.getByTestId('description');
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
 
-    expect(root).not.to.have.attribute('data-dirty');
-    expect(control).not.to.have.attribute('data-dirty');
-    expect(label).not.to.have.attribute('data-dirty');
-    expect(description).not.to.have.attribute('data-dirty');
+        expect(root).not.to.have.attribute('data-dirty');
+        expect(control).not.to.have.attribute('data-dirty');
+        expect(label).not.to.have.attribute('data-dirty');
+        expect(description).not.to.have.attribute('data-dirty');
 
-    fireEvent.change(control, { target: { value: 'value' } });
+        fireEvent.change(control, { target: { value: 'value' } });
 
-    expect(root).to.have.attribute('data-dirty', 'true');
-    expect(control).to.have.attribute('data-dirty', 'true');
-    expect(label).to.have.attribute('data-dirty', 'true');
-    expect(description).to.have.attribute('data-dirty', 'true');
+        expect(root).to.have.attribute('data-dirty', 'true');
+        expect(control).to.have.attribute('data-dirty', 'true');
+        expect(label).to.have.attribute('data-dirty', 'true');
+        expect(description).to.have.attribute('data-dirty', 'true');
 
-    fireEvent.change(control, { target: { value: '' } });
+        fireEvent.change(control, { target: { value: '' } });
 
-    expect(root).not.to.have.attribute('data-dirty');
-    expect(control).not.to.have.attribute('data-dirty');
-    expect(label).not.to.have.attribute('data-dirty');
-    expect(description).not.to.have.attribute('data-dirty');
+        expect(root).not.to.have.attribute('data-dirty');
+        expect(control).not.to.have.attribute('data-dirty');
+        expect(label).not.to.have.attribute('data-dirty');
+        expect(description).not.to.have.attribute('data-dirty');
+      });
+
+      it('supports Checkbox', () => {
+        render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-dirty');
+
+        fireEvent.click(button);
+
+        expect(button).to.have.attribute('data-dirty', 'true');
+      });
+
+      it('supports Switch', () => {
+        render(
+          <Field.Root>
+            <Switch.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-dirty');
+
+        fireEvent.click(button);
+
+        expect(button).to.have.attribute('data-dirty', 'true');
+      });
+
+      it('supports NumberField', () => {
+        render(
+          <Field.Root>
+            <NumberField.Root>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('textbox');
+
+        expect(input).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('data-dirty', 'true');
+      });
+
+      it('supports Slider', () => {
+        const { container } = render(
+          <Field.Root>
+            <Slider.Root data-testid="root">
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const input = container.querySelector<HTMLInputElement>('input')!;
+
+        expect(root).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(input, { target: { value: 'value' } });
+
+        expect(root).to.have.attribute('data-dirty', 'true');
+      });
+    });
   });
 });
