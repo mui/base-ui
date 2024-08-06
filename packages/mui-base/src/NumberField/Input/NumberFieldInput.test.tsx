@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const testContext = {
   getInputProps: (externalProps) => externalProps,

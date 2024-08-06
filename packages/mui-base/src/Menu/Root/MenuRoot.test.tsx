@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   const { render } = createRenderer();

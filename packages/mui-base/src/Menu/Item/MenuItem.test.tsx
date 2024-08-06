@@ -6,7 +6,7 @@ import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer } from '#test-utils';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,

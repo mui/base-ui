@@ -4,7 +4,7 @@ import { screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
 import { isWebKit } from '../../utils/detectBrowser';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,

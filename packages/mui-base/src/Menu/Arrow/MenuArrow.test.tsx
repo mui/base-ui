@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Menu from '@base_ui/react/Menu';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Menu.Arrow />', () => {
   const { render } = createRenderer();

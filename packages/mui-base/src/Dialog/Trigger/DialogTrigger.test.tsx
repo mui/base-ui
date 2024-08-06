@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Dialog from '@base_ui/react/Dialog';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Trigger />', () => {
   const { render } = createRenderer();

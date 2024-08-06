@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import * as Dialog from '@base_ui/react/Dialog';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Backdrop />', () => {
   const { render } = createRenderer();

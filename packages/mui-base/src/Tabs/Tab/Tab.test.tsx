@@ -6,7 +6,7 @@ import {
   TabsContext,
   TabsContextValue,
 } from '@base_ui/react/Tabs';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();

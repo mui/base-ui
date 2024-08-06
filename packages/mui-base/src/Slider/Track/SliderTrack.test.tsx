@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
 import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const NOOP = () => {};
 

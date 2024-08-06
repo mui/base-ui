@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Backdrop />', () => {
   const { render } = createRenderer();

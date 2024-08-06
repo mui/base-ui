@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import * as Checkbox from '@base_ui/react/Checkbox';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 

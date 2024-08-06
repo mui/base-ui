@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import * as Progress from '@base_ui/react/Progress';
 import { ProgressContext } from '@base_ui/react/Progress';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 import type { ProgressContextValue } from '../Root/ProgressRoot.types';
 
 const contextValue: ProgressContextValue = {

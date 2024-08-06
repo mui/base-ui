@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberFieldBase from '@base_ui/react/NumberField';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();

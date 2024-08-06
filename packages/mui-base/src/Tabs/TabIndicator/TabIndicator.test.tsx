@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import * as Tabs from '@base_ui/react/Tabs';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 async function wait(timeout: number) {
   return new Promise<void>((resolve) => {

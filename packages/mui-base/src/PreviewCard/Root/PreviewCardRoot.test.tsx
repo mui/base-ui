@@ -4,7 +4,7 @@ import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-util
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;

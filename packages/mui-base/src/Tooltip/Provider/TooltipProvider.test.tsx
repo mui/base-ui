@@ -3,7 +3,7 @@ import * as Tooltip from '@base_ui/react/Tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { OPEN_DELAY } from '../utils/constants';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 
 describe('<Tooltip.Provider />', () => {
   const { render, clock } = createRenderer();

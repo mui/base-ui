@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 
 async function wait(timeout: number) {
   return new Promise<void>((resolve) => {

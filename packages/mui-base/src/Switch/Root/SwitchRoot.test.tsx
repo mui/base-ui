@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { act } from '@mui/internal-test-utils';
 import * as Switch from '@base_ui/react/Switch';
 import { userEvent } from '@testing-library/user-event';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
