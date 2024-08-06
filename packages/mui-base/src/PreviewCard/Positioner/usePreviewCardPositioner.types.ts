@@ -85,6 +85,12 @@ export interface PreviewCardPositionerParameters {
    * @default false
    */
   keepMounted?: boolean;
+  /**
+   * Whether the preview card popup continuously tracks its anchor after the initial positioning
+   * upon mount.
+   * @default true
+   */
+  trackAnchor?: boolean;
 }
 
 export interface UsePreviewCardPositionerParameters extends PreviewCardPositionerParameters {
