@@ -3,8 +3,8 @@ import * as PreviewCard from '@base_ui/react/PreviewCard';
 import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { createRenderer } from '#test-utils';
+import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;

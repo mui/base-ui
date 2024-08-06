@@ -3,8 +3,8 @@ import * as Tooltip from '@base_ui/react/Tooltip';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { OPEN_DELAY } from '../utils/constants';
 import { createRenderer } from '#test-utils';
+import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Tooltip.RootProps) {
   return <Tooltip.Root animated={false} {...props} />;
