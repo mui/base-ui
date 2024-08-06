@@ -116,7 +116,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
-   * /**
    * If `true`, the component is disabled.
    * @default false
    */
