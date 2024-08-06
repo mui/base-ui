@@ -5,11 +5,10 @@ import { SwitchContext } from '../Root/SwitchContext';
 import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
-  checked: true,
+  checked: false,
   disabled: false,
   readOnly: false,
   required: false,
-  indeterminate: false,
   dirty: false,
   touched: false,
   valid: null,
