@@ -70,7 +70,6 @@ export interface SliderRootProps
    */
   defaultValue?: number | ReadonlyArray<number>;
   /**
-  /**
    * If `true`, the component is disabled.
    * @default false
    */
