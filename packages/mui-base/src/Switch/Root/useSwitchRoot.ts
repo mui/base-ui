@@ -91,9 +91,13 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly,
         'aria-labelledby': labelId,
-        onBlur(event) {
+        onBlur() {
+          const element = inputRef.current;
+          if (!element) {
+            return;
+          }
           setTouched(true);
-          commitValidation(event.currentTarget.value);
+          commitValidation(element.checked);
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {

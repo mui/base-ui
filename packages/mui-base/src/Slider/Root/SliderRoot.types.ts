@@ -218,7 +218,7 @@ export interface UseSliderReturnValue {
   changeValue: (
     valueInput: number,
     index: number,
-    event: React.KeyboardEvent | React.ChangeEvent,
+    event?: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
   compoundComponentContextValue: CompoundComponentContextValue<any, SliderThumbMetadata>;
   dragging: boolean;

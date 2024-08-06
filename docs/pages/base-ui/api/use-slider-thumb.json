@@ -4,8 +4,8 @@
     "axis": { "type": { "name": "Axis", "description": "Axis" }, "required": true },
     "changeValue": {
       "type": {
-        "name": "(valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) =&gt; void",
-        "description": "(valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) =&gt; void"
+        "name": "(valueInput: number, index: number, event?: React.KeyboardEvent | React.ChangeEvent) =&gt; void",
+        "description": "(valueInput: number, index: number, event?: React.KeyboardEvent | React.ChangeEvent) =&gt; void"
       },
       "required": true
     },

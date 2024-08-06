@@ -262,7 +262,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   );
 
   const changeValue = React.useCallback(
-    (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
+    (valueInput: number, index: number, event?: React.KeyboardEvent | React.ChangeEvent) => {
       let newValue: number | number[] = valueInput;
 
       newValue = clamp(newValue, min, max);
@@ -284,14 +284,15 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         setValueState(newValue);
         setDirty(newValue !== validityData.initialValue);
 
-        if (handleValueChange && !areValuesEqual(newValue)) {
+        if (handleValueChange && !areValuesEqual(newValue) && event) {
           handleValueChange(newValue, index, event);
         }
 
-        if (onValueCommitted) {
-          setTouched(true);
+        setTouched(true);
+        commitValidation(newValue);
+
+        if (onValueCommitted && event) {
           onValueCommitted(newValue, event.nativeEvent);
-          commitValidation(newValue);
         }
       }
     },
