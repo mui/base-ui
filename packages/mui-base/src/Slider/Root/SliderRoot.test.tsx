@@ -1232,8 +1232,8 @@ describe('<Slider.Root />', () => {
         // pixel:  0   20  40  60  80  100
         // slider: |---|---|---|---|---|
         // values: 0   1   2   3   4   5
-        // value:      ¡ü   ¡ü
-        // mouse:           ¡ü
+        // value:      ï¿½ï¿½   ï¿½ï¿½
+        // mouse:           ï¿½ï¿½
 
         fireEvent.pointerDown(sliderControl, {
           buttons: 1,
@@ -1365,7 +1365,7 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
-    describe('key: Home', () => {
+    describe('key: End', () => {
       it('sets value to max in a single value slider', () => {
         const handleValueChange = spy();
         const { container } = render(
@@ -1380,7 +1380,7 @@ describe('<Slider.Root />', () => {
           (input as HTMLInputElement).focus();
         });
 
-        fireEvent.keyDown(input!, { key: 'Home' });
+        fireEvent.keyDown(input!, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal(77);
       });
@@ -1398,24 +1398,24 @@ describe('<Slider.Root />', () => {
           thumbOne.focus();
         });
 
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal([50, 50]);
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
 
         act(() => {
           thumbTwo.focus();
         });
 
-        fireEvent.keyDown(thumbTwo, { key: 'Home' });
+        fireEvent.keyDown(thumbTwo, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal([50, 77]);
       });
     });
 
-    describe('key: End', () => {
-      it('sets value to min on End', () => {
+    describe('key: Home', () => {
+      it('sets value to min on Home', () => {
         const handleValueChange = spy();
         const { container } = render(
           <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
@@ -1429,7 +1429,7 @@ describe('<Slider.Root />', () => {
           (input as HTMLInputElement).focus();
         });
 
-        fireEvent.keyDown(input!, { key: 'End' });
+        fireEvent.keyDown(input!, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal(17);
       });
@@ -1447,17 +1447,17 @@ describe('<Slider.Root />', () => {
           thumbTwo.focus();
         });
 
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal([20, 20]);
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
 
         act(() => {
           thumbOne.focus();
         });
 
-        fireEvent.keyDown(thumbOne, { key: 'End' });
+        fireEvent.keyDown(thumbOne, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal([7, 20]);
       });
