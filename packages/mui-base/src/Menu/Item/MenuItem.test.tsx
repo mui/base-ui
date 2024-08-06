@@ -101,6 +101,8 @@ describe('<Menu.Item />', () => {
 
     await waitFor(() => {
       expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+    });
+    await waitFor(() => {
       expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
     });
 

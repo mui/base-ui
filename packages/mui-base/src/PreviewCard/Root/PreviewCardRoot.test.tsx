@@ -112,15 +112,11 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger = screen.getByRole('link');
 
-      await act(() => trigger.focus());
-
+      await act(async () => trigger.focus());
       clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
 
-      await act(async () => {});
-      // flushMicrotasks();
-
-      await act(() => trigger.blur());
-
+      await act(async () => trigger.blur());
       clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
