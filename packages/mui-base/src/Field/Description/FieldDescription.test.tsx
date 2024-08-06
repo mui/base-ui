@@ -36,14 +36,16 @@ describe('<Field.Description />', () => {
   describe('component integration', () => {
     describe('Checkbox', () => {
       it('supports Checkbox', () => {
-        render(
+        const { container } = render(
           <Field.Root>
             <Checkbox.Root data-testid="button" />
             <Field.Description data-testid="description" />
           </Field.Root>,
         );
 
-        expect(screen.getAllByRole('checkbox')[0]).to.have.attribute(
+        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+
+        expect(internalInput).to.have.attribute(
           'aria-describedby',
           screen.getByTestId('description').id,
         );
@@ -52,14 +54,16 @@ describe('<Field.Description />', () => {
 
     describe('Switch', () => {
       it('supports Switch', () => {
-        render(
+        const { container } = render(
           <Field.Root>
             <Switch.Root data-testid="button" />
             <Field.Description data-testid="description" />
           </Field.Root>,
         );
 
-        expect(screen.getByRole('checkbox')).to.have.attribute(
+        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+
+        expect(internalInput).to.have.attribute(
           'aria-describedby',
           screen.getByTestId('description').id,
         );
