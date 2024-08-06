@@ -1,5 +1,6 @@
 import type { BaseUIComponentProps } from '../../utils/types';
-import { CompoundComponentContextValue } from '../../useCompound';
+import type { CompoundComponentContextValue } from '../../useCompound';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 export interface SliderThumbMetadata {
   inputId: string;
@@ -22,7 +23,7 @@ export type SliderDirection = 'ltr' | 'rtl';
 
 export type SliderOrientation = 'horizontal' | 'vertical';
 
-export interface SliderRootOwnerState {
+export interface SliderRootOwnerState extends FieldRootOwnerState {
   /**
    * The index of the active thumb.
    */

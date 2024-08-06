@@ -1,7 +1,8 @@
 import type { ScrubHandle } from './useScrub.types';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
-export type NumberFieldRootOwnerState = {
+export interface NumberFieldRootOwnerState extends FieldRootOwnerState {
   /**
    * The raw number value of the input element.
    */
@@ -30,7 +31,7 @@ export type NumberFieldRootOwnerState = {
    * If `true`, the value is being scrubbed.
    */
   scrubbing: boolean;
-};
+}
 
 export interface NumberFieldRootProps
   extends UseNumberFieldRootParameters,
