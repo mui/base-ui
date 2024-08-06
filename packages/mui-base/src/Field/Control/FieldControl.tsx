@@ -27,22 +27,35 @@ const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControlProps,
   forwardedRef: React.ForwardedRef<FieldControlElement>,
 ) {
-  const { render, className, id, disabled = false, name, ...otherProps } = props;
+  const {
+    render,
+    className,
+    id,
+    disabled = false,
+    name,
+    value,
+    defaultValue,
+    ...otherProps
+  } = props;
 
-  const { validityData, setDisabled } = useFieldRootContext();
+  const { validityData, setDisabled, touched, dirty, invalid } = useFieldRootContext();
+
+  const valid = !invalid && validityData.state.valid;
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
   }, [disabled, setDisabled]);
 
-  const { getControlProps } = useFieldControl({ id, name });
+  const { getControlProps } = useFieldControl({ id, name, value: value ?? defaultValue ?? '' });
 
   const ownerState: FieldControlOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.state.valid,
+      touched,
+      dirty,
+      valid,
     }),
-    [disabled, validityData.state.valid],
+    [dirty, disabled, touched, valid],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -74,6 +87,14 @@ FieldControl.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  defaultValue: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.number,
+    PropTypes.string,
+  ]),
+  /**
+   * @ignore
+   */
   disabled: PropTypes.bool,
   /**
    * @ignore
@@ -87,6 +108,14 @@ FieldControl.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  value: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.number,
+    PropTypes.string,
+  ]),
 } as any;
 
 export { FieldControl };

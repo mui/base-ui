@@ -9,6 +9,7 @@ import { useFieldControlValidation } from './useFieldControlValidation';
 interface UseFieldControlParameters {
   id?: string;
   name?: string;
+  value: string | number | readonly string[];
 }
 
 /**
@@ -18,12 +19,19 @@ interface UseFieldControlParameters {
  * - [useFieldControl API](https://mui.com/base-ui/api/use-field-control/)
  */
 export function useFieldControl(params: UseFieldControlParameters) {
-  const { id: idProp, name } = params;
+  const { id: idProp, name, value } = params;
 
-  const { setControlId, labelId, disabled } = useFieldRootContext();
+  const { setControlId, labelId, disabled, setTouched, setDirty, validityData, setValidityData } =
+    useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
+
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && value !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: value }));
+    }
+  }, [setValidityData, validityData.initialValue, value]);
 
   const id = useId(idProp);
 
@@ -42,7 +50,11 @@ export function useFieldControl(params: UseFieldControlParameters) {
         name,
         ref: inputRef,
         'aria-labelledby': labelId,
+        onChange(event) {
+          setDirty(event.currentTarget.value !== validityData.initialValue);
+        },
         onBlur(event) {
+          setTouched(true);
           commitValidation(event.currentTarget.value);
         },
       }),
@@ -54,6 +66,9 @@ export function useFieldControl(params: UseFieldControlParameters) {
       name,
       inputRef,
       labelId,
+      validityData.initialValue,
+      setDirty,
+      setTouched,
       commitValidation,
     ],
   );

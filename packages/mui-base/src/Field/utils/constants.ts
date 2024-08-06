@@ -8,7 +8,7 @@ export const DEFAULT_VALIDITY_STATE = {
   tooLong: false,
   tooShort: false,
   typeMismatch: false,
-  valid: null,
+  valid: true,
   valueMissing: false,
 };
 
@@ -17,6 +17,8 @@ export const STYLE_HOOK_MAPPING = {
     if (value === null) {
       return null;
     }
-    return value ? { 'data-valid': '' } : { 'data-invalid': '' };
+    return {
+      'data-field': value ? 'valid' : 'invalid',
+    };
   },
 };

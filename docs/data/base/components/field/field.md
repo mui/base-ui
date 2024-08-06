@@ -63,9 +63,9 @@ Fields are implemented using a collection of related components:
 </Field.Root>
 ```
 
-## Accessibility
+## Labeling and descriptive help text
 
-All Base UI input components are aware of Base UI's `Field` component. The label and description are automatically wired to it when placed inside a `Field.Root`:
+All Base UI input components are aware of Base UI's `Field` component. The label and description are automatically wired to these components when placed inside a `Field.Root`:
 
 ```jsx
 <Field.Root>
@@ -114,9 +114,9 @@ The `children` by default is the browser's native message, which is automaticall
 </Field.Root>
 ```
 
-### Error messages for individual constraint validation failures
+### Individual constraint validation failures
 
-To render custom content when there are multiple HTML validation props, you can target individual validity state failures using the `show` prop:
+When there are multiple HTML validation props, you can target individual validity state failures using the `show` prop to render custom messages:
 
 ```jsx
 <Field.Root>
@@ -130,18 +130,22 @@ To render custom content when there are multiple HTML validation props, you can 
 
 For the list of supported `show` strings, visit [`ValidityState` on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState#instance_properties).
 
-The `Field.Error` component can also be forced to be shown, such as after server-side validation has been performed and came back with an error, or during testing:
+### Controlled validity
+
+By applying `invalid` to the root, the Field is forcefully placed into an invalid state, and the `<Field.Error>` component will render. This can be useful for server-side error messages, testing, or to force errors to show initially in an SSR-friendly manner to avoid layout shift.
 
 ```jsx
-<Field.Root>
+<Field.Root invalid>
   <Field.Control required />
-  <Field.Error forceShow>Server-side error message</Field.Error>
+  <Field.Error>Server-side error message</Field.Error>
 </Field.Root>
 ```
 
+{{"demo": "UnstyledFieldPassword.js", "defaultCodeOpen": false}}
+
 ### Custom validation
 
-In addition to the native HTML constraint validation, you can also add custom validation by passing a function that receives the control's `value` as a first argument on `Field.Root` and returns a string or array of them if the field is invalid, and `null` otherwise.
+In addition to the native HTML constraint validation, you can also add custom validation by specifying a `validate` function on `Field.Root` that receives the control's `value` as a first argument and returns a string or array of error messages if the field is invalid, and `null` otherwise.
 
 ```jsx
 <Field.Root
@@ -156,7 +160,7 @@ In addition to the native HTML constraint validation, you can also add custom va
 ```
 
 :::info
-For Base UI input components, `value` represents the component's value type, while for native elements, it is always the native `element.value` DOM property.
+For Base UI input components, `value` represents the component's value type, while for native elements, it is always the native `element.value` DOM property. Attach a `ref` to the `Control` element and access it to read its state inside the `validate` function for further control as an alternative if necessary.
 :::
 
 To customize the rendering of multiple messages, you can use the `Validity` subcomponent:
@@ -184,31 +188,39 @@ To customize the rendering of multiple messages, you can use the `Validity` subc
 </Field.Root>
 ```
 
-### Async validation
+The `Validity` subcomponent enables rendering custom JSX based on the `state` parameter, which contains the following properties:
 
-The `validate` function can also be async by returning a promise. In the demo below, the taken names are `admin`, `root`, and `superuser` — every other name is available.
+- `state.validity`, the field's `ValidityState`
+- `state.errors`, an array of custom errors returned from the `validate` prop (if present)
+- `state.error`, a custom error string returned from the `validate` prop (if present)
+- `state.value`, the field's control value
+- `state.initialValue`, the field control's initial value
 
-For demonstration purposes, a fake network request that takes 500ms is initiated to mimic a trip to the server to check for availability on the back-end.
+It can be placed anywhere inside `Field.Root`, including other Field subcomponents.
 
-{{"demo": "UnstyledFieldAsync.js", "defaultCodeOpen": false}}
+### Realtime and async validation
 
-### Realtime validation
-
-The `validateOnChange` prop reports the control's validity state on every `change` event instead of only on commit (blur). This enables realtime validation as the user types or interacts with the field's control:
+`validateOnChange` reports the validity of the control on every `change` event, such as a keypress.
 
 ```jsx
 <Field.Root validateOnChange>
 ```
 
-This mechanism can also be debounced, useful for async realtime validation to avoid firing a network request on every keystroke:
+The `validate` function can also be async by returning a promise, enabling inline server-side validation through network requests.
+
+In the demo below, the taken names are `admin`, `root`, and `superuser` — every other name is available. For demonstration purposes, a fake network request that takes 500ms is initiated to mimic a trip to the server to check for availability on the back-end.
+
+{{"demo": "UnstyledFieldAsync.js", "defaultCodeOpen": false}}
+
+The `change` validation is debounced by 500ms to avoid firing a network request on every keystroke by specifying the `validateDebounceTime` prop:
 
 ```jsx
-<Field.Root validateOnChange validateDebounceMs={500}>
+<Field.Root validateOnChange validateDebounceTime={500}>
 ```
 
 ## Styling
 
-After the field's control has been validated, `[data-invalid]` and `[data-valid]` style hooks are applied to each subcomponent based on the field's `ValidityState`:
+The `[data-field]` style hook determines if the field is invalid or not with values `"valid"` or `"invalid"`:
 
 ```jsx
 <Field.Root>
@@ -217,26 +229,21 @@ After the field's control has been validated, `[data-invalid]` and `[data-valid]
 ```
 
 ```css
-/* Applied once validation has been reported */
-.FieldControl[data-invalid] {
+.FieldControl[data-field='invalid'] {
   color: red;
 }
 ```
 
-## Validity component
+To guard the validity style, you can use the `[data-touched]` and `[data-dirty]` style hooks, which are applied once the control has been interacted with:
 
-To access the raw `ValidityState` to render custom JSX, particularly useful for messaging control flow, use the `Field.Validity` component:
+```css
+/* Applied once the user has focused then blurred the control */
+.FieldControl[data-touched][data-field='invalid'] {
+  color: red;
+}
 
-```jsx
-<Field.Root>
-  <Field.Control />
-  <Field.Validity>{(state) => null}</Field.Validity>
-</Field.Root>
+/* Applied once the control has been changed from its initial value */
+.FieldControl[data-dirty] {
+  color: orange;
+}
 ```
-
-The `state` parameter contains the following properties:
-
-- `state.errors`, an array of custom errors returned from the `validate` prop (if present)
-- `state.error`, a custom error string returned from the `validate` prop (if present)
-- `state.validity`, the field's `ValidityState`
-- `state.value`, the field's control value

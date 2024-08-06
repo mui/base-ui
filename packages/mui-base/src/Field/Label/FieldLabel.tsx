@@ -26,7 +26,16 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, id: idProp, ...otherProps } = props;
 
-  const { setLabelId, disabled = false, validityData } = useFieldRootContext();
+  const {
+    setLabelId,
+    touched,
+    dirty,
+    disabled = false,
+    invalid,
+    validityData,
+  } = useFieldRootContext();
+
+  const valid = !invalid && validityData.state.valid;
 
   const id = useId(idProp);
 
@@ -42,9 +51,11 @@ const FieldLabel = React.forwardRef(function FieldLabel(
   const ownerState: FieldLabelOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.state.valid,
+      touched,
+      dirty,
+      valid,
     }),
-    [disabled, validityData.state.valid],
+    [dirty, disabled, touched, valid],
   );
 
   const { renderElement } = useComponentRenderer({

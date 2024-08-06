@@ -1,10 +1,12 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "invalid": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "validate": { "type": { "name": "func" } },
-    "validateDebounceMs": { "type": { "name": "number" }, "default": "0" },
-    "validateOnChange": { "type": { "name": "bool" }, "default": "false" }
+    "validateDebounceTime": { "type": { "name": "number" }, "default": "0" },
+    "validateOnChange": { "type": { "name": "bool" }, "default": "false" },
+    "validateOnMount": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "FieldRoot",
   "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],

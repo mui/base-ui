@@ -24,16 +24,20 @@ const FieldDescription = React.forwardRef(function FieldDescription(
 ) {
   const { render, id, className, ...otherProps } = props;
 
-  const { validityData, disabled = false } = useFieldRootContext();
+  const { validityData, touched, dirty, disabled = false, invalid } = useFieldRootContext();
+
+  const valid = !invalid && validityData.state.valid;
 
   const { getDescriptionProps } = useFieldDescription({ id });
 
   const ownerState: FieldDescriptionOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.state.valid,
+      touched,
+      dirty,
+      valid,
     }),
-    [disabled, validityData.state.valid],
+    [disabled, touched, dirty, valid],
   );
 
   const { renderElement } = useComponentRenderer({

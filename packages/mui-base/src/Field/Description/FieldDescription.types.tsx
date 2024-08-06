@@ -2,7 +2,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 export type FieldDescriptionOwnerState = {
   disabled: boolean;
-  valid: boolean | null;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean;
 };
 
 export interface FieldDescriptionProps

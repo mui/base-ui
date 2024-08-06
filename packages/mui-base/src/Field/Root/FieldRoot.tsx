@@ -27,8 +27,10 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     render,
     className,
     validate: validateProp,
-    validateDebounceMs = 0,
+    validateDebounceTime = 0,
     validateOnChange = false,
+    validateOnMount = false,
+    invalid = false,
     ...otherProps
   } = props;
 
@@ -42,23 +44,33 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
+
+  const [touched, setTouched] = React.useState(false);
+  const [dirty, setDirty] = React.useState(false);
+
   const [validityData, setValidityData] = React.useState<ValidityData>({
     state: DEFAULT_VALIDITY_STATE,
     error: '',
-    errors: [],
+    errors: validateOnMount ? (validate('') as string[]) : [],
     value: '',
+    initialValue: null,
   });
+
+  const valid = !invalid && validityData.state.valid;
 
   const ownerState: FieldRootOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.state.valid,
+      touched,
+      dirty,
+      valid,
     }),
-    [disabled, validityData.state.valid],
+    [disabled, touched, dirty, valid],
   );
 
   const contextValue: FieldRootContextValue = React.useMemo(
     () => ({
+      invalid,
       controlId,
       setControlId,
       labelId,
@@ -69,19 +81,28 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setValidityData,
       disabled,
       setDisabled,
+      touched,
+      setTouched,
+      dirty,
+      setDirty,
       validate,
       validateOnChange,
-      validateDebounceMs,
+      validateOnMount,
+      validateDebounceTime,
     }),
     [
+      invalid,
       controlId,
       labelId,
       messageIds,
       validityData,
       disabled,
+      touched,
+      dirty,
       validate,
       validateOnChange,
-      validateDebounceMs,
+      validateOnMount,
+      validateDebounceTime,
     ],
   );
 
@@ -113,6 +134,11 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * Determines if the field is forcefully marked as invalid.
+   * @default false
+   */
+  invalid: PropTypes.bool,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
@@ -123,16 +149,21 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   validate: PropTypes.func,
   /**
-   * The debounce time in milliseconds for the `validate` function for the `change` phase.
+   * The debounce time in milliseconds for the `validate` function in the `change` phase.
    * @default 0
    */
-  validateDebounceMs: PropTypes.number,
+  validateDebounceTime: PropTypes.number,
   /**
    * Determines if validation should be triggered on the `change` event, rather than only on commit
    * (blur).
    * @default false
    */
   validateOnChange: PropTypes.bool,
+  /**
+   * Determines if validation should be triggered as soon as the field is mounted.
+   * @default false
+   */
+  validateOnMount: PropTypes.bool,
 } as any;
 
 export { FieldRoot };

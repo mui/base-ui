@@ -1,15 +1,18 @@
 import type { BaseUIComponentProps } from '../../utils/types';
 
 export interface ValidityData {
-  state: Omit<ValidityState, 'valid'> & { valid: boolean | null };
+  state: ValidityState;
   error: string;
   errors: string[];
   value: unknown;
+  initialValue: unknown;
 }
 
 export type FieldRootOwnerState = {
   disabled: boolean;
-  valid: boolean | null;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean;
 };
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
@@ -26,8 +29,18 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwn
    */
   validateOnChange?: boolean;
   /**
-   * The debounce time in milliseconds for the `validate` function for the `change` phase.
+   * Determines if validation should be triggered as soon as the field is mounted.
+   * @default false
+   */
+  validateOnMount?: boolean;
+  /**
+   * The debounce time in milliseconds for the `validate` function in the `change` phase.
    * @default 0
    */
-  validateDebounceMs?: number;
+  validateDebounceTime?: number;
+  /**
+   * Determines if the field is forcefully marked as invalid.
+   * @default false
+   */
+  invalid?: boolean;
 }

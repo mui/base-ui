@@ -22,22 +22,24 @@ const FieldError = React.forwardRef(function FieldError(
   props: FieldErrorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, id, className, show: showProp, forceShow = false, ...otherProps } = props;
+  const { render, id, className, show, ...otherProps } = props;
 
-  const { validityData, disabled = false } = useFieldRootContext();
+  const { validityData, touched, dirty, disabled = false, invalid } = useFieldRootContext();
 
-  const rendered = showProp
-    ? Boolean(validityData.state[showProp])
-    : forceShow || validityData.state.valid === false;
+  const valid = !invalid && validityData.state.valid;
+  const rendered =
+    invalid || (show ? Boolean(validityData.state[show]) : validityData.state.valid === false);
 
   const { getErrorProps } = useFieldError({ id, rendered });
 
   const ownerState: FieldErrorOwnerState = React.useMemo(
     () => ({
       disabled,
-      valid: validityData.state.valid,
+      touched,
+      dirty,
+      valid,
     }),
-    [disabled, validityData.state.valid],
+    [dirty, disabled, touched, valid],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -70,10 +72,6 @@ FieldError.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  forceShow: PropTypes.bool,
   /**
    * @ignore
    */

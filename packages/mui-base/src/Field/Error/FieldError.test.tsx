@@ -7,19 +7,19 @@ import { describeConformance } from '../../../test/describeConformance';
 describe('<Field.Error />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Field.Error forceShow />, () => ({
+  describeConformance(<Field.Error />, () => ({
     inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
-      return render(<Field.Root>{node}</Field.Root>);
+      return render(<Field.Root invalid>{node}</Field.Root>);
     },
   }));
 
   it('should set aria-describedby on the control automatically', () => {
     render(
-      <Field.Root>
+      <Field.Root invalid>
         <Field.Control />
-        <Field.Error forceShow>Message</Field.Error>
+        <Field.Error>Message</Field.Error>
       </Field.Root>,
     );
 

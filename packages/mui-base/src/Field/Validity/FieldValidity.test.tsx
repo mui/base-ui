@@ -25,7 +25,7 @@ describe('<Field.Validity />', () => {
       input.blur();
     });
 
-    const [data] = handleValidity.args[4];
+    const [data] = handleValidity.args[6];
 
     expect(data.value).to.equal('test');
     expect(data.validity.valueMissing).to.equal(false);
@@ -48,8 +48,8 @@ describe('<Field.Validity />', () => {
       input.blur();
     });
 
-    expect(handleValidity.args[4][0].error).to.equal('error');
-    expect(handleValidity.args[4][0].errors).to.deep.equal(['error']);
+    expect(handleValidity.args[6][0].error).to.equal('error');
+    expect(handleValidity.args[6][0].errors).to.deep.equal(['error']);
   });
 
   it('should correctly pass errors when validate function returns an array of strings', () => {
@@ -69,7 +69,7 @@ describe('<Field.Validity />', () => {
       input.blur();
     });
 
-    expect(handleValidity.args[4][0].error).to.equal('1');
-    expect(handleValidity.args[4][0].errors).to.deep.equal(['1', '2']);
+    expect(handleValidity.args[6][0].error).to.equal('1');
+    expect(handleValidity.args[6][0].errors).to.deep.equal(['1', '2']);
   });
 });

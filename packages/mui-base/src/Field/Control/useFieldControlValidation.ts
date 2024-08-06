@@ -3,6 +3,9 @@ import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
+
+const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
 /**
  *
@@ -17,8 +20,11 @@ export function useFieldControlValidation() {
     messageIds,
     validityData,
     validateOnChange,
-    validateDebounceMs,
+    validateDebounceTime,
+    invalid,
   } = useFieldRootContext();
+
+  const valid = !invalid && validityData.state.valid;
 
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -38,10 +44,17 @@ export function useFieldControlValidation() {
     window.clearTimeout(timeoutRef.current);
 
     const nextValidityData = {
-      state: element.validity,
+      state: validityKeys.reduce(
+        (acc, key) => {
+          acc[key] = element.validity[key];
+          return acc;
+        },
+        {} as Record<keyof ValidityState, boolean>,
+      ),
       error: '',
       errors: [],
       value,
+      initialValue: validityData.initialValue,
     };
 
     setValidityData(nextValidityData);
@@ -65,11 +78,26 @@ export function useFieldControlValidation() {
     }
     element.setCustomValidity(errorMessage);
 
+    let errors: string[] = [];
+    if (Array.isArray(result)) {
+      errors = result;
+    } else if (result) {
+      errors = [result];
+    } else if (element.validationMessage) {
+      errors = [element.validationMessage];
+    }
+
     setValidityData({
       ...nextValidityData,
+      state: validityKeys.reduce(
+        (acc, key) => {
+          acc[key] = element.validity[key];
+          return acc;
+        },
+        {} as Record<keyof ValidityState, boolean>,
+      ),
       error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
-      // eslint-disable-next-line no-nested-ternary
-      errors: Array.isArray(result) ? result : result ? [result] : [],
+      errors,
     });
   });
 
@@ -77,9 +105,9 @@ export function useFieldControlValidation() {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-        ...(validityData.state.valid === false && { 'aria-invalid': true }),
+        ...(!valid && { 'aria-invalid': true }),
       }),
-    [messageIds, validityData.state.valid],
+    [messageIds, valid],
   );
 
   const getInputValidationProps = React.useCallback(
@@ -95,16 +123,16 @@ export function useFieldControlValidation() {
 
           window.clearTimeout(timeoutRef.current);
 
-          if (validateDebounceMs) {
+          if (validateDebounceTime) {
             timeoutRef.current = window.setTimeout(() => {
               commitValidation(element.value);
-            }, validateDebounceMs);
+            }, validateDebounceTime);
           } else {
             commitValidation(element.value);
           }
         },
       }),
-    [commitValidation, getValidationProps, validateOnChange, validateDebounceMs],
+    [commitValidation, getValidationProps, validateOnChange, validateDebounceTime],
   );
 
   return React.useMemo(

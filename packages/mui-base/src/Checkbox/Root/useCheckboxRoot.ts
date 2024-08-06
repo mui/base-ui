@@ -36,7 +36,15 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     disabled = false,
   } = params;
 
-  const { labelId, setDisabled, setControlId } = useFieldRootContext();
+  const {
+    labelId,
+    setDisabled,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setValidityData,
+  } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -75,6 +83,12 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     state: 'checked',
   });
 
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && checked !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: checked }));
+    }
+  }, [checked, setValidityData, validityData.initialValue]);
+
   const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
@@ -86,6 +100,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         onBlur(event) {
+          setTouched(true);
           commitValidation(event.currentTarget.value);
         },
         onClick(event) {
@@ -98,7 +113,16 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           inputRef.current?.click();
         },
       }),
-    [getValidationProps, indeterminate, checked, disabled, readOnly, labelId, commitValidation],
+    [
+      getValidationProps,
+      indeterminate,
+      checked,
+      disabled,
+      readOnly,
+      labelId,
+      setTouched,
+      commitValidation,
+    ],
   );
 
   const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(
@@ -123,11 +147,13 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
           const nextChecked = event.target.checked;
 
+          setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event);
         },
       }),
     [
+      getInputValidationProps,
       id,
       checked,
       disabled,
@@ -135,9 +161,10 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       required,
       autoFocus,
       mergedInputRef,
+      setDirty,
+      validityData.initialValue,
       setCheckedState,
       onCheckedChange,
-      getInputValidationProps,
     ],
   );
 

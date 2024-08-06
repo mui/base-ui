@@ -45,7 +45,11 @@ export default function UnstyledFieldAsync() {
   return (
     <div>
       <h3>Handle availability checker</h3>
-      <FieldRoot validate={handleValidate} validateOnChange validateDebounceMs={500}>
+      <FieldRoot
+        validate={handleValidate}
+        validateOnChange
+        validateDebounceTime={500}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Field.Label>@</Field.Label>
           <Field.Validity>
@@ -93,12 +97,12 @@ const FieldControl = styled(Field.Control)`
   padding: 6px;
   font-size: 100%;
 
-  &[data-invalid] {
+  &[data-field='invalid']:not([data-pending]) {
     border-color: red;
     background-color: #fffbfb;
   }
 
-  &[data-valid]:not([data-pending]) {
+  &[data-field='valid']:not([data-pending]) {
     border-color: green;
     background-color: #f0fff0;
   }
@@ -108,12 +112,12 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-invalid] {
+    &[data-field='invalid']:not([data-pending]) {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }
 
-    &[data-valid]:not([data-pending]) {
+    &[data-field='valid']:not([data-pending]) {
       box-shadow: 0 0 0 3px rgba(100 200 100 / 0.3);
     }
   }

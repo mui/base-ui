@@ -154,7 +154,8 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
-  const { setDisabled, setControlId } = useFieldRootContext();
+  const { setDisabled, setControlId, setTouched, setDirty, validityData, setValidityData } =
+    useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -199,6 +200,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     default: defaultValue ?? min,
     name: 'Slider',
   });
+
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && valueState !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: valueState }));
+    }
+  }, [setValidityData, validityData.initialValue, valueState]);
 
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
@@ -275,12 +282,14 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         setValueState(newValue);
+        setDirty(newValue !== validityData.initialValue);
 
         if (handleValueChange && !areValuesEqual(newValue)) {
           handleValueChange(newValue, index, event);
         }
 
         if (onValueCommitted) {
+          setTouched(true);
           onValueCommitted(newValue, event.nativeEvent);
           commitValidation(newValue);
         }
@@ -294,9 +303,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       minStepsBetweenValues,
       values,
       setValueState,
+      setDirty,
+      validityData.initialValue,
       handleValueChange,
       areValuesEqual,
       onValueCommitted,
+      setTouched,
       commitValidation,
     ],
   );

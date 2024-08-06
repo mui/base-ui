@@ -4,6 +4,7 @@ import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { ValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
+  invalid: boolean;
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
   labelId: string | undefined;
@@ -14,12 +15,18 @@ export interface FieldRootContextValue {
   setValidityData: React.Dispatch<React.SetStateAction<ValidityData>>;
   disabled: boolean | undefined;
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  touched: boolean;
+  setTouched: React.Dispatch<React.SetStateAction<boolean>>;
+  dirty: boolean;
+  setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
   validateOnChange: boolean;
-  validateDebounceMs: number;
+  validateOnMount: boolean;
+  validateDebounceTime: number;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
+  invalid: false,
   controlId: undefined,
   setControlId: () => {},
   labelId: undefined,
@@ -31,13 +38,19 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
     errors: [],
     error: '',
     value: '',
+    initialValue: null,
   },
   setValidityData: () => {},
   disabled: undefined,
+  touched: false,
+  setTouched: () => {},
+  dirty: false,
+  setDirty: () => {},
   setDisabled: () => {},
   validate: () => null,
   validateOnChange: false,
-  validateDebounceMs: 0,
+  validateOnMount: false,
+  validateDebounceTime: 0,
 });
 
 if (process.env.NODE_ENV !== 'production') {

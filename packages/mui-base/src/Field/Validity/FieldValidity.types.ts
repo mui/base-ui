@@ -1,7 +1,7 @@
 import type * as React from 'react';
 
 export interface FieldValidityState {
-  validity: Omit<ValidityState, 'valid'> & { valid: boolean | null };
+  validity: ValidityState;
   errors: string[];
   error: string;
   value: unknown;

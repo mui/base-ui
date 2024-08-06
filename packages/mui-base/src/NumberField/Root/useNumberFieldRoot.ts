@@ -68,7 +68,16 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
-  const { labelId, setDisabled, setControlId, validateOnChange } = useFieldRootContext();
+  const {
+    labelId,
+    setDisabled,
+    setControlId,
+    validateOnChange,
+    setTouched,
+    setDirty,
+    validityData,
+    setValidityData,
+  } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -126,6 +135,12 @@ export function useNumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && value !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: value }));
+    }
+  }, [setValidityData, validityData.initialValue, value]);
+
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
@@ -175,6 +190,7 @@ export function useNumberFieldRoot(
 
     onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
+    setDirty(validatedValue !== validityData.initialValue);
 
     if (validateOnChange) {
       commitValidation(validatedValue);
@@ -553,6 +569,7 @@ export function useNumberFieldRoot(
             return;
           }
 
+          setTouched(true);
           commitValidation(valueRef.current);
 
           allowInputSyncRef.current = true;
@@ -714,6 +731,7 @@ export function useNumberFieldRoot(
       mergedRef,
       invalid,
       labelId,
+      setTouched,
       commitValidation,
       valueRef,
       inputValue,

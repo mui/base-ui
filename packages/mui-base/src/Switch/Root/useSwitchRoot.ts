@@ -35,7 +35,15 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     inputRef: externalInputRef,
   } = params;
 
-  const { labelId, setDisabled, setControlId } = useFieldRootContext();
+  const {
+    labelId,
+    setDisabled,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setValidityData,
+  } = useFieldRootContext();
 
   useEnhancedEffect(() => {
     setDisabled(disabled);
@@ -68,6 +76,12 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     state: 'checked',
   });
 
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && checked !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: checked }));
+    }
+  }, [checked, setValidityData, validityData.initialValue]);
+
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
@@ -78,6 +92,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
         'aria-readonly': readOnly,
         'aria-labelledby': labelId,
         onBlur(event) {
+          setTouched(true);
           commitValidation(event.currentTarget.value);
         },
         onClick(event) {
@@ -88,12 +103,13 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           inputRef.current?.click();
         },
       }),
-    [getValidationProps, checked, disabled, readOnly, labelId, commitValidation],
+    [getValidationProps, checked, disabled, readOnly, labelId, setTouched, commitValidation],
   );
 
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(otherProps), {
+        id,
         checked,
         disabled,
         name,
@@ -111,17 +127,21 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
 
           const nextChecked = event.target.checked;
 
+          setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event);
         },
       }),
     [
       getInputValidationProps,
+      id,
       checked,
       disabled,
       name,
       required,
       handleInputRef,
+      setDirty,
+      validityData.initialValue,
       setCheckedState,
       onCheckedChange,
     ],
