@@ -6,15 +6,15 @@ export default function UnstyledRadioGroupIntroduction() {
   return (
     <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
       <Item value="light">
-        <Indicator keepMounted />
+        <Indicator />
         Light
       </Item>
       <Item value="medium">
-        <Indicator keepMounted />
+        <Indicator />
         Medium
       </Item>
       <Item value="heavy">
-        <Indicator keepMounted />
+        <Indicator />
         Heavy
       </Item>
     </RadioGroup.Root>
@@ -54,7 +54,7 @@ const Item = styled(RadioGroup.Item)`
     outline-offset: 2px;
   }
 
-  &[data-state='checked'] {
+  &[data-radio-group='checked'] {
     background-color: ${blue[600]};
     color: white;
   }
@@ -67,7 +67,7 @@ const Indicator = styled(RadioGroup.Indicator)`
   margin-right: 8px;
   outline: 1px solid black;
 
-  &[data-state='checked'] {
+  &[data-radio-group='checked'] {
     background-color: white;
     border: none;
     outline: none;
