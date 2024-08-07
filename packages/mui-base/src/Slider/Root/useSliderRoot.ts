@@ -13,10 +13,9 @@ import { SliderThumbMetadata, UseSliderParameters, UseSliderReturnValue } from '
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-
-function asc(a: number, b: number) {
-  return a - b;
-}
+import { asc } from '../utils/asc';
+import { setValueIndex } from '../utils/setValueIndex';
+import { getSliderValue } from '../utils/getSliderValue';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -58,20 +57,6 @@ export function focusThumb({
   if (setActive) {
     setActive(activeIndex);
   }
-}
-
-function setValueIndex({
-  values,
-  newValue,
-  index,
-}: {
-  values: number[];
-  newValue: number;
-  index: number;
-}) {
-  const output = values.slice();
-  output[index] = newValue;
-  return output.sort(asc);
 }
 
 export function validateMinimumDistance(
@@ -262,21 +247,17 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   );
 
   const changeValue = React.useCallback(
-    (valueInput: number, index: number, event?: React.KeyboardEvent | React.ChangeEvent) => {
-      let newValue: number | number[] = valueInput;
-
-      newValue = clamp(newValue, min, max);
+    (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
+      const newValue = getSliderValue({
+        valueInput,
+        min,
+        max,
+        index,
+        range,
+        values,
+      });
 
       if (range) {
-        // Bound the new value to the thumb's neighbours.
-        newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
-
-        newValue = setValueIndex({
-          values,
-          newValue,
-          index,
-        });
-
         focusThumb({ sliderRef, activeIndex: index });
       }
 
@@ -451,6 +432,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       step,
       subitems,
       tabIndex,
+      range,
       values,
     }),
     [
@@ -480,6 +462,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       step,
       subitems,
       tabIndex,
+      range,
       values,
     ],
   );

@@ -7,6 +7,8 @@ import { useCompoundItem } from '../../useCompound';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { getSliderValue } from '../utils/getSliderValue';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
@@ -73,7 +75,12 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     values: sliderValues,
   } = parameters;
 
-  const { getInputValidationProps, inputRef: inputValidationRef } = useFieldControlValidation();
+  const { setTouched } = useFieldRootContext();
+  const {
+    getInputValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
@@ -126,13 +133,22 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: idParam,
-        // onBlur() {
-        //   if (!thumbRef.current) {
-        //     return;
-        //   }
-        //   setTouched(true);
-        //   changeValue(thumbValue, index);
-        // },
+        onBlur() {
+          if (!thumbRef.current) {
+            return;
+          }
+          setTouched(true);
+          commitValidation(
+            getSliderValue({
+              valueInput: thumbValue,
+              min,
+              max,
+              index,
+              range: sliderValues.length > 1,
+              values: sliderValues,
+            }),
+          );
+        },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
           const isRange = sliderValues.length > 1;
@@ -208,8 +224,10 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       getThumbStyle,
       tabIndex,
       disabled,
-      sliderValues,
+      setTouched,
+      commitValidation,
       thumbValue,
+      sliderValues,
       largeStep,
       step,
       min,
