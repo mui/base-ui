@@ -19,7 +19,6 @@ describe('<Field.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Root />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));

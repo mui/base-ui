@@ -7,7 +7,6 @@ describe('<Field.Control />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Control />, () => ({
-    inheritComponent: 'input',
     refInstanceof: window.HTMLInputElement,
     render(node) {
       return render(<Field.Root>{node}</Field.Root>);

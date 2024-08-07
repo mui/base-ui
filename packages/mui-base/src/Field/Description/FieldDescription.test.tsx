@@ -12,7 +12,6 @@ describe('<Field.Description />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Description />, () => ({
-    inheritComponent: 'p',
     refInstanceof: window.HTMLParagraphElement,
     render(node) {
       return render(<Field.Root>{node}</Field.Root>);

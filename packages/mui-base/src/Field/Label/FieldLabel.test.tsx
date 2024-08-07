@@ -12,7 +12,6 @@ describe('<Field.Label />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Label />, () => ({
-    inheritComponent: 'label',
     refInstanceof: window.HTMLLabelElement,
     render(node) {
       return render(<Field.Root>{node}</Field.Root>);
