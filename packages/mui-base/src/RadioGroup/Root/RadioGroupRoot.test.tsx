@@ -21,7 +21,7 @@ describe('<RadioGroup.Root />', () => {
 
   describe('extra props', () => {
     it('can override the built-in attributes', () => {
-      const { container } = render(<RadioGroup.Root data-state="checked" role="switch" />);
+      const { container } = render(<RadioGroup.Root role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -142,12 +142,12 @@ describe('<RadioGroup.Root />', () => {
     expect(root).to.have.attribute('data-readonly', 'true');
     expect(root).to.have.attribute('data-required', 'true');
 
-    expect(item).to.have.attribute('data-state', 'checked');
+    expect(item).to.have.attribute('data-radio-group-item', 'checked');
     expect(item).to.have.attribute('data-disabled', 'true');
     expect(item).to.have.attribute('data-readonly', 'true');
     expect(item).to.have.attribute('data-required', 'true');
 
-    expect(indicator).to.have.attribute('data-state', 'checked');
+    expect(indicator).to.have.attribute('data-radio-group-item', 'checked');
     expect(indicator).to.have.attribute('data-disabled', 'true');
     expect(indicator).to.have.attribute('data-readonly', 'true');
     expect(indicator).to.have.attribute('data-required', 'true');
