@@ -54,7 +54,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const numberField = useNumberFieldRoot(props);
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
-  const disabled = fieldDisabled ?? disabledProp;
+  const disabled = fieldDisabled || disabledProp;
 
   const ownerState: NumberFieldRootOwnerState = React.useMemo(
     () => ({

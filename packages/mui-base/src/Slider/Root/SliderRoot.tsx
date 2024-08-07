@@ -29,7 +29,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   } = props;
 
   const { labelId, ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
-  const disabled = fieldDisabled ?? disabledProp;
+  const disabled = fieldDisabled || disabledProp;
 
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId,

@@ -47,7 +47,7 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
   const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
-  const disabled = fieldDisabled ?? disabledProp;
+  const disabled = fieldDisabled || disabledProp;
 
   const ownerState: SwitchOwnerState = React.useMemo(
     () => ({

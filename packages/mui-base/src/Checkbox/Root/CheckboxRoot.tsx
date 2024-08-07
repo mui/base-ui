@@ -43,7 +43,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
-  const disabled = fieldDisabled ?? disabledProp;
+  const disabled = fieldDisabled || disabledProp;
 
   const ownerState: CheckboxRootOwnerState = React.useMemo(
     () => ({
