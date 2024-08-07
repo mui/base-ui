@@ -54,7 +54,7 @@ const Item = styled(RadioGroup.Item)`
     outline-offset: 2px;
   }
 
-  &[data-radio-group='checked'] {
+  &[data-radio-group-item='checked'] {
     background-color: ${blue[600]};
     color: white;
   }
@@ -67,7 +67,7 @@ const Indicator = styled(RadioGroup.Indicator)`
   margin-right: 8px;
   outline: 1px solid black;
 
-  &[data-radio-group='checked'] {
+  &[data-radio-group-item='checked'] {
     background-color: white;
     border: none;
     outline: none;
