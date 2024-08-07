@@ -7,7 +7,6 @@ import { useCompoundItem } from '../../useCompound';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
@@ -74,7 +73,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     values: sliderValues,
   } = parameters;
 
-  const { setTouched } = useFieldRootContext();
   const { getInputValidationProps, inputRef: inputValidationRef } = useFieldControlValidation();
 
   const thumbId = useId(idParam);
@@ -128,13 +126,13 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: idParam,
-        onBlur() {
-          if (!thumbRef.current) {
-            return;
-          }
-          setTouched(true);
-          changeValue(thumbValue, index);
-        },
+        // onBlur() {
+        //   if (!thumbRef.current) {
+        //     return;
+        //   }
+        //   setTouched(true);
+        //   changeValue(thumbValue, index);
+        // },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
           const isRange = sliderValues.length > 1;
@@ -210,7 +208,6 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       getThumbStyle,
       tabIndex,
       disabled,
-      setTouched,
       sliderValues,
       thumbValue,
       largeStep,
