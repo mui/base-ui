@@ -132,7 +132,7 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 
 ### Controlled validity
 
-By applying `invalid` to the root, the Field is forcefully placed into an invalid state, and the `<Field.Error>` component will render. This can be useful for server-side error messages, testing, or to force errors to show initially in an SSR-friendly manner to avoid layout shift.
+By applying `invalid` to the root, the Field is forcefully placed into an invalid state, and the `<Field.Error>` component renders. This can be useful for server-side error messages, testing, or to force errors to show initially in an SSR-friendly manner to avoid layout shift.
 
 ```jsx
 <Field.Root invalid>
