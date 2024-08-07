@@ -5,7 +5,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
 
 interface UseRadioGroupItemParameters {
-  value: unknown;
+  value: string | number;
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;

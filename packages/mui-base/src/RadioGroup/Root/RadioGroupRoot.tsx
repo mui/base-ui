@@ -86,7 +86,7 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * The default value of the selected radio button. Use when uncontrolled.
    */
-  defaultValue: PropTypes.any,
+  defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   /**
    * Determines if the radio group is disabled.
    * @default false
@@ -117,7 +117,7 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * The value of the selected radio button. Use when controlled.
    */
-  value: PropTypes.any,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
 
 export { RadioGroupRoot };

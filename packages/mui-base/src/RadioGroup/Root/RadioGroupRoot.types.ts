@@ -29,13 +29,13 @@ export interface RadioGroupRootProps
   /**
    * The value of the selected radio button. Use when controlled.
    */
-  value?: unknown;
+  value?: string | number;
   /**
    * The default value of the selected radio button. Use when uncontrolled.
    */
-  defaultValue?: unknown;
+  defaultValue?: string | number;
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
+  onValueChange?: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
 }

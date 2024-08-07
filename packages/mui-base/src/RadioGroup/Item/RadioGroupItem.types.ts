@@ -10,7 +10,7 @@ export interface RadioGroupItemProps
   /**
    * The unique identifying value of the radio button in the group.
    */
-  value: unknown;
+  value: string | number;
   /**
    * Determines if the item is disabled.
    * @default false
