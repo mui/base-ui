@@ -1,0 +1,105 @@
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import { CompositeItem } from '../../Composite/Item/CompositeItem';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { RadioGroupItemOwnerState, RadioGroupItemProps } from './RadioGroupItem.types';
+import { useRadioGroupItem } from './useRadioGroupItem';
+import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { RadioGroupItemContext, RadioGroupItemContextValue } from './RadioGroupItemContext';
+
+const customStyleHookMapping: CustomStyleHookMapping<RadioGroupItemOwnerState> = {
+  checked(value) {
+    return {
+      'data-state': value ? 'checked' : 'unchecked',
+    };
+  },
+};
+
+const RadioGroupItem = React.forwardRef(function RadioGroupItem(
+  props: RadioGroupItemProps,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
+  const { render, className, disabled: disabledProp = false, value, ...otherProps } = props;
+
+  const { disabled: disabledRoot } = useRadioGroupRootContext();
+
+  const disabled = disabledRoot ?? disabledProp;
+
+  const { getItemProps, getInputProps, checked } = useRadioGroupItem({
+    ...props,
+    disabled,
+  });
+
+  const ownerState: RadioGroupItemOwnerState = React.useMemo(
+    () => ({
+      disabled,
+      checked,
+    }),
+    [disabled, checked],
+  );
+
+  const contextValue: RadioGroupItemContextValue = React.useMemo(
+    () => ({
+      checked,
+      disabled,
+    }),
+    [checked, disabled],
+  );
+
+  const { renderElement } = useComponentRenderer({
+    propGetter: getItemProps,
+    render: render ?? 'button',
+    ref: forwardedRef,
+    className,
+    ownerState,
+    extraProps: otherProps,
+    customStyleHookMapping,
+  });
+
+  return (
+    <RadioGroupItemContext.Provider value={contextValue}>
+      <CompositeItem render={renderElement()} />
+      {props.name && <input type="hidden" name={props.name} value={checked ? 'on' : 'off'} />}
+      <input {...getInputProps()} />
+    </RadioGroupItemContext.Provider>
+  );
+});
+
+RadioGroupItem.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Whether the item is disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  name: PropTypes.string,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * Determines if the item is required.
+   */
+  required: PropTypes.bool,
+  /**
+   * The value of the item identified in the radio group.
+   */
+  value: PropTypes.string.isRequired,
+} as any;
+
+export { RadioGroupItem };

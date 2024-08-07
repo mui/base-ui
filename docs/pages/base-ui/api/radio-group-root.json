@@ -1,0 +1,24 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultValue": { "type": { "name": "string" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "name": { "type": { "name": "string" } },
+    "onValueChange": { "type": { "name": "func" } },
+    "orientation": {
+      "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" }
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "string" } }
+  },
+  "name": "RadioGroupRoot",
+  "imports": [
+    "import * as RadioGroup from '@base_ui/react/RadioGroup';\nconst RadioGroupRoot = RadioGroup.Root;"
+  ],
+  "classes": [],
+  "muiName": "RadioGroupRoot",
+  "filename": "/packages/mui-base/src/RadioGroup/Root/RadioGroupRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-radio-group/\">Radio Group</a></li></ul>",
+  "cssComponent": false
+}

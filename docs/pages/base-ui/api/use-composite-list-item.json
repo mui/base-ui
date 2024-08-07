@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useCompositeListItem",
+  "filename": "/packages/mui-base/src/Composite/utils/CompositeList/useCompositeListItem.ts",
+  "imports": ["import { useCompositeListItem } from '@base_ui/react/Composite';"],
+  "demos": "<ul></ul>"
+}
