@@ -1,6 +1,4 @@
-function asc(a: number, b: number) {
-  return a - b;
-}
+import { asc } from './asc';
 
 export function setValueIndex({
   values,
