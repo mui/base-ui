@@ -283,5 +283,4 @@ export interface UseSliderReturnValue {
    * The value(s) of the slider
    */
   values: readonly number[];
-  range: boolean;
 }
