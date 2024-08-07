@@ -119,7 +119,7 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
   /**
    * The unique identifying value of the radio button in the group.
    */
-  value: PropTypes.any.isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
 } as any;
 
 export { RadioGroupItem };

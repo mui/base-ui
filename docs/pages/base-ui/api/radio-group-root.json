@@ -1,14 +1,14 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultValue": { "type": { "name": "any" } },
+    "defaultValue": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "name": { "type": { "name": "string" } },
     "onValueChange": { "type": { "name": "func" } },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" },
-    "value": { "type": { "name": "any" } }
+    "value": { "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" } }
   },
   "name": "RadioGroupRoot",
   "imports": [
