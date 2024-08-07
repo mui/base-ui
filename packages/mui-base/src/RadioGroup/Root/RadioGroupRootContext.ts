@@ -5,9 +5,9 @@ export interface RadioGroupRootContextValue {
   disabled: boolean | undefined;
   readOnly: boolean | undefined;
   required: boolean | undefined;
-  checkedItem: string | null;
-  setCheckedItem: React.Dispatch<React.SetStateAction<string | null>>;
-  onValueChange: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
+  checkedItem: unknown;
+  setCheckedItem: React.Dispatch<React.SetStateAction<unknown>>;
+  onValueChange: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
 }

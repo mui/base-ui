@@ -17,7 +17,7 @@ interface UseRadioGroupRootParameters {
 export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
   const { disabled, defaultValue, readOnly, value: externalValue } = params;
 
-  const [checkedItem, setCheckedItem] = useControlled<string | null>({
+  const [checkedItem, setCheckedItem] = useControlled<unknown>({
     controlled: externalValue,
     default: defaultValue,
     name: 'RadioGroup',

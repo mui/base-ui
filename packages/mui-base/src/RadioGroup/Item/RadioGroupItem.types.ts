@@ -6,11 +6,11 @@ export type RadioGroupItemOwnerState = {
 };
 
 export interface RadioGroupItemProps
-  extends Omit<BaseUIComponentProps<'button', RadioGroupItemOwnerState>, 'name'> {
+  extends Omit<BaseUIComponentProps<'button', RadioGroupItemOwnerState>, 'name' | 'value'> {
   /**
    * The unique identifying value of the radio button in the group.
    */
-  value: string;
+  value: unknown;
   /**
    * Determines if the item is disabled.
    * @default false

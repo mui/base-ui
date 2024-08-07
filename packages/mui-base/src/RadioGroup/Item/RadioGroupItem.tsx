@@ -12,7 +12,7 @@ import { RadioGroupItemContext, type RadioGroupItemContextValue } from './RadioG
 const customStyleHookMapping: CustomStyleHookMapping<RadioGroupItemOwnerState> = {
   checked(value) {
     return {
-      'data-state': value ? 'checked' : 'unchecked',
+      'data-radio-group': value ? 'checked' : 'unchecked',
     };
   },
 };
@@ -119,7 +119,7 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
   /**
    * The unique identifying value of the radio button in the group.
    */
-  value: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
 } as any;
 
 export { RadioGroupItem };

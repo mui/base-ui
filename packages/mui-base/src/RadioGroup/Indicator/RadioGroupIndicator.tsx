@@ -12,7 +12,7 @@ import type {
 const customStyleHookMapping: CustomStyleHookMapping<RadioGroupIndicatorOwnerState> = {
   checked(value) {
     return {
-      'data-state': value ? 'checked' : 'unchecked',
+      'data-radio-group': value ? 'checked' : 'unchecked',
     };
   },
 };
@@ -21,7 +21,7 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
   props: RadioGroupIndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, ...otherProps } = props;
 
   const { disabled, checked, required, readOnly } = useRadioGroupItemContext();
 
@@ -44,10 +44,6 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
     customStyleHookMapping,
   });
 
-  if (!keepMounted && !ownerState.checked) {
-    return null;
-  }
-
   return renderElement();
 });
 
@@ -64,11 +60,6 @@ RadioGroupIndicator.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
