@@ -1,6 +1,6 @@
 {
   "props": {
-    "value": { "type": { "name": "string" }, "required": true },
+    "value": { "type": { "name": "any" }, "required": true },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },

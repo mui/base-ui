@@ -5,7 +5,8 @@ export type RadioGroupRootOwnerState = {
   readOnly: boolean | undefined;
 };
 
-export interface RadioGroupRootProps extends BaseUIComponentProps<'div', RadioGroupRootOwnerState> {
+export interface RadioGroupRootProps
+  extends Omit<BaseUIComponentProps<'div', RadioGroupRootOwnerState>, 'value' | 'defaultValue'> {
   /**
    * Determines if the radio group is disabled.
    * @default false
@@ -28,13 +29,13 @@ export interface RadioGroupRootProps extends BaseUIComponentProps<'div', RadioGr
   /**
    * The value of the selected radio button. Use when controlled.
    */
-  value?: string;
+  value?: unknown;
   /**
    * The default value of the selected radio button. Use when uncontrolled.
    */
-  defaultValue?: string;
+  defaultValue?: unknown;
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
+  onValueChange?: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
