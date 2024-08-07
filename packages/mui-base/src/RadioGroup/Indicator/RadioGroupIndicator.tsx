@@ -12,7 +12,7 @@ import type {
 const customStyleHookMapping: CustomStyleHookMapping<RadioGroupIndicatorOwnerState> = {
   checked(value) {
     return {
-      'data-radio-group': value ? 'checked' : 'unchecked',
+      'data-radio-group-item': value ? 'checked' : 'unchecked',
     };
   },
 };
