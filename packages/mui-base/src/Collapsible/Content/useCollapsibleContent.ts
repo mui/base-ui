@@ -44,10 +44,12 @@ function useCollapsibleContent(
 
   const contentRef = React.useRef<HTMLElement | null>(null);
 
-  const heightRef = React.useRef(0);
-  const { current: height } = heightRef;
+  const [height, setHeight] = React.useState(0);
 
-  const latestAnimationNameRef = React.useRef('none');
+  const latestAnimationNameRef = React.useRef<string | undefined>('none');
+  const originalTransitionDurationStyleRef = React.useRef<string | undefined>();
+
+  const isTransitioningRef = React.useRef(false);
 
   useEnhancedEffect(() => {
     setContentId(id);
@@ -66,6 +68,7 @@ function useCollapsibleContent(
     const computedStyles = getComputedStyles(element);
 
     latestAnimationNameRef.current = computedStyles.animationName ?? 'none';
+    originalTransitionDurationStyleRef.current = element.style.transitionDuration;
   });
 
   const mergedRef = useForkRef(ref, handleContentRef);
@@ -82,7 +85,6 @@ function useCollapsibleContent(
     if (element) {
       const computedStyles = getComputedStyles(element);
 
-      const prevAnimationName = latestAnimationNameRef.current;
       const currentAnimationName = computedStyles.animationName;
 
       const originalAnimationName =
@@ -90,14 +92,16 @@ function useCollapsibleContent(
 
       element.style.animationName = 'none';
 
-      const isAnimatingOut = prevAnimationName !== currentAnimationName && !open && contextMounted;
+      const rect = element.getBoundingClientRect();
 
-      if (open || isAnimatingOut) {
-        const rect = element.getBoundingClientRect();
-        heightRef.current = rect.height;
+      if (!isTransitioningRef.current || !(open || contextMounted)) {
+        setHeight(rect.height);
       }
 
       element.style.animationName = isInitialOpenRef.current ? 'none' : originalAnimationName;
+      element.style.transitionDuration = isInitialOpenRef.current
+        ? '0s'
+        : originalTransitionDurationStyleRef.current ?? '';
 
       runOnceAnimationsFinish(() => {
         ReactDOM.flushSync(() => {
@@ -112,12 +116,62 @@ function useCollapsibleContent(
   }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
 
   React.useEffect(() => {
+    const { current: element } = contentRef;
+
+    let frame2 = -1;
+    let frame3 = -1;
+
     const frame = requestAnimationFrame(() => {
       isInitialOpenRef.current = false;
+
+      if (element) {
+        frame2 = requestAnimationFrame(() => {
+          frame3 = requestAnimationFrame(() => {
+            // it takes 3 frames to unset `'0s'` from the initial open state correctly
+            element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
+          });
+        });
+      }
     });
 
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(frame2);
+      cancelAnimationFrame(frame3);
+    };
   }, []);
+
+  React.useEffect(
+    function registerCssTransitionListeners() {
+      const { current: element } = contentRef;
+      if (!element) {
+        return undefined;
+      }
+
+      function handleTransitionRun() {
+        isTransitioningRef.current = true;
+      }
+
+      function handleTransitionEnd() {
+        isTransitioningRef.current = false;
+      }
+
+      function handleTransitionCancel() {
+        isTransitioningRef.current = false;
+      }
+
+      element.addEventListener('transitioncancel', handleTransitionCancel);
+      element.addEventListener('transitionend', handleTransitionEnd);
+      element.addEventListener('transitionrun', handleTransitionRun);
+
+      return () => {
+        element.removeEventListener('transitioncancel', handleTransitionCancel);
+        element.removeEventListener('transitionend', handleTransitionEnd);
+        element.removeEventListener('transitionrun', handleTransitionRun);
+      };
+    },
+    [open, setHeight],
+  );
 
   const getRootProps: UseCollapsibleContentReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -132,10 +186,9 @@ function useCollapsibleContent(
   return React.useMemo(
     () => ({
       getRootProps,
-      isOpen,
       height,
     }),
-    [getRootProps, isOpen, height],
+    [getRootProps, height],
   );
 }
 

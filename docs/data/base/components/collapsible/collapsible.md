@@ -112,13 +112,13 @@ CSS animations can be used with two declarations:
   overflow: hidden;
 }
 
-.Collapsible-content[data-entering] {
-  height: 0;
-}
-
 .Collapsible2-content[data-state='open'] {
   height: var(--collapsible-content-height);
   transition: height 300ms ease-out;
+}
+
+.Collapsible-content[data-entering] {
+  height: 0;
 }
 
 .Collapsible2-content[data-state='closed'] {
@@ -126,3 +126,5 @@ CSS animations can be used with two declarations:
   transition: height 300ms ease-in;
 }
 ```
+
+{{"demo": "CssTransitionCollapsible.js"}}

@@ -20,6 +20,5 @@ export interface UseCollapsibleContentReturnValue {
   getRootProps: (
     externalProps?: React.ComponentPropsWithRef<'button'>,
   ) => React.ComponentPropsWithRef<'button'>;
-  isOpen: boolean;
   height: number;
 }
