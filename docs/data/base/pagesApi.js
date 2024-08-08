@@ -53,14 +53,6 @@ module.exports = [
     title: 'CollapsibleTrigger',
   },
   {
-    pathname: '/base-ui/react-transitions/components-api/#css-animation',
-    title: 'CssAnimation',
-  },
-  {
-    pathname: '/base-ui/react-transitions/components-api/#css-transition',
-    title: 'CssTransition',
-  },
-  {
     pathname: '/base-ui/react-dialog/components-api/#dialog-backdrop',
     title: 'DialogBackdrop',
   },
