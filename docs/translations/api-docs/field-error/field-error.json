@@ -4,7 +4,13 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "render": { "description": "A function to customize rendering of the component." }
+    "forceShow": {
+      "description": "Determines whether the error message should be shown regardless of the field&#39;s client validity."
+    },
+    "render": { "description": "A function to customize rendering of the component." },
+    "show": {
+      "description": "Determines whether the error message should be shown when it matches a given property of the field&#39;s <code>ValidityState</code>."
+    }
   },
   "classDescriptions": {}
 }

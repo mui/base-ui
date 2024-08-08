@@ -7,7 +7,7 @@ import { describeConformance } from '../../../test/describeConformance';
 describe('<Field.Error />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Field.Error />, () => ({
+  describeConformance(<Field.Error forceShow />, () => ({
     inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
@@ -19,7 +19,7 @@ describe('<Field.Error />', () => {
     render(
       <Field.Root invalid>
         <Field.Control />
-        <Field.Error>Message</Field.Error>
+        <Field.Error forceShow>Message</Field.Error>
       </Field.Root>,
     );
 
@@ -79,6 +79,19 @@ describe('<Field.Error />', () => {
         textbox.focus();
         textbox.blur();
       });
+
+      expect(screen.queryByText('Message')).not.to.equal(null);
+    });
+  });
+
+  describe('prop: forceShow', () => {
+    it('should always render the error message', () => {
+      render(
+        <Field.Root>
+          <Field.Control required />
+          <Field.Error forceShow>Message</Field.Error>
+        </Field.Root>,
+      );
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });

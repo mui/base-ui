@@ -132,14 +132,25 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 
 ### Controlled validity
 
-By applying `invalid` to the root, the Field is forcefully placed into an invalid state, and the `<Field.Error>` component renders. This can be useful for server-side error messages, testing, or to force errors to show initially in an SSR-friendly manner to avoid layout shift.
+By applying `invalid` to `Field.Root`, the Field is forcefully placed into an invalid state. A given error message can be forced to be shown by passing a `forceShow` prop on `Field.Error`, overriding client-side validation.
+
+This can be useful for server-side error messages, testing, or to force particular errors to show initially in an SSR-friendly manner to avoid layout shift.
 
 ```jsx
-<Field.Root invalid>
-  <Field.Control required />
-  <Field.Error>Server-side error message</Field.Error>
+<Field.Root invalid={serverErrors.email}>
+  <Field.Control type="email" required />
+  <Field.Error show="valueMissing">Client-only error message</Field.Error>
+  <Field.Error show="typeMismatch" forceShow={serverErrors.email}>
+    Client and server-side error message
+  </Field.Error>
 </Field.Root>
 ```
+
+Performing a name validity check on the server:
+
+{{"demo": "UnstyledFieldServerError.js", "defaultCodeOpen": false}}
+
+Errors shown initially for password validation:
 
 {{"demo": "UnstyledFieldPassword.js", "defaultCodeOpen": false}}
 

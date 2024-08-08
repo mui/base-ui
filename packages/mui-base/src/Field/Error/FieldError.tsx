@@ -22,12 +22,18 @@ const FieldError = React.forwardRef(function FieldError(
   props: FieldErrorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, id, className, show, ...otherProps } = props;
+  const { render, id, className, show, forceShow, ...otherProps } = props;
 
-  const { validityData, ownerState, invalid } = useFieldRootContext(false);
+  const { validityData, ownerState } = useFieldRootContext(false);
 
-  const rendered =
-    invalid || (show ? Boolean(validityData.state[show]) : validityData.state.valid === false);
+  let rendered = false;
+  if (forceShow != null) {
+    rendered = forceShow;
+  } else if (show) {
+    rendered = Boolean(validityData.state[show]);
+  } else {
+    rendered = validityData.state.valid === false;
+  }
 
   const { getErrorProps } = useFieldError({ id, rendered });
 
@@ -62,6 +68,10 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * Determines whether the error message should be shown regardless of the field's client validity.
+   */
+  forceShow: PropTypes.bool,
+  /**
    * @ignore
    */
   id: PropTypes.string,
@@ -70,7 +80,8 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * @ignore
+   * Determines whether the error message should be shown when it matches a given property of the
+   * field's `ValidityState`.
    */
   show: PropTypes.oneOf([
     'badInput',
