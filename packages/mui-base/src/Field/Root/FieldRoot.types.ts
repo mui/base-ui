@@ -1,6 +1,6 @@
 import type { BaseUIComponentProps } from '../../utils/types';
 
-export interface ValidityData {
+export interface FieldValidityData {
   state: {
     badInput: boolean;
     customError: boolean;

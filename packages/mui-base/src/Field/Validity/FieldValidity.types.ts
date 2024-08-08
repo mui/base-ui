@@ -1,11 +1,8 @@
 import type * as React from 'react';
+import type { FieldValidityData } from '../Root/FieldRoot.types';
 
-export interface FieldValidityState {
-  validity: ValidityState;
-  errors: string[];
-  error: string;
-  value: unknown;
-  initialValue: unknown;
+export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
+  validity: FieldValidityData['state'];
 }
 
 export interface FieldValidityOwnerState {}

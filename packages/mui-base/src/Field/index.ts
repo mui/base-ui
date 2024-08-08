@@ -8,6 +8,7 @@ export { FieldValidity as Validity } from './Validity/FieldValidity';
 export type {
   FieldRootProps as RootProps,
   FieldRootOwnerState as RootOwnerState,
+  FieldValidityData as ValidityData,
 } from './Root/FieldRoot.types';
 export type {
   FieldLabelProps as LabelProps,

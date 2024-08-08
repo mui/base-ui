@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import type { FieldRootOwnerState, ValidityData } from './FieldRoot.types';
+import type { FieldRootOwnerState, FieldValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
   invalid: boolean;
@@ -11,8 +11,8 @@ export interface FieldRootContextValue {
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
   setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
-  validityData: ValidityData;
-  setValidityData: React.Dispatch<React.SetStateAction<ValidityData>>;
+  validityData: FieldValidityData;
+  setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   disabled: boolean | undefined;
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
   touched: boolean;

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRootOwnerState, ValidityData, FieldRootProps } from './FieldRoot.types';
+import type { FieldRootOwnerState, FieldValidityData, FieldRootProps } from './FieldRoot.types';
 import { FieldRootContext, type FieldRootContextValue } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
@@ -47,7 +47,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirty] = React.useState(false);
 
-  const [validityData, setValidityData] = React.useState<ValidityData>({
+  const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
     error: '',
     errors: [],
