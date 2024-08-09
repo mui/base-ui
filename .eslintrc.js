@@ -51,6 +51,16 @@ module.exports = {
       },
     },
     {
+      files: ['packages/**/*.test{.tsx,.js}'],
+      excludedFiles: 'packages/mui-base/src/legacy/**/*.*',
+      extends: ['plugin:testing-library/react'],
+      rules: {
+        'testing-library/prefer-screen-queries': 'off', // TODO: enable and fix
+        'testing-library/no-container': 'off', // TODO: enable and fix
+        'testing-library/render-result-naming-convention': 'off', // False positives
+      },
+    },
+    {
       files: ['docs/**/*{.ts,.tsx,.js}'],
       rules: {
         'no-restricted-imports': [

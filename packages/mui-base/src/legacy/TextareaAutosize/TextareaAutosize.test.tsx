@@ -37,7 +37,6 @@ describe('<TextareaAutosize />', () => {
 
   describeConformanceUnstyled(<TextareaAutosize />, () => ({
     render,
-    inheritComponent: 'textarea',
     refInstanceof: window.HTMLTextAreaElement,
     slots: {},
     skip: [
