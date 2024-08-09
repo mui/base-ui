@@ -11,12 +11,12 @@
 
   --grayA-surface-2: hsl(0 0% 97% / 86%);
 
-  --code-1: #CC4E00;
-  --code-2: #7D5E54;
-  --code-3: #CB1D63;
-  --code-4: #8145B5;
-  --code-5: #9E6C00;
-  --code-6: #00749E;
+  --code-1: #cc4e00;
+  --code-2: #7d5e54;
+  --code-3: #cb1d63;
+  --code-4: #8145b5;
+  --code-5: #9e6c00;
+  --code-6: #00749e;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -44,20 +44,8 @@
   --br-circle: 50%;
   --br-pill: 9999px;
 
-  --ff-sans: graphik, -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      "Noto Sans",
-      Helvetica,
-      Arial,
-      sans-serif,
-      "Apple Color Emoji",
-      "Segoe UI Emoji";
-  --ff-code: Söhne mono, ui-monospace,
-    SFMono-Regular,
-    "SF Mono",
-    Menlo,
-    Consolas,
-    "Liberation Mono",
+  --ff-sans: graphik, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --ff-code: Söhne mono, ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
     monospace;
 }

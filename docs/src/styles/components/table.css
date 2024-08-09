@@ -33,8 +33,8 @@
   padding-right: var(--space-4);
   padding-bottom: var(--space-3);
   padding-left: var(--space-4);
-  }
-  
+}
+
 .TableRowHeader,
 .TableCell {
   border-top: 1px solid var(--gray-outline-2);

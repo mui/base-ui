@@ -19,11 +19,11 @@
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, .025),
-    0 8px 36px -6px rgba(0, 0, 0, .025),
-    0 12px 64px -6px rgba(0, 0, 0, .1),
-    0 16px 64px -8px rgba(0, 0, 0, .1),
-    0 16px 36px -8px rgba(0, 0, 0, .1);
+    0 0 0 1px rgba(0, 0, 0, 0.025),
+    0 8px 36px -6px rgba(0, 0, 0, 0.025),
+    0 12px 64px -6px rgba(0, 0, 0, 0.1),
+    0 16px 64px -8px rgba(0, 0, 0, 0.1),
+    0 16px 36px -8px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   z-index: 2;
 }
