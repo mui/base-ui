@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Menu components and hooks
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuCheckboxItem
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -163,6 +163,33 @@ To change how long the menu waits until it opens or closes when `openOnHover` is
 ```jsx
 <Menu.Root openOnHover delay={200}>
 ```
+
+## Checkbox items
+
+Menu items can act as checkboxes.
+
+{{"demo": "CheckboxItems.js"}}
+
+:::warning
+
+If you rely on the CheckboxItem to manage its state (e.g., you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
+Unmounting the component resets its state.
+
+To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox item is in (and all parent positioners, in the case of a nested menu):
+
+```jsx
+<Menu.Root>
+  <Menu.Positioner keepMounted>
+    <Menu.Popup>
+      <Menu.CheckboxItem defaultChecked>Item 1</Menu.CheckboxItem>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+If you keep the state externally (and use the `checked` prop), this isn't required.
+
+:::
 
 ## Nested menu
 

@@ -77,6 +77,10 @@ module.exports = [
     title: 'FormControl',
   },
   { pathname: '/base-ui/react-menu/components-api/#menu-arrow', title: 'MenuArrow' },
+  {
+    pathname: '/base-ui/react-menu/components-api/#menu-checkbox-item',
+    title: 'MenuCheckboxItem',
+  },
   { pathname: '/base-ui/react-menu/components-api/#menu-item', title: 'MenuItem' },
   { pathname: '/base-ui/react-menu/components-api/#menu-popup', title: 'MenuPopup' },
   {
