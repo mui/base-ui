@@ -10,7 +10,7 @@
     "dev": "next dev --port 3005",
     "deploy": "git push -f material-ui-docs master:latest",
     "serve": "serve ./export -l 3010",
-    "typescript": "tsc -b tsconfig.json && tsc -p scripts/tsconfig.json",
+    "typescript": "tsc -b tsconfig.json",
     "link-check": "node ./scripts/reportBrokenLinks.js"
   },
   "dependencies": {

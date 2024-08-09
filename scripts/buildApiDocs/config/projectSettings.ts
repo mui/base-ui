@@ -1,5 +1,4 @@
 import path from 'path';
-import { LANGUAGES } from 'docs/config';
 import { ProjectSettings } from '@mui-internal/api-docs-builder';
 import findApiPages from '@mui-internal/api-docs-builder/utils/findApiPages';
 import { getBaseUiComponentInfo } from './getBaseUiComponentInfo';
@@ -20,12 +19,12 @@ export const projectSettings: ProjectSettings = {
       tsConfigPath: 'tsconfig.build.json',
     },
   ],
-  getApiPages: () => findApiPages('docs/pages/base-ui/api'),
+  getApiPages: () => findApiPages('docs/data/base/api'),
   getComponentInfo: getBaseUiComponentInfo,
   getComponentImports,
   getHookInfo: getBaseUiHookInfo,
   getHookImports: getComponentImports,
-  translationLanguages: LANGUAGES,
+  translationLanguages: ['en'],
   skipComponent: () => false,
   onCompleted: async () => {
     await generateBaseUIApiPages();

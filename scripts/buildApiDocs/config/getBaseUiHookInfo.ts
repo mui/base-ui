@@ -43,7 +43,7 @@ export function getBaseUiHookInfo(filename: string): HookInfo {
     filename,
     name,
     apiPathname: apiPath ?? `/base-ui/api/${kebabCase(name)}/`,
-    apiPagesDirectory: path.join(process.cwd(), `docs/pages/base-ui/api`),
+    apiPagesDirectory: path.join(process.cwd(), `docs/data/base/api`),
     readFile: () => {
       srcInfo = parseFile(filename);
       return srcInfo;
