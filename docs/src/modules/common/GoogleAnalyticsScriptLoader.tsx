@@ -3,11 +3,11 @@ import Script from 'next/script';
 
 // TODO: Move to @mui/docs
 
-interface GoogleAnalyticsProps {
+interface GoogleTagManagerProps {
   id: string;
 }
 
-export function GoogleAnalyticsScriptLoader(props: React.PropsWithChildren<GoogleAnalyticsProps>) {
+export function GoogleTagManager(props: React.PropsWithChildren<GoogleTagManagerProps>) {
   const { id } = props;
   return (
     <React.Fragment>
