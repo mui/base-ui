@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { act, createRenderer, screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import {
   Unstable_Popup as Popup,
   popupClasses,
@@ -45,14 +45,6 @@ function FakeTransition(props: React.PropsWithChildren<{}>) {
 describe('<Popup />', () => {
   const { clock, render } = createRenderer();
 
-  // https://floating-ui.com/docs/react#testing
-  async function waitForPosition() {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // This is only needed for JSDOM and causes issues in real browsers
-      await act(() => async () => {});
-    }
-  }
-
   const defaultProps: PopupProps = {
     anchor: () => createAnchor(),
     children: <span>Hello World</span>,
@@ -60,10 +52,9 @@ describe('<Popup />', () => {
   };
 
   describeConformanceUnstyled(<Popup {...defaultProps} />, () => ({
-    inheritComponent: 'div',
     render: async (...renderArgs) => {
       const result = render(...renderArgs);
-      await waitForPosition();
+      await flushMicrotasks();
 
       return result;
     },
@@ -89,12 +80,14 @@ describe('<Popup />', () => {
 
     it('should have top placement', async () => {
       render(
-        <Popup {...defaultProps} placement="top">
-          <PlacementTester />
-        </Popup>,
+        <div style={{ margin: '100px' }}>
+          <Popup {...defaultProps} placement="top">
+            <PlacementTester />
+          </Popup>
+        </div>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByTestId('placement-tester')).to.have.text('top');
     });
@@ -131,7 +124,7 @@ describe('<Popup />', () => {
       }
 
       render(<RtlTest />);
-      await waitForPosition();
+      await flushMicrotasks();
 
       await new Promise((resolve) => {
         requestAnimationFrame(resolve);
@@ -149,7 +142,7 @@ describe('<Popup />', () => {
         anchor.click();
       });
 
-      await waitForPosition();
+      await flushMicrotasks();
       expect(popup.getBoundingClientRect().right).to.equal(popup.getBoundingClientRect().right);
       expect(popup.getBoundingClientRect().left).not.to.equal(anchor.getBoundingClientRect().left);
     });
@@ -260,22 +253,22 @@ describe('<Popup />', () => {
     it('should open without any issues', async () => {
       const { queryByRole, getByRole, setProps } = render(<Popup {...defaultProps} open={false} />);
 
-      await waitForPosition();
+      await flushMicrotasks();
       expect(queryByRole('tooltip')).to.equal(null);
 
       setProps({ open: true });
-      await waitForPosition();
+      await flushMicrotasks();
       expect(getByRole('tooltip')).to.have.text('Hello World');
     });
 
     it('should close without any issues', async () => {
       const { queryByRole, getByRole, setProps } = render(<Popup {...defaultProps} />);
 
-      await waitForPosition();
+      await flushMicrotasks();
       expect(getByRole('tooltip')).to.have.text('Hello World');
 
       setProps({ open: false });
-      await waitForPosition();
+      await flushMicrotasks();
       expect(queryByRole('tooltip')).to.equal(null);
     });
   });
@@ -283,7 +276,7 @@ describe('<Popup />', () => {
   describe('prop: keepMounted', () => {
     it('should keep the children mounted in the DOM', async () => {
       render(<Popup {...defaultProps} keepMounted open={false} />);
-      await waitForPosition();
+      await flushMicrotasks();
 
       const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
       expect(tooltip).to.have.text('Hello World');
@@ -303,11 +296,11 @@ describe('<Popup />', () => {
         </Popup>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
       expect(getByRole('tooltip')).to.have.text('Hello World');
 
       setProps({ open: false });
-      await waitForPosition();
+      await flushMicrotasks();
       clock.tick(TRANSITION_DURATION);
 
       expect(queryByRole('tooltip')).to.equal(null);
@@ -343,11 +336,11 @@ describe('<Popup />', () => {
       }
 
       const { getByRole } = render(<OpenClose />);
-      await waitForPosition();
+      await flushMicrotasks();
       expect(document.querySelector('p')).to.equal(null);
 
       fireEvent.click(getByRole('button'));
-      await waitForPosition();
+      await flushMicrotasks();
       expect(document.querySelector('p')).to.equal(null);
     });
   });
@@ -360,7 +353,7 @@ describe('<Popup />', () => {
         </div>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       const tooltip = getByRole('tooltip');
       const parent = getByTestId('parent');
@@ -376,7 +369,7 @@ describe('<Popup />', () => {
         </div>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       const tooltip = getByRole('tooltip');
       expect(tooltip.parentNode).to.equal(document.body);
@@ -395,15 +388,15 @@ describe('<Popup />', () => {
         </Popup>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
       expect(getByRole('tooltip', { hidden: true }).style.visibility).to.equal('hidden');
 
       setProps({ open: true });
-      await waitForPosition();
+      await flushMicrotasks();
       clock.tick(TRANSITION_DURATION);
 
       setProps({ open: false });
-      await waitForPosition();
+      await flushMicrotasks();
       clock.tick(TRANSITION_DURATION);
       expect(getByRole('tooltip', { hidden: true }).style.visibility).to.equal('hidden');
     });

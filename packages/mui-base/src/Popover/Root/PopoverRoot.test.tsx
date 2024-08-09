@@ -4,7 +4,7 @@ import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 const user = userEvent.setup();
