@@ -8,7 +8,6 @@ describe('<Field.Error />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Error forceShow />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Field.Root invalid>{node}</Field.Root>);

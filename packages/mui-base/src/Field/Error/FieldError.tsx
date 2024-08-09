@@ -31,7 +31,7 @@ const FieldError = React.forwardRef(function FieldError(
     rendered = true;
   } else if (show) {
     rendered = Boolean(validityData.state[show]);
-  } else {
+  } else if (forceShow == null) {
     rendered = validityData.state.valid === false;
   }
 
