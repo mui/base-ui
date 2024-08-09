@@ -28,7 +28,7 @@ export const projectSettings: ProjectSettings = {
   skipAnnotatingComponentDefinition: true,
   skipSlotsAndClasses: true,
   generateJsonFileOnly: true,
-  translationPagesDirectory: 'docs/translations/api-docs',
+  translationPagesDirectory: 'docs/data/base/translations/api-docs',
   generateClassName: () => '',
   isGlobalClassName: () => false,
 };
