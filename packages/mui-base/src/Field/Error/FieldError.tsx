@@ -39,7 +39,7 @@ const FieldError = React.forwardRef(function FieldError(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getErrorProps,
-    render: render ?? 'span',
+    render: render ?? 'div',
     ref: forwardedRef,
     className,
     ownerState,
