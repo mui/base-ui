@@ -47,7 +47,6 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwn
   validateDebounceTime?: number;
   /**
    * Determines if the field is forcefully marked as invalid.
-   * @default false
    */
   invalid?: boolean;
 }

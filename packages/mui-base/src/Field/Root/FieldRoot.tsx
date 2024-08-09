@@ -29,7 +29,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     validate: validateProp,
     validateDebounceTime = 0,
     validateOnChange = false,
-    invalid = false,
+    invalid,
     ...otherProps
   } = props;
 
@@ -66,7 +66,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     initialValue: null,
   }));
 
-  const valid = !invalid && validityData.state.valid;
+  const valid = typeof invalid === 'boolean' ? !invalid : validityData.state.valid;
 
   const ownerState: FieldRootOwnerState = React.useMemo(
     () => ({
@@ -148,7 +148,6 @@ FieldRoot.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Determines if the field is forcefully marked as invalid.
-   * @default false
    */
   invalid: PropTypes.bool,
   /**

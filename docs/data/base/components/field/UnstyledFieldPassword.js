@@ -55,12 +55,12 @@ const FieldControl = styled(Field.Control)`
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='valid'] {
+  &[data-field='valid'][data-dirty] {
     border-color: green;
     background-color: rgb(0 255 0 / 0.1);
   }
 
-  &[data-field='invalid'][data-touched] {
+  &[data-field='invalid'][data-touched][data-dirty] {
     border-color: red;
     background-color: rgb(255 0 0 / 0.1);
   }
@@ -70,14 +70,14 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='invalid'][data-touched] {
-      border-color: red;
-      box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
-    }
-
-    &[data-field='valid'] {
+    &[data-field='valid'][data-dirty] {
       border-color: green;
       box-shadow: 0 0 0 3px rgba(100 200 100 / 0.3);
+    }
+
+    &[data-field='invalid'][data-touched][data-dirty] {
+      border-color: red;
+      box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }
   }
 `;
@@ -90,7 +90,7 @@ const FieldError = styled(Field.Error)`
   margin-top: 10px;
   line-height: 1.1;
 
-  &[data-touched] {
+  &[data-touched][data-dirty] {
     color: red;
   }
 `;

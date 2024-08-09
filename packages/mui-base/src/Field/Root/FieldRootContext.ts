@@ -4,7 +4,7 @@ import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRootOwnerState, FieldValidityData } from './FieldRoot.types';
 
 export interface FieldRootContextValue {
-  invalid: boolean;
+  invalid: boolean | undefined;
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
   labelId: string | undefined;
@@ -27,7 +27,7 @@ export interface FieldRootContextValue {
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
-  invalid: false,
+  invalid: undefined,
   controlId: undefined,
   setControlId: () => {},
   labelId: undefined,
