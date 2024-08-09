@@ -72,7 +72,11 @@ export default function UnstyledFieldAsync() {
 
             if (!state.validity.customError) {
               return (
-                <FieldDescription data-type="success">
+                <FieldDescription
+                  data-type="success"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <strong>@{state.value as string}</strong> is available
                 </FieldDescription>
               );
