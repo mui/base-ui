@@ -738,7 +738,6 @@ export function useNumberFieldRoot(
       invalid,
       labelId,
       setTouched,
-      markedDirty,
       formatOptionsRef,
       commitValidation,
       valueRef,
