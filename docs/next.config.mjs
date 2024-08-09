@@ -4,13 +4,7 @@ import * as url from 'url';
 import * as fs from 'fs';
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
-import { findPages } from './src/utils/findPages.mjs';
-import {
-  LANGUAGES,
-  LANGUAGES_SSR,
-  LANGUAGES_IGNORE_PAGES,
-  LANGUAGES_IN_PROGRESS,
-} from './config.js';
+import { LANGUAGES, LANGUAGES_IGNORE_PAGES, LANGUAGES_IN_PROGRESS } from './config.js';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
@@ -27,8 +21,6 @@ const rootPackage = loadPackageJson();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Avoid conflicts with the other Next.js apps hosted under https://mui.com/
-  assetPrefix: process.env.DEPLOY_ENV === 'development' ? undefined : '/base-ui/',
   env: {
     // docs-infra
     LIB_VERSION: rootPackage.version,
@@ -89,9 +81,6 @@ const nextConfig = {
     };
   },
   distDir: 'export',
-  // Next.js provides a `defaultPathMap` argument, we could simplify the logic.
-  // However, we don't in order to prevent any regression in the `findPages()` method.
-  exportPathMap,
   transpilePackages: ['@mui/docs', '@mui/monorepo'],
   ...(process.env.NODE_ENV === 'production'
     ? {
@@ -105,64 +94,7 @@ const nextConfig = {
           ];
         },
         // redirects only take effect in the development, not production (because of `next export`).
-        redirects: async () => [
-          {
-            source: '/',
-            destination: '/base-ui/getting-started/',
-            permanent: false,
-          },
-        ],
       }),
 };
-
-function exportPathMap() {
-  const allPages = findPages();
-  /**
-   * @type {Record<string, {page: string, query: {userLanguage: string}}>}
-   */
-  const map = {};
-
-  /**
-   * @param {import('./src/utils/findPages.mjs').NextJSPage[]} pages
-   * @param {string} userLanguage
-   */
-  function traverse(pages, userLanguage) {
-    const prefix = userLanguage === 'en' ? '' : `/${userLanguage}`;
-
-    pages.forEach((page) => {
-      // The experiments pages are only meant for experiments, they shouldn't leak to production.
-      if (page.pathname.includes('/experiments/') && process.env.DEPLOY_ENV === 'production') {
-        return;
-      }
-
-      if (!page.children) {
-        map[`${prefix}${page.pathname.replace(/^\/api-docs\/(.*)/, '/api/$1')}`] = {
-          page: page.pathname,
-          query: {
-            userLanguage,
-          },
-        };
-        return;
-      }
-
-      traverse(page.children, userLanguage);
-    });
-  }
-
-  // We want to speed-up the build of pull requests.
-  if (process.env.PULL_REQUEST === 'true') {
-    // eslint-disable-next-line no-console
-    console.log('Considering only English for SSR');
-    traverse(allPages, 'en');
-  } else {
-    // eslint-disable-next-line no-console
-    console.log('Considering various locales for SSR');
-    LANGUAGES_SSR.forEach((userLanguage) => {
-      traverse(allPages, userLanguage);
-    });
-  }
-
-  return map;
-}
 
 export default withDocsInfra(nextConfig);

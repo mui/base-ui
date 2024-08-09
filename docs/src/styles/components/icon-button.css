@@ -1,0 +1,43 @@
+.IconButton {
+  all: unset;
+  line-height: 1;
+  vertical-align: middle;
+  background-clip: padding-box;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--br-circle);
+  color: var(--gray-text-1);
+}
+
+@media screen and (hover: hover) {
+  .IconButton:hover {
+    background-color: var(--gray-container-2);
+  }
+}
+
+.IconButton:focus-visible {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: black;
+  outline-offset: 2px;
+}
+
+.IconButton.size-1 {
+  width: var(--space-6);
+  height: var(--space-6);
+}
+
+.IconButton.size-2 {
+  width: var(--space-7);
+  height: var(--space-7);
+}
+
+.IconButton.size-3 {
+  width: var(--space-8);
+  height: var(--space-8);
+}

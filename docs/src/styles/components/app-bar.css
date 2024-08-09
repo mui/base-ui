@@ -1,0 +1,12 @@
+.AppBar {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+  padding: var(--space-1) var(--space-3);
+  background-color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid var(--gray-outline-1);
+  background-clip: padding-box;
+  backdrop-filter: blur(4.25px) saturate(125%);
+}

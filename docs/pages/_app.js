@@ -15,86 +15,18 @@ import { CodeStylingProvider } from 'docs/src/modules/utils/codeStylingSolution'
 import DocsStyledEngineProvider from 'docs/src/modules/utils/StyledEngineProvider';
 import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
 import { CodeCopyProvider } from '@mui/docs/CodeCopy';
 import { DocsProvider } from '@mui/docs/DocsProvider';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
-import './global.css';
-import '../public/static/components-gallery/base-theme.css';
+import { mapTranslations } from '@mui/docs/i18n';
 import config from '../config';
+import '../src/styles/style.css';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 configureSandboxDependencies();
-
-let reloadInterval;
-
-// Avoid infinite loop when "Upload on reload" is set in the Chrome sw dev tools.
-function lazyReload() {
-  clearInterval(reloadInterval);
-  reloadInterval = setInterval(() => {
-    if (document.hasFocus()) {
-      window.location.reload();
-    }
-  }, 100);
-}
-
-// Inspired by
-// https://developers.google.com/web/tools/workbox/guides/advanced-recipes#offer_a_page_reload_for_users
-function forcePageReload(registration) {
-  // console.log('already controlled?', Boolean(navigator.serviceWorker.controller));
-
-  if (!navigator.serviceWorker.controller) {
-    // The window client isn't currently controlled so it's a new service
-    // worker that will activate immediately.
-    return;
-  }
-
-  // console.log('registration waiting?', Boolean(registration.waiting));
-  if (registration.waiting) {
-    // SW is waiting to activate. Can occur if multiple clients open and
-    // one of the clients is refreshed.
-    registration.waiting.postMessage('skipWaiting');
-    return;
-  }
-
-  function listenInstalledStateChange() {
-    registration.installing.addEventListener('statechange', (event) => {
-      // console.log('statechange', event.target.state);
-      if (event.target.state === 'installed' && registration.waiting) {
-        // A new service worker is available, inform the user
-        registration.waiting.postMessage('skipWaiting');
-      } else if (event.target.state === 'activated') {
-        // Force the control of the page by the activated service worker.
-        lazyReload();
-      }
-    });
-  }
-
-  if (registration.installing) {
-    listenInstalledStateChange();
-    return;
-  }
-
-  // We are currently controlled so a new SW may be found...
-  // Add a listener in case a new SW is found,
-  registration.addEventListener('updatefound', listenInstalledStateChange);
-}
-
-async function registerServiceWorker() {
-  if (
-    'serviceWorker' in navigator &&
-    process.env.NODE_ENV === 'production' &&
-    window.location.host.indexOf('mui.com') !== -1
-  ) {
-    // register() automatically attempts to refresh the sw.js.
-    const registration = await navigator.serviceWorker.register('/sw.js');
-    // Force the page reload for users.
-    forcePageReload(registration);
-  }
-}
 
 let dependenciesLoaded = false;
 
@@ -111,23 +43,12 @@ function loadDependencies() {
   );
 }
 
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
-  // eslint-disable-next-line no-console
-  console.log(
-    `%c
+const PRODUCT_IDENTIFIER = {
+  metadata: 'Base UI',
+  name: 'Base UI',
+  versions: [{ text: `v${basePkgJson.version}`, current: true }],
+};
 
-███╗   ███╗ ██╗   ██╗ ██████╗
-████╗ ████║ ██║   ██║   ██╔═╝
-██╔████╔██║ ██║   ██║   ██║
-██║╚██╔╝██║ ██║   ██║   ██║
-██║ ╚═╝ ██║ ╚██████╔╝ ██████╗
-╚═╝     ╚═╝  ╚═════╝  ╚═════╝
-
-Tip: you can access the documentation \`theme\` object directly in the console.
-`,
-    'font-family:monospace;color:#1976d2;font-size:12px;',
-  );
-}
 function AppWrapper(props) {
   const { children, emotionCache, pageProps } = props;
 
@@ -139,7 +60,6 @@ function AppWrapper(props) {
 
   React.useEffect(() => {
     loadDependencies();
-    registerServiceWorker();
 
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
@@ -147,18 +67,6 @@ function AppWrapper(props) {
       jssStyles.parentElement.removeChild(jssStyles);
     }
   }, []);
-
-  const productIdentifier = React.useMemo(() => {
-    if (productId === 'base-ui') {
-      return {
-        metadata: 'MUI Core',
-        name: 'Base UI',
-        versions: [{ text: `v${basePkgJson.version}`, current: true }],
-      };
-    }
-
-    return null;
-  }, [productId]);
 
   const pageContextValue = React.useMemo(() => {
     const pages = basePages;
@@ -168,30 +76,25 @@ function AppWrapper(props) {
       activePage,
       activePageParents,
       pages,
-      productIdentifier,
+      PRODUCT_IDENTIFIER,
       productId,
       productCategoryId,
     };
-  }, [productId, productCategoryId, productIdentifier, router.pathname]);
-
-  let fonts = [];
-  if (pathnameToLanguage(router.asPath).canonicalAs.match(/onepirate/)) {
-    fonts = [
-      'https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Work+Sans:wght@300;400&display=swap',
-    ];
-  }
+  }, [productId, productCategoryId, router.pathname]);
 
   return (
     <React.Fragment>
       <NextHead>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        {fonts.map((font) => (
-          <link rel="stylesheet" href={font} key={font} />
-        ))}
-        <meta name="mui:productId" content={productId} />
-        <meta name="mui:productCategoryId" content={productCategoryId} />
+        <meta name="mui:productId" content="base-ui" />
+        <meta name="mui:productCategoryId" content="core" />
       </NextHead>
-      <DocsProvider config={config} defaultUserLanguage={pageProps.userLanguage}>
+      <DocsProvider
+        config={config}
+        adConfig={{ GADisplayRatio: 0.1 }}
+        defaultUserLanguage={pageProps.userLanguage}
+        translations={pageProps.translations}
+      >
         <CodeCopyProvider>
           <CodeStylingProvider>
             <CodeVariantProvider>
@@ -217,7 +120,7 @@ AppWrapper.propTypes = {
   pageProps: PropTypes.object.isRequired,
 };
 
-export default function MyApp(props) {
+export default function BaseUIDocsApp(props) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page) => page);
 
@@ -227,14 +130,17 @@ export default function MyApp(props) {
     </AppWrapper>
   );
 }
-MyApp.propTypes = {
+BaseUIDocsApp.propTypes = {
   Component: PropTypes.elementType.isRequired,
   emotionCache: PropTypes.object,
   pageProps: PropTypes.object.isRequired,
 };
 
-MyApp.getInitialProps = async ({ ctx, Component }) => {
+BaseUIDocsApp.getInitialProps = async ({ ctx, Component }) => {
   let pageProps = {};
+
+  const req = require.context('docs/translations', false, /\.\/translations.*\.json$/);
+  const translations = mapTranslations(req);
 
   if (Component.getInitialProps) {
     pageProps = await Component.getInitialProps(ctx);
@@ -243,6 +149,7 @@ MyApp.getInitialProps = async ({ ctx, Component }) => {
   return {
     pageProps: {
       userLanguage: ctx.query.userLanguage || 'en',
+      translations,
       ...pageProps,
     },
   };
