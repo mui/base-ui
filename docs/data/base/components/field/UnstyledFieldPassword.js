@@ -90,11 +90,11 @@ const FieldError = styled(Field.Error)`
   margin-top: 10px;
   line-height: 1.1;
 
-  ul {
-    padding: 0;
-  }
-
   &[data-touched][data-dirty] {
     color: red;
+  }
+
+  ul {
+    padding: 0;
   }
 `;
