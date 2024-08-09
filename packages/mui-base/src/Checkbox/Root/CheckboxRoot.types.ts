@@ -1,21 +1,26 @@
 import type * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
-export type CheckboxOwnerState = {
+export interface CheckboxRootOwnerState extends FieldRootOwnerState {
   checked: boolean;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
   indeterminate: boolean;
-};
+}
 
 export interface CheckboxRootProps
-  extends UseCheckboxRootParameters,
-    Omit<BaseUIComponentProps<'button', CheckboxOwnerState>, 'onChange'> {}
+  extends Omit<UseCheckboxRootParameters, 'setControlId' | 'descriptionId'>,
+    Omit<BaseUIComponentProps<'button', CheckboxRootOwnerState>, 'onChange'> {}
 
-export type CheckboxContextValue = CheckboxOwnerState;
+export type CheckboxContextValue = CheckboxRootOwnerState;
 
 export interface UseCheckboxRootParameters {
+  /**
+   * The id of the input element.
+   */
+  id?: string;
   /**
    * Name of the underlying input element.
    *

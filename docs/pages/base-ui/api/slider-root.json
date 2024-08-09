@@ -10,6 +10,7 @@
       "default": "'ltr'"
     },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "id": { "type": { "name": "string" } },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
     "max": { "type": { "name": "number" }, "default": "100" },
     "min": { "type": { "name": "number" }, "default": "0" },

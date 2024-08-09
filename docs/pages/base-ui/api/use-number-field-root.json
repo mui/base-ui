@@ -73,8 +73,8 @@
     },
     "inputRef": {
       "type": {
-        "name": "React.RefObject&lt;HTMLInputElement&gt;",
-        "description": "React.RefObject&lt;HTMLInputElement&gt;"
+        "name": "((instance: HTMLInputElement | null) =&gt; void) | null",
+        "description": "((instance: HTMLInputElement | null) =&gt; void) | null"
       },
       "required": true
     },

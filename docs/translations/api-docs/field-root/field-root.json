@@ -1,0 +1,20 @@
+{
+  "componentDescription": "The foundation for building custom-styled fields.",
+  "propDescriptions": {
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "invalid": { "description": "Determines if the field is forcefully marked as invalid." },
+    "render": { "description": "A function to customize rendering of the component." },
+    "validate": {
+      "description": "Function to custom-validate the field&#39;s value. Return a string or array of strings with error messages if the value is invalid, or <code>null</code> if the value is valid. The function can also return a promise that resolves to a string, array of strings, or <code>null</code>."
+    },
+    "validateDebounceTime": {
+      "description": "The debounce time in milliseconds for the <code>validate</code> function in the <code>change</code> phase."
+    },
+    "validateOnChange": {
+      "description": "Determines if validation should be triggered on the <code>change</code> event, rather than only on commit (blur)."
+    }
+  },
+  "classDescriptions": {}
+}

@@ -7,6 +7,7 @@
       "default": "false"
     },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "id": { "type": { "name": "string", "description": "string" } },
     "indeterminate": {
       "type": { "name": "boolean", "description": "boolean" },
       "default": "false"

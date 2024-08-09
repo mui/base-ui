@@ -24,4 +24,14 @@ export const defaultRenderFunctions = {
     // eslint-disable-next-line jsx-a11y/anchor-has-content
     return <a {...props} />;
   },
+  label: (props: React.ComponentPropsWithRef<'label'>) => {
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    return <label {...props} />;
+  },
+  input: (props: React.ComponentPropsWithRef<'input'>) => {
+    return <input {...props} />;
+  },
+  fieldset: (props: React.ComponentPropsWithRef<'fieldset'>) => {
+    return <fieldset {...props} />;
+  },
 };

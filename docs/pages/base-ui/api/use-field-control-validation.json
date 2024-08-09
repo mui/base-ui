@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useFieldControlValidation",
+  "filename": "/packages/mui-base/src/Field/Control/useFieldControlValidation.ts",
+  "imports": ["import { useFieldControlValidation } from '@base_ui/react/Field';"],
+  "demos": "<ul></ul>"
+}

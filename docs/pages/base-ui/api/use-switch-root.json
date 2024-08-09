@@ -3,6 +3,7 @@
     "checked": { "type": { "name": "boolean", "description": "boolean" } },
     "defaultChecked": { "type": { "name": "boolean", "description": "boolean" } },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "id": { "type": { "name": "string", "description": "string" } },
     "inputRef": {
       "type": {
         "name": "React.Ref&lt;HTMLInputElement&gt;",

@@ -1,0 +1,21 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "invalid": { "type": { "name": "bool" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "validate": { "type": { "name": "func" } },
+    "validateDebounceTime": { "type": { "name": "number" }, "default": "0" },
+    "validateOnChange": { "type": { "name": "bool" }, "default": "false" }
+  },
+  "name": "FieldRoot",
+  "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "FieldRoot",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Field/Root/FieldRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-field/\">Field</a></li></ul>",
+  "cssComponent": false
+}

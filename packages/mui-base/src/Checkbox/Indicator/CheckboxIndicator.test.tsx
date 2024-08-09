@@ -10,6 +10,9 @@ const testContext = {
   readOnly: false,
   required: false,
   indeterminate: false,
+  dirty: false,
+  touched: false,
+  valid: null,
 };
 
 describe('<Checkbox.Indicator />', () => {

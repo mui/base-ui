@@ -69,6 +69,38 @@ module.exports = [
     title: 'DialogTrigger',
   },
   {
+    pathname: '/base-ui/react-field/components-api/#field-control',
+    title: 'FieldControl',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-description',
+    title: 'FieldDescription',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-error',
+    title: 'FieldError',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-label',
+    title: 'FieldLabel',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-root',
+    title: 'FieldRoot',
+  },
+  {
+    pathname: '/base-ui/react-field/components-api/#field-validity',
+    title: 'FieldValidity',
+  },
+  {
+    pathname: '/base-ui/react-fieldset/components-api/#fieldset-legend',
+    title: 'FieldsetLegend',
+  },
+  {
+    pathname: '/base-ui/react-fieldset/components-api/#fieldset-root',
+    title: 'FieldsetRoot',
+  },
+  {
     pathname: '/base-ui/react-focus-trap/components-api/#focus-trap',
     title: 'FocusTrap',
   },

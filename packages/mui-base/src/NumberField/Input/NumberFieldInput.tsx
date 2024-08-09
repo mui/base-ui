@@ -2,13 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { NumberFieldInputProps } from './NumberFieldInput.types';
 import { useNumberFieldContext } from '../Root/NumberFieldContext';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-
-function defaultRender(props: React.ComponentPropsWithRef<'input'>) {
-  return <input {...props} />;
-}
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The input element for the number field.
@@ -25,24 +20,22 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   props: NumberFieldInputProps,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render: renderProp, className, ...otherProps } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...otherProps } = props;
 
-  const { getInputProps, inputRef, inputValue, ownerState } = useNumberFieldContext('Input');
+  const { getInputProps, inputRef, ownerState } = useNumberFieldContext('Input');
 
-  const mergedInputRef = useRenderPropForkRef(render, forwardedRef, inputRef);
+  const mergedInputRef = useForkRef(forwardedRef, inputRef);
 
-  const inputProps = getInputProps({
+  const { renderElement } = useComponentRenderer({
+    propGetter: getInputProps,
     ref: mergedInputRef,
-    className: resolveClassName(className, ownerState),
-    value: inputValue,
-    // If the server's locale does not match the client's locale, the formatting may not match,
-    // causing a hydration mismatch.
-    suppressHydrationWarning: true,
-    ...otherProps,
+    render: render ?? 'input',
+    className,
+    ownerState,
+    extraProps: otherProps,
   });
 
-  return evaluateRenderProp(render, inputProps, ownerState);
+  return renderElement();
 });
 
 NumberFieldInput.propTypes /* remove-proptypes */ = {

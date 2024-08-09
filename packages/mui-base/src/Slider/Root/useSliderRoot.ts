@@ -10,10 +10,12 @@ import { useCompoundParent } from '../../useCompound';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
 import { SliderThumbMetadata, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
-
-function asc(a: number, b: number) {
-  return a - b;
-}
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useId } from '../../utils/useId';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { asc } from '../utils/asc';
+import { setValueIndex } from '../utils/setValueIndex';
+import { getSliderValue } from '../utils/getSliderValue';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -55,20 +57,6 @@ export function focusThumb({
   if (setActive) {
     setActive(activeIndex);
   }
-}
-
-function setValueIndex({
-  values,
-  newValue,
-  index,
-}: {
-  values: number[];
-  newValue: number;
-  index: number;
-}) {
-  const output = values.slice();
-  output[index] = newValue;
-  return output.sort(asc);
 }
 
 export function validateMinimumDistance(
@@ -133,6 +121,8 @@ export function trackFinger(
 function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
+    id: idProp,
+    name,
     defaultValue,
     direction = 'ltr',
     disabled = false,
@@ -140,7 +130,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
-    name,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
@@ -149,6 +138,28 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     tabIndex,
     value: valueProp,
   } = parameters;
+
+  const { setDisabled, setControlId, setTouched, setDirty, validityData, setValidityData } =
+    useFieldRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
+  const {
+    getValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
+
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -159,17 +170,27 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
-  const registerSliderControl = React.useCallback((element: HTMLElement | null) => {
-    if (element) {
-      controlRef.current = element;
-    }
-  }, []);
+  const registerSliderControl = React.useCallback(
+    (element: HTMLElement | null) => {
+      if (element) {
+        controlRef.current = element;
+        inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
+      }
+    },
+    [inputValidationRef],
+  );
 
   const [valueState, setValueState] = useControlled({
     controlled: valueProp,
     default: defaultValue ?? min,
     name: 'Slider',
   });
+
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && valueState !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: valueState }));
+    }
+  }, [setValidityData, validityData.initialValue, valueState]);
 
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
@@ -227,46 +248,50 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const changeValue = React.useCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
-      let newValue: number | number[] = valueInput;
-
-      newValue = clamp(newValue, min, max);
+      const newValue = getSliderValue({
+        valueInput,
+        min,
+        max,
+        index,
+        range,
+        values,
+      });
 
       if (range) {
-        // Bound the new value to the thumb's neighbours.
-        newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
-
-        newValue = setValueIndex({
-          values,
-          newValue,
-          index,
-        });
-
         focusThumb({ sliderRef, activeIndex: index });
       }
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         setValueState(newValue);
+        setDirty(newValue !== validityData.initialValue);
 
-        if (handleValueChange && !areValuesEqual(newValue)) {
+        if (handleValueChange && !areValuesEqual(newValue) && event) {
           handleValueChange(newValue, index, event);
         }
 
-        if (onValueCommitted) {
+        setTouched(true);
+        commitValidation(newValue);
+
+        if (onValueCommitted && event) {
           onValueCommitted(newValue, event.nativeEvent);
         }
       }
     },
     [
-      areValuesEqual,
-      handleValueChange,
-      max,
       min,
-      minStepsBetweenValues,
-      onValueCommitted,
+      max,
       range,
-      setValueState,
       step,
+      minStepsBetweenValues,
       values,
+      setValueState,
+      setDirty,
+      validityData.initialValue,
+      handleValueChange,
+      areValuesEqual,
+      onValueCommitted,
+      setTouched,
+      commitValidation,
     ],
   );
 
@@ -369,13 +394,13 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const getRootProps: UseSliderReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
+      mergeReactProps(getValidationProps(externalProps), {
         'aria-labelledby': ariaLabelledby,
         dir: direction,
         ref: handleRootRef,
         role: 'group',
       }),
-    [ariaLabelledby, direction, handleRootRef],
+    [ariaLabelledby, direction, getValidationProps, handleRootRef],
   );
 
   return React.useMemo(
@@ -407,6 +432,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       step,
       subitems,
       tabIndex,
+      range,
       values,
     }),
     [
@@ -436,6 +462,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
       step,
       subitems,
       tabIndex,
+      range,
       values,
     ],
   );
