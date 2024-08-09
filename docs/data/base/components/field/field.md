@@ -130,41 +130,6 @@ When there are multiple HTML validation props, you can target individual validit
 
 For the list of supported `show` strings, visit [`ValidityState` on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState#instance_properties).
 
-### Controlled validity
-
-When the `invalid` prop is applied to `Field.Root`, the Field is placed into an invalid state regardless of client-side validation. In this state, a given `Field.Error` message can be forced to be shown by specifying a `forceShow` prop.
-
-This is useful for server-side error messages, or displaying errors initially during SSR phase.
-
-```jsx
-const [serverErrors, setServerErrors] = React.useState({
-  email: false,
-});
-
-return (
-  <Field.Root invalid={serverErrors.email}>
-    <Field.Control type="email" required />
-    <Field.Error show="valueMissing">Client-side only error message</Field.Error>
-    <Field.Error show="typeMismatch" forceShow={serverErrors.email}>
-      Client + server-side error message
-    </Field.Error>
-    <Field.Error forceShow={serverErrors.email}>
-      Server-side only message
-    </Field.Error>
-  </Field.Root>
-);
-```
-
-The `show` prop is for client-side validation, while the `forceShow` prop is for server-side validation. Both can be combined together to share the same error message.
-
-Performing an email validity check on the server:
-
-{{"demo": "UnstyledFieldServerError.js", "defaultCodeOpen": false}}
-
-Errors shown initially for password validation:
-
-{{"demo": "UnstyledFieldPassword.js", "defaultCodeOpen": false}}
-
 ### Custom validation
 
 In addition to the native HTML constraint validation, custom validation can be used by specifying a `validate` function on `Field.Root`. It receives the control's `value` as its argument, and returns an error string or array of error strings if the field is invalid, or `null` otherwise.
@@ -221,6 +186,41 @@ The `Validity` subcomponent enables rendering custom JSX based on the `state` pa
 - `state.initialValue`, the field control's initial value upon mount
 
 It can be placed anywhere inside `Field.Root`, including other Field subcomponents.
+
+### Controlled validity
+
+When the `invalid` prop is applied to `Field.Root`, the Field is placed into an invalid state regardless of client-side validation. In this state, a given `Field.Error` message can be forced to be shown by specifying a `forceShow` prop.
+
+This is useful for server-side error messages, or displaying errors initially during SSR phase.
+
+```jsx
+const [serverErrors, setServerErrors] = React.useState({
+  email: false,
+});
+
+return (
+  <Field.Root invalid={serverErrors.email}>
+    <Field.Control type="email" required />
+    <Field.Error show="valueMissing">Client-side only error message</Field.Error>
+    <Field.Error show="typeMismatch" forceShow={serverErrors.email}>
+      Client + server-side error message
+    </Field.Error>
+    <Field.Error forceShow={serverErrors.email}>
+      Server-side only message
+    </Field.Error>
+  </Field.Root>
+);
+```
+
+The `show` prop is for client-side validation, while the `forceShow` prop is for server-side validation. Both can be combined together to share the same error message.
+
+Performing an email validity check on the server:
+
+{{"demo": "UnstyledFieldServerError.js", "defaultCodeOpen": false}}
+
+Errors shown initially for password validation:
+
+{{"demo": "UnstyledFieldPassword.js", "defaultCodeOpen": false}}
 
 ### Realtime and async validation
 

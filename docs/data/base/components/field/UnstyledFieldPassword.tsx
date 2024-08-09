@@ -87,12 +87,14 @@ const FieldControl = styled(Field.Control)`
 const FieldError = styled(Field.Error)`
   display: block;
   font-size: 90%;
-  margin: 0;
-  padding: 0;
   margin-top: 10px;
   line-height: 1.1;
 
   &[data-touched][data-dirty] {
     color: red;
+  }
+
+  ul {
+    padding: 0;
   }
 `;
