@@ -57,6 +57,12 @@ export function useFieldControl(params: UseFieldControlParameters) {
           setTouched(true);
           commitValidation(event.currentTarget.value);
         },
+        onKeyDown(event) {
+          if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
+            setTouched(true);
+            commitValidation(event.currentTarget.value);
+          }
+        },
       }),
     [
       getValidationProps,
@@ -66,10 +72,10 @@ export function useFieldControl(params: UseFieldControlParameters) {
       name,
       inputRef,
       labelId,
-      validityData.initialValue,
       setDirty,
-      setTouched,
+      validityData.initialValue,
       commitValidation,
+      setTouched,
     ],
   );
 

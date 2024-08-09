@@ -99,12 +99,12 @@ const FieldControl = styled(Field.Control)`
 
   &[data-field='invalid']:not([data-pending]) {
     border-color: red;
-    background-color: #fffbfb;
+    background-color: rgb(255 0 0 / 0.1);
   }
 
   &[data-field='valid']:not([data-pending]) {
     border-color: green;
-    background-color: #f0fff0;
+    background-color: rgb(0 255 0 / 0.1);
   }
 
   &:focus {
@@ -128,7 +128,7 @@ const FieldDescription = styled(Field.Description)`
   margin: 0;
   margin-top: 4px;
   line-height: 1.1;
-  color: #666;
+  color: grey;
 
   &[data-type='success'] {
     color: green;

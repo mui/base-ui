@@ -6,11 +6,17 @@ export default function UnstyledFieldServerError() {
   const [error, setError] = React.useState(false);
   const [status, setStatus] = React.useState('initial');
 
+  const controlRef = React.useRef(null);
+
   async function handleSubmit(event) {
     event.preventDefault();
 
+    if (error || !controlRef.current?.validity.valid) {
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
-    const name = formData.get('name');
+    const email = formData.get('email');
 
     setStatus('loading');
 
@@ -19,44 +25,60 @@ export default function UnstyledFieldServerError() {
       setTimeout(resolve, 1000);
     });
 
-    if (name === 'admin') {
+    if (email && email.endsWith('@example.com')) {
       setStatus('error');
       setError(true);
     } else {
       setStatus('success');
     }
+
+    controlRef.current?.focus();
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FieldRoot invalid={error} validateOnChange>
-        <Field.Label>Name</Field.Label>
+    <form onSubmit={handleSubmit} noValidate>
+      <FieldRoot invalid={error}>
+        <Field.Label>Email address</Field.Label>
         <FieldControl
-          name="name"
+          ref={controlRef}
+          name="email"
+          type="email"
           required
           onChange={() => {
             setStatus('initial');
             setError(false);
           }}
         />
-        <FieldDescription>
-          All names except `admin` are allowed. Check is performed on the server.
-        </FieldDescription>
-        <FieldSubmit
-          type="submit"
-          aria-disabled={status === 'loading'}
-          onClick={(event) => {
-            if (status === 'loading') {
-              event.preventDefault();
-            }
-          }}
-        >
-          {status === 'loading' ? 'Processing...' : 'Change name'}
-        </FieldSubmit>
-        <FieldError forceShow={error}>Name not allowed</FieldError>
+        <Field.Validity>
+          {(state) => (
+            <FieldSubmit
+              type="submit"
+              aria-disabled={status === 'loading'}
+              aria-description={
+                state.validity.valid === false ? 'Field has errors' : undefined
+              }
+              onClick={(event) => {
+                if (status === 'loading') {
+                  event.preventDefault();
+                }
+              }}
+            >
+              {status === 'loading' ? 'Processing...' : 'Change email'}
+            </FieldSubmit>
+          )}
+        </Field.Validity>
+        <FieldError />
+        <FieldError forceShow={error}>@example.com is not allowed</FieldError>
         {status === 'success' && (
-          <FieldSuccess>Name changed successfully</FieldSuccess>
+          <FieldSuccess role="alert" aria-live="polite">
+            Email changed successfully
+          </FieldSuccess>
         )}
+
+        <FieldDescription>
+          On the client, standard email validation is performed. On the server, we
+          check a blocklist of email domains: the blocked domain is @example.com.
+        </FieldDescription>
       </FieldRoot>
     </form>
   );
@@ -73,9 +95,9 @@ const FieldControl = styled(Field.Control)`
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='invalid'][data-dirty] {
+  &[data-field='invalid'] {
     border-color: red;
-    background-color: #fff0f0;
+    background-color: rgb(255 0 0 / 0.1);
   }
 
   &:focus {
@@ -83,7 +105,7 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='invalid'][data-dirty] {
+    &[data-field='invalid'] {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }
@@ -98,6 +120,7 @@ const FieldError = styled(Field.Error)`
   margin-top: 10px;
   line-height: 1.1;
 
+  &[data-dirty],
   &[data-touched] {
     color: red;
   }
@@ -111,13 +134,13 @@ const FieldSuccess = styled(Field.Description)`
   color: green;
 `;
 
-const FieldDescription = styled(Field.Description)`
+const FieldDescription = styled('p')`
   font-size: 90%;
   margin: 0;
   padding: 0;
   margin-top: 10px;
   line-height: 1.1;
-  color: #666;
+  color: grey;
 `;
 
 const FieldSubmit = styled('button')`

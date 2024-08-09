@@ -47,13 +47,16 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirty] = React.useState(false);
 
-  const [validityData, setValidityData] = React.useState<FieldValidityData>({
-    state: DEFAULT_VALIDITY_STATE,
+  const [validityData, setValidityData] = React.useState<FieldValidityData>(() => ({
+    state: {
+      ...DEFAULT_VALIDITY_STATE,
+      valid: invalid ? false : null,
+    },
     error: '',
     errors: [],
     value: '',
     initialValue: null,
-  });
+  }));
 
   const valid = !invalid && validityData.state.valid;
 

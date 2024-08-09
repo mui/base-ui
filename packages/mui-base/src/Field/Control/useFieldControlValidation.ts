@@ -41,16 +41,22 @@ export function useFieldControlValidation() {
       return;
     }
 
-    window.clearTimeout(timeoutRef.current);
-
-    const nextValidityData = {
-      state: validityKeys.reduce(
+    function getState(el: HTMLInputElement) {
+      const val = validityKeys.reduce(
         (acc, key) => {
-          acc[key] = element.validity[key];
+          acc[key] = el.validity[key];
           return acc;
         },
         {} as Record<keyof ValidityState, boolean>,
-      ),
+      );
+      val.valid = invalid ? false : el.validity.valid;
+      return val;
+    }
+
+    window.clearTimeout(timeoutRef.current);
+
+    const nextValidityData = {
+      state: getState(element),
       error: '',
       errors: [],
       value,
@@ -89,13 +95,7 @@ export function useFieldControlValidation() {
 
     setValidityData({
       ...nextValidityData,
-      state: validityKeys.reduce(
-        (acc, key) => {
-          acc[key] = element.validity[key];
-          return acc;
-        },
-        {} as Record<keyof ValidityState, boolean>,
-      ),
+      state: getState(element),
       error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
       errors,
     });
@@ -105,7 +105,7 @@ export function useFieldControlValidation() {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-        ...(!valid && { 'aria-invalid': true }),
+        ...(valid === false && { 'aria-invalid': true }),
       }),
     [messageIds, valid],
   );

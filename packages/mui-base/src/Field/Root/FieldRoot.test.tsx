@@ -103,15 +103,13 @@ describe('<Field.Root />', () => {
       const description = screen.getByTestId('description');
       let error = screen.queryByTestId('error');
 
-      expect(control).to.have.attribute('data-field', 'valid');
-      expect(label).to.have.attribute('data-field', 'valid');
-      expect(description).to.have.attribute('data-field', 'valid');
+      expect(control).not.to.have.attribute('data-field');
+      expect(label).not.to.have.attribute('data-field');
+      expect(description).not.to.have.attribute('data-field');
       expect(error).to.equal(null);
 
-      act(() => {
-        control.focus();
-        control.blur();
-      });
+      fireEvent.focus(control);
+      fireEvent.blur(control);
 
       error = screen.getByTestId('error');
 
@@ -235,7 +233,7 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validateOnChange', () => {
-    it('should validate the field on change', () => {
+    it('should validate the field on change', async () => {
       render(
         <Field.Root
           validateOnChange
@@ -256,6 +254,7 @@ describe('<Field.Root />', () => {
 
       fireEvent.change(control, { target: { value: 't' } });
 
+      expect(control).to.have.attribute('data-field', 'invalid');
       expect(control).to.have.attribute('aria-invalid', 'true');
     });
   });

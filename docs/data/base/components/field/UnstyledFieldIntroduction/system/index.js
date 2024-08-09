@@ -48,7 +48,18 @@ const FieldControl = styled(Field.Control)`
 
   &[data-field='invalid'] {
     border-color: red;
-    background-color: #fffbfb;
+    background-color: rgb(255 0 0 / 0.1);
+  }
+
+  &:focus {
+    outline: 0;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
+
+    &[data-field='invalid'] {
+      border-color: red;
+      box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
+    }
   }
 `;
 
@@ -57,7 +68,7 @@ const FieldDescription = styled(Field.Description)`
   margin-bottom: 0;
   margin-top: 4px;
   line-height: 1.1;
-  color: #666;
+  color: grey;
 
   &[data-error] {
     color: red;

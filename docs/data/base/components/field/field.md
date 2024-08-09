@@ -47,7 +47,7 @@ import * as Field from '@base_ui/react/Field';
 Fields are implemented using a collection of related components:
 
 - `<Field.Root />` is a top-level component that wraps all other components.
-- `<Field.Control />` renders the control when not using a native Base UI component.
+- `<Field.Control />` renders the control when not using a native Base UI input component.
 - `<Field.Label />` renders a label for the control.
 - `<Field.Description />` renders an optional description for the control to provide additional information.
 - `<Field.Error />` renders error messages for the control.
@@ -132,21 +132,36 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 
 ### Controlled validity
 
-By applying `invalid` to `Field.Root`, the Field is forcefully placed into an invalid state. A given error message can be forced to be shown by passing a `forceShow` prop on `Field.Error`, overriding client-side validation.
+When the `invalid` prop is applied to `Field.Root`, the Field is placed into an invalid state regardless of client-side validation. In this state, a given `Field.Error` message can be forced to be shown by specifying a `forceShow` prop.
 
-This can be useful for server-side error messages, testing, or to force particular errors to show initially in an SSR-friendly manner to avoid layout shift.
+This is useful for:
+
+- Server-side error messages
+- Displaying errors initially during SSR phase to avoid layout shift
+- Testing errors
 
 ```jsx
-<Field.Root invalid={serverErrors.email}>
-  <Field.Control type="email" required />
-  <Field.Error show="valueMissing">Client-only error message</Field.Error>
-  <Field.Error show="typeMismatch" forceShow={serverErrors.email}>
-    Client and server-side error message
-  </Field.Error>
-</Field.Root>
+const [serverErrors, setServerErrors] = React.useState({
+  email: false,
+});
+
+return (
+  <Field.Root invalid={serverErrors.email}>
+    <Field.Control type="email" required />
+    <Field.Error show="valueMissing">Client-side only error message</Field.Error>
+    <Field.Error show="typeMismatch" forceShow={serverErrors.email}>
+      Client + server-side error message
+    </Field.Error>
+    <Field.Error forceShow={serverErrors.email}>
+      Server-side only message
+    </Field.Error>
+  </Field.Root>
+);
 ```
 
-Performing a name validity check on the server:
+The `show` prop is for client-side validation, while the `forceShow` prop is for server-side validation. Both can be combined together to share the same error message for both.
+
+Performing an email validity check on the server:
 
 {{"demo": "UnstyledFieldServerError.js", "defaultCodeOpen": false}}
 
@@ -156,7 +171,7 @@ Errors shown initially for password validation:
 
 ### Custom validation
 
-In addition to the native HTML constraint validation, you can also add custom validation by specifying a `validate` function on `Field.Root` that receives the control's `value` as a first argument and returns a string or array of error messages if the field is invalid, and `null` otherwise.
+In addition to the native HTML constraint validation, custom validation can be used by specifying a `validate` function on `Field.Root`. It receives the control's `value` as its argument, and returns an error string or array of error strings if the field is invalid, or `null` otherwise.
 
 ```jsx
 <Field.Root
@@ -204,14 +219,14 @@ The `Validity` subcomponent enables rendering custom JSX based on the `state` pa
 - `state.validity`, the field's `ValidityState`
 - `state.errors`, an array of custom errors returned from the `validate` prop (if present)
 - `state.error`, a custom error string returned from the `validate` prop (if present)
-- `state.value`, the field's control value
-- `state.initialValue`, the field control's initial value
+- `state.value`, the field control's current value
+- `state.initialValue`, the field control's initial value upon mount
 
 It can be placed anywhere inside `Field.Root`, including other Field subcomponents.
 
 ### Realtime and async validation
 
-`validateOnChange` reports the validity of the control on every `change` event, such as a keypress.
+`validateOnChange` reports the validity of the control on every `change` event, such as a keypress:
 
 ```jsx
 <Field.Root validateOnChange>

@@ -28,7 +28,7 @@ export default function UnstyledFieldPassword() {
   const errors = validate(value);
 
   return (
-    <FieldRoot invalid={errors.length > 0}>
+    <FieldRoot invalid={errors.length > 0} validateOnChange>
       <Field.Label>Password</Field.Label>
       <FieldControl
         type="password"
@@ -57,13 +57,23 @@ const FieldControl = styled(Field.Control)`
 
   &[data-field='valid'] {
     border-color: green;
-    background-color: #f0fff0;
+    background-color: rgb(0 255 0 / 0.1);
+  }
+
+  &[data-field='invalid'][data-touched] {
+    border-color: red;
+    background-color: rgb(255 0 0 / 0.1);
   }
 
   &:focus {
     outline: 0;
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
+
+    &[data-field='invalid'][data-touched] {
+      border-color: red;
+      box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
+    }
 
     &[data-field='valid'] {
       border-color: green;
