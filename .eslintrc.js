@@ -6,6 +6,13 @@ const OneLevelImportMessage = [
   'See https://github.com/mui/material-ui/pull/24147 for the kind of win it can unlock.',
 ].join('\n');
 
+const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
+  {
+    group: ['@base_ui/react/*/*', '!@base_ui/react/legacy/*'],
+    message: OneLevelImportMessage,
+  },
+];
+
 module.exports = {
   ...baseline,
   settings: {
@@ -27,21 +34,7 @@ module.exports = {
     'no-restricted-imports': [
       'error',
       {
-        patterns: [
-          {
-            group: [
-              '@mui/*/*/*',
-              '@pigment-css/*/*/*',
-              '@base_ui/react/*/*',
-              '!@base_ui/react/legacy/*',
-              // Allow any import depth with any internal packages
-              '!@mui/internal-*/**',
-              // TODO delete, @mui/docs should be @mui/internal-docs
-              '!@mui/docs/**',
-            ],
-            message: OneLevelImportMessage,
-          },
-        ],
+        patterns: NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
       },
     ],
     '@typescript-eslint/no-redeclare': 'off',
@@ -65,6 +58,17 @@ module.exports = {
         'testing-library/prefer-screen-queries': 'off', // TODO: enable and fix
         'testing-library/no-container': 'off', // TODO: enable and fix
         'testing-library/render-result-naming-convention': 'off', // False positives
+      },
+    },
+    {
+      files: ['docs/**/*{.ts,.tsx,.js}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
+          },
+        ],
       },
     },
   ],

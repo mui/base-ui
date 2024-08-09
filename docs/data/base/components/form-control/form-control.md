@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React Form Control component and hook
+title: React Form Control component
 components: FormControl
 hooks: useFormControlContext
 githubLabel: 'component: FormControl'

@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React NumberField component and hook
+title: React NumberField component
 githubLabel: 'component: number-field'
 components: NumberFieldRoot, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement, NumberFieldScrubArea, NumberFieldScrubAreaCursor
 hooks: useNumberFieldRoot

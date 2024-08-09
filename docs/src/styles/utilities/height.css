@@ -1,0 +1,35 @@
+.h-1 {
+  height: var(--space-1);
+}
+
+.h-2 {
+  height: var(--space-2);
+}
+
+.h-3 {
+  height: var(--space-3);
+}
+
+.h-4 {
+  height: var(--space-4);
+}
+
+.h-5 {
+  height: var(--space-5);
+}
+
+.h-6 {
+  height: var(--space-6);
+}
+
+.h-7 {
+  height: var(--space-7);
+}
+
+.h-8 {
+  height: var(--space-8);
+}
+
+.h-9 {
+  height: var(--space-9);
+}

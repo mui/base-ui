@@ -52,7 +52,7 @@ export function getBaseUiComponentInfo(filename: string): ComponentInfo {
     name,
     muiName: name,
     apiPathname: apiPath,
-    apiPagesDirectory: path.join(process.cwd(), `docs/pages/base-ui/api`),
+    apiPagesDirectory: path.join(process.cwd(), `docs/data/base/api`),
     isSystemComponent: false,
     readFile: () => {
       srcInfo = parseFile(filename);

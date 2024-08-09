@@ -1,3 +1,7 @@
+---
+title: Quickstart
+---
+
 # Quickstart
 
 <p class="description">Get started with Base UI, a library of headless ("unstyled") React UI components and low-level hooks.</p>

@@ -1,0 +1,15 @@
+.p-s {
+  position: static;
+}
+
+.p-a {
+  position: absolute;
+}
+
+.p-r {
+  position: relative;
+}
+
+.p-f {
+  position: fixed;
+}

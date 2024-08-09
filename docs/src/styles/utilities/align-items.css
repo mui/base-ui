@@ -1,0 +1,19 @@
+.ai-center {
+  align-items: center;
+}
+
+.ai-start {
+  align-items: start;
+}
+
+.ai-end {
+  align-items: end;
+}
+
+.ai-stretch {
+  align-items: stretch;
+}
+
+.ai-baseline {
+  align-items: baseline;
+}

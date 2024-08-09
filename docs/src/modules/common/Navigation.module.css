@@ -1,0 +1,9 @@
+.root {
+  box-sizing: border-box;
+  position: fixed;
+  top: 49px;
+  width: 240px;
+  height: calc(100% - 49px);
+  padding: 12px;
+  overflow-y: auto;
+}

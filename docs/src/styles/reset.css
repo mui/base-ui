@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  /* background-color: var(--gray-surface-2); */
+  padding-top: 49px;
+}
+
+::selection {
+  background: var(--gray-container-3);
+}

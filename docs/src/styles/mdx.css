@@ -1,0 +1,27 @@
+main p {
+  margin-bottom: var(--space-4) !important;
+}
+
+main ul p {
+  margin-bottom: 0 !important;
+}
+
+main h2 {
+  margin-top: var(--space-7) !important;
+  margin-bottom: var(--space-3) !important;
+}
+
+main h3 {
+  margin-top: var(--space-7) !important;
+  margin-bottom: var(--space-2) !important;
+}
+
+.MDXCodeBlock {
+  margin-top: var(--space-5) !important;
+  margin-bottom: var(--space-5) !important;
+}
+
+main .TableRoot {
+  margin-top: var(--space-5) !important;
+  margin-bottom: var(--space-5) !important;
+}

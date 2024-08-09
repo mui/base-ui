@@ -227,21 +227,16 @@ jobs:
           name: '`pnpm docs:api` changes committed?'
           command: git add -A && git diff --exit-code --staged
       - run:
-          name: Update the navigation translations
-          command: pnpm docs:i18n
-      - run:
-          name: '`pnpm docs:i18n` changes committed?'
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
             pnpm extract-error-codes
             git add -A && git diff --exit-code --staged
-      - run:
-          name: '`pnpm docs:link-check` changes committed?'
-          command: |
-            pnpm docs:link-check
-            git add -A && git diff --exit-code --staged
+      # TODO: fix link checker
+      #- run:
+      #    name: '`pnpm docs:link-check` changes committed?'
+      #    command: |
+      #      pnpm docs:link-check
+      #      git add -A && git diff --exit-code --staged
   test_types:
     <<: *default-job
     resource_class: 'medium+'

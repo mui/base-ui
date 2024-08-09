@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React Dialog component and hook
+title: React Dialog component
 components: DialogBackdrop, DialogClose, DialogDescription, DialogPopup, DialogRoot, DialogTitle, DialogTrigger
 hooks: useDialogClose, useDialogPopup, useDialogRoot, useDialogTrigger
 githubLabel: 'component: dialog'

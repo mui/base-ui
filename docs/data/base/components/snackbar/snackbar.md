@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React Snackbar component and hook
+title: React Snackbar component
 components: Snackbar
 hooks: useSnackbar
 githubLabel: 'component: snackbar'

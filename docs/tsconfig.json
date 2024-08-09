@@ -12,7 +12,9 @@
     "esModuleInterop": true,
     "types": ["react"],
     "incremental": true,
-    "composite": true
+    "composite": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
   "exclude": ["node_modules"],
   "references": [

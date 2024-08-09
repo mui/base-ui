@@ -1,0 +1,23 @@
+.jc-center {
+  justify-content: center;
+}
+
+.jc-start {
+  justify-content: start;
+}
+
+.jc-end {
+  justify-content: end;
+}
+
+.jc-sb {
+  justify-content: space-between;
+}
+
+.jc-sa {
+  justify-content: space-around;
+}
+
+.jc-se {
+  justify-content: space-evenly;
+}
