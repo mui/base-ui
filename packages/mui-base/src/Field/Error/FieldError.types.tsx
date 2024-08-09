@@ -3,7 +3,7 @@ import type { FieldRootOwnerState } from '../Root/FieldRoot.types';
 
 export type FieldErrorOwnerState = FieldRootOwnerState;
 
-export interface FieldErrorProps extends BaseUIComponentProps<'span', FieldErrorOwnerState> {
+export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldErrorOwnerState> {
   /**
    * Determines whether the error message should be shown when it matches a given property of the
    * field's `ValidityState`.

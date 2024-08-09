@@ -35,10 +35,12 @@ export default function UnstyledFieldPassword() {
         value={value}
         onChange={(event) => setValue(event.currentTarget.value)}
       />
-      <FieldError render={<ul />} forceShow>
-        {errors.map((error) => (
-          <li key={error}>{error}</li>
-        ))}
+      <FieldError forceShow>
+        <ul>
+          {errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
       </FieldError>
     </FieldRoot>
   );

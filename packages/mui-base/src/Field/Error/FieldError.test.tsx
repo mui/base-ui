@@ -8,7 +8,7 @@ describe('<Field.Error />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Error forceShow />, () => ({
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(<Field.Root invalid>{node}</Field.Root>);
     },

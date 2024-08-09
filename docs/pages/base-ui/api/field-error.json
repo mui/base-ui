@@ -16,7 +16,7 @@
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "FieldError",
-  "forwardsRefTo": "HTMLSpanElement",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/Field/Error/FieldError.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-field/\">Field</a></li></ul>",

@@ -134,11 +134,7 @@ For the list of supported `show` strings, visit [`ValidityState` on MDN](https:/
 
 When the `invalid` prop is applied to `Field.Root`, the Field is placed into an invalid state regardless of client-side validation. In this state, a given `Field.Error` message can be forced to be shown by specifying a `forceShow` prop.
 
-This is useful for:
-
-- Server-side error messages
-- Displaying errors initially during SSR phase to avoid layout shift
-- Testing errors
+This is useful for server-side error messages, or displaying errors initially during SSR phase.
 
 ```jsx
 const [serverErrors, setServerErrors] = React.useState({
@@ -159,7 +155,7 @@ return (
 );
 ```
 
-The `show` prop is for client-side validation, while the `forceShow` prop is for server-side validation. Both can be combined together to share the same error message for both.
+The `show` prop is for client-side validation, while the `forceShow` prop is for server-side validation. Both can be combined together to share the same error message.
 
 Performing an email validity check on the server:
 
@@ -206,10 +202,12 @@ To customize the rendering of multiple messages, you can use the `Validity` subc
 >
   <Field.Control type="password" />
   <Field.Label>Password</Field.Label>
-  <Field.Error render={<ul />}>
-    <Field.Validity>
-      {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
-    </Field.Validity>
+  <Field.Error>
+    <ul>
+      <Field.Validity>
+        {(state) => state.errors.map((error) => <li key={error}>{error}</li>)}
+      </Field.Validity>
+    </ul>
   </Field.Error>
 </Field.Root>
 ```

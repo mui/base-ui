@@ -20,7 +20,7 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldErrorProps,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, id, className, show, forceShow, ...otherProps } = props;
 
