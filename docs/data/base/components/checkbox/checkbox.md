@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React Checkbox component and hook
+title: React Checkbox component
 components: CheckboxRoot, CheckboxIndicator
 hooks: useCheckboxRoot
 githubLabel: 'component: checkbox'

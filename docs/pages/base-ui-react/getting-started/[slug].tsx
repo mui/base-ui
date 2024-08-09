@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { getMDXComponent } from 'mdx-bundler/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
-import { getMdxPage } from 'docs-base/src/utils/getMdxPage';
+import Head from 'next/head';
+import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { MasterLayout } from 'docs-base/src/layout/MasterLayout';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
 import { getSlugs } from 'docs-base/data/base/pages';
@@ -23,11 +24,13 @@ export default function ComponentPage(props: InferGetStaticPropsType<typeof getS
   }
 
   return (
-    <main>
-      <h1>{props.metadata.title}</h1>
-      <TableOfContents />
+    <React.Fragment>
+      <Head>
+        <title>{props.metadata.title}</title>
+      </Head>
       <Component components={components} />
-    </main>
+      <TableOfContents />
+    </React.Fragment>
   );
 }
 
@@ -38,7 +41,7 @@ export const getStaticProps = (async (context) => {
     throw new Error('No slug provided');
   }
 
-  const page = await getMdxPage('getting-started', params.slug as string);
+  const page = await getMarkdownPage('getting-started', params.slug as string);
 
   return {
     props: {

@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React Select components and hook
+title: React Select components
 components: Select, Option, OptionGroup
 hooks: useSelect, useOption, useOptionContextStabilizer
 githubLabel: 'component: select'

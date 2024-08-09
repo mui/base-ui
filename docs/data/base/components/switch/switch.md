@@ -1,6 +1,6 @@
 ---
 productId: base-ui
-title: React Switch component and hook
+title: React Switch component
 components: SwitchRoot, SwitchThumb
 hooks: useSwitchRoot
 githubLabel: 'component: switch'

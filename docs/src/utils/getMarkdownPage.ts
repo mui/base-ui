@@ -29,7 +29,7 @@ export interface PageMetadata {
   slug: string;
 }
 
-export const getMdxPage = async (basePath: string, slug: string) => {
+export const getMarkdownPage = async (basePath: string, slug: string) => {
   const mdxFilePath = path.join(DATA_PATH, basePath, `/${slug}/${slug}.mdx`);
   const mdFilePath = path.join(DATA_PATH, basePath, `/${slug}/${slug}.md`);
 
