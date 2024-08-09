@@ -8,7 +8,7 @@ export interface RouteMetadata {
 
 const pages: readonly RouteMetadata[] = [
   {
-    pathname: '/base-ui-react/getting-started-group',
+    pathname: '/base-ui-react/getting-started',
     title: 'Getting started',
     children: [
       { pathname: '/base-ui-react/getting-started/overview', title: 'Overview' },
