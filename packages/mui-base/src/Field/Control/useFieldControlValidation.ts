@@ -65,18 +65,7 @@ export function useFieldControlValidation() {
 
     window.clearTimeout(timeoutRef.current);
 
-    const nextValidityData = {
-      state: getState(element),
-      error: '',
-      errors: [],
-      value,
-      initialValue: validityData.initialValue,
-    };
-
-    setValidityData(nextValidityData);
-    element.setCustomValidity('');
-
-    const resultOrPromise = validate(nextValidityData.value);
+    const resultOrPromise = validate(value);
     let result: null | string | string[] = null;
     if (
       typeof resultOrPromise === 'object' &&
@@ -106,10 +95,11 @@ export function useFieldControlValidation() {
     }
 
     setValidityData({
-      ...nextValidityData,
+      value,
       state: nextState,
       error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
       errors,
+      initialValue: validityData.initialValue,
     });
   });
 
