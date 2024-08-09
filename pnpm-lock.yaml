@@ -71,8 +71,8 @@ importers:
         specifier: 6.0.0-beta.4
         version: 6.0.0-beta.4(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.0.0-beta.4
-        version: https://codeload.github.com/mui/material-ui/tar.gz/4f0c10d0b40327e672bdb28ca05651d037b47a08(encoding@0.1.13)
+        specifier: github:michaldudak/material-ui#b5357756d4
+        version: https://codeload.github.com/michaldudak/material-ui/tar.gz/b5357756d4(encoding@0.1.13)
       '@mui/utils':
         specifier: 6.0.0-beta.4
         version: 6.0.0-beta.4(@types/react@18.3.1)(react@18.3.1)
@@ -2310,10 +2310,10 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/4f0c10d0b40327e672bdb28ca05651d037b47a08':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/4f0c10d0b40327e672bdb28ca05651d037b47a08}
-    version: 6.0.0-beta.4
-    engines: {pnpm: 9.5.0}
+  '@mui/monorepo@https://codeload.github.com/michaldudak/material-ui/tar.gz/b5357756d4':
+    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/b5357756d4}
+    version: 6.0.0-beta.5
+    engines: {pnpm: 9.6.0}
 
   '@mui/private-theming@5.16.1':
     resolution: {integrity: sha512-2EGCKnAlq9vRIFj61jNWNXlKAxXp56577OVvsts7fAqRx+G1y6F+N7Q198SBaz8jYQeGKSz8ZMXK/M3FqjdEyw==}
@@ -10968,7 +10968,7 @@ snapshots:
       '@emotion/styled': 11.11.5(@emotion/react@11.13.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
       '@types/react': 18.3.1
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/4f0c10d0b40327e672bdb28ca05651d037b47a08(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/michaldudak/material-ui/tar.gz/b5357756d4(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 8.0.0(encoding@0.1.13)
       '@netlify/functions': 2.8.1
