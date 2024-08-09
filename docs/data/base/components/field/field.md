@@ -246,7 +246,7 @@ The `change` validation is debounced by 500ms to avoid firing a network request 
 
 ## Styling
 
-The `[data-field]` style hook determines if the field is invalid or not with values `"valid"` or `"invalid"`:
+The `[data-field="valid"]` and `[data-field="invalid"]` style hooks determine if the field is invalid or not:
 
 ```jsx
 <Field.Root>
@@ -260,15 +260,17 @@ The `[data-field]` style hook determines if the field is invalid or not with val
 }
 ```
 
-To guard the validity style, you can use the `[data-touched]` and `[data-dirty]` style hooks, which are applied once the control has been interacted with:
+`[data-touched]` is applied if the field has been "touched": blurred after being interacted with, or submitted if pressing Enter on an input.
 
 ```css
-/* Applied once the user has focused then blurred the control */
-.FieldControl[data-touched][data-field='invalid'] {
+.FieldControl[data-touched] {
   color: red;
 }
+```
 
-/* Applied once the control has been changed from its initial value */
+`[data-dirty]` is applied if the field's value has been changed from its initial one.
+
+```css
 .FieldControl[data-dirty] {
   color: orange;
 }

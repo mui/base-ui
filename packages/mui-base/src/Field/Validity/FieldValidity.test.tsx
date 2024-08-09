@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import * as Field from '@base_ui/react/Field';
@@ -19,13 +19,11 @@ describe('<Field.Validity />', () => {
 
     const input = screen.getByRole<HTMLInputElement>('textbox');
 
-    act(() => {
-      input.focus();
-      input.value = 'test';
-      input.blur();
-    });
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: 'test' } });
+    fireEvent.blur(input);
 
-    const [data] = handleValidity.args[6];
+    const [data] = handleValidity.args[8];
 
     expect(data.value).to.equal('test');
     expect(data.validity.valueMissing).to.equal(false);
@@ -43,10 +41,8 @@ describe('<Field.Validity />', () => {
 
     const input = screen.getByRole<HTMLInputElement>('textbox');
 
-    act(() => {
-      input.focus();
-      input.blur();
-    });
+    fireEvent.focus(input);
+    fireEvent.blur(input);
 
     expect(handleValidity.args[6][0].error).to.equal('error');
     expect(handleValidity.args[6][0].errors).to.deep.equal(['error']);
@@ -64,10 +60,8 @@ describe('<Field.Validity />', () => {
 
     const input = screen.getByRole<HTMLInputElement>('textbox');
 
-    act(() => {
-      input.focus();
-      input.blur();
-    });
+    fireEvent.focus(input);
+    fireEvent.blur(input);
 
     expect(handleValidity.args[6][0].error).to.equal('1');
     expect(handleValidity.args[6][0].errors).to.deep.equal(['1', '2']);

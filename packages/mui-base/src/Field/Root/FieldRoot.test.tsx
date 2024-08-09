@@ -109,6 +109,8 @@ describe('<Field.Root />', () => {
       expect(error).to.equal(null);
 
       fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
       fireEvent.blur(control);
 
       error = screen.getByTestId('error');

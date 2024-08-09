@@ -57,7 +57,7 @@ export default function UnstyledFieldServerError() {
               type="submit"
               aria-disabled={status === 'loading'}
               aria-description={
-                state.validity.valid === false ? 'Field has errors' : undefined
+                !state.validity.valid ? 'Field has errors' : undefined
               }
               onClick={(event) => {
                 if (status === 'loading') {

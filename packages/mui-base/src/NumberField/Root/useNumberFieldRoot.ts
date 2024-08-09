@@ -77,6 +77,7 @@ export function useNumberFieldRoot(
     setDirty,
     validityData,
     setValidityData,
+    markedDirty,
   } = useFieldRootContext();
 
   useEnhancedEffect(() => {
@@ -732,14 +733,15 @@ export function useNumberFieldRoot(
       disabled,
       readOnly,
       inputMode,
+      inputValue,
       mergedRef,
       invalid,
       labelId,
       setTouched,
+      markedDirty,
+      formatOptionsRef,
       commitValidation,
       valueRef,
-      inputValue,
-      formatOptionsRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,

@@ -22,6 +22,7 @@ export function useFieldControlValidation() {
     validateOnChange,
     validateDebounceTime,
     invalid,
+    markedDirty,
   } = useFieldRootContext();
 
   const valid = !invalid && validityData.state.valid;
@@ -45,11 +46,20 @@ export function useFieldControlValidation() {
       const val = validityKeys.reduce(
         (acc, key) => {
           acc[key] = el.validity[key];
+
+          if (!el.validity.customError && !markedDirty) {
+            acc[key] = key === 'valid';
+          }
+
           return acc;
         },
         {} as Record<keyof ValidityState, boolean>,
       );
-      val.valid = invalid ? false : el.validity.valid;
+
+      if (invalid) {
+        val.valid = false;
+      }
+
       return val;
     }
 
@@ -84,6 +94,8 @@ export function useFieldControlValidation() {
     }
     element.setCustomValidity(errorMessage);
 
+    const nextState = getState(element);
+
     let errors: string[] = [];
     if (Array.isArray(result)) {
       errors = result;
@@ -95,7 +107,7 @@ export function useFieldControlValidation() {
 
     setValidityData({
       ...nextValidityData,
-      state: getState(element),
+      state: nextState,
       error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
       errors,
     });
@@ -115,11 +127,21 @@ export function useFieldControlValidation() {
       mergeReactProps<'input'>(getValidationProps(externalProps), {
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented || !validateOnChange) {
+          if (event.nativeEvent.defaultPrevented) {
+            return;
+          }
+
+          if (invalid || !validateOnChange) {
             return;
           }
 
           const element = event.currentTarget;
+
+          if (element.value === '') {
+            // Ignore the debounce time for empty values.
+            commitValidation(element.value);
+            return;
+          }
 
           window.clearTimeout(timeoutRef.current);
 
@@ -132,7 +154,7 @@ export function useFieldControlValidation() {
           }
         },
       }),
-    [commitValidation, getValidationProps, validateOnChange, validateDebounceTime],
+    [getValidationProps, invalid, validateOnChange, validateDebounceTime, commitValidation],
   );
 
   return React.useMemo(

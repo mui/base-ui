@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import * as Field from '@base_ui/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
@@ -39,10 +39,12 @@ describe('<Field.Error />', () => {
 
     expect(screen.queryByText('Message')).to.equal(null);
 
-    act(() => {
-      screen.getByRole('textbox').focus();
-      screen.getByRole('textbox').blur();
-    });
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: 'a' } });
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.blur(input);
 
     expect(screen.queryByText('Message')).not.to.equal(null);
   });
@@ -58,10 +60,12 @@ describe('<Field.Error />', () => {
 
       expect(screen.queryByText('Message')).to.equal(null);
 
-      act(() => {
-        screen.getByRole('textbox').focus();
-        screen.getByRole('textbox').blur();
-      });
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'a' } });
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
@@ -74,11 +78,12 @@ describe('<Field.Error />', () => {
         </Field.Root>,
       );
 
-      act(() => {
-        const textbox = screen.getByRole<HTMLInputElement>('textbox');
-        textbox.focus();
-        textbox.blur();
-      });
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'a' } });
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
 
       expect(screen.queryByText('Message')).not.to.equal(null);
     });

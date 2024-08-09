@@ -23,6 +23,7 @@ export interface FieldRootContextValue {
   validateOnChange: boolean;
   validateDebounceTime: number;
   ownerState: FieldRootOwnerState;
+  markedDirty: boolean;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
@@ -56,6 +57,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
     touched: false,
     dirty: false,
   },
+  markedDirty: false,
 });
 
 if (process.env.NODE_ENV !== 'production') {

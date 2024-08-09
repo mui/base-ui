@@ -74,8 +74,8 @@ export function useFieldControl(params: UseFieldControlParameters) {
       labelId,
       setDirty,
       validityData.initialValue,
-      commitValidation,
       setTouched,
+      commitValidation,
     ],
   );
 

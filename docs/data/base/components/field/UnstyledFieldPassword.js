@@ -28,7 +28,7 @@ export default function UnstyledFieldPassword() {
   const errors = validate(value);
 
   return (
-    <FieldRoot invalid={errors.length > 0} validateOnChange>
+    <FieldRoot invalid={errors.length > 0}>
       <Field.Label>Password</Field.Label>
       <FieldControl
         type="password"

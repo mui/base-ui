@@ -27,8 +27,8 @@ const FieldError = React.forwardRef(function FieldError(
   const { validityData, ownerState } = useFieldRootContext(false);
 
   let rendered = false;
-  if (forceShow != null) {
-    rendered = forceShow;
+  if (forceShow) {
+    rendered = true;
   } else if (show) {
     rendered = Boolean(validityData.state[show]);
   } else {
