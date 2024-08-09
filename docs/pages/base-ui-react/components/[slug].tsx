@@ -1,6 +1,9 @@
+/* eslint-disable react/no-danger */
 import * as React from 'react';
+import { readFile } from 'node:fs/promises';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import Head from 'next/head';
+import kebabCase from 'lodash/kebabCase';
 import { getMDXComponent } from 'mdx-bundler/client';
 import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { MasterLayout } from 'docs-base/src/layout/MasterLayout';
@@ -29,6 +32,37 @@ export default function ComponentPage(props: InferGetStaticPropsType<typeof getS
         <title>{props.metadata.title}</title>
       </Head>
       <Component components={components} />
+
+      <h2>API Reference</h2>
+      <div>
+        {props.componentsApi.map((apiDescription) => (
+          <React.Fragment key={apiDescription.name}>
+            <h3>{apiDescription.name}</h3>
+            <p dangerouslySetInnerHTML={{ __html: apiDescription.description }} />
+            <table>
+              <thead>
+                <tr>
+                  <th>Prop</th>
+                  <th>Type</th>
+                  <th>Default</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {apiDescription.props.map((prop) => (
+                  <tr key={prop.name}>
+                    <td>{prop.name}</td>
+                    <td>{prop.type.name}</td>
+                    <td>{prop.default}</td>
+                    <td dangerouslySetInnerHTML={{ __html: prop.description }} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </React.Fragment>
+        ))}
+      </div>
+
       <TableOfContents />
     </React.Fragment>
   );
@@ -42,12 +76,37 @@ export const getStaticProps = (async (context) => {
   }
 
   const page = await getMarkdownPage('components', params.slug as string);
+  const documentedComponents = page.metadata.components?.split(',').map((c) => c.trim()) ?? [];
+
+  const componentsApi = await Promise.all(
+    documentedComponents.map(async (componentName) => {
+      const kebabedComponentName = kebabCase(componentName);
+      const apiDescriptionFilePath = `data/base/api/${kebabedComponentName}.json`;
+      const translationsFilePath = `data/base/translations/api-docs/${kebabedComponentName}/${kebabedComponentName}.json`;
+
+      const apiDescription = JSON.parse(await readFile(apiDescriptionFilePath, 'utf-8'));
+      const translations = JSON.parse(await readFile(translationsFilePath, 'utf-8'));
+
+      return {
+        name: componentName,
+        description: translations.componentDescription,
+        props: Object.keys(apiDescription.props).map((propName) => ({
+          name: propName,
+          ...apiDescription.props[propName],
+          ...translations.propDescriptions[propName],
+        })),
+      };
+    }),
+  );
+
+  console.log(componentsApi);
 
   return {
     props: {
       slug: context?.params?.slug ?? '',
       metadata: page.metadata,
       content: page.code,
+      componentsApi,
     },
   };
 }) satisfies GetStaticProps;
