@@ -23,7 +23,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.5",
-    "@mui/docs": "6.0.0-beta.4",
+    "@mui/docs": "6.0.0-beta.5-dev.20240809-114550-93cb3d65e7",
     "@mui/icons-material": "6.0.0-beta.4",
     "@mui/internal-markdown": "^1.0.8",
     "@mui/internal-scripts": "^1.0.14",
