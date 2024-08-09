@@ -23,10 +23,13 @@ export default function MenuIntroduction() {
         <MenuButton>My account</MenuButton>
         <MenuPositioner>
           <MenuPopup>
-            <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-            <MenuItem onClick={createHandleMenuClick('Language settings')}>
-              Language settings
-            </MenuItem>
+            <Menu.Group>
+              <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+              <MenuItem onClick={createHandleMenuClick('Language settings')}>
+                Language settings
+              </MenuItem>
+            </Menu.Group>
+            <MenuSeparator />
             <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
           </MenuPopup>
         </MenuPositioner>
@@ -69,6 +72,16 @@ const MenuPositioner = React.forwardRef((props, ref) => {
     <Menu.Positioner
       ref={ref}
       className="focus-visible:outline-0 closed:pointer-events-none"
+      {...props}
+    />
+  );
+});
+
+const MenuSeparator = React.forwardRef((props, ref) => {
+  return (
+    <Menu.Separator
+      ref={ref}
+      className="border-t border-solid border-slate-200 dark:border-slate-700 my-2"
       {...props}
     />
   );

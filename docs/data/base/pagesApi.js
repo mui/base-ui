@@ -77,6 +77,7 @@ module.exports = [
     title: 'FormControl',
   },
   { pathname: '/base-ui/react-menu/components-api/#menu-arrow', title: 'MenuArrow' },
+  { pathname: '/base-ui/react-menu/components-api/#menu-group', title: 'MenuGroup' },
   { pathname: '/base-ui/react-menu/components-api/#menu-item', title: 'MenuItem' },
   { pathname: '/base-ui/react-menu/components-api/#menu-popup', title: 'MenuPopup' },
   {
@@ -84,6 +85,10 @@ module.exports = [
     title: 'MenuPositioner',
   },
   { pathname: '/base-ui/react-menu/components-api/#menu-root', title: 'MenuRoot' },
+  {
+    pathname: '/base-ui/react-menu/components-api/#menu-separator',
+    title: 'MenuSeparator',
+  },
   {
     pathname: '/base-ui/react-menu/components-api/#menu-trigger',
     title: 'MenuTrigger',

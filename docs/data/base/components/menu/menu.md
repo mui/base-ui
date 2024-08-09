@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Menu components and hooks
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuGroup, MenuSeparator
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -53,6 +53,8 @@ Menus are implemented using a collection of related components:
 - `<Menu.Item />` is the menu item.
 - `<Popover.Arrow />` renders an optional pointing arrow, placed inside the popup.
 - `<Menu.SubmenuTrigger />` is a menu item that opens a submenu. See [Nested menu](#nested-menu) for more details.
+- `<Menu.Group>` groups related items making assistive technologies announce them distinctively.
+- `<Menu.Separator>` visually separates items.
 
 ```tsx
 <Menu.Root>
@@ -60,8 +62,12 @@ Menus are implemented using a collection of related components:
 
   <Menu.Positioner>
     <Menu.Popup>
-      <Menu.Item />
-      <Menu.Item />
+      <Menu.Group>
+        <Menu.Item />
+        <Menu.Item />
+      </Menu.Group>
+
+      <Menu.Separator />
 
       <Menu.Root>
         <Menu.SubmenuTrigger />

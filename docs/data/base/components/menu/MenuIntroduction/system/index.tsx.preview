@@ -2,10 +2,13 @@
   <MenuButton>My account</MenuButton>
   <MenuPositioner alignment="start" sideOffset={8}>
     <MenuPopup>
-      <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-      <MenuItem onClick={createHandleMenuClick('Language settings')}>
-        Language settings
-      </MenuItem>
+      <Menu.Group>
+        <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+        <MenuItem onClick={createHandleMenuClick('Language settings')}>
+          Language settings
+        </MenuItem>
+      </Menu.Group>
+      <MenuSeparator />
       <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
       <MenuArrow />
     </MenuPopup>
