@@ -6,41 +6,21 @@ githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
 
+import { InstallationInstructions } from 'docs-base/src/modules/components/InstallationInstructions.tsx';
+
 # Menu
 
-<p class="description">The Menu component provide end users with a list of options on temporary surfaces.</p>
+<p className="description">The Menu component provide end users with a list of options on temporary surfaces.</p>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
+<ComponentLinkHeader design={false} />
 
-{{"component": "modules/components/ComponentPageTabs.js"}}
+<ComponentPageTabs />
 
-{{"demo": "MenuIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="MenuIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
-Base UI components are all available as a single package.
-
-<codeblock storageKey="package-manager">
-
-```bash npm
-npm install @base_ui/react
-```
-
-```bash yarn
-yarn add @base_ui/react
-```
-
-```bash pnpm
-pnpm add @base_ui/react
-```
-
-</codeblock>
-
-Once you have the package installed, import the component.
-
-```ts
-import * as Menu from '@base_ui/react/Menu';
-```
+<InstallationInstructions importStatement="import * as Menu from '@base_ui/react/Menu'" />
 
 ## Anatomy
 
@@ -169,11 +149,11 @@ To change how long the menu waits until it opens or closes when `openOnHover` is
 Menu items can open submenus.
 To make this happen, place the `<Menu.Root>` with all its required children where a submenu trigger has to be placed, but instead of `<Menu.Trigger>`, use `<Menu.SubitemTrigger>`, as on the demo below.
 
-{{"demo": "NestedMenu.js"}}
+<Demo demo="NestedMenu" />
 
 ### Escape key behavior
 
-You can control if pressing the <kbd class="key">Escape</kbd> key closes just the current submenu or the whole tree.
+You can control if pressing the <kbd className="key">Escape</kbd> key closes just the current submenu or the whole tree.
 By default, the whole menu closes, but setting the `closeParentOnEsc` prop modifies this behavior:
 
 ```jsx
