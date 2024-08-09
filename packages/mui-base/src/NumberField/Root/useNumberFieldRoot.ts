@@ -77,7 +77,6 @@ export function useNumberFieldRoot(
     setDirty,
     validityData,
     setValidityData,
-    markedDirty,
   } = useFieldRootContext();
 
   useEnhancedEffect(() => {
