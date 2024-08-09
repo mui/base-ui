@@ -38,7 +38,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
   const validate = useEventCallback(validateProp || (() => null));
 
   const [internalDisabled, setDisabled] = React.useState(false);
-  const disabled = disabledFieldset ?? internalDisabled;
+  const disabled = disabledFieldset || internalDisabled;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
