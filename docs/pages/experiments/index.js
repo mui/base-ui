@@ -8,8 +8,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
-import GradientText from 'docs/src/components/typography/GradientText';
-import { Link } from '@mui/docs/Link';
+import { Link } from 'next/link';
 
 export default function Experiments({ experiments }) {
   const categories = {};
@@ -51,7 +50,7 @@ export default function Experiments({ experiments }) {
               Welcome to
             </Typography>
             <Typography component="h1" variant="h2" sx={{ my: 1 }}>
-              MUI <GradientText>Experiments</GradientText>
+              Base UI Experiments
             </Typography>
 
             <Box sx={{ textAlign: 'left' }}>

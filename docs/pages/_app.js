@@ -17,10 +17,8 @@ import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
 import { CodeCopyProvider } from '@mui/docs/CodeCopy';
-import { DocsProvider } from '@mui/docs/DocsProvider';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
 import { mapTranslations } from '@mui/docs/i18n';
-import config from '../config';
 import '../src/styles/style.css';
 
 // Client-side cache, shared for the whole session of the user in the browser.
@@ -50,7 +48,7 @@ const PRODUCT_IDENTIFIER = {
 };
 
 function AppWrapper(props) {
-  const { children, emotionCache, pageProps } = props;
+  const { children, emotionCache } = props;
 
   const router = useRouter();
   // TODO move productId & productCategoryId resolution to page layout.
@@ -89,27 +87,21 @@ function AppWrapper(props) {
         <meta name="mui:productId" content="base-ui" />
         <meta name="mui:productCategoryId" content="core" />
       </NextHead>
-      <DocsProvider
-        config={config}
-        adConfig={{ GADisplayRatio: 0.1 }}
-        defaultUserLanguage={pageProps.userLanguage}
-        translations={pageProps.translations}
-      >
-        <CodeCopyProvider>
-          <CodeStylingProvider>
-            <CodeVariantProvider>
-              <PageContext.Provider value={pageContextValue}>
-                <ThemeProvider>
-                  <DocsStyledEngineProvider cacheLtr={emotionCache}>
-                    {children}
-                    <GoogleAnalytics />
-                  </DocsStyledEngineProvider>
-                </ThemeProvider>
-              </PageContext.Provider>
-            </CodeVariantProvider>
-          </CodeStylingProvider>
-        </CodeCopyProvider>
-      </DocsProvider>
+
+      <CodeCopyProvider>
+        <CodeStylingProvider>
+          <CodeVariantProvider>
+            <PageContext.Provider value={pageContextValue}>
+              <ThemeProvider>
+                <DocsStyledEngineProvider cacheLtr={emotionCache}>
+                  {children}
+                  <GoogleAnalytics />
+                </DocsStyledEngineProvider>
+              </ThemeProvider>
+            </PageContext.Provider>
+          </CodeVariantProvider>
+        </CodeStylingProvider>
+      </CodeCopyProvider>
     </React.Fragment>
   );
 }
@@ -117,7 +109,6 @@ function AppWrapper(props) {
 AppWrapper.propTypes = {
   children: PropTypes.node.isRequired,
   emotionCache: PropTypes.object.isRequired,
-  pageProps: PropTypes.object.isRequired,
 };
 
 export default function BaseUIDocsApp(props) {

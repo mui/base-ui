@@ -4,7 +4,6 @@ import * as url from 'url';
 import * as fs from 'fs';
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
-import { LANGUAGES, LANGUAGES_IGNORE_PAGES, LANGUAGES_IN_PROGRESS } from './config.js';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
@@ -47,31 +46,6 @@ const nextConfig = {
         ...config.module,
         rules: config.module.rules.concat([
           {
-            test: /\.md$/,
-            resourceQuery: /@mui\/markdown/,
-            use: [
-              options.defaultLoaders.babel,
-              {
-                loader: '@mui/internal-markdown/loader',
-                options: {
-                  workspaceRoot,
-                  ignoreLanguagePages: LANGUAGES_IGNORE_PAGES,
-                  languagesInProgress: LANGUAGES_IN_PROGRESS,
-                  packages: [
-                    {
-                      productId: 'base-ui',
-                      paths: [path.join(workspaceRoot, 'packages/mui-base/src')],
-                    },
-                  ],
-                  env: {
-                    SOURCE_CODE_REPO: options.config.env.SOURCE_CODE_REPO,
-                    LIB_VERSION: options.config.env.LIB_VERSION,
-                  },
-                },
-              },
-            ],
-          },
-          {
             test: /\.+(js|jsx|mjs|ts|tsx)$/,
             include: includesMonorepo,
             use: options.defaultLoaders.babel,
@@ -86,15 +60,7 @@ const nextConfig = {
     ? {
         output: 'export',
       }
-    : {
-        rewrites: async () => {
-          return [
-            { source: `/:lang(${LANGUAGES.join('|')})?/:rest*`, destination: '/:rest*' },
-            { source: '/api/:rest*', destination: '/api-docs/:rest*' },
-          ];
-        },
-        // redirects only take effect in the development, not production (because of `next export`).
-      }),
+    : {}),
 };
 
 export default withDocsInfra(nextConfig);
