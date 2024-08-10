@@ -1,0 +1,17 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "FormSubmit",
+  "imports": ["import * as Form from '@base_ui/react/Form';\nconst FormSubmit = Form.Submit;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "FormSubmit",
+  "forwardsRefTo": "HTMLButtonElement",
+  "filename": "/packages/mui-base/src/Form/Submit/FormSubmit.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-form/\">Form</a></li></ul>",
+  "cssComponent": false
+}

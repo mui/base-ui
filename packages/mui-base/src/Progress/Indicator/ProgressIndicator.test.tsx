@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Progress from '@base_ui/react/Progress';
 import { ProgressContext } from '@base_ui/react/Progress';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 import type { ProgressContextValue } from '../Root/ProgressRoot.types';
 
 const contextValue: ProgressContextValue = {
@@ -23,24 +22,21 @@ describe('<Progress.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Progress.Indicator />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
-      const { container, ...other } = render(
+      return render(
         <ProgressContext.Provider value={contextValue}>{node}</ProgressContext.Provider>,
       );
-
-      return { container, ...other };
     },
     refInstanceof: window.HTMLSpanElement,
   }));
 
   describe('internal styles', () => {
-    it('determinate', function test() {
+    it('determinate', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <Progress.Root value={33}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" />
@@ -56,12 +52,12 @@ describe('<Progress.Indicator />', () => {
       });
     });
 
-    it('indeterminate', function test() {
+    it('indeterminate', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <Progress.Root value={null}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" />

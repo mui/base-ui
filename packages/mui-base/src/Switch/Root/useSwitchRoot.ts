@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import type { UseSwitchRootParameters, UseSwitchRootReturnValue } from './SwitchRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
@@ -10,6 +11,8 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
 
 /**
  * The basic building block for creating custom switches.
@@ -37,17 +40,16 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
 
   const {
     labelId,
-    setDisabled,
     setControlId,
     setTouched,
     setDirty,
     validityData,
     setValidityData,
+    setMarkedDirty,
+    invalid,
   } = useFieldRootContext();
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const { formRef } = useFormRootContext();
 
   const {
     getValidationProps,
@@ -59,6 +61,11 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useId(idProp);
 
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
+
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+
   useEnhancedEffect(() => {
     setControlId(id);
     return () => {
@@ -66,8 +73,21 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     };
   }, [id, setControlId]);
 
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
+  useEnhancedEffect(() => {
+    if (id) {
+      formRef.current.fields.set(id, {
+        controlRef: buttonRef,
+        validityData: getCombinedFieldValidityData(validityData, invalid),
+        validate() {
+          if (!inputValidationRef.current) {
+            return;
+          }
+          ReactDOM.flushSync(() => setMarkedDirty(true));
+          commitValidation(inputValidationRef.current.checked);
+        },
+      });
+    }
+  }, [commitValidation, formRef, id, inputValidationRef, setMarkedDirty, validityData, invalid]);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -85,6 +105,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
+        ref: buttonRef,
         type: 'button',
         role: 'switch',
         'aria-checked': checked,

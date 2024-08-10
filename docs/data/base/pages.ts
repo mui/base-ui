@@ -39,6 +39,7 @@ const pages: readonly MuiPage[] = [
           { pathname: '/base-ui/react-tooltip', title: 'Tooltip' },
           { pathname: '/base-ui/react-field', title: 'Field' },
           { pathname: '/base-ui/react-fieldset', title: 'Fieldset' },
+          { pathname: '/base-ui/react-form', title: 'Form' },
         ],
       },
       {

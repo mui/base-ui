@@ -6,7 +6,6 @@ import type { FieldControlElement, FieldControlProps } from './FieldControl.type
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The field's control element. This is not necessary to use when using a native Base UI input
@@ -28,18 +27,16 @@ const FieldControl = React.forwardRef(function FieldControl(
     render,
     className,
     id,
-    disabled = false,
-    name,
+    disabled,
+    name: nameProp,
     value,
     defaultValue,
     ...otherProps
   } = props;
 
-  const { setDisabled, ownerState } = useFieldRootContext(false);
+  const { ownerState, name: fieldName } = useFieldRootContext(false);
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const name = fieldName ?? nameProp;
 
   const { getControlProps } = useFieldControl({ id, name, value: value ?? defaultValue ?? '' });
 

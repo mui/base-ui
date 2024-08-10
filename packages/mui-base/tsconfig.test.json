@@ -5,6 +5,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "noEmit": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "rootDir": ".",
     "outDir": "build-tests"
   },

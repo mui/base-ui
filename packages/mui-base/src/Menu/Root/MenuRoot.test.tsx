@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   const { render } = createRenderer();
@@ -126,8 +126,9 @@ describe('<Menu.Root />', () => {
 
       await waitFor(() => {
         expect(item2).toHaveFocus();
-        expect(item2).to.have.attribute('aria-disabled', 'true');
       });
+
+      expect(item2).to.have.attribute('aria-disabled', 'true');
     });
 
     describe('text navigation', () => {
@@ -161,15 +162,17 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('c');
         await waitFor(() => {
-          expect(document.activeElement).to.equal(getByText('Ca'));
-          expect(getByText('Ca')).to.have.attribute('tabindex', '0');
+          expect(getByText('Ca')).toHaveFocus();
         });
+
+        expect(getByText('Ca')).to.have.attribute('tabindex', '0');
 
         await user.keyboard('d');
         await waitFor(() => {
-          expect(document.activeElement).to.equal(getByText('Cd'));
-          expect(getByText('Cd')).to.have.attribute('tabindex', '0');
+          expect(getByText('Cd')).toHaveFocus();
         });
+
+        expect(getByText('Cd')).to.have.attribute('tabindex', '0');
       });
 
       it('changes the highlighted item using text navigation on label prop', async () => {
@@ -191,24 +194,28 @@ describe('<Menu.Root />', () => {
         await user.click(trigger);
 
         const items = getAllByRole('menuitem');
+        await flushMicrotasks();
 
         await user.keyboard('b');
         await waitFor(() => {
           expect(items[1]).toHaveFocus();
+        });
+
+        await waitFor(() => {
           expect(items[1]).to.have.attribute('tabindex', '0');
         });
 
         await user.keyboard('b');
         await waitFor(() => {
           expect(items[2]).toHaveFocus();
-          expect(items[2]).to.have.attribute('tabindex', '0');
         });
+        expect(items[2]).to.have.attribute('tabindex', '0');
 
         await user.keyboard('b');
         await waitFor(() => {
           expect(items[2]).toHaveFocus();
-          expect(items[2]).to.have.attribute('tabindex', '0');
         });
+        expect(items[2]).to.have.attribute('tabindex', '0');
       });
 
       it('skips the non-stringifiable items', async function test() {
@@ -245,14 +252,14 @@ describe('<Menu.Root />', () => {
         await user.keyboard('b');
         await waitFor(() => {
           expect(getByText('Ba')).toHaveFocus();
-          expect(getByText('Ba')).to.have.attribute('tabindex', '0');
         });
+        expect(getByText('Ba')).to.have.attribute('tabindex', '0');
 
         await user.keyboard('c');
         await waitFor(() => {
           expect(getByText('Bc')).toHaveFocus();
-          expect(getByText('Bc')).to.have.attribute('tabindex', '0');
         });
+        expect(getByText('Bc')).to.have.attribute('tabindex', '0');
       });
 
       it('navigate to options with diacritic characters', async function test() {
@@ -284,14 +291,14 @@ describe('<Menu.Root />', () => {
         await user.keyboard('b');
         await waitFor(() => {
           expect(getByText('Ba')).toHaveFocus();
-          expect(getByText('Ba')).to.have.attribute('tabindex', '0');
         });
+        expect(getByText('Ba')).to.have.attribute('tabindex', '0');
 
         await user.keyboard('ą');
         await waitFor(() => {
           expect(getByText('Bą')).toHaveFocus();
-          expect(getByText('Bą')).to.have.attribute('tabindex', '0');
         });
+        expect(getByText('Bą')).to.have.attribute('tabindex', '0');
       });
 
       it('navigate to next options beginning with diacritic characters', async function test() {
@@ -323,8 +330,8 @@ describe('<Menu.Root />', () => {
         await user.keyboard('ą');
         await waitFor(() => {
           expect(getByText('ąa')).toHaveFocus();
-          expect(getByText('ąa')).to.have.attribute('tabindex', '0');
         });
+        expect(getByText('ąa')).to.have.attribute('tabindex', '0');
       });
     });
   });
@@ -552,7 +559,7 @@ describe('<Menu.Root />', () => {
       });
 
       await user.keyboard('[Escape]');
-      await act(async () => {});
+      await flushMicrotasks();
 
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
@@ -599,11 +606,13 @@ describe('<Menu.Root />', () => {
       });
 
       await user.keyboard('[Escape]');
+
+      const menus = queryAllByRole('menu', { hidden: false });
       await waitFor(() => {
-        const menus = queryAllByRole('menu', { hidden: false });
         expect(menus.length).to.equal(1);
-        expect(menus[0].id).to.equal('parent-menu');
       });
+
+      expect(menus[0].id).to.equal('parent-menu');
     });
   });
 });

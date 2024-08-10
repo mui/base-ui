@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import type {
   UseNumberFieldRootParameters,
   UseNumberFieldRootReturnValue,
@@ -33,6 +34,8 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
 
 /**
  * The basic building block for creating custom number fields.
@@ -70,18 +73,16 @@ export function useNumberFieldRoot(
 
   const {
     labelId,
-    setDisabled,
     setControlId,
     validateOnChange,
     setTouched,
     setDirty,
     validityData,
     setValidityData,
+    setMarkedDirty,
   } = useFieldRootContext();
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const { formRef } = useFormRootContext();
 
   const {
     getInputValidationProps,
@@ -95,6 +96,19 @@ export function useNumberFieldRoot(
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
+  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+    controlled: externalValue,
+    default: defaultValue,
+    name: 'NumberField',
+    state: 'value',
+  });
+
+  const value = valueUnwrapped ?? null;
+  const valueRef = useLatestRef(value);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedRef = useForkRef(inputRef, inputValidationRef);
+
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
@@ -104,13 +118,23 @@ export function useNumberFieldRoot(
     };
   }, [id, setControlId]);
 
+  useEnhancedEffect(() => {
+    if (id) {
+      formRef.current.fields.set(id, {
+        controlRef: inputRef,
+        validityData: getCombinedFieldValidityData(validityData, invalid),
+        validate() {
+          ReactDOM.flushSync(() => setMarkedDirty(true));
+          commitValidation(valueRef.current);
+        },
+      });
+    }
+  }, [commitValidation, formRef, id, setMarkedDirty, validityData, valueRef, invalid]);
+
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
   const onValueChange = useEventCallback(onValueChangeProp);
-
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
@@ -124,16 +148,6 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
-
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
-    controlled: externalValue,
-    default: defaultValue,
-    name: 'NumberField',
-    state: 'value',
-  });
-
-  const value = valueUnwrapped ?? null;
-  const valueRef = useLatestRef(value);
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {

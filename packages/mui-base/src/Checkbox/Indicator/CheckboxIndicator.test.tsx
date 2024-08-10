@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import { CheckboxContext } from '@base_ui/react/Checkbox';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const testContext = {
   checked: true,
@@ -20,7 +19,6 @@ describe('<Checkbox.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Checkbox.Indicator />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
@@ -29,8 +27,8 @@ describe('<Checkbox.Indicator />', () => {
     },
   }));
 
-  it('should not render indicator by default', () => {
-    const { container } = render(
+  it('should not render indicator by default', async () => {
+    const { container } = await render(
       <Checkbox.Root>
         <Checkbox.Indicator />
       </Checkbox.Root>,
@@ -39,8 +37,8 @@ describe('<Checkbox.Indicator />', () => {
     expect(indicator).to.equal(null);
   });
 
-  it('should render indicator when checked', () => {
-    const { container } = render(
+  it('should render indicator when checked', async () => {
+    const { container } = await render(
       <Checkbox.Root checked>
         <Checkbox.Indicator />
       </Checkbox.Root>,
@@ -49,8 +47,8 @@ describe('<Checkbox.Indicator />', () => {
     expect(indicator).not.to.equal(null);
   });
 
-  it('should spread extra props', () => {
-    const { container } = render(
+  it('should spread extra props', async () => {
+    const { container } = await render(
       <Checkbox.Root defaultChecked>
         <Checkbox.Indicator data-extra-prop="Lorem ipsum" />
       </Checkbox.Root>,
@@ -60,8 +58,8 @@ describe('<Checkbox.Indicator />', () => {
   });
 
   describe('keepMounted prop', () => {
-    it('should keep indicator mounted when unchecked', () => {
-      const { container } = render(
+    it('should keep indicator mounted when unchecked', async () => {
+      const { container } = await render(
         <Checkbox.Root>
           <Checkbox.Indicator keepMounted />
         </Checkbox.Root>,
@@ -70,8 +68,8 @@ describe('<Checkbox.Indicator />', () => {
       expect(indicator).not.to.equal(null);
     });
 
-    it('should keep indicator mounted when checked', () => {
-      const { container } = render(
+    it('should keep indicator mounted when checked', async () => {
+      const { container } = await render(
         <Checkbox.Root checked>
           <Checkbox.Indicator keepMounted />
         </Checkbox.Root>,
@@ -80,8 +78,8 @@ describe('<Checkbox.Indicator />', () => {
       expect(indicator).not.to.equal(null);
     });
 
-    it('should keep indicator mounted when indeterminate', () => {
-      const { container } = render(
+    it('should keep indicator mounted when indeterminate', async () => {
+      const { container } = await render(
         <Checkbox.Root indeterminate>
           <Checkbox.Indicator keepMounted />
         </Checkbox.Root>,

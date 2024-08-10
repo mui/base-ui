@@ -3,6 +3,8 @@ import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRootOwnerState, FieldValidityData } from './FieldRoot.types';
 
+const NOOP = () => {};
+
 export interface FieldRootContextValue {
   invalid: boolean | undefined;
   controlId: string | undefined;
@@ -11,10 +13,10 @@ export interface FieldRootContextValue {
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
   setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
+  name: string | undefined;
   validityData: FieldValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   disabled: boolean | undefined;
-  setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   dirty: boolean;
@@ -24,16 +26,18 @@ export interface FieldRootContextValue {
   validateDebounceTime: number;
   ownerState: FieldRootOwnerState;
   markedDirty: boolean;
+  setMarkedDirty: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
   invalid: undefined,
   controlId: undefined,
-  setControlId: () => {},
+  setControlId: NOOP,
   labelId: undefined,
-  setLabelId: () => {},
+  setLabelId: NOOP,
   messageIds: [],
-  setMessageIds: () => {},
+  setMessageIds: NOOP,
+  name: undefined,
   validityData: {
     state: DEFAULT_VALIDITY_STATE,
     errors: [],
@@ -41,13 +45,12 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
     value: '',
     initialValue: null,
   },
-  setValidityData: () => {},
+  setValidityData: NOOP,
   disabled: undefined,
   touched: false,
-  setTouched: () => {},
+  setTouched: NOOP,
   dirty: false,
-  setDirty: () => {},
-  setDisabled: () => {},
+  setDirty: NOOP,
   validate: () => null,
   validateOnChange: false,
   validateDebounceTime: 0,
@@ -58,6 +61,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
     dirty: false,
   },
   markedDirty: false,
+  setMarkedDirty: NOOP,
 });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -67,8 +71,8 @@ if (process.env.NODE_ENV !== 'production') {
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);
 
-  if (context === null && !optional) {
-    throw new Error('Base UI: FieldRootContext is not defined.');
+  if (context.setControlId === NOOP && !optional) {
+    throw new Error('Base UI: Field components must be placed within <Field.Root>.');
   }
 
   return context;

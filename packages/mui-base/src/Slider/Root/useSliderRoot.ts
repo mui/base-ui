@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -16,6 +17,8 @@ import { useFieldControlValidation } from '../../Field/Control/useFieldControlVa
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -139,18 +142,31 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
-  const { setDisabled, setControlId, setTouched, setDirty, validityData, setValidityData } =
-    useFieldRootContext();
+  const {
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setValidityData,
+    setMarkedDirty,
+    invalid,
+  } = useFieldRootContext();
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const { formRef } = useFormRootContext();
 
   const {
     getValidationProps,
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
+
+  const [valueState, setValueState] = useControlled({
+    controlled: valueProp,
+    default: defaultValue ?? min,
+    name: 'Slider',
+  });
+
+  const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
   const id = useId(idProp);
 
@@ -161,14 +177,36 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     };
   }, [id, setControlId]);
 
+  useEnhancedEffect(() => {
+    if (id) {
+      formRef.current.fields.set(id, {
+        controlRef,
+        validityData: getCombinedFieldValidityData(validityData, invalid),
+        validate() {
+          ReactDOM.flushSync(() => setMarkedDirty(true));
+          commitValidation(valueState);
+        },
+      });
+    }
+  }, [
+    commitValidation,
+    formRef,
+    id,
+    inputValidationRef,
+    max,
+    min,
+    setMarkedDirty,
+    validityData,
+    valueState,
+    invalid,
+  ]);
+
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
   const [active, setActive] = React.useState(-1);
 
   const [dragging, setDragging] = React.useState(false);
-
-  const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
   const registerSliderControl = React.useCallback(
     (element: HTMLElement | null) => {
@@ -179,12 +217,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     },
     [inputValidationRef],
   );
-
-  const [valueState, setValueState] = useControlled({
-    controlled: valueProp,
-    default: defaultValue ?? min,
-    name: 'Slider',
-  });
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && valueState !== validityData.initialValue) {

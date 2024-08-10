@@ -43,7 +43,6 @@ describe('<Select />', () => {
   );
 
   describeConformanceUnstyled(componentToTest, () => ({
-    inheritComponent: 'button',
     render,
     refInstanceof: window.HTMLButtonElement,
     testComponentPropWith: 'span',

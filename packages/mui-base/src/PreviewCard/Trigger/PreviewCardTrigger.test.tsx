@@ -1,13 +1,11 @@
 import * as React from 'react';
 import * as PreviewCard from '@base_ui/react/PreviewCard';
-import { describeConformance } from '../../../test/describeConformance';
-import { createRenderer } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<PreviewCard.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<PreviewCard.Trigger />, () => ({
-    inheritComponent: 'a',
     refInstanceof: window.HTMLAnchorElement,
     render(node) {
       return render(

@@ -2,7 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-import type { FieldValidityProps } from './FieldValidity.types';
+import type { FieldValidityProps, FieldValidityState } from './FieldValidity.types';
+import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 
 /**
  * Render prop component that provides the field's validity state and value to its children.
@@ -16,12 +17,17 @@ import type { FieldValidityProps } from './FieldValidity.types';
  * - [FieldValidity API](https://mui.com/base-ui/react-field/components-api/#field-validity)
  */
 function FieldValidity(props: FieldValidityProps) {
-  const { validityData } = useFieldRootContext(false);
-  return (
-    <React.Fragment>
-      {props.children({ ...validityData, validity: validityData.state })}
-    </React.Fragment>
-  );
+  const { validityData, invalid } = useFieldRootContext(false);
+
+  const fieldValidityState: FieldValidityState = React.useMemo(() => {
+    const combinedFieldValidityData = getCombinedFieldValidityData(validityData, invalid);
+    return {
+      ...combinedFieldValidityData,
+      validity: combinedFieldValidityData.state,
+    };
+  }, [validityData, invalid]);
+
+  return <React.Fragment>{props.children(fieldValidityState)}</React.Fragment>;
 }
 
 FieldValidity.propTypes /* remove-proptypes */ = {

@@ -230,6 +230,7 @@
     "/base-ui/react-tooltip": "Tooltip",
     "/base-ui/react-field": "Field",
     "/base-ui/react-fieldset": "Fieldset",
+    "/base-ui/react-form": "Form",
     "feedback": "Feedback",
     "/base-ui/react-alert-dialog": "Alert Dialog",
     "/base-ui/react-dialog": "Dialog",
