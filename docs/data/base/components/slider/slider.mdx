@@ -10,13 +10,15 @@ packageName: '@base_ui/react'
 
 # Slider
 
-<p class="description">The Slider component provides users with an input for a one or more numerical values within a given range.</p>
+<Description>
+  {
+    'The Slider component provides users with an input for a one or more numerical values within a given range.'
+  }
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
+<ComponentLinkHeader design={false} />
 
-{{"component": "modules/components/ComponentPageTabs.js"}}
-
-{{"demo": "UnstyledSliderIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="UnstyledSliderIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -166,7 +168,7 @@ To let users set the start and end of a range on a Slider, provide an array of v
 </Slider.Root>
 ```
 
-{{"demo": "RangeSlider.js"}}
+<Demo demo="RangeSlider" />
 
 ### Overlapping values
 
@@ -192,7 +194,7 @@ To create vertical sliders, set the `orientation` prop to `"vertical"`. This wil
 <Slider.Root orientation="vertical">{/* Subcomponents */}</Slider.Root>
 ```
 
-{{"demo": "VerticalSlider.js"}}
+<Demo demo="VerticalSlider" />
 
 ## RTL
 
@@ -204,7 +206,7 @@ Set the `direction` prop to `'rtl'` to change the slider's direction for right-t
 
 In a RTL Slider, <kbd class="key">Left Arrow</kbd> increases the value while <kbd class="key">Right Arrow</kbd> decreases the value.
 
-{{"demo": "RtlSlider.js"}}
+<Demo demo="RtlSlider" />
 
 ## Overriding default components
 

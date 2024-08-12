@@ -1,6 +1,6 @@
 # Usage
 
-<p class="description">Learn the basics of working with Base UI components.</p>
+<Description>Learn the basics of working with Base UI components.</Description>
 
 ## Responsive meta tag
 
@@ -37,9 +37,7 @@ Using a function gives you complete control over spreading props and allows you 
 ```jsx
 <Switch.Thumb
   render={(props, internalState) => (
-    <span {...props}>
-      {internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}
-    </span>
+    <span {...props}>{internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
   )}
 />
 ```

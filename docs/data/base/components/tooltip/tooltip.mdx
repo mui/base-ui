@@ -8,15 +8,16 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 
 # Tooltip
 
-<p class="description">Tooltips are visual-only floating elements that display information about a trigger element when a user hovers or focuses it.</p>
+<Description>
+  {`Tooltips are visual-only floating elements that display information about a trigger element when a
+  user hovers or focuses it.`}
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
-
-{{"component": "modules/components/ComponentPageTabs.js"}}
+<ComponentLinkHeader design={false} />
 
 ## Introduction
 
-{{"demo": "UnstyledTooltipIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="UnstyledTooltipIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -78,7 +79,7 @@ Tooltip is implemented using a collection of related components:
 </Tooltip.Provider>
 ```
 
-{{"demo": "UnstyledTooltipDelayGroup.js"}}
+<Demo demo="UnstyledTooltipDelayGroup" />
 
 ## Accessibility
 
@@ -191,7 +192,7 @@ It automatically positions a wrapper element that can be styled or contain a cus
 
 The tooltip can follow the cursor on both axes or one axis using the `followCursorAxis` prop on `Tooltip.Root`. Possible values are: `none` (default), `both`, `x`, or `y`.
 
-{{"demo": "UnstyledTooltipFollowCursor.js"}}
+<Demo demo="UnstyledTooltipFollowCursor" />
 
 ## Anchoring
 
@@ -280,7 +281,7 @@ Styles need to be applied in three states:
 - The open styles, placed on the base element class with `[data-state="open"]`
 - The entering styles, placed on the base element class with `[data-entering]`
 
-{{"demo": "UnstyledTooltipTransition.js", "defaultCodeOpen": false}}
+<Demo demo="UnstyledTooltipTransition" defaultCodeOpen={false} />
 
 In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
 

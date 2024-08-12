@@ -10,13 +10,13 @@ packageName: '@base_ui/react'
 
 # Progress
 
-<p class="description">The Progress component displays the status of a task or operation over time.</p>
+<Description>
+  {'The Progress component displays the status of a task or operation over time.'}
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
+<ComponentLinkHeader design={false} />
 
-{{"component": "modules/components/ComponentPageTabs.js"}}
-
-{{"demo": "UnstyledProgressIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="UnstyledProgressIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -91,7 +91,7 @@ Set `value` to `null` to configure an indeterminate progress bar. The `data-stat
 </Progress.Root>
 ```
 
-{{"demo": "IndeterminateProgress.js"}}
+<Demo demo="IndeterminateProgress" />
 
 ## RTL
 
@@ -101,7 +101,7 @@ Set the `direction` prop to `'rtl'` to change the direction that the `Indicator`
 <Progress.Root direction="rtl">{/* Subcomponents */}</Progress.Root>
 ```
 
-{{"demo": "RtlProgress.js"}}
+<Demo demo="RtlProgress" />
 
 ## Overriding default components
 

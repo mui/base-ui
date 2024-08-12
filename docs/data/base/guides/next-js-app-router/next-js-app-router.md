@@ -1,6 +1,6 @@
 # Next.js App Router
 
-<p class="description">Learn how to use Base UI with the Next.js App Router.</p>
+<Description>Learn how to use Base UI with the Next.js App Router.</Description>
 
 ## Example
 

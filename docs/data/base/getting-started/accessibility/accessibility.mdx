@@ -1,6 +1,8 @@
 # Accessibility
 
-<p class="description">Learn how to make the most of Base UI's accessibility features and guidelines.</p>
+<Description>
+  {`Learn how to make the most of Base UI's accessibility features and guidelines.`}
+</Description>
 
 Accessibility is our top priority for Base UI components.
 However, the library cannot make your application fully accessible on its own.
@@ -15,7 +17,7 @@ Specifically, interactive components can be focused using the <kbd class="key">T
 List-like components (such as Select and Menu) can be browsed and activated using arrow keys, <kbd class="key">Home</kbd>, <kbd class="key">End</kbd>, <kbd class="key">Enter</kbd>/<kbd class="key">Return</kbd>, and <kbd class="key">Escape</kbd>.
 The Select and Menu also let users navigate to options that begin with a provided string by pressing alphanumeric keys.
 
-{{"demo": "KeyboardNavigation.js", "defaultCodeOpen": false}}
+<Demo demo="KeyboardNavigation" defaultCodeOpen={false} />
 
 ## Focus ring
 
@@ -23,7 +25,7 @@ While Base UI components handle keyboard navigation, it's the developer's respo
 This is usually done by styling the [`:focus`](https://developer.mozilla.org/en-US/docs/Web/CSS/:focus) or [`:focus-visible`](https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible) pseudoclasses.
 Read the [WCAG guidelines on focus appearance](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance) to learn more about requirements for focus indicators.
 
-{{"demo": "FocusRing.js", "defaultCodeOpen": false}}
+<Demo demo="FocusRing" defaultCodeOpen={false} />
 
 ## Color contrast
 
@@ -31,7 +33,7 @@ Since Base UI components are unstyled, it's up to you to implement the appropri
 You can use [C. Liam Brown's Color Contrast Tool](https://cliambrown.com/contrast/) to measure contrast between colors in your design and ensure that they meet the minimum requirements
 (note that this tool uses the [APCA algorithm](https://ruitina.com/apca-accessible-colour-contrast/), which is slated to become the new standard in WCAG 3).
 
-{{"demo": "ColorContrast.js", "defaultCodeOpen": false}}
+<Demo demo="ColorContrast" defaultCodeOpen={false} />
 
 ## Accessible labels
 

@@ -10,13 +10,14 @@ packageName: '@base_ui/react'
 
 # Number Field
 
-<p class="description">Number Field provides users with a numeric input, with buttons and a scrub area to increment or decrement its value.</p>
+<Description>
+  Number Field provides users with a numeric input, with buttons and a scrub area to increment or
+  decrement its value.
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
+<ComponentLinkHeader design={false} />
 
-{{"component": "modules/components/ComponentPageTabs.js"}}
-
-{{"demo": "UnstyledNumberFieldIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="UnstyledNumberFieldIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -153,13 +154,13 @@ You can specify the `largeStep` and `smallStep` props to change the step when th
 
 The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) to customize the formatting of the input value:
 
-{{"demo": "UnstyledNumberFieldFormat.js"}}
+<Demo demo="UnstyledNumberFieldFormat" />
 
 ## Scrubbing
 
 The `NumberField.ScrubArea` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `NumberField.ScrubArea` component.
 
-{{"demo": "UnstyledNumberFieldScrub.js"}}
+<Demo demo="UnstyledNumberFieldScrub" />
 
 The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `<NumberField.ScrubAreaCursor />` subcomponent, which automatically loops around the boundary.
 
@@ -212,7 +213,7 @@ This specifies the `px` distance the cursor can travel from the center of the sc
 
 To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop. The input must be focused and the pointer must be hovering over it.
 
-{{"demo": "UnstyledNumberFieldWheelScrub.js"}}
+<Demo demo="UnstyledNumberFieldWheelScrub" />
 
 ## Overriding default components
 

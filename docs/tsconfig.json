@@ -19,9 +19,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": [
-      "react"
-    ],
+    "types": ["react"],
     "incremental": true,
     "composite": true,
     "module": "esnext",
@@ -33,9 +31,7 @@
     ],
     "strictNullChecks": true
   },
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "references": [
     {
       "path": "../packages/mui-base/tsconfig.build.json"

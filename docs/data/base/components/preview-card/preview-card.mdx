@@ -7,15 +7,16 @@ githubLabel: 'component: preview-card'
 
 # Preview Card
 
-<p class="description">Preview Cards are visual-only interactive floating elements that display a concise preview of a link's contents when a user hovers over it before navigating through.</p>
+<Description>
+  Preview Cards are visual-only interactive floating elements that display a concise preview of a
+  link's contents when a user hovers over it before navigating through.
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
-
-{{"component": "modules/components/ComponentPageTabs.js"}}
+<ComponentLinkHeader design={false} />
 
 ## Introduction
 
-{{"demo": "UnstyledPreviewCardIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="UnstyledPreviewCardIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -300,7 +301,7 @@ Styles need to be applied in three states:
 - The open styles, placed on the base element class with `[data-state="open"]`
 - The entering styles, placed on the base element class with `[data-entering]`
 
-{{"demo": "UnstyledPreviewCardTransition.js", "defaultCodeOpen": false}}
+<Demo demo="UnstyledPreviewCardTransition" defaultCodeOpen={false} />
 
 In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
 

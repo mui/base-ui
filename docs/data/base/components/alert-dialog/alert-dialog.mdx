@@ -8,13 +8,15 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
 
 # Alert Dialog
 
-<p class="description">Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks.</p>
+<Description>
+  {
+    'Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks.'
+  }
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
+<ComponentLinkHeader design={false} />
 
-{{"component": "modules/components/ComponentPageTabs.js"}}
-
-{{"demo": "AlertDialogIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="AlertDialogIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -117,7 +119,7 @@ One example of this could be styling the bottom dialog in a way they appear belo
 
 The number of open child dialogs is present in the `data-nested-dialogs` attribute and in the `--nested-dialogs` CSS variable on the `<AlertDialog.Popup>` component.
 
-{{"demo": "NestedAlertDialogs.js"}}
+<Demo demo="NestedAlertDialogs" />
 
 Note that when dialogs are nested, only the bottom-most backdrop is rendered.
 
@@ -170,7 +172,7 @@ Styles need to be applied in three states:
 - The open styles, placed on the base element class with `[data-state="open"]`
 - The entering styles, placed on the base element class with `[data-entering]`
 
-{{"demo": "AlertDialogWithTransitions.js"}}
+<Demo demo="AlertDialogWithTransitions" />
 
 In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
 
@@ -233,11 +235,7 @@ function App() {
           <AlertDialog.Popup
             keepMounted
             render={
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
             }
           >
             Alert Dialog

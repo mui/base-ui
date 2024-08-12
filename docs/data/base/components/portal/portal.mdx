@@ -7,11 +7,14 @@ githubLabel: 'component: Portal'
 
 # Portal
 
-<p class="description">The Portal component lets you render its children into a DOM node that exists outside of the Portal's own DOM hierarchy.</p>
+<Description>
+{
+  'The Portal component lets you render its children into a DOM node that exists outside of the
+  Portal's own DOM hierarchy.'
+}
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
-
-{{"component": "modules/components/ComponentPageTabs.js"}}
+<ComponentLinkHeader design={false} />
 
 ## Introduction
 
@@ -37,7 +40,7 @@ The Portal component accepts a `container` prop that passes a `ref` to the DOM n
 
 The following demo shows how a `<span>` nested within a Portal can be appended to a node outside of the Portal's DOM hierarchy—click **Mount children** to see how it behaves:
 
-{{"demo": "SimplePortal.js"}}
+<Demo demo="SimplePortal" />
 
 ### Server-side
 

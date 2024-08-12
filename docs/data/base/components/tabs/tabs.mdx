@@ -10,13 +10,13 @@ packageName: '@base_ui/react'
 
 # Tabs
 
-<p class="description">Tabs organize groups of related content and let users navigate between them.</p>
+<Description>
+  {'Tabs organize groups of related content and let users navigate between them.'}
+</Description>
 
-{{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
+<ComponentLinkHeader design={false} />
 
-{{"component": "modules/components/ComponentPageTabs.js"}}
-
-{{"demo": "UnstyledTabsIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
+<Demo demo="UnstyledTabsIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -108,12 +108,12 @@ Its value is one of the following:
 
 This example uses the CSS variables and data attributes described above to create an "elastic" movement effect.
 
-{{"demo": "IndicatorBubble.js", "defaultCodeOpen": false}}
+<Demo demo="IndicatorBubble" defaultCodeOpen={false} />
 
 The next example shows a differently shaped Indicator with a simpler movement.
 As the transition is independent of direction, the `data-activation-direction` attribute is not used for styling.
 
-{{"demo": "IndicatorUnderline.js", "defaultCodeOpen": false }}
+<Demo demo="IndicatorUnderline" defaultCodeOpen={false} />
 
 ### Server rendering
 
@@ -140,7 +140,7 @@ Now, the user can navigate with the up and down arrow keys rather than the defau
 Tabs can be rendered as links to routes in your application.
 A common use case for tabs is implementing client-side navigation that doesn't require an HTTP round-trip to the server.
 
-{{"demo": "UnstyledTabsRouting.js", "defaultCodeOpen": false}}
+<Demo demo="UnstyledTabsRouting" defaultCodeOpen={false} />
 
 ## Manual tab activation
 
