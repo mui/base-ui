@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/heading-has-content */
 import * as React from 'react';
 import * as DocsComponents from 'docs-base/src/modules/components';
 import classes from './MDXComponents.module.css';

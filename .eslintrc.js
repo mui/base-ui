@@ -70,6 +70,7 @@ module.exports = {
           },
         ],
         'react/prop-types': 'off',
+        '@typescript-eslint/no-use-before-define': 'off',
       },
     },
   ],
