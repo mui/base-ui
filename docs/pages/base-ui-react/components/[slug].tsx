@@ -1,4 +1,3 @@
-/* eslint-disable react/no-danger */
 import * as React from 'react';
 import { readFile } from 'node:fs/promises';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
@@ -10,6 +9,7 @@ import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { MasterLayout } from 'docs-base/src/layout/MasterLayout';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
 import { getSlugs } from 'docs-base/data/base/pages';
+import { ApiReference } from 'docs-base/src/modules/components/ApiReference';
 import classes from './styles.module.css';
 
 export default function ComponentPage(props: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -30,37 +30,7 @@ export default function ComponentPage(props: InferGetStaticPropsType<typeof getS
 
       <div className={classes.content}>
         <MarkdownContent components={components} />
-
-        <h2>API Reference</h2>
-        <div>
-          {props.componentsApi.map((apiDescription) => (
-            <React.Fragment key={apiDescription.name}>
-              <h3>{apiDescription.name}</h3>
-              <p dangerouslySetInnerHTML={{ __html: apiDescription.description }} />
-              <table>
-                <thead>
-                  <tr>
-                    <th>Prop</th>
-                    <th>Type</th>
-                    <th>Default</th>
-                    <th>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {apiDescription.props.map((prop) => (
-                    <tr key={prop.name}>
-                      <td>{prop.name}</td>
-                      <td>{prop.type.name}</td>
-                      <td>{prop.default}</td>
-                      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                      <td dangerouslySetInnerHTML={{ __html: prop.description }} />
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </React.Fragment>
-          ))}
-        </div>
+        <ApiReference componentsApi={props.componentsApi} />
       </div>
 
       <TableOfContents />
@@ -93,6 +63,7 @@ export const getStaticProps = (async (context) => {
         props: Object.keys(apiDescription.props).map((propName) => ({
           name: propName,
           ...apiDescription.props[propName],
+          defaultValue: apiDescription.props[propName].default ?? null,
           ...translations.propDescriptions[propName],
         })),
       };

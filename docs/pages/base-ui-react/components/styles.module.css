@@ -94,9 +94,4 @@
     border: 1px solid var(--gray-outline-2);
     border-radius: 12px;
   }
-
-  table {
-    margin-top: var(--space-5) !important;
-    margin-bottom: var(--space-5) !important;
-  }
 }
