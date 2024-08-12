@@ -21,102 +21,32 @@ export function TableOfContents() {
       <nav>
         <div className="mb-3">
           <a href="#api" className="Text size-3 Link color-gray">
-            Introduction
+            These
           </a>
         </div>
         <div className="mb-3">
           <a href="#api" className="Text size-3 Link color-gray">
-            Installation
+            links
           </a>
         </div>
         <div className="mb-3">
           <a href="#api" className="Text size-3 Link color-gray">
-            Anatomy
+            don&apos;t
           </a>
         </div>
         <div className="mb-3">
           <a href="#api" className="Text size-3 Link color-gray">
-            Provider
+            work
           </a>
         </div>
         <div className="mb-3">
           <a href="#api" className="Text size-3 Link color-gray">
-            Accessibility
+            just
           </a>
         </div>
         <div className="mb-3">
           <a href="#api" className="Text size-3 Link color-gray">
-            Placement
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Offset
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Delay
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Controlled
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Arrow
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Cursor Following
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Anchoring
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Styling
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            API Reference
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Provider
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Root
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Trigger
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Positioner
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Popup
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            Arrow
+            yet
           </a>
         </div>
       </nav>
