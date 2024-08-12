@@ -1,22 +1,7 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
+import { ComponentAPIReference } from 'docs-base/types/ComponentAPIReference';
 import classes from './ApiReference.module.css';
-
-interface ComponentPropReference {
-  name: string;
-  type: {
-    name: string;
-    description: string | undefined;
-  };
-  defaultValue: string | null;
-  description: string;
-}
-
-interface ComponentAPIReference {
-  name: string;
-  description: string | undefined;
-  props: ComponentPropReference[];
-}
 
 export interface ApiReferenceProps {
   componentsApi: ComponentAPIReference[];
