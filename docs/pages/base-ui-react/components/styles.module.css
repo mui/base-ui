@@ -1,0 +1,102 @@
+.content {
+  max-width: 714px;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-left: auto;
+  margin-right: auto;
+
+  p {
+    margin-bottom: var(--space-4) !important;
+    font-size: var(--fs-4);
+    line-height: 23px;
+    margin: 0;
+    font-family: var(--ff-sans);
+    font-weight: var(--fw-1);
+    color: var(--gray-text-2);
+    scroll-margin-top: 80px;
+  }
+
+  ul {
+    margin-bottom: var(--space-4) !important;
+    font-size: var(--fs-4);
+    line-height: 23px;
+    margin: 0;
+    font-family: var(--ff-sans);
+    font-weight: var(--fw-1);
+    color: var(--gray-text-2);
+    scroll-margin-top: 80px;
+  }
+
+  ul p {
+    margin-bottom: 0 !important;
+  }
+
+  h1 {
+    font-size: var(--fs-8);
+    line-height: 37px;
+    font-weight: 500;
+    letter-spacing: -0.042em;
+    text-indent: -1.1px;
+  }
+
+  h2 {
+    margin-top: var(--space-7) !important;
+    margin-bottom: var(--space-3) !important;
+    font-size: var(--fs-6);
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: -0.018em;
+  }
+
+  h3 {
+    margin-top: var(--space-7) !important;
+    margin-bottom: var(--space-2) !important;
+    font-size: var(--fs-5);
+    line-height: 23px;
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    margin: 0;
+    font-family: var(--ff-sans);
+    color: var(--gray-text-2);
+    scroll-margin-top: 80px;
+  }
+
+  :not(pre) > code {
+    margin-left: 1px;
+    margin-right: 1px;
+    box-sizing: border-box;
+    font-family: var(--ff-code);
+    color: var(--gray-text-2);
+    font-size: 0.89em;
+    padding-right: var(--space-1);
+    padding-bottom: 2px;
+    padding-left: var(--space-1);
+    white-space: break-spaces;
+    border: 1px solid var(--gray-outline-1);
+    border-radius: 6px;
+    position: relative;
+    top: -0.5px;
+  }
+
+  pre {
+    margin-top: var(--space-5) !important;
+    margin-bottom: var(--space-5) !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    height: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--ff-code);
+    font-size: var(--fs-2);
+    line-height: 20px;
+    white-space: pre;
+    color: var(--gray-text-1);
+    background: #fefcfb;
+    border: 1px solid var(--gray-outline-2);
+    border-radius: 12px;
+  }
+
+  table {
+    margin-top: var(--space-5) !important;
+    margin-bottom: var(--space-5) !important;
+  }
+}

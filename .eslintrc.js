@@ -69,6 +69,7 @@ module.exports = {
             patterns: NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
           },
         ],
+        'react/prop-types': 'off',
       },
     },
   ],

@@ -5,20 +5,16 @@ import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'ne
 import Head from 'next/head';
 import kebabCase from 'lodash/kebabCase';
 import { getMDXComponent } from 'mdx-bundler/client';
+import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { MasterLayout } from 'docs-base/src/layout/MasterLayout';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
 import { getSlugs } from 'docs-base/data/base/pages';
-
-const components = {
-  Demo: () => <div>demo goes here</div>,
-  ComponentLinkHeader: () => <div>component link header goes here</div>,
-  ComponentPageTabs: () => null,
-};
+import classes from './styles.module.css';
 
 export default function ComponentPage(props: InferGetStaticPropsType<typeof getStaticProps>) {
   const { content } = props;
-  const Component = React.useMemo(() => {
+  const MarkdownContent = React.useMemo(() => {
     return getMDXComponent(content);
   }, [content]);
 
@@ -31,36 +27,40 @@ export default function ComponentPage(props: InferGetStaticPropsType<typeof getS
       <Head>
         <title>{props.metadata.title}</title>
       </Head>
-      <Component components={components} />
 
-      <h2>API Reference</h2>
-      <div>
-        {props.componentsApi.map((apiDescription) => (
-          <React.Fragment key={apiDescription.name}>
-            <h3>{apiDescription.name}</h3>
-            <p dangerouslySetInnerHTML={{ __html: apiDescription.description }} />
-            <table>
-              <thead>
-                <tr>
-                  <th>Prop</th>
-                  <th>Type</th>
-                  <th>Default</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {apiDescription.props.map((prop) => (
-                  <tr key={prop.name}>
-                    <td>{prop.name}</td>
-                    <td>{prop.type.name}</td>
-                    <td>{prop.default}</td>
-                    <td dangerouslySetInnerHTML={{ __html: prop.description }} />
+      <div className={classes.content}>
+        <MarkdownContent components={components} />
+
+        <h2>API Reference</h2>
+        <div>
+          {props.componentsApi.map((apiDescription) => (
+            <React.Fragment key={apiDescription.name}>
+              <h3>{apiDescription.name}</h3>
+              <p dangerouslySetInnerHTML={{ __html: apiDescription.description }} />
+              <table>
+                <thead>
+                  <tr>
+                    <th>Prop</th>
+                    <th>Type</th>
+                    <th>Default</th>
+                    <th>Description</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </React.Fragment>
-        ))}
+                </thead>
+                <tbody>
+                  {apiDescription.props.map((prop) => (
+                    <tr key={prop.name}>
+                      <td>{prop.name}</td>
+                      <td>{prop.type.name}</td>
+                      <td>{prop.default}</td>
+                      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                      <td dangerouslySetInnerHTML={{ __html: prop.description }} />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
 
       <TableOfContents />
@@ -98,8 +98,6 @@ export const getStaticProps = (async (context) => {
       };
     }),
   );
-
-  console.log(componentsApi);
 
   return {
     props: {
