@@ -1,6 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { bundleMDX } from 'mdx-bundler';
+import { readFile } from 'node:fs/promises';
+import rehypePrettyCode from 'rehype-pretty-code';
+import { evaluate } from '@mdx-js/mdx';
+import * as jsxRuntime from 'react/jsx-runtime';
+import remarkFrontmatter from 'remark-frontmatter';
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 
 if (process.platform === 'win32') {
   process.env.ESBUILD_BINARY_PATH = path.join(
@@ -43,16 +48,20 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
     throw new Error(`No MD(X) file found for ${basePath}/${slug}`);
   }
 
-  const { frontmatter, code } = await bundleMDX({
-    file: filePath,
-    cwd: process.cwd(),
+  const mdxSource = await readFile(filePath, 'utf8');
+
+  // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
+  const { default: MDXContent, frontmatter } = await evaluate(mdxSource, {
+    ...jsxRuntime,
+    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+    rehypePlugins: [[rehypePrettyCode, { theme: 'github-light' }]],
   });
 
   return {
     metadata: {
-      ...frontmatter,
+      ...(frontmatter as Partial<PageMetadata>),
       slug,
     } as PageMetadata,
-    code,
+    MDXContent,
   };
 };

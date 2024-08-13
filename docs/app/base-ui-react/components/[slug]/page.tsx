@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { getMDXComponent } from 'mdx-bundler/client';
 import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
@@ -18,17 +17,15 @@ export default async function ComponentPage(props: Props) {
   const {
     params: { slug },
   } = props;
-  const page = await getMarkdownPage('components', slug);
+  const { MDXContent, metadata } = await getMarkdownPage('components', slug);
 
-  const documentedComponents = page.metadata.components?.split(',').map((c) => c.trim()) ?? [];
+  const documentedComponents = metadata.components?.split(',').map((c) => c.trim()) ?? [];
   const componentsApi = await getApiReferenceData(documentedComponents);
-
-  const MarkdownContent = getMDXComponent(page.code);
 
   return (
     <React.Fragment>
       <div className={classes.content}>
-        <MarkdownContent components={components} />
+        <MDXContent components={components} />
         <ApiReference componentsApi={componentsApi} />
       </div>
 
