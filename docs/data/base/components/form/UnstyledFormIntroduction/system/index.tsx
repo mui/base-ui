@@ -62,13 +62,13 @@ export default function UnstyledFormIntroduction() {
           <FieldError />
         </Field.Root>
       </FieldsetRoot>
-      <FieldSubmit disabled={status === 'loading'}>
+      <FormSubmit disabled={status === 'loading'}>
         {status === 'loading' ? 'Logging in...' : 'Log in'}
-      </FieldSubmit>
+      </FormSubmit>
       {status === 'success' && (
-        <FieldSuccess role="alert" aria-live="polite">
+        <FormSuccess role="alert" aria-live="polite">
           Successfully logged in
-        </FieldSuccess>
+        </FormSuccess>
       )}
     </FormRoot>
   );
@@ -111,7 +111,7 @@ const FieldError = styled(Field.Error)`
   color: red;
 `;
 
-const FieldSuccess = styled(Field.Description)`
+const FormSuccess = styled('p')`
   font-size: 90%;
   margin: 0;
   padding: 0;
@@ -122,16 +122,24 @@ const FieldSuccess = styled(Field.Description)`
 const FieldsetRoot = styled(Fieldset.Root)`
   border: none;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    margin: 0;
+    color: grey;
+    font-size: 90%;
+  }
 `;
 
 const FieldsetLegend = styled(Fieldset.Legend)`
   display: block;
   font-size: 110%;
-  margin-bottom: 10px;
   font-weight: 600;
 `;
 
-const FieldSubmit = styled(Form.Submit)`
+const FormSubmit = styled(Form.Submit)`
   display: block;
   margin-top: 10px;
   padding: 10px;
