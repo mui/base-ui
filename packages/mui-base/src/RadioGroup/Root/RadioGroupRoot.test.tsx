@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { createRenderer, act, screen } from '@mui/internal-test-utils';
-import userEvent from '@testing-library/user-event';
 import * as RadioGroup from '@base_ui/react/RadioGroup';
 import * as Radio from '@base_ui/react/Radio';
+import { expect } from 'chai';
+import { spy } from 'sinon';
+import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
+import userEvent from '@testing-library/user-event';
 import { describeConformance } from '../../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
@@ -22,6 +22,7 @@ describe('<RadioGroup.Root />', () => {
   describe('extra props', () => {
     it('can override the built-in attributes', () => {
       const { container } = render(<RadioGroup.Root role="switch" />);
+      // eslint-disable-next-line testing-library/no-node-access
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -36,9 +37,7 @@ describe('<RadioGroup.Root />', () => {
 
     const item = screen.getByTestId('item');
 
-    act(() => {
-      item.click();
-    });
+    fireEvent.click(item);
 
     expect(handleChange.callCount).to.equal(1);
     expect(handleChange.firstCall.args[0]).to.equal('a');
@@ -66,9 +65,7 @@ describe('<RadioGroup.Root />', () => {
 
       expect(item).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
-        item.click();
-      });
+      fireEvent.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'false');
     });
@@ -98,9 +95,7 @@ describe('<RadioGroup.Root />', () => {
 
       expect(item).to.have.attribute('aria-checked', 'false');
 
-      act(() => {
-        item.click();
-      });
+      fireEvent.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'false');
     });
@@ -116,6 +111,7 @@ describe('<RadioGroup.Root />', () => {
     const group = screen.getByTestId('root');
     const item = screen.getByTestId('item');
 
+    // eslint-disable-next-line testing-library/no-node-access
     const input = group.querySelector('input');
 
     act(() => {
@@ -156,6 +152,7 @@ describe('<RadioGroup.Root />', () => {
   it('should set the name attribute on the input', () => {
     render(<RadioGroup.Root name="radio-group" />);
     const group = screen.getByRole('radiogroup');
+    // eslint-disable-next-line testing-library/no-node-access
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
