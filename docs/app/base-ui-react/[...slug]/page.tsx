@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { getMDXComponent } from 'mdx-bundler/client';
 import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
@@ -16,17 +15,15 @@ export default async function DocsPage(props: Props) {
   const {
     params: { slug },
   } = props;
-  const page = await getMarkdownPage(slug[0], slug[1]);
-
-  const MarkdownContent = getMDXComponent(page.code);
+  const { MDXContent, tableOfContents } = await getMarkdownPage(slug[0], slug[1]);
 
   return (
     <React.Fragment>
       <div className={classes.content}>
-        <MarkdownContent components={components} />
+        <MDXContent components={components} />
       </div>
 
-      <TableOfContents />
+      <TableOfContents toc={tableOfContents} />
     </React.Fragment>
   );
 }

@@ -1,6 +1,34 @@
 import * as React from 'react';
+import { type Toc, type TocEntry } from '@stefanprobst/rehype-extract-toc';
 
-export function TableOfContents() {
+interface Props {
+  toc: Toc;
+  renderDepth?: number;
+  skipFirstLevel?: boolean;
+}
+
+function renderTocEntry(entry: TocEntry, renderDepth: number, skipFirstLevel: boolean) {
+  if (entry.depth > renderDepth) {
+    return null;
+  }
+
+  return (
+    <React.Fragment key={entry.id}>
+      {entry.depth === 1 && skipFirstLevel ? null : (
+        <div className={`mb-3 ml-${3 * (entry.depth - 2)}`}>
+          <a href={`#${entry.id}`} className="Text size-3 Link color-gray">
+            {entry.value}
+          </a>
+        </div>
+      )}
+      {entry.children?.map((child) => renderTocEntry(child, renderDepth, skipFirstLevel))}
+    </React.Fragment>
+  );
+}
+
+export function TableOfContents(props: Props) {
+  const { toc, renderDepth = 2, skipFirstLevel = true } = props;
+
   return (
     <div
       style={{
@@ -10,7 +38,6 @@ export function TableOfContents() {
         right: 0,
         width: 240,
         height: 'calc(100% - 49px)',
-        // borderLeft: "1px solid var(--gray-outline-1)",
         padding: '12px 24px',
         overflowY: 'auto',
       }}
@@ -18,38 +45,7 @@ export function TableOfContents() {
       <div className="d-f ai-center h-7 mb-2">
         <h4 className="Text size-3 weight-2">Contents</h4>
       </div>
-      <nav>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            These
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            links
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            don&apos;t
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            work
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            just
-          </a>
-        </div>
-        <div className="mb-3">
-          <a href="#api" className="Text size-3 Link color-gray">
-            yet
-          </a>
-        </div>
-      </nav>
+      <nav>{toc.map((item) => renderTocEntry(item, renderDepth, skipFirstLevel))}</nav>
     </div>
   );
 }

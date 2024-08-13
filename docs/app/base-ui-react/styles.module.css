@@ -46,6 +46,7 @@
     line-height: 24px;
     font-weight: 500;
     letter-spacing: -0.018em;
+    scroll-margin-top: 60px;
   }
 
   h3 {

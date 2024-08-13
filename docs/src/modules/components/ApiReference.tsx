@@ -1,10 +1,35 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
 import { ComponentAPIReference } from 'docs-base/types/ComponentAPIReference';
+import { type TocEntry } from '@stefanprobst/rehype-extract-toc';
 import classes from './ApiReference.module.css';
 
 export interface ApiReferenceProps {
   componentsApi: ComponentAPIReference[];
+}
+
+export function getApiReferenceTableOfContents(componentsApi: ComponentAPIReference[]): TocEntry {
+  return {
+    id: 'api-reference',
+    value: 'API Reference',
+    depth: 2,
+    children: componentsApi.map(
+      (apiDescription) =>
+        ({
+          id: `api-reference-${apiDescription.name}`,
+          value: apiDescription.name,
+          depth: 3,
+          children: apiDescription.props.map(
+            (prop) =>
+              ({
+                id: `api-reference-${apiDescription.name}-${prop.name}`,
+                value: prop.name,
+                depth: 4,
+              }) satisfies TocEntry,
+          ),
+        }) satisfies TocEntry,
+    ),
+  };
 }
 
 export function ApiReference(props: ApiReferenceProps) {
@@ -12,11 +37,11 @@ export function ApiReference(props: ApiReferenceProps) {
 
   return (
     <div>
-      <h2>API Reference</h2>
+      <h2 id="api-reference">API Reference</h2>
       <div>
         {componentsApi.map((apiDescription) => (
           <React.Fragment key={apiDescription.name}>
-            <h3>{apiDescription.name}</h3>
+            <h3 id={`api-reference-${apiDescription.name}`}>{apiDescription.name}</h3>
             <p dangerouslySetInnerHTML={{ __html: apiDescription.description ?? '' }} />
             <div className={classes.propTable}>
               <table>
@@ -39,7 +64,7 @@ export function ApiReference(props: ApiReferenceProps) {
                 <tbody>
                   {apiDescription.props.map((prop) => (
                     <tr key={prop.name}>
-                      <th scope="row">
+                      <th scope="row" id={`api-reference-${apiDescription.name}-${prop.name}`}>
                         <code>{prop.name}</code>
                       </th>
                       <td>

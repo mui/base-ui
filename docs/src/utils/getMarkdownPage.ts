@@ -6,6 +6,9 @@ import { evaluate } from '@mdx-js/mdx';
 import * as jsxRuntime from 'react/jsx-runtime';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import rehypeSlug from 'rehype-slug';
+import extractToc, { type Toc } from '@stefanprobst/rehype-extract-toc';
+import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
 
 if (process.platform === 'win32') {
   process.env.ESBUILD_BINARY_PATH = path.join(
@@ -50,11 +53,20 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
 
   const mdxSource = await readFile(filePath, 'utf8');
 
-  // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
-  const { default: MDXContent, frontmatter } = await evaluate(mdxSource, {
+  const {
+    default: MDXContent,
+    frontmatter,
+    tableOfContents,
+    // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
+  } = await evaluate(mdxSource, {
     ...jsxRuntime,
     remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
-    rehypePlugins: [[rehypePrettyCode, { theme: 'github-light' }]],
+    rehypePlugins: [
+      [rehypePrettyCode, { theme: 'github-light' }],
+      rehypeSlug,
+      extractToc,
+      exportToc,
+    ],
   });
 
   return {
@@ -62,6 +74,7 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
       ...(frontmatter as Partial<PageMetadata>),
       slug,
     } as PageMetadata,
+    tableOfContents: tableOfContents as Toc,
     MDXContent,
   };
 };
