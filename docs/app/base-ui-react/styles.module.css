@@ -79,12 +79,18 @@
     top: -0.5px;
   }
 
-  pre {
+  figure {
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
     margin-top: var(--space-5) !important;
     margin-bottom: var(--space-5) !important;
+  }
+
+  pre {
     box-sizing: border-box;
     overflow: hidden;
-    height: 100%;
+    margin: 0;
     padding: var(--space-3) var(--space-4);
     font-family: var(--ff-code);
     font-size: var(--fs-2);
