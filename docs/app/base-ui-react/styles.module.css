@@ -1,7 +1,8 @@
 .content {
   max-width: 714px;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-top: var(--space-9);
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
   margin-left: auto;
   margin-right: auto;
 
@@ -41,6 +42,7 @@
     font-weight: var(--fw-2);
     letter-spacing: -0.042em;
     text-indent: -1.1px;
+    margin-bottom: var(--space-3);
   }
 
   h2 {
