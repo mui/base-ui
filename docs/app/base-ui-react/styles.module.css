@@ -32,34 +32,41 @@
   }
 
   h1 {
+    margin: 0;
+    font-family: var(--ff-sans);
+    color: var(--gray-text-2);
+    scroll-margin-top: 80px;
     font-size: var(--fs-8);
     line-height: 37px;
-    font-weight: 500;
+    font-weight: var(--fw-2);
     letter-spacing: -0.042em;
     text-indent: -1.1px;
   }
 
   h2 {
+    margin: 0;
+    font-family: var(--ff-sans);
+    color: var(--gray-text-2);
+    scroll-margin-top: 80px;
     margin-top: var(--space-7) !important;
     margin-bottom: var(--space-3) !important;
     font-size: var(--fs-6);
     line-height: 24px;
     font-weight: 500;
     letter-spacing: -0.018em;
-    scroll-margin-top: 60px;
   }
 
   h3 {
-    margin-top: var(--space-7) !important;
-    margin-bottom: var(--space-2) !important;
-    font-size: var(--fs-5);
-    line-height: 23px;
-    font-weight: 500;
-    letter-spacing: -0.012em;
     margin: 0;
     font-family: var(--ff-sans);
     color: var(--gray-text-2);
     scroll-margin-top: 80px;
+    margin-top: var(--space-7) !important;
+    margin-bottom: var(--space-2) !important;
+    font-size: var(--fs-5);
+    line-height: 23px;
+    font-weight: var(--fw-2);
+    letter-spacing: -0.012em;
   }
 
   :not(pre) > code {
