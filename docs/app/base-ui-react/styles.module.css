@@ -69,6 +69,10 @@
     letter-spacing: -0.012em;
   }
 
+  code {
+    font-family: var(--ff-code);
+  }
+
   :not(pre) > code {
     margin-left: 1px;
     margin-right: 1px;
