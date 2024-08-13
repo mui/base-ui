@@ -1,3 +1,7 @@
+.SelectRoot {
+  position: relative;
+}
+
 .SelectTrigger {
   all: unset;
   line-height: 1;
@@ -58,4 +62,15 @@
   padding-left: var(--space-3);
   padding-right: var(--space-6);
   font-size: var(--fs-3);
+}
+
+.SelectAdornment {
+  top: 0;
+  right: 4px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  position: absolute;
 }

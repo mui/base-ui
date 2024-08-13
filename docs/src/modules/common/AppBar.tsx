@@ -13,24 +13,14 @@ export function AppBar() {
           <Link href="/" className="IconButton size-3">
             <BaseUIIcon />
           </Link>
-          <div className="p-r">
+          <div className="SelectRoot">
             <select className="SelectTrigger size-1">
               <option>v0.2.1-alpha</option>
               <option>This doesn&apos;t</option>
               <option>work yet</option>
             </select>
 
-            <div
-              className="p-a"
-              style={{
-                top: 0,
-                right: 4,
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <div className="SelectAdornment">
               <SelectIcon />
             </div>
           </div>
