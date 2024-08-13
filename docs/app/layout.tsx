@@ -31,9 +31,7 @@ export default function Layout({ children }: Props) {
         <meta name="mui:productCategoryId" content="core" />
       </head>
       <body>
-        <AppBar />
-        <Navigation routes={routes} />
-        <main className={classes.main}>{children}</main>
+        {children}
         <GoogleAnalytics />
         <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
       </body>

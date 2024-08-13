@@ -2,7 +2,9 @@ import * as React from 'react';
 import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage } from 'docs-base/src/utils/getMarkdownPage';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
-import { getSlugs } from 'docs-base/data/base/pages';
+import routes, { getSlugs } from 'docs-base/data/base/pages';
+import { AppBar } from 'docs-base/src/modules/common/AppBar';
+import { Navigation } from 'docs-base/src/modules/common/Navigation';
 import {
   ApiReference,
   getApiReferenceTableOfContents,
@@ -30,10 +32,12 @@ export default async function ComponentPage(props: Props) {
 
   return (
     <React.Fragment>
-      <div className={classes.content}>
+      <AppBar />
+      <Navigation routes={routes} />
+      <main className={classes.content}>
         <MDXContent components={components} />
         <ApiReference componentsApi={componentsApi} />
-      </div>
+      </main>
 
       <TableOfContents toc={tableOfContents} renderDepth={3} />
     </React.Fragment>
