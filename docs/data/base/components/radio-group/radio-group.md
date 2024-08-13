@@ -89,7 +89,7 @@ The `defaultValue` prop determines the initial value of the component when uncon
 
 ## Controlled
 
-The `value` and `onValueChange` props contain the `value` string of the currently selected radio item in the radio group:
+The `value` and `onValueChange` props contain the `value` string of the currently selected Radio item in the Radio Group:
 
 ```jsx
 const [value, setValue] = React.useState('a');
@@ -100,4 +100,36 @@ return (
     <Radio.Root value="b" />
   </RadioGroup.Root>
 );
+```
+
+## Styling
+
+The `Radio` components have a `[data-radio]` attribute with values `"checked"` or `"unchecked"` to style based on the checked state:
+
+```jsx
+<Radio.Root className="Radio">
+  <Radio.Indicator className="RadioIndicator" />
+</Radio.Root>
+```
+
+```css
+.Radio {
+  border: 1px solid black;
+}
+
+.RadioIndicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.Radio[data-radio='checked'] {
+  background: black;
+  color: white;
+}
+
+.RadioIndicator[data-radio='checked'] {
+  background: white;
+}
 ```
