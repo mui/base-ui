@@ -2,7 +2,6 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "errors": { "type": { "name": "object" } },
-    "nativeValidate": { "type": { "name": "bool" }, "default": "false" },
     "onClearErrors": { "type": { "name": "func" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },

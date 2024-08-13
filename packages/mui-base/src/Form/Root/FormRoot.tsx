@@ -14,7 +14,6 @@ const FormRoot = React.forwardRef(function FormRoot(
     render,
     className,
     errors,
-    nativeValidate = false,
     onClearErrors: onClearErrorsProp,
     onSubmit: onSubmitProp,
     ...otherProps
@@ -30,7 +29,7 @@ const FormRoot = React.forwardRef(function FormRoot(
   const getFormProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'form'>(externalProps, {
-        noValidate: !nativeValidate,
+        noValidate: true,
         onSubmit(event) {
           let values = Array.from(formRef.current.fields.values());
 
@@ -51,7 +50,7 @@ const FormRoot = React.forwardRef(function FormRoot(
           }
         },
       }),
-    [onSubmit, nativeValidate],
+    [onSubmit],
   );
 
   React.useEffect(() => {
@@ -99,16 +98,12 @@ FormRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Controlled error messages, usually from server-side validation.
+   * Object of error messages with each key mapping to the `name` prop of a Field control, usually
+   * from server-side validation.
    */
   errors: PropTypes.object,
   /**
-   * If `true`, the form will use native HTML validation, showing browser-native popup messages.
-   * @default false
-   */
-  nativeValidate: PropTypes.bool,
-  /**
-   * Callback fired when controlled messages should be cleared.
+   * Callback fired when the external server-side `error` messages should be cleared.
    */
   onClearErrors: PropTypes.func,
   /**
@@ -125,11 +120,6 @@ export { FormRoot };
 
 namespace FormRoot {
   export interface Props extends BaseUIComponentProps<'form', OwnerState> {
-    /**
-     * If `true`, the form will use native HTML validation, showing browser-native popup messages.
-     * @default false
-     */
-    nativeValidate?: boolean;
     /**
      * Object of error messages with each key mapping to the `name` prop of a Field control, usually
      * from server-side validation.

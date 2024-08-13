@@ -122,10 +122,10 @@ For more flexibility if required, each `Field.Root` component accepts an `invali
 
 ### Native validation
 
-By default, browser-native validation popups are disabled, as `Field.Error` replaces this by rendering the validation messages to allow for flexible styling. If necessary, to enable these native validation popups, add the `nativeValidation` prop:
+By default, browser-native validation popups are disabled, as `Field.Error` replaces this by rendering the validation messages to allow for flexible styling. If necessary, to enable these native validation popups, re-apply the default prop:
 
 ```jsx
-<Form.Root nativeValidation>
+<Form.Root noValidate={false}>
 ```
 
 ## Loading state

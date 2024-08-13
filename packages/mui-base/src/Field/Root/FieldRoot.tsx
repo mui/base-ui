@@ -152,9 +152,19 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
+   * component.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
    * Determines if the field is forcefully marked as invalid.
    */
   invalid: PropTypes.bool,
+  /**
+   * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+   */
+  name: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */
