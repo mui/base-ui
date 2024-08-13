@@ -39,11 +39,10 @@ export default function UnstyledFieldServerError() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <FieldRoot invalid={error}>
+      <FieldRoot invalid={error} name="email">
         <Field.Label>Email address</Field.Label>
         <FieldControl
           ref={controlRef}
-          name="email"
           type="email"
           required
           onChange={() => {

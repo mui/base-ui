@@ -49,14 +49,14 @@ export default function UnstyledFormIntroduction() {
         <p>
           Username and password are both <code>admin</code> to log in.
         </p>
-        <Field.Root>
+        <Field.Root name="username">
           <Field.Label>Username</Field.Label>
-          <FieldControl name="username" required />
+          <FieldControl required />
           <FieldError />
         </Field.Root>
-        <Field.Root>
+        <Field.Root name="password">
           <Field.Label>Password</Field.Label>
-          <FieldControl type="password" name="password" required />
+          <FieldControl type="password" required />
           <FieldError />
         </Field.Root>
       </FieldsetRoot>
