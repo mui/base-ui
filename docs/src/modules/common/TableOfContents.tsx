@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { type Toc, type TocEntry } from '@stefanprobst/rehype-extract-toc';
+import classes from './TableOfContents.module.css';
 
 interface Props {
   toc: Toc;
@@ -15,7 +16,10 @@ function renderTocEntry(entry: TocEntry, renderDepth: number, skipFirstLevel: bo
   return (
     <React.Fragment key={entry.id}>
       {entry.depth === 1 && skipFirstLevel ? null : (
-        <div className={`mb-3 ml-${3 * (entry.depth - 2)}`}>
+        <div
+          style={{ '--indent-level': entry.depth - 2 } as React.CSSProperties}
+          className={classes.item}
+        >
           <a href={`#${entry.id}`} className="Text size-3 Link color-gray">
             {entry.value}
           </a>
@@ -30,18 +34,7 @@ export function TableOfContents(props: Props) {
   const { toc, renderDepth = 2, skipFirstLevel = true } = props;
 
   return (
-    <div
-      style={{
-        boxSizing: 'border-box',
-        position: 'fixed',
-        top: 49,
-        right: 0,
-        width: 240,
-        height: 'calc(100% - 49px)',
-        padding: '12px 24px',
-        overflowY: 'auto',
-      }}
-    >
+    <div className={classes.root}>
       <div className="d-f ai-center h-7 mb-2">
         <h4 className="Text size-3 weight-2">Contents</h4>
       </div>

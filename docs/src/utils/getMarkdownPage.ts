@@ -10,23 +10,6 @@ import rehypeSlug from 'rehype-slug';
 import extractToc, { type Toc } from '@stefanprobst/rehype-extract-toc';
 import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
 
-if (process.platform === 'win32') {
-  process.env.ESBUILD_BINARY_PATH = path.join(
-    process.cwd(),
-    'node_modules',
-    'esbuild',
-    'esbuild.exe',
-  );
-} else {
-  process.env.ESBUILD_BINARY_PATH = path.join(
-    process.cwd(),
-    'node_modules',
-    'esbuild',
-    'bin',
-    'esbuild',
-  );
-}
-
 export const DATA_PATH = path.join(process.cwd(), 'data/base');
 
 export interface PageMetadata {

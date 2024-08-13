@@ -1,0 +1,15 @@
+.root {
+  box-sizing: border-box;
+  position: fixed;
+  top: 49px;
+  right: 0;
+  width: 240;
+  height: calc(100% - 49px);
+  padding: 12px 24px;
+  overflow-y: auto;
+}
+
+.item {
+  margin-bottom: var(--space-3);
+  margin-left: calc(var(--space-3) * var(--indent-level));
+}
