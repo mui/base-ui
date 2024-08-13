@@ -101,4 +101,8 @@
     border: 1px solid var(--gray-outline-2);
     border-radius: 12px;
   }
+
+  strong {
+    font-weight: var(--fw-2);
+  }
 }
