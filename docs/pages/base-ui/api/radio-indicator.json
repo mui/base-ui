@@ -3,16 +3,16 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "RadioGroupIndicator",
+  "name": "RadioIndicator",
   "imports": [
-    "import * as RadioGroup from '@base_ui/react/RadioGroup';\nconst RadioGroupIndicator = RadioGroup.Indicator;"
+    "import * as Radio from '@base_ui/react/Radio';\nconst RadioIndicator = Radio.Indicator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "RadioGroupIndicator",
+  "muiName": "RadioIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/RadioGroup/Indicator/RadioGroupIndicator.tsx",
+  "filename": "/packages/mui-base/src/Radio/Indicator/RadioIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-radio-group/\">Radio Group</a></li></ul>",
   "cssComponent": false

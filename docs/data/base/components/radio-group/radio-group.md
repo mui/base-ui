@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Radio Group component
-components: RadioGroupRoot, RadioGroupItem, RadioGroupIndicator
+components: RadioGroupRoot, RadioRoot, RadioIndicator
 githubLabel: 'component: radio'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
 ---
@@ -38,65 +38,66 @@ pnpm add @base_ui/react
 
 </codeblock>
 
-Once you have the package installed, import the component.
+Once you have the package installed, import the components.
 
 ```ts
 import * as RadioGroup from '@base_ui/react/RadioGroup';
+import * as Radio from '@base_ui/react/Radio';
 ```
 
 ## Anatomy
 
-Radio Group is composed of a collection of related components:
+Radio Group is composed of a `Root` and `Radio` components:
 
 - `<RadioGroup.Root />` is a top-level element that wraps the other components.
-- `<RadioGroup.Item />` renders an individual `<button>` radio item.
-- `<RadioGroup.Indicator />` renders a `<span>` for providing a visual indicator. You can style this itself, or place an icon inside.
+- `<Radio.Root />` renders an individual `<button>` radio item.
+- `<Radio.Indicator />` renders a `<span>` for providing a visual indicator. You can style this itself, or place an icon inside.
 
 ```jsx
 <RadioGroup.Root>
-  <RadioGroup.Item>
-    <RadioGroup.Indicator />
-  </RadioGroup.Item>
+  <Radio.Root>
+    <Radio.Indicator />
+  </Radio.Root>
 </RadioGroup.Root>
 ```
 
 ## Identifying items
 
-The `value` prop is required on `RadioGroup.Item` to identify it in the group.
+The `value` prop is required on `Radio.Root` to identify it in the Radio Group:
 
 ```jsx
 <RadioGroup.Root>
-  <RadioGroup.Item value="a">
-    <RadioGroup.Indicator />
-  </RadioGroup.Item>
-  <RadioGroup.Item value="b">
-    <RadioGroup.Indicator />
-  </RadioGroup.Item>
+  <Radio.Root value="a">
+    <Radio.Indicator />
+  </Radio.Root>
+  <Radio.Root value="b">
+    <Radio.Indicator />
+  </Radio.Root>
 </RadioGroup.Root>
 ```
 
 ## Default value
 
-The `defaultValue` prop determines the initial value of the component when uncontrolled, linked to the `value` prop on the items.
+The `defaultValue` prop determines the initial value of the component when uncontrolled, linked to the `value` prop on an individual Radio item:
 
 ```jsx
 <RadioGroup.Root defaultValue="a">
-  <RadioGroup.Item value="a" />
-  <RadioGroup.Item value="b" />
+  <Radio.Root value="a" />
+  <Radio.Root value="b" />
 </RadioGroup.Root>
 ```
 
 ## Controlled
 
-The `value` and `onValueChange` props contain the `value` string of the currently selected item in the radio group.
+The `value` and `onValueChange` props contain the `value` string of the currently selected radio item in the radio group:
 
 ```jsx
 const [value, setValue] = React.useState('a');
 
 return (
   <RadioGroup.Root value={value} onValueChange={setValue}>
-    <RadioGroup.Item value="a" />
-    <RadioGroup.Item value="b" />
+    <Radio.Root value="a" />
+    <Radio.Root value="b" />
   </RadioGroup.Root>
 );
 ```

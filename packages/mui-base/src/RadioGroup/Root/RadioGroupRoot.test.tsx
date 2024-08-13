@@ -4,6 +4,7 @@ import { spy } from 'sinon';
 import { createRenderer, act, screen } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import * as RadioGroup from '@base_ui/react/RadioGroup';
+import * as Radio from '@base_ui/react/Radio';
 import { describeConformance } from '../../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
@@ -14,7 +15,6 @@ describe('<RadioGroup.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<RadioGroup.Root />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));
@@ -30,7 +30,7 @@ describe('<RadioGroup.Root />', () => {
     const handleChange = spy();
     render(
       <RadioGroup.Root onValueChange={handleChange}>
-        <RadioGroup.Item value="a" data-testid="item" />
+        <Radio.Root value="a" data-testid="item" />
       </RadioGroup.Root>,
     );
 
@@ -58,7 +58,7 @@ describe('<RadioGroup.Root />', () => {
     it('should not change its state when clicked', () => {
       render(
         <RadioGroup.Root disabled>
-          <RadioGroup.Item value="" data-testid="item" />
+          <Radio.Root value="" data-testid="item" />
         </RadioGroup.Root>,
       );
 
@@ -90,7 +90,7 @@ describe('<RadioGroup.Root />', () => {
     it('should not change its state when clicked', () => {
       render(
         <RadioGroup.Root readOnly>
-          <RadioGroup.Item value="" data-testid="item" />
+          <Radio.Root value="" data-testid="item" />
         </RadioGroup.Root>,
       );
 
@@ -109,7 +109,7 @@ describe('<RadioGroup.Root />', () => {
   it('should update its state if the underlying input is toggled', () => {
     render(
       <RadioGroup.Root data-testid="root">
-        <RadioGroup.Item value="" data-testid="item" />
+        <Radio.Root value="" data-testid="item" />
       </RadioGroup.Root>,
     );
 
@@ -128,9 +128,9 @@ describe('<RadioGroup.Root />', () => {
   it('should place the style hooks on the root and subcomponents', () => {
     render(
       <RadioGroup.Root defaultValue="1" disabled readOnly required>
-        <RadioGroup.Item value="1" data-testid="item">
-          <RadioGroup.Indicator data-testid="indicator" />
-        </RadioGroup.Item>
+        <Radio.Root value="1" data-testid="item">
+          <Radio.Indicator data-testid="indicator" />
+        </Radio.Root>
       </RadioGroup.Root>,
     );
 
@@ -142,12 +142,12 @@ describe('<RadioGroup.Root />', () => {
     expect(root).to.have.attribute('data-readonly', 'true');
     expect(root).to.have.attribute('data-required', 'true');
 
-    expect(item).to.have.attribute('data-radio-group-item', 'checked');
+    expect(item).to.have.attribute('data-radio', 'checked');
     expect(item).to.have.attribute('data-disabled', 'true');
     expect(item).to.have.attribute('data-readonly', 'true');
     expect(item).to.have.attribute('data-required', 'true');
 
-    expect(indicator).to.have.attribute('data-radio-group-item', 'checked');
+    expect(indicator).to.have.attribute('data-radio', 'checked');
     expect(indicator).to.have.attribute('data-disabled', 'true');
     expect(indicator).to.have.attribute('data-readonly', 'true');
     expect(indicator).to.have.attribute('data-required', 'true');
@@ -176,9 +176,9 @@ describe('<RadioGroup.Root />', () => {
         }}
       >
         <RadioGroup.Root name="group">
-          <RadioGroup.Item value="a" />
-          <RadioGroup.Item value="b" />
-          <RadioGroup.Item value="c" />
+          <Radio.Root value="a" />
+          <Radio.Root value="b" />
+          <Radio.Root value="c" />
         </RadioGroup.Root>
         <button type="submit">Submit</button>
       </form>,
@@ -203,8 +203,8 @@ describe('<RadioGroup.Root />', () => {
   it('should automatically select item upon navigation', async () => {
     render(
       <RadioGroup.Root>
-        <RadioGroup.Item value="a" data-testid="a" />
-        <RadioGroup.Item value="b" data-testid="b" />
+        <Radio.Root value="a" data-testid="a" />
+        <Radio.Root value="b" data-testid="b" />
       </RadioGroup.Root>,
     );
 

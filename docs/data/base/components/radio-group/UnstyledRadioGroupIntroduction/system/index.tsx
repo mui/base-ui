@@ -1,22 +1,23 @@
 import * as React from 'react';
 import * as RadioGroup from '@base_ui/react/RadioGroup';
+import * as Radio from '@base_ui/react/Radio';
 import { styled } from '@mui/system';
 
 export default function UnstyledRadioGroupIntroduction() {
   return (
     <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
-      <Item value="light">
+      <RadioItem value="light">
         <Indicator />
         Light
-      </Item>
-      <Item value="medium">
+      </RadioItem>
+      <RadioItem value="medium">
         <Indicator />
         Medium
-      </Item>
-      <Item value="heavy">
+      </RadioItem>
+      <RadioItem value="heavy">
         <Indicator />
         Heavy
-      </Item>
+      </RadioItem>
     </RadioGroup.Root>
   );
 }
@@ -33,7 +34,7 @@ const blue = {
   800: '#004C99',
 };
 
-const Item = styled(RadioGroup.Item)`
+const RadioItem = styled(Radio.Root)`
   display: flex;
   align-items: center;
   padding: 8px 16px;
@@ -54,20 +55,20 @@ const Item = styled(RadioGroup.Item)`
     outline-offset: 2px;
   }
 
-  &[data-radio-group-item='checked'] {
+  &[data-radio='checked'] {
     background-color: ${blue[600]};
     color: white;
   }
 `;
 
-const Indicator = styled(RadioGroup.Indicator)`
+const Indicator = styled(Radio.Indicator)`
   border-radius: 50%;
   width: 8px;
   height: 8px;
   margin-right: 8px;
   outline: 1px solid black;
 
-  &[data-radio-group-item='checked'] {
+  &[data-radio='checked'] {
     background-color: white;
     border: none;
     outline: none;

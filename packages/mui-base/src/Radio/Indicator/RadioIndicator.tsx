@@ -1,31 +1,27 @@
-'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { useRadioGroupItemContext } from '../Item/RadioGroupItemContext';
-import type {
-  RadioGroupIndicatorOwnerState,
-  RadioGroupIndicatorProps,
-} from './RadioGroupIndicator.types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRadioRootContext } from '../Root/RadioRootContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<RadioGroupIndicatorOwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.OwnerState> = {
   checked(value) {
     return {
-      'data-radio-group-item': value ? 'checked' : 'unchecked',
+      'data-radio': value ? 'checked' : 'unchecked',
     };
   },
 };
 
-const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
-  props: RadioGroupIndicatorProps,
+const RadioIndicator = React.forwardRef(function RadioIndicator(
+  props: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { disabled, checked, required, readOnly } = useRadioGroupItemContext();
+  const { disabled, checked, required, readOnly } = useRadioRootContext();
 
-  const ownerState: RadioGroupIndicatorOwnerState = React.useMemo(
+  const ownerState: RadioIndicator.OwnerState = React.useMemo(
     () => ({
       disabled,
       checked,
@@ -47,7 +43,7 @@ const RadioGroupIndicator = React.forwardRef(function RadioGroupIndicator(
   return renderElement();
 });
 
-RadioGroupIndicator.propTypes /* remove-proptypes */ = {
+RadioIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -66,4 +62,12 @@ RadioGroupIndicator.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { RadioGroupIndicator };
+export { RadioIndicator };
+
+namespace RadioIndicator {
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+
+  export interface OwnerState {
+    checked: boolean;
+  }
+}

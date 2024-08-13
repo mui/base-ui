@@ -2,19 +2,13 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
 
-interface UseRadioGroupRootParameters {
-  disabled?: boolean;
-  readOnly?: boolean;
-  defaultValue?: string | number;
-  value?: string | number;
-}
 /**
  *
  * API:
  *
  * - [useRadioGroupRoot API](https://mui.com/base-ui/api/use-radio-group-root/)
  */
-export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
+export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
   const { disabled, defaultValue, readOnly, value: externalValue } = params;
 
   const [checkedItem, setCheckedItem] = useControlled<string | number>({
@@ -51,4 +45,13 @@ export function useRadioGroupRoot(params: UseRadioGroupRootParameters) {
     }),
     [getRootProps, checkedItem, setCheckedItem, touched],
   );
+}
+
+namespace useRadioGroupRoot {
+  export interface Parameters {
+    disabled?: boolean;
+    readOnly?: boolean;
+    defaultValue?: string | number;
+    value?: string | number;
+  }
 }

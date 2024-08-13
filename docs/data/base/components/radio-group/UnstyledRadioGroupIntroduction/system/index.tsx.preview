@@ -1,14 +1,14 @@
 <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
-  <Item value="light">
+  <RadioItem value="light">
     <Indicator />
     Light
-  </Item>
-  <Item value="medium">
+  </RadioItem>
+  <RadioItem value="medium">
     <Indicator />
     Medium
-  </Item>
-  <Item value="heavy">
+  </RadioItem>
+  <RadioItem value="heavy">
     <Indicator />
     Heavy
-  </Item>
+  </RadioItem>
 </RadioGroup.Root>

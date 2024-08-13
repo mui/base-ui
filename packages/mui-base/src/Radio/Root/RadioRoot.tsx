@@ -1,24 +1,24 @@
-'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { CompositeItem } from '../../Composite/Item/CompositeItem';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { RadioGroupItemOwnerState, RadioGroupItemProps } from './RadioGroupItem.types';
-import { useRadioGroupItem } from './useRadioGroupItem';
-import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { RadioGroupItemContext, type RadioGroupItemContextValue } from './RadioGroupItemContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
+import { useRadioRoot } from './useRadioRoot';
+import { RadioRootContext } from './RadioRootContext';
+import { CompositeItem } from '../../Composite/Item/CompositeItem';
+import { NOOP } from '../../utils/noop';
 
-const customStyleHookMapping: CustomStyleHookMapping<RadioGroupItemOwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.OwnerState> = {
   checked(value) {
     return {
-      'data-radio-group-item': value ? 'checked' : 'unchecked',
+      'data-radio': value ? 'checked' : 'unchecked',
     };
   },
 };
 
-const RadioGroupItem = React.forwardRef(function RadioGroupItem(
-  props: RadioGroupItemProps,
+const RadioRoot = React.forwardRef(function RadioRoot(
+  props: RadioRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -34,19 +34,20 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
     disabled: disabledRoot,
     readOnly: readOnlyRoot,
     required: requiredRoot,
+    setCheckedItem,
   } = useRadioGroupRootContext();
 
-  const disabled = disabledRoot ?? disabledProp;
-  const readOnly = readOnlyRoot ?? readOnlyProp;
-  const required = requiredRoot ?? requiredProp;
+  const disabled = disabledRoot || disabledProp;
+  const readOnly = readOnlyRoot || readOnlyProp;
+  const required = requiredRoot || requiredProp;
 
-  const { getItemProps, getInputProps, checked } = useRadioGroupItem({
+  const { getItemProps, getInputProps, checked } = useRadioRoot({
     ...props,
     disabled,
     readOnly,
   });
 
-  const ownerState: RadioGroupItemOwnerState = React.useMemo(
+  const ownerState: RadioRoot.OwnerState = React.useMemo(
     () => ({
       required,
       disabled,
@@ -56,15 +57,7 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
     [disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioGroupItemContextValue = React.useMemo(
-    () => ({
-      checked,
-      disabled,
-      readOnly,
-      required,
-    }),
-    [checked, disabled, readOnly, required],
-  );
+  const contextValue: RadioRootContext.Value = React.useMemo(() => ownerState, [ownerState]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getItemProps,
@@ -77,14 +70,14 @@ const RadioGroupItem = React.forwardRef(function RadioGroupItem(
   });
 
   return (
-    <RadioGroupItemContext.Provider value={contextValue}>
-      <CompositeItem render={renderElement()} />
+    <RadioRootContext.Provider value={contextValue}>
+      {setCheckedItem === NOOP ? renderElement() : <CompositeItem render={renderElement()} />}
       <input {...getInputProps()} />
-    </RadioGroupItemContext.Provider>
+    </RadioRootContext.Provider>
   );
 });
 
-RadioGroupItem.propTypes /* remove-proptypes */ = {
+RadioRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -98,12 +91,12 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines if the item is disabled.
+   * Determines if the radio is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * Determines if the item is readonly.
+   * Determines if the radio is readonly.
    * @default false
    */
   readOnly: PropTypes.bool,
@@ -112,14 +105,45 @@ RadioGroupItem.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Determines if the item is required.
+   * Determines if the radio is required.
    * @default false
    */
   required: PropTypes.bool,
   /**
-   * The unique identifying value of the radio button in the group.
+   * The unique identifying value of the radio in a group.
    */
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
 } as any;
 
-export { RadioGroupItem };
+export { RadioRoot };
+
+namespace RadioRoot {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+    /**
+     * The unique identifying value of the radio in a group.
+     */
+    value: string | number;
+    /**
+     * Determines if the radio is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * Determines if the radio is required.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * Determines if the radio is readonly.
+     * @default false
+     */
+    readOnly?: boolean;
+  }
+
+  export interface OwnerState {
+    checked: boolean;
+    disabled: boolean;
+    readOnly: boolean;
+    required: boolean;
+  }
+}

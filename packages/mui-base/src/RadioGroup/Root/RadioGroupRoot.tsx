@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
-import type { RadioGroupRootOwnerState, RadioGroupRootProps } from './RadioGroupRoot.types';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
-import { type RadioGroupRootContextValue, RadioGroupRootContext } from './RadioGroupRootContext';
+import { RadioGroupRootContext } from './RadioGroupRootContext';
 
 const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
-  props: RadioGroupRootProps,
+  props: RadioGroupRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -28,7 +28,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
-  const ownerState: RadioGroupRootOwnerState = React.useMemo(
+  const ownerState: RadioGroupRoot.OwnerState = React.useMemo(
     () => ({
       disabled: disabled ?? false,
       required: required ?? false,
@@ -37,7 +37,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     [disabled, readOnly, required],
   );
 
-  const contextValue: RadioGroupRootContextValue = React.useMemo(
+  const contextValue: RadioGroupRootContext.Value = React.useMemo(
     () => ({
       checkedItem,
       setCheckedItem,
@@ -121,3 +121,45 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { RadioGroupRoot };
+
+namespace RadioGroupRoot {
+  export interface OwnerState {
+    disabled: boolean | undefined;
+    readOnly: boolean | undefined;
+  }
+
+  export interface Props
+    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> {
+    /**
+     * Determines if the radio group is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * Determines if the radio group is readonly.
+     * @default false
+     */
+    readOnly?: boolean;
+    /**
+     * Determines if the radio group is required.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * The name of the radio group submitted with the form data.
+     */
+    name?: string;
+    /**
+     * The value of the selected radio button. Use when controlled.
+     */
+    value?: string | number;
+    /**
+     * The default value of the selected radio button. Use when uncontrolled.
+     */
+    defaultValue?: string | number;
+    /**
+     * Callback fired when the value changes.
+     */
+    onValueChange?: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
+  }
+}

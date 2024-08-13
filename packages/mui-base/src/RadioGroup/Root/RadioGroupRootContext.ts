@@ -1,23 +1,31 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '../../utils/noop';
 
-export interface RadioGroupRootContextValue {
-  disabled: boolean | undefined;
-  readOnly: boolean | undefined;
-  required: boolean | undefined;
-  checkedItem: string | number;
-  setCheckedItem: React.Dispatch<React.SetStateAction<string | number>>;
-  onValueChange: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
-  touched: boolean;
-  setTouched: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export const RadioGroupRootContext = React.createContext<RadioGroupRootContextValue | null>(null);
+export const RadioGroupRootContext = React.createContext<RadioGroupRootContext.Value>({
+  disabled: undefined,
+  readOnly: undefined,
+  required: undefined,
+  checkedItem: '',
+  setCheckedItem: NOOP,
+  onValueChange: NOOP,
+  touched: false,
+  setTouched: NOOP,
+});
 
 export function useRadioGroupRootContext() {
-  const value = React.useContext(RadioGroupRootContext);
-  if (value === null) {
-    throw new Error('RadioGroup components must be used within <RadioGroup.Root>');
+  return React.useContext(RadioGroupRootContext);
+}
+
+export namespace RadioGroupRootContext {
+  export interface Value {
+    disabled: boolean | undefined;
+    readOnly: boolean | undefined;
+    required: boolean | undefined;
+    checkedItem: string | number;
+    setCheckedItem: React.Dispatch<React.SetStateAction<string | number>>;
+    onValueChange: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
+    touched: boolean;
+    setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   }
-  return value;
 }

@@ -230,16 +230,16 @@ module.exports = [
     title: 'ProgressTrack',
   },
   {
-    pathname: '/base-ui/react-radio-group/components-api/#radio-group-indicator',
-    title: 'RadioGroupIndicator',
-  },
-  {
-    pathname: '/base-ui/react-radio-group/components-api/#radio-group-item',
-    title: 'RadioGroupItem',
-  },
-  {
     pathname: '/base-ui/react-radio-group/components-api/#radio-group-root',
     title: 'RadioGroupRoot',
+  },
+  {
+    pathname: '/base-ui/react-radio-group/components-api/#radio-indicator',
+    title: 'RadioIndicator',
+  },
+  {
+    pathname: '/base-ui/react-radio-group/components-api/#radio-root',
+    title: 'RadioRoot',
   },
   { pathname: '/base-ui/react-select/components-api/#select', title: 'Select' },
   {

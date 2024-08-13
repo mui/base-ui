@@ -2,22 +2,14 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useRadioGroupRootContext } from '../Root/RadioGroupRootContext';
-
-interface UseRadioGroupItemParameters {
-  value: string | number;
-  disabled?: boolean;
-  readOnly?: boolean;
-  required?: boolean;
-}
-
+import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
 /**
  *
  * API:
  *
- * - [useRadioGroupItem API](https://mui.com/base-ui/api/use-radio-group-item/)
+ * - [useRadioRoot API](https://mui.com/base-ui/api/use-radio-root/)
  */
-export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
+export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
 
   const { checkedItem, setCheckedItem, onValueChange, touched, setTouched } =
@@ -66,7 +58,7 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
-        type: 'radio',
+        type: 'radio' as const,
         ref: inputRef,
         tabIndex: -1,
         disabled,
@@ -100,4 +92,13 @@ export function useRadioGroupItem(params: UseRadioGroupItemParameters) {
     }),
     [checked, getItemProps, getInputProps],
   );
+}
+
+namespace useRadioRoot {
+  export interface Parameters {
+    value: string | number;
+    disabled?: boolean;
+    readOnly?: boolean;
+    required?: boolean;
+  }
 }
