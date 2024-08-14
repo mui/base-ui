@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { existsSync } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { stat, readFile } from 'node:fs/promises';
 import clsx from 'clsx';
 import classes from './Demo.module.css';
 
@@ -10,7 +10,28 @@ export interface DemoProps {
   componentName: string;
 }
 
+interface DemoSourceProps {
+  className?: string;
+  file: string;
+}
+
 const COMPONENTS_BASE_PATH = 'data/base/components';
+
+async function DemoSource(props: DemoSourceProps) {
+  const { file, className } = props;
+
+  const source = await readFile(file, 'utf-8');
+
+  return (
+    <div className={clsx(classes.source, className)}>
+      <div className={classes.scrollArea}>
+        <pre>
+          <code>{source}</code>
+        </pre>
+      </div>
+    </div>
+  );
+}
 
 export async function Demo(props: DemoProps) {
   const { componentName, demo, className } = props;
@@ -31,9 +52,14 @@ export async function Demo(props: DemoProps) {
         ).default;
 
         return (
-          <div className={clsx(classes.root, className)}>
-            <DemoComponent />
-          </div>
+          <React.Fragment>
+            <div className={clsx(classes.root, className)}>
+              <DemoComponent />
+            </div>
+            <DemoSource
+              file={`${COMPONENTS_BASE_PATH}/${componentName}/${demo}/system/index.tsx`}
+            />
+          </React.Fragment>
         );
       }
 
@@ -51,9 +77,12 @@ export async function Demo(props: DemoProps) {
     ).default;
 
     return (
-      <div className={clsx(classes.root, className)}>
-        <DemoComponent />
-      </div>
+      <React.Fragment>
+        <div className={clsx(classes.root, className)}>
+          <DemoComponent />
+        </div>
+        <DemoSource file={`${COMPONENTS_BASE_PATH}/${componentName}/${demo}.tsx`} />
+      </React.Fragment>
     );
   } else {
     return (
