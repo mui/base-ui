@@ -11,7 +11,7 @@ import { useControlled } from '../../utils/useControlled';
 export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
   const { disabled, defaultValue, readOnly, value: externalValue } = params;
 
-  const [checkedItem, setCheckedItem] = useControlled<string | number>({
+  const [checkedItem, setCheckedItem] = useControlled<string | number | undefined>({
     controlled: externalValue,
     default: defaultValue,
     name: 'RadioGroup',

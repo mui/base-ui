@@ -20,17 +20,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { disabled, checked, required, readOnly } = useRadioRootContext();
-
-  const ownerState: RadioIndicator.OwnerState = React.useMemo(
-    () => ({
-      disabled,
-      checked,
-      required,
-      readOnly,
-    }),
-    [disabled, checked, required, readOnly],
-  );
+  const ownerState = useRadioRootContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',

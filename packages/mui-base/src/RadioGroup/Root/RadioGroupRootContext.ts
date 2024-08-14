@@ -22,8 +22,8 @@ export namespace RadioGroupRootContext {
     disabled: boolean | undefined;
     readOnly: boolean | undefined;
     required: boolean | undefined;
-    checkedItem: string | number;
-    setCheckedItem: React.Dispatch<React.SetStateAction<string | number>>;
+    checkedItem: string | number | undefined;
+    setCheckedItem: React.Dispatch<React.SetStateAction<string | number | undefined>>;
     onValueChange: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
     touched: boolean;
     setTouched: React.Dispatch<React.SetStateAction<boolean>>;
