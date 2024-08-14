@@ -123,7 +123,7 @@
     text-decoration-line: underline;
     text-decoration-style: solid;
     text-decoration-thickness: 1px;
-    text-underline-offset: calc(.1em + 3px);
+    text-underline-offset: calc(0.1em + 3px);
     color: inherit;
     position: relative;
     z-index: 0;
@@ -137,7 +137,7 @@
 
   @media screen and (hover: hover) {
     a:hover::after {
-      content: "";
+      content: '';
       width: calc(100% + 6px);
       height: calc(100% + 8px);
       top: -4px;
