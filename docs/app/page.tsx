@@ -26,7 +26,7 @@ export default function Home() {
       <p className="Text size-5 color-gray weight-1 mb-8">
         From the creators of Radix, Floating UI, and MUI.
       </p>
-      <Link className="Link Text size-4" href="/base-ui-react/getting-started/overview">
+      <Link className="Link Text size-4" href="/getting-started/overview">
         Documentation
       </Link>
     </div>

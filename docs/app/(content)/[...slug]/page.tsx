@@ -33,7 +33,7 @@ export default async function DocsPage(props: Props) {
 }
 
 export async function generateStaticParams() {
-  return getSlugs('/base-ui-react/getting-started').map((slug) => ({
+  return getSlugs('/getting-started').map((slug) => ({
     slug: ['getting-started', slug],
   }));
 }

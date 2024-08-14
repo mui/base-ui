@@ -22,9 +22,15 @@ export default async function ComponentPage(props: Props) {
   const {
     params: { slug },
   } = props;
-  const { MDXContent, metadata, tableOfContents } = await getMarkdownPage('components', slug);
 
-  const documentedComponents = metadata.components?.split(',').map((c) => c.trim()) ?? [];
+  const componentName = slug.replace('react-', '');
+
+  const { MDXContent, metadata, tableOfContents } = await getMarkdownPage(
+    'components',
+    componentName,
+  );
+
+  const documentedComponents = metadata.components?.split(',').map((c: string) => c.trim()) ?? [];
   const componentsApi = await getApiReferenceData(documentedComponents);
   const apiReferenceToc = getApiReferenceTableOfContents(componentsApi);
 
@@ -45,5 +51,5 @@ export default async function ComponentPage(props: Props) {
 }
 
 export async function generateStaticParams() {
-  return getSlugs('/base-ui-react/components').map((slug) => ({ slug }));
+  return getSlugs('/components').map((slug) => ({ slug }));
 }
