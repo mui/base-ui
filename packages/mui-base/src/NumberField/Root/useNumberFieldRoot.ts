@@ -79,7 +79,7 @@ export function useNumberFieldRoot(
     setDirty,
     validityData,
     setValidityData,
-    setMarkedDirty,
+    markedDirtyRef,
   } = useFieldRootContext();
 
   const { formRef } = useFormRootContext();
@@ -124,12 +124,15 @@ export function useNumberFieldRoot(
         controlRef: inputRef,
         validityData: getCombinedFieldValidityData(validityData, invalid),
         validate() {
-          ReactDOM.flushSync(() => setMarkedDirty(true));
-          commitValidation(valueRef.current);
+          const controlValue = valueRef.current;
+          markedDirtyRef.current = true;
+
+          // Synchronously update the validity state so the submit event can be prevented.
+          ReactDOM.flushSync(() => commitValidation(controlValue));
         },
       });
     }
-  }, [commitValidation, formRef, id, setMarkedDirty, validityData, valueRef, invalid]);
+  }, [commitValidation, formRef, id, validityData, valueRef, invalid, markedDirtyRef]);
 
   const forceRender = useForcedRerendering();
 

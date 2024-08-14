@@ -50,11 +50,12 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
-  const [markedDirty, setMarkedDirty] = React.useState(false);
+
+  const markedDirtyRef = React.useRef(false);
 
   const setDirty: typeof setDirtyUnwrapped = React.useCallback((value) => {
     if (value) {
-      setMarkedDirty(true);
+      markedDirtyRef.current = true;
     }
     setDirtyUnwrapped(value);
   }, []);
@@ -102,8 +103,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validateOnChange,
       validateDebounceTime,
       ownerState,
-      markedDirty,
-      setMarkedDirty,
+      markedDirtyRef,
     }),
     [
       invalid,
@@ -120,7 +120,6 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validateOnChange,
       validateDebounceTime,
       ownerState,
-      markedDirty,
     ],
   );
 

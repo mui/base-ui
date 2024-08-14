@@ -24,7 +24,7 @@ export function useFieldControlValidation() {
     validateOnChange,
     validateDebounceTime,
     invalid,
-    markedDirty,
+    markedDirtyRef,
     controlId,
     ownerState,
   } = useFieldRootContext();
@@ -51,7 +51,7 @@ export function useFieldControlValidation() {
         (acc, key) => {
           acc[key] = el.validity[key];
 
-          if (!el.validity.customError && !markedDirty) {
+          if (!el.validity.customError && !markedDirtyRef.current) {
             acc[key] = key === 'valid';
           }
 

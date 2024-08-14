@@ -148,7 +148,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     setDirty,
     validityData,
     setValidityData,
-    setMarkedDirty,
+    markedDirtyRef,
     invalid,
   } = useFieldRootContext();
 
@@ -183,8 +183,11 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
         controlRef,
         validityData: getCombinedFieldValidityData(validityData, invalid),
         validate() {
-          ReactDOM.flushSync(() => setMarkedDirty(true));
-          commitValidation(valueState);
+          const controlValue = valueState;
+          markedDirtyRef.current = true;
+
+          // Synchronously update the validity state so the submit event can be prevented.
+          ReactDOM.flushSync(() => commitValidation(controlValue));
         },
       });
     }
@@ -195,10 +198,10 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     inputValidationRef,
     max,
     min,
-    setMarkedDirty,
     validityData,
     valueState,
     invalid,
+    markedDirtyRef,
   ]);
 
   // We can't use the :active browser pseudo-classes.

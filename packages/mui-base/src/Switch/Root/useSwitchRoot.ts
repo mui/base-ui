@@ -45,7 +45,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     setDirty,
     validityData,
     setValidityData,
-    setMarkedDirty,
+    markedDirtyRef,
     invalid,
   } = useFieldRootContext();
 
@@ -82,12 +82,16 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
           if (!inputValidationRef.current) {
             return;
           }
-          ReactDOM.flushSync(() => setMarkedDirty(true));
-          commitValidation(inputValidationRef.current.checked);
+
+          const controlValue = inputValidationRef.current.checked;
+          markedDirtyRef.current = true;
+
+          // Synchronously update the validity state so the submit event can be prevented.
+          ReactDOM.flushSync(() => commitValidation(controlValue));
         },
       });
     }
-  }, [commitValidation, formRef, id, inputValidationRef, setMarkedDirty, validityData, invalid]);
+  }, [commitValidation, formRef, id, inputValidationRef, validityData, invalid, markedDirtyRef]);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,

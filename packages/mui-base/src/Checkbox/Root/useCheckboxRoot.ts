@@ -46,7 +46,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     setDirty,
     validityData,
     setValidityData,
-    setMarkedDirty,
+    markedDirtyRef,
     invalid,
   } = useFieldRootContext();
 
@@ -83,12 +83,16 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
           if (!inputValidationRef.current) {
             return;
           }
-          ReactDOM.flushSync(() => setMarkedDirty(true));
-          commitValidation(inputValidationRef.current.checked);
+
+          const controlValue = inputValidationRef.current.checked;
+          markedDirtyRef.current = true;
+
+          // Syncronously update the validity state so the submit event can be prevented.
+          ReactDOM.flushSync(() => commitValidation(controlValue));
         },
       });
     }
-  }, [commitValidation, formRef, id, inputValidationRef, setMarkedDirty, validityData, invalid]);
+  }, [commitValidation, formRef, id, inputValidationRef, validityData, invalid, markedDirtyRef]);
 
   React.useEffect(() => {
     if (inputRef.current) {

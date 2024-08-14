@@ -30,7 +30,7 @@ export function useFieldControl(params: UseFieldControlParameters) {
     disabled,
     setTouched,
     setDirty,
-    setMarkedDirty,
+    markedDirtyRef,
     validityData,
     setValidityData,
     invalid,
@@ -65,12 +65,16 @@ export function useFieldControl(params: UseFieldControlParameters) {
           if (!inputRef.current) {
             return;
           }
-          ReactDOM.flushSync(() => setMarkedDirty(true));
-          commitValidation(inputRef.current.value);
+
+          const controlValue = inputRef.current.value;
+          markedDirtyRef.current = true;
+
+          // Synchronously update the validity state so the submit event can be prevented.
+          ReactDOM.flushSync(() => commitValidation(controlValue));
         },
       });
     }
-  }, [commitValidation, formRef, id, inputRef, setMarkedDirty, validityData, invalid]);
+  }, [commitValidation, formRef, id, inputRef, validityData, invalid, markedDirtyRef]);
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>

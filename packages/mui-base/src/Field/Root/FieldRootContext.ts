@@ -25,8 +25,7 @@ export interface FieldRootContextValue {
   validateOnChange: boolean;
   validateDebounceTime: number;
   ownerState: FieldRootOwnerState;
-  markedDirty: boolean;
-  setMarkedDirty: React.Dispatch<React.SetStateAction<boolean>>;
+  markedDirtyRef: React.MutableRefObject<boolean>;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContextValue>({
@@ -60,8 +59,7 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
     touched: false,
     dirty: false,
   },
-  markedDirty: false,
-  setMarkedDirty: NOOP,
+  markedDirtyRef: { current: false },
 });
 
 if (process.env.NODE_ENV !== 'production') {
