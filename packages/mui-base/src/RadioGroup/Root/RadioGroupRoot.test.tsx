@@ -154,7 +154,7 @@ describe('<RadioGroup.Root />', () => {
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
-  it('should include the checkbox value in the form submission', async function test() {
+  it('should include the radio value in the form submission', async function test() {
     if (isJSDOM) {
       // FormData is not available in JSDOM
       this.skip();
@@ -195,7 +195,7 @@ describe('<RadioGroup.Root />', () => {
     expect(stringifiedFormData).to.equal('group=a');
   });
 
-  it('should automatically select item upon navigation', async () => {
+  it('should automatically select radio upon navigation', async () => {
     render(
       <RadioGroup.Root>
         <Radio.Root value="a" data-testid="a" />
@@ -218,5 +218,79 @@ describe('<RadioGroup.Root />', () => {
 
     expect(b).toHaveFocus();
     expect(b).to.have.attribute('aria-checked', 'true');
+  });
+
+  it('should manage arrow key navigation', async () => {
+    render(
+      <div>
+        <button data-testid="before" />
+        <RadioGroup.Root>
+          <Radio.Root value="a" data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+          <Radio.Root value="c" data-testid="c" />
+        </RadioGroup.Root>
+        <button data-testid="after" />
+      </div>,
+    );
+
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    const c = screen.getByTestId('c');
+    const after = screen.getByTestId('after');
+
+    act(() => {
+      a.focus();
+    });
+
+    expect(a).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(b).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(c).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(a).toHaveFocus();
+
+    await user.keyboard('{ArrowUp}');
+
+    expect(c).toHaveFocus();
+
+    await user.keyboard('{ArrowUp}');
+
+    expect(b).toHaveFocus();
+
+    await user.keyboard('{ArrowUp}');
+
+    expect(a).toHaveFocus();
+
+    await user.keyboard('{ArrowLeft}');
+
+    expect(c).toHaveFocus();
+
+    await user.keyboard('{ArrowRight}');
+
+    expect(a).toHaveFocus();
+
+    await user.tab();
+
+    expect(after).toHaveFocus();
+
+    await user.tab({ shift: true });
+
+    expect(a).toHaveFocus();
+
+    await user.keyboard('{ArrowLeft}');
+
+    expect(c).toHaveFocus();
+
+    await user.tab({ shift: true });
+    await user.tab();
+
+    expect(c).toHaveFocus();
   });
 });
