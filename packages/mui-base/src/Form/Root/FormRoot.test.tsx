@@ -72,14 +72,14 @@ describe('<Form.Root />', () => {
     });
   });
 
-  describe('prop: nativeValidate', () => {
-    it('should disable native validation if set to false (default)', () => {
+  describe('prop: noValidate', () => {
+    it('should disable native validation if set to true (default)', () => {
       render(<Form.Root data-testid="form" />);
       expect(screen.getByTestId('form')).to.have.attribute('novalidate');
     });
 
-    it('should enable native validation if set to true', () => {
-      render(<Form.Root nativeValidate data-testid="form" />);
+    it('should enable native validation if set to false', () => {
+      render(<Form.Root noValidate={false} data-testid="form" />);
       expect(screen.getByTestId('form')).not.to.have.attribute('novalidate');
     });
   });
