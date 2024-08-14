@@ -7,10 +7,10 @@
   margin-right: auto;
 
   p {
-    margin-bottom: var(--space-4) !important;
+    margin: 0;
+    margin-bottom: var(--space-4);
     font-size: var(--fs-4);
     line-height: 23px;
-    margin: 0;
     font-family: var(--ff-sans);
     font-weight: var(--fw-1);
     color: var(--gray-text-2);
@@ -18,10 +18,10 @@
   }
 
   ul {
-    margin-bottom: var(--space-4) !important;
+    margin: 0;
+    margin-bottom: var(--space-4);
     font-size: var(--fs-4);
     line-height: 23px;
-    margin: 0;
     font-family: var(--ff-sans);
     font-weight: var(--fw-1);
     color: var(--gray-text-2);
@@ -29,7 +29,7 @@
   }
 
   ul p {
-    margin-bottom: 0 !important;
+    margin-bottom: 0;
   }
 
   h1 {
@@ -50,8 +50,8 @@
     font-family: var(--ff-sans);
     color: var(--gray-text-2);
     scroll-margin-top: 80px;
-    margin-top: var(--space-7) !important;
-    margin-bottom: var(--space-3) !important;
+    margin-top: var(--space-7);
+    margin-bottom: var(--space-3);
     font-size: var(--fs-6);
     line-height: 24px;
     font-weight: 500;
@@ -63,8 +63,8 @@
     font-family: var(--ff-sans);
     color: var(--gray-text-2);
     scroll-margin-top: 80px;
-    margin-top: var(--space-7) !important;
-    margin-bottom: var(--space-2) !important;
+    margin-top: var(--space-7);
+    margin-bottom: var(--space-2);
     font-size: var(--fs-5);
     line-height: 23px;
     font-weight: var(--fw-2);
@@ -96,8 +96,8 @@
     box-sizing: border-box;
     margin-left: 0;
     margin-right: 0;
-    margin-top: var(--space-5) !important;
-    margin-bottom: var(--space-5) !important;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-5);
   }
 
   pre {
