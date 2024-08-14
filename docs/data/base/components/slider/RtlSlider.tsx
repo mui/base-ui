@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as BaseSlider from '@base_ui/react/Slider';
 import { styled, useTheme, Box } from '@mui/system';

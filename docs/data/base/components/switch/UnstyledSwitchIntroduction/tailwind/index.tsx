@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as BaseSwitch from '@base_ui/react/Switch';
 import { useTheme } from '@mui/system';

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as AlertDialog from '@base_ui/react/AlertDialog';
 import { useTheme } from '@mui/system';

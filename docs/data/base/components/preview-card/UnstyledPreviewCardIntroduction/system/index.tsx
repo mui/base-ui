@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as PreviewCard from '@base_ui/react/PreviewCard';
 import { styled } from '@mui/system';

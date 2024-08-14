@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as Menu from '@base_ui/react/Menu';
 import { useTheme } from '@mui/system';

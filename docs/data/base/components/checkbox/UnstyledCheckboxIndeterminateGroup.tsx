@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { styled } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
