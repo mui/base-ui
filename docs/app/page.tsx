@@ -10,6 +10,10 @@ export default function Home() {
         top: '50%',
         left: '50%',
         transform: 'translateX(-50%) translateY(-50%)',
+        width: '100%',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        boxSizing: 'border-box',
         maxWidth: 500,
       }}
     >
