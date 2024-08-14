@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as BaseDialog from '@base_ui/react/Dialog';
 import { styled } from '@mui/system';

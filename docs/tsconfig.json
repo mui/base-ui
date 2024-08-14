@@ -1,13 +1,13 @@
 {
   "extends": "../tsconfig.base.json",
   "include": [
-    "next-env.d.ts",
-    "types",
-    "src",
-    "pages",
+    "app",
     "data",
+    "pages",
+    "src",
+    "types",
+    "next-env.d.ts",
     "next.config.mjs",
-    "export/types/**/*.ts",
     ".next/types/**/*.ts"
   ],
   "compilerOptions": {
@@ -19,7 +19,9 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": ["react"],
+    "types": [
+      "react"
+    ],
     "incremental": true,
     "composite": true,
     "module": "esnext",
@@ -31,7 +33,9 @@
     ],
     "strictNullChecks": true
   },
-  "exclude": ["node_modules"],
+  "exclude": [
+    "node_modules"
+  ],
   "references": [
     {
       "path": "../packages/mui-base/tsconfig.build.json"

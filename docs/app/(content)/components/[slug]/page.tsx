@@ -10,6 +10,7 @@ import {
   getApiReferenceTableOfContents,
 } from 'docs-base/src/modules/components/ApiReference';
 import { getApiReferenceData } from 'docs-base/src/utils/getApiReferenceData';
+import { Demo, DemoProps } from 'docs-base/src/modules/components/Demo';
 import classes from '../../styles.module.css';
 
 interface Props {
@@ -36,12 +37,20 @@ export default async function ComponentPage(props: Props) {
 
   tableOfContents[0].children?.push(apiReferenceToc);
 
+  const allComponents = {
+    ...components,
+    // eslint-disable-next-line react/no-unstable-nested-components
+    Demo: (demoProps: Omit<DemoProps, 'componentName'>) => {
+      return <Demo componentName={componentName} {...demoProps} />;
+    },
+  };
+
   return (
     <React.Fragment>
       <AppBar />
       <Navigation routes={routes} />
       <main className={classes.content}>
-        <MDXContent components={components} />
+        <MDXContent components={{ ...allComponents }} />
         <ApiReference componentsApi={componentsApi} />
       </main>
 
