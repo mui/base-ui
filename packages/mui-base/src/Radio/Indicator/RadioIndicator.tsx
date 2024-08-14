@@ -34,6 +34,14 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
   return renderElement();
 });
 
+namespace RadioIndicator {
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+
+  export interface OwnerState {
+    checked: boolean;
+  }
+}
+
 RadioIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -54,11 +62,3 @@ RadioIndicator.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { RadioIndicator };
-
-namespace RadioIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
-
-  export interface OwnerState {
-    checked: boolean;
-  }
-}

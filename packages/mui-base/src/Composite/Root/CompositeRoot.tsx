@@ -2,16 +2,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeList } from '../utils/CompositeList/CompositeList';
-import type { CompositeRootProps } from './CompositeRoot.types';
+import { CompositeList } from '../List/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
-import { CompositeRootContext, type CompositeRootContextValue } from './CompositeRootContext';
+import { CompositeRootContext } from './CompositeRootContext';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { Dimensions } from '../composite';
 
 /**
  * @ignore - internal component.
  */
 const CompositeRoot = React.forwardRef(function CompositeRoot(
-  props: CompositeRootProps,
+  props: CompositeRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -38,7 +39,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     extraProps: otherProps,
   });
 
-  const contextValue: CompositeRootContextValue = React.useMemo(
+  const contextValue: CompositeRootContext.Value = React.useMemo(
     () => ({ activeIndex, onActiveIndexChange }),
     [activeIndex, onActiveIndexChange],
   );
@@ -49,6 +50,20 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     </CompositeRootContext.Provider>
   );
 });
+
+namespace CompositeRoot {
+  export interface OwnerState {}
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    orientation?: 'horizontal' | 'vertical' | 'both';
+    cols?: number;
+    loop?: boolean;
+    activeIndex?: number;
+    onActiveIndexChange?: (index: number) => void;
+    itemSizes?: Dimensions[];
+    dense?: boolean;
+  }
+}
 
 CompositeRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

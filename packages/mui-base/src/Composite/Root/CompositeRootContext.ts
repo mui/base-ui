@@ -1,11 +1,6 @@
 import * as React from 'react';
 
-export interface CompositeRootContextValue {
-  activeIndex: number;
-  onActiveIndexChange: (index: number) => void;
-}
-
-export const CompositeRootContext = React.createContext<CompositeRootContextValue | null>(null);
+export const CompositeRootContext = React.createContext<CompositeRootContext.Value | null>(null);
 
 export function useCompositeRootContext() {
   const context = React.useContext(CompositeRootContext);
@@ -13,4 +8,11 @@ export function useCompositeRootContext() {
     throw new Error('<Composite.Item> must be used within <Composite.Root>');
   }
   return context;
+}
+
+export namespace CompositeRootContext {
+  export interface Value {
+    activeIndex: number;
+    onActiveIndexChange: (index: number) => void;
+  }
 }

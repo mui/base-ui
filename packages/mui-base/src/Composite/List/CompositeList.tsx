@@ -1,7 +1,8 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '../../../utils/useEnhancedEffect';
+import PropTypes from 'prop-types';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { CompositeListContext } from './CompositeListContext';
 
 function sortByDocumentPosition(a: Node, b: Node) {
@@ -33,25 +34,11 @@ function areMapsEqual(map1: Map<Node, number | null>, map2: Map<Node, number | n
   return true;
 }
 
-interface CompositeListProps {
-  children: React.ReactNode;
-  /**
-   * A ref to the list of HTML elements, ordered by their index.
-   * `useListNavigation`'s `listRef` prop.
-   */
-  elementsRef: React.MutableRefObject<Array<HTMLElement | null>>;
-  /**
-   * A ref to the list of element labels, ordered by their index.
-   * `useTypeahead`'s `listRef` prop.
-   */
-  labelsRef?: React.MutableRefObject<Array<string | null>>;
-}
-
 /**
  * Provides context for a list of items in a composite component.
  * @ignore - internal component.
  */
-export function CompositeList(props: CompositeListProps) {
+function CompositeList(props: CompositeList.Props) {
   const { children, elementsRef, labelsRef } = props;
 
   const [map, setMap] = React.useState(() => new Map<Node, number | null>());
@@ -90,3 +77,44 @@ export function CompositeList(props: CompositeListProps) {
     <CompositeListContext.Provider value={contextValue}>{children}</CompositeListContext.Provider>
   );
 }
+
+namespace CompositeList {
+  export interface Props {
+    children: React.ReactNode;
+    /**
+     * A ref to the list of HTML elements, ordered by their index.
+     * `useListNavigation`'s `listRef` prop.
+     */
+    elementsRef: React.MutableRefObject<Array<HTMLElement | null>>;
+    /**
+     * A ref to the list of element labels, ordered by their index.
+     * `useTypeahead`'s `listRef` prop.
+     */
+    labelsRef?: React.MutableRefObject<Array<string | null>>;
+  }
+}
+
+CompositeList.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * A ref to the list of HTML elements, ordered by their index.
+   * `useListNavigation`'s `listRef` prop.
+   */
+  elementsRef: PropTypes /* @typescript-to-proptypes-ignore */.any,
+  /**
+   * A ref to the list of element labels, ordered by their index.
+   * `useTypeahead`'s `listRef` prop.
+   */
+  labelsRef: PropTypes.shape({
+    current: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }),
+} as any;
+
+export { CompositeList };

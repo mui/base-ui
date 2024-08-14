@@ -154,7 +154,7 @@ describe('<RadioGroup.Root />', () => {
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
-  it('should include the checkbox value in the form submission', function test() {
+  it('should include the checkbox value in the form submission', async function test() {
     if (isJSDOM) {
       // FormData is not available in JSDOM
       this.skip();
@@ -182,12 +182,15 @@ describe('<RadioGroup.Root />', () => {
     const [radioA] = screen.getAllByRole('radio');
     const submitButton = screen.getByRole('button');
 
-    fireEvent.click(submitButton);
+    submitButton.click();
 
     expect(stringifiedFormData).to.equal('');
 
-    fireEvent.click(radioA);
-    fireEvent.click(submitButton);
+    await act(() => {
+      radioA.click();
+    });
+
+    submitButton.click();
 
     expect(stringifiedFormData).to.equal('group=a');
   });

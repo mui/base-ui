@@ -78,6 +78,37 @@ const RadioRoot = React.forwardRef(function RadioRoot(
   );
 });
 
+namespace RadioRoot {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+    /**
+     * The unique identifying value of the radio in a group.
+     */
+    value: string | number;
+    /**
+     * Determines if the radio is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * Determines if the radio is required.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * Determines if the radio is readonly.
+     * @default false
+     */
+    readOnly?: boolean;
+  }
+
+  export interface OwnerState {
+    checked: boolean;
+    disabled: boolean;
+    readOnly: boolean;
+    required: boolean;
+  }
+}
+
 RadioRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -117,34 +148,3 @@ RadioRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { RadioRoot };
-
-namespace RadioRoot {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
-    /**
-     * The unique identifying value of the radio in a group.
-     */
-    value: string | number;
-    /**
-     * Determines if the radio is disabled.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Determines if the radio is required.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Determines if the radio is readonly.
-     * @default false
-     */
-    readOnly?: boolean;
-  }
-
-  export interface OwnerState {
-    checked: boolean;
-    disabled: boolean;
-    readOnly: boolean;
-    required: boolean;
-  }
-}

@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeRootContext } from '../Root/CompositeRootContext';
-import type { CompositeItemOwnerState, CompositeItemProps } from './CompositeItem.types';
 import { useCompositeItem } from './useCompositeItem';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * @ignore - internal component.
  */
 const CompositeItem = React.forwardRef(function CompositeItem(
-  props: CompositeItemProps,
+  props: CompositeItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...otherProps } = props;
@@ -19,7 +19,7 @@ const CompositeItem = React.forwardRef(function CompositeItem(
   const { activeIndex } = useCompositeRootContext();
   const { getItemProps, ref, index } = useCompositeItem();
 
-  const ownerState: CompositeItemOwnerState = React.useMemo(
+  const ownerState: CompositeItem.OwnerState = React.useMemo(
     () => ({
       active: index === activeIndex,
     }),
@@ -39,6 +39,14 @@ const CompositeItem = React.forwardRef(function CompositeItem(
 
   return renderElement();
 });
+
+namespace CompositeItem {
+  export interface OwnerState {
+    active: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
 
 CompositeItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

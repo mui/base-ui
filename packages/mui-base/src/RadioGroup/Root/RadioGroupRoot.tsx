@@ -70,6 +70,48 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   );
 });
 
+namespace RadioGroupRoot {
+  export interface OwnerState {
+    disabled: boolean | undefined;
+    readOnly: boolean | undefined;
+  }
+
+  export interface Props
+    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> {
+    /**
+     * Determines if the radio group is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * Determines if the radio group is readonly.
+     * @default false
+     */
+    readOnly?: boolean;
+    /**
+     * Determines if the radio group is required.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * The name of the radio group submitted with the form data.
+     */
+    name?: string;
+    /**
+     * The value of the selected radio button. Use when controlled.
+     */
+    value?: string | number;
+    /**
+     * The default value of the selected radio button. Use when uncontrolled.
+     */
+    defaultValue?: string | number;
+    /**
+     * Callback fired when the value changes.
+     */
+    onValueChange?: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
+  }
+}
+
 RadioGroupRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -121,45 +163,3 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { RadioGroupRoot };
-
-namespace RadioGroupRoot {
-  export interface OwnerState {
-    disabled: boolean | undefined;
-    readOnly: boolean | undefined;
-  }
-
-  export interface Props
-    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> {
-    /**
-     * Determines if the radio group is disabled.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Determines if the radio group is readonly.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Determines if the radio group is required.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * The name of the radio group submitted with the form data.
-     */
-    name?: string;
-    /**
-     * The value of the selected radio button. Use when controlled.
-     */
-    value?: string | number;
-    /**
-     * The default value of the selected radio button. Use when uncontrolled.
-     */
-    defaultValue?: string | number;
-    /**
-     * Callback fired when the value changes.
-     */
-    onValueChange?: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
-  }
-}
