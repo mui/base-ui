@@ -128,3 +128,41 @@ CSS animations can be used with two declarations:
 ```
 
 {{"demo": "CssTransitionCollapsible.js"}}
+
+### JavaScript Animations
+
+When using external libraries for animation, for example `framer-motion`, be aware that Collapsible hides content using the html `hidden` attribute in the closed state, and does not unmount the `Collapsible.Content` subcomponent.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Collapsible.Root open={open} onOpenChange={setOpen}>
+      <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+      <Collapsible.Content
+        render={
+          <motion.div
+            key="CollapsibleContent"
+            initial={false}
+            animate={open ? 'open' : 'closed'}
+            exit={!open ? 'open' : 'closed'}
+            variants={{
+              open: {
+                height: 'auto',
+                transition: { duration: 0.6, ease: 'ease-out' },
+              },
+              closed: {
+                height: 0,
+                transition: { duration: 0.6, ease: 'ease-in' },
+                transitionEnd: { display: 'revert-layer' },
+              },
+            }}
+          />
+        }
+      >
+        This is the content
+      </Collapsible.Content>
+    </Collapsible.Root>
+  );
+}
+```
