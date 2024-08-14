@@ -21,6 +21,22 @@ export async function Demo(props: DemoProps) {
   if (existsSync(complexDemoDirectoryPath)) {
     const stats = await stat(complexDemoDirectoryPath);
     if (stats.isDirectory()) {
+      if (existsSync(`${COMPONENTS_BASE_PATH}/${componentName}/${demo}/system/index.tsx`)) {
+        const DemoComponent = (
+          await import(
+            /* webpackInclude: /\.tsx$/ */
+            /* webpackMode: "eager" */
+            `docs-base/data/base/components/${componentName}/${demo}/system/index.tsx`
+          )
+        ).default;
+
+        return (
+          <div className={clsx(classes.root, className)}>
+            <DemoComponent />
+          </div>
+        );
+      }
+
       return (
         <div className={clsx(classes.root, classes.todo, className)}>TODO: render complex demo</div>
       );
