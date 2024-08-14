@@ -1,11 +1,7 @@
 import * as React from 'react';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
-import { AppBar } from 'docs-base/src/modules/common/AppBar';
-import { Navigation } from 'docs-base/src/modules/common/Navigation';
 import { GoogleTagManager } from 'docs-base/src/modules/common/GoogleTagManager';
 import { GoogleAnalytics } from 'docs-base/src/modules/common/GoogleAnalytics';
-import routes from 'docs-base/data/base/pages';
-import classes from './layout.module.css';
 import '../src/styles/style.css';
 
 configureSandboxDependencies();
