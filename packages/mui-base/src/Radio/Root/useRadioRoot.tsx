@@ -3,6 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
+
 /**
  *
  * API:
@@ -19,7 +20,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const getItemProps = React.useCallback(
+  const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(externalProps, {
         role: 'radio',
@@ -55,7 +56,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     [checked, disabled, readOnly, required, touched, setTouched],
   );
 
-  const getInputProps = React.useCallback(
+  const getInputProps: useRadioRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
         type: 'radio' as const,
@@ -87,10 +88,10 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   return React.useMemo(
     () => ({
       checked,
-      getItemProps,
+      getRootProps,
       getInputProps,
     }),
-    [checked, getItemProps, getInputProps],
+    [checked, getRootProps, getInputProps],
   );
 }
 
@@ -100,5 +101,15 @@ namespace useRadioRoot {
     disabled?: boolean;
     readOnly?: boolean;
     required?: boolean;
+  }
+
+  export interface ReturnValue {
+    checked: boolean;
+    getRootProps: (
+      externalProps?: React.ComponentPropsWithRef<'button'>,
+    ) => React.ComponentPropsWithRef<'button'>;
+    getInputProps: (
+      externalProps?: React.ComponentPropsWithRef<'input'>,
+    ) => React.ComponentPropsWithRef<'input'>;
   }
 }

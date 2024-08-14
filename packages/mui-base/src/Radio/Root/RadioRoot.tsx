@@ -42,7 +42,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
   const readOnly = readOnlyRoot || readOnlyProp;
   const required = requiredRoot || requiredProp;
 
-  const { getItemProps, getInputProps, checked } = useRadioRoot({
+  const { getRootProps, getInputProps, checked } = useRadioRoot({
     ...props,
     disabled,
     readOnly,
@@ -61,7 +61,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
   const contextValue: RadioRootContext.Value = React.useMemo(() => ownerState, [ownerState]);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getItemProps,
+    propGetter: getRootProps,
     render: render ?? 'button',
     ref: forwardedRef,
     className,
