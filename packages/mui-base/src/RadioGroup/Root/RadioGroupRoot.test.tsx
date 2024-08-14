@@ -112,11 +112,9 @@ describe('<RadioGroup.Root />', () => {
     const item = screen.getByTestId('item');
 
     // eslint-disable-next-line testing-library/no-node-access
-    const input = group.querySelector('input');
+    const input = group.querySelector<HTMLInputElement>('input')!;
 
-    act(() => {
-      input?.click();
-    });
+    fireEvent.click(input);
 
     expect(item).to.have.attribute('aria-checked', 'true');
   });
@@ -184,15 +182,12 @@ describe('<RadioGroup.Root />', () => {
     const [radioA] = screen.getAllByRole('radio');
     const submitButton = screen.getByRole('button');
 
-    submitButton.click();
+    fireEvent.click(submitButton);
 
     expect(stringifiedFormData).to.equal('');
 
-    act(() => {
-      radioA.click();
-    });
-
-    submitButton.click();
+    fireEvent.click(radioA);
+    fireEvent.click(submitButton);
 
     expect(stringifiedFormData).to.equal('group=a');
   });
