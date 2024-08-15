@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { existsSync } from 'node:fs';
-import { stat, readFile } from 'node:fs/promises';
 import clsx from 'clsx';
+import { loadDemo } from 'docs-base/src/utils/loadDemo';
+import * as BaseDemo from 'docs-base/src/blocks/Demo';
+import { DemoVariantSelector } from './DemoVariantSelector';
 import classes from './Demo.module.css';
 
 export interface DemoProps {
@@ -10,89 +11,26 @@ export interface DemoProps {
   componentName: string;
 }
 
-interface DemoSourceProps {
-  className?: string;
-  file: string;
-}
-
-const COMPONENTS_BASE_PATH = 'data/base/components';
-
-async function DemoSource(props: DemoSourceProps) {
-  const { file, className } = props;
-
-  const source = await readFile(file, 'utf-8');
-
-  return (
-    <div className={clsx(classes.source, className)}>
-      <div className={classes.scrollArea}>
-        <pre>
-          <code>{source}</code>
-        </pre>
-      </div>
-    </div>
-  );
-}
-
 export async function Demo(props: DemoProps) {
   const { componentName, demo, className } = props;
 
-  const complexDemoDirectoryPath = `${COMPONENTS_BASE_PATH}/${componentName}/${demo}`;
-  const simpleDemoPath = `${complexDemoDirectoryPath}.tsx`;
-
-  if (existsSync(complexDemoDirectoryPath)) {
-    const stats = await stat(complexDemoDirectoryPath);
-    if (stats.isDirectory()) {
-      if (existsSync(`${COMPONENTS_BASE_PATH}/${componentName}/${demo}/system/index.tsx`)) {
-        const DemoComponent = (
-          await import(
-            /* webpackInclude: /\.tsx$/ */
-            /* webpackMode: "eager" */
-            `docs-base/data/base/components/${componentName}/${demo}/system/index.tsx`
-          )
-        ).default;
-
-        return (
-          <React.Fragment>
-            <div className={clsx(classes.root, className)}>
-              <DemoComponent />
-            </div>
-            <DemoSource
-              file={`${COMPONENTS_BASE_PATH}/${componentName}/${demo}/system/index.tsx`}
-            />
-          </React.Fragment>
-        );
-      }
-
-      return (
-        <div className={clsx(classes.root, classes.todo, className)}>TODO: render complex demo</div>
-      );
-    }
-  } else if (existsSync(simpleDemoPath)) {
-    const DemoComponent = (
-      await import(
-        /* webpackInclude: /\.tsx$/ */
-        /* webpackMode: "eager" */
-        `docs-base/data/base/components/${componentName}/${demo}.tsx`
-      )
-    ).default;
-
+  try {
+    const demoVariants = await loadDemo(componentName, demo);
     return (
-      <React.Fragment>
-        <div className={clsx(classes.root, className)}>
-          <DemoComponent />
+      <BaseDemo.Root variants={demoVariants} className={classes.root}>
+        <BaseDemo.Playground className={classes.playground} />
+        <div className={classes.toolbar}>
+          <DemoVariantSelector />
         </div>
-        <DemoSource file={`${COMPONENTS_BASE_PATH}/${componentName}/${demo}.tsx`} />
-      </React.Fragment>
+        <div className={classes.source}>
+          <BaseDemo.SourceBrowser className={classes.scrollArea} />
+        </div>
+      </BaseDemo.Root>
     );
-  } else {
+  } catch (error) {
     return (
       <div className={clsx(classes.root, className)}>
         <p>Unable to render the {demo} demo.</p>
-        {
-          <p>
-            Neither {complexDemoDirectoryPath} directory nor {simpleDemoPath} file exist.
-          </p>
-        }
       </div>
     );
   }

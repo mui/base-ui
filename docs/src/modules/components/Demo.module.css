@@ -1,4 +1,4 @@
-.root {
+.playground {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,6 +19,16 @@
   border-radius: 0;
 }
 
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5em 1em;
+  border: 1px var(--gray-outline-2);
+  border-style: none solid solid solid;
+  background: var(--gray-container-1);
+}
+
 .source {
   border: 1px var(--gray-outline-2);
   border-style: none solid solid solid;
@@ -27,7 +37,7 @@
   margin-bottom: 1em;
 
   pre {
-    border: none;
+    border: none !important;
     border-radius: 0;
   }
 }
