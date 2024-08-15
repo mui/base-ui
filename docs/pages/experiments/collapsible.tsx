@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useTheme } from '@mui/system';
 import * as Collapsible from '@base_ui/react/Collapsible';
 
 export default function CollapsibleDemo() {
@@ -42,22 +41,12 @@ const grey = {
   900: '#1C2025',
 };
 
-function useIsDarkMode() {
-  const theme = useTheme();
-  return theme.palette.mode === 'dark';
-}
-
 export function Styles() {
-  const isDarkMode = useIsDarkMode();
   return (
     <style suppressHydrationWarning>{`
     .CollapsibleDemo {
       font-family: system-ui, sans-serif;
       line-height: 1.4;
-    }
-
-    .CollapsibleDemo h3 {
-      color: ${isDarkMode ? 'cyan' : 'blue'};
     }
 
     .MyCollapsible-trigger {
@@ -120,10 +109,10 @@ export function Styles() {
     }
 
     .MyCollapsible-content[data-state='open'] {
-      animation: slideDown 600ms ease-out;
+      animation: slideDown 300ms ease-out;
     }
     .MyCollapsible-content[data-state='closed'] {
-      animation: slideUp 600ms ease-out;
+      animation: slideUp 300ms ease-out;
     }
 
     @keyframes slideDown {

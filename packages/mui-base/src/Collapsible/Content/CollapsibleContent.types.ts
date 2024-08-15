@@ -2,9 +2,15 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { CollapsibleRootOwnerState } from '../Root/CollapsibleRoot.types';
 
 export interface CollapsibleContentProps
-  extends BaseUIComponentProps<'div', CollapsibleRootOwnerState> {}
+  extends BaseUIComponentProps<'div', CollapsibleRootOwnerState>,
+    Pick<UseCollapsibleContentParameters, 'htmlHidden'> {}
 
 export interface UseCollapsibleContentParameters {
+  /**
+   * The hidden state when closed
+   * @default 'hidden'
+   */
+  htmlHidden?: 'hidden' | 'until-found';
   id?: React.HTMLAttributes<Element>['id'];
   mounted: boolean;
   /**
@@ -13,6 +19,7 @@ export interface UseCollapsibleContentParameters {
   open: boolean;
   ref: React.Ref<HTMLElement>;
   setContentId: (id: string | undefined) => void;
+  setOpen: (nextOpen: boolean) => void;
   setMounted: (nextMounted: boolean) => void;
 }
 

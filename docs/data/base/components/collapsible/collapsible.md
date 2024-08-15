@@ -50,12 +50,32 @@ import * as Collapsible from '@base_ui/react/Collapsible';
 - `<Collapsible.Trigger />` is the trigger element, a `<button>` by default, that toggles the open/closed state of the content
 - `<Collapsible.Content />` is component that contains the Collapsible's content
 
-```tsx
+```js
 <Collapsible.Root>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
   <Collapsible.Content>This is the content</Collapsible.Content>
 </Collapsible.Root>
 ```
+
+## Improving searchability of hidden content
+
+:::warning
+This is [not yet supported](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) in Safari and Firefox as of August 2024 and will fall back to the default `hidden` behavior.
+:::
+
+Content hidden in the `Collapsible.Content` component can be made accessible only to a browser's find-in-page functionality with the `htmlHidden` prop to improve searchability:
+
+```js
+<Collapsible.Root defaultOpen={false}>
+  <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+  <Collapsible.Content htmlHidden="until-found">
+    When this component is closed, this sentence will only be accessible to the
+    browser's native find-in-page functionality
+  </Collapsible.Content>
+</Collapsible.Root>
+```
+
+This relies on the HTML `hidden="until-found"` attribute which only has [partial browser support](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) as of August 2024, but will fall back to the default `hidden` state in unsupported browsers.
 
 ## Animations
 
