@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { SelectRootContext } from './SelectRootContext';
-import { MenuDirection, MenuOrientation, useSelectRoot } from './useSelectRoot';
+import { useSelectRoot } from './useSelectRoot';
 
 function SelectRoot(props: SelectRoot.Props) {
   const {
@@ -13,7 +13,6 @@ function SelectRoot(props: SelectRoot.Props) {
     loop = true,
     onOpenChange,
     open,
-    orientation = 'vertical',
   } = props;
 
   const selectRoot = useSelectRoot({
@@ -23,7 +22,6 @@ function SelectRoot(props: SelectRoot.Props) {
     loop,
     defaultOpen,
     open,
-    orientation,
   });
 
   const [clickAndDragEnabled, setClickAndDragEnabled] = React.useState(false);
@@ -72,18 +70,6 @@ namespace SelectRoot {
      */
     open?: boolean;
     /**
-     * The orientation of the Menu (horizontal or vertical).
-     *
-     * @default 'vertical'
-     */
-    orientation?: MenuOrientation;
-    /**
-     * The direction of the Menu (left-to-right or right-to-left).
-     *
-     * @default 'ltr'
-     */
-    dir?: MenuDirection;
-    /**
      * If `true`, the Menu is disabled.
      *
      * @default false
@@ -115,12 +101,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The direction of the Menu (left-to-right or right-to-left).
-   *
-   * @default 'ltr'
-   */
-  dir: PropTypes.oneOf(['ltr', 'rtl']),
-  /**
    * If `true`, the Menu is disabled.
    *
    * @default false
@@ -140,12 +120,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * This is a controlled counterpart of `defaultOpen`.
    */
   open: PropTypes.bool,
-  /**
-   * The orientation of the Menu (horizontal or vertical).
-   *
-   * @default 'vertical'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
 } as any;
 
 export { SelectRoot };

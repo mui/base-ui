@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
+import { getTarget } from '@floating-ui/react/utils';
 import { useButton } from '../../useButton/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 
 /**
  *
@@ -15,20 +17,16 @@ import { useForkRef } from '../../utils/useForkRef';
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
-  const {
-    disabled = false,
-    rootRef: externalRef,
-    open,
-    setOpen,
-    setTriggerElement,
-    setClickAndDragEnabled,
-  } = parameters;
+  const { disabled = false, rootRef: externalRef } = parameters;
+
+  const { selectedValue, open, setOpen, setClickAndDragEnabled, setTriggerElement } =
+    useSelectRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
-  const { getRootProps: getButtonRootProps, rootRef: buttonRootRef } = useButton({
+  const { getRootProps: getButtonProps, rootRef: buttonRootRef } = useButton({
     disabled,
     focusableWhenDisabled: false,
     rootRef: mergedRef,
@@ -37,14 +35,14 @@ export function useSelectTrigger(
   const handleRef = useForkRef(buttonRootRef, setTriggerElement);
   const ignoreNextClickRef = React.useRef(false);
 
-  const getRootProps = React.useCallback(
+  const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
-        externalProps,
+      return mergeReactProps<'div'>(
+        { ...externalProps, children: selectedValue ?? externalProps?.children },
         {
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
-          onMouseDown: (event: MouseEvent) => {
+          onMouseDown(event) {
             if (open) {
               return;
             }
@@ -54,7 +52,9 @@ export function useSelectTrigger(
             event.preventDefault();
 
             setClickAndDragEnabled(true);
-            const mousedownTarget = event.target as Element;
+
+            const mousedownTarget = getTarget(event.nativeEvent) as Element | null;
+            const doc = ownerDocument(mousedownTarget);
 
             function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {
               const mouseupTarget = mouseUpEvent.target as HTMLElement;
@@ -68,29 +68,29 @@ export function useSelectTrigger(
               }
 
               setClickAndDragEnabled(false);
-              ownerDocument(mousedownTarget).removeEventListener('mouseup', handleDocumentMouseUp);
+              doc.removeEventListener('mouseup', handleDocumentMouseUp);
             }
 
-            ownerDocument(mousedownTarget).addEventListener('mouseup', handleDocumentMouseUp);
+            doc.addEventListener('mouseup', handleDocumentMouseUp);
           },
-          onClick: () => {
+          onClick() {
             if (ignoreNextClickRef.current) {
               ignoreNextClickRef.current = false;
             }
           },
         },
-        getButtonRootProps(),
+        getButtonProps(),
       );
     },
-    [getButtonRootProps, handleRef, open, setOpen, setClickAndDragEnabled],
+    [selectedValue, handleRef, getButtonProps, open, setClickAndDragEnabled, setOpen],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      getTriggerProps,
       rootRef: handleRef,
     }),
-    [getRootProps, handleRef],
+    [getTriggerProps, handleRef],
   );
 }
 
@@ -105,34 +105,10 @@ export namespace useSelectTrigger {
      * The ref to the root element.
      */
     rootRef?: React.Ref<HTMLElement>;
-    /**
-     * A callback to set the trigger element whenever it's mounted.
-     */
-    setTriggerElement: (element: HTMLElement | null) => void;
-    /**
-     * If `true`, the Menu is open.
-     */
-    open: boolean;
-    /**
-     * A callback to set the open state of the Menu.
-     */
-    setOpen: (open: boolean, event: Event | undefined) => void;
-    /**
-     * A callback to enable/disable click and drag functionality.
-     */
-    setClickAndDragEnabled: (enabled: boolean) => void;
   }
 
   export interface ReturnValue {
-    /**
-     * Resolver for the root slot's props.
-     * @param externalProps props for the root slot
-     * @returns props that should be spread on the root slot
-     */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    /**
-     * The ref to the root element.
-     */
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

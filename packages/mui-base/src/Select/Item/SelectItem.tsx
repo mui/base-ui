@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useListItem } from '@floating-ui/react';
+import { UseInteractionsReturn, useListItem } from '@floating-ui/react';
 import { useSelectItem } from './useSelectItem';
-import { useSelectRootContext } from '../Root/SelectRootContext';
+import { SelectRootContext, useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 const InnerSelectItem = React.memo(
   React.forwardRef(function InnerSelectItem(
@@ -19,32 +20,47 @@ const InnerSelectItem = React.memo(
       closeOnClick = true,
       disabled = false,
       highlighted,
+      selected,
       id,
-      propGetter,
+      getItemProps: getRootItemProps,
       render,
       treatMouseupAsClick,
+      setOpen,
+      typingRef,
+      handleSelect,
       ...otherProps
     } = props;
 
-    const { getRootProps } = useSelectItem({
+    const { getItemProps } = useSelectItem({
+      setOpen,
       closeOnClick,
       disabled,
       highlighted,
       id,
       ref: forwardedRef,
       treatMouseupAsClick,
+      typingRef,
+      handleSelect,
     });
 
     const ownerState: SelectItem.OwnerState = React.useMemo(
-      () => ({ disabled, highlighted }),
-      [disabled, highlighted],
+      () => ({ disabled, highlighted, selected }),
+      [disabled, highlighted, selected],
     );
 
     const { renderElement } = useComponentRenderer({
       render: render ?? 'div',
       className,
       ownerState,
-      propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
+      propGetter: (externalProps) => {
+        // Preserve the component prop `id` if it's provided.
+        const { id: idProp, ...rootItemProps } = getRootItemProps({
+          ...externalProps,
+          selected,
+          active: highlighted,
+        });
+        return getItemProps(rootItemProps);
+      },
       extraProps: otherProps,
     });
 
@@ -67,17 +83,30 @@ const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, ...other } = props;
+  const { id: idProp, label, ...otherProps } = props;
 
-  const { getItemProps, activeIndex, clickAndDragEnabled } = useSelectRootContext();
+  const {
+    getItemProps,
+    activeIndex,
+    selectedIndex,
+    clickAndDragEnabled,
+    setOpen,
+    typingRef,
+    setSelectedIndex,
+  } = useSelectRootContext();
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useListItem({ label: label ?? itemRef.current?.textContent });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
+  const selected = listItem.index === selectedIndex;
+
+  const handleSelect = useEventCallback(() => {
+    setSelectedIndex(listItem.index);
+  });
 
   // This wrapper component is used as a performance optimization.
   // SelectItem reads the context and re-renders the actual SelectItem
@@ -85,27 +114,36 @@ const SelectItem = React.forwardRef(function SelectItem(
 
   return (
     <InnerSelectItem
-      {...other}
+      {...otherProps}
       id={id}
       ref={mergedRef}
       highlighted={highlighted}
-      propGetter={getItemProps}
+      handleSelect={handleSelect}
+      setOpen={setOpen}
+      selected={selected}
+      getItemProps={getItemProps}
       treatMouseupAsClick={clickAndDragEnabled}
+      typingRef={typingRef}
     />
   );
 });
 
 interface InnerSelectItemProps extends SelectItem.Props {
   highlighted: boolean;
-  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  selected: boolean;
+  getItemProps: UseInteractionsReturn['getItemProps'];
   treatMouseupAsClick: boolean;
+  setOpen: SelectRootContext['setOpen'];
+  typingRef: React.MutableRefObject<boolean>;
+  handleSelect: () => void;
 }
 
 namespace SelectItem {
-  export type OwnerState = {
+  export interface OwnerState {
     disabled: boolean;
     highlighted: boolean;
-  };
+    selected: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;

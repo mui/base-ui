@@ -11,24 +11,17 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, label, ...other } = props;
+  const { render, className, disabled = false, label, ...otherProps } = props;
 
   const {
-    getTriggerProps,
-    disabled: menuDisabled,
-    setTriggerElement,
+    getTriggerProps: getRootTriggerProps,
+    disabled: selectDisabled,
     open,
-    setOpen,
-    setClickAndDragEnabled,
   } = useSelectRootContext();
 
-  const { getRootProps } = useSelectTrigger({
-    disabled: disabled || menuDisabled,
+  const { getTriggerProps } = useSelectTrigger({
+    disabled: disabled || selectDisabled,
     rootRef: forwardedRef,
-    setTriggerElement,
-    open,
-    setOpen,
-    setClickAndDragEnabled,
   });
 
   const ownerState: SelectTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
@@ -37,9 +30,9 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     render: render ?? 'button',
     className,
     ownerState,
-    propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
+    propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
     customStyleHookMapping: commonStyleHooks,
-    extraProps: other,
+    extraProps: otherProps,
   });
 
   return renderElement();
@@ -64,9 +57,9 @@ namespace SelectTrigger {
     label?: string;
   }
 
-  export type OwnerState = {
+  export interface OwnerState {
     open: boolean;
-  };
+  }
 }
 
 SelectTrigger.propTypes /* remove-proptypes */ = {

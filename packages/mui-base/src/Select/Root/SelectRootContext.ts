@@ -6,6 +6,7 @@ export interface SelectRootContext extends useSelectRoot.ReturnValue {
   disabled: boolean;
   clickAndDragEnabled: boolean;
   setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  typingRef: React.MutableRefObject<boolean>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

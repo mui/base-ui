@@ -57,8 +57,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     floatingRootContext,
     getPositionerProps,
     setPositionerElement,
-    itemDomElements,
-    itemLabels,
+    elementsRef,
+    labelsRef,
     triggerElement,
     mounted,
   } = useSelectRootContext();
@@ -133,7 +133,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <SelectPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
-        <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
+        <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
           <FloatingPortal root={props.container}>
             <FloatingFocusManager
               context={positioner.floatingContext}

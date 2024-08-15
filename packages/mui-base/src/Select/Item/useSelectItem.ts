@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../useButton';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { SelectRootContext } from '../Root/SelectRootContext';
 
 /**
  *
@@ -11,7 +12,16 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useSelectItem API](https://mui.com/base-ui/api/use-select-item/)
  */
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
-  const { disabled = false, highlighted, id, ref: externalRef, treatMouseupAsClick } = params;
+  const {
+    disabled = false,
+    highlighted,
+    id,
+    ref: externalRef,
+    treatMouseupAsClick,
+    setOpen,
+    typingRef,
+    handleSelect,
+  } = params;
 
   const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
     disabled,
@@ -19,45 +29,52 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     rootRef: externalRef,
   });
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
-        mergeReactProps(externalProps, {
-          'data-handle-mouseup': treatMouseupAsClick || undefined,
+        mergeReactProps<'div'>(externalProps, {
+          ['data-handle-mouseup' as string]: treatMouseupAsClick || undefined,
           id,
-          role: 'SelectItem',
           tabIndex: highlighted ? 0 : -1,
+          onClick(event) {
+            if (typingRef.current) {
+              return;
+            }
+
+            handleSelect();
+            setOpen(false, event.nativeEvent);
+          },
         }),
       );
     },
-    [getButtonProps, highlighted, id, treatMouseupAsClick],
+    [getButtonProps, handleSelect, highlighted, id, setOpen, treatMouseupAsClick, typingRef],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      getItemProps,
       rootRef: mergedRef,
     }),
-    [getRootProps, mergedRef],
+    [getItemProps, mergedRef],
   );
 }
 
 export namespace useSelectItem {
   export interface Parameters {
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * If `true`, the select will close when the select item is clicked.
      */
     closeOnClick: boolean;
     /**
-     * If `true`, the menu item will be disabled.
+     * If `true`, the select item will be disabled.
      */
     disabled: boolean;
     /**
-     * Determines if the menu item is highlighted.
+     * Determines if the select item is highlighted.
      */
     highlighted: boolean;
     /**
-     * The id of the menu item.
+     * The id of the select item.
      */
     id: string | undefined;
     /**
@@ -65,21 +82,16 @@ export namespace useSelectItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     * If `true`, the select item will listen for mouseup events and treat them as clicks.
      */
     treatMouseupAsClick: boolean;
+    setOpen: SelectRootContext['setOpen'];
+    typingRef: React.MutableRefObject<boolean>;
+    handleSelect: () => void;
   }
 
   export interface ReturnValue {
-    /**
-     * Resolver for the root slot's props.
-     * @param externalProps event handlers for the root slot
-     * @returns props that should be spread on the root slot
-     */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    /**
-     * The ref to the component's root DOM element.
-     */
+    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

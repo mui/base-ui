@@ -5,6 +5,7 @@ import {
   useDismiss,
   useFloatingRootContext,
   useInteractions,
+  UseInteractionsReturn,
   useListNavigation,
   useRole,
   useTypeahead,
@@ -30,22 +31,42 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     open: openParam,
     defaultOpen,
     onOpenChange,
-    orientation,
     disabled,
     loop,
+    value,
+    onValueChange,
+    defaultValue,
   } = params;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const popupRef = React.useRef<HTMLElement>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+  const [selectedIndex, setSelectedIndexUnwrapped] = React.useState<number | null>(null);
+
+  const popupRef = React.useRef<HTMLElement>(null);
+  const typingRef = React.useRef(false);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
     default: defaultOpen,
-    name: 'useSelectRoot',
+    name: 'Select',
     state: 'open',
+  });
+
+  const [selectedValue, setSelectedValueUnwrapped] = useControlled({
+    controlled: value,
+    default: defaultValue,
+    name: 'Select',
+    state: 'selectedValue',
+  });
+
+  const setSelectedIndex = useEventCallback((index: number | null) => {
+    const nextValue = index === null ? '' : labelsRef.current[index] || '';
+    setSelectedIndexUnwrapped(index);
+    setSelectedValueUnwrapped(nextValue);
+    onValueChange?.(nextValue);
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
@@ -77,31 +98,32 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingRootContext);
+  const dismiss = useDismiss(floatingRootContext, {
+    enabled: !disabled,
+  });
 
   const role = useRole(floatingRootContext, {
     role: 'select',
   });
 
-  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
-  const itemLabels = React.useRef<(string | null)[]>([]);
-
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
-    listRef: itemDomElements,
+    listRef: elementsRef,
+    disabledIndices: EMPTY_ARRAY,
     activeIndex,
     selectedIndex,
     loop,
-    orientation,
-    disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
   });
 
   const typeahead = useTypeahead(floatingRootContext, {
-    listRef: itemLabels,
+    listRef: labelsRef,
     activeIndex,
     resetMs: 350,
-    onMatch: open ? setActiveIndex : undefined,
+    onMatch: open ? setActiveIndex : setSelectedIndex,
+    onTypingChange(typing) {
+      typingRef.current = typing;
+    },
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
@@ -128,6 +150,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setActiveIndex,
       selectedIndex,
       setSelectedIndex,
+      selectedValue,
       floatingRootContext,
       triggerElement,
       setTriggerElement,
@@ -135,24 +158,25 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setPositionerElement,
       getPositionerProps,
       getItemProps,
-      itemDomElements,
-      itemLabels,
+      elementsRef,
+      labelsRef,
       mounted,
       transitionStatus,
       popupRef,
       open,
       setOpen,
+      typingRef,
     }),
     [
       activeIndex,
       selectedIndex,
+      setSelectedIndex,
+      selectedValue,
       floatingRootContext,
       triggerElement,
       getTriggerProps,
       getPositionerProps,
       getItemProps,
-      itemDomElements,
-      itemLabels,
       mounted,
       transitionStatus,
       open,
@@ -161,19 +185,15 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   );
 }
 
-export type MenuOrientation = 'horizontal' | 'vertical';
-
-export type MenuDirection = 'ltr' | 'rtl';
-
 export namespace useSelectRoot {
   export interface Parameters {
     /**
-     * If `true`, the Menu supports CSS-based animations and transitions.
+     * If `true`, the Select supports CSS-based animations and transitions.
      * It is kept in the DOM until the animation completes.
      */
     animated: boolean;
     /**
-     * Allows to control whether the Menu is open.
+     * Allows to control whether the Select is open.
      * This is a controlled counterpart of `defaultOpen`.
      */
     open: boolean | undefined;
@@ -182,7 +202,7 @@ export namespace useSelectRoot {
      */
     onOpenChange: ((open: boolean, event: Event | undefined) => void) | undefined;
     /**
-     * If `true`, the Menu is initially open.
+     * If `true`, the Select is initially open.
      */
     defaultOpen: boolean;
     /**
@@ -190,26 +210,26 @@ export namespace useSelectRoot {
      */
     loop: boolean;
     /**
-     * The orientation of the Menu (horizontal or vertical).
-     */
-    orientation: MenuOrientation;
-    /**
-     * If `true`, the Menu is disabled.
+     * If `true`, the Select is disabled.
      */
     disabled: boolean;
+    value?: string;
+    onValueChange?: (value: string) => void;
+    defaultValue?: string;
   }
 
   export interface ReturnValue {
     activeIndex: number | null;
     setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
     selectedIndex: number | null;
-    setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>;
+    setSelectedIndex: (index: number | null) => void;
+    selectedValue: string | null;
     floatingRootContext: FloatingRootContext;
-    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getItemProps: UseInteractionsReturn['getItemProps'];
     getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
-    itemLabels: React.MutableRefObject<(string | null)[]>;
+    elementsRef: React.MutableRefObject<(HTMLElement | null)[]>;
+    labelsRef: React.MutableRefObject<(string | null)[]>;
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
@@ -218,5 +238,6 @@ export namespace useSelectRoot {
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: 'entering' | 'exiting' | undefined;
     triggerElement: HTMLElement | null;
+    typingRef: React.MutableRefObject<boolean>;
   }
 }
