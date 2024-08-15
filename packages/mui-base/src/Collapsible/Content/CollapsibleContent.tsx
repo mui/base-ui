@@ -13,10 +13,11 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
 ) {
   const { className, htmlHidden, render, ...otherProps } = props;
 
-  const { mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
+  const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
     useCollapsibleContext();
 
   const { getRootProps, height } = useCollapsibleContent({
+    animated,
     htmlHidden,
     id: contentId,
     mounted,
@@ -57,6 +58,11 @@ CollapsibleContent.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * The hidden state when closed
+   * @default 'hidden'
+   */
+  htmlHidden: PropTypes.oneOf(['hidden', 'until-found']),
   /**
    * A function to customize rendering of the component.
    */

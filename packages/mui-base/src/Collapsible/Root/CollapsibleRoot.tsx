@@ -6,9 +6,10 @@ import { CollapsibleContext } from './CollapsibleContext';
 import { CollapsibleContextValue, CollapsibleRootProps } from './CollapsibleRoot.types';
 
 function CollapsibleRoot(props: CollapsibleRootProps) {
-  const { open, defaultOpen, onOpenChange, disabled, children } = props;
+  const { animated, open, defaultOpen, onOpenChange, disabled, children } = props;
 
   const collapsible = useCollapsibleRoot({
+    animated,
     open,
     defaultOpen,
     onOpenChange,
@@ -35,6 +36,11 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * If `true`, the component supports CSS/JS-based animations and transitions.
+   * @default true
+   */
+  animated: PropTypes.bool,
   /**
    * @ignore
    */

@@ -28,7 +28,10 @@ function supportsHiddenUntilFound(element: HTMLElement) {
       typeof CSS.supports === 'function' &&
       CSS.supports('content-visibility', 'hidden');
     const supportsOnBeforeMatch = 'onbeforematch' in ownerWindow(element);
-    cachedSupportsHiddenUntilFound = supportsCssContentVisibility && supportsOnBeforeMatch;
+    cachedSupportsHiddenUntilFound =
+      process.env.NODE_ENV === 'test'
+        ? supportsOnBeforeMatch
+        : supportsCssContentVisibility && supportsOnBeforeMatch;
   }
   return cachedSupportsHiddenUntilFound;
 }
@@ -47,6 +50,7 @@ function useCollapsibleContent(
   parameters: UseCollapsibleContentParameters,
 ): UseCollapsibleContentReturnValue {
   const {
+    animated = false,
     htmlHidden = 'hidden',
     id: idParam,
     open,
@@ -92,7 +96,7 @@ function useCollapsibleContent(
 
   const runOnceAnimationsFinish = useAnimationsFinished(contentRef);
 
-  const isOpen = open || contextMounted;
+  const isOpen = animated ? open || contextMounted : open;
 
   const isInitialOpenRef = React.useRef(isOpen);
 
@@ -242,7 +246,7 @@ function useCollapsibleContent(
   // There is a bug in react that forces string values for the `hidden` attribute to a boolean
   // so we have to force it back to `'until-found'` in the DOM when applicable
   // https://github.com/facebook/react/issues/24740
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     const { current: element } = contentRef;
 
     if (

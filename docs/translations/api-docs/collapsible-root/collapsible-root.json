@@ -1,6 +1,9 @@
 {
   "componentDescription": "",
   "propDescriptions": {
+    "animated": {
+      "description": "If <code>true</code>, the component supports CSS/JS-based animations and transitions."
+    },
     "defaultOpen": {
       "description": "If <code>true</code>, the Collapsible is initially open. This is the uncontrolled counterpart of <code>open</code>."
     },

@@ -7,6 +7,11 @@ export interface CollapsibleContentProps
 
 export interface UseCollapsibleContentParameters {
   /**
+   * If `true`, the component supports CSS/JS-based animations and transitions.
+   * @default false
+   */
+  animated?: boolean;
+  /**
    * The hidden state when closed
    * @default 'hidden'
    */

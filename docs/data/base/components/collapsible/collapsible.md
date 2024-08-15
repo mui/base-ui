@@ -75,7 +75,7 @@ Content hidden in the `Collapsible.Content` component can be made accessible onl
 </Collapsible.Root>
 ```
 
-This relies on the HTML `hidden="until-found"` attribute which only has [partial browser support](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) as of August 2024, but will fall back to the default `hidden` state in unsupported browsers.
+This relies on the HTML `hidden="until-found"` attribute which only has [partial browser support](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) as of August 2024, but automatically falls back to the default `hidden` state in unsupported browsers.
 
 ## Animations
 

@@ -6,6 +6,7 @@ import { describeConformance } from '../../../test/describeConformance';
 import type { CollapsibleContextValue } from '../Root/CollapsibleRoot.types';
 
 const contextValue: CollapsibleContextValue = {
+  animated: false,
   contentId: 'ContentId',
   disabled: false,
   mounted: true,

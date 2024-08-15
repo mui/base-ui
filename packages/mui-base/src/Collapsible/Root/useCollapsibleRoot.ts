@@ -21,7 +21,13 @@ import {
 function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen = true, onOpenChange, disabled = false } = parameters;
+  const {
+    animated = true,
+    open: openParam,
+    defaultOpen = true,
+    onOpenChange,
+    disabled = false,
+  } = parameters;
 
   const [open, setOpenState] = useControlled({
     controlled: openParam,
@@ -30,7 +36,7 @@ function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true); // TODO: the 2nd argument should be an `animated` prop?
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
   const [contentId, setContentId] = React.useState<string | undefined>(useId());
 
@@ -41,6 +47,7 @@ function useCollapsibleRoot(
 
   return React.useMemo(
     () => ({
+      animated,
       contentId,
       disabled,
       mounted,
@@ -50,7 +57,17 @@ function useCollapsibleRoot(
       setOpen,
       transitionStatus,
     }),
-    [contentId, disabled, mounted, open, setContentId, setMounted, setOpen, transitionStatus],
+    [
+      animated,
+      contentId,
+      disabled,
+      mounted,
+      open,
+      setContentId,
+      setMounted,
+      setOpen,
+      transitionStatus,
+    ],
   );
 }
 

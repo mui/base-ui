@@ -15,6 +15,11 @@ export interface CollapsibleRootProps extends UseCollapsibleRootParameters {
 
 export interface UseCollapsibleRootParameters {
   /**
+   * If `true`, the component supports CSS/JS-based animations and transitions.
+   * @default true
+   */
+  animated?: boolean;
+  /**
    * If `true`, the Collapsible is initially open.
    * This is the controlled counterpart of `defaultOpen`.
    */
@@ -37,6 +42,7 @@ export interface UseCollapsibleRootParameters {
 }
 
 export interface UseCollapsibleRootReturnValue {
+  animated: boolean;
   contentId: React.HTMLAttributes<Element>['id'];
   /**
    * The disabled state of the Collapsible
