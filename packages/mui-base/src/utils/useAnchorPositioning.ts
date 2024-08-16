@@ -17,6 +17,7 @@ import {
   type VirtualElement,
   type Padding,
   type FloatingContext,
+  type Middleware,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
@@ -47,6 +48,8 @@ interface UseAnchorPositioningParameters {
   mounted?: boolean;
   trackAnchor?: boolean;
   nodeId?: string;
+  inner?: Middleware;
+  allowAxisFlip?: boolean;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -86,7 +89,9 @@ export function useAnchorPositioning(
     arrowPadding = 5,
     mounted = true,
     trackAnchor = true,
+    allowAxisFlip = true,
     nodeId,
+    inner: innerMiddleware,
   } = params;
 
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
@@ -111,7 +116,7 @@ export function useAnchorPositioning(
 
   const flipMiddleware = flip({
     ...commonCollisionProps,
-    fallbackAxisSideDirection,
+    fallbackAxisSideDirection: allowAxisFlip ? fallbackAxisSideDirection : 'none',
   });
   const shiftMiddleware = shift({
     ...commonCollisionProps,
@@ -130,26 +135,29 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (alignment !== 'center') {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
-    middleware.push(shiftMiddleware, flipMiddleware);
+  if (!innerMiddleware) {
+    if (alignment !== 'center') {
+      middleware.push(flipMiddleware, shiftMiddleware);
+    } else {
+      middleware.push(shiftMiddleware, flipMiddleware);
+    }
   }
 
   middleware.push(
-    size({
-      ...commonCollisionProps,
-      apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
-        Object.entries({
-          '--available-width': `${availableWidth}px`,
-          '--available-height': `${availableHeight}px`,
-          '--anchor-width': `${reference.width}px`,
-          '--anchor-height': `${reference.height}px`,
-        }).forEach(([key, value]) => {
-          floating.style.setProperty(key, value);
-        });
-      },
-    }),
+    innerMiddleware ??
+      size({
+        ...commonCollisionProps,
+        apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
+          Object.entries({
+            '--available-width': `${availableWidth}px`,
+            '--available-height': `${availableHeight}px`,
+            '--anchor-width': `${reference.width}px`,
+            '--anchor-height': `${reference.height}px`,
+          }).forEach(([key, value]) => {
+            floating.style.setProperty(key, value);
+          });
+        },
+      }),
     arrow(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,

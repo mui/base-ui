@@ -24,16 +24,12 @@ function SelectRoot(props: SelectRoot.Props) {
     open,
   });
 
-  const [clickAndDragEnabled, setClickAndDragEnabled] = React.useState(false);
-
   const context: SelectRootContext = React.useMemo(
     () => ({
       ...selectRoot,
       disabled,
-      clickAndDragEnabled,
-      setClickAndDragEnabled,
     }),
-    [selectRoot, disabled, clickAndDragEnabled, setClickAndDragEnabled],
+    [selectRoot, disabled],
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;

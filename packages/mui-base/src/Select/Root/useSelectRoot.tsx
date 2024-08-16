@@ -4,12 +4,14 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
+  useInnerOffset,
   useInteractions,
   UseInteractionsReturn,
   useListNavigation,
   useRole,
   useTypeahead,
   type FloatingRootContext,
+  type SideObject,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -42,11 +44,15 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndexUnwrapped] = React.useState<number | null>(null);
+  const [innerOffset, setInnerOffset] = React.useState(0);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const typingRef = React.useRef(false);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
+  const selectionRef = React.useRef({ mouseUp: false, select: false });
+  const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
+  const selectedDelayedIndexRef = React.useRef<number | null>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -54,6 +60,10 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     name: 'Select',
     state: 'open',
   });
+
+  if (innerOffset !== 0 && !open) {
+    setInnerOffset(0);
+  }
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled({
     controlled: value,
@@ -64,22 +74,32 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
 
   const setSelectedIndex = useEventCallback((index: number | null) => {
     const nextValue = index === null ? '' : labelsRef.current[index] || '';
-    setSelectedIndexUnwrapped(index);
     setSelectedValueUnwrapped(nextValue);
     onValueChange?.(nextValue);
+
+    // Wait for any close animations to finish before updating the selected index so that the
+    // inner item anchoring is delayed until the popup is closed.
+    selectedDelayedIndexRef.current = index;
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
+
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+
+    function handleUnmounted() {
+      setMounted(false);
+      setSelectedIndexUnwrapped(selectedDelayedIndexRef.current);
+    }
+
     if (!nextOpen) {
       if (animated) {
-        runOnceAnimationsFinish(() => setMounted(false));
+        runOnceAnimationsFinish(handleUnmounted);
       } else {
-        setMounted(false);
+        handleUnmounted();
       }
     }
   });
@@ -119,11 +139,17 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const typeahead = useTypeahead(floatingRootContext, {
     listRef: labelsRef,
     activeIndex,
-    resetMs: 350,
+    resetMs: 500,
     onMatch: open ? setActiveIndex : setSelectedIndex,
     onTypingChange(typing) {
       typingRef.current = typing;
     },
+  });
+
+  const innerOffsetInteractionProps = useInnerOffset(floatingRootContext, {
+    onChange: setInnerOffset,
+    overflowRef,
+    scrollRef: popupRef,
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
@@ -132,6 +158,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     role,
     listNavigation,
     typeahead,
+    innerOffsetInteractionProps,
   ]);
 
   const getTriggerProps = React.useCallback(
@@ -139,7 +166,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     [getReferenceProps],
   );
 
-  const getPositionerProps = React.useCallback(
+  const getPopupProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => getFloatingProps(externalProps),
     [getFloatingProps],
   );
@@ -156,7 +183,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setTriggerElement,
       getTriggerProps,
       setPositionerElement,
-      getPositionerProps,
+      getPopupProps,
       getItemProps,
       elementsRef,
       labelsRef,
@@ -166,6 +193,9 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       open,
       setOpen,
       typingRef,
+      selectionRef,
+      overflowRef,
+      innerOffset,
     }),
     [
       activeIndex,
@@ -175,12 +205,13 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       floatingRootContext,
       triggerElement,
       getTriggerProps,
-      getPositionerProps,
+      getPopupProps,
       getItemProps,
       mounted,
       transitionStatus,
       open,
       setOpen,
+      innerOffset,
     ],
   );
 }
@@ -216,6 +247,7 @@ export namespace useSelectRoot {
     value?: string;
     onValueChange?: (value: string) => void;
     defaultValue?: string;
+    anchorToItem?: boolean;
   }
 
   export interface ReturnValue {
@@ -226,7 +258,7 @@ export namespace useSelectRoot {
     selectedValue: string | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: UseInteractionsReturn['getItemProps'];
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     elementsRef: React.MutableRefObject<(HTMLElement | null)[]>;
     labelsRef: React.MutableRefObject<(string | null)[]>;
@@ -239,5 +271,11 @@ export namespace useSelectRoot {
     transitionStatus: 'entering' | 'exiting' | undefined;
     triggerElement: HTMLElement | null;
     typingRef: React.MutableRefObject<boolean>;
+    selectionRef: React.MutableRefObject<{
+      mouseUp: boolean;
+      select: boolean;
+    }>;
+    innerOffset: number;
+    overflowRef: React.MutableRefObject<SideObject>;
   }
 }

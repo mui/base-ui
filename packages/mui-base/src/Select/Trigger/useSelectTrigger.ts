@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { getTarget } from '@floating-ui/react/utils';
+import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../useButton/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerDocument } from '../../utils/owner';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
+import { ownerDocument } from '../../utils/owner';
 
 /**
  *
@@ -19,10 +19,11 @@ export function useSelectTrigger(
 ): useSelectTrigger.ReturnValue {
   const { disabled = false, rootRef: externalRef } = parameters;
 
-  const { selectedValue, open, setOpen, setClickAndDragEnabled, setTriggerElement } =
+  const { selectedValue, open, setOpen, setTriggerElement, selectionRef, popupRef } =
     useSelectRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
+  const timeoutRef = React.useRef(-1);
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
@@ -33,11 +34,26 @@ export function useSelectTrigger(
   });
 
   const handleRef = useForkRef(buttonRootRef, setTriggerElement);
-  const ignoreNextClickRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (open) {
+      timeoutRef.current = window.setTimeout(() => {
+        selectionRef.current.select = true;
+      }, 300);
+
+      return () => {
+        window.clearTimeout(timeoutRef.current);
+      };
+    }
+
+    selectionRef.current.mouseUp = true;
+    selectionRef.current.select = false;
+    return undefined;
+  }, [open, selectionRef]);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps<'div'>(
+      return mergeReactProps<'button'>(
         { ...externalProps, children: selectedValue ?? externalProps?.children },
         {
           tabIndex: 0, // this is needed to make the button focused after click in Safari
@@ -47,42 +63,24 @@ export function useSelectTrigger(
               return;
             }
 
-            // prevents closing the menu right after it was opened
-            ignoreNextClickRef.current = true;
-            event.preventDefault();
+            const doc = ownerDocument(event.currentTarget);
 
-            setClickAndDragEnabled(true);
-
-            const mousedownTarget = getTarget(event.nativeEvent) as Element | null;
-            const doc = ownerDocument(mousedownTarget);
-
-            function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {
-              const mouseupTarget = mouseUpEvent.target as HTMLElement;
-              if (mouseupTarget?.dataset?.handleMouseup === 'true') {
-                mouseupTarget.click();
-              } else if (
-                mouseupTarget !== triggerRef.current &&
-                !triggerRef.current?.contains(mouseupTarget)
-              ) {
-                setOpen(false, mouseUpEvent);
+            function handleMouseUp(mouseEvent: MouseEvent) {
+              const target = mouseEvent.target as Element | null;
+              if (contains(popupRef.current, target) || contains(triggerRef.current, target)) {
+                return;
               }
 
-              setClickAndDragEnabled(false);
-              doc.removeEventListener('mouseup', handleDocumentMouseUp);
+              setOpen(false, mouseEvent);
             }
 
-            doc.addEventListener('mouseup', handleDocumentMouseUp);
-          },
-          onClick() {
-            if (ignoreNextClickRef.current) {
-              ignoreNextClickRef.current = false;
-            }
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
         },
         getButtonProps(),
       );
     },
-    [selectedValue, handleRef, getButtonProps, open, setClickAndDragEnabled, setOpen],
+    [selectedValue, handleRef, getButtonProps, open, popupRef, setOpen],
   );
 
   return React.useMemo(

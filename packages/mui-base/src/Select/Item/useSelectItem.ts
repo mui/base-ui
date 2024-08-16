@@ -4,6 +4,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../useButton';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { SelectRootContext } from '../Root/SelectRootContext';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  *
@@ -15,12 +16,13 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const {
     disabled = false,
     highlighted,
+    selected,
     id,
     ref: externalRef,
-    treatMouseupAsClick,
     setOpen,
     typingRef,
     handleSelect,
+    selectionRef,
   } = params;
 
   const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
@@ -29,25 +31,58 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     rootRef: externalRef,
   });
 
+  const commitSelection = useEventCallback((event: Event) => {
+    handleSelect();
+    setOpen(false, event);
+  });
+
+  const lastKeyRef = React.useRef<string | null>(null);
+
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
-          ['data-handle-mouseup' as string]: treatMouseupAsClick || undefined,
           id,
           tabIndex: highlighted ? 0 : -1,
+          onTouchStart() {
+            selectionRef.current = {
+              mouseUp: false,
+              select: true,
+            };
+          },
+          onKeyDown(event) {
+            selectionRef.current.select = true;
+            lastKeyRef.current = event.key;
+          },
           onClick(event) {
-            if (typingRef.current) {
+            if (lastKeyRef.current === ' ' && typingRef.current) {
               return;
             }
 
-            handleSelect();
-            setOpen(false, event.nativeEvent);
+            if (selectionRef.current.select) {
+              lastKeyRef.current = null;
+              commitSelection(event.nativeEvent);
+            }
+          },
+          onMouseUp(event) {
+            if (!selectionRef.current.mouseUp) {
+              return;
+            }
+
+            if (selected) {
+              if (selectionRef.current.select) {
+                commitSelection(event.nativeEvent);
+              }
+            } else {
+              commitSelection(event.nativeEvent);
+            }
+
+            selectionRef.current.select = true;
           },
         }),
       );
     },
-    [getButtonProps, handleSelect, highlighted, id, setOpen, treatMouseupAsClick, typingRef],
+    [commitSelection, getButtonProps, highlighted, id, selected, selectionRef, typingRef],
   );
 
   return React.useMemo(
@@ -74,6 +109,10 @@ export namespace useSelectItem {
      */
     highlighted: boolean;
     /**
+     * Determines if the select item is selected.
+     */
+    selected: boolean;
+    /**
      * The id of the select item.
      */
     id: string | undefined;
@@ -81,13 +120,13 @@ export namespace useSelectItem {
      * The ref of the trigger element.
      */
     ref?: React.Ref<Element>;
-    /**
-     * If `true`, the select item will listen for mouseup events and treat them as clicks.
-     */
-    treatMouseupAsClick: boolean;
     setOpen: SelectRootContext['setOpen'];
     typingRef: React.MutableRefObject<boolean>;
     handleSelect: () => void;
+    selectionRef: React.MutableRefObject<{
+      mouseUp: boolean;
+      select: boolean;
+    }>;
   }
 
   export interface ReturnValue {

@@ -4,8 +4,6 @@ import type { useSelectRoot } from './useSelectRoot';
 
 export interface SelectRootContext extends useSelectRoot.ReturnValue {
   disabled: boolean;
-  clickAndDragEnabled: boolean;
-  setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   typingRef: React.MutableRefObject<boolean>;
 }
 

@@ -24,10 +24,10 @@ const InnerSelectItem = React.memo(
       id,
       getItemProps: getRootItemProps,
       render,
-      treatMouseupAsClick,
       setOpen,
       typingRef,
       handleSelect,
+      selectionRef,
       ...otherProps
     } = props;
 
@@ -36,11 +36,12 @@ const InnerSelectItem = React.memo(
       closeOnClick,
       disabled,
       highlighted,
+      selected,
       id,
       ref: forwardedRef,
-      treatMouseupAsClick,
       typingRef,
       handleSelect,
+      selectionRef,
     });
 
     const ownerState: SelectItem.OwnerState = React.useMemo(
@@ -89,15 +90,15 @@ const SelectItem = React.forwardRef(function SelectItem(
     getItemProps,
     activeIndex,
     selectedIndex,
-    clickAndDragEnabled,
     setOpen,
     typingRef,
     setSelectedIndex,
+    selectionRef,
   } = useSelectRootContext();
 
-  const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.textContent });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const [item, setItem] = React.useState<Element | null>(null);
+  const listItem = useListItem({ label: label ?? item?.textContent });
+  const mergedRef = useForkRef(forwardedRef, listItem.ref, setItem);
 
   const id = useId(idProp);
 
@@ -119,10 +120,10 @@ const SelectItem = React.forwardRef(function SelectItem(
       ref={mergedRef}
       highlighted={highlighted}
       handleSelect={handleSelect}
+      selectionRef={selectionRef}
       setOpen={setOpen}
       selected={selected}
       getItemProps={getItemProps}
-      treatMouseupAsClick={clickAndDragEnabled}
       typingRef={typingRef}
     />
   );
@@ -132,10 +133,13 @@ interface InnerSelectItemProps extends SelectItem.Props {
   highlighted: boolean;
   selected: boolean;
   getItemProps: UseInteractionsReturn['getItemProps'];
-  treatMouseupAsClick: boolean;
   setOpen: SelectRootContext['setOpen'];
   typingRef: React.MutableRefObject<boolean>;
   handleSelect: () => void;
+  selectionRef: React.MutableRefObject<{
+    mouseUp: boolean;
+    select: boolean;
+  }>;
 }
 
 namespace SelectItem {

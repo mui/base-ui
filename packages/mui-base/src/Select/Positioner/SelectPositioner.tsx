@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import {
   FloatingFocusManager,
   FloatingList,
-  FloatingNode,
   FloatingPortal,
-  Side,
-  useFloatingNodeId,
+  inner,
+  type Side,
 } from '@floating-ui/react';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
@@ -16,7 +16,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectPositioner } from './useSelectPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 
 /**
  * Renders the element that positions the Select popup.
@@ -35,6 +34,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 ) {
   const {
     anchor,
+    anchorToItem = false,
     positionStrategy = 'absolute',
     className,
     render,
@@ -55,15 +55,16 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const {
     open,
     floatingRootContext,
-    getPositionerProps,
     setPositionerElement,
     elementsRef,
     labelsRef,
     triggerElement,
     mounted,
+    selectedIndex,
+    popupRef,
+    overflowRef,
+    innerOffset,
   } = useSelectRootContext();
-
-  const nodeId = useFloatingNodeId();
 
   const positioner = useSelectPositioner({
     anchor: anchor || triggerElement,
@@ -81,7 +82,21 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     hideWhenDetached,
     sticky,
-    nodeId,
+    allowAxisFlip: false,
+    inner:
+      anchorToItem && selectedIndex !== null
+        ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
+          // use or need this.
+          inner({
+            boundary: collisionBoundary,
+            padding: collisionPadding,
+            listRef: elementsRef,
+            index: selectedIndex,
+            scrollRef: popupRef,
+            offset: innerOffset,
+            overflowRef,
+          })
+        : undefined,
   });
 
   const ownerState: SelectPositioner.OwnerState = React.useMemo(
@@ -115,8 +130,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: (externalProps: GenericHTMLProps) =>
-      positioner.getPositionerProps(getPositionerProps(externalProps)),
+    propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
     ownerState,
@@ -132,19 +146,17 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   return (
     <SelectPositionerContext.Provider value={contextValue}>
-      <FloatingNode id={nodeId}>
-        <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
-          <FloatingPortal root={props.container}>
-            <FloatingFocusManager
-              context={positioner.floatingContext}
-              modal={false}
-              key={mounted.toString()}
-            >
-              {renderElement()}
-            </FloatingFocusManager>
-          </FloatingPortal>
-        </FloatingList>
-      </FloatingNode>
+      <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
+        <FloatingPortal root={props.container}>
+          <FloatingFocusManager
+            context={positioner.floatingContext}
+            modal={false}
+            key={mounted.toString()}
+          >
+            {renderElement()}
+          </FloatingFocusManager>
+        </FloatingPortal>
+      </FloatingList>
     </SelectPositionerContext.Provider>
   );
 });
@@ -160,7 +172,13 @@ export namespace SelectPositioner {
 
   export interface Props
     extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+      BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, positions the popup relative to the selected item inside it.
+     * @default false
+     */
+    anchorToItem?: boolean;
+  }
 }
 
 SelectPositioner.propTypes /* remove-proptypes */ = {
@@ -169,17 +187,17 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the Menu element to the anchor element along its cross axis.
+   * The alignment of the Select element to the anchor element along its cross axis.
    * @default 'center'
    */
   alignment: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Menu element along its alignment axis.
+   * The offset of the Select element along its alignment axis.
    * @default 0
    */
   alignmentOffset: PropTypes.number,
   /**
-   * The anchor element to which the Menu popup will be placed at.
+   * The anchor element to which the Select popup will be placed at.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -187,7 +205,12 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
+   * If `true`, positions the popup relative to the selected item inside it.
+   * @default false
+   */
+  anchorToItem: PropTypes.bool,
+  /**
+   * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
    * popup has rounded corners via `border-radius`.
    * @default 5
    */
@@ -201,7 +224,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the Menu element should be constrained to.
+   * The boundary that the Select element should be constrained to.
    * @default 'clippingAncestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -229,25 +252,25 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the Menu popup will be appended to.
+   * The container element to which the Select popup will be appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
     PropTypes.func,
   ]),
   /**
-   * If `true`, the Menu will be hidden if it is detached from its anchor element due to
+   * If `true`, the Select will be hidden if it is detached from its anchor element due to
    * differing clipping contexts.
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * Whether the menu popup remains mounted in the DOM while closed.
+   * Whether the select popup remains mounted in the DOM while closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the Menu popup element.
+   * The CSS position strategy for positioning the Select popup element.
    * @default 'absolute'
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
@@ -256,17 +279,17 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the Menu element should align to.
+   * The side of the anchor element that the Select element should align to.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the Menu element.
+   * The gap between the anchor element and the Select element.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
+   * If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out
    * of view.
    * @default false
    */

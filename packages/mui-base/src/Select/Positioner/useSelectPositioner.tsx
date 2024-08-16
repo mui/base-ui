@@ -6,6 +6,7 @@ import type {
   Boundary,
   FloatingRootContext,
   FloatingContext,
+  Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
@@ -42,12 +43,13 @@ export function useSelectPositioner(
         }
 
         return mergeReactProps(externalProps, {
+          tabIndex: -1,
+          inert: open ? undefined : 'true',
           style: {
             ...positionerStyles,
             ...hiddenStyles,
             zIndex: 2147483647, // max z-index
           },
-          'aria-hidden': !open || undefined,
         });
       },
       [positionerStyles, open, keepMounted, hidden],
@@ -78,11 +80,11 @@ export function useSelectPositioner(
 export namespace useSelectPositioner {
   export interface SharedParameters {
     /**
-     * If `true`, the Menu is open.
+     * If `true`, the Select is open.
      */
     open?: boolean;
     /**
-     * The anchor element to which the Menu popup will be placed at.
+     * The anchor element to which the Select popup will be placed at.
      */
     anchor?:
       | Element
@@ -91,36 +93,36 @@ export namespace useSelectPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * The CSS position strategy for positioning the Menu popup element.
+     * The CSS position strategy for positioning the Select popup element.
      * @default 'absolute'
      */
     positionStrategy?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Menu popup will be appended to.
+     * The container element to which the Select popup will be appended to.
      */
     container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
     /**
-     * The side of the anchor element that the Menu element should align to.
+     * The side of the anchor element that the Select element should align to.
      * @default 'bottom'
      */
     side?: Side;
     /**
-     * The gap between the anchor element and the Menu element.
+     * The gap between the anchor element and the Select element.
      * @default 0
      */
     sideOffset?: number;
     /**
-     * The alignment of the Menu element to the anchor element along its cross axis.
+     * The alignment of the Select element to the anchor element along its cross axis.
      * @default 'center'
      */
     alignment?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Menu element along its alignment axis.
+     * The offset of the Select element along its alignment axis.
      * @default 0
      */
     alignmentOffset?: number;
     /**
-     * The boundary that the Menu element should be constrained to.
+     * The boundary that the Select element should be constrained to.
      * @default 'clippingAncestors'
      */
     collisionBoundary?: Boundary;
@@ -130,24 +132,24 @@ export namespace useSelectPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * If `true`, the Menu will be hidden if it is detached from its anchor element due to
+     * If `true`, the Select will be hidden if it is detached from its anchor element due to
      * differing clipping contexts.
      * @default false
      */
     hideWhenDetached?: boolean;
     /**
-     * Whether the menu popup remains mounted in the DOM while closed.
+     * Whether the select popup remains mounted in the DOM while closed.
      * @default false
      */
     keepMounted?: boolean;
     /**
-     * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
+     * If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out
      * of view.
      * @default false
      */
     sticky?: boolean;
     /**
-     * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
+     * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
      * popup has rounded corners via `border-radius`.
      * @default 5
      */
@@ -156,27 +158,37 @@ export namespace useSelectPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
-     * If `true`, the Menu is mounted.
+     * If `true`, the Select is mounted.
      * @default true
      */
     mounted?: boolean;
     /**
-     * The Menu root context.
+     * The Select root context.
      */
     floatingRootContext?: FloatingRootContext;
     /**
      * Floating node id.
      */
     nodeId?: string;
+    /**
+     * If specified, positions the popup relative to the selected item inside it.
+     */
+    inner?: Middleware;
+    /**
+     * Whether the floating element can flip to the perpendicular axis if it cannot fit in the
+     * viewport.
+     * @default true
+     */
+    allowAxisFlip?: boolean;
   }
 
   export interface ReturnValue {
     /**
-     * Props to spread on the Menu positioner element.
+     * Props to spread on the Select positioner element.
      */
     getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * The ref of the Menu arrow element.
+     * The ref of the Select arrow element.
      */
     arrowRef: React.MutableRefObject<Element | null>;
     /**
@@ -184,15 +196,15 @@ export namespace useSelectPositioner {
      */
     arrowUncentered: boolean;
     /**
-     * The rendered side of the Menu element.
+     * The rendered side of the Select element.
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the Menu element.
+     * The rendered alignment of the Select element.
      */
     alignment: 'start' | 'end' | 'center';
     /**
-     * The styles to apply to the Menu arrow element.
+     * The styles to apply to the Select arrow element.
      */
     arrowStyles: React.CSSProperties;
     /**

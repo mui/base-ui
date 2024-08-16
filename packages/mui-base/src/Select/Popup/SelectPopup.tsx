@@ -9,14 +9,15 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useSelectPopup } from './useSelectPopup';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
   ...commonStyleHooks,
   entering(value) {
-    return value ? { 'data-menu-entering': '' } : null;
+    return value ? { 'data-select-entering': '' } : null;
   },
   exiting(value) {
-    return value ? { 'data-menu-exiting': '' } : null;
+    return value ? { 'data-select-exiting': '' } : null;
   },
 };
 
@@ -24,9 +25,11 @@ const SelectPopup = React.forwardRef(function SelectPopup(
   props: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...otherProps } = props;
   const { open, popupRef, transitionStatus } = useSelectRootContext();
   const { side, alignment } = useSelectPositionerContext();
+
+  const { getPopupProps } = useSelectPopup();
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
@@ -42,12 +45,13 @@ const SelectPopup = React.forwardRef(function SelectPopup(
   );
 
   const { renderElement } = useComponentRenderer({
+    propGetter: getPopupProps,
     render: render ?? 'div',
+    ref: mergedRef,
     className,
     ownerState,
-    extraProps: other,
     customStyleHookMapping,
-    ref: mergedRef,
+    extraProps: otherProps,
   });
 
   return renderElement();
