@@ -108,6 +108,8 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
       theme: 'github-light',
     });
 
+    const jsLocalImports = getLocalImports(mainContent);
+
     languageVariants.push({
       name: variantName,
       language: 'js',
@@ -120,6 +122,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
           path: jsFilePath,
           type: 'js',
         },
+        ...(await getDependencyFiles(jsLocalImports, dirname(jsFilePath))),
       ],
     });
   }
