@@ -2,14 +2,12 @@ import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
-import { createRenderer } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Title />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Title />, () => ({
-    inheritComponent: 'h2',
     refInstanceof: window.HTMLHeadingElement,
     render(node) {
       return render(

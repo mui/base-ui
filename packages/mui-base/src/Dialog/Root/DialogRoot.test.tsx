@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
-import { createRenderer } from '../../../test';
+import { createRenderer } from '#test-utils';
 
 async function wait(timeout: number) {
   return new Promise<void>((resolve) => {
@@ -28,7 +28,7 @@ describe('<Dialog.Root />', () => {
       const button = getByRole('button');
       expect(queryByRole('dialog')).to.equal(null);
 
-      act(() => {
+      await act(() => {
         button.click();
       });
 
@@ -199,7 +199,7 @@ describe('<Dialog.Root />', () => {
       );
 
       const trigger = getByText('Open');
-      act(() => {
+      await act(() => {
         trigger.click();
       });
 

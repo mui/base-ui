@@ -29,7 +29,6 @@ describe('<Snackbar />', () => {
     </Snackbar>,
     () => ({
       classes,
-      inheritComponent: 'div',
       render,
       refInstanceof: window.HTMLDivElement,
       slots: {

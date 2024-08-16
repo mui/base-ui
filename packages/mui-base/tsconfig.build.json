@@ -6,6 +6,8 @@
     "composite": true,
     "declaration": true,
     "emitDeclarationOnly": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
     "outDir": "build"
