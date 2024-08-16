@@ -16,6 +16,12 @@ export async function Demo(props: DemoProps) {
 
   try {
     const demoVariants = await loadDemo(componentName, demo);
+    if (demoVariants.length === 0) {
+      return (
+        <div className={clsx(classes.error, className)}>No variants found for the {demo} demo.</div>
+      );
+    }
+
     return (
       <BaseDemo.Root variants={demoVariants} className={classes.root}>
         <BaseDemo.Playground className={classes.playground} />
@@ -28,10 +34,15 @@ export async function Demo(props: DemoProps) {
       </BaseDemo.Root>
     );
   } catch (error) {
-    return (
-      <div className={clsx(classes.root, className)}>
-        <p>Unable to render the {demo} demo.</p>
-      </div>
-    );
+    if (process.env.NODE_ENV !== 'production') {
+      return (
+        <div className={clsx(classes.error, className)}>
+          Unable to render the {demo} demo.
+          <pre>{JSON.stringify(error, undefined, 2)}</pre>
+        </div>
+      );
+    }
+
+    return <div className={clsx(classes.error, className)}>Unable to render the {demo} demo.</div>;
   }
 }
