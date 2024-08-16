@@ -1,11 +1,9 @@
-export type DemoFileType = 'ts' | 'js' | 'json' | 'css';
-
 export interface DemoFile {
   path: string;
   name: string;
   content: string;
   prettyContent?: string;
-  type: DemoFileType;
+  type: string;
 }
 
 export interface DemoVariant {

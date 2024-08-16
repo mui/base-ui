@@ -1,8 +1,8 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
-import { basename } from 'node:path';
+import { basename, dirname, extname } from 'node:path';
 import { codeToHtml } from 'shiki';
-import { DemoVariant } from '../blocks/Demo/types';
+import { DemoFile, DemoVariant } from '../blocks/Demo/types';
 
 const COMPONENTS_BASE_PATH = 'data/base/components';
 
@@ -80,6 +80,8 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
     theme: 'github-light',
   });
 
+  const localImports = getLocalImports(mainContent);
+
   const languageVariants: DemoVariant[] = [
     {
       name: variantName,
@@ -93,6 +95,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
           path: mainFilePath,
           type: mainFileLanguage,
         },
+        ...(await getDependencyFiles(localImports, dirname(mainFilePath))),
       ],
     },
   ];
@@ -122,4 +125,39 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   }
 
   return languageVariants;
+}
+
+function getLocalImports(content: string): string[] {
+  return content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? [];
+}
+
+function getDependencyFiles(paths: string[], demoDirectory: string): Promise<DemoFile[]> {
+  return Promise.all(
+    paths.map(async (path) => {
+      const fullPath = `${demoDirectory}/${path}`;
+      const extension = extname(fullPath);
+      let type: string;
+      if (extension === '.ts' || extension === '.tsx') {
+        type = 'ts';
+      } else if (extension === '.js' || extension === '.jsx') {
+        type = 'js';
+      } else {
+        type = extension.slice(1);
+      }
+
+      const content = await readFile(fullPath, 'utf-8');
+      const prettyContent = await codeToHtml(content, {
+        lang: extension.slice(1),
+        theme: 'github-light',
+      });
+
+      return {
+        name: basename(fullPath),
+        content,
+        prettyContent,
+        path: fullPath,
+        type,
+      } satisfies DemoFile;
+    }),
+  );
 }

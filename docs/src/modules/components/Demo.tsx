@@ -4,6 +4,7 @@ import { loadDemo } from 'docs-base/src/utils/loadDemo';
 import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import classes from './Demo.module.css';
+import { DemoFileSelector } from './DemoFileSelector';
 
 export interface DemoProps {
   className?: string;
@@ -27,6 +28,7 @@ export async function Demo(props: DemoProps) {
         <BaseDemo.Playground className={classes.playground} />
         <div className={classes.toolbar}>
           <DemoVariantSelector />
+          <DemoFileSelector />
         </div>
         <div className={classes.source}>
           <BaseDemo.SourceBrowser className={classes.scrollArea} />
