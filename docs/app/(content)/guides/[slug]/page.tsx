@@ -5,11 +5,11 @@ import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/base/pages';
 import { AppBar } from 'docs-base/src/modules/common/AppBar';
 import { Navigation } from 'docs-base/src/modules/common/Navigation';
-import classes from '../styles.module.css';
+import classes from '../../styles.module.css';
 
 interface Props {
   params: {
-    slug: string[];
+    slug: string;
   };
 }
 
@@ -18,7 +18,7 @@ export default async function DocsPage(props: Props) {
     params: { slug },
   } = props;
 
-  const { MDXContent, tableOfContents } = await getMarkdownPage(slug[0], slug[1]);
+  const { MDXContent, tableOfContents } = await getMarkdownPage('guides', slug);
 
   return (
     <React.Fragment>
@@ -34,15 +34,5 @@ export default async function DocsPage(props: Props) {
 }
 
 export async function generateStaticParams() {
-  return [
-    { slug: ['getting-started'] },
-    { slug: ['guides'] },
-    { slug: ['components'] },
-    ...getSlugs('/getting-started').map((slug) => ({
-      slug: ['getting-started', slug],
-    })),
-    ...getSlugs('/guides').map((slug) => ({
-      slug: ['guides', slug],
-    })),
-  ];
+  return getSlugs('/guides').map((slug) => ({ slug }));
 }
