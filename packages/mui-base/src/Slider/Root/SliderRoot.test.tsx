@@ -1418,7 +1418,7 @@ describe('<Slider.Root />', () => {
     });
 
     describe('key: Home', () => {
-      it('sets value to min on Home', () => {
+      it('sets value to min on Home', async () => {
         const handleValueChange = spy();
         const { container } = await render(
           <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
