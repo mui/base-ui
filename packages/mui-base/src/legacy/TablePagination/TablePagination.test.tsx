@@ -27,7 +27,6 @@ describe('<TablePagination />', () => {
   describeConformanceUnstyled(
     <TablePagination count={1} onPageChange={noop} page={0} rowsPerPage={10} />,
     () => ({
-      inheritComponent: 'td',
       render: (node) => {
         const { container, ...other } = render(
           <table>

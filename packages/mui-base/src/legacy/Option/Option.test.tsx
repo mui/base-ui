@@ -15,7 +15,6 @@ describe('<Option />', () => {
   const { render } = createRenderer();
 
   describeConformanceUnstyled(<Option value={42} />, () => ({
-    inheritComponent: 'li',
     render: (node) => {
       return render(
         <SelectProvider

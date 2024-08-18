@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer } from '#test-utils';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: undefined as unknown as FloatingRootContext,

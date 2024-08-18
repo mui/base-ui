@@ -13,7 +13,6 @@ describe('<FormControl />', () => {
   const { render } = createRenderer();
 
   describeConformanceUnstyled(<FormControl />, () => ({
-    inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
     testComponentPropWith: 'div',

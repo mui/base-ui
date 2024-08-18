@@ -7,7 +7,6 @@ describe('<OptionGroup />', () => {
   const { render } = createRenderer();
 
   describeConformanceUnstyled(<OptionGroup />, () => ({
-    inheritComponent: 'li',
     render,
     refInstanceof: window.HTMLLIElement,
     testComponentPropWith: 'span',

@@ -47,6 +47,7 @@ interface UseAnchorPositioningParameters {
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
+  trackAnchor?: boolean;
   nodeId?: string;
 }
 
@@ -86,6 +87,7 @@ export function useAnchorPositioning(
     keepMounted = false,
     arrowPadding = 5,
     mounted = true,
+    trackAnchor = true,
     nodeId,
   } = params;
 
@@ -199,7 +201,7 @@ export function useAnchorPositioning(
     placement,
     middleware,
     strategy: positionStrategy,
-    whileElementsMounted: keepMounted ? undefined : autoUpdate,
+    whileElementsMounted: keepMounted || !trackAnchor ? undefined : autoUpdate,
     nodeId,
   });
 

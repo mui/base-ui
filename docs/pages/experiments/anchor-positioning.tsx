@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
 import { useAnchorPositioning } from '../../../packages/mui-base/src/utils/useAnchorPositioning';
 
@@ -26,6 +27,7 @@ export default function AnchorPositioning() {
   const [sticky, setSticky] = React.useState(false);
   const [constrainSize, setConstrainSize] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
+  const [trackAnchor, setTrackAnchor] = React.useState(true);
 
   const { refs, positionerStyles, arrowStyles, arrowRef, renderedSide, arrowUncentered } =
     useAnchorPositioning({
@@ -37,6 +39,7 @@ export default function AnchorPositioning() {
       hideWhenDetached,
       sticky,
       arrowPadding,
+      trackAnchor,
     });
 
   const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {
@@ -54,6 +57,54 @@ export default function AnchorPositioning() {
     l: 100,
     xl: 250,
   }[anchorSize];
+
+  const popup = (
+    <div
+      ref={refs.setFloating}
+      style={{
+        visibility: visible ? 'visible' : 'hidden',
+        ...positionerStyles,
+      }}
+    >
+      <div
+        style={{
+          background: 'white',
+          boxSizing: 'border-box',
+          padding: 10,
+          ...(constrainSize && {
+            maxWidth: 'var(--available-width)',
+            maxHeight: 'var(--available-height)',
+            overflow: 'auto',
+          }),
+        }}
+      >
+        {`Content `.repeat(
+          {
+            xs: 1,
+            s: 3,
+            m: 10,
+            l: 50,
+            xl: 200,
+          }[popupSize],
+        )}
+      </div>
+      {arrow && (
+        <div
+          ref={arrowRef as React.RefObject<HTMLDivElement>}
+          style={{
+            ...arrowStyles,
+            background: 'rgba(0, 0, 255, 0.5)',
+            width: 20,
+            height: 20,
+            [oppositeSideMap[renderedSide]]: -10,
+            ...(arrowUncentered && hideArrowWhenUncentered && { visibility: 'hidden' }),
+          }}
+        />
+      )}
+    </div>
+  );
+
+  const popupNode = trackAnchor ? popup : ReactDOM.createPortal(popup, document.body);
 
   return (
     <div style={{ fontFamily: 'sans-serif', margin: 50 }}>
@@ -88,49 +139,7 @@ export default function AnchorPositioning() {
           >
             {anchorSize !== 'xs' ? 'A' : null}
           </div>
-          <div
-            ref={refs.setFloating}
-            style={{
-              visibility: visible ? 'visible' : 'hidden',
-              ...positionerStyles,
-            }}
-          >
-            <div
-              style={{
-                background: 'white',
-                boxSizing: 'border-box',
-                padding: 10,
-                ...(constrainSize && {
-                  maxWidth: 'var(--available-width)',
-                  maxHeight: 'var(--available-height)',
-                  overflow: 'auto',
-                }),
-              }}
-            >
-              {`Content `.repeat(
-                {
-                  xs: 1,
-                  s: 3,
-                  m: 10,
-                  l: 50,
-                  xl: 200,
-                }[popupSize],
-              )}
-            </div>
-            {arrow && (
-              <div
-                ref={arrowRef as React.RefObject<HTMLDivElement>}
-                style={{
-                  ...arrowStyles,
-                  background: 'rgba(0, 0, 255, 0.5)',
-                  width: 20,
-                  height: 20,
-                  [oppositeSideMap[renderedSide]]: -10,
-                  ...(arrowUncentered && hideArrowWhenUncentered && { visibility: 'hidden' }),
-                }}
-              />
-            )}
-          </div>
+          {popupNode}
           <div style={{ width: 1000 + anchorLength / 2, height: 1000 }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -272,6 +281,15 @@ export default function AnchorPositioning() {
           <label>
             <input type="checkbox" checked={sticky} onChange={() => setSticky((prev) => !prev)} />
             Sticky
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={trackAnchor}
+              onChange={() => setTrackAnchor((prev) => !prev)}
+            />
+            Track anchor
           </label>
         </div>
       </div>

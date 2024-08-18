@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import * as Switch from '@base_ui/react/Switch';
 import { userEvent } from '@testing-library/user-event';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Switch.Root />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render,
   }));
@@ -59,9 +58,9 @@ describe('<Switch.Root />', () => {
     });
 
     it('should update its state if the underlying input is toggled', async () => {
-      const { getByRole, container } = await render(<Switch.Root />);
-      const switchElement = getByRole('switch');
-      const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
+      await render(<Switch.Root />);
+      const switchElement = screen.getByRole('switch');
+      const internalInput = screen.getByRole('checkbox', { hidden: true });
 
       await act(() => {
         internalInput.click();
@@ -73,9 +72,9 @@ describe('<Switch.Root />', () => {
 
   describe('extra props', () => {
     it('should override the built-in attributes', async () => {
-      const { container } = await render(<Switch.Root data-state="checked" role="checkbox" />);
-      expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'checkbox');
-      expect(container.firstElementChild as HTMLElement).to.have.attribute('data-state', 'checked');
+      await render(<Switch.Root data-state="checked" role="checkbox" data-testid="switch" />);
+      expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
+      expect(screen.getByTestId('switch')).to.have.attribute('data-state', 'checked');
     });
   });
 
@@ -161,8 +160,8 @@ describe('<Switch.Root />', () => {
   describe('prop: inputRef', () => {
     it('should be able to access the native input', async () => {
       const inputRef = React.createRef<HTMLInputElement>();
-      const { container } = await render(<Switch.Root inputRef={inputRef} />);
-      const internalInput = container.querySelector('input[type="checkbox"]')!;
+      await render(<Switch.Root inputRef={inputRef} />);
+      const internalInput = screen.getByRole('checkbox', { hidden: true });
 
       expect(inputRef.current).to.equal(internalInput);
     });
@@ -248,14 +247,14 @@ describe('<Switch.Root />', () => {
   });
 
   it('should place the style hooks on the root and the thumb', async () => {
-    const { getByRole } = await render(
+    await render(
       <Switch.Root defaultChecked disabled readOnly required>
-        <Switch.Thumb />
+        <Switch.Thumb data-testid="thumb" />
       </Switch.Root>,
     );
 
-    const switchElement = getByRole('switch');
-    const thumb = switchElement.querySelector('span');
+    const switchElement = screen.getByRole('switch');
+    const thumb = screen.getByTestId('thumb');
 
     expect(switchElement).to.have.attribute('data-state', 'checked');
     expect(switchElement).to.have.attribute('data-disabled', 'true');
@@ -269,9 +268,8 @@ describe('<Switch.Root />', () => {
   });
 
   it('should set the name attribute on the input', async () => {
-    const { container } = await render(<Switch.Root name="switch-name" />);
-    const internalInput = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
-
+    await render(<Switch.Root name="switch-name" />);
+    const internalInput = screen.getByRole('checkbox', { hidden: true });
     expect(internalInput).to.have.attribute('name', 'switch-name');
   });
 });
