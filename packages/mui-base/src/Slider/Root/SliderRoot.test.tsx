@@ -1369,7 +1369,7 @@ describe('<Slider.Root />', () => {
     });
 
     describe('key: End', () => {
-      it('sets value to max in a single value slider', () => {
+      it('sets value to max in a single value slider', async () => {
         const handleValueChange = spy();
         const { container } = await render(
           <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
