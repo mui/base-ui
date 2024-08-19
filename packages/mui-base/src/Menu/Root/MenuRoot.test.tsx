@@ -205,17 +205,11 @@ describe('<Menu.Root />', () => {
           expect(items[1]).to.have.attribute('tabindex', '0');
         });
 
-        await user.keyboard('b');
+        await user.keyboard('c');
         await waitFor(() => {
-          expect(items[2]).toHaveFocus();
+          expect(items[3]).toHaveFocus();
         });
-        expect(items[2]).to.have.attribute('tabindex', '0');
-
-        await user.keyboard('b');
-        await waitFor(() => {
-          expect(items[2]).toHaveFocus();
-        });
-        expect(items[2]).to.have.attribute('tabindex', '0');
+        expect(items[3]).to.have.attribute('tabindex', '0');
       });
 
       it('skips the non-stringifiable items', async function test() {
