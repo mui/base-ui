@@ -13,6 +13,7 @@ function SelectRoot(props: SelectRoot.Props) {
     loop = true,
     onOpenChange,
     open,
+    alignMethod = 'selected-item',
   } = props;
 
   const selectRoot = useSelectRoot({
@@ -22,14 +23,16 @@ function SelectRoot(props: SelectRoot.Props) {
     loop,
     defaultOpen,
     open,
+    alignMethod,
   });
 
   const context: SelectRootContext = React.useMemo(
     () => ({
       ...selectRoot,
       disabled,
+      alignMethod,
     }),
-    [selectRoot, disabled],
+    [selectRoot, disabled, alignMethod],
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
@@ -71,6 +74,13 @@ namespace SelectRoot {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Determines the type of alignment mode. `selected-item` aligns the popup so that the selected
+     * item appears over the trigger, while `trigger` aligns the popup using standard anchor
+     * positioning.
+     * @default 'selected-item'
+     */
+    alignMethod?: 'trigger' | 'selected-item';
   }
 }
 
@@ -79,6 +89,13 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * Determines the type of alignment mode. `selected-item` aligns the popup so that the selected
+   * item appears over the trigger, while `trigger` aligns the popup using standard anchor
+   * positioning.
+   * @default 'selected-item'
+   */
+  alignMethod: PropTypes.oneOf(['selected-item', 'trigger']),
   /**
    * If `true`, the Menu supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.

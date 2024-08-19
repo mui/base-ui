@@ -25,7 +25,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
   if (context === null) {
-    throw new Error('<Menu.Popup> must be used within the <Menu.Positioner> component');
+    throw new Error(
+      'Base UI: <Select.Popup> must be used within the <Select.Positioner> component',
+    );
   }
   return context;
 }

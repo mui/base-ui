@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Select components and hook
-components: SelectRoot, SelectTrigger, SelectPositioner, SelectPopup, SelectItem
+components: SelectRoot, SelectTrigger, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemIndicator
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---

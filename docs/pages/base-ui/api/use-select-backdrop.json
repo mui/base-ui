@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useSelectBackdrop",
+  "filename": "/packages/mui-base/src/Select/Backdrop/useSelectBackdrop.ts",
+  "imports": ["import { useSelectBackdrop } from '@base_ui/react/Select';"],
+  "demos": "<ul></ul>"
+}

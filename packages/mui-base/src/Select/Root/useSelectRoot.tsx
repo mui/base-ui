@@ -38,6 +38,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     value,
     onValueChange,
     defaultValue,
+    alignMethod,
   } = params;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -45,14 +46,16 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndexUnwrapped] = React.useState<number | null>(null);
   const [innerOffset, setInnerOffset] = React.useState(0);
+  const [innerFallback, setInnerFallback] = React.useState(false);
+  const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState<number | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
+  const backdropRef = React.useRef<HTMLElement>(null);
   const typingRef = React.useRef(false);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const selectionRef = React.useRef({ mouseUp: false, select: false });
   const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
-  const selectedDelayedIndexRef = React.useRef<number | null>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -61,8 +64,15 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     state: 'open',
   });
 
-  if (innerOffset !== 0 && !open) {
-    setInnerOffset(0);
+  if (!open) {
+    if (innerOffset !== 0) {
+      setInnerOffset(0);
+    }
+    if (innerFallback) {
+      setInnerFallback(false);
+    }
+  } else if (selectedIndexOnMount !== selectedIndex) {
+    setSelectedIndexOnMount(selectedIndex);
   }
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled({
@@ -76,10 +86,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     const nextValue = index === null ? '' : labelsRef.current[index] || '';
     setSelectedValueUnwrapped(nextValue);
     onValueChange?.(nextValue);
-
-    // Wait for any close animations to finish before updating the selected index so that the
-    // inner item anchoring is delayed until the popup is closed.
-    selectedDelayedIndexRef.current = index;
+    setSelectedIndexUnwrapped(index);
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
@@ -92,7 +99,6 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
 
     function handleUnmounted() {
       setMounted(false);
-      setSelectedIndexUnwrapped(selectedDelayedIndexRef.current);
     }
 
     if (!nextOpen) {
@@ -140,16 +146,24 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     listRef: labelsRef,
     activeIndex,
     resetMs: 500,
-    onMatch: open ? setActiveIndex : setSelectedIndex,
+    onMatch: open
+      ? setActiveIndex
+      : (index) => {
+          const nextValue = index === null ? '' : labelsRef.current[index] || '';
+          setSelectedValueUnwrapped(nextValue);
+          onValueChange?.(nextValue);
+          setSelectedIndexUnwrapped(index);
+        },
     onTypingChange(typing) {
       typingRef.current = typing;
     },
   });
 
   const innerOffsetInteractionProps = useInnerOffset(floatingRootContext, {
+    enabled: alignMethod === 'selected-item' && !innerFallback,
     onChange: setInnerOffset,
-    overflowRef,
     scrollRef: popupRef,
+    overflowRef,
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
@@ -177,6 +191,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setActiveIndex,
       selectedIndex,
       setSelectedIndex,
+      selectedIndexOnMount,
       selectedValue,
       floatingRootContext,
       triggerElement,
@@ -190,17 +205,21 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       mounted,
       transitionStatus,
       popupRef,
+      backdropRef,
       open,
       setOpen,
       typingRef,
       selectionRef,
       overflowRef,
       innerOffset,
+      innerFallback,
+      setInnerFallback,
     }),
     [
       activeIndex,
       selectedIndex,
       setSelectedIndex,
+      selectedIndexOnMount,
       selectedValue,
       floatingRootContext,
       triggerElement,
@@ -212,6 +231,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       open,
       setOpen,
       innerOffset,
+      innerFallback,
     ],
   );
 }
@@ -247,7 +267,7 @@ export namespace useSelectRoot {
     value?: string;
     onValueChange?: (value: string) => void;
     defaultValue?: string;
-    anchorToItem?: boolean;
+    alignMethod?: 'trigger' | 'selected-item';
   }
 
   export interface ReturnValue {
@@ -255,6 +275,7 @@ export namespace useSelectRoot {
     setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
     selectedIndex: number | null;
     setSelectedIndex: (index: number | null) => void;
+    selectedIndexOnMount: number | null;
     selectedValue: string | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: UseInteractionsReturn['getItemProps'];
@@ -277,5 +298,8 @@ export namespace useSelectRoot {
     }>;
     innerOffset: number;
     overflowRef: React.MutableRefObject<SideObject>;
+    backdropRef: React.RefObject<HTMLElement>;
+    innerFallback: boolean;
+    setInnerFallback: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }

@@ -1,0 +1,24 @@
+{
+  "props": {
+    "alignMethod": {
+      "type": { "name": "enum", "description": "'selected-item'<br>&#124;&nbsp;'trigger'" },
+      "default": "'selected-item'"
+    },
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "loop": { "type": { "name": "bool" }, "default": "true" },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } }
+  },
+  "name": "SelectRoot",
+  "imports": ["import * as Select from '@base_ui/react/Select';\nconst SelectRoot = Select.Root;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "SelectRoot",
+  "filename": "/packages/mui-base/src/Select/Root/SelectRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

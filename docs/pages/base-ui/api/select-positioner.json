@@ -14,7 +14,6 @@
         "description": "HTML element<br>&#124;&nbsp;object<br>&#124;&nbsp;func"
       }
     },
-    "anchorToItem": { "type": { "name": "bool" }, "default": "false" },
     "arrowPadding": { "type": { "name": "number" }, "default": "5" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "collisionBoundary": {
@@ -54,7 +53,10 @@
     "import * as Select from '@base_ui/react/Select';\nconst SelectPositioner = Select.Positioner;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "SelectPositioner",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/Select/Positioner/SelectPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",

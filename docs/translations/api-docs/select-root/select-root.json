@@ -1,6 +1,9 @@
 {
   "componentDescription": "",
   "propDescriptions": {
+    "alignMethod": {
+      "description": "Determines the type of alignment mode. <code>selected-item</code> aligns the popup so that the selected item appears over the trigger, while <code>trigger</code> aligns the popup using standard anchor positioning."
+    },
     "animated": {
       "description": "If <code>true</code>, the Menu supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
     },

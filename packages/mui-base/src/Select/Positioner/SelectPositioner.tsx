@@ -34,7 +34,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 ) {
   const {
     anchor,
-    anchorToItem = false,
     positionStrategy = 'absolute',
     className,
     render,
@@ -60,10 +59,13 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     labelsRef,
     triggerElement,
     mounted,
-    selectedIndex,
     popupRef,
     overflowRef,
     innerOffset,
+    alignMethod,
+    innerFallback,
+    setInnerFallback,
+    selectedIndexOnMount,
   } = useSelectRootContext();
 
   const positioner = useSelectPositioner({
@@ -83,17 +85,26 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     hideWhenDetached,
     sticky,
     allowAxisFlip: false,
+    innerFallback,
     inner:
-      anchorToItem && selectedIndex !== null
+      alignMethod === 'selected-item' && selectedIndexOnMount !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({
             boundary: collisionBoundary,
             padding: collisionPadding,
             listRef: elementsRef,
-            index: selectedIndex,
+            index: selectedIndexOnMount,
             scrollRef: popupRef,
             offset: innerOffset,
+            onFallbackChange(fallbackValue) {
+              setInnerFallback(fallbackValue);
+              if (fallbackValue && popupRef.current) {
+                popupRef.current.style.maxHeight = '';
+              }
+            },
+            minItemsVisible: 4,
+            referenceOverflowThreshold: 20,
             overflowRef,
           })
         : undefined,
@@ -172,13 +183,7 @@ export namespace SelectPositioner {
 
   export interface Props
     extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * If `true`, positions the popup relative to the selected item inside it.
-     * @default false
-     */
-    anchorToItem?: boolean;
-  }
+      BaseUIComponentProps<'div', OwnerState> {}
 }
 
 SelectPositioner.propTypes /* remove-proptypes */ = {
@@ -204,11 +209,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.object,
     PropTypes.func,
   ]),
-  /**
-   * If `true`, positions the popup relative to the selected item inside it.
-   * @default false
-   */
-  anchorToItem: PropTypes.bool,
   /**
    * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
    * popup has rounded corners via `border-radius`.

@@ -5,6 +5,7 @@ import type { useSelectRoot } from './useSelectRoot';
 export interface SelectRootContext extends useSelectRoot.ReturnValue {
   disabled: boolean;
   typingRef: React.MutableRefObject<boolean>;
+  alignMethod: 'selected-item' | 'trigger';
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

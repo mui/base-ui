@@ -180,6 +180,12 @@ export namespace useSelectPositioner {
      * @default true
      */
     allowAxisFlip?: boolean;
+    /**
+     * Whether to use fallback anchor postioning because anchoring to an inner item results in poor
+     * UX.
+     * @default false
+     */
+    innerFallback?: boolean;
   }
 
   export interface ReturnValue {

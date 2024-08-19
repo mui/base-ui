@@ -49,6 +49,7 @@ interface UseAnchorPositioningParameters {
   trackAnchor?: boolean;
   nodeId?: string;
   inner?: Middleware;
+  innerFallback?: boolean;
   allowAxisFlip?: boolean;
 }
 
@@ -92,8 +93,10 @@ export function useAnchorPositioning(
     allowAxisFlip = true,
     nodeId,
     inner: innerMiddleware,
+    innerFallback,
   } = params;
 
+  const standardMode = !(!innerFallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
@@ -108,7 +111,7 @@ export function useAnchorPositioning(
 
   const middleware: UseFloatingOptions['middleware'] = [
     offset({
-      mainAxis: sideOffset,
+      mainAxis: standardMode ? sideOffset : 0,
       crossAxis: alignmentOffset,
       alignmentAxis: alignmentOffset,
     }),
@@ -135,7 +138,7 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (!innerMiddleware) {
+  if (standardMode) {
     if (alignment !== 'center') {
       middleware.push(flipMiddleware, shiftMiddleware);
     } else {
@@ -144,20 +147,21 @@ export function useAnchorPositioning(
   }
 
   middleware.push(
-    innerMiddleware ??
-      size({
-        ...commonCollisionProps,
-        apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
-          Object.entries({
-            '--available-width': `${availableWidth}px`,
-            '--available-height': `${availableHeight}px`,
-            '--anchor-width': `${reference.width}px`,
-            '--anchor-height': `${reference.height}px`,
-          }).forEach(([key, value]) => {
-            floating.style.setProperty(key, value);
-          });
-        },
-      }),
+    !standardMode
+      ? innerMiddleware
+      : size({
+          ...commonCollisionProps,
+          apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
+            Object.entries({
+              '--available-width': `${availableWidth}px`,
+              '--available-height': `${availableHeight}px`,
+              '--anchor-width': `${reference.width}px`,
+              '--anchor-height': `${reference.height}px`,
+            }).forEach(([key, value]) => {
+              floating.style.setProperty(key, value);
+            });
+          },
+        }),
     arrow(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
@@ -167,8 +171,8 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hideWhenDetached && hide(),
-    {
+    hideWhenDetached && standardMode && hide(),
+    standardMode && {
       name: 'transformOrigin',
       fn({ elements, middlewareData, placement: renderedPlacement }) {
         const currentRenderedSide = getSide(renderedPlacement);

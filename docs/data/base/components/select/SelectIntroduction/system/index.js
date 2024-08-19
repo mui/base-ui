@@ -7,23 +7,14 @@ export default function UnstyledSelectIntroduction() {
   return (
     <Select.Root>
       <SelectTrigger>Trigger</SelectTrigger>
-      <Select.Positioner
-        style={{ outline: 0 }}
-        alignment="start"
-        alignmentOffset={-4}
-        anchorToItem
-      >
+      <Select.Backdrop />
+      <Select.Positioner alignment="start" alignmentOffset={-4}>
         <SelectPopup>
           {[...Array(100)].map((_, index) => (
-            <SelectItem
-              key={index}
-              render={(props, state) => (
-                <div {...props}>
-                  Item {index + 1}{' '}
-                  {state.selected && <SelectCheck fontSize="small" aria-hidden />}
-                </div>
-              )}
-            />
+            <SelectItem key={index}>
+              Item {index + 1}
+              <SelectItemIndicator render={<Check fontSize="small" aria-hidden />} />
+            </SelectItem>
           ))}
         </SelectPopup>
       </Select.Positioner>
@@ -50,6 +41,7 @@ const SelectPopup = styled(Select.Popup)`
     0 2px 4px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(0, 0, 0, 0.1);
   max-height: var(--available-height);
+  outline: 0;
 `;
 
 const SelectItem = styled(Select.Item)`
@@ -65,12 +57,13 @@ const SelectItem = styled(Select.Item)`
   line-height: 1.5;
 
   &[data-highlighted],
+  &[data-select='closed'][data-selected],
   &:focus {
     background-color: black;
     color: white;
   }
 `;
 
-const SelectCheck = styled(Check)`
+const SelectItemIndicator = styled(Select.ItemIndicator)`
   margin-left: 8px;
 `;

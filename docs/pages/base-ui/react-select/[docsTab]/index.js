@@ -3,7 +3,9 @@ import MarkdownDocs from 'docs/src/modules/components/MarkdownDocsV2';
 import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/select/select.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+import SelectBackdropApiJsonPageContent from '../../api/select-backdrop.json';
 import SelectItemApiJsonPageContent from '../../api/select-item.json';
+import SelectItemIndicatorApiJsonPageContent from '../../api/select-item-indicator.json';
 import SelectPopupApiJsonPageContent from '../../api/select-popup.json';
 import SelectPositionerApiJsonPageContent from '../../api/select-positioner.json';
 import SelectRootApiJsonPageContent from '../../api/select-root.json';
@@ -26,12 +28,26 @@ export const getStaticPaths = () => {
 };
 
 export const getStaticProps = () => {
+  const SelectBackdropApiReq = require.context(
+    'docs-base/translations/api-docs/select-backdrop',
+    false,
+    /\.\/select-backdrop.*.json$/,
+  );
+  const SelectBackdropApiDescriptions = mapApiPageTranslations(SelectBackdropApiReq);
+
   const SelectItemApiReq = require.context(
     'docs-base/translations/api-docs/select-item',
     false,
     /\.\/select-item.*.json$/,
   );
   const SelectItemApiDescriptions = mapApiPageTranslations(SelectItemApiReq);
+
+  const SelectItemIndicatorApiReq = require.context(
+    'docs-base/translations/api-docs/select-item-indicator',
+    false,
+    /\.\/select-item-indicator.*.json$/,
+  );
+  const SelectItemIndicatorApiDescriptions = mapApiPageTranslations(SelectItemIndicatorApiReq);
 
   const SelectPopupApiReq = require.context(
     'docs-base/translations/api-docs/select-popup',
@@ -64,14 +80,18 @@ export const getStaticProps = () => {
   return {
     props: {
       componentsApiDescriptions: {
+        SelectBackdrop: SelectBackdropApiDescriptions,
         SelectItem: SelectItemApiDescriptions,
+        SelectItemIndicator: SelectItemIndicatorApiDescriptions,
         SelectPopup: SelectPopupApiDescriptions,
         SelectPositioner: SelectPositionerApiDescriptions,
         SelectRoot: SelectRootApiDescriptions,
         SelectTrigger: SelectTriggerApiDescriptions,
       },
       componentsApiPageContents: {
+        SelectBackdrop: SelectBackdropApiJsonPageContent,
         SelectItem: SelectItemApiJsonPageContent,
+        SelectItemIndicator: SelectItemIndicatorApiJsonPageContent,
         SelectPopup: SelectPopupApiJsonPageContent,
         SelectPositioner: SelectPositionerApiJsonPageContent,
         SelectRoot: SelectRootApiJsonPageContent,

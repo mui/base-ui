@@ -8,9 +8,6 @@
       "description": "The offset of the Select element along its alignment axis."
     },
     "anchor": { "description": "The anchor element to which the Select popup will be placed at." },
-    "anchorToItem": {
-      "description": "If <code>true</code>, positions the popup relative to the selected item inside it."
-    },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the Select popup&#39;s edges. Useful when the popover popup has rounded corners via <code>border-radius</code>."
     },

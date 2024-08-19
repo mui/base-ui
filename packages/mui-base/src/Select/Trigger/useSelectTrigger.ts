@@ -19,7 +19,7 @@ export function useSelectTrigger(
 ): useSelectTrigger.ReturnValue {
   const { disabled = false, rootRef: externalRef } = parameters;
 
-  const { selectedValue, open, setOpen, setTriggerElement, selectionRef, popupRef } =
+  const { selectedValue, open, setOpen, setTriggerElement, selectionRef, popupRef, backdropRef } =
     useSelectRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -66,8 +66,12 @@ export function useSelectTrigger(
             const doc = ownerDocument(event.currentTarget);
 
             function handleMouseUp(mouseEvent: MouseEvent) {
-              const target = mouseEvent.target as Element | null;
-              if (contains(popupRef.current, target) || contains(triggerRef.current, target)) {
+              const mouseUpTarget = mouseEvent.target as Element | null;
+              if (
+                contains(backdropRef.current, mouseUpTarget) ||
+                contains(popupRef.current, mouseUpTarget) ||
+                contains(triggerRef.current, mouseUpTarget)
+              ) {
                 return;
               }
 
@@ -80,7 +84,7 @@ export function useSelectTrigger(
         getButtonProps(),
       );
     },
-    [selectedValue, handleRef, getButtonProps, open, popupRef, setOpen],
+    [selectedValue, handleRef, getButtonProps, open, backdropRef, popupRef, setOpen],
   );
 
   return React.useMemo(

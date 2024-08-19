@@ -5,10 +5,12 @@ import { UseInteractionsReturn, useListItem } from '@floating-ui/react';
 import { useSelectItem } from './useSelectItem';
 import { SelectRootContext, useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { SelectItemContext } from './SelectItemContext';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
 
 const InnerSelectItem = React.memo(
   React.forwardRef(function InnerSelectItem(
@@ -28,6 +30,7 @@ const InnerSelectItem = React.memo(
       typingRef,
       handleSelect,
       selectionRef,
+      open,
       ...otherProps
     } = props;
 
@@ -45,8 +48,8 @@ const InnerSelectItem = React.memo(
     });
 
     const ownerState: SelectItem.OwnerState = React.useMemo(
-      () => ({ disabled, highlighted, selected }),
-      [disabled, highlighted, selected],
+      () => ({ open, disabled, highlighted, selected }),
+      [open, disabled, highlighted, selected],
     );
 
     const { renderElement } = useComponentRenderer({
@@ -63,6 +66,7 @@ const InnerSelectItem = React.memo(
         return getItemProps(rootItemProps);
       },
       extraProps: otherProps,
+      customStyleHookMapping: commonStyleHooks,
     });
 
     return renderElement();
@@ -87,6 +91,7 @@ const SelectItem = React.forwardRef(function SelectItem(
   const { id: idProp, label, ...otherProps } = props;
 
   const {
+    open,
     getItemProps,
     activeIndex,
     selectedIndex,
@@ -109,23 +114,28 @@ const SelectItem = React.forwardRef(function SelectItem(
     setSelectedIndex(listItem.index);
   });
 
+  const contextValue = React.useMemo(() => ({ open, selected }), [open, selected]);
+
   // This wrapper component is used as a performance optimization.
   // SelectItem reads the context and re-renders the actual SelectItem
   // only when it needs to.
 
   return (
-    <InnerSelectItem
-      {...otherProps}
-      id={id}
-      ref={mergedRef}
-      highlighted={highlighted}
-      handleSelect={handleSelect}
-      selectionRef={selectionRef}
-      setOpen={setOpen}
-      selected={selected}
-      getItemProps={getItemProps}
-      typingRef={typingRef}
-    />
+    <SelectItemContext.Provider value={contextValue}>
+      <InnerSelectItem
+        {...otherProps}
+        id={id}
+        ref={mergedRef}
+        open={open}
+        highlighted={highlighted}
+        handleSelect={handleSelect}
+        selectionRef={selectionRef}
+        setOpen={setOpen}
+        selected={selected}
+        getItemProps={getItemProps}
+        typingRef={typingRef}
+      />
+    </SelectItemContext.Provider>
   );
 });
 
@@ -140,6 +150,7 @@ interface InnerSelectItemProps extends SelectItem.Props {
     mouseUp: boolean;
     select: boolean;
   }>;
+  open: boolean;
 }
 
 namespace SelectItem {
@@ -147,6 +158,7 @@ namespace SelectItem {
     disabled: boolean;
     highlighted: boolean;
     selected: boolean;
+    open: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
