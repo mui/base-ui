@@ -1,5 +1,5 @@
 export { SliderRoot as Root } from './Root/SliderRoot';
-export {
+export type {
   SliderRootOwnerState as SliderOwnerState,
   SliderRootProps as RootProps,
   UseSliderParameters,
