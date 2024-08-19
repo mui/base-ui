@@ -11,6 +11,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectItemContext } from './SelectItemContext';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const InnerSelectItem = React.memo(
   React.forwardRef(function InnerSelectItem(
@@ -74,36 +75,51 @@ const InnerSelectItem = React.memo(
 );
 
 /**
- * An unstyled menu item to be used within a Menu.
+ * An unstyled select item to be used within a Select.
  *
  * Demos:
  *
- * - [Menu](https://mui.com/base-ui/react-menu/)
+ * - [Select](https://mui.com/base-ui/react-select/)
  *
  * API:
  *
- * - [SelectItem API](https://mui.com/base-ui/react-menu/components-api/#menu-item)
+ * - [SelectItem API](https://mui.com/base-ui/react-select/components-api/#select-item)
  */
 const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, ...otherProps } = props;
+  const { id: idProp, value: valueProp, label, ...otherProps } = props;
 
   const {
+    setValue,
     open,
     getItemProps,
     activeIndex,
     selectedIndex,
     setOpen,
     typingRef,
-    setSelectedIndex,
     selectionRef,
+    valuesRef,
   } = useSelectRootContext();
 
   const [item, setItem] = React.useState<Element | null>(null);
-  const listItem = useListItem({ label: label ?? item?.textContent });
+  const itemLabel = label ?? item?.textContent ?? null;
+  const listItem = useListItem({ label: itemLabel });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, setItem);
+
+  useEnhancedEffect(() => {
+    if (listItem.index === -1) {
+      return undefined;
+    }
+
+    const values = valuesRef.current;
+    values[listItem.index] = valueProp;
+
+    return () => {
+      values[listItem.index] = null;
+    };
+  }, [listItem.index, valueProp, valuesRef]);
 
   const id = useId(idProp);
 
@@ -111,7 +127,7 @@ const SelectItem = React.forwardRef(function SelectItem(
   const selected = listItem.index === selectedIndex;
 
   const handleSelect = useEventCallback(() => {
-    setSelectedIndex(listItem.index);
+    setValue(valueProp);
   });
 
   const contextValue = React.useMemo(() => ({ open, selected }), [open, selected]);
@@ -139,7 +155,7 @@ const SelectItem = React.forwardRef(function SelectItem(
   );
 });
 
-interface InnerSelectItemProps extends SelectItem.Props {
+interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   highlighted: boolean;
   selected: boolean;
   getItemProps: UseInteractionsReturn['getItemProps'];
@@ -164,25 +180,29 @@ namespace SelectItem {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
     /**
-     * The click handler for the menu item.
+     * The value of the select item.
+     */
+    value: string;
+    /**
+     * The click handler for the select item.
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * If `true`, the menu item will be disabled.
+     * If `true`, the select item will be disabled.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
+     * A text representation of the select item's content.
      * Used for keyboard text navigation matching.
      */
     label?: string;
     /**
-     * The id of the menu item.
+     * The id of the select item.
      */
     id?: string;
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * If `true`, the select will close when the select item is clicked.
      *
      * @default true
      */
@@ -200,29 +220,33 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * If `true`, the select will close when the select item is clicked.
    *
    * @default true
    */
   closeOnClick: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * If `true`, the select item will be disabled.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the menu item.
+   * The id of the select item.
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
+   * A text representation of the select item's content.
    * Used for keyboard text navigation matching.
    */
   label: PropTypes.string,
   /**
-   * The click handler for the menu item.
+   * The click handler for the select item.
    */
   onClick: PropTypes.func,
+  /**
+   * The value of the select item.
+   */
+  value: PropTypes.string.isRequired,
 } as any;
 
 export { SelectItem };

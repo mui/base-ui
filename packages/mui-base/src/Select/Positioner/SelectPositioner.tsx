@@ -16,6 +16,25 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectPositioner } from './useSelectPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useId } from '../../utils/useId';
+
+function findSelectItems(root: React.ReactElement) {
+  const selectItems: React.ReactElement[] = [];
+  React.Children.forEach(root.props?.children, (child) => {
+    if (React.isValidElement(child)) {
+      const childProps = child.props as any;
+      if (childProps?.value != null) {
+        selectItems.push(child);
+      } else if (childProps?.children) {
+        selectItems.push(...findSelectItems(child));
+      }
+    }
+  });
+  return selectItems;
+}
 
 /**
  * Renders the element that positions the Select popup.
@@ -65,8 +84,23 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     alignMethod,
     innerFallback,
     setInnerFallback,
-    selectedIndexOnMount,
+    selectedIndex,
+    name,
+    required,
+    disabled,
+    id: idProp,
   } = useSelectRootContext();
+
+  const { setControlId } = useFieldRootContext();
+
+  const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   const positioner = useSelectPositioner({
     anchor: anchor || triggerElement,
@@ -87,14 +121,14 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     allowAxisFlip: false,
     innerFallback,
     inner:
-      alignMethod === 'selected-item' && selectedIndexOnMount !== null
+      alignMethod === 'selected-item' && selectedIndex !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({
             boundary: collisionBoundary,
             padding: collisionPadding,
             listRef: elementsRef,
-            index: selectedIndexOnMount,
+            index: selectedIndex,
             scrollRef: popupRef,
             offset: innerOffset,
             onFallbackChange(fallbackValue) {
@@ -150,21 +184,49 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     extraProps: otherProps,
   });
 
+  const positionerElement = renderElement();
+  const selectItems = findSelectItems(positionerElement);
+  const mountedItemsElement = keepMounted ? null : <div hidden>{selectItems}</div>;
+  const nativeSelectElement = (
+    <select
+      id={id}
+      name={name}
+      disabled={disabled}
+      required={required}
+      style={visuallyHidden}
+      tabIndex={-1}
+      aria-hidden
+    >
+      {selectItems.map((item) => (
+        // eslint-disable-next-line jsx-a11y/control-has-associated-label
+        <option key={item.props.value} value={item.props.value} />
+      ))}
+    </select>
+  );
+
   const shouldRender = keepMounted || mounted;
   if (!shouldRender) {
-    return null;
+    return (
+      <SelectPositionerContext.Provider value={contextValue}>
+        <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
+          {nativeSelectElement}
+          {mountedItemsElement}
+        </FloatingList>
+      </SelectPositionerContext.Provider>
+    );
   }
 
   return (
     <SelectPositionerContext.Provider value={contextValue}>
       <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
+        {nativeSelectElement}
         <FloatingPortal root={props.container}>
           <FloatingFocusManager
             context={positioner.floatingContext}
             modal={false}
             key={mounted.toString()}
           >
-            {renderElement()}
+            {positionerElement}
           </FloatingFocusManager>
         </FloatingPortal>
       </FloatingList>

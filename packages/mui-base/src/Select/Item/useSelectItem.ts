@@ -16,7 +16,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const {
     disabled = false,
     highlighted,
-    selected,
     id,
     ref: externalRef,
     setOpen,
@@ -69,11 +68,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               return;
             }
 
-            if (selected) {
-              if (selectionRef.current.select) {
-                commitSelection(event.nativeEvent);
-              }
-            } else {
+            if (selectionRef.current.select) {
               commitSelection(event.nativeEvent);
             }
 
@@ -82,7 +77,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         }),
       );
     },
-    [commitSelection, getButtonProps, highlighted, id, selected, selectionRef, typingRef],
+    [commitSelection, getButtonProps, highlighted, id, selectionRef, typingRef],
   );
 
   return React.useMemo(

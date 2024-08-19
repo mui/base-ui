@@ -5,13 +5,13 @@ import Check from '@mui/icons-material/Check';
 
 export default function UnstyledSelectIntroduction() {
   return (
-    <Select.Root>
+    <Select.Root value="item-2">
       <SelectTrigger>Trigger</SelectTrigger>
       <Select.Backdrop />
       <Select.Positioner alignment="start" alignmentOffset={-4}>
         <SelectPopup>
           {[...Array(100)].map((_, index) => (
-            <SelectItem key={index}>
+            <SelectItem key={index} value={`item-${index + 1}`}>
               Item {index + 1}
               <SelectItemIndicator render={<Check fontSize="small" aria-hidden />} />
             </SelectItem>

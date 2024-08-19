@@ -19,7 +19,7 @@ export function useSelectTrigger(
 ): useSelectTrigger.ReturnValue {
   const { disabled = false, rootRef: externalRef } = parameters;
 
-  const { selectedValue, open, setOpen, setTriggerElement, selectionRef, popupRef, backdropRef } =
+  const { open, setOpen, setTriggerElement, selectionRef, popupRef, backdropRef, label } =
     useSelectRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -54,7 +54,7 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps<'button'>(
-        { ...externalProps, children: selectedValue ?? externalProps?.children },
+        { ...externalProps, children: label ?? externalProps?.children },
         {
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
@@ -84,7 +84,7 @@ export function useSelectTrigger(
         getButtonProps(),
       );
     },
-    [selectedValue, handleRef, getButtonProps, open, backdropRef, popupRef, setOpen],
+    [label, handleRef, getButtonProps, open, backdropRef, popupRef, setOpen],
   );
 
   return React.useMemo(

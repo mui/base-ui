@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   useClick,
   useDismiss,
@@ -18,6 +19,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useControlled } from '../../utils/useControlled';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -35,7 +37,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     onOpenChange,
     disabled,
     loop,
-    value,
+    value: valueProp,
     onValueChange,
     defaultValue,
     alignMethod,
@@ -44,7 +46,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [selectedIndex, setSelectedIndexUnwrapped] = React.useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [innerOffset, setInnerOffset] = React.useState(0);
   const [innerFallback, setInnerFallback] = React.useState(false);
   const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState<number | null>(null);
@@ -54,6 +56,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const typingRef = React.useRef(false);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
+  const valuesRef = React.useRef<Array<string | null>>([]);
   const selectionRef = React.useRef({ mouseUp: false, select: false });
   const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
 
@@ -64,30 +67,43 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     state: 'open',
   });
 
-  if (!open) {
-    if (innerOffset !== 0) {
-      setInnerOffset(0);
-    }
-    if (innerFallback) {
-      setInnerFallback(false);
-    }
-  } else if (selectedIndexOnMount !== selectedIndex) {
+  if (open && selectedIndex !== selectedIndexOnMount) {
     setSelectedIndexOnMount(selectedIndex);
   }
 
-  const [selectedValue, setSelectedValueUnwrapped] = useControlled({
-    controlled: value,
+  const [value, setValueUnwrapped] = useControlled<string | null>({
+    controlled: valueProp,
     default: defaultValue,
     name: 'Select',
-    state: 'selectedValue',
+    state: 'value',
   });
 
-  const setSelectedIndex = useEventCallback((index: number | null) => {
-    const nextValue = index === null ? '' : labelsRef.current[index] || '';
-    setSelectedValueUnwrapped(nextValue);
+  const [label, setLabel] = React.useState<string | null>(null);
+
+  const setValue: useSelectRoot.ReturnValue['setValue'] = useEventCallback((nextValue) => {
     onValueChange?.(nextValue);
-    setSelectedIndexUnwrapped(index);
+    setValueUnwrapped(nextValue);
+
+    if (nextValue !== null) {
+      const index = valuesRef.current.indexOf(nextValue);
+      setSelectedIndex(index);
+      setLabel(labelsRef.current[index]);
+    } else {
+      setSelectedIndex(null);
+      setLabel(null);
+    }
   });
+
+  useEnhancedEffect(() => {
+    // Wait for the items to have registered their values in `valuesRef`.
+    queueMicrotask(() => {
+      const index = valuesRef.current.indexOf(value);
+      if (index !== -1) {
+        setSelectedIndex(index);
+        setLabel(labelsRef.current[index]);
+      }
+    });
+  }, [value]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
@@ -98,7 +114,12 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     setOpenUnwrapped(nextOpen);
 
     function handleUnmounted() {
-      setMounted(false);
+      // Prevents the position from visibly changing upon selection when the Select is closed.
+      ReactDOM.flushSync(() => {
+        setMounted(false);
+        setInnerOffset(0);
+        setInnerFallback(false);
+      });
     }
 
     if (!nextOpen) {
@@ -149,10 +170,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     onMatch: open
       ? setActiveIndex
       : (index) => {
-          const nextValue = index === null ? '' : labelsRef.current[index] || '';
-          setSelectedValueUnwrapped(nextValue);
-          onValueChange?.(nextValue);
-          setSelectedIndexUnwrapped(index);
+          setValue(valuesRef.current[index]);
         },
     onTypingChange(typing) {
       typingRef.current = typing;
@@ -187,12 +205,15 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
 
   return React.useMemo(
     () => ({
+      value,
+      setValue,
+      label,
+      setLabel,
       activeIndex,
       setActiveIndex,
       selectedIndex,
       setSelectedIndex,
       selectedIndexOnMount,
-      selectedValue,
       floatingRootContext,
       triggerElement,
       setTriggerElement,
@@ -202,6 +223,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       getItemProps,
       elementsRef,
       labelsRef,
+      valuesRef,
       mounted,
       transitionStatus,
       popupRef,
@@ -216,11 +238,12 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setInnerFallback,
     }),
     [
+      value,
+      label,
+      setValue,
       activeIndex,
       selectedIndex,
-      setSelectedIndex,
       selectedIndexOnMount,
-      selectedValue,
       floatingRootContext,
       triggerElement,
       getTriggerProps,
@@ -264,25 +287,29 @@ export namespace useSelectRoot {
      * If `true`, the Select is disabled.
      */
     disabled: boolean;
-    value?: string;
-    onValueChange?: (value: string) => void;
+    value?: string | null;
+    onValueChange?: (value: string | null) => void;
     defaultValue?: string;
     alignMethod?: 'trigger' | 'selected-item';
   }
 
   export interface ReturnValue {
+    value: string | null;
+    setValue: (value: string | null) => void;
+    label: string | null;
+    setLabel: React.Dispatch<React.SetStateAction<string | null>>;
     activeIndex: number | null;
     setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
     selectedIndex: number | null;
-    setSelectedIndex: (index: number | null) => void;
+    setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>;
     selectedIndexOnMount: number | null;
-    selectedValue: string | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: UseInteractionsReturn['getItemProps'];
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     elementsRef: React.MutableRefObject<(HTMLElement | null)[]>;
     labelsRef: React.MutableRefObject<(string | null)[]>;
+    valuesRef: React.MutableRefObject<(string | null)[]>;
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;

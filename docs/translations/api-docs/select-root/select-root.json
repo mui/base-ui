@@ -5,19 +5,25 @@
       "description": "Determines the type of alignment mode. <code>selected-item</code> aligns the popup so that the selected item appears over the trigger, while <code>trigger</code> aligns the popup using standard anchor positioning."
     },
     "animated": {
-      "description": "If <code>true</code>, the Menu supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
+      "description": "If <code>true</code>, the Select supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
     },
-    "defaultOpen": { "description": "If <code>true</code>, the Menu is initially open." },
-    "disabled": { "description": "If <code>true</code>, the Menu is disabled." },
+    "defaultOpen": { "description": "If <code>true</code>, the Select is initially open." },
+    "defaultValue": { "description": "The default value of the select." },
+    "disabled": { "description": "If <code>true</code>, the Select is disabled." },
+    "id": { "description": "The id of the Select." },
     "loop": {
       "description": "If <code>true</code>, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
     },
+    "name": { "description": "The name of the Select in the owning form." },
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."
     },
     "open": {
       "description": "Allows to control whether the dropdown is open. This is a controlled counterpart of <code>defaultOpen</code>."
-    }
+    },
+    "readOnly": { "description": "If <code>true</code>, the Select is read-only." },
+    "required": { "description": "If <code>true</code>, the Select is required." },
+    "value": { "description": "The value of the select." }
   },
   "classDescriptions": {}
 }

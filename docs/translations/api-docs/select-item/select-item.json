@@ -1,15 +1,16 @@
 {
-  "componentDescription": "An unstyled menu item to be used within a Menu.",
+  "componentDescription": "An unstyled select item to be used within a Select.",
   "propDescriptions": {
     "closeOnClick": {
-      "description": "If <code>true</code>, the menu will close when the menu item is clicked."
+      "description": "If <code>true</code>, the select will close when the select item is clicked."
     },
-    "disabled": { "description": "If <code>true</code>, the menu item will be disabled." },
-    "id": { "description": "The id of the menu item." },
+    "disabled": { "description": "If <code>true</code>, the select item will be disabled." },
+    "id": { "description": "The id of the select item." },
     "label": {
-      "description": "A text representation of the menu item&#39;s content. Used for keyboard text navigation matching."
+      "description": "A text representation of the select item&#39;s content. Used for keyboard text navigation matching."
     },
-    "onClick": { "description": "The click handler for the menu item." }
+    "onClick": { "description": "The click handler for the select item." },
+    "value": { "description": "The value of the select item." }
   },
   "classDescriptions": {}
 }

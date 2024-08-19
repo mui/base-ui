@@ -3,9 +3,13 @@ import * as React from 'react';
 import type { useSelectRoot } from './useSelectRoot';
 
 export interface SelectRootContext extends useSelectRoot.ReturnValue {
-  disabled: boolean;
   typingRef: React.MutableRefObject<boolean>;
   alignMethod: 'selected-item' | 'trigger';
+  id: string | undefined;
+  name: string | undefined;
+  disabled: boolean;
+  required: boolean;
+  readOnly: boolean;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

@@ -7,9 +7,15 @@ import { useSelectRoot } from './useSelectRoot';
 function SelectRoot(props: SelectRoot.Props) {
   const {
     animated = true,
+    id,
+    name,
     children,
+    value,
+    defaultValue,
     defaultOpen = false,
     disabled = false,
+    readOnly = false,
+    required = false,
     loop = true,
     onOpenChange,
     open,
@@ -24,6 +30,8 @@ function SelectRoot(props: SelectRoot.Props) {
     defaultOpen,
     open,
     alignMethod,
+    value,
+    defaultValue,
   });
 
   const context: SelectRootContext = React.useMemo(
@@ -31,8 +39,12 @@ function SelectRoot(props: SelectRoot.Props) {
       ...selectRoot,
       disabled,
       alignMethod,
+      id,
+      name,
+      required,
+      readOnly,
     }),
-    [selectRoot, disabled, alignMethod],
+    [selectRoot, disabled, alignMethod, id, name, required, readOnly],
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
@@ -41,7 +53,7 @@ function SelectRoot(props: SelectRoot.Props) {
 namespace SelectRoot {
   export interface Props {
     /**
-     * If `true`, the Menu supports CSS-based animations and transitions.
+     * If `true`, the Select supports CSS-based animations and transitions.
      * It is kept in the DOM until the animation completes.
      *
      * @default true
@@ -49,7 +61,39 @@ namespace SelectRoot {
     animated?: boolean;
     children: React.ReactNode;
     /**
-     * If `true`, the Menu is initially open.
+     * The name of the Select in the owning form.
+     */
+    name?: string;
+    /**
+     * The id of the Select.
+     */
+    id?: string;
+    /**
+     * If `true`, the Select is required.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * If `true`, the Select is read-only.
+     * @default false
+     */
+    readOnly?: boolean;
+    /**
+     * If `true`, the Select is disabled.
+     *
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * The value of the select.
+     */
+    value?: string;
+    /**
+     * The default value of the select.
+     */
+    defaultValue?: string;
+    /**
+     * If `true`, the Select is initially open.
      *
      * @default false
      */
@@ -68,12 +112,6 @@ namespace SelectRoot {
      * This is a controlled counterpart of `defaultOpen`.
      */
     open?: boolean;
-    /**
-     * If `true`, the Menu is disabled.
-     *
-     * @default false
-     */
-    disabled?: boolean;
     /**
      * Determines the type of alignment mode. `selected-item` aligns the popup so that the selected
      * item appears over the trigger, while `trigger` aligns the popup using standard anchor
@@ -97,7 +135,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   alignMethod: PropTypes.oneOf(['selected-item', 'trigger']),
   /**
-   * If `true`, the Menu supports CSS-based animations and transitions.
+   * If `true`, the Select supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.
    *
    * @default true
@@ -108,22 +146,34 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the Menu is initially open.
+   * If `true`, the Select is initially open.
    *
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * If `true`, the Menu is disabled.
+   * The default value of the select.
+   */
+  defaultValue: PropTypes.string,
+  /**
+   * If `true`, the Select is disabled.
    *
    * @default false
    */
   disabled: PropTypes.bool,
   /**
+   * The id of the Select.
+   */
+  id: PropTypes.string,
+  /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
    * @default true
    */
   loop: PropTypes.bool,
+  /**
+   * The name of the Select in the owning form.
+   */
+  name: PropTypes.string,
   /**
    * Callback fired when the component requests to be opened or closed.
    */
@@ -133,6 +183,20 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * This is a controlled counterpart of `defaultOpen`.
    */
   open: PropTypes.bool,
+  /**
+   * If `true`, the Select is read-only.
+   * @default false
+   */
+  readOnly: PropTypes.bool,
+  /**
+   * If `true`, the Select is required.
+   * @default false
+   */
+  required: PropTypes.bool,
+  /**
+   * The value of the select.
+   */
+  value: PropTypes.string,
 } as any;
 
 export { SelectRoot };
