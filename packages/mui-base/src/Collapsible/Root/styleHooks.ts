@@ -1,7 +1,7 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { CollapsibleRootOwnerState } from './CollapsibleRoot.types';
+import { CollapsibleRoot } from './CollapsibleRoot';
 
-export const collapsibleStyleHookMapping: CustomStyleHookMapping<CollapsibleRootOwnerState> = {
+export const collapsibleStyleHookMapping: CustomStyleHookMapping<CollapsibleRoot.OwnerState> = {
   open: (value) => {
     return value ? { 'data-state': 'open' } : { 'data-state': 'closed' };
   },

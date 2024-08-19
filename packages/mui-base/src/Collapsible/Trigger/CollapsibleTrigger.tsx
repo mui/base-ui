@@ -2,13 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleContext } from '../Root/CollapsibleContext';
+import { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
-import { CollapsibleTriggerProps } from './CollapsibleTrigger.types';
 
 const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
-  props: CollapsibleTriggerProps,
+  props: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { className, render, ...otherProps } = props;
@@ -33,6 +34,10 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
   return renderElement();
 });
+
+namespace CollapsibleTrigger {
+  export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.OwnerState> {}
+}
 
 CollapsibleTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

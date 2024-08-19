@@ -1,14 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleContext } from '../Root/CollapsibleContext';
+import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleContent } from './useCollapsibleContent';
-import { CollapsibleContentProps } from './CollapsibleContent.types';
 
-const CollapsibleContent = React.forwardRef(function CollapsibleContent(
-  props: CollapsibleContentProps,
+export const CollapsibleContent = React.forwardRef(function CollapsibleContent(
+  props: CollapsibleContent.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { className, htmlHidden, render, ...otherProps } = props;
@@ -45,6 +46,12 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   return renderElement();
 });
 
+export namespace CollapsibleContent {
+  export interface Props
+    extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
+      Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
+}
+
 CollapsibleContent.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -68,5 +75,3 @@ CollapsibleContent.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { CollapsibleContent };

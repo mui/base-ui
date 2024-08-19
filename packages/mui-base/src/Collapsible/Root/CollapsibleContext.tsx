@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { CollapsibleContextValue } from './CollapsibleRoot.types';
+import type { CollapsibleRoot } from './CollapsibleRoot';
 
 /**
  * @ignore - internal component.
  */
-export const CollapsibleContext = React.createContext<CollapsibleContextValue | undefined>(
+export const CollapsibleContext = React.createContext<CollapsibleRoot.Context | undefined>(
   undefined,
 );
 

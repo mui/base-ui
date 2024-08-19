@@ -3,9 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleContext } from './CollapsibleContext';
-import { CollapsibleContextValue, CollapsibleRootProps } from './CollapsibleRoot.types';
 
-function CollapsibleRoot(props: CollapsibleRootProps) {
+export function CollapsibleRoot(props: CollapsibleRoot.Props) {
   const { animated, open, defaultOpen, onOpenChange, disabled, children } = props;
 
   const collapsible = useCollapsibleRoot({
@@ -16,7 +15,7 @@ function CollapsibleRoot(props: CollapsibleRootProps) {
     disabled,
   });
 
-  const contextValue: CollapsibleContextValue = React.useMemo(
+  const contextValue: CollapsibleRoot.Context = React.useMemo(
     () => ({
       ...collapsible,
       ownerState: {
@@ -29,6 +28,19 @@ function CollapsibleRoot(props: CollapsibleRootProps) {
   );
 
   return <CollapsibleContext.Provider value={contextValue}>{children}</CollapsibleContext.Provider>;
+}
+
+export namespace CollapsibleRoot {
+  export interface Context extends useCollapsibleRoot.ReturnValue {
+    ownerState: OwnerState;
+  }
+
+  export interface OwnerState
+    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
+
+  export interface Props extends useCollapsibleRoot.Parameters {
+    children: React.ReactNode;
+  }
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {
@@ -66,5 +78,3 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
 } as any;
-
-export { CollapsibleRoot };

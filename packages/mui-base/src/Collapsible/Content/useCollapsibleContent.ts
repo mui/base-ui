@@ -8,10 +8,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
-import {
-  UseCollapsibleContentParameters,
-  UseCollapsibleContentReturnValue,
-} from './CollapsibleContent.types';
 
 function getComputedStyles(element: HTMLElement) {
   const containerWindow = ownerWindow(element);
@@ -46,9 +42,9 @@ function supportsHiddenUntilFound(element: HTMLElement) {
  *
  * - [useCollapsibleContent API](https://mui.com/base-ui/react-collapsible/hooks-api/#use-collapsible-content)
  */
-function useCollapsibleContent(
-  parameters: UseCollapsibleContentParameters,
-): UseCollapsibleContentReturnValue {
+export function useCollapsibleContent(
+  parameters: useCollapsibleContent.Parameters,
+): useCollapsibleContent.ReturnValue {
   const {
     animated = false,
     htmlHidden = 'hidden',
@@ -261,7 +257,7 @@ function useCollapsibleContent(
     }
   }, [htmlHidden, isOpen]);
 
-  const getRootProps: UseCollapsibleContentReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useCollapsibleContent.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
@@ -280,4 +276,34 @@ function useCollapsibleContent(
   );
 }
 
-export { useCollapsibleContent };
+export namespace useCollapsibleContent {
+  export interface Parameters {
+    /**
+     * If `true`, the component supports CSS/JS-based animations and transitions.
+     * @default false
+     */
+    animated?: boolean;
+    /**
+     * The hidden state when closed
+     * @default 'hidden'
+     */
+    htmlHidden?: 'hidden' | 'until-found';
+    id?: React.HTMLAttributes<Element>['id'];
+    mounted: boolean;
+    /**
+     * The open state of the Collapsible
+     */
+    open: boolean;
+    ref: React.Ref<HTMLElement>;
+    setContentId: (id: string | undefined) => void;
+    setOpen: (nextOpen: boolean) => void;
+    setMounted: (nextMounted: boolean) => void;
+  }
+
+  export interface ReturnValue {
+    getRootProps: (
+      externalProps?: React.ComponentPropsWithRef<'button'>,
+    ) => React.ComponentPropsWithRef<'button'>;
+    height: number;
+  }
+}
