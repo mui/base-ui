@@ -21,7 +21,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     menuEvents,
     ref: externalRef,
     treatMouseupAsClick,
-    userIsTyping,
+    typingRef,
   } = params;
 
   const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
@@ -39,7 +39,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
           onKeyUp: (event: React.KeyboardEvent & MuiCancellableEvent) => {
-            if (event.key === ' ' && userIsTyping.current) {
+            if (event.key === ' ' && typingRef.current) {
               event.defaultMuiPrevented = true;
             }
           },
@@ -51,7 +51,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick, userIsTyping],
+    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick, typingRef],
   );
 
   return React.useMemo(
@@ -96,7 +96,7 @@ export namespace useMenuItem {
     /**
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
-    userIsTyping: React.RefObject<boolean>;
+    typingRef: React.RefObject<boolean>;
   }
 
   export interface ReturnValue {

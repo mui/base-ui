@@ -25,10 +25,10 @@ function MenuRoot(props: MenuRoot.Props) {
   const nested = parentContext != null;
 
   const openOnHover = openOnHoverProp ?? nested;
-  const isTyping = React.useRef(false);
+  const typingRef = React.useRef(false);
 
   const onTypingChange = React.useCallback((nextTyping: boolean) => {
-    isTyping.current = nextTyping;
+    typingRef.current = nextTyping;
   }, []);
 
   const menuRoot = useMenuRoot({
@@ -64,7 +64,7 @@ function MenuRoot(props: MenuRoot.Props) {
       disabled,
       clickAndDragEnabled,
       setClickAndDragEnabled,
-      userIsTyping: isTyping,
+      typingRef,
     }),
     [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled],
   );
