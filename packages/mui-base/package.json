@@ -42,9 +42,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.25.0",
-    "@floating-ui/react": "^0.26.20",
+    "@floating-ui/react": "^0.26.22",
     "@floating-ui/react-dom": "^2.1.1",
-    "@floating-ui/utils": "^0.2.5",
+    "@floating-ui/utils": "^0.2.7",
     "@mui/types": "^7.2.15",
     "@mui/utils": "^5.16.6",
     "clsx": "^2.1.1",
