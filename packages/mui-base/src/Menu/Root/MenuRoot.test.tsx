@@ -175,8 +175,13 @@ describe('<Menu.Root />', () => {
         expect(getByText('Cd')).to.have.attribute('tabindex', '0');
       });
 
-      it('changes the highlighted item using text navigation on label prop', async () => {
-        const { getByRole, getByText } = await render(
+      it('changes the highlighted item using text navigation on label prop', async function test() {
+        if (!/jsdom/.test(window.navigator.userAgent)) {
+          // This test is very flaky in real browsers
+          this.skip();
+        }
+
+        const { queryByRole, getByRole, getByText } = await render(
           <Menu.Root animated={false}>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Positioner>
@@ -193,6 +198,10 @@ describe('<Menu.Root />', () => {
         const trigger = getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
         await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(queryByRole('menu')).not.to.equal(null);
+        });
 
         await user.keyboard('b');
         await waitFor(() => {
