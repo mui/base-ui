@@ -1,0 +1,31 @@
+.root {
+  border: 1px solid color-mix(in oklab, currentcolor 40%, #fff);
+  border-radius: 12px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  background-color: color-mix(in oklab, currentcolor 7%, #fff);
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  p {
+    color: currentcolor;
+  }
+}
+
+.info {
+  color: #00749e;
+}
+
+.warning {
+  color: #9e6c00;
+}
+
+.success {
+  color: #0c8050;
+}
+
+.error {
+  color: #cb1d63;
+}

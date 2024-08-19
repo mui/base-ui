@@ -14,12 +14,12 @@ The Next.js App Router implements React Server Components, [an upcoming feature 
 
 To support the App Router, the components and hooks from Base UI that need access to browser APIs are exported with the `"use client"` directive.
 
-:::warning
+<Callout type="warning">
 React Server Components should not be conflated with the concept of server-side rendering (SSR).
 So-called Client Components are still server-rendered to HTML.
 
 For more details, see [this explanation](https://github.com/reactwg/server-components/discussions/4) of Client Components and SSR from the React Working Group.
-:::
+</Callout>
 
 ## Setting up Base UI with the App Router
 
