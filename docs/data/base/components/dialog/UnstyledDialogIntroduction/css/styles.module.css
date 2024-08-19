@@ -91,3 +91,12 @@
   backdrop-filter: blur(4px);
   z-index: 2000;
 }
+.textfield {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--gray-300);
+  font-family: 'IBM Plex Sans', sans-serif;
+  margin: 16px 0;
+  width: 100%;
+  box-sizing: border-box;
+}

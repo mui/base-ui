@@ -1,6 +1,8 @@
 @import 'theme.css';
 @import 'reset.css';
 
+@import 'demo-colors.css';
+
 @import 'components/app-bar.css';
 @import 'components/badge.css';
 @import 'components/button.css';
