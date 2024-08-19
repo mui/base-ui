@@ -419,7 +419,9 @@ describe('<Menu.Root />', () => {
       await userEvent.keyboard('[Enter]');
 
       const [firstItem, ...otherItems] = getAllByRole('menuitem');
-      expect(firstItem.tabIndex).to.equal(0);
+      await waitFor(() => {
+        expect(firstItem.tabIndex).to.equal(0);
+      });
       otherItems.forEach((item) => {
         expect(item.tabIndex).to.equal(-1);
       });
