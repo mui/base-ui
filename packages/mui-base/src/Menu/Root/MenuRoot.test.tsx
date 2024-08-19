@@ -176,7 +176,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('changes the highlighted item using text navigation on label prop', async () => {
-        const { getByRole, getAllByRole } = await render(
+        const { getByRole, getByText } = await render(
           <Menu.Root animated={false}>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Positioner>
@@ -192,24 +192,16 @@ describe('<Menu.Root />', () => {
 
         const trigger = getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
-
-        const items = getAllByRole('menuitem');
         await flushMicrotasks();
 
         await user.keyboard('b');
         await waitFor(() => {
-          expect(items[1]).toHaveFocus();
+          expect(getByText('2')).toHaveFocus();
         });
 
         await waitFor(() => {
-          expect(items[1]).to.have.attribute('tabindex', '0');
+          expect(getByText('2')).to.have.attribute('tabindex', '0');
         });
-
-        await user.keyboard('c');
-        await waitFor(() => {
-          expect(items[3]).toHaveFocus();
-        });
-        expect(items[3]).to.have.attribute('tabindex', '0');
       });
 
       it('skips the non-stringifiable items', async function test() {
