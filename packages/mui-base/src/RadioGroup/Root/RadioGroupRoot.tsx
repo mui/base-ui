@@ -7,6 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { RadioGroupRootContext } from './RadioGroupRootContext';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   props: RadioGroupRoot.Props,
@@ -15,7 +16,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   const {
     render,
     className,
-    disabled,
+    disabled: disabledProp,
     readOnly,
     required,
     onValueChange: onValueChangeProp,
@@ -23,24 +24,29 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     ...otherProps
   } = props;
 
-  const { getRootProps, checkedItem, setCheckedItem, touched, setTouched } =
+  const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
     useRadioGroupRoot(props);
+
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+
+  const disabled = fieldDisabled || disabledProp;
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
   const ownerState: RadioGroupRoot.OwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       disabled: disabled ?? false,
       required: required ?? false,
       readOnly: readOnly ?? false,
     }),
-    [disabled, readOnly, required],
+    [fieldOwnerState, disabled, readOnly, required],
   );
 
-  const contextValue: RadioGroupRootContext.Value = React.useMemo(
+  const contextValue: RadioGroupRootContext = React.useMemo(
     () => ({
-      checkedItem,
-      setCheckedItem,
+      checkedValue,
+      setCheckedValue,
       onValueChange,
       disabled,
       readOnly,
@@ -48,7 +54,16 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
       touched,
       setTouched,
     }),
-    [checkedItem, setCheckedItem, onValueChange, disabled, readOnly, required, touched, setTouched],
+    [
+      checkedValue,
+      setCheckedValue,
+      onValueChange,
+      disabled,
+      readOnly,
+      required,
+      touched,
+      setTouched,
+    ],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -63,9 +78,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   return (
     <RadioGroupRootContext.Provider value={contextValue}>
       <CompositeRoot render={renderElement()} />
-      {props.name && (
-        <input type="hidden" name={props.name} value={checkedItem ?? ''} required={required} />
-      )}
+      <input {...getInputProps()} />
     </RadioGroupRootContext.Provider>
   );
 });

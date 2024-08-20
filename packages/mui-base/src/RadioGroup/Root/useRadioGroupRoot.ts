@@ -1,6 +1,11 @@
 import * as React from 'react';
+import { contains } from '@floating-ui/react/utils';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useId } from '../../utils/useId';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 /**
  *
@@ -9,46 +14,112 @@ import { useControlled } from '../../utils/useControlled';
  * - [useRadioGroupRoot API](https://mui.com/base-ui/api/use-radio-group-root/)
  */
 export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
-  const { disabled, defaultValue, readOnly, value: externalValue } = params;
+  const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const [checkedItem, setCheckedItem] = useControlled<string | number | undefined>({
+  const {
+    labelId,
+    setDisabled,
+    setControlId,
+    setTouched: setFieldTouched,
+    validityData,
+    setValidityData,
+  } = useFieldRootContext();
+
+  const {
+    getValidationProps,
+    getInputValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
+  const id = useId();
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
+
+  const [checkedValue, setCheckedValue] = useControlled<string | number | undefined>({
     controlled: externalValue,
     default: defaultValue,
     name: 'RadioGroup',
     state: 'value',
   });
 
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && checkedValue !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: checkedValue }));
+    }
+  }, [checkedValue, setValidityData, validityData.initialValue]);
+
   const [touched, setTouched] = React.useState(false);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
+      mergeReactProps<'div'>(getValidationProps(externalProps), {
         role: 'radiogroup',
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        'aria-labelledby': labelId,
+        onBlur(event) {
+          if (!contains(event.currentTarget, event.relatedTarget)) {
+            setFieldTouched(true);
+            commitValidation(checkedValue);
+          }
+        },
         onKeyDownCapture(event) {
           if (event.key.startsWith('Arrow')) {
+            setFieldTouched(true);
             setTouched(true);
           }
         },
       }),
-    [disabled, readOnly],
+    [
+      checkedValue,
+      commitValidation,
+      disabled,
+      getValidationProps,
+      labelId,
+      readOnly,
+      setFieldTouched,
+    ],
+  );
+
+  const getInputProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps(getInputValidationProps(externalProps), {
+        type: 'hidden',
+        value: checkedValue ?? '', // avoid uncontrolled -> controlled error
+        ref: inputValidationRef,
+        name,
+        disabled,
+        readOnly,
+      }),
+    [checkedValue, disabled, getInputValidationProps, inputValidationRef, name, readOnly],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
-      checkedItem,
-      setCheckedItem,
+      getInputProps,
+      checkedValue,
+      setCheckedValue,
       touched,
       setTouched,
     }),
-    [getRootProps, checkedItem, setCheckedItem, touched],
+    [getRootProps, getInputProps, checkedValue, setCheckedValue, touched],
   );
 }
 
 namespace useRadioGroupRoot {
   export interface Parameters {
+    name?: string;
     disabled?: boolean;
     readOnly?: boolean;
     defaultValue?: string | number;

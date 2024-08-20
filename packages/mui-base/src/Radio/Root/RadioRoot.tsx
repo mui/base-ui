@@ -9,6 +9,7 @@ import { useRadioRoot } from './useRadioRoot';
 import { RadioRootContext } from './RadioRootContext';
 import { CompositeItem } from '../../Composite/Item/CompositeItem';
 import { NOOP } from '../../utils/noop';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.OwnerState> = {
   checked(value) {
@@ -35,10 +36,12 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: disabledRoot,
     readOnly: readOnlyRoot,
     required: requiredRoot,
-    setCheckedItem,
+    setCheckedValue,
   } = useRadioGroupRootContext();
 
-  const disabled = disabledRoot || disabledProp;
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+
+  const disabled = fieldDisabled || disabledRoot || disabledProp;
   const readOnly = readOnlyRoot || readOnlyProp;
   const required = requiredRoot || requiredProp;
 
@@ -50,15 +53,16 @@ const RadioRoot = React.forwardRef(function RadioRoot(
 
   const ownerState: RadioRoot.OwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       required,
       disabled,
       readOnly,
       checked,
     }),
-    [disabled, readOnly, checked, required],
+    [fieldOwnerState, disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioRootContext.Value = React.useMemo(() => ownerState, [ownerState]);
+  const contextValue: RadioRootContext = React.useMemo(() => ownerState, [ownerState]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -72,7 +76,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
 
   return (
     <RadioRootContext.Provider value={contextValue}>
-      {setCheckedItem === NOOP ? renderElement() : <CompositeItem render={renderElement()} />}
+      {setCheckedValue === NOOP ? renderElement() : <CompositeItem render={renderElement()} />}
       <input {...getInputProps()} />
     </RadioRootContext.Provider>
   );

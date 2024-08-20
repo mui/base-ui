@@ -3,6 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  *
@@ -13,10 +14,12 @@ import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootCo
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
 
-  const { checkedItem, setCheckedItem, onValueChange, touched, setTouched } =
+  const { checkedValue, setCheckedValue, onValueChange, touched, setTouched } =
     useRadioGroupRootContext();
 
-  const checked = checkedItem === value;
+  const { setDirty, validityData, setTouched: setFieldTouched } = useFieldRootContext();
+
+  const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -26,7 +29,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
         role: 'radio',
         type: 'button',
         'aria-checked': checked,
-        'aria-required': required,
+        'aria-required': required || undefined,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         onKeyDown(event) {
@@ -59,15 +62,15 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const getInputProps: useRadioRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(externalProps, {
-        type: 'radio' as const,
+        type: 'radio',
         ref: inputRef,
         tabIndex: -1,
+        style: visuallyHidden,
+        'aria-hidden': true,
         disabled,
         checked,
         required,
         readOnly,
-        style: visuallyHidden,
-        'aria-hidden': true,
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
           if (event.nativeEvent.defaultPrevented) {
@@ -78,11 +81,24 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
             return;
           }
 
-          setCheckedItem(value);
+          setFieldTouched(true);
+          setDirty(value !== validityData.initialValue);
+          setCheckedValue(value);
           onValueChange?.(value, event);
         },
       }),
-    [disabled, readOnly, value, checked, setCheckedItem, required, onValueChange],
+    [
+      disabled,
+      checked,
+      required,
+      readOnly,
+      value,
+      setFieldTouched,
+      setDirty,
+      validityData.initialValue,
+      setCheckedValue,
+      onValueChange,
+    ],
   );
 
   return React.useMemo(
