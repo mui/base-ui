@@ -25,6 +25,8 @@ const pages: readonly RouteMetadata[] = [
       { pathname: '/components/react-alert-dialog', title: 'Alert Dialog' },
       { pathname: '/components/react-checkbox', title: 'Checkbox' },
       { pathname: '/components/react-dialog', title: 'Dialog' },
+      { pathname: '/components/react-field', title: 'Field' },
+      { pathname: '/components/react-fieldset', title: 'Fieldset' },
       { pathname: '/components/react-menu', title: 'Menu' },
       { pathname: '/components/react-number-field', title: 'Number Field' },
       { pathname: '/components/react-popover', title: 'Popover' },

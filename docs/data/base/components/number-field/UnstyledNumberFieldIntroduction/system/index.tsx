@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import * as BaseNumberField from '@base_ui/react/NumberField';
+import * as Field from '@base_ui/react/Field';
 import { css, styled, useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -16,37 +17,38 @@ export default function UnstyledNumberFieldIntroduction() {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <NumberField id={id}>
-        <NumberFieldScrubArea>
-          <NumberFieldVirtualCursor style={{ transform: 'rotate(90deg)' }}>
-            <svg
-              width="26"
-              height="14"
-              viewBox="0 0 24 14"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              shapeRendering="crispEdges"
+      <Field.Root>
+        <NumberField id={id}>
+          <NumberFieldScrubArea>
+            <NumberFieldVirtualCursor style={{ transform: 'rotate(90deg)' }}>
+              <svg
+                width="26"
+                height="14"
+                viewBox="0 0 24 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                shapeRendering="crispEdges"
+              >
+                <path
+                  d="M19.3382 3.00223V5.40757L13.0684 5.40757L13.0683 5.40757L6.59302 5.40964V3V1.81225L5.74356 2.64241L1.65053 6.64241L1.28462 7L1.65053 7.35759L5.74356 11.3576L6.59302 12.1878V11L6.59302 8.61585L13.0684 8.61585H19.3382V11V12.1741L20.1847 11.3605L24.3465 7.36049L24.7217 6.9999L24.3464 6.63941L20.1846 2.64164L19.3382 1.82862V3.00223Z"
+                  fill="black"
+                  stroke="white"
+                />
+              </svg>
+            </NumberFieldVirtualCursor>
+            <Field.Label
+              style={{ cursor: 'unset', color: isDarkMode ? grey[300] : grey[800] }}
             >
-              <path
-                d="M19.3382 3.00223V5.40757L13.0684 5.40757L13.0683 5.40757L6.59302 5.40964V3V1.81225L5.74356 2.64241L1.65053 6.64241L1.28462 7L1.65053 7.35759L5.74356 11.3576L6.59302 12.1878V11L6.59302 8.61585L13.0684 8.61585H19.3382V11V12.1741L20.1847 11.3605L24.3465 7.36049L24.7217 6.9999L24.3464 6.63941L20.1846 2.64164L19.3382 1.82862V3.00223Z"
-                fill="black"
-                stroke="white"
-              />
-            </svg>
-          </NumberFieldVirtualCursor>
-          <label
-            htmlFor={id}
-            style={{ cursor: 'unset', color: isDarkMode ? grey[300] : grey[800] }}
-          >
-            Amount
-          </label>
-        </NumberFieldScrubArea>
-        <NumberFieldGroup>
-          <NumberFieldDecrement>&minus;</NumberFieldDecrement>
-          <NumberFieldInput placeholder="Enter value" />
-          <NumberFieldIncrement>+</NumberFieldIncrement>
-        </NumberFieldGroup>
-      </NumberField>
+              Amount
+            </Field.Label>
+          </NumberFieldScrubArea>
+          <NumberFieldGroup>
+            <NumberFieldDecrement>&minus;</NumberFieldDecrement>
+            <NumberFieldInput placeholder="Enter value" />
+            <NumberFieldIncrement>+</NumberFieldIncrement>
+          </NumberFieldGroup>
+        </NumberField>
+      </Field.Root>
     </div>
   );
 }

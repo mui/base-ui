@@ -8,6 +8,7 @@
     "disabled": {
       "description": "If <code>true</code>, the component is disabled and can&#39;t be interacted with."
     },
+    "id": { "description": "The id of the switch element." },
     "inputRef": { "description": "Ref to the underlying input element." },
     "name": { "description": "Name of the underlying input element." },
     "onCheckedChange": { "description": "Callback fired when the checked state is changed." },

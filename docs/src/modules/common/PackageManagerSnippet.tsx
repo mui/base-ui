@@ -11,8 +11,20 @@ interface PackageManagerSnippetProps {
 
 const packageManagers = ['npm', 'pnpm', 'Yarn'];
 
+function getStoredValue() {
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    return localStorage.getItem('package-manager') || 'npm';
+  }
+
+  return 'npm';
+}
+
 export function PackageManagerSnippet(props: PackageManagerSnippetProps) {
-  const [value, setValue] = React.useState(localStorage.getItem('package-manager') ?? 'npm');
+  const [value, setValue] = React.useState('npm');
+
+  React.useEffect(() => {
+    setValue(getStoredValue());
+  }, []);
 
   return (
     <div className={classes.root}>
