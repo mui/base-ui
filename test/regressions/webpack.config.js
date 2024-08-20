@@ -50,6 +50,22 @@ module.exports = {
         test: /\.(jpg|gif|png)$/,
         type: 'asset/inline',
       },
+      {
+        test: /\.module.css$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                namedExport: false,
+              },
+            },
+          },
+        ],
+      },
     ],
   },
   resolve: {
@@ -66,6 +82,7 @@ module.exports = {
       ...webpackBaseConfig.resolve.alias,
       docs: false, // Disable this alias as it creates a circular resolution loop with the docs-base alias
     },
+    extensions: [...webpackBaseConfig.resolve.extensions, '.css'],
   },
   // TODO: 'browserslist:modern'
   // See https://github.com/webpack/webpack/issues/14203
