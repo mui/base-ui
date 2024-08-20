@@ -1,18 +1,25 @@
 import * as React from 'react';
+import { PackageManagerSnippet, Npm, Pnpm, Yarn } from '../common/PackageManagerSnippet';
 
 export interface InstallationInstructionsProps {
-  importStatement: string;
+  componentName: string;
 }
 
 export function InstallationInstructions(props: InstallationInstructionsProps) {
-  const { importStatement } = props;
+  const { componentName } = props;
 
   return (
     <React.Fragment>
-      Base UI components are all available as a single package.
-      <pre>npm install @base_ui/react yarn add @base_ui/react pnpm add @base_ui/react</pre>
-      Once you have the package installed, import the component.
-      <pre>{importStatement}</pre>
+      <p>Base UI components are all available as a single package.</p>
+      <PackageManagerSnippet>
+        <Npm>npm install @base_ui/react</Npm>
+        <Pnpm>pnpm add @base_ui/react</Pnpm>
+        <Yarn>yarn add @base_ui/react</Yarn>
+      </PackageManagerSnippet>
+      <p>Once you have the package installed, import the component.</p>
+      <pre>
+        import * as {componentName} from &apos;@base_ui/react/{componentName}&apos;;
+      </pre>
     </React.Fragment>
   );
 }
