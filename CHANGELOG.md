@@ -6,12 +6,13 @@ _Aug 19, 2024_
 
 A big thanks to the 10 contributors who made this release possible. Here are some highlights ✨:
 
-⭐ We added many new components: AlertDialog, Dialog, Menu, Popover, PreviewCard, Progress, Slider, and Tooltip.
+⭐ We added many new components: AlertDialog, Dialog, Field, Menu, Popover, PreviewCard, Progress, Slider, and Tooltip.
 
 ### `@base_ui/react@1.0.0-alpha.2`
 
 - [Checkbox] Fix checked change when clicking button with wrapping label (#467) @atomiks
 - [Dialog] Create new component and hook (#372) @michaldudak
+- [Field] Create new Field components (#477) @atomiks
 - [Menu] Overhaul the component API (#468) @michaldudak
 - [NumberField] Fix tests on non-English locale machines (#524) @michaldudak
 - [NumberField] Rename `onChange` prop to `onValueChange` (#464) @atomiks
