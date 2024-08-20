@@ -1,31 +1,37 @@
 .root {
-  border: 1px solid color-mix(in oklab, currentcolor 40%, #fff);
-  border-radius: 12px;
+  border: 1px solid;
+  border-radius: 8px;
   padding: var(--space-4);
-  margin-bottom: var(--space-4);
-  background-color: color-mix(in oklab, currentcolor 7%, #fff);
+  margin: var(--space-6) 0;
+
+  p {
+    color: var(--gray-text-1);
+    font-size: var(--fs-3);
+    line-height: 20px;
+    margin-bottom: var(--space-2);
+  }
 
   > :last-child {
     margin-bottom: 0;
   }
-
-  p {
-    color: currentcolor;
-  }
 }
 
 .info {
-  color: #00749e;
+  background-color: #F9FEFF;
+  border-color: #A9DAED;
 }
 
 .warning {
-  color: #9e6c00;
+  background-color: #FEFDFB;
+  border-color: #F3D768;
 }
 
 .success {
-  color: #0c8050;
+  background-color: #FBFEFD;
+  border-color: #ACDEC8;
 }
 
 .error {
-  color: #cb1d63;
+  background-color: #fffcfc;
+  border-color: #FDBDBE;
 }
