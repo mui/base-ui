@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Metadata } from 'next';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
 import { GoogleTagManager } from 'docs-base/src/modules/common/GoogleTagManager';
 import { GoogleAnalytics } from 'docs-base/src/modules/common/GoogleAnalytics';
@@ -34,3 +35,23 @@ export default function Layout({ children }: Props) {
     </html>
   );
 }
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s · Base UI',
+    default: 'Base UI',
+  },
+  twitter: {
+    site: '@Base_UI',
+    card: 'summary_large_image',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    title: {
+      template: '%s · Base UI',
+      default: 'Base UI',
+    },
+    ttl: 604800,
+  },
+};

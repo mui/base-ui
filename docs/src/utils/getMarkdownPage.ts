@@ -9,11 +9,14 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import rehypeSlug from 'rehype-slug';
 import extractToc, { type Toc } from '@stefanprobst/rehype-extract-toc';
 import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
+import { read as readVFile } from 'to-vfile';
+import { matter } from 'vfile-matter';
 
 export const DATA_PATH = path.join(process.cwd(), 'data/base');
 
 export interface PageMetadata {
   title: string;
+  description: string;
   components?: string;
   githubLabel?: string;
   waiAria?: string;
@@ -60,4 +63,24 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
     tableOfContents: tableOfContents as Toc,
     MDXContent,
   };
+};
+
+export const getMarkdownPageMetadata = async (basePath: string, slug: string) => {
+  const mdxFilePath = path.join(DATA_PATH, basePath, `/${slug}/${slug}.mdx`);
+  const mdFilePath = path.join(DATA_PATH, basePath, `/${slug}/${slug}.md`);
+
+  let filePath: string;
+
+  if (fs.existsSync(mdxFilePath)) {
+    filePath = mdxFilePath;
+  } else if (fs.existsSync(mdFilePath)) {
+    filePath = mdFilePath;
+  } else {
+    throw new Error(`No MD(X) file found for ${basePath}/${slug}`);
+  }
+
+  const file = await readVFile(filePath);
+  matter(file);
+
+  return file.data.matter as PageMetadata;
 };
