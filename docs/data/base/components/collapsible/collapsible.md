@@ -61,6 +61,7 @@ import * as Collapsible from '@base_ui/react/Collapsible';
 
 :::warning
 This is [not yet supported](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) in Safari and Firefox as of August 2024 and will fall back to the default `hidden` behavior.
+
 :::
 
 Content hidden in the `Collapsible.Content` component can be made accessible only to a browser's find-in-page functionality with the `htmlHidden` prop to improve searchability:
@@ -74,6 +75,8 @@ Content hidden in the `Collapsible.Content` component can be made accessible onl
   </Collapsible.Content>
 </Collapsible.Root>
 ```
+
+We recommend using [CSS animations](#css-animations) for animated collapsibles that use this feature. Currently there is browser bug that does not highlight the found text inside elements that have a [CSS transition](#css-transitions) applied.
 
 This relies on the HTML `hidden="until-found"` attribute which only has [partial browser support](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) as of August 2024, but automatically falls back to the default `hidden` state in unsupported browsers.
 
@@ -126,6 +129,12 @@ CSS animations can be used with two declarations:
 {{"demo": "CssAnimatedCollapsible.js"}}
 
 ### CSS Transitions
+
+When using CSS transitions, styles for the `Content` subcomponent must be applied to three states:
+
+- The closed styles with `[data-state="closed"]`
+- The open styles with `[data-state="open"]`
+- The entering styles with `[data-entering]`
 
 ```css
 .Collapsible-content {
@@ -185,4 +194,18 @@ function App() {
     </Collapsible.Root>
   );
 }
+```
+
+## Overriding default components
+
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+// Element shorthand
+<Collapsible.Content render={<MyCollapsibleContent />} />
+```
+
+```jsx
+// Function
+<Collapsible.Content render={(props) => <MyCollapsibleContent {...props} />} />
 ```
