@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { BaseUIIcon } from 'docs-base/src/icons/BaseUI';
 
@@ -32,3 +33,15 @@ export default function Home() {
     </div>
   );
 }
+
+const description = 'Unstyled UI components for building accessible web apps and design systems.';
+
+export const metadata: Metadata = {
+  description,
+  twitter: {
+    description,
+  },
+  openGraph: {
+    description,
+  },
+};
