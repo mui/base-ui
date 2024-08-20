@@ -17,21 +17,21 @@
 }
 
 .info {
-  background-color: #F9FEFF;
-  border-color: #A9DAED;
+  background-color: #f9feff;
+  border-color: #a9daed;
 }
 
 .warning {
-  background-color: #FEFDFB;
-  border-color: #F3D768;
+  background-color: #fefdfb;
+  border-color: #f3d768;
 }
 
 .success {
-  background-color: #FBFEFD;
-  border-color: #ACDEC8;
+  background-color: #fbfefd;
+  border-color: #acdec8;
 }
 
 .error {
   background-color: #fffcfc;
-  border-color: #FDBDBE;
+  border-color: #fdbdbe;
 }
