@@ -113,6 +113,9 @@ export function useCollapsibleContent(
       const originalAnimationName =
         element.style.animationName === 'none' ? '' : element.style.animationName;
       const originalTransitionDuration = originalTransitionDurationStyleRef.current;
+      // cancel animation/transitions for these specific instances:
+      // 1. when initially open, on mount/load, it should just appear fully open but remain animated per styles afterwards
+      // 2. when using `hidden='until-found'` and is opened by find-in-page, it should open instantly but remain animated //    as styled afterwards
       const shouldCancelAnimation = isBeforeMatch || isInitiallyOpen;
 
       element.style.animationName = 'none';
