@@ -10,7 +10,7 @@ export function ComponentLinkHeader(props: ComponentLinkHeaderProps) {
   const { githubLabel, ariaSpecUrl } = props;
 
   return (
-    <div {...props} className={classes.root}>
+    <div className={classes.root}>
       {githubLabel && (
         <a
           href={`${process.env.SOURCE_CODE_REPO}/labels/${encodeURIComponent(githubLabel)}`}
