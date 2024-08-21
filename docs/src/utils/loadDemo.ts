@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
-import { basename, dirname, extname } from 'node:path';
+import { basename, dirname, extname, resolve } from 'node:path';
 import { codeToHtml } from 'shiki';
 import { DemoFile, DemoVariant } from '../blocks/Demo/types';
 
@@ -80,7 +80,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
     theme: 'github-light',
   });
 
-  const localImports = getLocalImports(mainContent);
+  const localImports = getLocalImports(mainContent, dirname(mainFilePath));
 
   const languageVariants: DemoVariant[] = [
     {
@@ -95,7 +95,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
           path: mainFilePath,
           type: mainFileLanguage,
         },
-        ...(await getDependencyFiles(localImports, dirname(mainFilePath))),
+        ...(await getDependencyFiles(localImports, mainFileLanguage === 'ts')),
       ],
     },
   ];
@@ -108,7 +108,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
       theme: 'github-light',
     });
 
-    const jsLocalImports = getLocalImports(mainContent);
+    const jsLocalImports = getLocalImports(mainContent, dirname(jsFilePath));
 
     languageVariants.push({
       name: variantName,
@@ -122,7 +122,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
           path: jsFilePath,
           type: 'js',
         },
-        ...(await getDependencyFiles(jsLocalImports, dirname(jsFilePath))),
+        ...(await getDependencyFiles(jsLocalImports, false)),
       ],
     });
   }
@@ -130,15 +130,22 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   return languageVariants;
 }
 
-function getLocalImports(content: string): string[] {
-  return content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? [];
+function getLocalImports(content: string, baseDemoDirectory: string): string[] {
+  return (
+    content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? []
+  ).map((file) => resolve(baseDemoDirectory, file));
 }
 
-function getDependencyFiles(paths: string[], demoDirectory: string): Promise<DemoFile[]> {
+function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
   return Promise.all(
     paths.map(async (path) => {
-      const fullPath = `${demoDirectory}/${path}`;
-      const extension = extname(fullPath);
+      let extension = extname(path);
+
+      if (extension === '') {
+        path = resolveExtensionlessFile(path, preferTs);
+        extension = extname(path);
+      }
+
       let type: string;
       if (extension === '.ts' || extension === '.tsx') {
         type = 'ts';
@@ -148,19 +155,44 @@ function getDependencyFiles(paths: string[], demoDirectory: string): Promise<Dem
         type = extension.slice(1);
       }
 
-      const content = await readFile(fullPath, 'utf-8');
+      const content = await readFile(path, 'utf-8');
       const prettyContent = await codeToHtml(content, {
         lang: extension.slice(1),
         theme: 'github-light',
       });
 
-      return {
-        name: basename(fullPath),
-        content,
-        prettyContent,
-        path: fullPath,
-        type,
-      } satisfies DemoFile;
+      const canHaveDependencies = type === 'ts' || type === 'js';
+      const transitiveDependencies = canHaveDependencies
+        ? await getDependencyFiles(getLocalImports(content, dirname(path)), type === 'ts')
+        : [];
+
+      return [
+        {
+          name: basename(path),
+          content,
+          prettyContent,
+          path,
+          type,
+        } satisfies DemoFile,
+        ...transitiveDependencies,
+      ];
     }),
+  ).then((files) => files.flat());
+}
+
+function resolveExtensionlessFile(filePath: string, preferTs: boolean): string {
+  const extensions = preferTs
+    ? ['.tsx', '.ts', '.jsx', '.js', '.json']
+    : ['.jsx', '.js', '.tsx', '.ts', '.json'];
+
+  for (const extension of extensions) {
+    const fullPath = `${filePath}${extension}`;
+    if (existsSync(fullPath)) {
+      return fullPath;
+    }
+  }
+
+  throw new Error(
+    `Could not find the file ${filePath} with any of the supported extensions: ${extensions.join(', ')}.`,
   );
 }
