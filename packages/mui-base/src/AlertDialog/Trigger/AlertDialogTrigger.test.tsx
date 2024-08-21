@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as AlertDialog from '@base_ui/react/AlertDialog';
-import { createRenderer, describeConformance } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<AlertDialog.Trigger />', () => {
   const { render } = createRenderer();
@@ -15,6 +15,5 @@ describe('<AlertDialog.Trigger />', () => {
         </AlertDialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

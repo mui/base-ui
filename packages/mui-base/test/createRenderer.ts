@@ -2,29 +2,26 @@ import {
   CreateRendererOptions,
   RenderOptions,
   createRenderer as sharedCreateRenderer,
+  flushMicrotasks,
+  Renderer,
+  MuiRenderResult,
   act,
 } from '@mui/internal-test-utils';
 
-function safeAct(callback: () => void) {
-  if (navigator.userAgent.includes('jsdom')) {
-    return act(callback);
-  }
+type BaseUITestRenderer = Omit<Renderer, 'render'> & {
+  render: (element: React.ReactElement, options?: RenderOptions) => Promise<MuiRenderResult>;
+};
 
-  return callback();
-}
-
-export function createRenderer(globalOptions?: CreateRendererOptions) {
+export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITestRenderer {
   const createRendererResult = sharedCreateRenderer(globalOptions);
   const { render: originalRender } = createRendererResult;
 
-  const render = async (element: React.ReactElement, options?: RenderOptions) => {
-    const result = await originalRender(element, options);
-
-    // flush microtasks
-    await safeAct(() => async () => {});
-
-    return result;
-  };
+  const render = async (element: React.ReactElement, options?: RenderOptions) =>
+    act(async () => {
+      const result = await originalRender(element, options);
+      await flushMicrotasks();
+      return result;
+    });
 
   return {
     ...createRendererResult,

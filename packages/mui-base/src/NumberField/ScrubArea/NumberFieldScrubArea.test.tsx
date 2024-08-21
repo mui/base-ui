@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { describeConformance } from '../../../test/describeConformance';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {
@@ -29,18 +29,16 @@ describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.ScrubArea />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
-  it('has presentation role', () => {
-    render(
+  it('has presentation role', async () => {
+    await render(
       <NumberField.Root>
         <NumberField.ScrubArea />
       </NumberField.Root>,
@@ -61,7 +59,7 @@ describe('<NumberField.ScrubArea />', () => {
   });
 
   it('should increment or decrement the value when scrubbing with the pointer', async () => {
-    render(
+    await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Input />
         <NumberField.ScrubArea data-testid="scrub-area">
@@ -89,7 +87,7 @@ describe('<NumberField.ScrubArea />', () => {
 
   describe('prop: pixelSensitivity', () => {
     it('should only increment if the pointer movement was greater than or equal to the value', async () => {
-      render(
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Input />
           <NumberField.ScrubArea data-testid="scrub-area" pixelSensitivity={5}>
@@ -141,7 +139,7 @@ describe('<NumberField.ScrubArea />', () => {
 
   describe('prop: direction', () => {
     it('should only scrub if the pointer moved in the given direction', async () => {
-      render(
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Input />
           <NumberField.ScrubArea data-testid="scrub-area" direction="horizontal">

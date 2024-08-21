@@ -12,7 +12,6 @@ import {
   hide,
   type UseFloatingOptions,
   type Placement,
-  type Side,
   type Boundary,
   type FloatingRootContext,
   type VirtualElement,
@@ -23,6 +22,9 @@ import { getSide, getAlignment } from '@floating-ui/utils';
 import { isElement } from '@floating-ui/utils/dom';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useLatestRef } from './useLatestRef';
+
+export type Side = 'top' | 'bottom' | 'left' | 'right';
+export type Alignment = 'start' | 'center' | 'end';
 
 interface UseAnchorPositioningParameters {
   anchor?:
@@ -45,6 +47,8 @@ interface UseAnchorPositioningParameters {
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
+  trackAnchor?: boolean;
+  nodeId?: string;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -83,6 +87,8 @@ export function useAnchorPositioning(
     keepMounted = false,
     arrowPadding = 5,
     mounted = true,
+    trackAnchor = true,
+    nodeId,
   } = params;
 
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
@@ -195,7 +201,8 @@ export function useAnchorPositioning(
     placement,
     middleware,
     strategy: positionStrategy,
-    whileElementsMounted: keepMounted ? undefined : autoUpdate,
+    whileElementsMounted: keepMounted || !trackAnchor ? undefined : autoUpdate,
+    nodeId,
   });
 
   // We can assume that element anchors are stable across renders, and thus can be reactive.

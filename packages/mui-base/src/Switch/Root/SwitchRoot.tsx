@@ -9,6 +9,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { useSwitchStyleHooks } from './useSwitchStyleHooks';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
@@ -33,11 +34,11 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
     checked: checkedProp,
     className: classNameProp,
     defaultChecked,
-    disabled = false,
     inputRef,
-    onChange,
+    onCheckedChange,
     readOnly = false,
     required = false,
+    disabled: disabledProp = false,
     render: renderProp,
     ...other
   } = props;
@@ -45,14 +46,18 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
   const ownerState: SwitchOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       checked,
       disabled,
       readOnly,
       required,
     }),
-    [checked, disabled, readOnly, required],
+    [fieldOwnerState, checked, disabled, readOnly, required],
   );
 
   const className = resolveClassName(classNameProp, ownerState);
@@ -103,6 +108,10 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * The id of the switch element.
+   */
+  id: PropTypes.string,
+  /**
    * Ref to the underlying input element.
    */
   inputRef: refType,
@@ -111,13 +120,12 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
+   * @param {boolean} checked The new checked state.
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
-  onChange: PropTypes.func,
+  onCheckedChange: PropTypes.func,
   /**
    * If `true`, the component is read-only.
    * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.

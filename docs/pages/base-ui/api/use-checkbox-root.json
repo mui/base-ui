@@ -7,6 +7,7 @@
       "default": "false"
     },
     "disabled": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
+    "id": { "type": { "name": "string", "description": "string" } },
     "indeterminate": {
       "type": { "name": "boolean", "description": "boolean" },
       "default": "false"
@@ -18,10 +19,10 @@
       }
     },
     "name": { "type": { "name": "string", "description": "string" }, "default": "undefined" },
-    "onChange": {
+    "onCheckedChange": {
       "type": {
-        "name": "React.ChangeEventHandler&lt;HTMLInputElement&gt;",
-        "description": "React.ChangeEventHandler&lt;HTMLInputElement&gt;"
+        "name": "(checked: boolean, event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void",
+        "description": "(checked: boolean, event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void"
       }
     },
     "parent": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },

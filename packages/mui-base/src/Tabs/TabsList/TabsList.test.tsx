@@ -1,17 +1,16 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer } from '@mui/internal-test-utils';
+import { act } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
 import { TabsContext } from '@base_ui/react/Tabs';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tabs.List />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.List />, () => ({
-    inheritComponent: 'div',
     render: (node) => {
-      const { container, ...other } = render(
+      return render(
         <TabsContext.Provider
           value={{
             value: '1',
@@ -27,18 +26,13 @@ describe('<Tabs.List />', () => {
           {node}
         </TabsContext.Provider>,
       );
-
-      return { container, ...other };
     },
     refInstanceof: window.HTMLDivElement,
-    skip: [
-      'reactTestRenderer', // Need to be wrapped with TabsContext
-    ],
   }));
 
   describe('accessibility attributes', () => {
-    it('sets the aria-selected attribute on the selected tab', () => {
-      const { getByText } = render(
+    it('sets the aria-selected attribute on the selected tab', async () => {
+      const { getByText } = await render(
         <Tabs.Root defaultValue={1}>
           <Tabs.List>
             <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
@@ -56,7 +50,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'false');
 
-      act(() => {
+      await act(() => {
         tab2.click();
       });
 
@@ -64,7 +58,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'true');
       expect(tab3).to.have.attribute('aria-selected', 'false');
 
-      act(() => {
+      await act(() => {
         tab3.click();
       });
 
@@ -72,7 +66,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'true');
 
-      act(() => {
+      await act(() => {
         tab1.click();
       });
 
@@ -82,8 +76,8 @@ describe('<Tabs.List />', () => {
     });
   });
 
-  it('can be named via `aria-label`', () => {
-    const { getByRole } = render(
+  it('can be named via `aria-label`', async () => {
+    const { getByRole } = await render(
       <Tabs.Root defaultValue={0}>
         <Tabs.List aria-label="string label">
           <Tabs.Tab value={0} />
@@ -94,8 +88,8 @@ describe('<Tabs.List />', () => {
     expect(getByRole('tablist')).toHaveAccessibleName('string label');
   });
 
-  it('can be named via `aria-labelledby`', () => {
-    const { getByRole } = render(
+  it('can be named via `aria-labelledby`', async () => {
+    const { getByRole } = await render(
       <React.Fragment>
         <h3 id="label-id">complex name</h3>
         <Tabs.Root defaultValue={0}>

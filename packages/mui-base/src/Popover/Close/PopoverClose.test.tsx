@@ -2,14 +2,12 @@ import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer } from '../../../test';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Close />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Close />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
@@ -20,7 +18,6 @@ describe('<Popover.Close />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
   it('should close popover when clicked', async () => {

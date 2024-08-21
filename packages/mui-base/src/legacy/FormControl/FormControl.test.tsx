@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createMount, createRenderer, fireEvent } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent } from '@mui/internal-test-utils';
 import {
   FormControl,
   formControlClasses,
@@ -10,13 +10,10 @@ import {
 import { describeConformanceUnstyled } from '../../../test/describeConformanceUnstyled';
 
 describe('<FormControl />', () => {
-  const mount = createMount();
   const { render } = createRenderer();
 
   describeConformanceUnstyled(<FormControl />, () => ({
-    inheritComponent: 'div',
     render,
-    mount,
     refInstanceof: window.HTMLDivElement,
     testComponentPropWith: 'div',
     slots: {

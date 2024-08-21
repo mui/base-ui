@@ -1,13 +1,11 @@
 import * as React from 'react';
 import * as Popover from '@base_ui/react/Popover';
-import { describeConformance } from '../../../test/describeConformance';
-import { createRenderer } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
@@ -16,6 +14,5 @@ describe('<Popover.Trigger />', () => {
         </Popover.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

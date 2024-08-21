@@ -16,10 +16,10 @@
     "max": { "type": { "name": "number", "description": "number" } },
     "min": { "type": { "name": "number", "description": "number" } },
     "name": { "type": { "name": "string", "description": "string" } },
-    "onChange": {
+    "onValueChange": {
       "type": {
-        "name": "(value: number | null) =&gt; void",
-        "description": "(value: number | null) =&gt; void"
+        "name": "(value: number | null, event?: Event) =&gt; void",
+        "description": "(value: number | null, event?: Event) =&gt; void"
       }
     },
     "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
@@ -73,8 +73,8 @@
     },
     "inputRef": {
       "type": {
-        "name": "React.RefObject&lt;HTMLInputElement&gt;",
-        "description": "React.RefObject&lt;HTMLInputElement&gt;"
+        "name": "((instance: HTMLInputElement | null) =&gt; void) | null",
+        "description": "((instance: HTMLInputElement | null) =&gt; void) | null"
       },
       "required": true
     },

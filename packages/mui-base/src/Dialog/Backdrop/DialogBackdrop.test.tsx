@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Backdrop />', () => {
   const { render } = createRenderer();
@@ -16,11 +15,10 @@ describe('<Dialog.Backdrop />', () => {
         </Dialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
-  it('has role="presentation"', () => {
-    const { getByTestId } = render(
+  it('has role="presentation"', async () => {
+    const { getByTestId } = await render(
       <Dialog.Root open animated={false}>
         <Dialog.Backdrop data-testid="backdrop" />
       </Dialog.Root>,

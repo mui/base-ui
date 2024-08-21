@@ -23,7 +23,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
           aria-controls={colors.map((color) => `${id}-${color}`).join(' ')}
           indeterminate={isIndeterminate}
           checked={isChecked}
-          onChange={(event) => {
+          onCheckedChange={(checked) => {
             setCheckedValues(event.target.checked ? colors : []);
           }}
         >
@@ -31,7 +31,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             {isIndeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}
           </Indicator>
         </Checkbox>
-        <Label htmlFor={id} onMouseDown={(e) => e.preventDefault()}>
+        <Label htmlFor={id} onMouseDown={(event) => event.preventDefault()}>
           Colors
         </Label>
       </ListRoot>
@@ -41,7 +41,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             <Checkbox
               id={`${id}-${color}`}
               checked={checkedValues.includes(color)}
-              onChange={(event) => {
+              onCheckedChange={(event) => {
                 const newCheckedValues = [...checkedValues];
                 if (event.target.checked) {
                   newCheckedValues.push(color);
@@ -57,7 +57,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             </Checkbox>
             <Label
               htmlFor={`${id}-${color}`}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={(event) => event.preventDefault()}
             >
               {color}
             </Label>

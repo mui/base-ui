@@ -4,7 +4,7 @@ import { getNumberLocaleDetails, parseNumber } from './parse';
 describe('NumberField parse', () => {
   describe('getNumberLocaleDetails', () => {
     it('returns the number locale details', () => {
-      const details = getNumberLocaleDetails();
+      const details = getNumberLocaleDetails('en-US');
       expect(details.decimal).to.equal('.');
       expect(details.group).to.equal(',');
       expect(details.currency).to.equal(undefined);
@@ -16,7 +16,8 @@ describe('NumberField parse', () => {
 
   describe('parseNumber', () => {
     it('parses a number', () => {
-      expect(parseNumber('1,234.56')).to.equal(1234.56);
+      const numberString = new Intl.NumberFormat().format(1234.56);
+      expect(parseNumber(numberString)).to.equal(1234.56);
     });
 
     it('parses a number with different options', () => {

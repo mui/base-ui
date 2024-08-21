@@ -2,13 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Select as BaseSelect, selectClasses } from '@base_ui/react/legacy/Select';
 import { Option as BaseOption, optionClasses } from '@base_ui/react/legacy/Option';
-import { Dropdown } from '@base_ui/react/legacy/Dropdown';
-import { Menu } from '@base_ui/react/legacy/Menu';
-import { MenuButton as BaseMenuButton } from '@base_ui/react/legacy/MenuButton';
-import {
-  MenuItem as BaseMenuItem,
-  menuItemClasses,
-} from '@base_ui/react/legacy/MenuItem';
+import * as Menu from '@base_ui/react/Menu';
 import { styled, alpha } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
@@ -27,14 +21,16 @@ export default function KeyboardNavigation() {
         <Option value="source-code-pro">Source Code Pro</Option>
       </Select>
 
-      <Dropdown>
+      <Menu.Root>
         <MenuButton>Open menu</MenuButton>
-        <Menu slots={{ listbox: Listbox }}>
-          <MenuItem>Cut</MenuItem>
-          <MenuItem>Copy</MenuItem>
-          <MenuItem>Paste</MenuItem>
-        </Menu>
-      </Dropdown>
+        <Menu.Positioner>
+          <MenuPopup>
+            <MenuItem>Cut</MenuItem>
+            <MenuItem>Copy</MenuItem>
+            <MenuItem>Paste</MenuItem>
+          </MenuPopup>
+        </Menu.Positioner>
+      </Menu.Root>
     </Container>
   );
 }
@@ -193,7 +189,27 @@ const Option = styled(BaseOption)(
   `,
 );
 
-const MenuItem = styled(BaseMenuItem)(
+const MenuPopup = styled(Menu.Popup)(
+  ({ theme }) => `
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  padding: 6px;
+  margin: 12px 0;
+  min-width: 200px;
+  border-radius: 12px;
+  overflow: auto;
+  outline: 0;
+  background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+  border: 1px solid ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
+  color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  box-shadow: 0px 2px 6px ${
+    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'
+  };
+  `,
+);
+
+const MenuItem = styled(Menu.Item)(
   ({ theme }) => `
   list-style: none;
   padding: 8px;
@@ -205,24 +221,24 @@ const MenuItem = styled(BaseMenuItem)(
     border-bottom: none;
   }
 
-  &.${menuItemClasses.focusVisible} {
+  &:focus-visible {
     outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
 
-  &.${menuItemClasses.disabled} {
+  &[data-disabled='true'] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
 
-  &:hover:not(.${menuItemClasses.disabled}) {
+  &:hover:not([data-disabled='true']) {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
   `,
 );
 
-const MenuButton = styled(BaseMenuButton)(
+const MenuButton = styled(Menu.Trigger)(
   ({ theme }) => `
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 600;

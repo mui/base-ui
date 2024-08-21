@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
   getIncrementButtonProps: (externalProps) => externalProps,
@@ -21,18 +21,16 @@ describe('<NumberField.Increment />', () => {
   const { render, clock } = createRenderer();
 
   describeConformance(<NumberField.Increment />, () => ({
-    inheritComponent: 'button',
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
-  it('has increase label', () => {
-    render(
+  it('has increase label', async () => {
+    await render(
       <NumberField.Root>
         <NumberField.Increment />
       </NumberField.Root>,
@@ -40,8 +38,8 @@ describe('<NumberField.Increment />', () => {
     expect(screen.queryByLabelText('Increase')).not.to.equal(null);
   });
 
-  it('increments starting from 0 click', () => {
-    render(
+  it('increments starting from 0 click', async () => {
+    await render(
       <NumberField.Root>
         <NumberField.Increment />
         <NumberField.Input />
@@ -53,8 +51,8 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).to.have.value('0');
   });
 
-  it('increments to 1 starting from defaultValue=0 click', () => {
-    render(
+  it('increments to 1 starting from defaultValue=0 click', async () => {
+    await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Increment />
         <NumberField.Input />
@@ -69,8 +67,8 @@ describe('<NumberField.Increment />', () => {
   describe('press and hold', () => {
     clock.withFakeTimers();
 
-    it('increments continuously when holding pointerdown', () => {
-      render(
+    it('increments continuously when holding pointerdown', async () => {
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
@@ -99,8 +97,8 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('4');
     });
 
-    it('does not increment twice with pointerdown and click', () => {
-      render(
+    it('does not increment twice with pointerdown and click', async () => {
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
@@ -117,8 +115,8 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('1');
     });
 
-    it('should stop incrementing after mouseleave', () => {
-      render(
+    it('should stop incrementing after mouseleave', async () => {
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
@@ -147,8 +145,8 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('4');
     });
 
-    it('should start incrementing again after mouseleave then mouseenter', () => {
-      render(
+    it('should start incrementing again after mouseleave then mouseenter', async () => {
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
@@ -183,8 +181,8 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('5');
     });
 
-    it('should not start incrementing again after mouseleave then mouseenter after pointerup', () => {
-      render(
+    it('should not start incrementing again after mouseleave then mouseenter after pointerup', async () => {
+      await render(
         <NumberField.Root defaultValue={0}>
           <NumberField.Increment />
           <NumberField.Input />
@@ -226,8 +224,8 @@ describe('<NumberField.Increment />', () => {
     });
   });
 
-  it('should not increment when disabled', () => {
-    render(
+  it('should not increment when disabled', async () => {
+    await render(
       <NumberField.Root disabled>
         <NumberField.Increment />
         <NumberField.Input />
@@ -239,8 +237,8 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).to.have.value('');
   });
 
-  it('should not increment when readOnly', () => {
-    render(
+  it('should not increment when readOnly', async () => {
+    await render(
       <NumberField.Root readOnly>
         <NumberField.Increment />
         <NumberField.Input />

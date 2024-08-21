@@ -1,10 +1,17 @@
+import type * as React from 'react';
 import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface UsePopoverRootParameters {
   /**
-   * If `true`, the popover popup is open. Use when controlled.
+   * Whether the popover popup is open by default. Use when uncontrolled.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Whether the popover popup is open. Use when controlled.
+   * @default false
    */
   open?: boolean;
   /**
@@ -13,18 +20,13 @@ export interface UsePopoverRootParameters {
    */
   onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   /**
-   * Specifies whether the popover is open initially when uncontrolled.
-   * @default false
-   */
-  defaultOpen?: boolean;
-  /**
-   * If `true`, the popover popup opens when the trigger is hovered.
+   * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
    * @default false
    */
   openOnHover?: boolean;
   /**
    * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
-   * @default 500
+   * @default 300
    */
   delay?: number;
   /**
@@ -41,25 +43,12 @@ export interface UsePopoverRootParameters {
    */
   delayType?: 'rest' | 'hover';
   /**
-   * The element that triggers the popover.
-   */
-  triggerElement?: Element | null;
-  /**
-   * The element that positions the popover.
-   */
-  positionerElement?: HTMLElement | null;
-  /**
-   * If `true`, tooltip stays mounted in the DOM when closed.
+   * Whether the popover popup element stays mounted in the DOM when closed.
    * @default false
    */
   keepMounted?: boolean;
   /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis?: 'none' | 'x' | 'y';
-  /**
-   * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
+   * Whether the popover can animate, adding animation-related attributes and allowing for exit
    * animations to play. Useful to disable in tests to remove async behavior.
    * @default true
    */
@@ -80,4 +69,9 @@ export interface UsePopoverRootReturnValue {
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   instantType: 'dismiss' | 'click' | undefined;
+  triggerElement: Element | null;
+  setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+  positionerElement: HTMLElement | null;
+  setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  popupRef: React.RefObject<HTMLElement>;
 }

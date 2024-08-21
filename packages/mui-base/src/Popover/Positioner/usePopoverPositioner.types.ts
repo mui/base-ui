@@ -3,7 +3,6 @@ import type {
   Boundary,
   Padding,
   VirtualElement,
-  Side,
   FloatingRootContext,
   FloatingContext,
 } from '@floating-ui/react';
@@ -11,11 +10,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 
 export interface PopoverPositionerParameters {
   /**
-   * If `true`, the popover is open.
-   */
-  open?: boolean;
-  /**
-   * The anchor element to which the popover popup will be placed at.
+   * The element to which the popover popup element is anchored to.
    */
   anchor?:
     | Element
@@ -24,72 +19,80 @@ export interface PopoverPositionerParameters {
     | React.MutableRefObject<Element | null>
     | (() => Element | VirtualElement | null);
   /**
+   * Whether the popover popup is open.
+   * @default false
+   */
+  open?: boolean;
+  /**
    * The CSS position strategy for positioning the popover popup element.
    * @default 'absolute'
    */
   positionStrategy?: 'absolute' | 'fixed';
   /**
-   * The container element to which the popover popup will be appended to.
-   */
-  container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  /**
-   * The side of the anchor element that the popover element should align to.
+   * The side of the anchor element that the popover popup element should be placed at.
    * @default 'bottom'
    */
-  side?: Side;
+  side?: 'top' | 'right' | 'bottom' | 'left';
   /**
-   * The gap between the anchor element and the popover element.
+   * The gap between the anchor element and the popover popup element.
    * @default 0
    */
   sideOffset?: number;
   /**
-   * The alignment of the popover element to the anchor element along its cross axis.
+   * The alignment of the popover popup element to the anchor element along its cross axis.
    * @default 'center'
    */
   alignment?: 'start' | 'end' | 'center';
   /**
-   * The offset of the popover element along its alignment axis.
+   * The offset of the popover popup element along its alignment axis.
    * @default 0
    */
   alignmentOffset?: number;
   /**
-   * The boundary that the popover element should be constrained to.
+   * The boundary that the popover popup element should be constrained to.
    * @default 'clippingAncestors'
    */
   collisionBoundary?: Boundary;
   /**
-   * The padding of the collision boundary.
+   * The padding between the popover popup element and the edges of the collision boundary to add
+   * whitespace between them to prevent them from touching.
    * @default 5
    */
   collisionPadding?: Padding;
   /**
-   * If `true`, the popover will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
+   * Whether the popover popup element is hidden if it appears detached from its anchor element due
+   * to the anchor element being clipped (or hidden) from view.
    * @default false
    */
   hideWhenDetached?: boolean;
   /**
-   * If `true`, allow the popover to remain in stuck view while the anchor element is scrolled out
+   * Whether to allow the popover to remain stuck in view while the anchor element is scrolled out
    * of view.
    * @default false
    */
   sticky?: boolean;
   /**
-   * Determines the padding between the arrow and the popover popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Determines the padding between the arrow and the popover popup edges. Useful when the popover
+   * popup element has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding?: number;
   /**
-   * If `true`, popover stays mounted in the DOM when closed.
+   * Whether the popover popup remains mounted in the DOM while closed.
    * @default false
    */
   keepMounted?: boolean;
+  /**
+   * Whether the popover popup continuously tracks its anchor after the initial positioning upon
+   * mount.
+   * @default true
+   */
+  trackAnchor?: boolean;
 }
 
 export interface UsePopoverPositionerParameters extends PopoverPositionerParameters {
   /**
-   * If `true`, the popover is mounted.
+   * Determines if the popover popup is currently mounted in the DOM.
    * @default true
    */
   mounted?: boolean;

@@ -1,5 +1,85 @@
 # Versions
 
+## v1.0.0-alpha.2
+
+_Aug 19, 2024_
+
+A big thanks to the 10 contributors who made this release possible. Here are some highlights ✨:
+
+⭐ We added many new components: AlertDialog, Dialog, Field, Menu, Popover, PreviewCard, Progress, Slider, and Tooltip.
+
+### `@base_ui/react@1.0.0-alpha.2`
+
+- [Checkbox] Fix checked change when clicking button with wrapping label (#467) @atomiks
+- [Dialog] Create new component and hook (#372) @michaldudak
+- [Field] Create new Field components (#477) @atomiks
+- [Menu] Overhaul the component API (#468) @michaldudak
+- [NumberField] Fix tests on non-English locale machines (#524) @michaldudak
+- [NumberField] Rename `onChange` prop to `onValueChange` (#464) @atomiks
+- [Popover] Component and Hook (#381) @atomiks
+- [Popover] Fix `keepMounted` focus management (#489) @atomiks
+- [Popover] Wait for focus to settle in tests (#491) @michaldudak
+- [PreviewCard] Create new component (#469) @atomiks
+- [PreviewCard] Fix Firefox browser hang (#490) @atomiks
+- [Progress] New `Progress` components (#470) @mj12albert
+- [Slider] improve `disabled` prop description (#527) @sai6855
+- [Slider] New Slider components and hook (#373) @mj12albert
+- [Switch/Checkbox] Rename `onChange` prop to `onCheckedChange` (#465) @atomiks
+- [Tabs] Fix indicator tests (#379) @michaldudak
+- [Tooltip] Component and Hook (#264) @atomiks
+- [Tooltip] Fix animations (#426) @atomiks
+- [useCompoundParent] Display `displayName` only in dev (#525) @sai6855
+
+### Docs
+
+- [docs] Add badges like in Material UI @oliviertassinari
+- [docs] Add the logo to the README (#448) @danilo-leal
+- [docs] Convert alpha component docs to new docs template (#392) @colmtuite
+- [docs] Correct Bundlephobia links (#419) @michaldudak
+- [docs] Fix page description line break @oliviertassinari
+- [docs] Fix the X link (#450) @michaldudak
+- [docs] Fix Vale errors (#492) @oliviertassinari
+- [docs] Prepare security table for once it has its first release (#536) @oliviertassinari
+- [docs] Update twitter.com to x.com @oliviertassinari
+- [docs][Tooltip] Use the correct version of ComponentLinkHeader (#425) @michaldudak
+
+### Core
+
+- [code-infra] Fix pnpm version in package.json engines (#409) @Janpot
+- [code-infra] Propagate API docs builder package interface changes (#478) @LukasTy
+- [code-infra] Remove raw-loader (#404) @michaldudak
+- [code-infra] Use shared .stylelintrc.js config (#415) @oliviertassinari
+- [core] Add `trackAnchor` prop for anchor positioning (#519) @atomiks
+- [core] Add `useAnchorPositioning` Hook (#461) @atomiks
+- [core] Add `useTransitionStatus` and `useExecuteIfNotAnimated` Hooks (#396) @atomiks
+- [core] Add codeowners file (#447) @michaldudak
+- [core] Allow Renovate to update pnpm (#446) @michaldudak
+- [core] Encapsulate the common rendering logic in `useComponentRenderer` (#408) @michaldudak
+- [core] Fix event naming convention @oliviertassinari
+- [core] Improve performance of `mergeReactProps` (#456) @marcpachecog
+- [core] Improve Tooltip and Popover consistency (#463) @atomiks
+- [core] Link GH issue for import/prefer-default-export @oliviertassinari
+- [core] Make pnpm version permissive (#529) @atomiks
+- [core] Move hooks under component directories (#405) @michaldudak
+- [core] Move legacy components to a subdirectory (#410) @michaldudak
+- [core] Normalize rest / other to match the most common used @oliviertassinari
+- [core] Refactor animation hooks (#417) @atomiks
+- [core] Remove sources of old components we don't intend to support (#474) @michaldudak
+- [core] Simpler pnpm dedupe error message to act on @oliviertassinari
+- [core] Upgrade to core-js v3 (#418) @atomiks
+- [core] Verify types in test code (#457) @michaldudak
+- [dependencies] Do not try to update eslint (#515) @michaldudak
+- [docs-infra] Fix a stylelint issue (#421) @oliviertassinari
+- [docs-infra] Integrate the latest @mui/docs (#378) @michaldudak
+- [test] Clean up and unify test code (#532) @michaldudak
+- [test] Update test-utils and remove enzyme (#473) @michaldudak
+- [test] Use internal-test-utils from npm (#424) @michaldudak
+- [typescript] Add `type` to export statements (#544) @michaldudak
+- [website] Fix /base-ui/ code duplication (#416) @oliviertassinari- [infra] Add support donation button @oliviertassinari
+- [website] Redirect to an existing page on dev (#445) @michaldudak
+
+All contributors of this release in alphabetical order: @atomiks, @colmtuite, @danilo-leal, @Janpot, @LukasTy, @marcpachecog, @michaldudak, @mj12albert, @oliviertassinari, @sai6855
+
 ## v1.0.0-alpha.1
 
 <!-- generated comparing v1.0.0-alpha.0..master -->

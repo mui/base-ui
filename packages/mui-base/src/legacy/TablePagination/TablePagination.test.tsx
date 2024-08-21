@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import PropTypes from 'prop-types';
-import { fireEvent, createRenderer, createMount } from '@mui/internal-test-utils';
+import { fireEvent, createRenderer } from '@mui/internal-test-utils';
 import {
   TablePagination,
   tablePaginationClasses as classes,
@@ -17,7 +17,6 @@ interface WithClassName {
 describe('<TablePagination />', () => {
   const noop = () => {};
   const { render } = createRenderer();
-  const mount = createMount();
 
   const CustomRootComponent = React.forwardRef(
     ({ className }: WithClassName, ref: React.Ref<any>) => (
@@ -28,7 +27,6 @@ describe('<TablePagination />', () => {
   describeConformanceUnstyled(
     <TablePagination count={1} onPageChange={noop} page={0} rowsPerPage={10} />,
     () => ({
-      inheritComponent: 'td',
       render: (node) => {
         const { container, ...other } = render(
           <table>
@@ -41,16 +39,6 @@ describe('<TablePagination />', () => {
           container: container?.firstChild?.firstChild?.firstChild as HTMLElement,
           ...other,
         };
-      },
-      mount: (node: any) => {
-        const wrapper = mount(
-          <table>
-            <tbody>
-              <tr>{node}</tr>
-            </tbody>
-          </table>,
-        );
-        return wrapper.find('tr').childAt(0);
       },
       refInstanceof: window.HTMLTableCellElement,
       testComponentPropWith: 'th',

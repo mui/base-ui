@@ -1,7 +1,8 @@
 import type { ScrubHandle } from './useScrub.types';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
-export type NumberFieldRootOwnerState = {
+export interface NumberFieldRootOwnerState extends FieldRootOwnerState {
   /**
    * The raw number value of the input element.
    */
@@ -30,7 +31,7 @@ export type NumberFieldRootOwnerState = {
    * If `true`, the value is being scrubbed.
    */
   scrubbing: boolean;
-};
+}
 
 export interface NumberFieldRootProps
   extends UseNumberFieldRootParameters,
@@ -121,8 +122,9 @@ export interface UseNumberFieldRootParameters {
   /**
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
+   * @param {Event} event The event that triggered the change.
    */
-  onChange?: (value: number | null) => void;
+  onValueChange?: (value: number | null, event?: Event) => void;
 }
 
 export interface UseNumberFieldRootReturnValue {
@@ -147,7 +149,7 @@ export interface UseNumberFieldRootReturnValue {
   inputValue: string;
   value: number | null;
   isScrubbing: boolean;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: ((instance: HTMLInputElement | null) => void) | null;
   scrubHandleRef: React.RefObject<ScrubHandle | null>;
   scrubAreaRef: React.RefObject<HTMLSpanElement>;
   scrubAreaCursorRef: React.RefObject<HTMLSpanElement>;

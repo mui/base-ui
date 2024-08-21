@@ -59,7 +59,7 @@ export function testRenderProp(
         }),
       );
 
-      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).to.not.equal(null);
+      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).not.to.equal(null);
     });
 
     it('should pass the ref to the custom component', async () => {

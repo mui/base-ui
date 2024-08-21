@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Dialog from '@base_ui/react/Dialog';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Trigger />', () => {
   const { render } = createRenderer();
@@ -15,6 +14,5 @@ describe('<Dialog.Trigger />', () => {
         </Dialog.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 });

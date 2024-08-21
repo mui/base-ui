@@ -1,20 +1,26 @@
+import type * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
-export type CheckboxOwnerState = {
+export interface CheckboxRootOwnerState extends FieldRootOwnerState {
   checked: boolean;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
   indeterminate: boolean;
-};
+}
 
 export interface CheckboxRootProps
-  extends UseCheckboxRootParameters,
-    Omit<BaseUIComponentProps<'button', CheckboxOwnerState>, 'onChange'> {}
+  extends Omit<UseCheckboxRootParameters, 'setControlId' | 'descriptionId'>,
+    Omit<BaseUIComponentProps<'button', CheckboxRootOwnerState>, 'onChange'> {}
 
-export type CheckboxContextValue = CheckboxOwnerState;
+export type CheckboxContextValue = CheckboxRootOwnerState;
 
 export interface UseCheckboxRootParameters {
+  /**
+   * The id of the input element.
+   */
+  id?: string;
   /**
    * Name of the underlying input element.
    *
@@ -40,13 +46,12 @@ export interface UseCheckboxRootParameters {
    */
   disabled?: boolean;
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
+   * @param {boolean} checked The new checked state.
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   /**
    * If `true`, the component is read only.
    *

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-
-const waitForPosition = async () => act(async () => {});
+import { createRenderer } from '#test-utils';
+import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Tooltip.RootProps) {
   return <Tooltip.Root animated={false} {...props} />;
@@ -17,7 +17,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when the trigger is hovered', async () => {
-      render(
+      await render(
         <Root>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -32,15 +32,15 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should close when the trigger is unhovered', async () => {
-      render(
+      await render(
         <Root>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -55,9 +55,9 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       fireEvent.mouseLeave(trigger);
 
@@ -70,7 +70,7 @@ describe('<Tooltip.Root />', () => {
         return;
       }
 
-      render(
+      await render(
         <Root>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -81,15 +81,15 @@ describe('<Tooltip.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      act(() => trigger.focus());
+      await act(() => trigger.focus());
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should close when the trigger is blurred', async () => {
-      render(
+      await render(
         <Root>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -100,15 +100,18 @@ describe('<Tooltip.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      act(() => trigger.focus());
+      await act(async () => {
+        trigger.focus();
+      });
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
 
-      await waitForPosition();
+      await act(async () => {
+        trigger.blur();
+      });
 
-      act(() => trigger.blur());
-
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -118,7 +121,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when controlled open is true', async () => {
-      render(
+      await render(
         <Root open>
           <Tooltip.Positioner>
             <Tooltip.Popup>Content</Tooltip.Popup>
@@ -130,7 +133,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should close when controlled open is false', async () => {
-      render(
+      await render(
         <Root open={false}>
           <Tooltip.Positioner>
             <Tooltip.Popup>Content</Tooltip.Popup>
@@ -163,7 +166,7 @@ describe('<Tooltip.Root />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -172,9 +175,9 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -208,7 +211,7 @@ describe('<Tooltip.Root />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -217,9 +220,9 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
       expect(handleChange.callCount).to.equal(1);
@@ -229,7 +232,7 @@ describe('<Tooltip.Root />', () => {
 
   describe('prop: defaultOpen', () => {
     it('should open when the component is rendered', async () => {
-      render(
+      await render(
         <Root defaultOpen>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -238,13 +241,13 @@ describe('<Tooltip.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should not open when the component is rendered and open is controlled', async () => {
-      render(
+      await render(
         <Root defaultOpen open={false}>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -253,13 +256,13 @@ describe('<Tooltip.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
     it('should not close when the component is rendered and open is controlled', async () => {
-      render(
+      await render(
         <Root defaultOpen open>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -268,13 +271,13 @@ describe('<Tooltip.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should remain uncontrolled', async () => {
-      render(
+      await render(
         <Root defaultOpen>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -283,7 +286,7 @@ describe('<Tooltip.Root />', () => {
         </Root>,
       );
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -291,7 +294,7 @@ describe('<Tooltip.Root />', () => {
 
       fireEvent.mouseLeave(trigger);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -301,7 +304,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should open after delay with rest type by default', async () => {
-      render(
+      await render(
         <Root delay={100}>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -315,19 +318,19 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
 
     it('should open after delay with hover type', async () => {
-      render(
+      await render(
         <Root delayType="hover">
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -339,15 +342,15 @@ describe('<Tooltip.Root />', () => {
       const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
-      clock.tick(200);
+      clock.tick(OPEN_DELAY - 100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(100);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
@@ -357,7 +360,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should close after delay', async () => {
-      render(
+      await render(
         <Root closeDelay={100}>
           <Tooltip.Trigger />
           <Tooltip.Positioner>
@@ -371,9 +374,9 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(300);
+      clock.tick(OPEN_DELAY);
 
-      await waitForPosition();
+      await flushMicrotasks();
 
       expect(screen.getByText('Content')).not.to.equal(null);
 

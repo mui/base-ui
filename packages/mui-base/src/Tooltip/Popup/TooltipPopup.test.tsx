@@ -1,14 +1,13 @@
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import { createRenderer, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tooltip.Popup />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tooltip.Popup />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
@@ -17,11 +16,10 @@ describe('<Tooltip.Popup />', () => {
         </Tooltip.Root>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
-  it('should render the children', () => {
-    render(
+  it('should render the children', async () => {
+    await render(
       <Tooltip.Root open>
         <Tooltip.Positioner>
           <Tooltip.Popup>Content</Tooltip.Popup>

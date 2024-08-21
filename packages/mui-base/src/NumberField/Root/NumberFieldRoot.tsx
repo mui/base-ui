@@ -6,6 +6,7 @@ import { useNumberFieldRoot } from './useNumberFieldRoot';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -35,13 +36,13 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     largeStep,
     autoFocus,
     required = false,
-    disabled = false,
+    disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
     name,
     defaultValue,
     value,
-    onChange,
+    onValueChange,
     allowWheelScrub,
     format,
     render: renderProp,
@@ -52,8 +53,12 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const numberField = useNumberFieldRoot(props);
 
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
   const ownerState: NumberFieldRootOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       disabled,
       invalid,
       readOnly,
@@ -63,6 +68,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       scrubbing: numberField.isScrubbing,
     }),
     [
+      fieldOwnerState,
       disabled,
       invalid,
       readOnly,
@@ -180,8 +186,9 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
+   * @param {Event} event The event that triggered the change.
    */
-  onChange: PropTypes.func,
+  onValueChange: PropTypes.func,
   /**
    * If `true`, the input element is read only.
    * @default false
