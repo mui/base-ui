@@ -209,8 +209,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   open: PropTypes.bool,
   /**
    * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-   *
-   * @default nested
    */
   openOnHover: PropTypes.bool,
   /**

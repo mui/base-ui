@@ -12,7 +12,7 @@
     "loop": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } },
-    "openOnHover": { "type": { "name": "bool" }, "default": "nested" },
+    "openOnHover": { "type": { "name": "bool" } },
     "orientation": {
       "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
       "default": "'vertical'"
