@@ -1368,7 +1368,7 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
-    describe('key: Home', () => {
+    describe('key: End', () => {
       it('sets value to max in a single value slider', async () => {
         const handleValueChange = spy();
         const { container } = await render(
@@ -1383,7 +1383,7 @@ describe('<Slider.Root />', () => {
           (input as HTMLInputElement).focus();
         });
 
-        fireEvent.keyDown(input!, { key: 'Home' });
+        fireEvent.keyDown(input!, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal(77);
       });
@@ -1401,24 +1401,24 @@ describe('<Slider.Root />', () => {
           thumbOne.focus();
         });
 
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal([50, 50]);
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
 
         await act(() => {
           thumbTwo.focus();
         });
 
-        fireEvent.keyDown(thumbTwo, { key: 'Home' });
+        fireEvent.keyDown(thumbTwo, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal([50, 77]);
       });
     });
 
-    describe('key: End', () => {
-      it('sets value to min on End', async () => {
+    describe('key: Home', () => {
+      it('sets value to min on Home', async () => {
         const handleValueChange = spy();
         const { container } = await render(
           <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
@@ -1432,7 +1432,7 @@ describe('<Slider.Root />', () => {
           (input as HTMLInputElement).focus();
         });
 
-        fireEvent.keyDown(input!, { key: 'End' });
+        fireEvent.keyDown(input!, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal(17);
       });
@@ -1450,17 +1450,17 @@ describe('<Slider.Root />', () => {
           thumbTwo.focus();
         });
 
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal([20, 20]);
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
 
         await act(() => {
           thumbOne.focus();
         });
 
-        fireEvent.keyDown(thumbOne, { key: 'End' });
+        fireEvent.keyDown(thumbOne, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal([7, 20]);
       });
