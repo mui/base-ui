@@ -41,9 +41,9 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             <Checkbox
               id={`${id}-${color}`}
               checked={checkedValues.includes(color)}
-              onCheckedChange={(event) => {
+              onCheckedChange={(checked) => {
                 const newCheckedValues = [...checkedValues];
-                if (event.target.checked) {
+                if (checked) {
                   newCheckedValues.push(color);
                 } else {
                   newCheckedValues.splice(newCheckedValues.indexOf(color), 1);

@@ -36,8 +36,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     disabled = false,
   } = params;
 
-  const id = useId();
-
   const [checked, setCheckedState] = useControlled({
     controlled: externalChecked,
     default: defaultChecked,
@@ -84,13 +82,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       inputRef.current.indeterminate = indeterminate;
     }
   }, [indeterminate]);
-  
-  const [checked, setCheckedState] = useControlled({
-    controlled: externalChecked,
-    default: defaultChecked,
-    name: 'Checkbox',
-    state: 'checked',
-  });
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && checked !== validityData.initialValue) {
