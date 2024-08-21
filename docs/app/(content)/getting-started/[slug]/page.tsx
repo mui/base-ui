@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/src/utils/getMarkdownPage';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
-import routes, { getSlugs } from 'docs-base/data/base/pages';
+import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/modules/common/AppBar';
 import { Navigation } from 'docs-base/src/modules/common/Navigation';
 import classes from '../../styles.module.css';

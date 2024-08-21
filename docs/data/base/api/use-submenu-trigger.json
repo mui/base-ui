@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useSubmenuTrigger",
-  "filename": "/packages/mui-base/src/Menu/SubmenuTrigger/useSubmenuTrigger.ts",
-  "imports": ["import { useSubmenuTrigger } from '@base_ui/react/Menu';"],
-  "demos": "<ul></ul>"
-}

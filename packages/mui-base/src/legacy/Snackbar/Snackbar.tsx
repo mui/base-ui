@@ -24,17 +24,16 @@ const useUtilityClasses = () => {
 
   return composeClasses(slots, useClassNamesOverride(getSnackbarUtilityClass));
 };
+
 /**
  *
  * Demos:
  *
- * - [Snackbar](https://mui.com/base-ui/react-snackbar/)
- * - [Snackbar](https://mui.com/joy-ui/react-snackbar/)
- * - [Snackbar](https://mui.com/material-ui/react-snackbar/)
+ * - [Snackbar](https://base-ui.netlify.app/components/react-snackbar/)
  *
  * API:
  *
- * - [Snackbar API](https://mui.com/base-ui/react-snackbar/components-api/#snackbar)
+ * - [Snackbar API](https://base-ui.netlify.app/components/react-snackbar/#api-reference-Snackbar)
  */
 const Snackbar = React.forwardRef(function Snackbar<RootComponentType extends React.ElementType>(
   props: SnackbarProps<RootComponentType>,

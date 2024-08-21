@@ -8,12 +8,6 @@ import type {
 } from './usePopoverDescription.types';
 import { useId } from '../../utils/useId';
 
-/**
- *
- * API:
- *
- * - [usePopoverDescription API](https://mui.com/base-ui/api/use-popover-description/)
- */
 export function usePopoverDescription(
   params: UsePopoverDescriptionParameters,
 ): UsePopoverDescriptionReturnValue {

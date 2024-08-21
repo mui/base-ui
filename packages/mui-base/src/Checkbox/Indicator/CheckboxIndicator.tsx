@@ -17,11 +17,11 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  *
  * Demos:
  *
- * - [Checkbox](https://mui.com/base-ui/react-checkbox/)
+ * - [Checkbox](https://base-ui.netlify.app/components/react-checkbox/)
  *
  * API:
  *
- * - [CheckboxIndicator API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-indicator)
+ * - [CheckboxIndicator API](https://base-ui.netlify.app/components/react-checkbox/#api-reference-CheckboxIndicator)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicatorProps,

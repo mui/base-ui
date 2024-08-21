@@ -65,16 +65,11 @@ function useUtilityClasses(ownerState: FormControlOwnerState) {
  *
  * Demos:
  *
- * - [Form Control](https://mui.com/base-ui/react-form-control/)
- * - [Input](https://mui.com/joy-ui/react-input/)
- * - [Checkbox](https://mui.com/material-ui/react-checkbox/)
- * - [Radio Group](https://mui.com/material-ui/react-radio-button/)
- * - [Switch](https://mui.com/material-ui/react-switch/)
- * - [Text Field](https://mui.com/material-ui/react-text-field/)
+ * - [Form Control](https://base-ui.netlify.app/components/react-form-control/)
  *
  * API:
  *
- * - [FormControl API](https://mui.com/base-ui/react-form-control/components-api/#form-control)
+ * - [FormControl API](https://base-ui.netlify.app/components/react-form-control/#api-reference-FormControl)
  */
 const FormControl = React.forwardRef(function FormControl<
   RootComponentType extends React.ElementType,

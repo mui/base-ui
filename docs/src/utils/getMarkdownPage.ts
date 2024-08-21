@@ -12,7 +12,7 @@ import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
 import { read as readVFile } from 'to-vfile';
 import { matter } from 'vfile-matter';
 
-export const DATA_PATH = path.join(process.cwd(), 'data/base');
+export const DATA_PATH = path.join(process.cwd(), 'data');
 
 export interface PageMetadata {
   title: string;

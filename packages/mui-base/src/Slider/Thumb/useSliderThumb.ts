@@ -39,16 +39,7 @@ function getDefaultAriaValueText(values: readonly number[], index: number): stri
 
   return undefined;
 }
-/**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderThumb API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-thumb)
- */
+
 export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const {
     active: activeIndex,

@@ -50,11 +50,11 @@ function resolveAnchor(
  *
  * Demos:
  *
- * - [Popup](https://mui.com/base-ui/react-popup/)
+ * - [Popup](https://base-ui.netlify.app/components/react-popup/)
  *
  * API:
  *
- * - [Popup API](https://mui.com/base-ui/react-popup/components-api/#popup)
+ * - [Popup API](https://base-ui.netlify.app/components/react-popup/#api-reference-Popup)
  */
 const Popup = React.forwardRef(function Popup<RootComponentType extends React.ElementType>(
   props: PopupProps<RootComponentType>,

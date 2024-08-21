@@ -2,12 +2,11 @@ import path from 'path';
 import { ProjectSettings } from '@mui-internal/api-docs-builder';
 import findApiPages from '@mui-internal/api-docs-builder/utils/findApiPages';
 import { getBaseUiComponentInfo } from './getBaseUiComponentInfo';
-import { getBaseUiHookInfo } from './getBaseUiHookInfo';
 import { getComponentImports } from './getComponentImports';
 
 export const projectSettings: ProjectSettings = {
   output: {
-    apiManifestPath: path.join(process.cwd(), 'docs/data/base/pagesApi.js'),
+    apiManifestPath: path.join(process.cwd(), 'docs/data/pagesApi.js'),
     writeApiManifest: false,
   },
   typeScriptProjects: [
@@ -18,17 +17,18 @@ export const projectSettings: ProjectSettings = {
       tsConfigPath: 'tsconfig.build.json',
     },
   ],
-  getApiPages: () => findApiPages('docs/data/base/api'),
+  // TODO: Update when we have the domain set up
+  baseApiUrl: 'https://base-ui.netlify.app',
+  getApiPages: () => findApiPages('docs/data/api'),
   getComponentInfo: getBaseUiComponentInfo,
   getComponentImports,
-  getHookInfo: getBaseUiHookInfo,
-  getHookImports: getComponentImports,
   translationLanguages: ['en'],
   skipComponent: () => false,
-  skipAnnotatingComponentDefinition: true,
+  skipHook: () => true,
+  skipAnnotatingComponentDefinition: false,
   skipSlotsAndClasses: true,
   generateJsonFileOnly: true,
-  translationPagesDirectory: 'docs/data/base/translations/api-docs',
+  translationPagesDirectory: 'docs/data/translations/api-docs',
   generateClassName: () => '',
   isGlobalClassName: () => false,
 };

@@ -13,16 +13,15 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
 }
 
 /**
- *
  * The scrub area cursor element.
  *
  * Demos:
  *
- * - [NumberField](https://mui.com/base-ui/react-number-field/)
+ * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldScrubAreaCursor API](https://mui.com/base-ui/react-number-field/components-api/#number-field-scrub-area-cursor)
+ * - [NumberFieldScrubAreaCursor API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldScrubAreaCursor)
  */
 const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
   props: NumberFieldScrubAreaCursorProps,

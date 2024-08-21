@@ -6,8 +6,8 @@ export function getApiReferenceData(componentNames: string[]): Promise<Component
   return Promise.all(
     componentNames.map(async (componentName) => {
       const kebabedComponentName = kebabCase(componentName);
-      const apiDescriptionFilePath = `data/base/api/${kebabedComponentName}.json`;
-      const translationsFilePath = `data/base/translations/api-docs/${kebabedComponentName}/${kebabedComponentName}.json`;
+      const apiDescriptionFilePath = `data/api/${kebabedComponentName}.json`;
+      const translationsFilePath = `data/translations/api-docs/${kebabedComponentName}/${kebabedComponentName}.json`;
 
       const apiDescription = JSON.parse(await readFile(apiDescriptionFilePath, 'utf-8'));
       const translations = JSON.parse(await readFile(translationsFilePath, 'utf-8'));

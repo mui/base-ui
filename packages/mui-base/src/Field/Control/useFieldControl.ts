@@ -12,12 +12,6 @@ interface UseFieldControlParameters {
   value: string | number | readonly string[];
 }
 
-/**
- *
- * API:
- *
- * - [useFieldControl API](https://mui.com/base-ui/api/use-field-control/)
- */
 export function useFieldControl(params: UseFieldControlParameters) {
   const { id: idProp, name, value } = params;
 

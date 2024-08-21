@@ -7,12 +7,6 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
-/**
- *
- * API:
- *
- * - [usePreviewCardPositioner API](https://mui.com/base-ui/api/use-preview-card-positioner/)
- */
 export function usePreviewCardPositioner(
   params: UsePreviewCardPositionerParameters,
 ): UsePreviewCardPositionerReturnValue {

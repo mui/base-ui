@@ -7,6 +7,16 @@ import { useProgressContext } from '../Root/ProgressContext';
 import { progressStyleHookMapping } from '../Root/styleHooks';
 import { ProgressIndicatorProps } from './ProgressIndicator.types';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Progress](https://base-ui.netlify.app/components/react-progress/)
+ *
+ * API:
+ *
+ * - [ProgressIndicator API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressIndicator)
+ */
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   props: ProgressIndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

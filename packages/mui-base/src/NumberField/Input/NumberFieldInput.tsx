@@ -10,11 +10,11 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Demos:
  *
- * - [NumberField](https://mui.com/base-ui/react-number-field/)
+ * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldInput API](https://mui.com/base-ui/react-number-field/components-api/#number-field-input)
+ * - [NumberFieldInput API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldInput)
  */
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   props: NumberFieldInputProps,

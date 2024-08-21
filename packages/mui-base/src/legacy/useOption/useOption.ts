@@ -10,16 +10,6 @@ import { combineHooksSlotProps } from '../utils/combineHooksSlotProps';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 import { EventHandlers } from '../../utils/types';
 
-/**
- *
- * Demos:
- *
- * - [Select](https://mui.com/base-ui/react-select/#hooks)
- *
- * API:
- *
- * - [useOption API](https://mui.com/base-ui/react-select/hooks-api/#use-option)
- */
 export function useOption<Value>(params: UseOptionParameters<Value>): UseOptionReturnValue {
   const { value, label, disabled, rootRef: optionRefParam, id: idParam } = params;
 

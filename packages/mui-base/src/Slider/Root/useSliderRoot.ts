@@ -108,16 +108,6 @@ export function trackFinger(
   };
 }
 
-/**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderRoot API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-root)
- */
 function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,

@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePopoverPositioner",
-  "filename": "/packages/mui-base/src/Popover/Positioner/usePopoverPositioner.tsx",
-  "imports": ["import { usePopoverPositioner } from '@base_ui/react/Popover';"],
-  "demos": "<ul></ul>"
-}

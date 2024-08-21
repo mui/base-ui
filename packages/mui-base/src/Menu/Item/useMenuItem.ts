@@ -5,12 +5,6 @@ import { useButton } from '../../useButton';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 
-/**
- *
- * API:
- *
- * - [useMenuItem API](https://mui.com/base-ui/api/use-menu-item/)
- */
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
     closeOnClick,

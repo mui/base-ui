@@ -8,6 +8,16 @@ import { SliderProvider } from './SliderProvider';
 import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderRoot API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderRoot)
+ */
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

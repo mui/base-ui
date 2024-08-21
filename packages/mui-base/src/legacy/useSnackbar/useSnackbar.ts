@@ -12,17 +12,6 @@ import {
 import { extractEventHandlers } from '../../utils/extractEventHandlers';
 import { EventHandlers } from '../../utils/types';
 
-/**
- * The basic building block for creating custom snackbar.
- *
- * Demos:
- *
- * - [Snackbar](https://mui.com/base-ui/react-snackbar/#hook)
- *
- * API:
- *
- * - [useSnackbar API](https://mui.com/base-ui/react-snackbar/hooks-api/#use-snackbar)
- */
 export function useSnackbar(parameters: UseSnackbarParameters = {}): UseSnackbarReturnValue {
   const {
     autoHideDuration = null,

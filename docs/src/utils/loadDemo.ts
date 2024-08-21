@@ -4,19 +4,19 @@ import { basename, dirname, extname } from 'node:path';
 import { codeToHtml } from 'shiki';
 import { DemoFile, DemoVariant } from '../blocks/Demo/types';
 
-const COMPONENTS_BASE_PATH = 'data/base/components';
+const COMPONENTS_BASE_PATH = 'data/components';
 
 /**
  * Loads a demo for a component.
  * The demo can be a single file or a directory with multiple variants (such as plain CSS, Tailwind CSS, etc.).
- * The function will look for the demo in the `data/base/components` directory.
+ * The function will look for the demo in the `data/components` directory.
  * If the `demoName` is a directory, the loader will look for an `index.tsx` file in each subdirectory.
  *
  * If the entry point is a .ts(x) file, the loader will also look for a .js file with the same name.
  *
  * Note: this function is webpack-specific and will not work in other bundlers.
  *
- * @param componentName Name of the component to load the demo for. Must match the directory name in the `data/base/components` directory.
+ * @param componentName Name of the component to load the demo for. Must match the directory name in the `data/components` directory.
  * @param demoName Name of the demo to load. Must match the file name (without extension) or directory name in the component demos directory.
  */
 export async function loadDemo(componentName: string, demoName: string): Promise<DemoVariant[]> {
@@ -68,7 +68,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   const DemoComponent = (
     await import(
       /* webpackInclude: /\.(tsx?|jsx?)$/ */
-      `docs-base/data/base/components/${path}`
+      `docs-base/data/components/${path}`
     )
   ).default;
 

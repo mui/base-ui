@@ -84,16 +84,6 @@ const pageSize = 5;
 const defaultIsActiveElementInListbox = (listboxRef) =>
   listboxRef.current !== null && listboxRef.current.parentElement?.contains(document.activeElement);
 
-/**
- *
- * Demos:
- *
- * - [Autocomplete](https://mui.com/base-ui/react-autocomplete/#hook)
- *
- * API:
- *
- * - [useAutocomplete API](https://mui.com/base-ui/react-autocomplete/hooks-api/#use-autocomplete)
- */
 export function useAutocomplete<
   Value,
   Multiple extends boolean | undefined = false,

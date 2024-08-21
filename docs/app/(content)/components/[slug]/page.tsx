@@ -4,7 +4,7 @@ import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/src/utils/getMarkdownPage';
 import { Description } from 'docs-base/src/modules/components';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
-import routes, { getSlugs } from 'docs-base/data/base/pages';
+import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/modules/common/AppBar';
 import { Navigation } from 'docs-base/src/modules/common/Navigation';
 import {

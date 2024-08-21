@@ -8,16 +8,7 @@ import { UseSliderControlParameters, UseSliderControlReturnValue } from './Slide
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
-/**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderControl API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-control)
- */
+
 export function useSliderControl(
   parameters: UseSliderControlParameters,
 ): UseSliderControlReturnValue {

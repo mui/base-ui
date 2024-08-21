@@ -12,11 +12,11 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-field/)
+ * - [Field](https://base-ui.netlify.app/components/react-field/)
  *
  * API:
  *
- * - [FieldError API](https://mui.com/base-ui/react-field/components-api/#field-error)
+ * - [FieldError API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldError)
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldErrorProps,

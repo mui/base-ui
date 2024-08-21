@@ -1,0 +1,24 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "container": {
+      "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" },
+      "default": "false"
+    },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "PopoverBackdrop",
+  "imports": [
+    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverBackdrop = Popover.Backdrop;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "PopoverBackdrop",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Popover/Backdrop/PopoverBackdrop.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
+  "cssComponent": false
+}

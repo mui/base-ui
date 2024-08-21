@@ -1,0 +1,64 @@
+{
+  "props": {
+    "alignment": {
+      "type": {
+        "name": "enum",
+        "description": "'center'<br>&#124;&nbsp;'end'<br>&#124;&nbsp;'start'"
+      },
+      "default": "'center'"
+    },
+    "alignmentOffset": { "type": { "name": "number" }, "default": "0" },
+    "anchor": {
+      "type": {
+        "name": "union",
+        "description": "HTML element<br>&#124;&nbsp;object<br>&#124;&nbsp;func"
+      }
+    },
+    "arrowPadding": { "type": { "name": "number" }, "default": "5" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "collisionBoundary": {
+      "type": {
+        "name": "union",
+        "description": "HTML element<br>&#124;&nbsp;Array&lt;HTML element&gt;<br>&#124;&nbsp;string<br>&#124;&nbsp;{ height?: number, width?: number, x?: number, y?: number }"
+      },
+      "default": "'clippingAncestors'"
+    },
+    "collisionPadding": {
+      "type": {
+        "name": "union",
+        "description": "number<br>&#124;&nbsp;{ bottom?: number, left?: number, right?: number, top?: number }"
+      },
+      "default": "5"
+    },
+    "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" } },
+    "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "positionStrategy": {
+      "type": { "name": "enum", "description": "'absolute'<br>&#124;&nbsp;'fixed'" },
+      "default": "'absolute'"
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "side": {
+      "type": {
+        "name": "enum",
+        "description": "'bottom'<br>&#124;&nbsp;'left'<br>&#124;&nbsp;'right'<br>&#124;&nbsp;'top'"
+      },
+      "default": "'top'"
+    },
+    "sideOffset": { "type": { "name": "number" }, "default": "0" },
+    "sticky": { "type": { "name": "bool" }, "default": "false" }
+  },
+  "name": "TooltipPositioner",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipPositioner = Tooltip.Positioner;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TooltipPositioner",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Tooltip/Positioner/TooltipPositioner.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}
