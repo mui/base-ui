@@ -26,13 +26,13 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useEventCallback(onValueChangeProp);
 
-  const getParentProps = React.useCallback(
+  const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
       checked,
       'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
-      onChange() {
+      onCheckedChange() {
         const uncontrolledState = uncontrolledStateRef.current;
         const allOnOrOff =
           uncontrolledState.length === allValues.length || uncontrolledState.length === 0;
@@ -61,14 +61,14 @@ export function useCheckboxGroupParent(
     [allValues, checked, id, indeterminate, onValueChange, status, value.length],
   );
 
-  const getChildProps = React.useCallback(
+  const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
     (name: string) => ({
       name,
       id: `${id}-${name}`,
       checked: value.includes(name),
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
+      onCheckedChange(nextChecked) {
         const newValue = [...value];
-        if (event.target.checked) {
+        if (nextChecked) {
           newValue.push(name);
         } else {
           newValue.splice(newValue.indexOf(name), 1);

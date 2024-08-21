@@ -2,44 +2,45 @@ import * as React from 'react';
 import { useTheme } from '@mui/system';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
+import * as Field from '@base_ui/react/Field';
 import Check from '@mui/icons-material/Check';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <CheckboxGroup.Root defaultValue={['red']}>
-        <CheckboxGroup.Label className="CheckboxGroup-label">
-          Colors
-        </CheckboxGroup.Label>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Label className="Checkbox-label">
-            <Checkbox.Root className="Checkbox" name="red">
-              <Checkbox.Indicator className="Checkbox-indicator">
-                <Check className="Check" />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            Red
-          </Label>
-          <Label className="Checkbox-label">
-            <Checkbox.Root className="Checkbox" name="green">
-              <Checkbox.Indicator className="Checkbox-indicator">
-                <Check className="Check" />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            Green
-          </Label>
-          <Label className="Checkbox-label">
-            <Checkbox.Root className="Checkbox" name="blue">
-              <Checkbox.Indicator className="Checkbox-indicator">
-                <Check className="Check" />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            Blue
-          </Label>
-        </div>
-      </CheckboxGroup.Root>
-      <Styles />
-    </div>
+    <Field.Root>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <CheckboxGroup.Root defaultValue={['red']}>
+          <Field.Label className="CheckboxGroup-label">Colors</Field.Label>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <Label className="Checkbox-label">
+              <Checkbox.Root className="Checkbox" name="red">
+                <Checkbox.Indicator className="Checkbox-indicator">
+                  <Check className="Check" />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              Red
+            </Label>
+            <Label className="Checkbox-label">
+              <Checkbox.Root className="Checkbox" name="green">
+                <Checkbox.Indicator className="Checkbox-indicator">
+                  <Check className="Check" />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              Green
+            </Label>
+            <Label className="Checkbox-label">
+              <Checkbox.Root className="Checkbox" name="blue">
+                <Checkbox.Indicator className="Checkbox-indicator">
+                  <Check className="Check" />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              Blue
+            </Label>
+          </div>
+        </CheckboxGroup.Root>
+        <Styles />
+      </div>
+    </Field.Root>
   );
 }
 

@@ -57,7 +57,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const {
     checked: groupChecked = checkedProp,
     indeterminate: groupIndeterminate = indeterminate,
-    onChange: groupOnChange = onChange,
+    onCheckedChange: groupOnChange = onCheckedChange,
     ...otherGroupProps
   } = groupProps;
 
@@ -65,7 +65,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...props,
     checked: groupChecked,
     indeterminate: groupIndeterminate,
-    onChange: groupOnChange,
+    onCheckedChange: groupOnChange,
   });
 
   const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
@@ -78,7 +78,6 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     () => ({
       ...fieldOwnerState,
       checked: computedChecked,
-      checked,
       disabled,
       readOnly,
       required,

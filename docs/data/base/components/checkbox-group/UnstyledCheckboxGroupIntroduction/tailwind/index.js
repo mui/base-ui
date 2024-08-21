@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useTheme } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
+import * as Field from '@base_ui/react/Field';
 import Check from '@mui/icons-material/Check';
 
 function classNames(...classes) {
@@ -31,37 +32,37 @@ export default function UnstyledCheckboxIntroduction() {
 
   return (
     <div className={isDarkMode ? 'dark' : ''} style={{ display: 'flex', gap: 12 }}>
-      <CheckboxGroup.Root defaultValue={['red']}>
-        <CheckboxGroup.Label className="font-bold text-lg mb-2 flex">
-          Colors
-        </CheckboxGroup.Label>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Label>
-            <Checkbox name="red">
-              <Indicator>
-                <Check className="w-full h-full" />
-              </Indicator>
-            </Checkbox>
-            Red
-          </Label>
-          <Label>
-            <Checkbox name="green">
-              <Indicator>
-                <Check className="w-full h-full" />
-              </Indicator>
-            </Checkbox>
-            Green
-          </Label>
-          <Label>
-            <Checkbox name="blue">
-              <Indicator>
-                <Check className="w-full h-full" />
-              </Indicator>
-            </Checkbox>
-            Blue
-          </Label>
-        </div>
-      </CheckboxGroup.Root>
+      <Field.Root>
+        <CheckboxGroup.Root defaultValue={['red']}>
+          <Field.Label className="font-bold text-lg mb-2 flex">Colors</Field.Label>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <Label>
+              <Checkbox name="red">
+                <Indicator>
+                  <Check className="w-full h-full" />
+                </Indicator>
+              </Checkbox>
+              Red
+            </Label>
+            <Label>
+              <Checkbox name="green">
+                <Indicator>
+                  <Check className="w-full h-full" />
+                </Indicator>
+              </Checkbox>
+              Green
+            </Label>
+            <Label>
+              <Checkbox name="blue">
+                <Indicator>
+                  <Check className="w-full h-full" />
+                </Indicator>
+              </Checkbox>
+              Blue
+            </Label>
+          </div>
+        </CheckboxGroup.Root>
+      </Field.Root>
     </div>
   );
 }

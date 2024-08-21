@@ -12,12 +12,12 @@ export interface UseCheckboxGroupParentReturnValue {
     indeterminate: boolean;
     checked: boolean;
     'aria-controls': string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onCheckedChange: (checked: boolean) => void;
   };
   getChildProps: (name: string) => {
     name: string;
     id: string;
     checked: boolean;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onCheckedChange: (checked: boolean) => void;
   };
 }

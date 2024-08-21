@@ -8,6 +8,7 @@ import type {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  *
@@ -18,7 +19,9 @@ import { useCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
 export function useCheckboxGroupRoot(
   params: UseCheckboxGroupRootParameters,
 ): UseCheckboxGroupRootReturnValue {
-  const { allValues, value: externalValue, defaultValue, onValueChange, labelId } = params;
+  const { allValues, value: externalValue, defaultValue, onValueChange } = params;
+
+  const { labelId } = useFieldRootContext();
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,

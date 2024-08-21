@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { styled } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
+import * as Field from '@base_ui/react/Field';
+import { styled } from '@mui/system';
 import HorizontalRule from '@mui/icons-material/HorizontalRule';
 import Check from '@mui/icons-material/Check';
 
@@ -11,39 +12,35 @@ export default function UnstyledCheckboxGroupNested() {
   const [value, setValue] = React.useState([]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <Field.Root style={{ display: 'flex', flexDirection: 'column' }}>
       <CheckboxGroup.Root allValues={colors} value={value} onValueChange={setValue}>
         <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
-        <ListRoot>
-          <Label onMouseDown={(e) => e.preventDefault()}>
-            <Checkbox parent>
-              <Indicator
-                render={(props, { indeterminate }) => (
-                  <Indicator {...props}>
-                    {indeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}
-                  </Indicator>
-                )}
-              />
-            </Checkbox>
-            All Colors
-          </Label>
-        </ListRoot>
+        <FieldRoot render={<ul />}>
+          <Checkbox parent>
+            <Indicator
+              render={(props, { indeterminate }) => (
+                <span {...props}>
+                  {indeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}
+                </span>
+              )}
+            />
+          </Checkbox>
+          <CheckboxLabel>All Colors</CheckboxLabel>
+        </FieldRoot>
         <List>
           {colors.map((color) => (
-            <ListItem key={color}>
-              <Label onMouseDown={(e) => e.preventDefault()}>
-                <Checkbox name={color}>
-                  <Indicator>
-                    <CheckIcon />
-                  </Indicator>
-                </Checkbox>
-                {color}
-              </Label>
-            </ListItem>
+            <FieldListItem key={color} render={<li />}>
+              <Checkbox name={color}>
+                <Indicator>
+                  <CheckIcon />
+                </Indicator>
+              </Checkbox>
+              <CheckboxLabel>{color}</CheckboxLabel>
+            </FieldListItem>
           ))}
         </List>
       </CheckboxGroup.Root>
-    </div>
+    </Field.Root>
   );
 }
 
@@ -59,7 +56,7 @@ const grey = {
   800: '#303740',
 };
 
-const CheckboxGroupLabel = styled(CheckboxGroup.Label)`
+const CheckboxGroupLabel = styled(Field.Label)`
   display: block;
   font-weight: bold;
   font-size: 18px;
@@ -117,10 +114,11 @@ const Indicator = styled(BaseCheckbox.Indicator)`
   }
 `;
 
-const ListRoot = styled('div')`
+const FieldRoot = styled(Field.Root)`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  padding: 0;
 `;
 
 const List = styled('ul')`
@@ -130,7 +128,7 @@ const List = styled('ul')`
   margin-left: 32px;
 `;
 
-const ListItem = styled('li')`
+const FieldListItem = styled(Field.Root)`
   display: flex;
   align-items: center;
 
@@ -139,8 +137,9 @@ const ListItem = styled('li')`
   }
 `;
 
-const Label = styled('label')`
+const CheckboxLabel = styled(Field.Label)`
   display: flex;
   gap: 8px;
   text-transform: capitalize;
+  padding-left: 8px;
 `;

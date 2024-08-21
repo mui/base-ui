@@ -2,40 +2,43 @@ import * as React from 'react';
 import { css, styled } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
+import * as Field from '@base_ui/react/Field';
 import Check from '@mui/icons-material/Check';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <CheckboxGroup.Root defaultValue={['red']}>
-        <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <CheckboxLabel>
-            <Checkbox name="red">
-              <Indicator>
-                <CheckIcon />
-              </Indicator>
-            </Checkbox>
-            Red
-          </CheckboxLabel>
-          <CheckboxLabel>
-            <Checkbox name="green">
-              <Indicator>
-                <CheckIcon />
-              </Indicator>
-            </Checkbox>
-            Green
-          </CheckboxLabel>
-          <CheckboxLabel>
-            <Checkbox name="blue">
-              <Indicator>
-                <CheckIcon />
-              </Indicator>
-            </Checkbox>
-            Blue
-          </CheckboxLabel>
-        </div>
-      </CheckboxGroup.Root>
+      <Field.Root>
+        <CheckboxGroup.Root defaultValue={['red']}>
+          <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <FieldRoot>
+              <Checkbox name="red">
+                <Indicator>
+                  <CheckIcon />
+                </Indicator>
+              </Checkbox>
+              <CheckboxLabel>Red</CheckboxLabel>
+            </FieldRoot>
+            <FieldRoot>
+              <Checkbox name="green">
+                <Indicator>
+                  <CheckIcon />
+                </Indicator>
+              </Checkbox>
+              <CheckboxLabel>Green</CheckboxLabel>
+            </FieldRoot>
+            <FieldRoot>
+              <Checkbox name="blue">
+                <Indicator>
+                  <CheckIcon />
+                </Indicator>
+              </Checkbox>
+              <CheckboxLabel>Blue</CheckboxLabel>
+            </FieldRoot>
+          </div>
+        </CheckboxGroup.Root>
+      </Field.Root>
     </div>
   );
 }
@@ -58,19 +61,20 @@ const labelStyles = css`
   margin-bottom: 8px;
 `;
 
-const CheckboxLabelStyled = styled('label')`
-  ${labelStyles}
+const FieldRoot = styled(Field.Root)`
+  display: flex;
 `;
 
-const CheckboxGroupLabel = styled(CheckboxGroup.Label)`
+const CheckboxLabel = styled(Field.Label)`
+  ${labelStyles}
+  padding-left: 8px;
+`;
+
+const CheckboxGroupLabel = styled(Field.Label)`
   font-size: 17px;
   font-weight: bold;
   ${labelStyles}
 `;
-
-function CheckboxLabel(props: React.ComponentPropsWithoutRef<'label'>) {
-  return <CheckboxLabelStyled onMouseDown={(e) => e.preventDefault()} {...props} />;
-}
 
 const Checkbox = styled(BaseCheckbox.Root)(
   ({ theme }) => `

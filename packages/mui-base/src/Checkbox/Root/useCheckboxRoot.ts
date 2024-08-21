@@ -143,6 +143,8 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         tabIndex: -1,
         type: 'checkbox',
         'aria-hidden': true,
+        // @ts-ignore
+        inert: 'true',
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
           if (event.nativeEvent.defaultPrevented) {

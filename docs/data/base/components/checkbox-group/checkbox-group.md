@@ -9,7 +9,7 @@ packageName: '@base_ui/react'
 
 # Checkbox Group
 
-<p class="description">Checkbox groups combine a series of checkboxes together with a label.</p>
+<p class="description">Checkbox Groups combine a series of checkboxes together.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
@@ -45,16 +45,38 @@ import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
 
 ## Anatomy
 
-Checkbox is composed of two components:
+Checkbox Group is composed of a `Root` component and `Checkbox` components:
 
 - `<CheckboxGroup.Root />` renders a `<div>` with a `group` role.
-- `<CheckboxGroup.Label />` renders a `<span>` to label the group of checkboxes.
+- `<Checkbox.Root />` renders an individual `<button>` checkbox.
 
 ```tsx
 <CheckboxGroup.Root>
-  <CheckboxGroup.Label />
-  {/* Checkboxes */}
+  <Checkbox.Root />
+  <Checkbox.Root />
 </CheckboxGroup.Root>
+```
+
+`Field` components are used to label the Checkbox Group and individual Checkboxes:
+
+```jsx
+import * as Field from '@base_ui/react/Field';
+```
+
+```tsx
+<Field.Root>
+  <CheckboxGroup.Root>
+    <Field.Label>Colors</Field.Label>
+    <Field.Root>
+      <Checkbox.Root name="red" />
+      <Field.Label>Red</Field.Label>
+    </Field.Root>
+    <Field.Root>
+      <Checkbox.Root name="blue" />
+      <Field.Label>Blue</Field.Label>
+    </Field.Root>
+  </CheckboxGroup.Root>
+</Field.Root>
 ```
 
 ## Controlled

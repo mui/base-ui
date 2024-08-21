@@ -6,7 +6,6 @@ export interface UseCheckboxGroupRootParameters {
   defaultValue?: string[];
   onValueChange?: (value: string[]) => void;
   allValues?: string[];
-  labelId: string | undefined;
 }
 
 export interface UseCheckboxGroupRootReturnValue {

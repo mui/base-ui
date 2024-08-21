@@ -28,8 +28,8 @@ module.exports = [
     title: 'AlertDialogTrigger',
   },
   {
-    pathname: '/base-ui/react-checkbox-group/components-api/#checkbox-group-label',
-    title: 'CheckboxGroupLabel',
+    pathname: '/base-ui/react-checkbox-group/components-api/#checkbox-group-root',
+    title: 'CheckboxGroupRoot',
   },
   {
     pathname: '/base-ui/react-checkbox/components-api/#checkbox-indicator',

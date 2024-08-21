@@ -16,4 +16,5 @@ export interface CheckboxGroupRootProps
   defaultValue?: string[];
   onValueChange?: (value: string[]) => void;
   allValues?: string[];
+  disabled?: boolean;
 }

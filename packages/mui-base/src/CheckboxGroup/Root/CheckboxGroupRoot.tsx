@@ -8,62 +8,7 @@ import type {
 } from './CheckboxGroupRoot.types';
 import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
 import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
-import { FormProvider, useFormContext } from '../../Form/FormContext';
-
-/**
- * @ignore - internal component.
- */
-const CheckboxGroupRootComponent = React.forwardRef(function CheckboxGroupRootComponent(
-  props: CheckboxGroupRootProps,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const {
-    render,
-    className,
-    value: externalValue,
-    defaultValue,
-    onValueChange,
-    allValues,
-    ...otherProps
-  } = props;
-
-  const { labelId, setLabelId } = useFormContext();
-
-  const { getRootProps, value, setValue, parent } = useCheckboxGroupRoot({
-    value: externalValue,
-    allValues,
-    defaultValue,
-    onValueChange,
-    labelId,
-  });
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
-    ownerState: {},
-    ref: forwardedRef,
-    extraProps: otherProps,
-  });
-
-  const contextValue: CheckboxGroupRootContextValue = React.useMemo(
-    () => ({
-      groupLabelId: labelId,
-      setGroupLabelId: setLabelId,
-      allValues,
-      value,
-      setValue,
-      parent,
-    }),
-    [labelId, setLabelId, allValues, value, setValue, parent],
-  );
-
-  return (
-    <CheckboxGroupRootContext.Provider value={contextValue}>
-      {renderElement()}
-    </CheckboxGroupRootContext.Provider>
-  );
-});
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  * The foundation for building custom-styled checkbox groups.
@@ -80,10 +25,59 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
   props: CheckboxGroupRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const {
+    render,
+    className,
+    value: externalValue,
+    defaultValue,
+    onValueChange,
+    allValues,
+    disabled: disabledProp = false,
+    ...otherProps
+  } = props;
+
+  const { disabled: fieldDisabled, ownerState: fieldOwnerState } = useFieldRootContext();
+
+  const disabled = disabledProp || fieldDisabled;
+
+  const { getRootProps, value, setValue, parent } = useCheckboxGroupRoot({
+    value: externalValue,
+    allValues,
+    defaultValue,
+    onValueChange,
+  });
+
+  const ownerState = React.useMemo(
+    () => ({
+      ...fieldOwnerState,
+      disabled,
+    }),
+    [fieldOwnerState, disabled],
+  );
+
+  const { renderElement } = useComponentRenderer({
+    propGetter: getRootProps,
+    render: render ?? 'div',
+    className,
+    ownerState,
+    ref: forwardedRef,
+    extraProps: otherProps,
+  });
+
+  const contextValue: CheckboxGroupRootContextValue = React.useMemo(
+    () => ({
+      allValues,
+      value,
+      setValue,
+      parent,
+    }),
+    [allValues, value, setValue, parent],
+  );
+
   return (
-    <FormProvider>
-      <CheckboxGroupRootComponent {...props} ref={forwardedRef} />
-    </FormProvider>
+    <CheckboxGroupRootContext.Provider value={contextValue}>
+      {renderElement()}
+    </CheckboxGroupRootContext.Provider>
   );
 });
 
@@ -101,13 +95,25 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * @ignore
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
    * @ignore
    */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
   onValueChange: PropTypes.func,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * @ignore
    */
