@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { styled, useTheme, Box } from '@mui/system';
 import * as BaseCollapsible from '@base_ui/react/Collapsible';

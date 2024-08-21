@@ -82,13 +82,22 @@ This relies on the HTML `hidden="until-found"` attribute which only has [partial
 
 ## Animations
 
-The Collapsible component can animate when opening or closing using either:
+### Animation states
+
+Four states are available as data attributes to animate the Collapsible:
+
+- `[data-state="open"]` - `open` state is `true`.
+- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the content element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
+- `[data-exiting]` - the content element is in the process of being hidden from the DOM, but is still mounted.
+
+The component can be animate when opening or closing using either:
 
 - CSS animations
 - CSS transitions
 - JavaScript animations
 
-The height of the `Content` is provided as the `--collapsible-content-height` CSS variable
+The height of the `Content` subcomponent is provided as the `--collapsible-content-height` CSS variable
 
 ### CSS Animations
 

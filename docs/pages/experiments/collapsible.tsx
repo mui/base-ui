@@ -1,28 +1,48 @@
 import * as React from 'react';
 import * as Collapsible from '@base_ui/react/Collapsible';
 
+const DURATION = '350ms';
+
 export default function CollapsibleDemo() {
   return (
     <div className="CollapsibleDemo">
-      <Collapsible.Root>
-        <Collapsible.Trigger className="MyCollapsible-trigger">
-          <span className="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
-              <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
-            </svg>
-          </span>
-          Trigger
-        </Collapsible.Trigger>
-        <Collapsible.Content className="MyCollapsible-content">
-          <p>This is the collapsed content</p>
-          <p>
-            Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded cabbage & carrot
-            with mustard mayonnaise And Potato Wedges
-          </p>
-          <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
-          <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-        </Collapsible.Content>
-      </Collapsible.Root>
+      <div>
+        <Collapsible.Root>
+          <Collapsible.Trigger className="MyCollapsible-trigger">
+            <span className="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+                <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
+              </svg>
+            </span>
+            Trigger (CSS animation)
+          </Collapsible.Trigger>
+          <Collapsible.Content className="MyCollapsible-content cssanimation">
+            <p>This is the collapsed content</p>
+            <p>This component is animated with CSS @keyframe animations</p>
+            <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
+            <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+          </Collapsible.Content>
+        </Collapsible.Root>
+      </div>
+
+      <div>
+        <Collapsible.Root>
+          <Collapsible.Trigger className="MyCollapsible-trigger">
+            <span className="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+                <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
+              </svg>
+            </span>
+            Trigger (CSS transition)
+          </Collapsible.Trigger>
+          <Collapsible.Content className="MyCollapsible-content csstransition">
+            <p>This is the collapsed content</p>
+            <p>This component is animated with CSS transitions</p>
+            <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
+            <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+          </Collapsible.Content>
+        </Collapsible.Root>
+      </div>
       <Styles />
     </div>
   );
@@ -47,6 +67,9 @@ export function Styles() {
     .CollapsibleDemo {
       font-family: system-ui, sans-serif;
       line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
 
     .MyCollapsible-trigger {
@@ -108,11 +131,26 @@ export function Styles() {
       overflow: hidden;
     }
 
-    .MyCollapsible-content[data-state='open'] {
-      animation: slideDown 300ms ease-out;
+    .MyCollapsible-content.cssanimation[data-state='open'] {
+      animation: slideDown ${DURATION} ease-out;
     }
-    .MyCollapsible-content[data-state='closed'] {
-      animation: slideUp 300ms ease-out;
+
+    .MyCollapsible-content.cssanimation[data-state='closed'] {
+      animation: slideUp ${DURATION} ease-out;
+    }
+
+    .MyCollapsible-content.csstransition[data-state='open'] {
+      height: var(--collapsible-content-height);
+      transition: height ${DURATION} ease-out;
+    }
+
+    .MyCollapsible-content.csstransition[data-state='closed'] {
+      height: 0;
+      transition: height ${DURATION} ease-in;
+    }
+
+    .MyCollapsible-content.csstransition[data-entering] {
+      height: 0;
     }
 
     @keyframes slideDown {
