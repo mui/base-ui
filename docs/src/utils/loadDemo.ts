@@ -131,14 +131,26 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   return languageVariants;
 }
 
-function getLocalImports(content: string, baseDemoDirectory: string): string[] {
+/**
+ * Looks for local imports in the file content and resolves them to absolute paths.
+ *
+ * @param content JS/TS file content.
+ * @param baseDirectory Directory the file is located in.
+ */
+function getLocalImports(content: string, baseDirectory: string): string[] {
   return (
     content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? []
-  ).map((file) => resolve(baseDemoDirectory, file));
+  ).map((file) => resolve(baseDirectory, file));
 }
 
-function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
-  return Promise.all(
+/**
+ * Lists all the dependencies of the provided files, including transitive dependencies (only in case of JS/TS files).
+ *
+ * @param paths Paths to the files to read.
+ * @param preferTs Whether to prefer TS files over JS files when resolving extensionless imports.
+ */
+async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
+  const files = await Promise.all(
     paths.map(async (path) => {
       let extension = extname(path);
 
@@ -178,9 +190,17 @@ function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFil
         ...transitiveDependencies,
       ];
     }),
-  ).then((files) => files.flat());
+  );
+
+  return files.flat();
 }
 
+/**
+ * Given a file path without an extension, resolves it to a file with one of the supported extensions.
+ *
+ * @param filePath Path to the file without an extension.
+ * @param preferTs Whether to prefer TS files over JS files.
+ */
 function resolveExtensionlessFile(filePath: string, preferTs: boolean): string {
   const extensions = preferTs
     ? ['.tsx', '.ts', '.jsx', '.js', '.json']
