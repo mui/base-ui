@@ -1,0 +1,22 @@
+.root {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-7);
+  font-size: var(--fs-1);
+
+  & > a {
+    padding: var(--space-1) var(--space-2);
+    color: var(--gray-text-1);
+    text-decoration: none;
+    border: 1px solid var(--gray-outline-2);
+    border-radius: 8px;
+
+    &:hover {
+      &::after {
+        content: none;
+      }
+
+      background: var(--gray-container-1);
+    }
+  }
+}

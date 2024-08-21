@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Metadata } from 'next';
 import { components } from 'docs-base/src/modules/common/MDXComponents';
 import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/src/utils/getMarkdownPage';
-import { Description } from 'docs-base/src/modules/components';
+import { ComponentLinkHeader, Description } from 'docs-base/src/modules/components';
 import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/modules/common/AppBar';
@@ -53,6 +53,10 @@ export default async function ComponentPage(props: Props) {
     ),
     // eslint-disable-next-line react/no-unstable-nested-components
     Description: () => <Description text={metadata.description} />,
+    // eslint-disable-next-line react/no-unstable-nested-components
+    ComponentLinkHeader: () => (
+      <ComponentLinkHeader ariaSpecUrl={metadata.waiAria} githubLabel={metadata.githubLabel} />
+    ),
   };
 
   return (

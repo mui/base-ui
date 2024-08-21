@@ -1,7 +1,53 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import classes from './ComponentLinkHeader.module.css';
 
-export function ComponentLinkHeader(props: React.ComponentProps<'div'>) {
-  return <div {...props} className={clsx(classes.root, props.className)} />;
+export interface ComponentLinkHeaderProps {
+  githubLabel?: string;
+  ariaSpecUrl?: string;
+}
+
+export function ComponentLinkHeader(props: ComponentLinkHeaderProps) {
+  const { githubLabel, ariaSpecUrl } = props;
+
+  return (
+    <div {...props} className={classes.root}>
+      {githubLabel && (
+        <a
+          href={`${process.env.SOURCE_CODE_REPO}/labels/${encodeURIComponent(githubLabel)}`}
+          className={classes.github}
+          rel="nofollow"
+          data-ga-event-category="ComponentLinkHeader"
+          data-ga-event-action="click"
+          data-ga-event-label="githubLabel"
+          data-ga-event-split="0.1"
+        >
+          Feedback
+        </a>
+      )}
+      {ariaSpecUrl && (
+        <a
+          href={ariaSpecUrl}
+          className={classes.aria}
+          rel="nofollow"
+          data-ga-event-category="ComponentLinkHeader"
+          data-ga-event-action="click"
+          data-ga-event-label="WAI_ARIA"
+          data-ga-event-split="0.1"
+        >
+          WAI-ARIA
+        </a>
+      )}
+      <a
+        href="https://bundlephobia.com/package/@base_ui/react@latest"
+        className={classes.bundleSize}
+        rel="nofollow"
+        data-ga-event-category="ComponentLinkHeader"
+        data-ga-event-action="click"
+        data-ga-event-label="bundleSize"
+        data-ga-event-split="0.1"
+      >
+        Bundle size
+      </a>
+    </div>
+  );
 }
