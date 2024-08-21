@@ -139,8 +139,6 @@ namespace MenuRoot {
     delay?: number;
     /**
      * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-     *
-     * @default nested
      */
     openOnHover?: boolean;
   }
