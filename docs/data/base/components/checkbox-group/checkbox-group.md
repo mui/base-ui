@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Checkbox Group component and hook
-components: CheckboxGroupRoot, CheckboxGroupLabel
+components: CheckboxGroupRoot
 githubLabel: 'component: checkbox'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
 packageName: '@base_ui/react'
