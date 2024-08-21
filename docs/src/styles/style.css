@@ -35,3 +35,7 @@
 @import 'utilities/margin.css';
 @import 'utilities/padding.css';
 @import 'utilities/position.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
