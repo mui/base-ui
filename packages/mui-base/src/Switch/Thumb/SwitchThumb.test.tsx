@@ -8,6 +8,9 @@ const testContext = {
   disabled: false,
   readOnly: false,
   required: false,
+  dirty: false,
+  touched: false,
+  valid: null,
 };
 
 describe('<Switch.Thumb />', () => {

@@ -9,6 +9,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { useSwitchStyleHooks } from './useSwitchStyleHooks';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
@@ -33,11 +34,11 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
     checked: checkedProp,
     className: classNameProp,
     defaultChecked,
-    disabled = false,
     inputRef,
     onCheckedChange,
     readOnly = false,
     required = false,
+    disabled: disabledProp = false,
     render: renderProp,
     ...other
   } = props;
@@ -45,14 +46,18 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
   const ownerState: SwitchOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       checked,
       disabled,
       readOnly,
       required,
     }),
-    [checked, disabled, readOnly, required],
+    [fieldOwnerState, checked, disabled, readOnly, required],
   );
 
   const className = resolveClassName(classNameProp, ownerState);
@@ -102,6 +107,10 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The id of the switch element.
+   */
+  id: PropTypes.string,
   /**
    * Ref to the underlying input element.
    */
