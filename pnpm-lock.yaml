@@ -256,6 +256,12 @@ importers:
       piscina:
         specifier: ^4.4.0
         version: 4.4.0
+      postcss:
+        specifier: ^8.4.40
+        version: 8.4.40
+      postcss-loader:
+        specifier: ^8.1.1
+        version: 8.1.1(postcss@8.4.40)(typescript@5.4.5)(webpack@5.91.0(webpack-cli@5.1.4))
       postcss-styled-syntax:
         specifier: ^0.6.4
         version: 0.6.4(postcss@8.4.40)
@@ -292,6 +298,9 @@ importers:
       stylelint-config-standard:
         specifier: ^36.0.1
         version: 36.0.1(stylelint@16.4.0(typescript@5.4.5))
+      tailwindcss:
+        specifier: ^3.4.3
+        version: 3.4.3
       terser:
         specifier: ^5.31.0
         version: 5.31.0
@@ -7062,6 +7071,19 @@ packages:
       ts-node:
         optional: true
 
+  postcss-loader@8.1.1:
+    resolution: {integrity: sha512-0IeqyAsG6tYiDRCYKQJLAmgQr47DX6N7sFSWvQxt6AcupX8DIdmykuk/o/tx0Lze3ErGHJEp5OSRxrelC6+NdQ==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      '@rspack/core': 0.x || 1.x
+      postcss: ^7.0.0 || ^8.0.1
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
+
   postcss-modules-extract-imports@3.1.0:
     resolution: {integrity: sha512-k3kNe0aNFQDAZGbin48pL2VNidTF0w4/eASDsxlyspobzU3wZQLOGj7L9gfRe0Jo9/4uud09DsjFNH7winGv8Q==}
     engines: {node: ^10 || ^12 || >= 14}
@@ -7254,6 +7276,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
@@ -16715,6 +16738,17 @@ snapshots:
       yaml: 2.4.1
     optionalDependencies:
       postcss: 8.4.40
+
+  postcss-loader@8.1.1(postcss@8.4.40)(typescript@5.4.5)(webpack@5.91.0(webpack-cli@5.1.4)):
+    dependencies:
+      cosmiconfig: 9.0.0(typescript@5.4.5)
+      jiti: 1.21.0
+      postcss: 8.4.40
+      semver: 7.6.0
+    optionalDependencies:
+      webpack: 5.91.0(webpack-cli@5.1.4)
+    transitivePeerDependencies:
+      - typescript
 
   postcss-modules-extract-imports@3.1.0(postcss@8.4.40):
     dependencies:
