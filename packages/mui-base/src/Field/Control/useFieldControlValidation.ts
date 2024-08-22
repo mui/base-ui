@@ -111,23 +111,6 @@ export function useFieldControlValidation() {
     }
 
     setValidityData(nextValidityData);
-
-    let errors: string[] = [];
-    if (Array.isArray(result)) {
-      errors = result;
-    } else if (result) {
-      errors = [result];
-    } else if (element.validationMessage) {
-      errors = [element.validationMessage];
-    }
-
-    setValidityData({
-      value,
-      state: nextState,
-      error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
-      errors,
-      initialValue: validityData.initialValue,
-    });
   });
 
   const getValidationProps = React.useCallback(
