@@ -69,6 +69,7 @@ export function DemoVariantSelector(props: React.HtmlHTMLAttributes<HTMLDivEleme
           value={selectedVariant.name}
           onChange={handleSelectChange}
           className={classes.variantSelector}
+          aria-label="Styling solution selector"
         >
           {Object.keys(variantsMap).map((variantName) => (
             <option key={variantName} value={variantName}>

@@ -23,7 +23,7 @@ export function AppBar() {
     <header className="AppBar">
       <div className="d-f ai-center jc-sb">
         <div className="d-f ai-center g-2">
-          <Link href="/" className="IconButton size-3">
+          <Link href="/" className="IconButton size-3" aria-label="Base UI">
             <BaseUIIcon />
           </Link>
           <VersionSelector currentVersion={currentVersion} versions={supportedVersions} />
