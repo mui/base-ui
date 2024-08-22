@@ -227,6 +227,12 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     }
   }, [setValidityData, validityData.initialValue, valueState]);
 
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && valueState !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: valueState }));
+    }
+  }, [setValidityData, validityData.initialValue, valueState]);
+
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
     SliderThumbMetadata

@@ -51,6 +51,10 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
 
   const { formRef } = useFormRootContext();
 
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
   const {
     getValidationProps,
     getInputValidationProps,

@@ -31,6 +31,8 @@ export function useFieldControlValidation() {
 
   const { formRef } = useFormRootContext();
 
+  const valid = !invalid && validityData.state.valid;
+
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -59,6 +61,12 @@ export function useFieldControlValidation() {
         },
         {} as Record<keyof ValidityState, boolean>,
       );
+
+      if (invalid) {
+        val.valid = false;
+      }
+
+      return val;
     }
 
     window.clearTimeout(timeoutRef.current);
@@ -111,6 +119,23 @@ export function useFieldControlValidation() {
     }
 
     setValidityData(nextValidityData);
+
+    let errors: string[] = [];
+    if (Array.isArray(result)) {
+      errors = result;
+    } else if (result) {
+      errors = [result];
+    } else if (element.validationMessage) {
+      errors = [element.validationMessage];
+    }
+
+    setValidityData({
+      value,
+      state: nextState,
+      error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
+      errors,
+      initialValue: validityData.initialValue,
+    });
   });
 
   const getValidationProps = React.useCallback(

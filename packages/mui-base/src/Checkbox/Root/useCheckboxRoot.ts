@@ -10,7 +10,6 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
 import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
 
 /**
@@ -41,6 +40,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
   const {
     labelId,
+    setDisabled,
     setControlId,
     setTouched,
     setDirty,
@@ -51,6 +51,10 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
   } = useFieldRootContext();
 
   const { formRef } = useFormRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const {
     getValidationProps,
@@ -93,6 +97,9 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       });
     }
   }, [commitValidation, formRef, id, inputValidationRef, validityData, invalid, markedDirtyRef]);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
   React.useEffect(() => {
     if (inputRef.current) {

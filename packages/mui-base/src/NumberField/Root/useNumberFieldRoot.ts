@@ -84,6 +84,10 @@ export function useNumberFieldRoot(
 
   const { formRef } = useFormRootContext();
 
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
   const {
     getInputValidationProps,
     getValidationProps,

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 
 interface UseFieldControlParameters {
@@ -37,6 +37,9 @@ export function useFieldControl(params: UseFieldControlParameters) {
   } = useFieldRootContext();
 
   const { formRef, errors, onClearErrors } = useFormRootContext();
+
+  const { setControlId, labelId, disabled, setTouched, setDirty, validityData, setValidityData } =
+    useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
