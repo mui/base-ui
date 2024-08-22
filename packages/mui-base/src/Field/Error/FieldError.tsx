@@ -6,6 +6,7 @@ import type { FieldErrorProps } from './FieldError.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldError } from './useFieldError';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
 
 /**
  * Displays error messages for the field's control.
@@ -32,10 +33,6 @@ const FieldError = React.forwardRef(function FieldError(
 
   let rendered = false;
   if (formError || forceShow) {
-  const { validityData, ownerState } = useFieldRootContext(false);
-
-  let rendered = false;
-  if (forceShow) {
     rendered = true;
   } else if (show) {
     rendered = Boolean(validityData.state[show]);

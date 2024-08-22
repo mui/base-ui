@@ -8,11 +8,13 @@ import { useId } from '../../utils/useId';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
 
 interface UseFieldControlParameters {
   id?: string;
   name?: string;
   value: string | number | readonly string[];
+  disabled?: boolean;
 }
 
 /**
@@ -22,12 +24,11 @@ interface UseFieldControlParameters {
  * - [useFieldControl API](https://mui.com/base-ui/api/use-field-control/)
  */
 export function useFieldControl(params: UseFieldControlParameters) {
-  const { id: idProp, name, value } = params;
+  const { id: idProp, name, value, disabled } = params;
 
   const {
     setControlId,
     labelId,
-    disabled,
     setTouched,
     setDirty,
     markedDirtyRef,
@@ -37,9 +38,6 @@ export function useFieldControl(params: UseFieldControlParameters) {
   } = useFieldRootContext();
 
   const { formRef, errors, onClearErrors } = useFormRootContext();
-
-  const { setControlId, labelId, disabled, setTouched, setDirty, validityData, setValidityData } =
-    useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();

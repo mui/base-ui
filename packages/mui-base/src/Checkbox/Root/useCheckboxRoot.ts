@@ -11,6 +11,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -40,7 +41,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
   const {
     labelId,
-    setDisabled,
     setControlId,
     setTouched,
     setDirty,
@@ -52,10 +52,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
   const { formRef } = useFormRootContext();
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
-
   const {
     getValidationProps,
     getInputValidationProps,
@@ -65,9 +61,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useId(idProp);
-
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
