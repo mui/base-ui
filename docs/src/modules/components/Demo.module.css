@@ -44,10 +44,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5em 1em;
+  padding: 4px;
   border: 1px var(--gray-outline-2);
   border-style: none solid solid solid;
-  background: var(--gray-container-1);
+  background: var(--gray-surface-1);
 }
 
 .source {

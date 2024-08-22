@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import clsx from 'clsx';
+import { ToggleButtonGroup } from 'docs-base/src/design-system/ToggleButtonGroup';
 import * as BasePackageManagerSnippet from '../../blocks/PackageManagerSnippet';
 import classes from './PackageManagerSnippet.module.css';
 
@@ -9,7 +9,17 @@ interface PackageManagerSnippetProps {
   children: React.ReactNode;
 }
 
-const packageManagers = ['npm', 'pnpm', 'Yarn'];
+const packageManagers = [
+  {
+    value: 'npm',
+    label: 'npm',
+  },
+  { value: 'pnpm', label: 'pnpm' },
+  {
+    value: 'yarn',
+    label: 'Yarn',
+  },
+];
 
 function getStoredValue() {
   if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
@@ -29,19 +39,12 @@ export function PackageManagerSnippet(props: PackageManagerSnippetProps) {
   return (
     <div className={classes.root}>
       <div className={classes.selectorArea}>
-        <div role="group" aria-label="Package manager selector" className={classes.selector}>
-          {packageManagers.map((packageManager) => (
-            <button
-              type="button"
-              key={packageManager}
-              onClick={() => setValue(packageManager)}
-              className={clsx({ [classes.selected]: value === packageManager }, classes.button)}
-              aria-pressed={value === packageManager}
-            >
-              {packageManager}
-            </button>
-          ))}
-        </div>
+        <ToggleButtonGroup
+          options={packageManagers}
+          value={value}
+          onValueChange={(v) => setValue(v.value)}
+          aria-label="Package manager selector"
+        />
       </div>
       <BasePackageManagerSnippet.Root value={value} onValueChange={setValue}>
         {props.children}
@@ -68,7 +71,7 @@ export function Pnpm(props: React.PropsWithChildren<{}>) {
 
 export function Yarn(props: React.PropsWithChildren<{}>) {
   return (
-    <BasePackageManagerSnippet.Code value="Yarn">
+    <BasePackageManagerSnippet.Code value="yarn">
       <pre className={classes.code}>{props.children}</pre>
     </BasePackageManagerSnippet.Code>
   );
