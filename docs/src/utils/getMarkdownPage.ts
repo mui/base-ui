@@ -6,6 +6,7 @@ import { evaluate } from '@mdx-js/mdx';
 import * as jsxRuntime from 'react/jsx-runtime';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import extractToc, { type Toc } from '@stefanprobst/rehype-extract-toc';
 import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
@@ -47,7 +48,7 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
     // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
   } = await evaluate(mdxSource, {
     ...jsxRuntime,
-    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+    remarkPlugins: [remarkGfm, remarkFrontmatter, remarkMdxFrontmatter],
     rehypePlugins: [
       [rehypePrettyCode, { theme: config.shikiThemes }],
       rehypeSlug,

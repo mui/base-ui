@@ -6,6 +6,7 @@ import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/modules/common/AppBar';
 import { Navigation } from 'docs-base/src/modules/common/Navigation';
+import { Description } from 'docs-base/src/modules/components/Description';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'guides';
@@ -21,14 +22,20 @@ export default async function DocsPage(props: Props) {
     params: { slug },
   } = props;
 
-  const { MDXContent, tableOfContents } = await getMarkdownPage(CATEGORY_SEGMENT, slug);
+  const { MDXContent, tableOfContents, metadata } = await getMarkdownPage(CATEGORY_SEGMENT, slug);
+
+  const allComponents = {
+    ...components,
+    // eslint-disable-next-line react/no-unstable-nested-components
+    Description: () => <Description text={metadata.description} />,
+  };
 
   return (
     <React.Fragment>
       <AppBar />
       <Navigation routes={routes} />
       <main className={classes.content}>
-        <MDXContent components={components} />
+        <MDXContent components={allComponents} />
       </main>
 
       <TableOfContents toc={tableOfContents} />
