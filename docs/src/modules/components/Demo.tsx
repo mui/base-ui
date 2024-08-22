@@ -28,8 +28,8 @@ export async function Demo(props: DemoProps) {
         <BaseDemo.Playground className={classes.playground} />
         <div className={classes.toolbar}>
           <DemoVariantSelector />
-          <DemoFileSelector />
         </div>
+        <DemoFileSelector />
         <div className={classes.source}>
           <BaseDemo.SourceBrowser className={classes.scrollArea} />
         </div>

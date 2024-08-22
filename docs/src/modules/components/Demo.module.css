@@ -46,13 +46,13 @@
   align-items: center;
   padding: 4px;
   border: 1px var(--gray-outline-2);
-  border-style: none solid solid solid;
+  border-style: none solid none solid;
   background: var(--gray-surface-1);
 }
 
 .source {
   border: 1px var(--gray-outline-2);
-  border-style: none solid solid solid;
+  border-style: solid;
   border-radius: 0 0 12px 12px;
   overflow: hidden;
   margin-bottom: 1em;
