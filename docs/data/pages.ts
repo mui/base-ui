@@ -12,7 +12,7 @@ const pages: readonly RouteMetadata[] = [
     title: 'Getting started',
     children: [
       { pathname: '/getting-started/overview', title: 'Overview' },
-      { pathname: '/getting-started/quickstart', title: 'Quickstart' },
+      { pathname: '/getting-started/quick-start', title: 'Quick start' },
       { pathname: '/getting-started/usage', title: 'Usage' },
       { pathname: '/getting-started/accessibility', title: 'Accessibility' },
       { pathname: '/getting-started/support', title: 'Support' },
