@@ -31,8 +31,6 @@ export function useFieldControlValidation() {
 
   const { formRef } = useFormRootContext();
 
-  const valid = !invalid && validityData.state.valid;
-
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -61,12 +59,6 @@ export function useFieldControlValidation() {
         },
         {} as Record<keyof ValidityState, boolean>,
       );
-
-      if (invalid) {
-        val.valid = false;
-      }
-
-      return val;
     }
 
     window.clearTimeout(timeoutRef.current);
