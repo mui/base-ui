@@ -26,6 +26,7 @@ const testRootContext: MenuRootContext = {
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
+  typingRef: { current: false },
 };
 
 const testPositionerContext: MenuPositionerContext = {

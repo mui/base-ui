@@ -41,6 +41,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     loop,
     delay,
     openOnHover,
+    onTypingChange,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -126,6 +127,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         setActiveIndex(index);
       }
     },
+    onTypingChange,
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
@@ -255,6 +257,10 @@ export namespace useMenuRoot {
      * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
      */
     openOnHover: boolean;
+    /**
+     * Callback fired when the user begins or finishes typing (for typeahead search).
+     */
+    onTypingChange: (typing: boolean) => void;
   }
 
   export interface ReturnValue {
