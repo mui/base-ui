@@ -1,18 +1,12 @@
 import * as React from 'react';
 import * as DocsComponents from 'docs-base/src/modules/components';
-import classes from './MDXComponents.module.css';
 import { Callout, type CalloutProps } from './Callout';
 import { PackageManagerSnippet, Npm, Pnpm, Yarn } from './PackageManagerSnippet';
 
 export const components = {
   ...DocsComponents,
   Callout: (props: CalloutProps) => <Callout {...props} />,
-  ComponentLinkHeader: () => (
-    <DocsComponents.ComponentLinkHeader className={classes.todo}>
-      Component links
-    </DocsComponents.ComponentLinkHeader>
-  ),
-  ComponentPageTabs: () => null,
+  ComponentLinkHeader: () => <DocsComponents.ComponentLinkHeader />,
   PackageManagerSnippet: (props: { children: React.ReactNode }) => (
     <PackageManagerSnippet {...props} />
   ),
