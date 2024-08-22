@@ -1,5 +1,5 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { CollapsibleRoot } from './CollapsibleRoot';
+import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export const collapsibleStyleHookMapping: CustomStyleHookMapping<CollapsibleRoot.OwnerState> = {
   open: (value) => {

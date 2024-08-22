@@ -1,11 +1,27 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleContext } from './CollapsibleContext';
+import { collapsibleStyleHookMapping } from './styleHooks';
 
-export function CollapsibleRoot(props: CollapsibleRoot.Props) {
-  const { animated, open, defaultOpen, onOpenChange, disabled, children } = props;
+const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
+  props: CollapsibleRoot.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const {
+    animated,
+    children,
+    className,
+    defaultOpen,
+    disabled,
+    onOpenChange,
+    open,
+    render: renderProp,
+    ...otherProps
+  } = props;
 
   const collapsible = useCollapsibleRoot({
     animated,
@@ -15,20 +31,46 @@ export function CollapsibleRoot(props: CollapsibleRoot.Props) {
     disabled,
   });
 
+  const ownerState: CollapsibleRoot.OwnerState = React.useMemo(
+    () => ({
+      open: collapsible.open,
+      disabled: collapsible.disabled,
+      transitionStatus: collapsible.transitionStatus,
+    }),
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
+  );
+
   const contextValue: CollapsibleRoot.Context = React.useMemo(
     () => ({
       ...collapsible,
-      ownerState: {
-        open: collapsible.open,
-        disabled: collapsible.disabled,
-        transitionStatus: collapsible.transitionStatus,
-      },
+      ownerState,
     }),
-    [collapsible],
+    [collapsible, ownerState],
   );
 
-  return <CollapsibleContext.Provider value={contextValue}>{children}</CollapsibleContext.Provider>;
-}
+  const { renderElement } = useComponentRenderer({
+    render: renderProp ?? 'div',
+    className,
+    ownerState,
+    ref: forwardedRef,
+    extraProps: { children, ...otherProps },
+    customStyleHookMapping: collapsibleStyleHookMapping,
+  });
+
+  if (!renderProp) {
+    return (
+      <CollapsibleContext.Provider value={contextValue}>{children}</CollapsibleContext.Provider>
+    );
+  }
+
+  return (
+    <CollapsibleContext.Provider value={contextValue}>
+      {renderElement()}
+    </CollapsibleContext.Provider>
+  );
+});
+
+export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
   export interface Context extends useCollapsibleRoot.ReturnValue {
@@ -38,9 +80,9 @@ export namespace CollapsibleRoot {
   export interface OwnerState
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
-  export interface Props extends useCollapsibleRoot.Parameters {
-    children: React.ReactNode;
-  }
+  export interface Props
+    extends useCollapsibleRoot.Parameters,
+      BaseUIComponentProps<any, OwnerState> {}
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {
@@ -54,9 +96,9 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   animated: PropTypes.bool,
   /**
-   * @ignore
+   * Class names applied to the element or a function that returns them based on the component's state.
    */
-  children: PropTypes.node,
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * If `true`, the Collapsible is initially open.
    * This is the uncontrolled counterpart of `open`.
@@ -77,4 +119,8 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    * This is the controlled counterpart of `defaultOpen`.
    */
   open: PropTypes.bool,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

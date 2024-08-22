@@ -43,6 +43,23 @@ export default function CollapsibleDemo() {
           </Collapsible.Content>
         </Collapsible.Root>
       </div>
+
+      <Collapsible.Root render="span" className="MyCollapsible-root">
+        <Collapsible.Trigger className="MyCollapsible-trigger">
+          <span className="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+              <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
+            </svg>
+          </span>
+          Trigger (root renders a span + CSS transition)
+        </Collapsible.Trigger>
+        <Collapsible.Content className="MyCollapsible-content csstransition">
+          <p>This is the collapsed content</p>
+          <p>This component is animated with CSS transitions</p>
+          <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
+          <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+        </Collapsible.Content>
+      </Collapsible.Root>
       <Styles />
     </div>
   );

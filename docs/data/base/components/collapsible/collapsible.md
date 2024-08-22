@@ -46,7 +46,7 @@ import * as Collapsible from '@base_ui/react/Collapsible';
 
 ## Anatomy
 
-- `<Collapsible.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
+- `<Collapsible.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM by default.
 - `<Collapsible.Trigger />` is the trigger element, a `<button>` by default, that toggles the open/closed state of the content
 - `<Collapsible.Content />` is component that contains the Collapsible's content
 
@@ -207,14 +207,14 @@ function App() {
 
 ## Overriding default components
 
-Use the `render` prop to override the rendered elements with your own components.
+Use the `render` prop to override the rendered elements with your own components. The `Collapsible.Root` component does not render an element to the DOM by default, but can do so with the render prop:
 
 ```jsx
 // Element shorthand
-<Collapsible.Content render={<MyCollapsibleContent />} />
+<Collapsible.Root render={<MyCollapsibleRoot />} />
 ```
 
 ```jsx
 // Function
-<Collapsible.Content render={(props) => <MyCollapsibleContent {...props} />} />
+<Collapsible.Root render={(props) => <MyCollapsibleRoot {...props} />} />
 ```
