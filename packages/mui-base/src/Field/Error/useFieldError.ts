@@ -20,7 +20,6 @@ interface UseFieldErrorParameters {
 export function useFieldError(params: UseFieldErrorParameters) {
   const { id: idProp, rendered, formError } = params;
 
-
   const { setMessageIds, validityData } = useFieldRootContext();
 
   const id = useId(idProp);

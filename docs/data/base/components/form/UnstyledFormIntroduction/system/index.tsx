@@ -139,7 +139,7 @@ const FieldsetLegend = styled(Fieldset.Legend)`
   font-weight: 600;
 `;
 
-const FormSubmit = styled(Form.Submit)`
+const FormSubmit = styled('button')`
   display: block;
   margin-top: 10px;
   padding: 10px;
