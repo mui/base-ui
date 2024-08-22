@@ -5,7 +5,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,
 ): useCollapsibleTrigger.ReturnValue {
-  const { contentId, open, setOpen } = parameters;
+  const { contentId, disabled, open, setOpen } = parameters;
 
   const getRootProps: useCollapsibleTrigger.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -13,11 +13,12 @@ export function useCollapsibleTrigger(
         type: 'button',
         'aria-controls': contentId,
         'aria-expanded': open,
+        disabled,
         onClick() {
           setOpen(!open);
         },
       }),
-    [contentId, open, setOpen],
+    [contentId, disabled, open, setOpen],
   );
 
   return {
@@ -31,6 +32,7 @@ export namespace useCollapsibleTrigger {
      *  The id of the element controlled by the Trigger
      */
     contentId: React.HTMLAttributes<Element>['id'];
+    disabled?: boolean;
     /**
      * The open state of the Collapsible
      */

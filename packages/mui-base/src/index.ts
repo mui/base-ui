@@ -1,3 +1,4 @@
+export * from './Accordion/index.barrel';
 export * from './AlertDialog/index.barrel';
 export * from './Checkbox/index.barrel';
 export * from './CheckboxGroup/index.barrel';

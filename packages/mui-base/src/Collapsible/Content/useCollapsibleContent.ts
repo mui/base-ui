@@ -273,6 +273,8 @@ export function useCollapsibleContent(
 }
 
 export namespace useCollapsibleContent {
+  export type HtmlHiddenType = 'hidden' | 'until-found';
+
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
@@ -283,7 +285,7 @@ export namespace useCollapsibleContent {
      * The hidden state when closed
      * @default 'hidden'
      */
-    htmlHidden?: 'hidden' | 'until-found';
+    htmlHidden?: HtmlHiddenType;
     id?: React.HTMLAttributes<Element>['id'];
     mounted: boolean;
     /**

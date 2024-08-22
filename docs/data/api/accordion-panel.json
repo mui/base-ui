@@ -1,0 +1,23 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "htmlHidden": {
+      "type": { "name": "enum", "description": "'hidden'<br>&#124;&nbsp;'until-found'" },
+      "default": "'hidden'"
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "AccordionPanel",
+  "imports": [
+    "import * as Accordion from '@base_ui/react/Accordion';\nconst AccordionPanel = Accordion.Panel;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "AccordionPanel",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Accordion/Panel/AccordionPanel.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
+  "cssComponent": false
+}
