@@ -84,6 +84,21 @@ const FormRoot = React.forwardRef(function FormRoot(
   );
 });
 
+namespace FormRoot {
+  export interface Props extends BaseUIComponentProps<'form', OwnerState> {
+    /**
+     * Object of error messages with each key mapping to the `name` prop of a Field control, usually
+     * from server-side validation.
+     */
+    errors?: FormRootContext.Value['errors'];
+    /**
+     * Callback fired when the external server-side `error` messages should be cleared.
+     */
+    onClearErrors?: FormRootContext.Value['onClearErrors'];
+  }
+  export interface OwnerState {}
+}
+
 FormRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -117,18 +132,3 @@ FormRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { FormRoot };
-
-namespace FormRoot {
-  export interface Props extends BaseUIComponentProps<'form', OwnerState> {
-    /**
-     * Object of error messages with each key mapping to the `name` prop of a Field control, usually
-     * from server-side validation.
-     */
-    errors?: FormRootContext.Value['errors'];
-    /**
-     * Callback fired when the external server-side `error` messages should be cleared.
-     */
-    onClearErrors?: FormRootContext.Value['onClearErrors'];
-  }
-  export interface OwnerState {}
-}

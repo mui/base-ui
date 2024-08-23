@@ -1,19 +1,21 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useField } from '../useField';
+import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 interface UseFieldControlParameters {
   id?: string;
   name?: string;
-  value: string | number | readonly string[];
+  value?: string | number | readonly string[];
+  defaultValue?: string | number | readonly string[];
+  onValueChange?: (value: string | number | readonly string[], event: Event) => void;
   disabled?: boolean;
 }
 
@@ -24,58 +26,42 @@ interface UseFieldControlParameters {
  * - [useFieldControl API](https://mui.com/base-ui/api/use-field-control/)
  */
 export function useFieldControl(params: UseFieldControlParameters) {
-  const { id: idProp, name, value, disabled } = params;
+  const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
-  const {
-    setControlId,
-    labelId,
-    setTouched,
-    setDirty,
-    markedDirtyRef,
-    validityData,
-    setValidityData,
-    invalid,
-  } = useFieldRootContext();
+  const { setControlId, labelId, setTouched, setDirty, validityData } = useFieldRootContext();
 
-  const { formRef, errors, onClearErrors } = useFormRootContext();
+  const { errors, onClearErrors } = useFormRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && value !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: value }));
-    }
-  }, [setValidityData, validityData.initialValue, value]);
 
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
   }, [id, setControlId]);
 
-  useEnhancedEffect(() => {
-    if (id) {
-      formRef.current.fields.set(id, {
-        controlRef: inputRef,
-        validityData: getCombinedFieldValidityData(validityData, invalid),
-        validate() {
-          if (!inputRef.current) {
-            return;
-          }
+  const [value, setValueUnwrapped] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'FieldControl',
+    state: 'value',
+  });
 
-          const controlValue = inputRef.current.value;
-          markedDirtyRef.current = true;
+  const setValue = useEventCallback(
+    (nextValue: string | number | readonly string[], event: Event) => {
+      setValueUnwrapped(nextValue);
+      onValueChange?.(nextValue, event);
+    },
+  );
 
-          // Synchronously update the validity state so the submit event can be prevented.
-          ReactDOM.flushSync(() => commitValidation(controlValue));
-        },
-      });
-    }
-  }, [commitValidation, formRef, id, inputRef, validityData, invalid, markedDirtyRef]);
+  useField({
+    id,
+    commitValidation,
+    value,
+    getValue: () => inputRef.current?.value,
+    controlRef: inputRef,
+  });
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
@@ -85,7 +71,11 @@ export function useFieldControl(params: UseFieldControlParameters) {
         name,
         ref: inputRef,
         'aria-labelledby': labelId,
+        value,
         onChange(event) {
+          if (value != null) {
+            setValue(event.currentTarget.value, event.nativeEvent);
+          }
           setDirty(event.currentTarget.value !== validityData.initialValue);
           if (name && {}.hasOwnProperty.call(errors, name)) {
             const nextErrors = { ...errors };
@@ -112,6 +102,8 @@ export function useFieldControl(params: UseFieldControlParameters) {
       name,
       inputRef,
       labelId,
+      value,
+      setValue,
       setDirty,
       validityData.initialValue,
       errors,

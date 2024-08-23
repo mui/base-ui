@@ -4,7 +4,6 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/form/form.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import FormRootApiJsonPageContent from '../../api/form-root.json';
-import FormSubmitApiJsonPageContent from '../../api/form-submit.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -30,23 +29,10 @@ export const getStaticProps = () => {
   );
   const FormRootApiDescriptions = mapApiPageTranslations(FormRootApiReq);
 
-  const FormSubmitApiReq = require.context(
-    'docs-base/translations/api-docs/form-submit',
-    false,
-    /\.\/form-submit.*.json$/,
-  );
-  const FormSubmitApiDescriptions = mapApiPageTranslations(FormSubmitApiReq);
-
   return {
     props: {
-      componentsApiDescriptions: {
-        FormRoot: FormRootApiDescriptions,
-        FormSubmit: FormSubmitApiDescriptions,
-      },
-      componentsApiPageContents: {
-        FormRoot: FormRootApiJsonPageContent,
-        FormSubmit: FormSubmitApiJsonPageContent,
-      },
+      componentsApiDescriptions: { FormRoot: FormRootApiDescriptions },
+      componentsApiPageContents: { FormRoot: FormRootApiJsonPageContent },
       hooksApiDescriptions: {},
       hooksApiPageContents: {},
     },

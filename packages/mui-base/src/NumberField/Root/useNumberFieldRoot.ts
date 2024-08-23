@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type {
   UseNumberFieldRootParameters,
   UseNumberFieldRootReturnValue,
@@ -34,8 +33,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
+import { useField } from '../../Field/useField';
 
 /**
  * The basic building block for creating custom number fields.
@@ -71,18 +69,8 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
-  const {
-    labelId,
-    setControlId,
-    validateOnChange,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-    markedDirtyRef,
-  } = useFieldRootContext();
-
-  const { formRef } = useFormRootContext();
+  const { labelId, setControlId, validateOnChange, setTouched, setDirty, validityData } =
+    useFieldRootContext();
 
   const {
     getInputValidationProps,
@@ -113,26 +101,14 @@ export function useNumberFieldRoot(
 
   useEnhancedEffect(() => {
     setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
   }, [id, setControlId]);
 
-  useEnhancedEffect(() => {
-    if (id) {
-      formRef.current.fields.set(id, {
-        controlRef: inputRef,
-        validityData: getCombinedFieldValidityData(validityData, invalid),
-        validate() {
-          const controlValue = valueRef.current;
-          markedDirtyRef.current = true;
-
-          // Synchronously update the validity state so the submit event can be prevented.
-          ReactDOM.flushSync(() => commitValidation(controlValue));
-        },
-      });
-    }
-  }, [commitValidation, formRef, id, validityData, valueRef, invalid, markedDirtyRef]);
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef: inputRef,
+  });
 
   const forceRender = useForcedRerendering();
 
@@ -151,12 +127,6 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && value !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: value }));
-    }
-  }, [setValidityData, validityData.initialValue, value]);
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to

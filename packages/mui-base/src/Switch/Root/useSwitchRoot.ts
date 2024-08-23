@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type { UseSwitchRootParameters, UseSwitchRootReturnValue } from './SwitchRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
@@ -11,8 +10,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
+import { useField } from '../../Field/useField';
 
 /**
  * The basic building block for creating custom switches.
@@ -38,18 +36,7 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     inputRef: externalInputRef,
   } = params;
 
-  const {
-    labelId,
-    setControlId,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-    markedDirtyRef,
-    invalid,
-  } = useFieldRootContext();
-
-  const { formRef } = useFormRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -59,39 +46,17 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
   } = useFieldControlValidation();
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
+
   const id = useId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+  }, [id, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
 
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
-
-  useEnhancedEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
-
-  useEnhancedEffect(() => {
-    if (id) {
-      formRef.current.fields.set(id, {
-        controlRef: buttonRef,
-        validityData: getCombinedFieldValidityData(validityData, invalid),
-        validate() {
-          if (!inputValidationRef.current) {
-            return;
-          }
-
-          const controlValue = inputValidationRef.current.checked;
-          markedDirtyRef.current = true;
-
-          // Synchronously update the validity state so the submit event can be prevented.
-          ReactDOM.flushSync(() => commitValidation(controlValue));
-        },
-      });
-    }
-  }, [commitValidation, formRef, id, inputValidationRef, validityData, invalid, markedDirtyRef]);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -100,11 +65,12 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
     state: 'checked',
   });
 
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && checked !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: checked }));
-    }
-  }, [checked, setValidityData, validityData.initialValue]);
+  useField({
+    id,
+    commitValidation,
+    value: checked,
+    controlRef: buttonRef,
+  });
 
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>

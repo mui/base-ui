@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type { UseCheckboxRootParameters, UseCheckboxRootReturnValue } from './CheckboxRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
@@ -10,8 +9,7 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useField } from '../../Field/useField';
 
 /**
  * The basic building block for creating custom checkboxes.
@@ -39,18 +37,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     disabled = false,
   } = params;
 
-  const {
-    labelId,
-    setControlId,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-    markedDirtyRef,
-    invalid,
-  } = useFieldRootContext();
-
-  const { formRef } = useFormRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -60,36 +47,28 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
   } = useFieldControlValidation();
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
-  const id = useId(idProp);
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
+  const [checked, setCheckedState] = useControlled({
+    controlled: externalChecked,
+    default: defaultChecked,
+    name: 'Checkbox',
+    state: 'checked',
+  });
+
+  const id = useId(idProp);
+
   useEnhancedEffect(() => {
     setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
   }, [id, setControlId]);
 
-  useEnhancedEffect(() => {
-    if (id) {
-      formRef.current.fields.set(id, {
-        controlRef: buttonRef,
-        validityData: getCombinedFieldValidityData(validityData, invalid),
-        validate() {
-          if (!inputValidationRef.current) {
-            return;
-          }
-
-          const controlValue = inputValidationRef.current.checked;
-          markedDirtyRef.current = true;
-
-          // Syncronously update the validity state so the submit event can be prevented.
-          ReactDOM.flushSync(() => commitValidation(controlValue));
-        },
-      });
-    }
-  }, [commitValidation, formRef, id, inputValidationRef, validityData, invalid, markedDirtyRef]);
+  useField({
+    id,
+    commitValidation,
+    value: checked,
+    controlRef: buttonRef,
+  });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
@@ -99,19 +78,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       inputRef.current.indeterminate = indeterminate;
     }
   }, [indeterminate]);
-
-  const [checked, setCheckedState] = useControlled({
-    controlled: externalChecked,
-    default: defaultChecked,
-    name: 'Checkbox',
-    state: 'checked',
-  });
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && checked !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: checked }));
-    }
-  }, [checked, setValidityData, validityData.initialValue]);
 
   const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>

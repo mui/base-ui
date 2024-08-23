@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Form component and hook
-components: FormRoot, FormSubmit
+components: FormRoot
 githubLabel: 'component: form'
 packageName: '@base_ui/react'
 ---
@@ -44,14 +44,14 @@ import * as Form from '@base_ui/react/Form';
 
 ## Anatomy
 
-Forms are implemented using a collection of related components:
+Forms are implemented using a `Root` component and `Field` components:
 
 - `<Form.Root />` renders the `<form>` element.
-- `<Form.Submit />` renders the `<button>` that submits the form.
+- `<Field.Root />` renders an individual Field element.
 
 ```jsx
 <Form.Root>
-  <Form.Submit />
+  <Field.Root />
 </Form.Root>
 ```
 
@@ -69,11 +69,11 @@ import * as Field from '@base_ui/react/Field';
   <Field.Root>
     <Field.Control />
   </Field.Root>
-  <Form.Submit />
+  <button type="submit">Submit</button>
 </Form.Root>
 ```
 
-If any of the Fields within the Form are invalid upon submit, focus will be moved to the first invalid Field's control and the submit event will be prevented.
+If any of the Fields within the Form are invalid upon submit, focus is moved to the first invalid Field's control and the submit event is prevented.
 
 ## Validation
 
@@ -126,12 +126,4 @@ By default, browser-native validation popups are disabled, as `Field.Error` repl
 
 ```jsx
 <Form.Root noValidate={false}>
-```
-
-## Loading state
-
-The `Form.Submit` subcomponent's `disabled` prop replaces the native prop to ensure focus accessiblity while the form submission network request is pending.
-
-```jsx
-<Form.Submit disabled={loading} />
 ```

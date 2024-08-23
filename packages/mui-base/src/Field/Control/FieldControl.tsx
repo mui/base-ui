@@ -30,6 +30,7 @@ const FieldControl = React.forwardRef(function FieldControl(
     name: nameProp,
     value,
     disabled: disabledProp = false,
+    onValueChange,
     defaultValue,
     ...otherProps
   } = props;
@@ -52,7 +53,9 @@ const FieldControl = React.forwardRef(function FieldControl(
     id,
     name,
     disabled,
-    value: value ?? defaultValue ?? '',
+    value,
+    defaultValue,
+    onValueChange,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -101,6 +104,10 @@ FieldControl.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   name: PropTypes.string,
+  /**
+   * Callback fired when the `value` changes.
+   */
+  onValueChange: PropTypes.func,
   /**
    * A function to customize rendering of the component.
    */

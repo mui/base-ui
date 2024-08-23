@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -17,8 +16,7 @@ import { useFieldControlValidation } from '../../Field/Control/useFieldControlVa
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import { getCombinedFieldValidityData } from '../../Field/utils/getCombinedFieldValidityData';
+import { useField } from '../../Field/useField';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -142,17 +140,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
-  const {
-    setControlId,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-    markedDirtyRef,
-    invalid,
-  } = useFieldRootContext();
-
-  const { formRef } = useFormRootContext();
+  const { setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -172,37 +160,14 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   useEnhancedEffect(() => {
     setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
   }, [id, setControlId]);
 
-  useEnhancedEffect(() => {
-    if (id) {
-      formRef.current.fields.set(id, {
-        controlRef,
-        validityData: getCombinedFieldValidityData(validityData, invalid),
-        validate() {
-          const controlValue = valueState;
-          markedDirtyRef.current = true;
-
-          // Synchronously update the validity state so the submit event can be prevented.
-          ReactDOM.flushSync(() => commitValidation(controlValue));
-        },
-      });
-    }
-  }, [
-    commitValidation,
-    formRef,
+  useField({
     id,
-    inputValidationRef,
-    max,
-    min,
-    validityData,
-    valueState,
-    invalid,
-    markedDirtyRef,
-  ]);
+    commitValidation,
+    value: valueState,
+    controlRef,
+  });
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -220,18 +185,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     },
     [inputValidationRef],
   );
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && valueState !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: valueState }));
-    }
-  }, [setValidityData, validityData.initialValue, valueState]);
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && valueState !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: valueState }));
-    }
-  }, [setValidityData, validityData.initialValue, valueState]);
 
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
