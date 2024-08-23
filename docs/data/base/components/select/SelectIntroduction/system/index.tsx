@@ -38,8 +38,8 @@ const SelectPopup = styled(Select.Popup)`
   padding: 4px;
   border-radius: 5px;
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.1);
+    0 2px 4px rgb(0 0 0 / 0.1),
+    0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
   outline: 0;
 `;
