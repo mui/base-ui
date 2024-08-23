@@ -71,8 +71,11 @@ export function useComponentRenderer<
   const ownProps: Record<string, any> = {
     ...styleHooks,
     ...extraProps,
-    className,
   };
+
+  if (className) {
+    ownProps.className = className;
+  }
 
   let resolvedRenderProp:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>

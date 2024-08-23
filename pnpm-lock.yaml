@@ -397,6 +397,9 @@ importers:
       babel-plugin-transform-react-remove-prop-types:
         specifier: ^0.4.24
         version: 0.4.24
+      clipboard-copy:
+        specifier: ^4.0.1
+        version: 4.0.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

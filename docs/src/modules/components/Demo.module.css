@@ -67,3 +67,26 @@
   max-height: 300px;
   overflow-y: scroll;
 }
+
+.iconButton {
+  all: unset;
+  line-height: 1;
+  vertical-align: middle;
+  background-clip: padding-box;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--br-circle);
+  color: var(--gray-text-1);
+  width: var(--space-7);
+  height: var(--space-7);
+
+  @media screen and (hover: hover) {
+    &:hover {
+      background-color: var(--gray-container-2);
+    }
+  }
+}

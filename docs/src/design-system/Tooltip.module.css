@@ -1,0 +1,15 @@
+.popup {
+  background: var(--gray-900);
+  color: var(--gray-100);
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: var(--fs-3);
+  cursor: default;
+}
+
+.arrow {
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  background: var(--gray-900);
+}

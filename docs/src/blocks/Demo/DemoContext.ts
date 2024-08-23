@@ -29,3 +29,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export { DemoContext };
+
+export function useDemoContext() {
+  const context = React.useContext(DemoContext);
+  if (!context) {
+    throw new Error('useDemoContext must be used within a DemoProvider');
+  }
+  return context;
+}

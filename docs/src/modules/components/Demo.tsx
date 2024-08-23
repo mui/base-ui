@@ -2,6 +2,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { loadDemo } from 'docs-base/src/utils/loadDemo';
 import * as BaseDemo from 'docs-base/src/blocks/Demo';
+import { CopyIcon } from 'docs-base/src/icons/Copy';
+import { Tooltip } from 'docs-base/src/design-system/Tooltip';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import classes from './Demo.module.css';
 import { DemoFileSelector } from './DemoFileSelector';
@@ -28,6 +30,11 @@ export async function Demo(props: DemoProps) {
         <BaseDemo.Playground className={classes.playground} />
         <div className={classes.toolbar}>
           <DemoVariantSelector />
+          <Tooltip label="Copy source code">
+            <BaseDemo.SourceCopy className={classes.iconButton} aria-label="Copy source code">
+              <CopyIcon />
+            </BaseDemo.SourceCopy>
+          </Tooltip>
         </div>
         <DemoFileSelector />
         <div className={classes.source}>

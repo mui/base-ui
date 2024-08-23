@@ -62,9 +62,13 @@ export function DemoVariantSelector(props: React.HtmlHTMLAttributes<HTMLDivEleme
     [selectedVariant.name, variantsMap],
   );
 
+  const renderVariantSelector = Object.keys(variantsMap).length > 1;
+  const renderLanguageSelector = variantLanguages.length > 1;
+  const renderSeparator = renderVariantSelector && renderLanguageSelector;
+
   return (
     <div {...props} className={classes.root}>
-      {Object.keys(variantsMap).length > 1 && (
+      {renderVariantSelector && (
         <select
           value={selectedVariant.name}
           onChange={handleSelectChange}
@@ -79,15 +83,17 @@ export function DemoVariantSelector(props: React.HtmlHTMLAttributes<HTMLDivEleme
         </select>
       )}
 
-      <span role="separator" className={classes.separator} />
+      {renderSeparator && <span role="separator" className={classes.separator} />}
 
-      <ToggleButtonGroup
-        className={classes.languages}
-        options={variantLanguages}
-        value={selectedVariant.language}
-        onValueChange={(v) => selectVariant(v.demo)}
-        aria-label="Language selector"
-      />
+      {renderVariantSelector && (
+        <ToggleButtonGroup
+          className={classes.languages}
+          options={variantLanguages}
+          value={selectedVariant.language}
+          onValueChange={(v) => selectVariant(v.demo)}
+          aria-label="Language selector"
+        />
+      )}
     </div>
   );
 }
