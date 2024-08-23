@@ -8,6 +8,15 @@
     margin-right: auto;
     margin-bottom: var(--space-9);
 
+    @media (max-width: 1242px) {
+      margin-right: calc((100vw - 240px - 762px) / 2);
+    }
+
+    @media (max-width: 1002px) {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     p {
       margin: 0;
       margin-bottom: var(--space-4);

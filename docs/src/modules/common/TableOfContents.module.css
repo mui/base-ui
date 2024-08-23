@@ -7,6 +7,10 @@
   height: calc(100% - 49px);
   padding: 12px 24px;
   overflow-y: auto;
+
+  @media (max-width: 1242px) {
+    display: none;
+  }
 }
 
 .item {

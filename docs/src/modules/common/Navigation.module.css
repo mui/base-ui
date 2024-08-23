@@ -6,4 +6,8 @@
   height: calc(100% - 49px);
   padding: 12px;
   overflow-y: auto;
+
+  @media (max-width: 1002px) {
+    display: none;
+  }
 }
