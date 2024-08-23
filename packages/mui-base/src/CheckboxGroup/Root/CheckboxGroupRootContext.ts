@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { UseCheckboxGroupParentReturnValue } from '../Parent/useCheckboxGroupParent.types';
+import { UseCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
 
 export interface CheckboxGroupRootContext {
   value: string[];
   setValue: (value: string[]) => void;
   allValues: string[] | undefined;
-  parent: UseCheckboxGroupParentReturnValue;
+  parent: UseCheckboxGroupParent.ReturnValue;
 }
 
 export const CheckboxGroupRootContext = React.createContext<CheckboxGroupRootContext | null>(null);
@@ -13,7 +13,7 @@ export const CheckboxGroupRootContext = React.createContext<CheckboxGroupRootCon
 export function useCheckboxGroupRootContext(optional = true) {
   const context = React.useContext(CheckboxGroupRootContext);
   if (context === null && !optional) {
-    throw new Error('<CheckboxGroup.Label> must be used within <CheckboxGroup.Root>');
+    throw new Error('Base UI: CheckboxGroupRootContext is not defined.');
   }
   return context;
 }
