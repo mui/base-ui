@@ -3,6 +3,7 @@
   gap: var(--space-2);
   margin-bottom: var(--space-7);
   font-size: var(--fs-1);
+  font-family: var(--ff-sans);
 
   & > a {
     padding: var(--space-1) var(--space-2);
