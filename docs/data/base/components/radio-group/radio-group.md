@@ -51,7 +51,7 @@ Radio Group is composed of a `Root` and `Radio` components:
 
 - `<RadioGroup.Root />` is a top-level element that wraps the other components.
 - `<Radio.Root />` renders an individual `<button>` radio item.
-- `<Radio.Indicator />` renders a `<span>` for providing a visual indicator. You can style this itself, or place an icon inside.
+- `<Radio.Indicator />` renders a `<span>` for providing a visual indicator. You can style this itself and/or place an icon inside.
 
 ```jsx
 <RadioGroup.Root>

@@ -97,11 +97,12 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
         type: 'hidden',
         value: checkedValue ?? '', // avoid uncontrolled -> controlled error
         ref: inputValidationRef,
+        id,
         name,
         disabled,
         readOnly,
       }),
-    [checkedValue, disabled, getInputValidationProps, inputValidationRef, name, readOnly],
+    [id, checkedValue, disabled, getInputValidationProps, inputValidationRef, name, readOnly],
   );
 
   return React.useMemo(
