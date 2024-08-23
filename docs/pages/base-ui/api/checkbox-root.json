@@ -14,7 +14,7 @@
     "onCheckedChange": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void",
+        "type": "function(checked: boolean, event: Event) => void",
         "describedArgs": ["checked", "event"]
       }
     },

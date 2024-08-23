@@ -24,7 +24,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
           indeterminate={isIndeterminate}
           checked={isChecked}
           onCheckedChange={(checked) => {
-            setCheckedValues(event.target.checked ? colors : []);
+            setCheckedValues(checked ? colors : []);
           }}
         >
           <Indicator>

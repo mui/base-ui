@@ -155,7 +155,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event);
+          onCheckedChange?.(nextChecked, event.nativeEvent);
         },
       }),
     [

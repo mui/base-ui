@@ -3,7 +3,7 @@ import { UseCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
 
 export interface CheckboxGroupRootContext {
   value: string[];
-  setValue: (value: string[]) => void;
+  setValue: (value: string[], event: Event) => void;
   allValues: string[] | undefined;
   parent: UseCheckboxGroupParent.ReturnValue;
 }

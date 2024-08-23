@@ -28,28 +28,28 @@ export function useCheckboxGroupParent(
       indeterminate,
       checked,
       'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
-      onCheckedChange() {
+      onCheckedChange(_, event) {
         const uncontrolledState = uncontrolledStateRef.current;
         const allOnOrOff =
           uncontrolledState.length === allValues.length || uncontrolledState.length === 0;
 
         if (allOnOrOff) {
           if (value.length === allValues.length) {
-            onValueChange([]);
+            onValueChange([], event);
           } else {
-            onValueChange(allValues);
+            onValueChange(allValues, event);
           }
           return;
         }
 
         if (status === 'mixed') {
-          onValueChange(allValues);
+          onValueChange(allValues, event);
           setStatus('on');
         } else if (status === 'on') {
-          onValueChange([]);
+          onValueChange([], event);
           setStatus('off');
         } else if (status === 'off') {
-          onValueChange(uncontrolledState);
+          onValueChange(uncontrolledState, event);
           setStatus('mixed');
         }
       },
@@ -62,7 +62,7 @@ export function useCheckboxGroupParent(
       name,
       id: `${id}-${name}`,
       checked: value.includes(name),
-      onCheckedChange(nextChecked) {
+      onCheckedChange(nextChecked, event) {
         const newValue = [...value];
         if (nextChecked) {
           newValue.push(name);
@@ -70,7 +70,7 @@ export function useCheckboxGroupParent(
           newValue.splice(newValue.indexOf(name), 1);
         }
         uncontrolledStateRef.current = newValue;
-        onValueChange(newValue);
+        onValueChange(newValue, event);
         setStatus('mixed');
       },
     }),
@@ -92,7 +92,7 @@ export namespace UseCheckboxGroupParent {
   export interface Parameters {
     allValues?: string[];
     value?: string[];
-    onValueChange?: (value: string[]) => void;
+    onValueChange?: (value: string[], event: Event) => void;
   }
   export interface ReturnValue {
     id: string | undefined;
@@ -102,13 +102,13 @@ export namespace UseCheckboxGroupParent {
       indeterminate: boolean;
       checked: boolean;
       'aria-controls': string;
-      onCheckedChange: (checked: boolean) => void;
+      onCheckedChange: (checked: boolean, event: Event) => void;
     };
     getChildProps: (name: string) => {
       name: string;
       id: string;
       checked: boolean;
-      onCheckedChange: (checked: boolean) => void;
+      onCheckedChange: (checked: boolean, event: Event) => void;
     };
   }
 }

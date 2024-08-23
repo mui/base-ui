@@ -28,9 +28,9 @@ export function useCheckboxGroupRoot(
     state: 'value',
   });
 
-  const setValue = useEventCallback((v: string[]) => {
+  const setValue = useEventCallback((v: string[], event: Event) => {
     setValueUnwrapped(v);
-    onValueChange?.(v);
+    onValueChange?.(v, event);
   });
 
   const parent = useCheckboxGroupParent({
@@ -63,13 +63,13 @@ namespace UseCheckboxGroupRoot {
   export interface Parameters {
     value?: string[];
     defaultValue?: string[];
-    onValueChange?: (value: string[]) => void;
+    onValueChange?: (value: string[], event: Event) => void;
     allValues?: string[];
   }
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     value: string[];
-    setValue: (value: string[]) => void;
+    setValue: (value: string[], event: Event) => void;
     parent: UseCheckboxGroupParent.ReturnValue;
   }
 }

@@ -83,7 +83,7 @@ namespace CheckboxGroupRoot {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     value?: string[];
     defaultValue?: string[];
-    onValueChange?: (value: string[]) => void;
+    onValueChange?: (value: string[], event: Event) => void;
     allValues?: string[];
     disabled?: boolean;
   }
