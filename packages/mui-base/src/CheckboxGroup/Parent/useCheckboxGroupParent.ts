@@ -1,8 +1,4 @@
 import * as React from 'react';
-import type {
-  UseCheckboxGroupParentParameters,
-  UseCheckboxGroupParentReturnValue,
-} from './useCheckboxGroupParent.types';
 import { useId } from '../../utils/useId';
 import { useEventCallback } from '../../utils/useEventCallback';
 
@@ -13,8 +9,8 @@ import { useEventCallback } from '../../utils/useEventCallback';
  * - [useCheckboxGroupParent API](https://mui.com/base-ui/api/use-checkbox-group-parent/)
  */
 export function useCheckboxGroupParent(
-  params: UseCheckboxGroupParentParameters,
-): UseCheckboxGroupParentReturnValue {
+  params: UseCheckboxGroupParent.Parameters,
+): UseCheckboxGroupParent.ReturnValue {
   const { allValues = [], value = [], onValueChange: onValueChangeProp = () => {} } = params;
 
   const uncontrolledStateRef = React.useRef(value);
@@ -26,7 +22,7 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useEventCallback(onValueChangeProp);
 
-  const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
+  const getParentProps: UseCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
@@ -61,7 +57,7 @@ export function useCheckboxGroupParent(
     [allValues, checked, id, indeterminate, onValueChange, status, value.length],
   );
 
-  const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
+  const getChildProps: UseCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
     (name: string) => ({
       name,
       id: `${id}-${name}`,
@@ -90,4 +86,29 @@ export function useCheckboxGroupParent(
     }),
     [id, indeterminate, getParentProps, getChildProps],
   );
+}
+
+export namespace UseCheckboxGroupParent {
+  export interface Parameters {
+    allValues?: string[];
+    value?: string[];
+    onValueChange?: (value: string[]) => void;
+  }
+  export interface ReturnValue {
+    id: string | undefined;
+    indeterminate: boolean;
+    getParentProps: () => {
+      id: string | undefined;
+      indeterminate: boolean;
+      checked: boolean;
+      'aria-controls': string;
+      onCheckedChange: (checked: boolean) => void;
+    };
+    getChildProps: (name: string) => {
+      name: string;
+      id: string;
+      checked: boolean;
+      onCheckedChange: (checked: boolean) => void;
+    };
+  }
 }

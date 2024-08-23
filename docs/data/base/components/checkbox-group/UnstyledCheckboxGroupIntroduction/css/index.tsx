@@ -1,5 +1,6 @@
+'use client';
+
 import * as React from 'react';
-import { useTheme } from '@mui/system';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
 import * as Field from '@base_ui/react/Field';
@@ -12,30 +13,30 @@ export default function UnstyledCheckboxIndeterminateGroup() {
         <CheckboxGroup.Root defaultValue={['red']}>
           <Field.Label className="CheckboxGroup-label">Colors</Field.Label>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <Label className="Checkbox-label">
+            <Field.Root>
               <Checkbox.Root className="Checkbox" name="red">
                 <Checkbox.Indicator className="Checkbox-indicator">
                   <Check className="Check" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
-              Red
-            </Label>
-            <Label className="Checkbox-label">
+              <Field.Label className="Checkbox-label">Red</Field.Label>
+            </Field.Root>
+            <Field.Root>
               <Checkbox.Root className="Checkbox" name="green">
                 <Checkbox.Indicator className="Checkbox-indicator">
                   <Check className="Check" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
-              Green
-            </Label>
-            <Label className="Checkbox-label">
+              <Field.Label className="Checkbox-label">Green</Field.Label>
+            </Field.Root>
+            <Field.Root>
               <Checkbox.Root className="Checkbox" name="blue">
                 <Checkbox.Indicator className="Checkbox-indicator">
                   <Check className="Check" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
-              Blue
-            </Label>
+              <Field.Label className="Checkbox-label">Blue</Field.Label>
+            </Field.Root>
           </div>
         </CheckboxGroup.Root>
         <Styles />
@@ -53,20 +54,7 @@ const grey = {
   900: '#1C2025',
 };
 
-function useIsDarkMode() {
-  const theme = useTheme();
-  return theme.palette.mode === 'dark';
-}
-
-function Label(props: React.ComponentPropsWithoutRef<'label'>) {
-  // eslint-disable-next-line jsx-a11y/label-has-associated-control, jsx-a11y/no-noninteractive-element-interactions
-  return <label onMouseDown={(e) => e.preventDefault()} {...props} />;
-}
-
 function Styles() {
-  // Replace this with your app logic for determining dark mode
-  const isDarkMode = useIsDarkMode();
-
   return (
     <style>
       {`
@@ -110,7 +98,7 @@ function Styles() {
       }
 
       .Checkbox:focus-visible {
-        outline: 2px solid ${isDarkMode ? grey[600] : grey[500]};
+        outline: 2px solid ${grey[500]};
         outline-offset: 2px;
       }
 
@@ -123,7 +111,7 @@ function Styles() {
         height: 100%;
         display: inline-block;
         visibility: hidden;
-        color: ${isDarkMode ? grey[900] : grey[100]};
+        color: ${grey[100]};
       }
 
       .Checkbox-indicator[data-state="checked"] {
@@ -138,6 +126,11 @@ function Styles() {
       @media (prefers-color-scheme: dark) {
         .Checkbox {
           border-color: ${grey[500]};
+        }
+
+        .Checkbox:focus-visible {
+          outline: 2px solid ${grey[600]};
+          outline-offset: 2px;
         }
 
         .Checkbox[data-state="checked"] {

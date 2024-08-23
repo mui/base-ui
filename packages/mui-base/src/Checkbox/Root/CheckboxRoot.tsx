@@ -8,7 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
-import { useLooseCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
+import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
@@ -42,7 +42,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const groupContext = useLooseCheckboxGroupRootContext();
+  const groupContext = useCheckboxGroupRootContext();
   const isGrouped = groupContext?.parent && groupContext.allValues;
 
   let groupProps: Partial<Omit<CheckboxRootProps, 'className'>> = {};

@@ -1,19 +1,19 @@
 import * as React from 'react';
-import { CheckboxGroupRootContextValue } from './CheckboxGroupRoot.types';
+import { UseCheckboxGroupParentReturnValue } from '../Parent/useCheckboxGroupParent.types';
 
-export const CheckboxGroupRootContext = React.createContext<CheckboxGroupRootContextValue | null>(
-  null,
-);
-
-export function useCheckboxGroupRootContext() {
-  const context = React.useContext(CheckboxGroupRootContext);
-  if (context === null) {
-    throw new Error('<CheckboxGroup.Label> must be used within <CheckboxGroup.Root>');
-  }
-  return context;
+export interface CheckboxGroupRootContext {
+  value: string[];
+  setValue: (value: string[]) => void;
+  allValues: string[] | undefined;
+  parent: UseCheckboxGroupParentReturnValue;
 }
 
-export function useLooseCheckboxGroupRootContext() {
+export const CheckboxGroupRootContext = React.createContext<CheckboxGroupRootContext | null>(null);
+
+export function useCheckboxGroupRootContext(optional = true) {
   const context = React.useContext(CheckboxGroupRootContext);
+  if (context === null && !optional) {
+    throw new Error('<CheckboxGroup.Label> must be used within <CheckboxGroup.Root>');
+  }
   return context;
 }

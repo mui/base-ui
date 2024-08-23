@@ -2,13 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type {
-  CheckboxGroupRootContextValue,
-  CheckboxGroupRootProps,
-} from './CheckboxGroupRoot.types';
 import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
 import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled checkbox groups.
@@ -22,7 +19,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
  * - [CheckboxGroup API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-group-root)
  */
 const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
-  props: CheckboxGroupRootProps,
+  props: CheckboxGroupRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -64,7 +61,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     extraProps: otherProps,
   });
 
-  const contextValue: CheckboxGroupRootContextValue = React.useMemo(
+  const contextValue: CheckboxGroupRootContext = React.useMemo(
     () => ({
       allValues,
       value,
@@ -80,6 +77,17 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     </CheckboxGroupRootContext.Provider>
   );
 });
+
+namespace CheckboxGroupRoot {
+  export interface OwnerState {}
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    value?: string[];
+    defaultValue?: string[];
+    onValueChange?: (value: string[]) => void;
+    allValues?: string[];
+    disabled?: boolean;
+  }
+}
 
 CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
