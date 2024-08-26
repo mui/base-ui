@@ -3,16 +3,16 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "SelectGroup",
+  "name": "SelectOptionGroup",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectGroup = Select.Group;"
+    "import * as Select from '@base_ui/react/Select';\nconst SelectOptionGroup = Select.OptionGroup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectGroup",
+  "muiName": "SelectOptionGroup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Group/SelectGroup.tsx",
+  "filename": "/packages/mui-base/src/Select/OptionGroup/SelectOptionGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false

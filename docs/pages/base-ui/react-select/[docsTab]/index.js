@@ -4,10 +4,10 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/select/select.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import SelectBackdropApiJsonPageContent from '../../api/select-backdrop.json';
-import SelectGroupApiJsonPageContent from '../../api/select-group.json';
-import SelectGroupLabelApiJsonPageContent from '../../api/select-group-label.json';
-import SelectItemApiJsonPageContent from '../../api/select-item.json';
-import SelectItemIndicatorApiJsonPageContent from '../../api/select-item-indicator.json';
+import SelectOptionApiJsonPageContent from '../../api/select-option.json';
+import SelectOptionGroupApiJsonPageContent from '../../api/select-option-group.json';
+import SelectOptionGroupLabelApiJsonPageContent from '../../api/select-option-group-label.json';
+import SelectOptionIndicatorApiJsonPageContent from '../../api/select-option-indicator.json';
 import SelectPopupApiJsonPageContent from '../../api/select-popup.json';
 import SelectPositionerApiJsonPageContent from '../../api/select-positioner.json';
 import SelectRootApiJsonPageContent from '../../api/select-root.json';
@@ -37,33 +37,35 @@ export const getStaticProps = () => {
   );
   const SelectBackdropApiDescriptions = mapApiPageTranslations(SelectBackdropApiReq);
 
-  const SelectGroupApiReq = require.context(
-    'docs-base/translations/api-docs/select-group',
+  const SelectOptionApiReq = require.context(
+    'docs-base/translations/api-docs/select-option',
     false,
-    /\.\/select-group.*.json$/,
+    /\.\/select-option.*.json$/,
   );
-  const SelectGroupApiDescriptions = mapApiPageTranslations(SelectGroupApiReq);
+  const SelectOptionApiDescriptions = mapApiPageTranslations(SelectOptionApiReq);
 
-  const SelectGroupLabelApiReq = require.context(
-    'docs-base/translations/api-docs/select-group-label',
+  const SelectOptionGroupApiReq = require.context(
+    'docs-base/translations/api-docs/select-option-group',
     false,
-    /\.\/select-group-label.*.json$/,
+    /\.\/select-option-group.*.json$/,
   );
-  const SelectGroupLabelApiDescriptions = mapApiPageTranslations(SelectGroupLabelApiReq);
+  const SelectOptionGroupApiDescriptions = mapApiPageTranslations(SelectOptionGroupApiReq);
 
-  const SelectItemApiReq = require.context(
-    'docs-base/translations/api-docs/select-item',
+  const SelectOptionGroupLabelApiReq = require.context(
+    'docs-base/translations/api-docs/select-option-group-label',
     false,
-    /\.\/select-item.*.json$/,
+    /\.\/select-option-group-label.*.json$/,
   );
-  const SelectItemApiDescriptions = mapApiPageTranslations(SelectItemApiReq);
+  const SelectOptionGroupLabelApiDescriptions = mapApiPageTranslations(
+    SelectOptionGroupLabelApiReq,
+  );
 
-  const SelectItemIndicatorApiReq = require.context(
-    'docs-base/translations/api-docs/select-item-indicator',
+  const SelectOptionIndicatorApiReq = require.context(
+    'docs-base/translations/api-docs/select-option-indicator',
     false,
-    /\.\/select-item-indicator.*.json$/,
+    /\.\/select-option-indicator.*.json$/,
   );
-  const SelectItemIndicatorApiDescriptions = mapApiPageTranslations(SelectItemIndicatorApiReq);
+  const SelectOptionIndicatorApiDescriptions = mapApiPageTranslations(SelectOptionIndicatorApiReq);
 
   const SelectPopupApiReq = require.context(
     'docs-base/translations/api-docs/select-popup',
@@ -97,10 +99,10 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         SelectBackdrop: SelectBackdropApiDescriptions,
-        SelectGroup: SelectGroupApiDescriptions,
-        SelectGroupLabel: SelectGroupLabelApiDescriptions,
-        SelectItem: SelectItemApiDescriptions,
-        SelectItemIndicator: SelectItemIndicatorApiDescriptions,
+        SelectOption: SelectOptionApiDescriptions,
+        SelectOptionGroup: SelectOptionGroupApiDescriptions,
+        SelectOptionGroupLabel: SelectOptionGroupLabelApiDescriptions,
+        SelectOptionIndicator: SelectOptionIndicatorApiDescriptions,
         SelectPopup: SelectPopupApiDescriptions,
         SelectPositioner: SelectPositionerApiDescriptions,
         SelectRoot: SelectRootApiDescriptions,
@@ -108,10 +110,10 @@ export const getStaticProps = () => {
       },
       componentsApiPageContents: {
         SelectBackdrop: SelectBackdropApiJsonPageContent,
-        SelectGroup: SelectGroupApiJsonPageContent,
-        SelectGroupLabel: SelectGroupLabelApiJsonPageContent,
-        SelectItem: SelectItemApiJsonPageContent,
-        SelectItemIndicator: SelectItemIndicatorApiJsonPageContent,
+        SelectOption: SelectOptionApiJsonPageContent,
+        SelectOptionGroup: SelectOptionGroupApiJsonPageContent,
+        SelectOptionGroupLabel: SelectOptionGroupLabelApiJsonPageContent,
+        SelectOptionIndicator: SelectOptionIndicatorApiJsonPageContent,
         SelectPopup: SelectPopupApiJsonPageContent,
         SelectPositioner: SelectPositionerApiJsonPageContent,
         SelectRoot: SelectRootApiJsonPageContent,

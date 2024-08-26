@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useSelectOption",
+  "filename": "/packages/mui-base/src/Select/Option/useSelectOption.ts",
+  "imports": ["import { useSelectOption } from '@base_ui/react/Select';"],
+  "demos": "<ul></ul>"
+}

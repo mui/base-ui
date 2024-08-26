@@ -19,7 +19,7 @@ function SelectRoot(props: SelectRoot.Props) {
     loop = true,
     onOpenChange,
     open,
-    alignMethod = 'selected-item',
+    alignToItem = true,
   } = props;
 
   const selectRoot = useSelectRoot({
@@ -29,7 +29,7 @@ function SelectRoot(props: SelectRoot.Props) {
     loop,
     defaultOpen,
     open,
-    alignMethod,
+    alignToItem,
     value,
     defaultValue,
   });
@@ -38,13 +38,13 @@ function SelectRoot(props: SelectRoot.Props) {
     () => ({
       ...selectRoot,
       disabled,
-      alignMethod,
+      alignToItem,
       id,
       name,
       required,
       readOnly,
     }),
-    [selectRoot, disabled, alignMethod, id, name, required, readOnly],
+    [selectRoot, disabled, alignToItem, id, name, required, readOnly],
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
@@ -113,12 +113,10 @@ namespace SelectRoot {
      */
     open?: boolean;
     /**
-     * Determines the type of alignment mode. `selected-item` aligns the popup so that the selected
-     * item appears over the trigger, while `trigger` aligns the popup using standard anchor
-     * positioning.
-     * @default 'selected-item'
+     * Determines if the Select should align to the item.
+     * @default true
      */
-    alignMethod?: 'trigger' | 'selected-item';
+    alignToItem?: boolean;
   }
 }
 
@@ -128,12 +126,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Determines the type of alignment mode. `selected-item` aligns the popup so that the selected
-   * item appears over the trigger, while `trigger` aligns the popup using standard anchor
-   * positioning.
-   * @default 'selected-item'
+   * Determines if the Select should align to the item.
+   * @default true
    */
-  alignMethod: PropTypes.oneOf(['selected-item', 'trigger']),
+  alignToItem: PropTypes.bool,
   /**
    * If `true`, the Select supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.

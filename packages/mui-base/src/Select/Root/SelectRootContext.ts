@@ -4,7 +4,7 @@ import type { useSelectRoot } from './useSelectRoot';
 
 export interface SelectRootContext extends useSelectRoot.ReturnValue {
   typingRef: React.MutableRefObject<boolean>;
-  alignMethod: 'selected-item' | 'trigger';
+  alignToItem: boolean;
   id: string | undefined;
   name: string | undefined;
   disabled: boolean;

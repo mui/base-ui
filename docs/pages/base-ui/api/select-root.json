@@ -1,9 +1,6 @@
 {
   "props": {
-    "alignMethod": {
-      "type": { "name": "enum", "description": "'selected-item'<br>&#124;&nbsp;'trigger'" },
-      "default": "'selected-item'"
-    },
+    "alignToItem": { "type": { "name": "bool" }, "default": "true" },
     "animated": { "type": { "name": "bool" }, "default": "true" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "defaultValue": { "type": { "name": "string" } },

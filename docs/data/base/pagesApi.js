@@ -229,20 +229,20 @@ module.exports = [
     title: 'SelectBackdrop',
   },
   {
-    pathname: '/base-ui/react-select/components-api/#select-group',
-    title: 'SelectGroup',
+    pathname: '/base-ui/react-select/components-api/#select-option',
+    title: 'SelectOption',
   },
   {
-    pathname: '/base-ui/react-select/components-api/#select-group-label',
-    title: 'SelectGroupLabel',
+    pathname: '/base-ui/react-select/components-api/#select-option-group',
+    title: 'SelectOptionGroup',
   },
   {
-    pathname: '/base-ui/react-select/components-api/#select-item',
-    title: 'SelectItem',
+    pathname: '/base-ui/react-select/components-api/#select-option-group-label',
+    title: 'SelectOptionGroupLabel',
   },
   {
-    pathname: '/base-ui/react-select/components-api/#select-item-indicator',
-    title: 'SelectItemIndicator',
+    pathname: '/base-ui/react-select/components-api/#select-option-indicator',
+    title: 'SelectOptionIndicator',
   },
   {
     pathname: '/base-ui/react-select/components-api/#select-popup',

@@ -1,45 +1,31 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { useSelectItemContext } from '../Item/SelectItemContext';
+import { useSelectOptionContext } from '../Option/SelectOptionContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectItemIndicator.OwnerState> = {
-  ...commonStyleHooks,
-  entering(value) {
-    return value ? { 'data-select-entering': '' } : null;
-  },
-  exiting(value) {
-    return value ? { 'data-select-exiting': '' } : null;
-  },
-};
+const customStyleHookMapping: CustomStyleHookMapping<SelectOptionIndicator.OwnerState> =
+  commonStyleHooks;
 
-const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
-  props: SelectItemIndicator.Props,
+const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
+  props: SelectOptionIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, keepMounted = false, ...otherProps } = props;
 
-  const { open, transitionStatus } = useSelectRootContext();
-  const { side, alignment } = useSelectPositionerContext();
-  const { selected } = useSelectItemContext();
+  const { open } = useSelectRootContext();
+  const { selected } = useSelectOptionContext();
 
-  const ownerState: SelectItemIndicator.OwnerState = React.useMemo(
+  const ownerState: SelectOptionIndicator.OwnerState = React.useMemo(
     () => ({
-      entering: transitionStatus === 'entering',
-      exiting: transitionStatus === 'exiting',
-      side,
-      alignment,
       open,
       selected,
     }),
-    [transitionStatus, side, alignment, open, selected],
+    [open, selected],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -59,7 +45,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   return renderElement();
 });
 
-namespace SelectItemIndicator {
+namespace SelectOptionIndicator {
   export interface Props extends BaseUIComponentProps<'span', OwnerState> {
     children?: React.ReactNode;
     /**
@@ -71,16 +57,12 @@ namespace SelectItemIndicator {
   }
 
   export interface OwnerState {
-    entering: boolean;
-    exiting: boolean;
-    side: Side;
-    alignment: 'start' | 'end' | 'center';
     open: boolean;
     selected: boolean;
   }
 }
 
-SelectItemIndicator.propTypes /* remove-proptypes */ = {
+SelectOptionIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -105,4 +87,4 @@ SelectItemIndicator.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SelectItemIndicator };
+export { SelectOptionIndicator };

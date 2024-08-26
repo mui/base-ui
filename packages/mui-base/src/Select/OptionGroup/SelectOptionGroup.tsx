@@ -1,38 +1,48 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
-import { useSelectGroupContext } from '../Group/SelectGroupContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { SelectOptionGroupContext } from './SelectOptionGroupContext';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 
-const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
-  props: SelectGroupLabel.Props,
+const SelectOptionGroup = React.forwardRef(function SelectOptionGroup(
+  props: SelectOptionGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
-  const { setLabelId } = useSelectGroupContext();
+  const { open } = useSelectRootContext();
 
-  const ownerState: SelectGroupLabel.OwnerState = React.useMemo(() => ({}), []);
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const id = useId(idProp);
+  const ownerState: SelectOptionGroup.OwnerState = React.useMemo(
+    () => ({
+      open,
+    }),
+    [open],
+  );
 
-  useEnhancedEffect(() => {
-    setLabelId(id);
-  }, [id, setLabelId]);
-
-  const getSelectGroupLabelProps = React.useCallback(
+  const getSelectOptionGroupProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
-        id,
+        role: 'group',
+        'aria-labelledby': labelId,
       }),
-    [id],
+    [labelId],
+  );
+
+  const contextValue: SelectOptionGroupContext = React.useMemo(
+    () => ({
+      labelId,
+      setLabelId,
+    }),
+    [labelId, setLabelId],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getSelectGroupLabelProps,
+    propGetter: getSelectOptionGroupProps,
     render: render ?? 'div',
     ref: forwardedRef,
     ownerState,
@@ -40,10 +50,14 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
     extraProps: otherProps,
   });
 
-  return renderElement();
+  return (
+    <SelectOptionGroupContext.Provider value={contextValue}>
+      {renderElement()}
+    </SelectOptionGroupContext.Provider>
+  );
 });
 
-SelectGroupLabel.propTypes /* remove-proptypes */ = {
+SelectOptionGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -57,18 +71,16 @@ SelectGroupLabel.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-namespace SelectGroupLabel {
-  export interface OwnerState {}
+namespace SelectOptionGroup {
+  export interface OwnerState {
+    open: boolean;
+  }
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 
-export { SelectGroupLabel };
+export { SelectOptionGroup };

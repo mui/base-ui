@@ -5,12 +5,12 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Group />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Group />, () => ({
+  describeConformance(<Select.OptionGroupLabel />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
         <Select.Root open animated={false}>
-          {node}
+          <Select.OptionGroup>{node}</Select.OptionGroup>
         </Select.Root>,
       );
     },

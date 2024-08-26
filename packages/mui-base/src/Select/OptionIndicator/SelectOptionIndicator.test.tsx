@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SelectItemContext } from '../Item/SelectItemContext';
+import { SelectOptionContext } from '../Option/SelectOptionContext';
 
 const selectItemContextValue = {
   open: true,
@@ -11,15 +11,15 @@ const selectItemContextValue = {
 describe('<Select.ItemIndicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.ItemIndicator />, () => ({
+  describeConformance(<Select.OptionIndicator />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
         <Select.Root open animated={false}>
           <Select.Positioner>
-            <SelectItemContext.Provider value={selectItemContextValue}>
+            <SelectOptionContext.Provider value={selectItemContextValue}>
               {node}
-            </SelectItemContext.Provider>
+            </SelectOptionContext.Provider>
           </Select.Positioner>
         </Select.Root>,
       );

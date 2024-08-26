@@ -12,7 +12,7 @@ import { useSelectRootContext } from '../Root/SelectRootContext';
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
     getPopupProps: getRootPopupProps,
-    alignMethod,
+    alignToItem,
     selectedIndex,
     innerFallback,
   } = useSelectRootContext();
@@ -26,7 +26,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           // <Select.Arrow> must be relative to the <Select.Popup> element.
           position: 'relative',
           overflowY: 'auto',
-          ...(alignMethod === 'selected-item' &&
+          ...(alignToItem &&
             hasSelectedIndex &&
             !innerFallback && {
               scrollbarWidth: 'none',
@@ -34,7 +34,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         },
       });
     },
-    [getRootPopupProps, alignMethod, hasSelectedIndex, innerFallback],
+    [getRootPopupProps, alignToItem, hasSelectedIndex, innerFallback],
   );
 
   return React.useMemo(

@@ -10,9 +10,9 @@ import { useEventCallback } from '../../utils/useEventCallback';
  *
  * API:
  *
- * - [useSelectItem API](https://mui.com/base-ui/api/use-select-item/)
+ * - [useSelectOption API](https://mui.com/base-ui/api/use-select-option/)
  */
-export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
+export function useSelectOption(params: useSelectOption.Parameters): useSelectOption.ReturnValue {
   const {
     disabled = false,
     highlighted,
@@ -89,7 +89,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   );
 }
 
-export namespace useSelectItem {
+export namespace useSelectOption {
   export interface Parameters {
     /**
      * If `true`, the select will close when the select item is clicked.

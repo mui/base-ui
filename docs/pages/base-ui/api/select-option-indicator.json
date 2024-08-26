@@ -1,18 +1,19 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "SelectGroupLabel",
+  "name": "SelectOptionIndicator",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectGroupLabel = Select.GroupLabel;"
+    "import * as Select from '@base_ui/react/Select';\nconst SelectOptionIndicator = Select.OptionIndicator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectGroupLabel",
-  "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/GroupLabel/SelectGroupLabel.tsx",
+  "muiName": "SelectOptionIndicator",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Select/OptionIndicator/SelectOptionIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false

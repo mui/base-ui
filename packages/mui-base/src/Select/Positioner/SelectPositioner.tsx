@@ -21,19 +21,19 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 
-function findSelectItems(root: React.ReactElement) {
-  const selectItems: React.ReactElement[] = [];
+function findSelectOptions(root: React.ReactElement) {
+  const SelectOptions: React.ReactElement[] = [];
   React.Children.forEach(root.props?.children, (child) => {
     if (React.isValidElement(child)) {
       const childProps = child.props as any;
       if (childProps?.value != null) {
-        selectItems.push(child);
+        SelectOptions.push(child);
       } else if (childProps?.children) {
-        selectItems.push(...findSelectItems(child));
+        SelectOptions.push(...findSelectOptions(child));
       }
     }
   });
-  return selectItems;
+  return SelectOptions;
 }
 
 /**
@@ -81,7 +81,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     popupRef,
     overflowRef,
     innerOffset,
-    alignMethod,
+    alignToItem,
     innerFallback,
     setInnerFallback,
     selectedIndex,
@@ -121,7 +121,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     allowAxisFlip: false,
     innerFallback,
     inner:
-      alignMethod === 'selected-item' && selectedIndex !== null
+      alignToItem && selectedIndex !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({
@@ -185,8 +185,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   });
 
   const positionerElement = renderElement();
-  const selectItems = findSelectItems(positionerElement);
-  const mountedItemsElement = keepMounted ? null : <div hidden>{selectItems}</div>;
+  const SelectOptions = findSelectOptions(positionerElement);
+  const mountedItemsElement = keepMounted ? null : <div hidden>{SelectOptions}</div>;
   const nativeSelectElement = (
     <select
       id={id}
@@ -197,7 +197,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       tabIndex={-1}
       aria-hidden
     >
-      {selectItems.map((item) => (
+      {SelectOptions.map((item) => (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <option key={item.props.value} value={item.props.value} />
       ))}

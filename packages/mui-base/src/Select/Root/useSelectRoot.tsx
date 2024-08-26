@@ -39,8 +39,8 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     loop,
     value: valueProp,
     onValueChange,
-    defaultValue,
-    alignMethod,
+    defaultValue = '',
+    alignToItem,
   } = params;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -71,7 +71,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     setSelectedIndexOnMount(selectedIndex);
   }
 
-  const [value, setValueUnwrapped] = useControlled<string | null>({
+  const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'Select',
@@ -170,7 +170,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     onMatch: open
       ? setActiveIndex
       : (index) => {
-          setValue(valuesRef.current[index]);
+          setValue(valuesRef.current[index] ?? '');
         },
     onTypingChange(typing) {
       typingRef.current = typing;
@@ -178,7 +178,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   });
 
   const innerOffsetInteractionProps = useInnerOffset(floatingRootContext, {
-    enabled: alignMethod === 'selected-item' && !innerFallback,
+    enabled: alignToItem && !innerFallback,
     onChange: setInnerOffset,
     scrollRef: popupRef,
     overflowRef,
@@ -287,15 +287,29 @@ export namespace useSelectRoot {
      * If `true`, the Select is disabled.
      */
     disabled: boolean;
-    value?: string | null;
-    onValueChange?: (value: string | null) => void;
+    /**
+     * The value of the Select. Use when controlled.
+     */
+    value?: string;
+    /**
+     * Callback fired when the value of the Select changes. Use when controlled.
+     */
+    onValueChange?: (value: string) => void;
+    /**
+     * The default value of the Select.
+     * @default ''
+     */
     defaultValue?: string;
-    alignMethod?: 'trigger' | 'selected-item';
+    /**
+     * If `true`, the Select will align to the selected item.
+     * @default true
+     */
+    alignToItem?: boolean;
   }
 
   export interface ReturnValue {
     value: string | null;
-    setValue: (value: string | null) => void;
+    setValue: (value: string) => void;
     label: string | null;
     setLabel: React.Dispatch<React.SetStateAction<string | null>>;
     activeIndex: number | null;

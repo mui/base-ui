@@ -9,6 +9,10 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useSelectBackdrop } from './useSelectBackdrop';
+import { commonStyleHooks } from '../utils/commonStyleHooks';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = commonStyleHooks;
 
 const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,
@@ -16,7 +20,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { className, render, keepMounted = false, container, ...otherProps } = props;
 
-  const { open, mounted, innerFallback, alignMethod, selectedIndex, backdropRef } =
+  const { open, mounted, innerFallback, alignToItem, selectedIndex, backdropRef } =
     useSelectRootContext();
 
   const { getBackdropProps } = useSelectBackdrop();
@@ -25,11 +29,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 
   const ownerState: SelectBackdrop.OwnerState = React.useMemo(() => ({ open }), [open]);
 
-  const standardMode = !(
-    selectedIndex !== null &&
-    alignMethod === 'selected-item' &&
-    !innerFallback
-  );
+  const standardMode = !(selectedIndex !== null && alignToItem && !innerFallback);
 
   useScrollLock(!standardMode && mounted);
 
@@ -40,6 +40,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;

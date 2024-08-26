@@ -7,14 +7,16 @@
     "label": { "type": { "name": "string" } },
     "onClick": { "type": { "name": "func" } }
   },
-  "name": "SelectItem",
-  "imports": ["import * as Select from '@base_ui/react/Select';\nconst SelectItem = Select.Item;"],
+  "name": "SelectOption",
+  "imports": [
+    "import * as Select from '@base_ui/react/Select';\nconst SelectOption = Select.Option;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectItem",
+  "muiName": "SelectOption",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Item/SelectItem.tsx",
+  "filename": "/packages/mui-base/src/Select/Option/SelectOption.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false
