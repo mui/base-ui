@@ -1,6 +1,6 @@
 # Contributing to Base UI
 
-## Base UI vs. Material UI
+## Base UI vs. MUI organization
 
 Base UI is an open-source project of the MUI organization. The repositories are part of the same codebase.
 `mui/base-ui` imports the code infrastructure from [`mui/material-ui`](https://github.com/mui/material-ui).
