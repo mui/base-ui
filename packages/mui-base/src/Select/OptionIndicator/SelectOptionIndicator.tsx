@@ -15,7 +15,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   props: SelectOptionIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = true, ...otherProps } = props;
 
   const { open } = useSelectRootContext();
   const { selected } = useSelectOptionContext();
@@ -51,7 +51,7 @@ namespace SelectOptionIndicator {
     /**
      * If `true`, the item indicator remains mounted when the item is not
      * selected.
-     * @default false
+     * @default true
      */
     keepMounted?: boolean;
   }
@@ -78,7 +78,7 @@ SelectOptionIndicator.propTypes /* remove-proptypes */ = {
   /**
    * If `true`, the item indicator remains mounted when the item is not
    * selected.
-   * @default false
+   * @default true
    */
   keepMounted: PropTypes.bool,
   /**

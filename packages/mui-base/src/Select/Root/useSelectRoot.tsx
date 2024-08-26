@@ -49,7 +49,6 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [innerOffset, setInnerOffset] = React.useState(0);
   const [innerFallback, setInnerFallback] = React.useState(false);
-  const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState<number | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const backdropRef = React.useRef<HTMLElement>(null);
@@ -66,10 +65,6 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     name: 'Select',
     state: 'open',
   });
-
-  if (open && selectedIndex !== selectedIndexOnMount) {
-    setSelectedIndexOnMount(selectedIndex);
-  }
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -113,12 +108,24 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
 
+    const scrollTop = popupRef.current?.scrollTop ?? 0;
+
     function handleUnmounted() {
-      // Prevents the position from visibly changing upon selection when the Select is closed.
+      // Workaround issue where the `.scrollTop` by the `inner` middleware is incorrectly changed
+      // when a new option has been selected and the scroll was changed. Only visible if the popup
+      // is animating out.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (popupRef.current) {
+            popupRef.current.scrollTop = scrollTop;
+          }
+        });
+      });
+
       ReactDOM.flushSync(() => {
-        setMounted(false);
         setInnerOffset(0);
         setInnerFallback(false);
+        setMounted(false);
       });
     }
 
@@ -213,7 +220,6 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setActiveIndex,
       selectedIndex,
       setSelectedIndex,
-      selectedIndexOnMount,
       floatingRootContext,
       triggerElement,
       setTriggerElement,
@@ -243,7 +249,6 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setValue,
       activeIndex,
       selectedIndex,
-      selectedIndexOnMount,
       floatingRootContext,
       triggerElement,
       getTriggerProps,
@@ -308,7 +313,7 @@ export namespace useSelectRoot {
   }
 
   export interface ReturnValue {
-    value: string | null;
+    value: string;
     setValue: (value: string) => void;
     label: string | null;
     setLabel: React.Dispatch<React.SetStateAction<string | null>>;
@@ -316,7 +321,6 @@ export namespace useSelectRoot {
     setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
     selectedIndex: number | null;
     setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>;
-    selectedIndexOnMount: number | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: UseInteractionsReturn['getItemProps'];
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

@@ -261,6 +261,10 @@ module.exports = [
     title: 'SelectTrigger',
   },
   {
+    pathname: '/base-ui/react-select/components-api/#select-value',
+    title: 'SelectValue',
+  },
+  {
     pathname: '/base-ui/react-slider/components-api/#slider-control',
     title: 'SliderControl',
   },

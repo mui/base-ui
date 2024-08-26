@@ -31,23 +31,31 @@ const entries = Object.entries(data);
 export default function UnstyledSelectIntroduction() {
   return (
     <Select.Root>
-      <SelectTrigger>Select food...</SelectTrigger>
+      <SelectTrigger>
+        <Select.Value fallback="Select food..." />
+      </SelectTrigger>
       <Select.Backdrop />
       <Select.Positioner alignment="start" alignmentOffset={-4}>
         <SelectPopup>
           <SelectOption value="">
             Select food...
-            <SelectOptionIndicator render={<Check fontSize="small" />} />
+            <SelectOptionIndicator
+              render={<Check fontSize="small" />}
+              keepMounted={false}
+            />
           </SelectOption>
           {entries.map(([group, items]) => (
-            <React.Fragment>
+            <React.Fragment key={group}>
               <hr className="border-none h-[1px] w-full bg-gray-300" />
               <Select.OptionGroup key={group}>
                 <SelectOptionGroupLabel>{group}</SelectOptionGroupLabel>
                 {items.map((item) => (
                   <SelectOption key={item.value} value={item.value}>
                     {item.label}
-                    <SelectOptionIndicator render={<Check fontSize="small" />} />
+                    <SelectOptionIndicator
+                      render={<Check fontSize="small" />}
+                      keepMounted={false}
+                    />
                   </SelectOption>
                 ))}
               </Select.OptionGroup>
@@ -68,6 +76,7 @@ const SelectTrigger = styled(Select.Trigger)`
   border: none;
   font-size: 100%;
   line-height: 1.5;
+  user-select: none;
 `;
 
 const SelectPopup = styled(Select.Popup)`
@@ -94,7 +103,6 @@ const SelectOption = styled(Select.Item)`
   line-height: 1.5;
 
   &[data-highlighted],
-  &[data-select='closed'][data-selected],
   &:focus {
     background-color: black;
     color: white;

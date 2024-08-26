@@ -20,6 +20,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 function findSelectOptions(root: React.ReactElement) {
   const SelectOptions: React.ReactElement[] = [];
@@ -102,6 +103,16 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [id, setControlId]);
 
+  const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState(selectedIndex);
+
+  const selectedIndexRef = useLatestRef(selectedIndex);
+
+  useEnhancedEffect(() => {
+    if (open) {
+      setSelectedIndexOnMount(selectedIndexRef.current);
+    }
+  }, [open, selectedIndexRef]);
+
   const positioner = useSelectPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
@@ -128,7 +139,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
             boundary: collisionBoundary,
             padding: collisionPadding,
             listRef: elementsRef,
-            index: selectedIndex,
+            index: selectedIndexOnMount ?? 0,
             scrollRef: popupRef,
             offset: innerOffset,
             onFallbackChange(fallbackValue) {

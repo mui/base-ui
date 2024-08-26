@@ -7,3 +7,4 @@ export { SelectOption as Item } from './Option/SelectOption';
 export { SelectOptionIndicator as OptionIndicator } from './OptionIndicator/SelectOptionIndicator';
 export { SelectOptionGroup as OptionGroup } from './OptionGroup/SelectOptionGroup';
 export { SelectOptionGroupLabel as OptionGroupLabel } from './OptionGroupLabel/SelectOptionGroupLabel';
+export { SelectValue as Value } from './Value/SelectValue';

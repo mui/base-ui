@@ -1,0 +1,13 @@
+{
+  "props": { "fallback": { "type": { "name": "string" } } },
+  "name": "SelectValue",
+  "imports": [
+    "import * as Select from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"
+  ],
+  "classes": [],
+  "muiName": "SelectValue",
+  "filename": "/packages/mui-base/src/Select/Value/SelectValue.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

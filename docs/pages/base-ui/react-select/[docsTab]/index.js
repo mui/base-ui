@@ -12,6 +12,7 @@ import SelectPopupApiJsonPageContent from '../../api/select-popup.json';
 import SelectPositionerApiJsonPageContent from '../../api/select-positioner.json';
 import SelectRootApiJsonPageContent from '../../api/select-root.json';
 import SelectTriggerApiJsonPageContent from '../../api/select-trigger.json';
+import SelectValueApiJsonPageContent from '../../api/select-value.json';
 
 export default function Page(props) {
   const { userLanguage, ...other } = props;
@@ -95,6 +96,13 @@ export const getStaticProps = () => {
   );
   const SelectTriggerApiDescriptions = mapApiPageTranslations(SelectTriggerApiReq);
 
+  const SelectValueApiReq = require.context(
+    'docs-base/translations/api-docs/select-value',
+    false,
+    /\.\/select-value.*.json$/,
+  );
+  const SelectValueApiDescriptions = mapApiPageTranslations(SelectValueApiReq);
+
   return {
     props: {
       componentsApiDescriptions: {
@@ -107,6 +115,7 @@ export const getStaticProps = () => {
         SelectPositioner: SelectPositionerApiDescriptions,
         SelectRoot: SelectRootApiDescriptions,
         SelectTrigger: SelectTriggerApiDescriptions,
+        SelectValue: SelectValueApiDescriptions,
       },
       componentsApiPageContents: {
         SelectBackdrop: SelectBackdropApiJsonPageContent,
@@ -118,6 +127,7 @@ export const getStaticProps = () => {
         SelectPositioner: SelectPositionerApiJsonPageContent,
         SelectRoot: SelectRootApiJsonPageContent,
         SelectTrigger: SelectTriggerApiJsonPageContent,
+        SelectValue: SelectValueApiJsonPageContent,
       },
       hooksApiDescriptions: {},
       hooksApiPageContents: {},

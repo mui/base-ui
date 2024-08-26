@@ -27,7 +27,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   const ownerState: SelectTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
+    render: render ?? 'div',
     className,
     ownerState,
     propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
@@ -39,7 +39,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
 });
 
 namespace SelectTrigger {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
     /**
      * If `true`, the component is disabled.

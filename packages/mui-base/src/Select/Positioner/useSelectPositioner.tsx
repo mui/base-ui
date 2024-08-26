@@ -31,7 +31,10 @@ export function useSelectPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext: floatingContext,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({
+    ...params,
+    trackAnchor: !(params.inner && !params.innerFallback),
+  });
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(

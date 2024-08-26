@@ -1,0 +1,9 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "fallback": {
+      "description": "The fallback value to display when the value is empty (e.g. during SSR)."
+    }
+  },
+  "classDescriptions": {}
+}
