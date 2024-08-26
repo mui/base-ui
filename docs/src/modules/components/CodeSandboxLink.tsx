@@ -9,6 +9,66 @@ import { CodesandboxIcon } from 'docs-base/src/icons/Codesandbox';
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
 
+const tailwindSetup = `
+    <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {},
+        },
+      }
+    </script>`;
+
+interface CodeSandboxLinkProps {
+  className?: string;
+  title: string;
+  description?: string;
+}
+
+export function CodeSandboxLink(props: CodeSandboxLinkProps) {
+  const { className, title, description } = props;
+
+  const {
+    state: { selectedVariant },
+  } = useDemoContext();
+
+  const { files, language, name } = selectedVariant;
+
+  const handleClick = React.useCallback(() => {
+    createCodeSandbox({
+      demoFiles: files,
+      demoLanguage: language,
+      title,
+      description,
+      dependencies: {
+        '@types/react': '^18',
+        '@types/react-dom': '^18',
+        react: '^18',
+        'react-dom': '^18',
+      },
+      devDependencies: {
+        'react-scripts': 'latest',
+      },
+      dependencyResolver: resolveDependencies,
+      additionalHtmlHeadContent: name === 'tailwind' ? tailwindSetup : undefined,
+    });
+  }, [files, language, name, title, description]);
+
+  return (
+    <Tooltip label="Open in CodeSandbox">
+      <button
+        type="button"
+        className={className}
+        onClick={handleClick}
+        aria-label="Open in CodeSandbox"
+      >
+        <CodesandboxIcon />
+      </button>
+    </Tooltip>
+  );
+}
+
 function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
     case '@base_ui/react': {
@@ -37,86 +97,4 @@ function resolveDependencies(packageName: string): Record<string, string> {
         [packageName]: 'latest',
       };
   }
-}
-
-const tailwindSetup = `
-    <!-- Check the Tailwind CSS's installation guide for setting up tailwind: https://tailwindcss.com/docs/installation -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            animation: {
-              appear: 'in-right 200ms',
-            },
-            border: {
-              3: '3px',
-            },
-            boxShadow: {
-              'outline-purple': '0 0 0 4px rgba(192, 132, 252, 0.25)',
-              'outline-purple-light': '0 0 0 4px rgba(245, 208, 254, 0.25)',
-              'outline-purple-xs': '0 0 0 1px rgba(192, 132, 252, 0.25)',
-              'outline-switch': '0 0 1px 3px rgba(168, 85, 247, 0.35)',
-            },
-            cursor: {
-              inherit: 'inherit',
-            },
-            keyframes: {
-              'in-right': {
-                from: { transform: 'translateX(100%)' },
-                to: { transform: 'translateX(0)' },
-              },
-            },
-            lineHeight: {
-              '5.5': '1.375rem',
-            },
-            maxWidth: {
-              snackbar: '560px',
-            },
-            minHeight: {
-              badge: '22px',
-            },
-            minWidth: {
-              badge: '22px',
-              listbox: '200px',
-              snackbar: '300px',
-              'tabs-list': '400px',
-            },
-          },
-        },
-      }
-    </script>`;
-
-export function CodeSandboxLink(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const {
-    state: { selectedVariant },
-  } = useDemoContext();
-
-  const { files, language, name } = selectedVariant;
-
-  const handleClick = React.useCallback(() => {
-    createCodeSandbox({
-      demoFiles: files,
-      demoLanguage: language,
-      title: 'Base UI demo',
-      dependencies: {
-        react: '^18',
-        'react-dom': '^18',
-      },
-      devDependencies: {
-        'react-scripts': 'latest',
-      },
-      dependencyResolver: resolveDependencies,
-      description: 'Base UI demo',
-      additionalHtmlHeadContent: name === 'tailwind' ? tailwindSetup : undefined,
-    });
-  }, [files, language, name]);
-
-  return (
-    <Tooltip label="Open in CodeSandbox">
-      <button type="button" {...props} onClick={handleClick} aria-label="Open in CodeSandbox">
-        <CodesandboxIcon />
-      </button>
-    </Tooltip>
-  );
 }

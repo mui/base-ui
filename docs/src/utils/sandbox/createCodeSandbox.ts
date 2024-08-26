@@ -7,7 +7,7 @@ import { addHiddenInput } from './addHiddenInput';
 export interface CreateCodeSandboxOptions {
   title: string;
   naturalLanguage?: string;
-  description: string;
+  description?: string;
   demoFiles: DemoFile[];
   demoLanguage: 'js' | 'ts';
   dependencies: Record<string, string>;

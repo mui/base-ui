@@ -38,7 +38,10 @@ export async function Demo(props: DemoProps) {
                 <CopyIcon />
               </BaseDemo.SourceCopy>
             </Tooltip>
-            <CodeSandboxLink className={classes.iconButton} />
+            <CodeSandboxLink
+              className={classes.iconButton}
+              title={`Base UI ${componentName} demo`}
+            />
           </div>
         </div>
 
