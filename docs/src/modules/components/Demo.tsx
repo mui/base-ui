@@ -5,8 +5,9 @@ import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { CopyIcon } from 'docs-base/src/icons/Copy';
 import { Tooltip } from 'docs-base/src/design-system/Tooltip';
 import { DemoVariantSelector } from './DemoVariantSelector';
-import classes from './Demo.module.css';
 import { DemoFileSelector } from './DemoFileSelector';
+import { CodeSandboxLink } from './CodeSandboxLink';
+import classes from './Demo.module.css';
 
 export interface DemoProps {
   className?: string;
@@ -28,15 +29,21 @@ export async function Demo(props: DemoProps) {
     return (
       <BaseDemo.Root variants={demoVariants} className={classes.root}>
         <BaseDemo.Playground className={classes.playground} />
+
         <div className={classes.toolbar}>
           <DemoVariantSelector />
-          <Tooltip label="Copy source code">
-            <BaseDemo.SourceCopy className={classes.iconButton} aria-label="Copy source code">
-              <CopyIcon />
-            </BaseDemo.SourceCopy>
-          </Tooltip>
+          <div className={classes.buttons}>
+            <Tooltip label="Copy source code">
+              <BaseDemo.SourceCopy className={classes.iconButton} aria-label="Copy source code">
+                <CopyIcon />
+              </BaseDemo.SourceCopy>
+            </Tooltip>
+            <CodeSandboxLink className={classes.iconButton} />
+          </div>
         </div>
+
         <DemoFileSelector />
+
         <div className={classes.source}>
           <BaseDemo.SourceBrowser className={classes.scrollArea} />
         </div>

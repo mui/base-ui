@@ -42,6 +42,7 @@
     "cross-env": "^7.0.3",
     "fast-glob": "^3.3.2",
     "lodash": "^4.17.21",
+    "lz-string": "^1.5.0",
     "mdx": "link:@stefanprobst/rehype-extract-toc/mdx",
     "next": "^14.2.5",
     "postcss": "^8.4.40",

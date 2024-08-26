@@ -68,6 +68,12 @@
   overflow-y: scroll;
 }
 
+.buttons {
+  display: flex;
+  align-items: end;
+  gap: 4px;
+}
+
 .iconButton {
   all: unset;
   line-height: 1;
