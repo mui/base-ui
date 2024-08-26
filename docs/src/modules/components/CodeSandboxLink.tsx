@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
-import { createCodeSandbox } from 'docs-base/src/utils/sandbox/createCodeSandbox';
+import { createCodeSandbox } from 'docs-base/src/blocks/sandbox/createCodeSandbox';
 import { Tooltip } from 'docs-base/src/design-system/Tooltip';
 import { CodesandboxIcon } from 'docs-base/src/icons/Codesandbox';
 
