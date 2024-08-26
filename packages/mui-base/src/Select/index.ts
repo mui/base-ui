@@ -5,3 +5,5 @@ export { SelectPopup as Popup } from './Popup/SelectPopup';
 export { SelectBackdrop as Backdrop } from './Backdrop/SelectBackdrop';
 export { SelectItem as Item } from './Item/SelectItem';
 export { SelectItemIndicator as ItemIndicator } from './ItemIndicator/SelectItemIndicator';
+export { SelectGroup as Group } from './Group/SelectGroup';
+export { SelectGroupLabel as GroupLabel } from './GroupLabel/SelectGroupLabel';

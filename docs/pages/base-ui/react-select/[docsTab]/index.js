@@ -4,6 +4,8 @@ import AppFrame from 'docs/src/modules/components/AppFrame';
 import * as pageProps from 'docs-base/data/base/components/select/select.md?@mui/markdown';
 import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import SelectBackdropApiJsonPageContent from '../../api/select-backdrop.json';
+import SelectGroupApiJsonPageContent from '../../api/select-group.json';
+import SelectGroupLabelApiJsonPageContent from '../../api/select-group-label.json';
 import SelectItemApiJsonPageContent from '../../api/select-item.json';
 import SelectItemIndicatorApiJsonPageContent from '../../api/select-item-indicator.json';
 import SelectPopupApiJsonPageContent from '../../api/select-popup.json';
@@ -34,6 +36,20 @@ export const getStaticProps = () => {
     /\.\/select-backdrop.*.json$/,
   );
   const SelectBackdropApiDescriptions = mapApiPageTranslations(SelectBackdropApiReq);
+
+  const SelectGroupApiReq = require.context(
+    'docs-base/translations/api-docs/select-group',
+    false,
+    /\.\/select-group.*.json$/,
+  );
+  const SelectGroupApiDescriptions = mapApiPageTranslations(SelectGroupApiReq);
+
+  const SelectGroupLabelApiReq = require.context(
+    'docs-base/translations/api-docs/select-group-label',
+    false,
+    /\.\/select-group-label.*.json$/,
+  );
+  const SelectGroupLabelApiDescriptions = mapApiPageTranslations(SelectGroupLabelApiReq);
 
   const SelectItemApiReq = require.context(
     'docs-base/translations/api-docs/select-item',
@@ -81,6 +97,8 @@ export const getStaticProps = () => {
     props: {
       componentsApiDescriptions: {
         SelectBackdrop: SelectBackdropApiDescriptions,
+        SelectGroup: SelectGroupApiDescriptions,
+        SelectGroupLabel: SelectGroupLabelApiDescriptions,
         SelectItem: SelectItemApiDescriptions,
         SelectItemIndicator: SelectItemIndicatorApiDescriptions,
         SelectPopup: SelectPopupApiDescriptions,
@@ -90,6 +108,8 @@ export const getStaticProps = () => {
       },
       componentsApiPageContents: {
         SelectBackdrop: SelectBackdropApiJsonPageContent,
+        SelectGroup: SelectGroupApiJsonPageContent,
+        SelectGroupLabel: SelectGroupLabelApiJsonPageContent,
         SelectItem: SelectItemApiJsonPageContent,
         SelectItemIndicator: SelectItemIndicatorApiJsonPageContent,
         SelectPopup: SelectPopupApiJsonPageContent,

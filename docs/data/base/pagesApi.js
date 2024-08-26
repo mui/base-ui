@@ -229,6 +229,14 @@ module.exports = [
     title: 'SelectBackdrop',
   },
   {
+    pathname: '/base-ui/react-select/components-api/#select-group',
+    title: 'SelectGroup',
+  },
+  {
+    pathname: '/base-ui/react-select/components-api/#select-group-label',
+    title: 'SelectGroupLabel',
+  },
+  {
     pathname: '/base-ui/react-select/components-api/#select-item',
     title: 'SelectItem',
   },

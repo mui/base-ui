@@ -1,23 +1,18 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "container": {
-      "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" },
-      "default": "false"
-    },
-    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "SelectBackdrop",
+  "name": "SelectGroup",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectBackdrop = Select.Backdrop;"
+    "import * as Select from '@base_ui/react/Select';\nconst SelectGroup = Select.Group;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectBackdrop",
+  "muiName": "SelectGroup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Backdrop/SelectBackdrop.tsx",
+  "filename": "/packages/mui-base/src/Select/Group/SelectGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
   "cssComponent": false

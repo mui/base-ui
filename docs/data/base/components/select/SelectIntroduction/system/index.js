@@ -3,6 +3,29 @@ import * as Select from '@base_ui/react/Select';
 import { styled } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 
+const data = {
+  Fruits: [
+    {
+      value: 'apple',
+      label: 'Apple',
+    },
+    {
+      value: 'banana',
+      label: 'Banana',
+    },
+  ],
+  Vegetables: [
+    {
+      value: 'carrot',
+      label: 'Carrot',
+    },
+    {
+      value: 'lettuce',
+      label: 'Lettuce',
+    },
+  ],
+};
+
 export default function UnstyledSelectIntroduction() {
   return (
     <Select.Root value="item-2">
@@ -10,11 +33,16 @@ export default function UnstyledSelectIntroduction() {
       <Select.Backdrop />
       <Select.Positioner alignment="start" alignmentOffset={-4}>
         <SelectPopup>
-          {[...Array(100)].map((_, index) => (
-            <SelectItem key={index} value={`item-${index + 1}`}>
-              Item {index + 1}
-              <SelectItemIndicator render={<Check fontSize="small" aria-hidden />} />
-            </SelectItem>
+          {Object.entries(data).map(([group, items]) => (
+            <Select.Group key={group}>
+              <SelectGroupLabel>{group}</SelectGroupLabel>
+              {items.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                  <SelectItemIndicator render={<Check fontSize="small" />} />
+                </SelectItem>
+              ))}
+            </Select.Group>
           ))}
         </SelectPopup>
       </Select.Positioner>
@@ -66,4 +94,11 @@ const SelectItem = styled(Select.Item)`
 
 const SelectItemIndicator = styled(Select.ItemIndicator)`
   margin-left: 8px;
+`;
+
+const SelectGroupLabel = styled(Select.GroupLabel)`
+  font-weight: bold;
+  padding: 4px 12px;
+  cursor: default;
+  user-select: none;
 `;
