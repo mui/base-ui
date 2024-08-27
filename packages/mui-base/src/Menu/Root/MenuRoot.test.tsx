@@ -182,7 +182,7 @@ describe('<Menu.Root />', () => {
           this.skip();
         }
 
-        const { queryByRole, getByRole, getByText } = await render(
+        const { getByRole, getAllByRole } = await render(
           <Menu.Root animated={false}>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Positioner>
@@ -198,19 +198,34 @@ describe('<Menu.Root />', () => {
 
         const trigger = getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
+        const items = getAllByRole('menuitem');
         await flushMicrotasks();
 
+        await user.keyboard('b');
         await waitFor(() => {
-          expect(queryByRole('menu')).not.to.equal(null);
+          expect(items[1]).toHaveFocus();
+        });
+
+        await waitFor(() => {
+          expect(items[1]).to.have.attribute('tabindex', '0');
         });
 
         await user.keyboard('b');
         await waitFor(() => {
-          expect(getByText('2')).toHaveFocus();
+          expect(items[2]).toHaveFocus();
         });
 
         await waitFor(() => {
-          expect(getByText('2')).to.have.attribute('tabindex', '0');
+          expect(items[2]).to.have.attribute('tabindex', '0');
+        });
+
+        await user.keyboard('b');
+        await waitFor(() => {
+          expect(items[2]).toHaveFocus();
+        });
+
+        await waitFor(() => {
+          expect(items[2]).to.have.attribute('tabindex', '0');
         });
       });
 
