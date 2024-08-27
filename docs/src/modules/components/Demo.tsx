@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { CopyIcon } from 'docs-base/src/icons/Copy';
+import { ResetIcon } from 'docs-base/src/icons/Reset';
 import { ResetFocusIcon } from 'docs-base/src/icons/ResetFocus';
 import { Tooltip } from 'docs-base/src/design-system/Tooltip';
 import { DemoVariantSelector } from './DemoVariantSelector';
@@ -23,6 +24,8 @@ export function Demo(props: DemoProps) {
 
   const playgroundRef = React.useRef<HTMLDivElement>(null);
 
+  const [key, setKey] = React.useState(0);
+
   const resetFocus = React.useCallback(() => {
     const playground = playgroundRef.current;
     if (playground) {
@@ -36,6 +39,10 @@ export function Demo(props: DemoProps) {
     }
   }, []);
 
+  const resetDemo = React.useCallback(() => {
+    setKey((prevKey) => prevKey + 1);
+  }, []);
+
   const title = `Base UI ${componentName} demo`;
   const description = `Base UI ${componentName} ${demoName} demo`;
 
@@ -47,6 +54,7 @@ export function Demo(props: DemoProps) {
           tabIndex={-1}
           ref={playgroundRef}
           onMouseDown={handlePlaygroundMouseDown}
+          key={key}
         />
       </ErrorBoundary>
 
@@ -67,6 +75,17 @@ export function Demo(props: DemoProps) {
               aria-label="Reset focus to test keyboard navigation"
             >
               <ResetFocusIcon />
+            </button>
+          </Tooltip>
+
+          <Tooltip label="Reset the demo">
+            <button
+              type="button"
+              onClick={resetDemo}
+              className={classes.iconButton}
+              aria-label="Reset the demo"
+            >
+              <ResetIcon />
             </button>
           </Tooltip>
 
