@@ -6,6 +6,10 @@
   min-height: 200px;
   border: 1px solid var(--gray-outline-2);
   border-radius: 12px 12px 0 0;
+
+  &:focus {
+    box-shadow: 0 0 0 1px var(--gray-outline-2) inset;
+  }
 }
 
 .toolbar {

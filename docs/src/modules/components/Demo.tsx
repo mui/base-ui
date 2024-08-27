@@ -30,13 +30,24 @@ export function Demo(props: DemoProps) {
     }
   }, []);
 
+  const handlePlaygroundMouseDown = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      event.preventDefault();
+    }
+  }, []);
+
   const title = `Base UI ${componentName} demo`;
   const description = `Base UI ${componentName} ${demoName} demo`;
 
   return (
     <BaseDemo.Root variants={demoVariants} className={classes.root}>
       <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-        <BaseDemo.Playground className={classes.playground} tabIndex={-1} ref={playgroundRef} />
+        <BaseDemo.Playground
+          className={classes.playground}
+          tabIndex={-1}
+          ref={playgroundRef}
+          onMouseDown={handlePlaygroundMouseDown}
+        />
       </ErrorBoundary>
 
       <div className={classes.toolbar}>
