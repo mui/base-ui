@@ -54,7 +54,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [innerOffset, setInnerOffset] = React.useState(0);
   const [innerFallback, setInnerFallback] = React.useState(false);
-  const [label, setLabel] = React.useState<string | null>(null);
+  const [label, setLabel] = React.useState('');
 
   const popupRef = React.useRef<HTMLElement>(null);
   const backdropRef = React.useRef<HTMLElement>(null);
@@ -92,10 +92,10 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     if (nextValue !== null) {
       const index = valuesRef.current.indexOf(nextValue);
       setSelectedIndex(index);
-      setLabel(labelsRef.current[index]);
+      setLabel(labelsRef.current[index] ?? '');
     } else {
       setSelectedIndex(null);
-      setLabel(null);
+      setLabel('');
     }
   });
 
@@ -105,7 +105,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       const index = valuesRef.current.indexOf(value);
       if (index !== -1) {
         setSelectedIndex(index);
-        setLabel(labelsRef.current[index]);
+        setLabel(labelsRef.current[index] ?? '');
       }
     });
   }, [value]);
@@ -329,8 +329,8 @@ export namespace useSelectRoot {
   export interface ReturnValue extends useFieldControlValidation.ReturnValue {
     value: string;
     setValue: (value: string, event?: Event) => void;
-    label: string | null;
-    setLabel: React.Dispatch<React.SetStateAction<string | null>>;
+    label: string;
+    setLabel: React.Dispatch<React.SetStateAction<string>>;
     activeIndex: number | null;
     setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
     selectedIndex: number | null;

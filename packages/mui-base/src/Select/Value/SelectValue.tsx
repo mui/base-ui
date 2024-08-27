@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 
 function SelectValue(props: SelectValue.Props) {
-  const { children, fallback } = props;
-  const { value } = useSelectRootContext();
+  const { children, placeholder } = props;
+  const { label } = useSelectRootContext();
   return (
     <React.Fragment>
-      {typeof children === 'function' ? children(value) : value || fallback}
+      {typeof children === 'function' ? children(label) : label || placeholder}
     </React.Fragment>
   );
 }
@@ -16,9 +16,9 @@ namespace SelectValue {
   export interface Props {
     children?: React.ReactNode | ((value: string) => React.ReactNode);
     /**
-     * The fallback value to display when the value is empty (such as during SSR).
+     * The placeholder value to display when the value is empty (such as during SSR).
      */
-    fallback?: string;
+    placeholder?: string;
   }
 }
 
@@ -47,9 +47,9 @@ SelectValue.propTypes /* remove-proptypes */ = {
     PropTypes.bool,
   ]),
   /**
-   * The fallback value to display when the value is empty (such as during SSR).
+   * The placeholder value to display when the value is empty (such as during SSR).
    */
-  fallback: PropTypes.string,
+  placeholder: PropTypes.string,
 } as any;
 
 export { SelectValue };

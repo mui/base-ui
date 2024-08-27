@@ -26,7 +26,6 @@ export function useSelectTrigger(
     setTriggerElement,
     selectionRef,
     popupRef,
-    label,
     value,
     getValidationProps,
     commitValidation,
@@ -66,7 +65,7 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps<'button'>(
-        getValidationProps({ ...externalProps, children: label ?? externalProps?.children }),
+        getValidationProps(externalProps),
         {
           'aria-labelledby': labelId,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
@@ -116,7 +115,6 @@ export function useSelectTrigger(
     },
     [
       getValidationProps,
-      label,
       labelId,
       handleRef,
       getButtonProps,

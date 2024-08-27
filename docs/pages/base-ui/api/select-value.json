@@ -1,5 +1,5 @@
 {
-  "props": { "fallback": { "type": { "name": "string" } } },
+  "props": { "placeholder": { "type": { "name": "string" } } },
   "name": "SelectValue",
   "imports": [
     "import * as Select from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"

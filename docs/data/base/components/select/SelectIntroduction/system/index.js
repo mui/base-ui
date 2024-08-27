@@ -34,7 +34,7 @@ export default function UnstyledSelectIntroduction() {
     <Field.Root validate={() => 'error'}>
       <Select.Root>
         <SelectTrigger>
-          <Select.Value fallback="Select food..." />
+          <Select.Value placeholder="Select food..." />
         </SelectTrigger>
         <Select.Backdrop />
         <Select.Positioner alignment="start" alignmentOffset={-4}>
