@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
 import { createCodeSandbox } from 'docs-base/src/blocks/sandbox/createCodeSandbox';
-import { Tooltip } from 'docs-base/src/design-system/Tooltip';
 import { CodesandboxIcon } from 'docs-base/src/icons/Codesandbox';
+import { IconButton } from 'docs-base/src/design-system/IconButton';
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
@@ -56,16 +56,15 @@ export function CodeSandboxLink(props: CodeSandboxLinkProps) {
   }, [files, language, name, title, description]);
 
   return (
-    <Tooltip label="Open in CodeSandbox">
-      <button
-        type="button"
-        className={className}
-        onClick={handleClick}
-        aria-label="Open in CodeSandbox"
-      >
-        <CodesandboxIcon />
-      </button>
-    </Tooltip>
+    <IconButton
+      className={className}
+      onClick={handleClick}
+      label="Open in CodeSandbox"
+      withTooltip
+      size={2}
+    >
+      <CodesandboxIcon />
+    </IconButton>
   );
 }
 

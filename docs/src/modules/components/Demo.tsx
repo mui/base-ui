@@ -6,7 +6,7 @@ import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { CopyIcon } from 'docs-base/src/icons/Copy';
 import { ResetIcon } from 'docs-base/src/icons/Reset';
 import { ResetFocusIcon } from 'docs-base/src/icons/ResetFocus';
-import { Tooltip } from 'docs-base/src/design-system/Tooltip';
+import { IconButton } from 'docs-base/src/design-system/IconButton';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
@@ -61,35 +61,26 @@ export function Demo(props: DemoProps) {
       <div className={classes.toolbar}>
         <DemoVariantSelector />
         <div className={classes.buttons}>
-          <Tooltip label="Copy source code">
-            <BaseDemo.SourceCopy className={classes.iconButton} aria-label="Copy source code">
-              <CopyIcon />
-            </BaseDemo.SourceCopy>
-          </Tooltip>
+          <BaseDemo.SourceCopy
+            render={<IconButton label="Copy source code" size={2} withTooltip />}
+          >
+            <CopyIcon />
+          </BaseDemo.SourceCopy>
 
-          <Tooltip label="Reset focus to test keyboard navigation">
-            <button
-              type="button"
-              onClick={resetFocus}
-              className={classes.iconButton}
-              aria-label="Reset focus to test keyboard navigation"
-            >
-              <ResetFocusIcon />
-            </button>
-          </Tooltip>
+          <IconButton
+            onClick={resetFocus}
+            label="Reset focus to test keyboard navigation"
+            withTooltip
+            size={2}
+          >
+            <ResetFocusIcon />
+          </IconButton>
 
-          <Tooltip label="Reset the demo">
-            <button
-              type="button"
-              onClick={resetDemo}
-              className={classes.iconButton}
-              aria-label="Reset the demo"
-            >
-              <ResetIcon />
-            </button>
-          </Tooltip>
+          <IconButton onClick={resetDemo} label="Reset the demo" withTooltip size={2}>
+            <ResetIcon />
+          </IconButton>
 
-          <CodeSandboxLink className={classes.iconButton} title={title} description={description} />
+          <CodeSandboxLink title={title} description={description} />
         </div>
       </div>
 

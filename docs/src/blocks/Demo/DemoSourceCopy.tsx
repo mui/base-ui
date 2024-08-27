@@ -6,7 +6,7 @@ import { useDemoContext } from './DemoContext';
 
 export const DemoSourceCopy = React.forwardRef<HTMLButtonElement, DemoSourceCopy.Props>(
   function DemoSource(props, forwardedRef) {
-    const { onCopied, onError, onClick, ...other } = props;
+    const { onCopied, onError, onClick, render, ...other } = props;
 
     const {
       state: { selectedFile },
@@ -30,7 +30,15 @@ export const DemoSourceCopy = React.forwardRef<HTMLButtonElement, DemoSourceCopy
       return null;
     }
 
-    return <button ref={forwardedRef} type="button" {...other} onClick={handleClick} />;
+    if (render) {
+      return React.cloneElement(render, {
+        ...other,
+        onClick: handleClick,
+        ref: forwardedRef,
+      });
+    }
+
+    return <button type="button" {...other} onClick={handleClick} ref={forwardedRef} />;
   },
 );
 
@@ -38,5 +46,6 @@ export namespace DemoSourceCopy {
   export interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     onCopied?: () => void;
     onError?: (error: unknown) => void;
+    render?: React.ReactElement;
   }
 }

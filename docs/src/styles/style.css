@@ -4,7 +4,6 @@
 
 @import 'demo-colors.css';
 
-@import 'components/app-bar.css';
 @import 'components/badge.css';
 @import 'components/button.css';
 @import 'components/callout.css';
@@ -12,7 +11,6 @@
 @import 'components/dialog.css';
 @import 'components/growing-chevron.css';
 @import 'components/icon.css';
-@import 'components/icon-button.css';
 @import 'components/kbd.css';
 @import 'components/link.css';
 @import 'components/link-block.css';
