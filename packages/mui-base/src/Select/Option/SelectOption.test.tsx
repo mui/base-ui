@@ -5,7 +5,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Item value="" />, () => ({
+  describeConformance(<Select.Option value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
