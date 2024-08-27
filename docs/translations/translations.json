@@ -228,6 +228,8 @@
     "/base-ui/react-popover": "Popover",
     "/base-ui/react-preview-card": "Preview Card",
     "/base-ui/react-tooltip": "Tooltip",
+    "/base-ui/react-field": "Field",
+    "/base-ui/react-fieldset": "Fieldset",
     "feedback": "Feedback",
     "/base-ui/react-alert-dialog": "Alert Dialog",
     "/base-ui/react-dialog": "Dialog",

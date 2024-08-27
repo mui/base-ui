@@ -2,12 +2,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { CheckboxContext } from './CheckboxContext';
 import { useCheckboxRoot } from './useCheckboxRoot';
-import type { CheckboxOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
+import type { CheckboxRootOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
 import { useCheckboxStyleHooks } from '../utils';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -28,10 +29,10 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     name,
     onCheckedChange,
     defaultChecked,
-    disabled = false,
     readOnly = false,
     indeterminate = false,
     required = false,
+    disabled: disabledProp = false,
     checked: checkedProp,
     render: renderProp,
     className,
@@ -41,15 +42,19 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
 
-  const ownerState: CheckboxOwnerState = React.useMemo(
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
+  const ownerState: CheckboxRootOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       checked,
       disabled,
       readOnly,
       required,
       indeterminate,
     }),
-    [checked, disabled, readOnly, required, indeterminate],
+    [checked, disabled, readOnly, required, indeterminate, fieldOwnerState],
   );
 
   const styleHooks = useCheckboxStyleHooks(ownerState);
@@ -108,6 +113,10 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The id of the input element.
+   */
+  id: PropTypes.string,
   /**
    * If `true`, the checkbox will be indeterminate.
    *

@@ -1,5 +1,5 @@
 export { ProgressRoot as Root } from './Root/ProgressRoot';
-export {
+export type {
   ProgressRootOwnerState as ProgressOwnerState,
   ProgressRootProps as RootProps,
   UseProgressRootParameters,

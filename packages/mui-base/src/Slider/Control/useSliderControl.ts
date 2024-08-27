@@ -5,6 +5,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { focusThumb, trackFinger, validateMinimumDistance } from '../Root/useSliderRoot';
 import { UseSliderControlParameters, UseSliderControlReturnValue } from './SliderControl.types';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 /**
@@ -37,6 +38,8 @@ export function useSliderControl(
     step,
     subitems,
   } = parameters;
+
+  const { commitValidation } = useFieldControlValidation();
 
   const controlRef = React.useRef<HTMLElement>(null);
 
@@ -121,6 +124,8 @@ export function useSliderControl(
     }
 
     setActive(-1);
+
+    commitValidation(newFingerValue.newValue);
 
     if (onValueCommitted) {
       onValueCommitted(newFingerValue.newValue, nativeEvent);

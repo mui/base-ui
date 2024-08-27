@@ -4,6 +4,7 @@ import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../useButton';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
+import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 
 /**
  *
@@ -20,6 +21,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     menuEvents,
     ref: externalRef,
     treatMouseupAsClick,
+    typingRef,
   } = params;
 
   const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
@@ -36,6 +38,11 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
+          onKeyUp: (event: React.KeyboardEvent & MuiCancellableEvent) => {
+            if (event.key === ' ' && typingRef.current) {
+              event.defaultMuiPrevented = true;
+            }
+          },
           onClick: (event: React.MouseEvent) => {
             if (closeOnClick) {
               menuEvents.emit('close', event);
@@ -44,7 +51,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick],
+    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick, typingRef],
   );
 
   return React.useMemo(
@@ -86,6 +93,10 @@ export namespace useMenuItem {
      * If `true`, the menu item will listen for mouseup events and treat them as clicks.
      */
     treatMouseupAsClick: boolean;
+    /**
+     * A ref that is set to `true` when the user is using the typeahead feature.
+     */
+    typingRef: React.RefObject<boolean>;
   }
 
   export interface ReturnValue {
