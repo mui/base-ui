@@ -4,7 +4,6 @@ import { Callout, type CalloutProps } from './Callout';
 import { PackageManagerSnippet, Npm, Pnpm, Yarn } from './PackageManagerSnippet';
 
 export const components = {
-  ...DocsComponents,
   Callout: (props: CalloutProps) => <Callout {...props} />,
   ComponentLinkHeader: () => <DocsComponents.ComponentLinkHeader />,
   PackageManagerSnippet: (props: { children: React.ReactNode }) => (

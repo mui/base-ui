@@ -28,6 +28,7 @@ export default async function DocsPage(props: Props) {
     ...components,
     // eslint-disable-next-line react/no-unstable-nested-components
     Description: () => <Description text={metadata.description} />,
+    Demo: () => null,
   };
 
   return (
