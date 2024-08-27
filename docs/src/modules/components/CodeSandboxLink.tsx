@@ -43,7 +43,7 @@ export function CodeSandboxLink(props: CodeSandboxLinkProps) {
 
     if (name === 'tailwind') {
       additionalHtmlHeadContent = tailwindSetup;
-    } else if (name === 'css') {
+    } else if (name === 'css-modules') {
       additionalHtmlHeadContent = cssThemeSetup;
     }
 

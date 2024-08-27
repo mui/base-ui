@@ -10,6 +10,7 @@ const translations = {
     default: 'Default',
     system: 'MUI System',
     css: 'Plain CSS',
+    'css-modules': 'CSS Modules',
     tailwind: 'Tailwind CSS',
   } as Record<string, string>,
   languages: {
