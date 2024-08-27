@@ -146,8 +146,7 @@ namespace MenuRoot {
     delay?: number;
     /**
      * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-     *
-     * @default nested
+     * By default, `openOnHover` is set to `true` for nested menus.
      */
     openOnHover?: boolean;
   }
@@ -218,8 +217,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   open: PropTypes.bool,
   /**
    * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-   *
-   * @default nested
+   * By default, `openOnHover` is set to `true` for nested menus.
    */
   openOnHover: PropTypes.bool,
   /**
