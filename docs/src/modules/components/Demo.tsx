@@ -10,8 +10,8 @@ import { IconButton } from 'docs-base/src/design-system/IconButton';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
-import classes from './Demo.module.css';
 import { DemoErrorFallback } from './DemoErrorFallback';
+import classes from './Demo.module.css';
 
 export interface DemoProps {
   componentName: string;

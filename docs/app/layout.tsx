@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
 import { GoogleTagManager } from 'docs-base/src/modules/common/GoogleTagManager';
 import { GoogleAnalytics } from 'docs-base/src/modules/common/GoogleAnalytics';
+import * as Tooltip from '@base_ui/react/Tooltip';
 import '../src/styles/style.css';
 
 configureSandboxDependencies();
@@ -28,7 +29,7 @@ export default function Layout({ children }: Props) {
         <meta name="mui:productCategoryId" content="core" />
       </head>
       <body>
-        {children}
+        <Tooltip.Provider delay={350}>{children}</Tooltip.Provider>
         <GoogleAnalytics />
         <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
       </body>
