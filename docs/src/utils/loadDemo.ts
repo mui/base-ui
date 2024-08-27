@@ -55,6 +55,29 @@ export async function loadDemo(componentName: string, demoName: string): Promise
   throw new Error(`Could not find the ${demoName} demo for the ${componentName} component.`);
 }
 
+const themeFile: DemoFile | null = null;
+
+async function getThemeFile(): Promise<DemoFile> {
+  if (themeFile != null) {
+    return themeFile;
+  }
+
+  const path = 'src/styles/demo-colors.css';
+  const content = await readFile(path, 'utf-8');
+  const prettyContent = await codeToHtml(content, {
+    lang: 'css',
+    themes: config.shikiThemes,
+  });
+
+  return {
+    name: 'theme.css',
+    content,
+    prettyContent,
+    path,
+    type: 'css',
+  };
+}
+
 /**
  * Loads a demo that's either a JS file or TS + (translated) JS files, plus their dependencies.
  *
@@ -128,7 +151,15 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
     });
   }
 
-  return languageVariants;
+  return Promise.all(
+    languageVariants.map(async (variant) => {
+      if (variant.files.some((file) => file.name.endsWith('.module.css'))) {
+        variant.files.push(await getThemeFile());
+      }
+
+      return variant;
+    }),
+  );
 }
 
 /**

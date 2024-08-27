@@ -4,20 +4,7 @@ import * as CRA from './CreateReactApp';
 import { packDemo } from './packDemo';
 import { addHiddenInput } from './addHiddenInput';
 
-export interface CreateCodeSandboxOptions {
-  title: string;
-  naturalLanguage?: string;
-  description?: string;
-  demoFiles: DemoFile[];
-  demoLanguage: 'js' | 'ts';
-  dependencies: Record<string, string>;
-  devDependencies?: Record<string, string>;
-  dependencyResolver?: (importPath: string) => Record<string, string>;
-  additionalHtmlHeadContent?: string;
-  customIndexFile?: string;
-}
-
-export function createCodeSandbox(options: CreateCodeSandboxOptions) {
+export function createCodeSandbox(options: createCodeSandbox.Options) {
   const payload = createCodeSandboxRequestPayload(options);
   const initialFile = Object.keys(payload)[0];
   const parameters = compress({ files: payload });
@@ -34,7 +21,61 @@ export function createCodeSandbox(options: CreateCodeSandboxOptions) {
   document.body.removeChild(form);
 }
 
-function createCodeSandboxRequestPayload(options: CreateCodeSandboxOptions) {
+export namespace createCodeSandbox {
+  export interface Options {
+    /**
+     * The title of the sandbox.
+     */
+    title: string;
+    /**
+     * The natural language of the sandbox (to be placed in the `html` lang attribute).
+     */
+    naturalLanguage?: string;
+    /**
+     * The description of the sandbox.
+     */
+    description?: string;
+    /**
+     * The demo files to be included in the sandbox.
+     */
+    demoFiles: DemoFile[];
+    /**
+     * The language of the entry point file.
+     */
+    demoLanguage: 'js' | 'ts';
+    /**
+     * The dependencies to be included in the sandbox.
+     * They are added on top of dependencies found in the demo files.
+     */
+    dependencies: Record<string, string>;
+    /**
+     * The dev dependencies to be included in the sandbox.
+     */
+    devDependencies?: Record<string, string>;
+    /**
+     * A function to resolve dependencies versions.
+     * By default, it resolves to the `latest` version.
+     */
+    dependencyResolver?: (importPath: string) => Record<string, string>;
+    /**
+     * Additional content to be placed in the `head` tag of the `index.html` file.
+     */
+    additionalHtmlHeadContent?: string;
+    /**
+     * The custom index (JS/TS) file content.
+     */
+    customIndexFile?: string;
+    /**
+     * A function to customize the files to be included in the sandbox.
+     * It is called for each of the demo files with its name and content.
+     * It expects a tuple with the new file name and content or `null` to apply standard rules
+     * (place the file in the `src` directory).
+     */
+    onAddingFile?: (fileName: string, content: string) => [string, string] | null;
+  }
+}
+
+function createCodeSandboxRequestPayload(options: createCodeSandbox.Options) {
   const {
     title,
     naturalLanguage = 'en',
@@ -42,12 +83,13 @@ function createCodeSandboxRequestPayload(options: CreateCodeSandboxOptions) {
     demoFiles,
     demoLanguage,
     additionalHtmlHeadContent,
+    onAddingFile,
   } = options;
 
   const packagedDemo = packDemo(demoFiles);
   const indexExtension = demoLanguage === 'ts' ? '.tsx' : '.js';
 
-  const demoFilesToInclude = transformDemoFiles(packagedDemo.processedFiles);
+  const demoFilesToInclude = transformDemoFiles(packagedDemo.processedFiles, onAddingFile);
 
   const files: Record<string, { content: string | object }> = {
     ...demoFilesToInclude,
@@ -86,7 +128,7 @@ function defaultDependencyResolver(importPath: string) {
 }
 
 function createPackageJson(
-  options: CreateCodeSandboxOptions,
+  options: createCodeSandbox.Options,
   sourceDependencies: string[],
   mainFile: string,
 ) {
@@ -123,10 +165,18 @@ function createPackageJson(
   };
 }
 
-function transformDemoFiles(files: Record<string, string>) {
+function transformDemoFiles(
+  files: Record<string, string>,
+  onAddingFile: ((fileName: string, content: string) => [string, string] | null) | undefined,
+) {
   const processedFiles: Record<string, { content: string }> = {};
   Object.keys(files).forEach((file) => {
-    processedFiles[`src/${file}`] = { content: files[file] };
+    const customProcessed = onAddingFile?.(file, files[file]);
+    if (customProcessed) {
+      processedFiles[customProcessed[0]] = { content: customProcessed[1] };
+    } else {
+      processedFiles[`src/${file}`] = { content: files[file] };
+    }
   });
 
   return processedFiles;

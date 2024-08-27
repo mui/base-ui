@@ -20,6 +20,9 @@ const tailwindSetup = `
       }
     </script>`;
 
+const cssThemeSetup = `
+    <link rel="stylesheet" href="theme.css" />`;
+
 interface CodeSandboxLinkProps {
   className?: string;
   title: string;
@@ -36,6 +39,14 @@ export function CodeSandboxLink(props: CodeSandboxLinkProps) {
   const { files, language, name } = selectedVariant;
 
   const handleClick = React.useCallback(() => {
+    let additionalHtmlHeadContent: string | undefined;
+
+    if (name === 'tailwind') {
+      additionalHtmlHeadContent = tailwindSetup;
+    } else if (name === 'css') {
+      additionalHtmlHeadContent = cssThemeSetup;
+    }
+
     createCodeSandbox({
       demoFiles: files,
       demoLanguage: language,
@@ -51,7 +62,14 @@ export function CodeSandboxLink(props: CodeSandboxLinkProps) {
         'react-scripts': 'latest',
       },
       dependencyResolver: resolveDependencies,
-      additionalHtmlHeadContent: name === 'tailwind' ? tailwindSetup : undefined,
+      additionalHtmlHeadContent,
+      onAddingFile: (fileName, content) => {
+        if (fileName === 'theme.css') {
+          return ['public/theme.css', content];
+        }
+
+        return null;
+      },
     });
   }, [files, language, name, title, description]);
 
