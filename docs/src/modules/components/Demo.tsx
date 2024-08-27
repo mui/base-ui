@@ -1,67 +1,73 @@
+'use client';
+
 import * as React from 'react';
-import clsx from 'clsx';
-import { loadDemo } from 'docs-base/src/utils/loadDemo';
+import { ErrorBoundary } from 'react-error-boundary';
 import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { CopyIcon } from 'docs-base/src/icons/Copy';
+import { ResetFocusIcon } from 'docs-base/src/icons/ResetFocus';
 import { Tooltip } from 'docs-base/src/design-system/Tooltip';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import classes from './Demo.module.css';
+import { DemoErrorFallback } from './DemoErrorFallback';
 
 export interface DemoProps {
-  className?: string;
-  demo: string;
   componentName: string;
+  demoName: string;
+  variants: BaseDemo.DemoVariant[];
 }
 
-export async function Demo(props: DemoProps) {
-  const { componentName, demo, className } = props;
+export function Demo(props: DemoProps) {
+  const { componentName, demoName, variants: demoVariants } = props;
 
-  try {
-    const demoVariants = await loadDemo(componentName, demo);
-    if (demoVariants.length === 0) {
-      return (
-        <div className={clsx(classes.error, className)}>No variants found for the {demo} demo.</div>
-      );
+  const playgroundRef = React.useRef<HTMLDivElement>(null);
+
+  const resetFocus = React.useCallback(() => {
+    const playground = playgroundRef.current;
+    if (playground) {
+      playground.focus();
     }
+  }, []);
 
-    return (
-      <BaseDemo.Root variants={demoVariants} className={classes.root}>
-        <BaseDemo.Playground className={classes.playground} />
+  const title = `Base UI ${componentName} demo`;
+  const description = `Base UI ${componentName} ${demoName} demo`;
 
-        <div className={classes.toolbar}>
-          <DemoVariantSelector />
-          <div className={classes.buttons}>
-            <Tooltip label="Copy source code">
-              <BaseDemo.SourceCopy className={classes.iconButton} aria-label="Copy source code">
-                <CopyIcon />
-              </BaseDemo.SourceCopy>
-            </Tooltip>
-            <CodeSandboxLink
+  return (
+    <BaseDemo.Root variants={demoVariants} className={classes.root}>
+      <ErrorBoundary FallbackComponent={DemoErrorFallback}>
+        <BaseDemo.Playground className={classes.playground} tabIndex={-1} ref={playgroundRef} />
+      </ErrorBoundary>
+
+      <div className={classes.toolbar}>
+        <DemoVariantSelector />
+        <div className={classes.buttons}>
+          <Tooltip label="Copy source code">
+            <BaseDemo.SourceCopy className={classes.iconButton} aria-label="Copy source code">
+              <CopyIcon />
+            </BaseDemo.SourceCopy>
+          </Tooltip>
+
+          <Tooltip label="Reset focus to test keyboard navigation">
+            <button
+              type="button"
+              onClick={resetFocus}
               className={classes.iconButton}
-              title={`Base UI ${componentName} demo`}
-            />
-          </div>
-        </div>
+              aria-label="Reset focus to test keyboard navigation"
+            >
+              <ResetFocusIcon />
+            </button>
+          </Tooltip>
 
-        <DemoFileSelector />
-
-        <div className={classes.source}>
-          <BaseDemo.SourceBrowser className={classes.scrollArea} />
+          <CodeSandboxLink className={classes.iconButton} title={title} description={description} />
         </div>
-      </BaseDemo.Root>
-    );
-  } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
-      return (
-        <div className={clsx(classes.error, className)}>
-          Unable to render the {demo} demo.
-          <pre>{JSON.stringify(error, undefined, 2)}</pre>
-        </div>
-      );
-    }
+      </div>
 
-    return <div className={clsx(classes.error, className)}>Unable to render the {demo} demo.</div>;
-  }
+      <DemoFileSelector />
+
+      <div className={classes.source}>
+        <BaseDemo.SourceBrowser className={classes.scrollArea} />
+      </div>
+    </BaseDemo.Root>
+  );
 }

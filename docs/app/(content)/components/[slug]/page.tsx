@@ -12,7 +12,7 @@ import {
   getApiReferenceTableOfContents,
 } from 'docs-base/src/modules/components/ApiReference';
 import { getApiReferenceData } from 'docs-base/src/utils/getApiReferenceData';
-import { Demo, DemoProps } from 'docs-base/src/modules/components/Demo';
+import { DemoLoader, DemoLoaderProps } from 'docs-base/src/modules/components/DemoLoader';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'components';
@@ -48,8 +48,8 @@ export default async function ComponentPage(props: Props) {
   const allComponents = {
     ...components,
     // eslint-disable-next-line react/no-unstable-nested-components
-    Demo: (demoProps: Omit<DemoProps, 'componentName'>) => (
-      <Demo componentName={componentName} {...demoProps} />
+    Demo: (demoProps: Omit<DemoLoaderProps, 'componentName'>) => (
+      <DemoLoader componentName={componentName} {...demoProps} />
     ),
     // eslint-disable-next-line react/no-unstable-nested-components
     Description: () => <Description text={metadata.description} />,
