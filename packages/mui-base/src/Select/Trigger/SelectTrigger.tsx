@@ -6,12 +6,23 @@ import { useSelectRootContext } from '../Root/SelectRootContext';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, label, ...otherProps } = props;
+  const {
+    render,
+    className,
+    id: idProp,
+    disabled: disabledProp = false,
+    label,
+    ...otherProps
+  } = props;
+
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
 
   const {
     getTriggerProps: getRootTriggerProps,
@@ -19,18 +30,26 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     open,
   } = useSelectRootContext();
 
+  const disabled = fieldDisabled || selectDisabled || disabledProp;
+
   const { getTriggerProps } = useSelectTrigger({
-    disabled: disabled || selectDisabled,
+    disabled,
     rootRef: forwardedRef,
   });
 
-  const ownerState: SelectTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: SelectTrigger.OwnerState = React.useMemo(
+    () => ({
+      ...fieldOwnerState,
+      open,
+    }),
+    [fieldOwnerState, open],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
     ownerState,
-    propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
+    propGetter: (externalProps) => getTriggerProps(getRootTriggerProps(externalProps)),
     customStyleHookMapping: commonStyleHooks,
     extraProps: otherProps,
   });
@@ -85,6 +104,10 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    * @default false
    */
   focusableWhenDisabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * Label of the button
    */

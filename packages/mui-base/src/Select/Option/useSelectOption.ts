@@ -44,10 +44,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
           id,
           tabIndex: highlighted ? 0 : -1,
           onTouchStart() {
-            selectionRef.current = {
-              mouseUp: false,
-              select: true,
-            };
+            selectionRef.current = { mouseUp: false, select: true };
           },
           onKeyDown(event) {
             selectionRef.current.select = true;

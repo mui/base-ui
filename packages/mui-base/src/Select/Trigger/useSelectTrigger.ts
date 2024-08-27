@@ -7,6 +7,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  *
@@ -19,8 +20,19 @@ export function useSelectTrigger(
 ): useSelectTrigger.ReturnValue {
   const { disabled = false, rootRef: externalRef } = parameters;
 
-  const { open, setOpen, setTriggerElement, selectionRef, popupRef, label } =
-    useSelectRootContext();
+  const {
+    open,
+    setOpen,
+    setTriggerElement,
+    selectionRef,
+    popupRef,
+    label,
+    value,
+    getValidationProps,
+    commitValidation,
+  } = useSelectRootContext();
+
+  const { labelId, setTouched } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutRef = React.useRef(-1);
@@ -54,10 +66,15 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps<'button'>(
-        { ...externalProps, children: label ?? externalProps?.children },
+        getValidationProps({ ...externalProps, children: label ?? externalProps?.children }),
         {
+          'aria-labelledby': labelId,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
+          onBlur() {
+            setTouched(true);
+            commitValidation(value);
+          },
           onMouseDown(event) {
             if (open) {
               return;
@@ -97,7 +114,19 @@ export function useSelectTrigger(
         getButtonProps(),
       );
     },
-    [label, handleRef, getButtonProps, open, popupRef, setOpen],
+    [
+      getValidationProps,
+      label,
+      labelId,
+      handleRef,
+      getButtonProps,
+      setTouched,
+      commitValidation,
+      value,
+      open,
+      popupRef,
+      setOpen,
+    ],
   );
 
   return React.useMemo(

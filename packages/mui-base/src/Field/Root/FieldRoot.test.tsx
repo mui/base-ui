@@ -4,8 +4,12 @@ import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Switch from '@base_ui/react/Switch';
 import * as NumberField from '@base_ui/react/NumberField';
 import * as Slider from '@base_ui/react/Slider';
+<<<<<<< HEAD
 import * as RadioGroup from '@base_ui/react/RadioGroup';
 import * as Radio from '@base_ui/react/Radio';
+=======
+import * as Select from '@base_ui/react/Select';
+>>>>>>> e667fe6d (Add Field integration)
 import userEvent from '@testing-library/user-event';
 import {
   act,
@@ -17,6 +21,8 @@ import {
 } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
+
+const user = userEvent.setup();
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -236,6 +242,7 @@ describe('<Field.Root />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
+<<<<<<< HEAD
       it('supports RadioGroup', () => {
         render(
           <Field.Root validate={() => 'error'}>
@@ -255,6 +262,28 @@ describe('<Field.Root />', () => {
         fireEvent.blur(group);
 
         expect(group).to.have.attribute('aria-invalid', 'true');
+=======
+      it('supports Select', async () => {
+        render(
+          <Field.Root validate={() => 'error'}>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Positioner />
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('aria-invalid');
+
+        fireEvent.focus(trigger);
+        fireEvent.blur(trigger);
+
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('aria-invalid', 'true');
+>>>>>>> e667fe6d (Add Field integration)
       });
     });
   });
@@ -431,6 +460,7 @@ describe('<Field.Root />', () => {
         expect(root).to.have.attribute('data-touched', 'true');
       });
 
+<<<<<<< HEAD
       it('supports RadioGroup (click)', () => {
         render(
           <Field.Root>
@@ -473,6 +503,33 @@ describe('<Field.Root />', () => {
 
         expect(group).to.have.attribute('data-touched', 'true');
         expect(control).to.have.attribute('data-touched', 'true');
+=======
+      it('supports Select', async () => {
+        render(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Option value="">Select</Select.Option>
+                  <Select.Option value="1">Option 1</Select.Option>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-dirty');
+
+        fireEvent.focus(trigger);
+        fireEvent.blur(trigger);
+
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-touched', 'true');
+>>>>>>> e667fe6d (Add Field integration)
       });
     });
 
@@ -584,6 +641,7 @@ describe('<Field.Root />', () => {
         expect(root).to.have.attribute('data-dirty', 'true');
       });
 
+<<<<<<< HEAD
       it('supports RadioGroup', () => {
         render(
           <Field.Root>
@@ -601,6 +659,44 @@ describe('<Field.Root />', () => {
         fireEvent.click(screen.getByText('One'));
 
         expect(group).to.have.attribute('data-dirty', 'true');
+=======
+      it('supports Select', async () => {
+        render(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Option value="">Select</Select.Option>
+                  <Select.Option value="1">Option 1</Select.Option>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-dirty');
+
+        fireEvent.click(trigger);
+
+        await flushMicrotasks();
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        // Arrow Down to focus the Option 1
+        await user.keyboard('{ArrowDown}');
+
+        // Allow selection to take place by entering keyboard modality
+        fireEvent.keyDown(option, { key: '' });
+
+        fireEvent.click(option);
+
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-dirty', 'true');
+>>>>>>> e667fe6d (Add Field integration)
       });
     });
   });

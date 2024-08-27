@@ -21,6 +21,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 function findSelectOptions(root: React.ReactElement) {
   const SelectOptions: React.ReactElement[] = [];
@@ -90,9 +91,13 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     required,
     disabled,
     id: idProp,
+    value,
+    setValue,
+    inputRef,
+    getInputValidationProps,
   } = useSelectRootContext();
 
-  const { setControlId } = useFieldRootContext();
+  const { setControlId, validityData, setValidityData, setDirty } = useFieldRootContext();
 
   const id = useId(idProp);
 
@@ -112,6 +117,12 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       setSelectedIndexOnMount(selectedIndexRef.current);
     }
   }, [open, selectedIndexRef]);
+
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && value !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: value }));
+    }
+  }, [value, setValidityData, validityData.initialValue]);
 
   const positioner = useSelectPositioner({
     anchor: anchor || triggerElement,
@@ -196,19 +207,37 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   });
 
   const positionerElement = renderElement();
-  const SelectOptions = findSelectOptions(positionerElement);
-  const mountedItemsElement = keepMounted ? null : <div hidden>{SelectOptions}</div>;
+  const options = findSelectOptions(positionerElement);
+  const mountedItemsElement = keepMounted ? null : <div hidden>{options}</div>;
   const nativeSelectElement = (
     <select
-      id={id}
-      name={name}
-      disabled={disabled}
-      required={required}
-      style={visuallyHidden}
-      tabIndex={-1}
-      aria-hidden
+      {...mergeReactProps(getInputValidationProps(), {
+        id,
+        name,
+        disabled,
+        required,
+        ref: inputRef,
+        style: visuallyHidden,
+        tabIndex: -1,
+        'aria-hidden': true,
+        onFocus() {
+          // Move focus from the hidden <select> to the trigger element.
+          triggerElement?.focus();
+        },
+        onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+          // Workaround for https://github.com/facebook/react/issues/9023
+          if (event.nativeEvent.defaultPrevented) {
+            return;
+          }
+
+          const nextValue = event.target.value;
+
+          setDirty(nextValue !== validityData.initialValue);
+          setValue?.(nextValue, event.nativeEvent);
+        },
+      })}
     >
-      {SelectOptions.map((item) => (
+      {options.map((item) => (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <option key={item.props.value} value={item.props.value} />
       ))}

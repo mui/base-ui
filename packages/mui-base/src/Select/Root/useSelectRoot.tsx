@@ -20,6 +20,8 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -43,12 +45,16 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     alignToItem,
   } = params;
 
+  const { setDirty, validityData, validateOnChange } = useFieldRootContext();
+  const fieldControlValidation = useFieldControlValidation();
+
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [innerOffset, setInnerOffset] = React.useState(0);
   const [innerFallback, setInnerFallback] = React.useState(false);
+  const [label, setLabel] = React.useState<string | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const backdropRef = React.useRef<HTMLElement>(null);
@@ -73,11 +79,15 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     state: 'value',
   });
 
-  const [label, setLabel] = React.useState<string | null>(null);
-
-  const setValue: useSelectRoot.ReturnValue['setValue'] = useEventCallback((nextValue) => {
-    onValueChange?.(nextValue);
+  const setValue: useSelectRoot.ReturnValue['setValue'] = useEventCallback((nextValue, event) => {
+    onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
+
+    setDirty(nextValue !== validityData.initialValue);
+
+    if (validateOnChange) {
+      fieldControlValidation.commitValidation(nextValue);
+    }
 
     if (nextValue !== null) {
       const index = valuesRef.current.indexOf(nextValue);
@@ -212,6 +222,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
 
   return React.useMemo(
     () => ({
+      ...fieldControlValidation,
       value,
       setValue,
       label,
@@ -224,6 +235,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       triggerElement,
       setTriggerElement,
       getTriggerProps,
+      positionerElement,
       setPositionerElement,
       getPopupProps,
       getItemProps,
@@ -244,6 +256,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setInnerFallback,
     }),
     [
+      fieldControlValidation,
       value,
       label,
       setValue,
@@ -252,6 +265,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       floatingRootContext,
       triggerElement,
       getTriggerProps,
+      positionerElement,
       getPopupProps,
       getItemProps,
       mounted,
@@ -299,7 +313,7 @@ export namespace useSelectRoot {
     /**
      * Callback fired when the value of the Select changes. Use when controlled.
      */
-    onValueChange?: (value: string) => void;
+    onValueChange?: (value: string, event?: Event) => void;
     /**
      * The default value of the Select.
      * @default ''
@@ -312,9 +326,9 @@ export namespace useSelectRoot {
     alignToItem?: boolean;
   }
 
-  export interface ReturnValue {
+  export interface ReturnValue extends useFieldControlValidation.ReturnValue {
     value: string;
-    setValue: (value: string) => void;
+    setValue: (value: string, event?: Event) => void;
     label: string | null;
     setLabel: React.Dispatch<React.SetStateAction<string | null>>;
     activeIndex: number | null;
@@ -336,6 +350,7 @@ export namespace useSelectRoot {
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: 'entering' | 'exiting' | undefined;
     triggerElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
     typingRef: React.MutableRefObject<boolean>;
     selectionRef: React.MutableRefObject<{
       mouseUp: boolean;

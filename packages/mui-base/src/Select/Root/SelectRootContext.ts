@@ -1,8 +1,11 @@
 'use client';
 import * as React from 'react';
 import type { useSelectRoot } from './useSelectRoot';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
-export interface SelectRootContext extends useSelectRoot.ReturnValue {
+export interface SelectRootContext
+  extends useSelectRoot.ReturnValue,
+    useFieldControlValidation.ReturnValue {
   typingRef: React.MutableRefObject<boolean>;
   alignToItem: boolean;
   id: string | undefined;

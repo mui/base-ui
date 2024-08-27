@@ -2,7 +2,7 @@
   "componentDescription": "",
   "propDescriptions": {
     "fallback": {
-      "description": "The fallback value to display when the value is empty (e.g. during SSR)."
+      "description": "The fallback value to display when the value is empty (such as during SSR)."
     }
   },
   "classDescriptions": {}

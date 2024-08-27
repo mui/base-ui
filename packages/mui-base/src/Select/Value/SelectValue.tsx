@@ -16,7 +16,7 @@ namespace SelectValue {
   export interface Props {
     children?: React.ReactNode | ((value: string) => React.ReactNode);
     /**
-     * The fallback value to display when the value is empty (e.g. during SSR).
+     * The fallback value to display when the value is empty (such as during SSR).
      */
     fallback?: string;
   }
@@ -47,7 +47,7 @@ SelectValue.propTypes /* remove-proptypes */ = {
     PropTypes.bool,
   ]),
   /**
-   * The fallback value to display when the value is empty (e.g. during SSR).
+   * The fallback value to display when the value is empty (such as during SSR).
    */
   fallback: PropTypes.string,
 } as any;
