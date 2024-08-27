@@ -232,7 +232,7 @@ describe('<Menu.Root />', () => {
       it('skips the non-stringifiable items', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
@@ -276,7 +276,7 @@ describe('<Menu.Root />', () => {
       it('navigate to options with diacritic characters', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
@@ -315,7 +315,7 @@ describe('<Menu.Root />', () => {
       it('navigate to next options beginning with diacritic characters', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
