@@ -6,7 +6,7 @@ describe('<Select.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Select.Trigger />, () => ({
-    refInstanceof: window.HTMLButtonElement,
+    refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
         <Select.Root open animated={false}>

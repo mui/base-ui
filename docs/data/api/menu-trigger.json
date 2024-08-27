@@ -11,9 +11,15 @@
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
+<<<<<<< HEAD:docs/data/api/menu-trigger.json
   "muiName": "MenuTrigger",
   "forwardsRefTo": "HTMLButtonElement",
   "filename": "/packages/mui-base/src/Menu/Trigger/MenuTrigger.tsx",
+=======
+  "muiName": "SelectTrigger",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/Trigger/SelectTrigger.tsx",
+>>>>>>> 24117833 (Update Select.Trigger instanceof test):docs/pages/base-ui/api/select-trigger.json
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false
