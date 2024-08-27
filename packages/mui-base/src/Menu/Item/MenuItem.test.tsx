@@ -29,6 +29,7 @@ const testRootContext: MenuRootContext = {
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
+  typingRef: { current: false },
 };
 
 describe('<Menu.Item />', () => {

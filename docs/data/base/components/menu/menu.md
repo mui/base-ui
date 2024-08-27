@@ -51,7 +51,7 @@ Menus are implemented using a collection of related components:
 - `<Menu.Positioner />` renders the element responsible for positioning the popup.
 - `<Menu.Popup />` is the menu popup.
 - `<Menu.Item />` is the menu item.
-- `<Popover.Arrow />` renders an optional pointing arrow, placed inside the popup.
+- `<Menu.Arrow />` renders an optional pointing arrow, placed inside the popup.
 - `<Menu.SubmenuTrigger />` is a menu item that opens a submenu. See [Nested menu](#nested-menu) for more details.
 
 ```tsx

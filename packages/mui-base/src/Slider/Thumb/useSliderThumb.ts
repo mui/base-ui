@@ -6,6 +6,9 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompoundItem } from '../../useCompound';
 import { SliderThumbMetadata } from '../Root/SliderRoot.types';
 import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { getSliderValue } from '../utils/getSliderValue';
 
 function idGenerator(existingKeys: Set<string>) {
   return `thumb-${existingKeys.size}`;
@@ -72,10 +75,18 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     values: sliderValues,
   } = parameters;
 
+  const { setTouched } = useFieldRootContext();
+  const {
+    getInputValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
+
   const thumbId = useId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const mergedInputRef = useForkRef(inputRef, inputValidationRef);
   const handleRef = useForkRef(externalRef, thumbRef);
 
   const thumbMetadata: SliderThumbMetadata = React.useMemo(
@@ -122,6 +133,22 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: idParam,
+        onBlur() {
+          if (!thumbRef.current) {
+            return;
+          }
+          setTouched(true);
+          commitValidation(
+            getSliderValue({
+              valueInput: thumbValue,
+              min,
+              max,
+              index,
+              range: sliderValues.length > 1,
+              values: sliderValues,
+            }),
+          );
+        },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
           const isRange = sliderValues.length > 1;
@@ -156,7 +183,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
             case 'PageDown':
               newValue = getNewValue(thumbValue, largeStep, -1, min, max);
               break;
-            case 'Home':
+            case 'End':
               newValue = max;
 
               if (isRange) {
@@ -165,7 +192,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
                   : max;
               }
               break;
-            case 'End':
+            case 'Home':
               newValue = min;
 
               if (isRange) {
@@ -191,27 +218,29 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       });
     },
     [
-      changeValue,
-      getThumbStyle,
-      handleRef,
-      idParam,
       index,
-      isRtl,
-      disabled,
-      largeStep,
-      max,
-      min,
-      minStepsBetweenValues,
-      sliderValues,
-      step,
+      idParam,
+      handleRef,
+      getThumbStyle,
       tabIndex,
+      disabled,
+      setTouched,
+      commitValidation,
       thumbValue,
+      sliderValues,
+      largeStep,
+      step,
+      min,
+      max,
+      isRtl,
+      minStepsBetweenValues,
+      changeValue,
     ],
   );
 
   const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
+      return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
         'aria-orientation': orientation,
@@ -231,7 +260,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           // @ts-ignore
           changeValue(event.target.valueAsNumber, index, event);
         },
-        ref: inputRef,
+        ref: mergedInputRef,
         step,
         style: {
           ...visuallyHidden,
@@ -263,6 +292,8 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       sliderValues,
       step,
       thumbValue,
+      getInputValidationProps,
+      mergedInputRef,
     ],
   );
 

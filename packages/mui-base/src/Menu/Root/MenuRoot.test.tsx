@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import * as Menu from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
+import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 
 describe('<Menu.Root />', () => {
@@ -135,7 +136,7 @@ describe('<Menu.Root />', () => {
       it('changes the highlighted item', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
@@ -327,6 +328,42 @@ describe('<Menu.Root />', () => {
           expect(getByText('ąa')).toHaveFocus();
         });
         expect(getByText('ąa')).to.have.attribute('tabindex', '0');
+      });
+
+      it('does not trigger the onClick event when Space is pressed during text navigation', async function test() {
+        if (/jsdom/.test(window.navigator.userAgent)) {
+          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
+          // innerText is not supported by JSDOM
+          this.skip();
+        }
+
+        const handleClick = spy();
+
+        const { getAllByRole } = await render(
+          <Menu.Root open animated={false}>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
+                <Menu.Item onClick={() => handleClick()}>Item Two</Menu.Item>
+                <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Root>,
+        );
+
+        const items = getAllByRole('menuitem');
+
+        await act(() => {
+          items[0].focus();
+        });
+
+        await user.keyboard('Item T');
+
+        expect(handleClick.called).to.equal(false);
+
+        await waitFor(() => {
+          expect(items[1]).toHaveFocus();
+        });
       });
     });
   });
