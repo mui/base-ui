@@ -36,6 +36,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   });
 
   const lastKeyRef = React.useRef<string | null>(null);
+  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
@@ -51,7 +52,10 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             lastKeyRef.current = event.key;
           },
           onClick(event) {
-            if (lastKeyRef.current === ' ' && typingRef.current) {
+            if (
+              (lastKeyRef.current === ' ' && typingRef.current) ||
+              (pointerTypeRef.current !== 'touch' && !highlighted)
+            ) {
               return;
             }
 
@@ -60,8 +64,17 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
               commitSelection(event.nativeEvent);
             }
           },
+          onPointerEnter(event) {
+            pointerTypeRef.current = event.pointerType;
+          },
+          onPointerDown(event) {
+            pointerTypeRef.current = event.pointerType;
+          },
           onMouseUp(event) {
-            if (!selectionRef.current.mouseUp) {
+            if (
+              !selectionRef.current.mouseUp ||
+              (pointerTypeRef.current !== 'touch' && !highlighted)
+            ) {
               return;
             }
 

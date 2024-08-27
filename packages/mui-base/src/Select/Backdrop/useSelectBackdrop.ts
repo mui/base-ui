@@ -16,6 +16,7 @@ export function useSelectBackdrop() {
         overflow: 'auto',
         position: 'fixed',
         inset: 0,
+        pointerEvents: 'none',
       },
     });
   }, []);

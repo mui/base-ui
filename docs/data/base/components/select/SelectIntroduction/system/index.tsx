@@ -80,6 +80,11 @@ const SelectTrigger = styled(Select.Trigger)`
   font-size: 100%;
   line-height: 1.5;
   user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid black;
+    outline-offset: 2px;
+  }
 `;
 
 const SelectPopup = styled(Select.Popup)`

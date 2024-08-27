@@ -15,6 +15,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     alignToItem,
     selectedIndex,
     innerFallback,
+    touchModality,
   } = useSelectRootContext();
 
   const hasSelectedIndex = selectedIndex !== null;
@@ -28,13 +29,14 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           overflowY: 'auto',
           ...(alignToItem &&
             hasSelectedIndex &&
-            !innerFallback && {
+            !innerFallback &&
+            !touchModality && {
               scrollbarWidth: 'none',
             }),
         },
       });
     },
-    [getRootPopupProps, alignToItem, hasSelectedIndex, innerFallback],
+    [getRootPopupProps, alignToItem, hasSelectedIndex, innerFallback, touchModality],
   );
 
   return React.useMemo(

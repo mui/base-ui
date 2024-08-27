@@ -29,6 +29,7 @@ export function useSelectTrigger(
     value,
     getValidationProps,
     commitValidation,
+    setTouchModality,
   } = useSelectRootContext();
 
   const { labelId, setTouched } = useFieldRootContext();
@@ -73,6 +74,12 @@ export function useSelectTrigger(
           onBlur() {
             setTouched(true);
             commitValidation(value);
+          },
+          onPointerMove({ pointerType }) {
+            setTouchModality(pointerType === 'touch');
+          },
+          onPointerDown({ pointerType }) {
+            setTouchModality(pointerType === 'touch');
           },
           onMouseDown(event) {
             if (open) {
@@ -121,6 +128,7 @@ export function useSelectTrigger(
       setTouched,
       commitValidation,
       value,
+      setTouchModality,
       open,
       popupRef,
       setOpen,

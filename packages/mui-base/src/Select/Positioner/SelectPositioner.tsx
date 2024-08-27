@@ -95,6 +95,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     setValue,
     inputRef,
     getInputValidationProps,
+    touchModality,
   } = useSelectRootContext();
 
   const { setControlId, validityData, setValidityData, setDirty } = useFieldRootContext();
@@ -159,7 +160,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
                 popupRef.current.style.maxHeight = '';
               }
             },
-            minItemsVisible: 4,
+            minItemsVisible: touchModality ? 6 : 4,
             referenceOverflowThreshold: 20,
             overflowRef,
           })

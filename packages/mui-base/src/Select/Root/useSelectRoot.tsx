@@ -55,6 +55,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const [innerOffset, setInnerOffset] = React.useState(0);
   const [innerFallback, setInnerFallback] = React.useState(false);
   const [label, setLabel] = React.useState('');
+  const [touchModality, setTouchModality] = React.useState(false);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const backdropRef = React.useRef<HTMLElement>(null);
@@ -254,6 +255,8 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       innerOffset,
       innerFallback,
       setInnerFallback,
+      touchModality,
+      setTouchModality,
     }),
     [
       fieldControlValidation,
@@ -274,6 +277,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setOpen,
       innerOffset,
       innerFallback,
+      touchModality,
     ],
   );
 }
@@ -361,5 +365,7 @@ export namespace useSelectRoot {
     backdropRef: React.RefObject<HTMLElement>;
     innerFallback: boolean;
     setInnerFallback: React.Dispatch<React.SetStateAction<boolean>>;
+    touchModality: boolean;
+    setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }
