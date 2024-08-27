@@ -211,7 +211,16 @@ export function useAnchorPositioning(
     placement,
     middleware,
     strategy: positionStrategy,
-    whileElementsMounted: keepMounted || !trackAnchor ? undefined : autoUpdate,
+    whileElementsMounted: keepMounted
+      ? undefined
+      : (...args) =>
+          autoUpdate(...args, {
+            // Keep `ancestorResize` for window resizing. TODO: determine the best configuration, or
+            // if we need to allow options.
+            ancestorScroll: trackAnchor,
+            elementResize: trackAnchor,
+            layoutShift: trackAnchor,
+          }),
     nodeId,
   });
 
