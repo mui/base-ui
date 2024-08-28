@@ -16,7 +16,7 @@ export function GitHubLink() {
 
   return (
     <IconLinkButton
-      label="View file on GitHub"
+      label="View Source on GitHub"
       withTooltip
       size={2}
       href={gitHubLink}

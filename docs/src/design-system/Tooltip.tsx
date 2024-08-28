@@ -14,7 +14,7 @@ export function Tooltip(props: Tooltip.Props) {
           React.cloneElement(children, triggerProps)
         }
       />
-      <BaseTooltip.Positioner sideOffset={5} className={classes.popup}>
+      <BaseTooltip.Positioner sideOffset={8} className={classes.popup}>
         <BaseTooltip.Popup>
           {label}
           <BaseTooltip.Arrow className={classes.arrow} />

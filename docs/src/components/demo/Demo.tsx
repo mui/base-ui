@@ -80,22 +80,15 @@ export function Demo(props: DemoProps) {
             <ChevronDownIcon />
           </Button>
 
-          <BaseDemo.SourceCopy
-            render={<IconButton label="Copy source code" size={2} withTooltip />}
-          >
+          <BaseDemo.SourceCopy render={<IconButton label="Copy Code" size={2} withTooltip />}>
             <CopyIcon />
           </BaseDemo.SourceCopy>
 
-          <IconButton
-            onClick={resetFocus}
-            label="Reset focus to test keyboard navigation"
-            withTooltip
-            size={2}
-          >
+          <IconButton onClick={resetFocus} label="Reset Focus" withTooltip size={2}>
             <ResetFocusIcon />
           </IconButton>
 
-          <IconButton onClick={resetDemo} label="Reset the demo" withTooltip size={2}>
+          <IconButton onClick={resetDemo} label="Reset Demo" withTooltip size={2}>
             <ResetIcon />
           </IconButton>
 
