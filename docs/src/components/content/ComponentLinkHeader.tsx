@@ -21,7 +21,7 @@ export function ComponentLinkHeader(props: ComponentLinkHeaderProps) {
           data-ga-event-label="githubLabel"
           data-ga-event-split="0.1"
         >
-          Feedback
+          Give Feedback
         </a>
       )}
       {ariaSpecUrl && (
@@ -46,7 +46,7 @@ export function ComponentLinkHeader(props: ComponentLinkHeaderProps) {
         data-ga-event-label="bundleSize"
         data-ga-event-split="0.1"
       >
-        Bundle size
+        Bundle Size
       </a>
     </div>
   );
