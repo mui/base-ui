@@ -14,7 +14,6 @@ export function IconLinkButton(props: IconLinkButton.Props) {
       className={clsx(classes.root, classes[`size-${size}`], props.className)}
     />
   ) : (
-    // eslint-disable-next-line jsx-a11y/anchor-has-content
     <a
       aria-label={label}
       {...(other as React.ComponentPropsWithoutRef<'a'>)}

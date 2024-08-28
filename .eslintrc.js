@@ -40,7 +40,9 @@ module.exports = {
     '@typescript-eslint/no-redeclare': 'off',
   },
   overrides: [
-    ...baseline.overrides,
+    ...baseline.overrides.filter(
+      (ruleSet) => !ruleSet.rules.hasOwnProperty('filenames/match-exported'),
+    ),
     {
       files: ['docs/pages/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
       rules: {
@@ -71,6 +73,18 @@ module.exports = {
         ],
         'react/prop-types': 'off',
         '@typescript-eslint/no-use-before-define': 'off',
+      },
+    },
+    {
+      files: ['docs/data/**/*{.tsx,.js}'],
+      excludedFiles: [
+        'docs/data/**/css/*{.tsx,.js}',
+        'docs/data/**/css-modules/*{.tsx,.js}',
+        'docs/data/**/system/*{.tsx,.js}',
+        'docs/data/**/tailwind/*{.tsx,.js}',
+      ],
+      rules: {
+        'filenames/match-exported': ['error'],
       },
     },
   ],
