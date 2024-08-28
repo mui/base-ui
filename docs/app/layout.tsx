@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { Metadata } from 'next';
-import configureSandboxDependencies from 'docs-base/src/utils/configureSandboxDependencies';
-import { GoogleTagManager } from 'docs-base/src/modules/common/GoogleTagManager';
-import { GoogleAnalytics } from 'docs-base/src/modules/common/GoogleAnalytics';
+import { GoogleTagManager } from 'docs-base/src/components/GoogleTagManager';
+import { GoogleAnalytics } from 'docs-base/src/components/GoogleAnalytics';
 import * as Tooltip from '@base_ui/react/Tooltip';
 import '../src/styles/style.css';
-
-configureSandboxDependencies();
 
 const PRODUCTION_GA =
   process.env.DEPLOY_ENV === 'production' || process.env.DEPLOY_ENV === 'staging';

@@ -3,19 +3,19 @@
 import * as React from 'react';
 import { SelectIcon } from 'docs-base/src/icons/Select';
 import * as Menu from '@base_ui/react/Menu';
-import classes from './VersionSelector.module.css';
+import classes from './DocsVersionSelector.module.css';
 
 export interface DocumentationVersion {
   version: string;
   url: string;
 }
 
-export interface VersionSelectorProps {
+export interface DocsVersionSelectorProps {
   versions: DocumentationVersion[];
   currentVersion: string;
 }
 
-export function VersionSelector(props: VersionSelectorProps) {
+export function DocsVersionSelector(props: DocsVersionSelectorProps) {
   const { versions, currentVersion } = props;
 
   return (

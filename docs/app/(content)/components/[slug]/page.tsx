@@ -1,18 +1,19 @@
 import * as React from 'react';
 import { Metadata } from 'next';
-import { components } from 'docs-base/src/modules/common/MDXComponents';
-import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/src/utils/getMarkdownPage';
-import { ComponentLinkHeader, Description } from 'docs-base/src/modules/components';
-import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
+import { components } from 'docs-base/src/components/content/MDXComponents';
+import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/app/(content)/getMarkdownPage';
+import { ComponentLinkHeader } from 'docs-base/src/components/content/ComponentLinkHeader';
+import { Description } from 'docs-base/src/components/content/Description';
+import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
-import { AppBar } from 'docs-base/src/modules/common/AppBar';
-import { Navigation } from 'docs-base/src/modules/common/Navigation';
+import { AppBar } from 'docs-base/src/components/AppBar';
+import { Navigation } from 'docs-base/src/components/Navigation';
 import {
   ApiReference,
   getApiReferenceTableOfContents,
-} from 'docs-base/src/modules/components/ApiReference';
-import { getApiReferenceData } from 'docs-base/src/utils/getApiReferenceData';
-import { DemoLoader, DemoLoaderProps } from 'docs-base/src/modules/components/DemoLoader';
+} from 'docs-base/src/components/ApiReference';
+import { DemoLoader, DemoLoaderProps } from 'docs-base/src/components/demo/DemoLoader';
+import { getApiReferenceData } from './getApiReferenceData';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'components';

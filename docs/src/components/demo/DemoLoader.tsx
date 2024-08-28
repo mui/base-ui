@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { loadDemo } from 'docs-base/src/utils/loadDemo';
+import { loadDemo } from './loadDemo';
 import { Demo } from './Demo';
 import classes from './DemoLoader.module.css';
 

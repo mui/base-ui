@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PackageManagerSnippet, Npm, Pnpm, Yarn } from '../common/PackageManagerSnippet';
+import { PackageManagerSnippet, Npm, Pnpm, Yarn } from './PackageManagerSnippet';
 
 export interface InstallationInstructionsProps {
   componentName: string;

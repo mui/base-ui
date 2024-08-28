@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, resolve } from 'node:path';
 import { codeToHtml } from 'shiki';
 import { config } from 'docs-base/config';
-import { DemoFile, DemoVariant } from '../blocks/Demo/types';
+import { DemoFile, DemoVariant } from 'docs-base/src/blocks/Demo';
 
 const COMPONENTS_BASE_PATH = 'data/components';
 

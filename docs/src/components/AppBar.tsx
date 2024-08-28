@@ -4,8 +4,8 @@ import { GitHubIcon } from 'docs-base/src/icons/GitHub';
 import { SettingsIcon } from 'docs-base/src/icons/Settings';
 import { IconButton } from 'docs-base/src/design-system/IconButton';
 import { IconLinkButton } from 'docs-base/src/design-system/IconLinkButton';
-import { VersionSelector } from './VersionSelector';
-import packageJson from '../../../../package.json';
+import { DocsVersionSelector } from './DocsVersionSelector';
+import packageJson from '../../../package.json';
 import classes from './AppBar.module.css';
 
 const currentVersion = packageJson.version;
@@ -27,7 +27,7 @@ export function AppBar() {
         <IconLinkButton useNextLink href="/" label="Base UI" size={3}>
           <BaseUIIcon />
         </IconLinkButton>
-        <VersionSelector currentVersion={currentVersion} versions={supportedVersions} />
+        <DocsVersionSelector currentVersion={currentVersion} versions={supportedVersions} />
       </div>
       <div className={classes.secondary}>
         <IconLinkButton

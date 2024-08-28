@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Metadata } from 'next';
-import { components } from 'docs-base/src/modules/common/MDXComponents';
-import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/src/utils/getMarkdownPage';
-import { TableOfContents } from 'docs-base/src/modules/common/TableOfContents';
+import { components } from 'docs-base/src/components/content/MDXComponents';
+import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/app/(content)/getMarkdownPage';
+import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
-import { AppBar } from 'docs-base/src/modules/common/AppBar';
-import { Navigation } from 'docs-base/src/modules/common/Navigation';
-import { Description } from 'docs-base/src/modules/components/Description';
+import { AppBar } from 'docs-base/src/components/AppBar';
+import { Navigation } from 'docs-base/src/components/Navigation';
+import { Description } from 'docs-base/src/components/content/Description';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'getting-started';
