@@ -8,3 +8,4 @@ export { SelectOptionIndicator } from './OptionIndicator/SelectOptionIndicator';
 export { SelectOptionGroup } from './OptionGroup/SelectOptionGroup';
 export { SelectOptionGroupLabel } from './OptionGroupLabel/SelectOptionGroupLabel';
 export { SelectValue } from './Value/SelectValue';
+export { SelectScrollArrow } from './ScrollArrow/SelectScrollArrow';

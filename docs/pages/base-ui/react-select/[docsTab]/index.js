@@ -11,6 +11,7 @@ import SelectOptionIndicatorApiJsonPageContent from '../../api/select-option-ind
 import SelectPopupApiJsonPageContent from '../../api/select-popup.json';
 import SelectPositionerApiJsonPageContent from '../../api/select-positioner.json';
 import SelectRootApiJsonPageContent from '../../api/select-root.json';
+import SelectScrollArrowApiJsonPageContent from '../../api/select-scroll-arrow.json';
 import SelectTriggerApiJsonPageContent from '../../api/select-trigger.json';
 import SelectValueApiJsonPageContent from '../../api/select-value.json';
 
@@ -89,6 +90,13 @@ export const getStaticProps = () => {
   );
   const SelectRootApiDescriptions = mapApiPageTranslations(SelectRootApiReq);
 
+  const SelectScrollArrowApiReq = require.context(
+    'docs-base/translations/api-docs/select-scroll-arrow',
+    false,
+    /\.\/select-scroll-arrow.*.json$/,
+  );
+  const SelectScrollArrowApiDescriptions = mapApiPageTranslations(SelectScrollArrowApiReq);
+
   const SelectTriggerApiReq = require.context(
     'docs-base/translations/api-docs/select-trigger',
     false,
@@ -114,6 +122,7 @@ export const getStaticProps = () => {
         SelectPopup: SelectPopupApiDescriptions,
         SelectPositioner: SelectPositionerApiDescriptions,
         SelectRoot: SelectRootApiDescriptions,
+        SelectScrollArrow: SelectScrollArrowApiDescriptions,
         SelectTrigger: SelectTriggerApiDescriptions,
         SelectValue: SelectValueApiDescriptions,
       },
@@ -126,6 +135,7 @@ export const getStaticProps = () => {
         SelectPopup: SelectPopupApiJsonPageContent,
         SelectPositioner: SelectPositionerApiJsonPageContent,
         SelectRoot: SelectRootApiJsonPageContent,
+        SelectScrollArrow: SelectScrollArrowApiJsonPageContent,
         SelectTrigger: SelectTriggerApiJsonPageContent,
         SelectValue: SelectValueApiJsonPageContent,
       },

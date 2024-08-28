@@ -46,6 +46,7 @@ interface UseAnchorPositioningParameters {
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
+  open?: boolean;
   trackAnchor?: boolean;
   nodeId?: string;
   inner?: Middleware;
@@ -63,6 +64,7 @@ interface UseAnchorPositioningReturnValue {
   hidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
   positionerContext: FloatingContext;
+  isPositioned: boolean;
 }
 
 /**
@@ -91,6 +93,7 @@ export function useAnchorPositioning(
     mounted = true,
     trackAnchor = true,
     allowAxisFlip = true,
+    open,
     nodeId,
     inner: innerMiddleware,
     innerFallback,
@@ -206,8 +209,10 @@ export function useAnchorPositioning(
     update,
     placement: renderedPlacement,
     context: positionerContext,
+    isPositioned,
   } = useFloating({
     rootContext: floatingRootContext,
+    open,
     placement,
     middleware,
     strategy: positionStrategy,
@@ -290,6 +295,7 @@ export function useAnchorPositioning(
       hidden,
       refs,
       positionerContext,
+      isPositioned,
     }),
     [
       positionerStyles,
@@ -301,6 +307,7 @@ export function useAnchorPositioning(
       hidden,
       refs,
       positionerContext,
+      isPositioned,
     ],
   );
 }

@@ -134,10 +134,14 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       });
 
       ReactDOM.flushSync(() => {
-        setInnerOffset(0);
-        setInnerFallback(false);
         setMounted(false);
       });
+
+      // Ensure these aren't flushed synchronously so they occur after the popup has been unmounted.
+      // This ensures the position calculation won't run again (which otherwise leaves
+      // `isPositioned` set to `true` incorrectly once closed).
+      setInnerOffset(0);
+      setInnerFallback(false);
     }
 
     if (!nextOpen) {
@@ -253,6 +257,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       selectionRef,
       overflowRef,
       innerOffset,
+      setInnerOffset,
       innerFallback,
       setInnerFallback,
       touchModality,
@@ -361,6 +366,7 @@ export namespace useSelectRoot {
       select: boolean;
     }>;
     innerOffset: number;
+    setInnerOffset: React.Dispatch<React.SetStateAction<number>>;
     overflowRef: React.MutableRefObject<SideObject>;
     backdropRef: React.RefObject<HTMLElement>;
     innerFallback: boolean;

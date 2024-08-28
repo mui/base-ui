@@ -31,6 +31,7 @@ export function useSelectPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext: floatingContext,
+    isPositioned,
   } = useAnchorPositioning({
     ...params,
     trackAnchor: !(params.inner && !params.innerFallback),
@@ -67,6 +68,7 @@ export function useSelectPositioner(
       side: renderedSide,
       alignment: renderedAlignment,
       floatingContext,
+      isPositioned,
     }),
     [
       getPositionerProps,
@@ -76,6 +78,7 @@ export function useSelectPositioner(
       renderedSide,
       renderedAlignment,
       floatingContext,
+      isPositioned,
     ],
   );
 }
@@ -220,5 +223,9 @@ export namespace useSelectPositioner {
      * The floating context.
      */
     floatingContext: FloatingContext;
+    /**
+     * Whether the Select popup has been positioned.
+     */
+    isPositioned: boolean;
   }
 }

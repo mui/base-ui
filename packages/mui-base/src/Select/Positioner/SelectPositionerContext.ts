@@ -14,6 +14,7 @@ export interface SelectPositionerContext {
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
+  isPositioned: boolean;
 }
 
 export const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);

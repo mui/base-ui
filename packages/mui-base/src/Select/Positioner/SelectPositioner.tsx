@@ -178,6 +178,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
+      isPositioned: positioner.isPositioned,
       side: positioner.side,
       alignment: positioner.alignment,
       arrowRef: positioner.arrowRef,
@@ -186,6 +187,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       floatingContext: positioner.floatingContext,
     }),
     [
+      positioner.isPositioned,
       positioner.side,
       positioner.alignment,
       positioner.arrowRef,
