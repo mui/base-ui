@@ -3,7 +3,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  padding-top: 64px;
+  padding-bottom: 64px;
   border: 1px solid var(--gray-outline-2);
   border-radius: 12px 12px 0 0;
 
