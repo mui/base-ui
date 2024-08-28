@@ -32,7 +32,13 @@ function getAvailableVariants(demoVariants: DemoVariant[]) {
   return variantsMap;
 }
 
-export function DemoVariantSelector(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
+export interface DemoVariantSelectorProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  showLanguageSelector?: boolean;
+}
+
+export function DemoVariantSelector(props: DemoVariantSelectorProps) {
+  const { showLanguageSelector = true, ...other } = props;
+
   const demoContext = React.useContext(DemoContext);
   if (!demoContext) {
     throw new Error('Missing DemoContext');
@@ -64,11 +70,11 @@ export function DemoVariantSelector(props: React.HtmlHTMLAttributes<HTMLDivEleme
   );
 
   const renderVariantSelector = Object.keys(variantsMap).length > 1;
-  const renderLanguageSelector = variantLanguages.length > 1;
+  const renderLanguageSelector = variantLanguages.length > 1 && showLanguageSelector;
   const renderSeparator = renderVariantSelector && renderLanguageSelector;
 
   return (
-    <div {...props} className={classes.root}>
+    <div {...other} className={classes.root}>
       {renderVariantSelector && (
         <select
           value={selectedVariant.name}
@@ -86,7 +92,7 @@ export function DemoVariantSelector(props: React.HtmlHTMLAttributes<HTMLDivEleme
 
       {renderSeparator && <span role="separator" className={classes.separator} />}
 
-      {renderVariantSelector && (
+      {renderLanguageSelector && (
         <ToggleButtonGroup
           className={classes.languages}
           options={variantLanguages}

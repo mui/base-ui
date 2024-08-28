@@ -1,12 +1,15 @@
 'use client';
 
 import * as React from 'react';
+import clsx from 'clsx';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { CopyIcon } from 'docs-base/src/icons/Copy';
 import { ResetIcon } from 'docs-base/src/icons/Reset';
 import { ResetFocusIcon } from 'docs-base/src/icons/ResetFocus';
+import { ChevronDownIcon } from 'docs-base/src/icons/ChevronDown';
 import { IconButton } from 'docs-base/src/design-system/IconButton';
+import { Button } from 'docs-base/src/design-system/Button';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
@@ -17,14 +20,17 @@ export interface DemoProps {
   componentName: string;
   demoName: string;
   variants: BaseDemo.DemoVariant[];
+  defaultCodeOpen?: boolean;
 }
 
 export function Demo(props: DemoProps) {
-  const { componentName, demoName, variants: demoVariants } = props;
+  const { componentName, demoName, variants: demoVariants, defaultCodeOpen = true } = props;
 
   const playgroundRef = React.useRef<HTMLDivElement>(null);
 
   const [key, setKey] = React.useState(0);
+
+  const [codeOpen, setCodeOpen] = React.useState(defaultCodeOpen);
 
   const resetFocus = React.useCallback(() => {
     const playground = playgroundRef.current;
@@ -47,7 +53,10 @@ export function Demo(props: DemoProps) {
   const description = `Base UI ${componentName} ${demoName} demo`;
 
   return (
-    <BaseDemo.Root variants={demoVariants} className={classes.root}>
+    <BaseDemo.Root
+      variants={demoVariants}
+      className={clsx(classes.root, codeOpen ? classes.codeOpen : classes.codeClosed)}
+    >
       <ErrorBoundary FallbackComponent={DemoErrorFallback}>
         <BaseDemo.Playground
           className={classes.playground}
@@ -59,8 +68,16 @@ export function Demo(props: DemoProps) {
       </ErrorBoundary>
 
       <div className={classes.toolbar}>
-        <DemoVariantSelector />
+        <DemoVariantSelector showLanguageSelector={codeOpen} />
         <div className={classes.buttons}>
+          <Button
+            onClick={() => setCodeOpen((prev) => !prev)}
+            className={classes.toggleCodeVisibility}
+          >
+            {codeOpen ? 'Hide' : 'Show'} code
+            <ChevronDownIcon />
+          </Button>
+
           <BaseDemo.SourceCopy
             render={<IconButton label="Copy source code" size={2} withTooltip />}
           >
@@ -84,7 +101,7 @@ export function Demo(props: DemoProps) {
         </div>
       </div>
 
-      <DemoFileSelector />
+      <DemoFileSelector className={classes.fileTabs} />
 
       <div className={classes.source}>
         <BaseDemo.SourceBrowser className={classes.scrollArea} />

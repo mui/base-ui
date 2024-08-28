@@ -36,12 +36,40 @@
 }
 
 .scrollArea {
-  max-height: 300px;
+  transition:
+    max-height 0.2s,
+    overflow 0 0.2s;
+  max-height: 600px;
   overflow-y: scroll;
+
+  .codeClosed & {
+    transition: max-height 0.2s;
+    max-height: 0;
+    overflow: hidden;
+  }
 }
 
 .buttons {
   display: flex;
   align-items: end;
   gap: 4px;
+}
+
+.toggleCodeVisibility {
+  min-width: 18ex;
+  padding-left: 21px;
+
+  & svg {
+    transition: rotate 0.2s;
+
+    .codeOpen & {
+      rotate: 180deg;
+    }
+  }
+}
+
+.fileTabs {
+  .codeClosed & {
+    display: none;
+  }
 }
