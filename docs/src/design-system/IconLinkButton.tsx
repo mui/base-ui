@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { type UrlObject } from 'url';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { type UrlObject } from 'url';
-import classes from './IconButton.module.css';
 import { Tooltip } from './Tooltip';
+import classes from './IconButton.module.css';
 
 export function IconLinkButton(props: IconLinkButton.Props) {
   const { size = 1, useNextLink, label, withTooltip, ...other } = props;

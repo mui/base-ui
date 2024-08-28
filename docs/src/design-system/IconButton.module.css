@@ -12,6 +12,7 @@
   justify-content: center;
   border-radius: var(--br-circle);
   color: var(--gray-text-1);
+  position: relative;
 
   @media screen and (hover: hover) {
     &:hover {

@@ -14,6 +14,7 @@ import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import { DemoErrorFallback } from './DemoErrorFallback';
+import { GitHubLink } from './GitHubLink';
 import classes from './Demo.module.css';
 
 export interface DemoProps {
@@ -98,6 +99,8 @@ export function Demo(props: DemoProps) {
           </IconButton>
 
           <CodeSandboxLink title={title} description={description} />
+
+          <GitHubLink />
         </div>
       </div>
 
