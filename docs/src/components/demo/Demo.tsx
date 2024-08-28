@@ -16,6 +16,7 @@ import { CodeSandboxLink } from './CodeSandboxLink';
 import { DemoErrorFallback } from './DemoErrorFallback';
 import { GitHubLink } from './GitHubLink';
 import classes from './Demo.module.css';
+import { StackBlitzLink } from './StackBlitzLink';
 
 export interface DemoProps {
   componentName: string;
@@ -99,6 +100,8 @@ export function Demo(props: DemoProps) {
           </IconButton>
 
           <CodeSandboxLink title={title} description={description} />
+
+          <StackBlitzLink title={title} description={description} />
 
           <GitHubLink />
         </div>
