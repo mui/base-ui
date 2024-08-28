@@ -10,6 +10,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-1);
   padding-left: var(--space-3);
   padding-right: var(--space-3);
   border-radius: 6px;
