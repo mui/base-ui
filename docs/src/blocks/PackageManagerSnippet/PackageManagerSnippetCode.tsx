@@ -1,21 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { PackageManagerSnippetContext } from './PackageManagerSnippetContext';
+import * as Tabs from '@base_ui/react/Tabs';
 
 export function PackageManagerSnippetCode(props: PackageManagerSnippetCode.Props) {
   const { value, children } = props;
 
-  const context = React.useContext(PackageManagerSnippetContext);
-  if (context == null) {
-    throw new Error('PackageManagerSnippet.Code must be used within a PackageManagerSnippet.Root');
-  }
-
-  if (context.value !== value) {
-    return null;
-  }
-
-  return children;
+  return <Tabs.Panel value={value}>{children}</Tabs.Panel>;
 }
 
 export namespace PackageManagerSnippetCode {

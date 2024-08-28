@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { ToggleButtonGroup } from 'docs-base/src/design-system/ToggleButtonGroup';
 import * as BasePackageManagerSnippet from '../../blocks/PackageManagerSnippet';
 import classes from './PackageManagerSnippet.module.css';
 
@@ -38,15 +37,18 @@ export function PackageManagerSnippet(props: PackageManagerSnippetProps) {
 
   return (
     <div className={classes.root}>
-      <div className={classes.selectorArea}>
-        <ToggleButtonGroup
-          options={packageManagers}
-          value={value}
-          onValueChange={(v) => setValue(v.value)}
-          aria-label="Package manager selector"
-        />
-      </div>
-      <BasePackageManagerSnippet.Root value={value} onValueChange={setValue}>
+      <BasePackageManagerSnippet.Root
+        value={value}
+        onValueChange={setValue}
+        options={packageManagers}
+        // eslint-disable-next-line jsx-a11y/control-has-associated-label, react/button-has-type
+        renderTab={<button className={classes.tab} />}
+        renderTabsList={(tabsListProps) => (
+          <div className={classes.header}>
+            <div {...tabsListProps} className={classes.tabsList} />
+          </div>
+        )}
+      >
         {props.children}
       </BasePackageManagerSnippet.Root>
     </div>
