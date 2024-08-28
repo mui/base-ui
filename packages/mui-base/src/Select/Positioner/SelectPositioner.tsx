@@ -144,14 +144,14 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     allowAxisFlip: false,
     innerFallback,
     inner:
-      alignToItem && selectedIndex !== null
+      alignToItem && selectedIndexOnMount !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({
             boundary: collisionBoundary,
             padding: collisionPadding,
             listRef: elementsRef,
-            index: selectedIndexOnMount ?? 0,
+            index: selectedIndexOnMount,
             scrollRef: popupRef,
             offset: innerOffset,
             onFallbackChange(fallbackValue) {
@@ -160,7 +160,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
                 popupRef.current.style.maxHeight = '';
               }
             },
-            minItemsVisible: touchModality ? 6 : 4,
+            minItemsVisible: touchModality ? 8 : 4,
             referenceOverflowThreshold: 20,
             overflowRef,
           })

@@ -119,20 +119,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
 
-    const scrollTop = popupRef.current?.scrollTop ?? 0;
-
     function handleUnmounted() {
-      // Workaround issue where the `.scrollTop` by the `inner` middleware is incorrectly changed
-      // when a new option has been selected and the scroll was changed. Only visible if the popup
-      // is animating out.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (popupRef.current) {
-            popupRef.current.scrollTop = scrollTop;
-          }
-        });
-      });
-
       ReactDOM.flushSync(() => {
         setMounted(false);
       });
