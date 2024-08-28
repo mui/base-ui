@@ -87,10 +87,4 @@
   &:focus {
     background-color: hsl(0deg 0% 0% / 5%);
   }
-
-  @media screen and (hover: hover) {
-    &:hover {
-      background-color: hsl(0deg 0% 0% / 5%);
-    }
-  }
 }
