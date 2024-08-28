@@ -41,6 +41,18 @@ module.exports = [
     title: 'ClickAwayListener',
   },
   {
+    pathname: '/base-ui/react-collapsible/components-api/#collapsible-content',
+    title: 'CollapsibleContent',
+  },
+  {
+    pathname: '/base-ui/react-collapsible/components-api/#collapsible-root',
+    title: 'CollapsibleRoot',
+  },
+  {
+    pathname: '/base-ui/react-collapsible/components-api/#collapsible-trigger',
+    title: 'CollapsibleTrigger',
+  },
+  {
     pathname: '/base-ui/react-dialog/components-api/#dialog-backdrop',
     title: 'DialogBackdrop',
   },
@@ -317,6 +329,18 @@ module.exports = [
   {
     pathname: '/base-ui/react-checkbox/hooks-api/#use-checkbox-root',
     title: 'useCheckboxRoot',
+  },
+  {
+    pathname: '/base-ui/react-collapsible/hooks-api/#use-collapsible-content',
+    title: 'useCollapsibleContent',
+  },
+  {
+    pathname: '/base-ui/react-collapsible/hooks-api/#use-collapsible-root',
+    title: 'useCollapsibleRoot',
+  },
+  {
+    pathname: '/base-ui/react-collapsible/hooks-api/#use-collapsible-trigger',
+    title: 'useCollapsibleTrigger',
   },
   {
     pathname: '/base-ui/react-dialog/hooks-api/#use-dialog-close',

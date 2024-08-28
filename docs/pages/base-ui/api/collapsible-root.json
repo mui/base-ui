@@ -1,0 +1,24 @@
+{
+  "props": {
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "true" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "CollapsibleRoot",
+  "imports": [
+    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleRoot = Collapsible.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "CollapsibleRoot",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Collapsible/Root/CollapsibleRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-collapsible/\">Collapsible</a></li></ul>",
+  "cssComponent": false
+}
