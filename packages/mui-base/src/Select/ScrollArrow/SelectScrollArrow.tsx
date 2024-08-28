@@ -150,6 +150,15 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   return renderElement();
 });
 
+namespace SelectScrollArrow {
+  export interface OwnerState {
+    direction: 'up' | 'down';
+  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    direction: 'up' | 'down';
+  }
+}
+
 SelectScrollArrow.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -172,14 +181,5 @@ SelectScrollArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace SelectScrollArrow {
-  export interface OwnerState {
-    direction: 'up' | 'down';
-  }
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    direction: 'up' | 'down';
-  }
-}
 
 export { SelectScrollArrow };
