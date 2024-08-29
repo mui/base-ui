@@ -3,6 +3,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { DemoContext } from 'docs-base/src/blocks/Demo';
+import * as Tabs from '@base_ui/react/Tabs';
 import classes from './DemoFileSelector.module.css';
 
 export interface DemoFileSelectorProps {
@@ -28,19 +29,14 @@ export function DemoFileSelector(props: DemoFileSelectorProps) {
   }
 
   return (
-    <div className={clsx(className, classes.root)} aria-label="File selector">
-      {files.map((file) => (
-        <button
-          type="button"
-          key={file.path}
-          onClick={() => selectFile(file)}
-          className={classes.tab}
-          data-selected={file === selectedFile}
-          aria-pressed={file === selectedFile || undefined}
-        >
-          {file.name}
-        </button>
-      ))}
-    </div>
+    <Tabs.Root value={selectedFile} onValueChange={selectFile}>
+      <Tabs.List className={clsx(className, classes.root)} aria-label="File selector">
+        {files.map((file) => (
+          <Tabs.Tab value={file} key={file.path} className={classes.tab}>
+            {file.name}
+          </Tabs.Tab>
+        ))}
+      </Tabs.List>
+    </Tabs.Root>
   );
 }
