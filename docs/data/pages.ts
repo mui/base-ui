@@ -24,6 +24,7 @@ const pages: readonly RouteMetadata[] = [
     children: [
       { pathname: '/components/react-alert-dialog', title: 'Alert Dialog' },
       { pathname: '/components/react-checkbox', title: 'Checkbox' },
+      { pathname: '/components/react-collapsible', title: 'Collapsible' },
       { pathname: '/components/react-dialog', title: 'Dialog' },
       { pathname: '/components/react-field', title: 'Field' },
       { pathname: '/components/react-fieldset', title: 'Fieldset' },
