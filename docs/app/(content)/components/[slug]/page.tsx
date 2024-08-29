@@ -8,6 +8,7 @@ import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/components/AppBar';
 import { Navigation } from 'docs-base/src/components/Navigation';
+import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
 import {
   ApiReference,
   getApiReferenceTableOfContents,
@@ -70,6 +71,7 @@ export default async function ComponentPage(props: Props) {
       </main>
 
       <TableOfContents toc={tableOfContents} renderDepth={3} />
+      <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
     </React.Fragment>
   );
 }

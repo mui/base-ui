@@ -7,6 +7,7 @@ import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/components/AppBar';
 import { Navigation } from 'docs-base/src/components/Navigation';
 import { Description } from 'docs-base/src/components/content/Description';
+import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'guides';
@@ -40,6 +41,7 @@ export default async function DocsPage(props: Props) {
       </main>
 
       <TableOfContents toc={tableOfContents} />
+      <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
     </React.Fragment>
   );
 }
