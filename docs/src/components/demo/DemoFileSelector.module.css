@@ -1,8 +1,6 @@
 .root {
   background: var(--gray-surface-1);
-  border: 1px var(--gray-outline-2);
-  border-style: solid solid none solid;
-  border-top-color: var(--gray-outline-1);
+  border-top: 1px solid var(--gray-outline-1);
   display: flex;
   gap: var(--space-1);
   padding: var(--space-1);
