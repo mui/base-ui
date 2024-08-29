@@ -118,6 +118,11 @@
       "matchPackagePatterns": ["@definitelytyped/*"]
     },
     {
+      "groupName": "remark - incompatible versions",
+      "matchPackageNames": ["remark"],
+      "allowedVersions": "< 14.0.0"
+    },
+    {
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai"],
       "allowedVersions": "< 5.0.0"
