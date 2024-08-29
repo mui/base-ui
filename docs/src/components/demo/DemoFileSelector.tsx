@@ -18,10 +18,9 @@ export function DemoFileSelector(props: DemoFileSelectorProps) {
   }
 
   const {
-    state: {
-      selectedVariant: { files },
-    },
+    selectedVariant: { files },
     selectFile,
+    selectedFile,
   } = demoContext;
 
   if (files.length < 2) {
@@ -36,8 +35,8 @@ export function DemoFileSelector(props: DemoFileSelectorProps) {
           key={file.path}
           onClick={() => selectFile(file)}
           className={classes.tab}
-          data-selected={file === demoContext.state.selectedFile}
-          aria-pressed={file === demoContext.state.selectedFile || undefined}
+          data-selected={file === selectedFile}
+          aria-pressed={file === selectedFile || undefined}
         >
           {file.name}
         </button>

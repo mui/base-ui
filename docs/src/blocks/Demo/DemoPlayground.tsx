@@ -12,9 +12,7 @@ const DemoPlayground = React.forwardRef(function DemoPlayground(
     throw new Error('Demo.Playground must be used within a Demo.Root');
   }
 
-  const {
-    state: { selectedVariant },
-  } = demoContext;
+  const { selectedVariant } = demoContext;
 
   const { component: DemoComponent } = selectedVariant;
 

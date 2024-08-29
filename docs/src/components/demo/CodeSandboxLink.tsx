@@ -33,10 +33,8 @@ export function CodeSandboxLink(props: CodeSandboxLinkProps) {
   const { className, title, description } = props;
 
   const {
-    state: { selectedVariant },
+    selectedVariant: { files, language, name },
   } = useDemoContext();
-
-  const { files, language, name } = selectedVariant;
 
   const handleClick = React.useCallback(() => {
     let additionalHtmlHeadContent: string | undefined;

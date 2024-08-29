@@ -22,11 +22,9 @@ export function DemoRoot(props: DemoRoot.Props) {
   const contextValue: DemoContext = React.useMemo(
     () => ({
       variants,
-      state: {
-        selectedVariant,
-        codeDisplay,
-        selectedFile,
-      },
+      selectedVariant,
+      codeDisplay,
+      selectedFile,
       selectVariant,
       selectFile,
       setCodeDisplay,

@@ -4,9 +4,7 @@ import { IconLinkButton } from 'docs-base/src/design-system/IconLinkButton';
 import { GitHubIcon } from 'docs-base/src/icons/GitHub';
 
 export function GitHubLink() {
-  const {
-    state: { selectedFile },
-  } = useDemoContext();
+  const { selectedFile } = useDemoContext();
 
   if (!selectedFile) {
     return null;

@@ -9,9 +9,7 @@ export function DemoSourceBrowser(props: React.HTMLAttributes<HTMLDivElement>) {
     throw new Error('Demo.Playground must be used within a Demo.Root');
   }
 
-  const {
-    state: { selectedFile },
-  } = demoContext;
+  const { selectedFile } = demoContext;
 
   if (selectedFile.prettyContent != null) {
     // eslint-disable-next-line react/no-danger

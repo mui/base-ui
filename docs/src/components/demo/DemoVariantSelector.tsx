@@ -44,11 +44,7 @@ export function DemoVariantSelector(props: DemoVariantSelectorProps) {
     throw new Error('Missing DemoContext');
   }
 
-  const {
-    variants,
-    selectVariant,
-    state: { selectedVariant },
-  } = demoContext;
+  const { variants, selectVariant, selectedVariant } = demoContext;
 
   const variantsMap = React.useMemo(() => getAvailableVariants(variants), [variants]);
 

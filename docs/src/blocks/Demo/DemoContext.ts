@@ -5,21 +5,17 @@ import { DemoFile, DemoVariant } from './types';
 
 export type CodeDisplay = 'collapsed' | 'expanded' | 'preview';
 
-export interface DemoState {
-  selectedVariant: DemoVariant;
-  selectedFile: DemoFile;
-  codeDisplay: CodeDisplay;
-}
-
 export interface DemoContext {
-  variants: DemoVariant[];
-  state: DemoState;
-  setCodeDisplay: (codeDisplay: CodeDisplay) => void;
-  selectVariant: (variant: DemoVariant) => void;
-  selectFile: (file: DemoFile) => void;
+  codeDisplay: CodeDisplay;
   copySource: () => void;
   reset: () => void;
   resetFocus: () => void;
+  selectedFile: DemoFile;
+  selectedVariant: DemoVariant;
+  selectFile: (file: DemoFile) => void;
+  selectVariant: (variant: DemoVariant) => void;
+  setCodeDisplay: (codeDisplay: CodeDisplay) => void;
+  variants: DemoVariant[];
 }
 
 const DemoContext = React.createContext<DemoContext | undefined>(undefined);

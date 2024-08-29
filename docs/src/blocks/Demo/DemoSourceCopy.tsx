@@ -8,9 +8,7 @@ export const DemoSourceCopy = React.forwardRef<HTMLButtonElement, DemoSourceCopy
   function DemoSource(props, forwardedRef) {
     const { onCopied, onError, onClick, render, ...other } = props;
 
-    const {
-      state: { selectedFile },
-    } = useDemoContext();
+    const { selectedFile } = useDemoContext();
 
     const handleClick = React.useCallback(
       async (event: React.MouseEvent<HTMLButtonElement>) => {
