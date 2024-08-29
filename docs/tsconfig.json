@@ -4,6 +4,7 @@
     "app",
     "data",
     "pages",
+    "scripts/*.mts",
     "src",
     "types",
     "next-env.d.ts",
@@ -26,6 +27,7 @@
     "composite": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "next"
