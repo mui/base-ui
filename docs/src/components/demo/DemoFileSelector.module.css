@@ -45,7 +45,7 @@
   }
 
   @media (hover: hover) {
-    &[data-selected='false']:hover {
+    &:not([data-selected='true']):hover {
       background-color: var(--gray-container-3);
     }
   }
