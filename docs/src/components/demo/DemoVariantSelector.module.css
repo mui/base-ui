@@ -33,6 +33,19 @@
   padding-left: var(--space-3);
   padding-right: var(--space-6);
   font-size: var(--fs-3);
+
+  &:focus-visible {
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: black;
+    outline-offset: 2px;
+  }
+
+  @media screen and (hover: hover) {
+    &:hover {
+      border-color: hsl(0deg 0% 0% / 13%);
+    }
+  }
 }
 
 .separator {

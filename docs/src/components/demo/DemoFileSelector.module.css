@@ -39,6 +39,13 @@
     border: 1px solid hsl(0deg 0% 0% / 5%);
   }
 
+  &:focus-visible {
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: black;
+    outline-offset: 2px;
+  }
+
   @media (hover: hover) {
     &[data-selected='false']:hover {
       background-color: var(--gray-container-3);

@@ -15,8 +15,8 @@ import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import { DemoErrorFallback } from './DemoErrorFallback';
 import { GitHubLink } from './GitHubLink';
-import classes from './Demo.module.css';
 import { StackBlitzLink } from './StackBlitzLink';
+import classes from './Demo.module.css';
 
 export interface DemoProps {
   componentName: string;
