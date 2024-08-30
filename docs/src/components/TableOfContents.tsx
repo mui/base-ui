@@ -16,14 +16,13 @@ function renderTocEntry(entry: TocEntry, renderDepth: number, skipFirstLevel: bo
   return (
     <React.Fragment key={entry.id}>
       {entry.depth === 1 && skipFirstLevel ? null : (
-        <div
+        <a
+          href={`#${entry.id}`}
           style={{ '--indent-level': entry.depth - 2 } as React.CSSProperties}
-          className={classes.item}
+          className={classes.link}
         >
-          <a href={`#${entry.id}`} className="Text size-3 Link color-gray">
-            {entry.value}
-          </a>
-        </div>
+          {entry.value}
+        </a>
       )}
       {entry.children?.map((child) => renderTocEntry(child, renderDepth, skipFirstLevel))}
     </React.Fragment>
@@ -35,9 +34,7 @@ export function TableOfContents(props: Props) {
 
   return (
     <div className={classes.root}>
-      <div className="d-f ai-center h-7 mb-2">
-        <h4 className="Text size-3 weight-2">Contents</h4>
-      </div>
+      <h4 className={classes.sectionTitle}>Contents</h4>
       <nav>{toc.map((item) => renderTocEntry(item, renderDepth, skipFirstLevel))}</nav>
     </div>
   );
