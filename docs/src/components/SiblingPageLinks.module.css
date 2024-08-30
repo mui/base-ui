@@ -27,7 +27,6 @@
   display: flex;
   padding: var(--space-3);
   border-radius: 6px;
-  height: var(--space-7);
   align-items: center;
   font-family: var(--ff-sans);
   font-size: var(--fs-3);
@@ -35,6 +34,7 @@
   color: var(--gray-text-2);
   min-width: 200px;
   height: auto;
+  position: relative;
 
   @media screen and (hover: hover) {
     &:hover {

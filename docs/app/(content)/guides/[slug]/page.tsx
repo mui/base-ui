@@ -8,6 +8,7 @@ import { AppBar } from 'docs-base/src/components/AppBar';
 import { Navigation } from 'docs-base/src/components/Navigation';
 import { Description } from 'docs-base/src/components/content/Description';
 import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
+import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithhubLink';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'guides';
@@ -38,10 +39,17 @@ export default async function DocsPage(props: Props) {
       <Navigation routes={routes} />
       <main className={classes.content}>
         <MDXContent components={allComponents} />
+        <div>
+          <div className={classes.editLink}>
+            <EditPageGithubLink category={CATEGORY_SEGMENT} slug={slug} />
+          </div>
+          <div>
+            <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
+          </div>
+        </div>
       </main>
 
       <TableOfContents toc={tableOfContents} />
-      <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
     </React.Fragment>
   );
 }

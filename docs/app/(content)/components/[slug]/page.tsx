@@ -9,6 +9,7 @@ import routes, { getSlugs } from 'docs-base/data/pages';
 import { AppBar } from 'docs-base/src/components/AppBar';
 import { Navigation } from 'docs-base/src/components/Navigation';
 import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
+import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithhubLink';
 import {
   ApiReference,
   getApiReferenceTableOfContents,
@@ -68,10 +69,17 @@ export default async function ComponentPage(props: Props) {
       <main className={classes.content}>
         <MDXContent components={{ ...allComponents }} />
         <ApiReference componentsApi={componentsApi} />
+        <div>
+          <div className={classes.editLink}>
+            <EditPageGithubLink category={CATEGORY_SEGMENT} slug={componentName} />
+          </div>
+          <div>
+            <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
+          </div>
+        </div>
       </main>
 
       <TableOfContents toc={tableOfContents} renderDepth={3} />
-      <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
     </React.Fragment>
   );
 }

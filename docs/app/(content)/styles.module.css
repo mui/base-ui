@@ -199,3 +199,8 @@
     }
   }
 }
+
+.editLink {
+  padding-top: var(--space-9);
+  padding-bottom: var(--space-9);
+}
