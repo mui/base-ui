@@ -18,7 +18,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, keepMounted = true, ...otherProps } = props;
 
   const ownerState = useRadioRootContext();
 
@@ -31,11 +31,22 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
     customStyleHookMapping,
   });
 
+  const shouldRender = keepMounted || ownerState.checked;
+  if (!shouldRender) {
+    return null;
+  }
+
   return renderElement();
 });
 
 namespace RadioIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+    /**
+     * Whether the component should be kept mounted when not checked.
+     * @default true
+     */
+    keepMounted?: boolean;
+  }
 
   export interface OwnerState {
     checked: boolean;
@@ -55,6 +66,11 @@ RadioIndicator.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Whether the component should be kept mounted when not checked.
+   * @default true
+   */
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
