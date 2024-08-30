@@ -17,7 +17,13 @@ import type { GenericHTMLProps } from '../../utils/types';
 export function useCheckboxGroupRoot(
   params: UseCheckboxGroupRoot.Parameters,
 ): UseCheckboxGroupRoot.ReturnValue {
-  const { allValues, value: externalValue, defaultValue, onValueChange } = params;
+  const {
+    allValues,
+    value: externalValue,
+    defaultValue,
+    onValueChange,
+    preserveChildStates,
+  } = params;
 
   const { labelId } = useFieldRootContext();
 
@@ -37,6 +43,7 @@ export function useCheckboxGroupRoot(
     allValues,
     value: externalValue,
     onValueChange,
+    preserveChildStates,
   });
 
   const getRootProps = React.useCallback(
@@ -65,7 +72,9 @@ namespace UseCheckboxGroupRoot {
     defaultValue?: string[];
     onValueChange?: (value: string[], event: Event) => void;
     allValues?: string[];
+    preserveChildStates?: boolean;
   }
+
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     value: string[];

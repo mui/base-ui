@@ -1,7 +1,13 @@
 {
   "props": {
+    "allValues": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "defaultValue": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "onValueChange": { "type": { "name": "func" } },
+    "preserveChildStates": { "type": { "name": "bool" }, "default": "true" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } }
   },
   "name": "CheckboxGroupRoot",
   "imports": [

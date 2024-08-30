@@ -6,6 +6,7 @@ import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
 import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 /**
  * The foundation for building custom-styled checkbox groups.
@@ -30,18 +31,20 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     onValueChange,
     allValues,
     disabled: disabledProp = false,
+    preserveChildStates = true,
     ...otherProps
   } = props;
 
   const { disabled: fieldDisabled, ownerState: fieldOwnerState } = useFieldRootContext();
 
-  const disabled = disabledProp || fieldDisabled;
+  const disabled = fieldDisabled || disabledProp;
 
   const { getRootProps, value, setValue, parent } = useCheckboxGroupRoot({
     value: externalValue,
     allValues,
     defaultValue,
     onValueChange,
+    preserveChildStates: preserveChildStates,
   });
 
   const ownerState = React.useMemo(
@@ -79,13 +82,38 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
 });
 
 namespace CheckboxGroupRoot {
-  export interface OwnerState {}
+  export interface OwnerState extends FieldRootOwnerState {
+    disabled: boolean;
+  }
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The currently checked values of the checkbox group. Use when controlled.
+     */
     value?: string[];
+    /**
+     * The default checked values of the checkbox group. Use when uncontrolled.
+     */
     defaultValue?: string[];
+    /**
+     * A callback function that is called when the value of the checkbox group changes.
+     * Use when controlled.
+     */
     onValueChange?: (value: string[], event: Event) => void;
+    /**
+     * All values of the checkboxes in the group.
+     */
     allValues?: string[];
+    /**
+     * Whether the checkbox group is disabled.
+     * @default false
+     */
     disabled?: boolean;
+    /**
+     * Whether the parent checkbox should preserve its child states when checked/unchecked, leading
+     * to a tri-state checkbox group.
+     * @default true
+     */
+    preserveChildStates?: boolean;
   }
 }
 
@@ -95,7 +123,7 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * @ignore
+   * All values of the checkboxes in the group.
    */
   allValues: PropTypes.arrayOf(PropTypes.string),
   /**
@@ -107,23 +135,31 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * The default checked values of the checkbox group. Use when uncontrolled.
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
-   * @ignore
+   * Whether the checkbox group is disabled.
+   * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * @ignore
+   * A callback function that is called when the value of the checkbox group changes.
+   * Use when controlled.
    */
   onValueChange: PropTypes.func,
+  /**
+   * Whether the parent checkbox should preserve its child states when checked/unchecked, leading
+   * to a tri-state checkbox group.
+   * @default true
+   */
+  preserveChildStates: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * @ignore
+   * The currently checked values of the checkbox group. Use when controlled.
    */
   value: PropTypes.arrayOf(PropTypes.string),
 } as any;

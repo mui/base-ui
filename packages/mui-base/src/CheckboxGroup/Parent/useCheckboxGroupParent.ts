@@ -11,7 +11,12 @@ import { useEventCallback } from '../../utils/useEventCallback';
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParent.Parameters,
 ): UseCheckboxGroupParent.ReturnValue {
-  const { allValues = [], value = [], onValueChange: onValueChangeProp = () => {} } = params;
+  const {
+    allValues = [],
+    value = [],
+    onValueChange: onValueChangeProp = () => {},
+    preserveChildStates = true,
+  } = params;
 
   const uncontrolledStateRef = React.useRef(value);
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
@@ -42,19 +47,36 @@ export function useCheckboxGroupParent(
           return;
         }
 
-        if (status === 'mixed') {
-          onValueChange(allValues, event);
-          setStatus('on');
-        } else if (status === 'on') {
+        if (preserveChildStates) {
+          if (status === 'mixed') {
+            onValueChange(allValues, event);
+            setStatus('on');
+          } else if (status === 'on') {
+            onValueChange([], event);
+            setStatus('off');
+          } else if (status === 'off') {
+            onValueChange(uncontrolledState, event);
+            setStatus('mixed');
+          }
+        } else if (checked) {
           onValueChange([], event);
           setStatus('off');
-        } else if (status === 'off') {
-          onValueChange(uncontrolledState, event);
-          setStatus('mixed');
+        } else {
+          onValueChange(allValues, event);
+          setStatus('on');
         }
       },
     }),
-    [allValues, checked, id, indeterminate, onValueChange, status, value.length],
+    [
+      allValues,
+      checked,
+      id,
+      indeterminate,
+      onValueChange,
+      preserveChildStates,
+      status,
+      value.length,
+    ],
   );
 
   const getChildProps: UseCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
@@ -93,7 +115,9 @@ export namespace UseCheckboxGroupParent {
     allValues?: string[];
     value?: string[];
     onValueChange?: (value: string[], event: Event) => void;
+    preserveChildStates?: boolean;
   }
+
   export interface ReturnValue {
     id: string | undefined;
     indeterminate: boolean;
