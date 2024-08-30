@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import * as Dialog from '@base_ui/react/Dialog';

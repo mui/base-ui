@@ -1,3 +1,5 @@
+'use client';
+
 // https://github.com/mui/material-ui/issues/41739
 // to cross check whether this issue would still occur in the new API
 import * as React from 'react';
