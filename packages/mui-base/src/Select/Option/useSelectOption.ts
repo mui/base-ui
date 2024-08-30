@@ -16,6 +16,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   const {
     disabled = false,
     highlighted,
+    selected,
     id,
     ref: externalRef,
     setOpen,
@@ -42,8 +43,12 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
+          'aria-disabled': disabled || undefined,
           id,
           tabIndex: highlighted ? 0 : -1,
+          style: {
+            pointerEvents: disabled ? 'none' : undefined,
+          },
           onTouchStart() {
             selectionRef.current = { mouseUp: false, select: true };
           },
@@ -78,7 +83,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
               return;
             }
 
-            if (selectionRef.current.select) {
+            if (selectionRef.current.select || !selected) {
               commitSelection(event.nativeEvent);
             }
 
@@ -87,7 +92,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
         }),
       );
     },
-    [commitSelection, getButtonProps, highlighted, id, selectionRef, typingRef],
+    [commitSelection, disabled, getButtonProps, highlighted, id, selected, selectionRef, typingRef],
   );
 
   return React.useMemo(

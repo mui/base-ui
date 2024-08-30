@@ -18,18 +18,22 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     useSelectRootContext();
   const { isPositioned } = useSelectPositionerContext();
 
+  const [rendered, setRendered] = React.useState(false);
+
+  const inert = !(!touchModality && alignToItem && !innerFallback);
+
+  if (rendered && inert) {
+    setRendered(false);
+  }
+
+  const frameRef = React.useRef(-1);
+
   const ownerState: SelectScrollArrow.OwnerState = React.useMemo(
     () => ({
       direction,
     }),
     [direction],
   );
-
-  const inert = !(!touchModality && alignToItem && !innerFallback);
-
-  const frameRef = React.useRef(-1);
-
-  const [rendered, setRendered] = React.useState(false);
 
   const getScrollArrowProps = React.useCallback(
     (externalProps = {}) =>
@@ -108,7 +112,6 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       const isScrolledToBottom =
         Math.ceil(popupElement.scrollTop + popupElement.clientHeight) >=
         popupElement.scrollHeight - 1;
-
       setRendered(!isScrolledToBottom);
     }
   });
@@ -120,9 +123,11 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     }
 
     popupElement.addEventListener('wheel', handleScrollArrowRendered);
+    popupElement.addEventListener('scroll', handleScrollArrowRendered);
 
     return () => {
       popupElement.removeEventListener('wheel', handleScrollArrowRendered);
+      popupElement.removeEventListener('scroll', handleScrollArrowRendered);
     };
   }, [inert, popupRef, direction, handleScrollArrowRendered]);
 

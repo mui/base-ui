@@ -180,29 +180,29 @@ namespace SelectOption {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     children?: React.ReactNode;
     /**
-     * The value of the select item.
+     * The value of the select option.
      */
     value: string;
     /**
-     * The click handler for the select item.
+     * The click handler for the select option.
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * If `true`, the select item will be disabled.
+     * If `true`, the select option will be disabled.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the select item's content.
+     * A text representation of the select option's content.
      * Used for keyboard text navigation matching.
      */
     label?: string;
     /**
-     * The id of the select item.
+     * The id of the select option.
      */
     id?: string;
     /**
-     * If `true`, the select will close when the select item is clicked.
+     * If `true`, the select will close when the select option is clicked.
      *
      * @default true
      */
@@ -220,31 +220,31 @@ SelectOption.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the select will close when the select item is clicked.
+   * If `true`, the select will close when the select option is clicked.
    *
    * @default true
    */
   closeOnClick: PropTypes.bool,
   /**
-   * If `true`, the select item will be disabled.
+   * If `true`, the select option will be disabled.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the select item.
+   * The id of the select option.
    */
   id: PropTypes.string,
   /**
-   * A text representation of the select item's content.
+   * A text representation of the select option's content.
    * Used for keyboard text navigation matching.
    */
   label: PropTypes.string,
   /**
-   * The click handler for the select item.
+   * The click handler for the select option.
    */
   onClick: PropTypes.func,
   /**
-   * The value of the select item.
+   * The value of the select option.
    */
   value: PropTypes.string.isRequired,
 } as any;

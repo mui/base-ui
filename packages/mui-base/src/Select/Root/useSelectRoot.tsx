@@ -23,8 +23,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
-const EMPTY_ARRAY: never[] = [];
-
 /**
  *
  * API:
@@ -165,7 +163,6 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
     listRef: elementsRef,
-    disabledIndices: EMPTY_ARRAY,
     activeIndex,
     selectedIndex,
     loop,

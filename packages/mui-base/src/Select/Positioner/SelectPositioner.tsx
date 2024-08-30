@@ -24,18 +24,18 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 function findSelectOptions(root: React.ReactElement) {
-  const SelectOptions: React.ReactElement[] = [];
+  const options: React.ReactElement[] = [];
   React.Children.forEach(root.props?.children, (child) => {
     if (React.isValidElement(child)) {
       const childProps = child.props as any;
       if (childProps?.value != null) {
-        SelectOptions.push(child);
+        options.push(child);
       } else if (childProps?.children) {
-        SelectOptions.push(...findSelectOptions(child));
+        options.push(...findSelectOptions(child));
       }
     }
   });
-  return SelectOptions;
+  return options;
 }
 
 /**
@@ -211,6 +211,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positionerElement = renderElement();
   const options = findSelectOptions(positionerElement);
+
   const mountedItemsElement = keepMounted ? null : <div hidden>{options}</div>;
   const nativeSelectElement = (
     <select
@@ -267,7 +268,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
           <FloatingFocusManager
             context={positioner.floatingContext}
             modal={false}
-            key={mounted.toString()}
+            disabled={!mounted}
           >
             {positionerElement}
           </FloatingFocusManager>

@@ -66,6 +66,7 @@ export default function UnstyledSelectIntroduction() {
     <Select.Root>
       <SelectTrigger aria-label="Select food">
         <Select.Value placeholder="Select food..." />
+        <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Backdrop />
       <Select.Positioner alignment="start" alignmentOffset={-4}>
@@ -82,11 +83,15 @@ export default function UnstyledSelectIntroduction() {
           </SelectOption>
           {entries.map(([group, items]) => (
             <React.Fragment key={group}>
-              <hr className="border-none h-[1px] w-full bg-gray-300" />
+              <hr aria-hidden className="border-none h-[1px] w-full bg-gray-300" />
               <Select.OptionGroup key={group}>
                 <SelectOptionGroupLabel>{group}</SelectOptionGroupLabel>
                 {items.map((item) => (
-                  <SelectOption key={item.value} value={item.value}>
+                  <SelectOption
+                    key={item.value}
+                    value={item.value}
+                    disabled={item.value === 'banana'}
+                  >
                     {item.label}
                     <SelectOptionIndicator
                       render={<Check fontSize="small" />}
@@ -108,6 +113,9 @@ export default function UnstyledSelectIntroduction() {
 
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 6px 12px;
   border-radius: 5px;
   background-color: black;
@@ -121,6 +129,10 @@ const SelectTrigger = styled(Select.Trigger)`
     outline: 2px solid black;
     outline-offset: 2px;
   }
+`;
+
+const SelectDropdownArrow = styled(ArrowDropDown)`
+  margin-right: -6px;
 `;
 
 const SelectPopup = styled(Select.Popup)`
@@ -145,6 +157,11 @@ const SelectOption = styled(Select.Option)`
   align-items: center;
   justify-content: space-between;
   line-height: 1.5;
+  scroll-margin: 15px;
+
+  &[data-disabled] {
+    opacity: 0.5;
+  }
 
   &[data-highlighted],
   &:focus {
@@ -170,7 +187,7 @@ const SelectScrollArrow = styled(Select.ScrollArrow)`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
+  height: 15px;
   border-radius: 5px;
 
   &[data-direction='up'] {
