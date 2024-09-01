@@ -516,7 +516,7 @@ importers:
         specifier: 18.3.0
         version: 18.3.0
       '@types/react-transition-group':
-        specifier: ^4.4.10
+        specifier: ^4.4.11
         version: 4.4.11
       '@types/stylis':
         specifier: ^4.2.6
