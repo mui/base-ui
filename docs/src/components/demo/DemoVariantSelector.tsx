@@ -1,9 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { DemoContext, type DemoVariant } from 'docs-base/src/blocks/Demo';
+import { type DemoVariant } from 'docs-base/src/blocks/Demo';
+import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
 import { ToggleButtonGroup } from 'docs-base/src/design-system/ToggleButtonGroup';
 import classes from './DemoVariantSelector.module.css';
+import { useDemoVariantSelectorContext } from './DemoVariantSelectorProvider';
 
 const translations = {
   variants: {
@@ -39,42 +41,79 @@ export interface DemoVariantSelectorProps extends React.HtmlHTMLAttributes<HTMLD
 export function DemoVariantSelector(props: DemoVariantSelectorProps) {
   const { showLanguageSelector = true, ...other } = props;
 
-  const demoContext = React.useContext(DemoContext);
-  if (!demoContext) {
-    throw new Error('Missing DemoContext');
-  }
+  const {
+    variants,
+    selectVariant: setLocalVariant,
+    selectedVariant: selectedLocalVariant,
+  } = useDemoContext();
 
-  const { variants, selectVariant, selectedVariant } = demoContext;
+  const {
+    selectedLanguage: selectedGlobalLanguageId,
+    setSelectedLanguage: setGlobalLanguageId,
+    selectedVariant: selectedGlobalVariantId,
+    setSelectedVariant: setGlobalVariantId,
+  } = useDemoVariantSelectorContext();
 
   const variantsMap = React.useMemo(() => getAvailableVariants(variants), [variants]);
 
-  const handleSelectChange = React.useCallback(
+  const handleVariantChange = React.useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
-      selectVariant(variantsMap[event.target.value][0].demo);
+      setGlobalVariantId(event.target.value);
     },
-    [selectVariant, variantsMap],
+    [setGlobalVariantId],
   );
 
-  const variantLanguages = React.useMemo(
+  const handleLanguageChange = React.useCallback(
+    (language: { value: string; label: string; demo: DemoVariant }) => {
+      setGlobalLanguageId(language.value);
+    },
+    [setGlobalLanguageId],
+  );
+
+  React.useEffect(() => {
+    if (variantsMap[selectedGlobalVariantId]) {
+      const variantInPreferredLanguage = variantsMap[selectedGlobalVariantId].find(
+        (v) => v.language === selectedGlobalLanguageId,
+      );
+      if (variantInPreferredLanguage) {
+        setLocalVariant(variantInPreferredLanguage.demo);
+      } else {
+        setLocalVariant(variantsMap[selectedGlobalVariantId][0].demo);
+      }
+    } else {
+      const firstVariant = variantsMap[Object.keys(variantsMap)[0]];
+      const firstVariantInPreferredLanguage = firstVariant.find(
+        (v) => v.language === selectedGlobalLanguageId,
+      );
+
+      if (firstVariantInPreferredLanguage) {
+        setLocalVariant(firstVariantInPreferredLanguage.demo);
+      } else {
+        setLocalVariant(firstVariant[0].demo);
+      }
+    }
+  }, [selectedGlobalLanguageId, selectedGlobalVariantId, setLocalVariant, variantsMap]);
+
+  const currentVariantLanguages = React.useMemo(
     () =>
-      variantsMap[selectedVariant.name].map((v) => ({
+      variantsMap[selectedLocalVariant.name].map((v) => ({
         value: v.language,
         label: translations.languages[v.language],
         demo: v.demo,
       })),
-    [selectedVariant.name, variantsMap],
+    [selectedLocalVariant.name, variantsMap],
   );
 
   const renderVariantSelector = Object.keys(variantsMap).length > 1;
-  const renderLanguageSelector = variantLanguages.length > 1 && showLanguageSelector;
+  const renderLanguageSelector = currentVariantLanguages.length > 1 && showLanguageSelector;
   const renderSeparator = renderVariantSelector && renderLanguageSelector;
 
   return (
     <div {...other} className={classes.root}>
       {renderVariantSelector && (
         <select
-          value={selectedVariant.name}
-          onChange={handleSelectChange}
+          value={selectedLocalVariant.name}
+          onChange={handleVariantChange}
           className={classes.variantSelector}
           aria-label="Styling solution selector"
         >
@@ -91,9 +130,9 @@ export function DemoVariantSelector(props: DemoVariantSelectorProps) {
       {renderLanguageSelector && (
         <ToggleButtonGroup
           className={classes.languages}
-          options={variantLanguages}
-          value={selectedVariant.language}
-          onValueChange={(v) => selectVariant(v.demo)}
+          options={currentVariantLanguages}
+          value={selectedLocalVariant.language}
+          onValueChange={handleLanguageChange}
           aria-label="Language selector"
         />
       )}

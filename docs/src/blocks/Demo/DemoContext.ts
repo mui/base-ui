@@ -3,18 +3,11 @@
 import * as React from 'react';
 import { DemoFile, DemoVariant } from './types';
 
-export type CodeDisplay = 'collapsed' | 'expanded' | 'preview';
-
 export interface DemoContext {
-  codeDisplay: CodeDisplay;
-  copySource: () => void;
-  reset: () => void;
-  resetFocus: () => void;
   selectedFile: DemoFile;
   selectedVariant: DemoVariant;
   selectFile: (file: DemoFile) => void;
   selectVariant: (variant: DemoVariant) => void;
-  setCodeDisplay: (codeDisplay: CodeDisplay) => void;
   variants: DemoVariant[];
 }
 

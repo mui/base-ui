@@ -4,6 +4,7 @@ import { GoogleTagManager } from 'docs-base/src/components/GoogleTagManager';
 import { GoogleAnalytics } from 'docs-base/src/components/GoogleAnalytics';
 import * as Tooltip from '@base_ui/react/Tooltip';
 import '../src/styles/style.css';
+import { DemoVariantSelectorProvider } from 'docs-base/src/components/demo/DemoVariantSelectorProvider';
 
 const PRODUCTION_GA =
   process.env.DEPLOY_ENV === 'production' || process.env.DEPLOY_ENV === 'staging';
@@ -26,7 +27,11 @@ export default function Layout({ children }: Props) {
         <meta name="mui:productCategoryId" content="core" />
       </head>
       <body>
-        <Tooltip.Provider delay={350}>{children}</Tooltip.Provider>
+        <Tooltip.Provider delay={350}>
+          <DemoVariantSelectorProvider defaultVariant="tailwind" defaultLanguage="js">
+            {children}
+          </DemoVariantSelectorProvider>
+        </Tooltip.Provider>
         <GoogleAnalytics />
         <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
       </body>

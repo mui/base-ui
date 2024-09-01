@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { DemoVariant, DemoFile } from './types';
-import { CodeDisplay, DemoContext } from './DemoContext';
+import { DemoContext } from './DemoContext';
 
 export function DemoRoot(props: DemoRoot.Props) {
   const { variants, children, ...other } = props;
@@ -12,7 +12,6 @@ export function DemoRoot(props: DemoRoot.Props) {
   }
 
   const [selectedVariant, selectVariant] = React.useState(variants[0]);
-  const [codeDisplay, setCodeDisplay] = React.useState<CodeDisplay>('preview');
   const [selectedFile, selectFile] = React.useState<DemoFile>(selectedVariant.files[0]);
 
   React.useEffect(() => {
@@ -20,19 +19,15 @@ export function DemoRoot(props: DemoRoot.Props) {
   }, [selectedVariant]);
 
   const contextValue: DemoContext = React.useMemo(
-    () => ({
-      variants,
-      selectedVariant,
-      codeDisplay,
-      selectedFile,
-      selectVariant,
-      selectFile,
-      setCodeDisplay,
-      copySource: () => {},
-      reset: () => {},
-      resetFocus: () => {},
-    }),
-    [selectedVariant, selectedFile, codeDisplay, variants],
+    () =>
+      ({
+        variants,
+        selectedVariant,
+        selectedFile,
+        selectVariant,
+        selectFile,
+      }) satisfies DemoContext,
+    [selectedVariant, selectedFile, variants],
   );
 
   return (
