@@ -55,7 +55,7 @@
     "lz-string": "^1.5.0",
     "next": "^14.2.5",
     "nprogress": "^0.2.0",
-    "postcss": "^8.4.40",
+    "postcss": "^8.4.44",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
