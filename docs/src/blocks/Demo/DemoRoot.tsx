@@ -11,11 +11,11 @@ export function DemoRoot(props: DemoRoot.Props) {
     throw new Error('No demo variants provided');
   }
 
-  const [selectedVariant, selectVariant] = React.useState(variants[0]);
-  const [selectedFile, selectFile] = React.useState<DemoFile>(selectedVariant.files[0]);
+  const [selectedVariant, setSelectedVariant] = React.useState(variants[0]);
+  const [selectedFile, setSelectedFile] = React.useState<DemoFile>(selectedVariant.files[0]);
 
   React.useEffect(() => {
-    selectFile(selectedVariant.files[0]);
+    setSelectedFile(selectedVariant.files[0]);
   }, [selectedVariant]);
 
   const contextValue: DemoContext = React.useMemo(
@@ -24,8 +24,8 @@ export function DemoRoot(props: DemoRoot.Props) {
         variants,
         selectedVariant,
         selectedFile,
-        selectVariant,
-        selectFile,
+        setSelectedVariant,
+        setSelectedFile,
       }) satisfies DemoContext,
     [selectedVariant, selectedFile, variants],
   );

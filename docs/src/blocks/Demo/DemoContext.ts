@@ -6,8 +6,8 @@ import { DemoFile, DemoVariant } from './types';
 export interface DemoContext {
   selectedFile: DemoFile;
   selectedVariant: DemoVariant;
-  selectFile: (file: DemoFile) => void;
-  selectVariant: (variant: DemoVariant) => void;
+  setSelectedFile: (file: DemoFile) => void;
+  setSelectedVariant: (variant: DemoVariant) => void;
   variants: DemoVariant[];
 }
 

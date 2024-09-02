@@ -20,7 +20,7 @@ export function DemoFileSelector(props: DemoFileSelectorProps) {
 
   const {
     selectedVariant: { files },
-    selectFile,
+    setSelectedFile,
     selectedFile,
   } = demoContext;
 
@@ -29,7 +29,7 @@ export function DemoFileSelector(props: DemoFileSelectorProps) {
   }
 
   return (
-    <Tabs.Root value={selectedFile} onValueChange={selectFile}>
+    <Tabs.Root value={selectedFile} onValueChange={setSelectedFile}>
       <Tabs.List className={clsx(className, classes.root)} aria-label="File selector">
         {files.map((file) => (
           <Tabs.Tab value={file} key={file.path} className={classes.tab}>
