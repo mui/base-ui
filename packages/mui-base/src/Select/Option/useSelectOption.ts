@@ -77,7 +77,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
           },
           onMouseUp(event) {
             if (
-              !selectionRef.current.allowMouseUp ||
+              (!selectionRef.current.allowMouseUp && selected) ||
               (pointerTypeRef.current !== 'touch' && !highlighted)
             ) {
               return;
