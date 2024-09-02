@@ -8,8 +8,8 @@
   "devDependencies": {
     "@babel/runtime": "^7.25.0",
     "@base_ui/react": "workspace:*",
-    "@emotion/cache": "^11.11.0",
-    "@emotion/react": "^11.11.4",
+    "@emotion/cache": "^11.13.1",
+    "@emotion/react": "^11.13.3",
     "@mui/internal-test-utils": "1.0.11",
     "@mui/joy": "5.0.0-beta.48",
     "@mui/material": "6.0.1",
