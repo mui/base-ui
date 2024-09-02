@@ -55,7 +55,7 @@
     "@mui/internal-test-utils": "1.0.11",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.5.2",
-    "@types/chai": "^4.3.17",
+    "@types/chai": "^4.3.19",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.3.1",

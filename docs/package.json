@@ -78,7 +78,7 @@
     "@mui/internal-docs-utils": "^1.0.12",
     "@mui/internal-test-utils": "1.0.11",
     "@types/autosuggest-highlight": "^3.2.3",
-    "@types/chai": "^4.3.17",
+    "@types/chai": "^4.3.19",
     "@types/node": "^18.19.42",
     "@types/prop-types": "^15.7.12",
     "@types/react": "^18.3.1",
