@@ -92,8 +92,8 @@ importers:
         specifier: ^4.17.7
         version: 4.17.7
       '@types/mocha':
-        specifier: ^10.0.6
-        version: 10.0.6
+        specifier: ^10.0.7
+        version: 10.0.7
       '@types/node':
         specifier: ^18.19.42
         version: 18.19.42
@@ -242,7 +242,7 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       mocha:
-        specifier: ^10.4.0
+        specifier: ^10.7.3
         version: 10.7.3
       nx:
         specifier: ^18.3.5
@@ -2910,8 +2910,8 @@ packages:
   '@types/minimist@1.2.5':
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
-  '@types/mocha@10.0.6':
-    resolution: {integrity: sha512-dJvrYWxP/UcXm36Qn36fxhUKu8A/xMRXVT2cliFF1Z7UA9liG5Psj3ezNSZw+5puH2czDXRLcXQxf8JbJt0ejg==}
+  '@types/mocha@10.0.7':
+    resolution: {integrity: sha512-GN8yJ1mNTcFcah/wKEFIJckJx9iJLoMSzWcfRRuxz/Jk+U6KQNnml+etbtxFK8lPjzOw3zp4Ha/kjSst9fsHYw==}
 
   '@types/node@18.19.42':
     resolution: {integrity: sha512-d2ZFc/3lnK2YCYhos8iaNIYu9Vfhr92nHiyJHRltXWjXUBjEE+A4I58Tdbnw4VhggSW+2j5y5gTrLs4biNnubg==}
@@ -11252,7 +11252,7 @@ snapshots:
 
   '@types/minimist@1.2.5': {}
 
-  '@types/mocha@10.0.6': {}
+  '@types/mocha@10.0.7': {}
 
   '@types/node@18.19.42':
     dependencies:
