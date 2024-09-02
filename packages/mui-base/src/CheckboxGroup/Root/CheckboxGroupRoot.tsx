@@ -44,7 +44,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     allValues,
     defaultValue,
     onValueChange,
-    preserveChildStates: preserveChildStates,
+    preserveChildStates,
   });
 
   const ownerState = React.useMemo(
