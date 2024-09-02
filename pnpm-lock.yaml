@@ -665,7 +665,7 @@ importers:
         specifier: 1.46.1
         version: 1.46.1
       '@testing-library/dom':
-        specifier: ^10.1.0
+        specifier: ^10.4.0
         version: 10.4.0
       '@types/chai':
         specifier: ^4.3.19
