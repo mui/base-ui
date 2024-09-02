@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
+import { act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
@@ -95,7 +95,7 @@ describe('<Menu.Item />', () => {
 
     expect(renderItem1Spy.callCount).to.equal(0);
 
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' }); // highlights '2'
+    await user.keyboard('{ArrowDown}'); // highlights '2'
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
     // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
