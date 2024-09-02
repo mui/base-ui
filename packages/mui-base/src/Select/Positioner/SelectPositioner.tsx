@@ -23,21 +23,6 @@ import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
-function findSelectOptions(root: React.ReactElement) {
-  const options: React.ReactElement[] = [];
-  React.Children.forEach(root.props?.children, (child) => {
-    if (React.isValidElement(child)) {
-      const childProps = child.props as any;
-      if (childProps?.value != null) {
-        options.push(child);
-      } else if (childProps?.children) {
-        options.push(...findSelectOptions(child));
-      }
-    }
-  });
-  return options;
-}
-
 /**
  * Renders the element that positions the Select popup.
  *
@@ -197,7 +182,16 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ],
   );
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
+  const setPositionerElementGuarded = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (open) {
+        setPositionerElement(node);
+      }
+    },
+    [open, setPositionerElement],
+  );
+
+  const mergedRef = useForkRef(forwardedRef, setPositionerElementGuarded);
 
   const { renderElement } = useComponentRenderer({
     propGetter: positioner.getPositionerProps,
@@ -210,9 +204,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   });
 
   const positionerElement = renderElement();
-  const options = findSelectOptions(positionerElement);
 
-  const mountedItemsElement = keepMounted ? null : <div hidden>{options}</div>;
+  const mountedItemsElement = keepMounted ? null : <div hidden>{positionerElement}</div>;
   const nativeSelectElement = (
     <select
       {...mergeReactProps(getInputValidationProps(), {
@@ -220,6 +213,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
         name,
         disabled,
         required,
+        value,
         ref: inputRef,
         style: visuallyHidden,
         tabIndex: -1,
@@ -241,10 +235,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
         },
       })}
     >
-      {options.map((item) => (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
-        <option key={item.props.value} value={item.props.value} />
-      ))}
+      <option value={value}>{value}</option>
     </select>
   );
 
