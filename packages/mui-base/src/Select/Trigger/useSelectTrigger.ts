@@ -59,8 +59,8 @@ export function useSelectTrigger(
     }
 
     selectionRef.current = {
-      allowMouseUp: true,
-      allowSelect: false,
+      allowMouseUp: false,
+      allowSelect: true,
     };
 
     return undefined;

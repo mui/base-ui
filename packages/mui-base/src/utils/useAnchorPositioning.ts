@@ -50,7 +50,10 @@ interface UseAnchorPositioningParameters {
   trackAnchor?: boolean;
   nodeId?: string;
   inner?: Middleware;
-  innerFallback?: boolean;
+  innerOptions?: {
+    fallback?: boolean;
+    touchModality?: boolean;
+  };
   allowAxisFlip?: boolean;
 }
 
@@ -96,10 +99,10 @@ export function useAnchorPositioning(
     open,
     nodeId,
     inner: innerMiddleware,
-    innerFallback,
+    innerOptions = {},
   } = params;
 
-  const standardMode = !(!innerFallback && innerMiddleware);
+  const standardMode = !(!innerOptions.fallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
@@ -150,21 +153,31 @@ export function useAnchorPositioning(
   }
 
   middleware.push(
-    !standardMode
-      ? innerMiddleware
-      : size({
-          ...commonCollisionProps,
-          apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
-            Object.entries({
-              '--available-width': `${availableWidth}px`,
-              '--available-height': `${availableHeight}px`,
-              '--anchor-width': `${reference.width}px`,
-              '--anchor-height': `${reference.height}px`,
-            }).forEach(([key, value]) => {
-              floating.style.setProperty(key, value);
-            });
-          },
-        }),
+    ...(!standardMode
+      ? [innerMiddleware]
+      : [
+          innerOptions.touchModality
+            ? shift({ crossAxis: true, ...commonCollisionProps })
+            : (false as const),
+          size({
+            ...commonCollisionProps,
+            apply({
+              elements: { floating },
+              rects: { reference },
+              availableWidth,
+              availableHeight,
+            }) {
+              Object.entries({
+                '--available-width': `${availableWidth}px`,
+                '--available-height': `${availableHeight}px`,
+                '--anchor-width': `${reference.width}px`,
+                '--anchor-height': `${reference.height}px`,
+              }).forEach(([key, value]) => {
+                floating.style.setProperty(key, value);
+              });
+            },
+          }),
+        ]),
     arrow(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,

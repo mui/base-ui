@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { styled } from '@mui/system';
@@ -71,7 +73,9 @@ export default function UnstyledSelectIntroduction() {
       <Select.Backdrop />
       <Select.Positioner alignment="start" alignmentOffset={-4}>
         <SelectScrollArrow direction="up">
-          <ArrowDropDown />
+          <div>
+            <ArrowDropDown />
+          </div>
         </SelectScrollArrow>
         <SelectPopup>
           <SelectOption value="">
@@ -83,7 +87,7 @@ export default function UnstyledSelectIntroduction() {
           </SelectOption>
           {entries.map(([group, items]) => (
             <React.Fragment key={group}>
-              <hr aria-hidden className="border-none h-[1px] w-full bg-gray-300" />
+              <SelectSeparator />
               <Select.OptionGroup key={group}>
                 <SelectOptionGroupLabel>{group}</SelectOptionGroupLabel>
                 {items.map((item) => (
@@ -104,12 +108,18 @@ export default function UnstyledSelectIntroduction() {
           ))}
         </SelectPopup>
         <SelectScrollArrow direction="down">
-          <ArrowDropDown />
+          <div>
+            <ArrowDropDown />
+          </div>
         </SelectScrollArrow>
       </Select.Positioner>
     </Select.Root>
   );
 }
+
+const gray = {
+  300: '#e5e7eb',
+};
 
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;
@@ -183,14 +193,32 @@ const SelectOptionGroupLabel = styled(Select.OptionGroupLabel)`
 
 const SelectScrollArrow = styled(Select.ScrollArrow)`
   width: 100%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 15px;
-  border-radius: 5px;
+  height: 25px;
 
   &[data-direction='up'] {
     transform: rotate(180deg);
+    top: -10px;
   }
+
+  &[data-direction='down'] {
+    bottom: -10px;
+  }
+
+  > div {
+    position: absolute;
+    background: white;
+    width: 100%;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    top: 0;
+  }
+`;
+
+const SelectSeparator = styled(Select.Separator)`
+  height: 1px;
+  background-color: ${gray[300]};
+  margin: 5px 0;
 `;

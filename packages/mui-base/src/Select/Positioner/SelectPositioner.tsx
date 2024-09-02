@@ -55,7 +55,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 ) {
   const {
     anchor,
-    positionStrategy = 'absolute',
+    positionStrategy = 'fixed',
     className,
     render,
     keepMounted = false,
@@ -64,7 +64,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     sideOffset = 0,
     alignmentOffset = 0,
     collisionBoundary,
-    collisionPadding = 5,
+    collisionPadding,
     arrowPadding = 5,
     hideWhenDetached = false,
     sticky = false,
@@ -149,7 +149,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
           // use or need this.
           inner({
             boundary: collisionBoundary,
-            padding: collisionPadding,
+            padding: collisionPadding ?? 10,
             listRef: elementsRef,
             index: selectedIndexOnMount,
             scrollRef: popupRef,
@@ -377,7 +377,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   keepMounted: PropTypes.bool,
   /**
    * The CSS position strategy for positioning the Select popup element.
-   * @default 'absolute'
+   * @default 'fixed'
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
   /**

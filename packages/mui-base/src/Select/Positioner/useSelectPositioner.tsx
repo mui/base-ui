@@ -11,6 +11,7 @@ import type {
 import type { GenericHTMLProps } from '../../utils/types';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 
 /**
  *
@@ -22,6 +23,8 @@ export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
   const { open = false, keepMounted } = params;
+
+  const { touchModality } = useSelectRootContext();
 
   const {
     positionerStyles,
@@ -35,7 +38,13 @@ export function useSelectPositioner(
     isPositioned,
   } = useAnchorPositioning({
     ...params,
+    innerOptions: {
+      fallback: params.innerFallback,
+      touchModality,
+    },
     trackAnchor: !(params.inner && !params.innerFallback),
+    collisionPadding:
+      touchModality && params.collisionPadding == null ? 20 : params.collisionPadding,
   });
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -101,7 +110,7 @@ export namespace useSelectPositioner {
       | (() => Element | VirtualElement | null);
     /**
      * The CSS position strategy for positioning the Select popup element.
-     * @default 'absolute'
+     * @default 'fixed'
      */
     positionStrategy?: 'absolute' | 'fixed';
     /**
@@ -193,6 +202,11 @@ export namespace useSelectPositioner {
      * @default false
      */
     innerFallback?: boolean;
+    /**
+     * Whether the user's current modality is touch.
+     * @default false
+     */
+    touchModality?: boolean;
   }
 
   export interface ReturnValue {

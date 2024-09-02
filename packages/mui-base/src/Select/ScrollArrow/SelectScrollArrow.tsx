@@ -42,8 +42,6 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         style: {
           position: 'absolute',
           zIndex: 2147483647, // max z-index
-          ...(direction === 'up' && { top: 0 }),
-          ...(direction === 'down' && { bottom: 0 }),
         },
         onMouseEnter() {
           if (inert) {
