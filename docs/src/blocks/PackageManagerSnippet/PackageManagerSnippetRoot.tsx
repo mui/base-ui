@@ -2,23 +2,30 @@
 
 import * as React from 'react';
 import * as Tabs from '@base_ui/react/Tabs';
+// eslint-disable-next-line no-restricted-imports
+import { useEnhancedEffect } from '@base_ui/react/utils/useEnhancedEffect';
+import { usePackageManagerSnippetContext } from './PackageManagerSnippetProvider';
 
 export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props) {
-  const { children, value, onValueChange, options, renderTab, renderTabsList } = props;
+  const { children, options, renderTab, renderTabsList } = props;
 
-  React.useEffect(() => {
-    const storedValue = localStorage.getItem('package-manager');
-    if (storedValue != null) {
-      onValueChange(storedValue);
+  const { packageManager: globalPreference, setPackageManager: setGlobalPreference } =
+    usePackageManagerSnippetContext();
+
+  const [value, setValue] = React.useState(options[0].value);
+
+  const handleValueChange = React.useCallback((newValue: string) => {
+    setGlobalPreference(newValue);
+  }, []);
+
+  useEnhancedEffect(() => {
+    if (options.some((option) => option.value === globalPreference)) {
+      setValue(globalPreference);
     }
-  }, [onValueChange]);
-
-  React.useEffect(() => {
-    localStorage.setItem('package-manager', value);
-  }, [value]);
+  }, [globalPreference]);
 
   return (
-    <Tabs.Root value={value} onValueChange={onValueChange}>
+    <Tabs.Root value={value} onValueChange={handleValueChange}>
       <Tabs.List render={renderTabsList} aria-label="Package manager selector">
         {options.map((option) => (
           <Tabs.Tab key={option.value} value={option.value} render={renderTab}>
@@ -34,8 +41,6 @@ export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props
 export namespace PackageManagerSnippetRoot {
   export type Props = {
     children: React.ReactNode;
-    value: string;
-    onValueChange: (value: string) => void;
     options: Array<{ value: string; label: string }>;
     renderTab?: Tabs.TabProps['render'];
     renderTabsList?: Tabs.ListProps['render'];

@@ -3,8 +3,9 @@ import { Metadata } from 'next';
 import { GoogleTagManager } from 'docs-base/src/components/GoogleTagManager';
 import { GoogleAnalytics } from 'docs-base/src/components/GoogleAnalytics';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import '../src/styles/style.css';
 import { DemoVariantSelectorProvider } from 'docs-base/src/components/demo/DemoVariantSelectorProvider';
+import { PackageManagerSnippetProvider } from 'docs-base/src/blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
+import '../src/styles/style.css';
 
 const PRODUCTION_GA =
   process.env.DEPLOY_ENV === 'production' || process.env.DEPLOY_ENV === 'staging';
@@ -28,10 +29,13 @@ export default function Layout({ children }: Props) {
       </head>
       <body>
         <Tooltip.Provider delay={350}>
-          <DemoVariantSelectorProvider defaultVariant="tailwind" defaultLanguage="js">
-            {children}
+          <DemoVariantSelectorProvider defaultVariant="css-modules" defaultLanguage="ts">
+            <PackageManagerSnippetProvider defaultValue="npm">
+              {children}
+            </PackageManagerSnippetProvider>
           </DemoVariantSelectorProvider>
         </Tooltip.Provider>
+
         <GoogleAnalytics />
         <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
       </body>

@@ -1,8 +1,8 @@
 'use client';
 
+import * as React from 'react';
 // eslint-disable-next-line no-restricted-imports
 import { useEnhancedEffect } from '@base_ui/react/utils/useEnhancedEffect';
-import * as React from 'react';
 
 export interface DemoVariantSelectorContext {
   selectedVariant: string;

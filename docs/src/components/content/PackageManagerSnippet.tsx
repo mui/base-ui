@@ -20,26 +20,10 @@ const packageManagers = [
   },
 ];
 
-function getStoredValue() {
-  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-    return localStorage.getItem('package-manager') || 'npm';
-  }
-
-  return 'npm';
-}
-
 export function PackageManagerSnippet(props: PackageManagerSnippetProps) {
-  const [value, setValue] = React.useState('npm');
-
-  React.useEffect(() => {
-    setValue(getStoredValue());
-  }, []);
-
   return (
     <div className={classes.root}>
       <BasePackageManagerSnippet.Root
-        value={value}
-        onValueChange={setValue}
         options={packageManagers}
         // eslint-disable-next-line jsx-a11y/control-has-associated-label, react/button-has-type
         renderTab={<button className={classes.tab} />}
