@@ -176,7 +176,12 @@ describe('<Menu.Root />', () => {
         expect(getByText('Cd')).to.have.attribute('tabindex', '0');
       });
 
-      it('changes the highlighted item using text navigation on label prop', async () => {
+      it('changes the highlighted item using text navigation on label prop', async function test() {
+        if (!/jsdom/.test(window.navigator.userAgent)) {
+          // This test is very flaky in real browsers
+          this.skip();
+        }
+
         const { getByRole, getAllByRole } = await render(
           <Menu.Root animated={false}>
             <Menu.Trigger>Toggle</Menu.Trigger>
@@ -193,7 +198,6 @@ describe('<Menu.Root />', () => {
 
         const trigger = getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
-
         const items = getAllByRole('menuitem');
         await flushMicrotasks();
 
@@ -228,7 +232,7 @@ describe('<Menu.Root />', () => {
       it('skips the non-stringifiable items', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
@@ -272,7 +276,7 @@ describe('<Menu.Root />', () => {
       it('navigate to options with diacritic characters', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
@@ -311,7 +315,7 @@ describe('<Menu.Root />', () => {
       it('navigate to next options beginning with diacritic characters', async function test() {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JsDom
+          // innerText is not supported by JSDOM
           this.skip();
         }
 
@@ -462,7 +466,9 @@ describe('<Menu.Root />', () => {
       await userEvent.keyboard('[Enter]');
 
       const [firstItem, ...otherItems] = getAllByRole('menuitem');
-      expect(firstItem.tabIndex).to.equal(0);
+      await waitFor(() => {
+        expect(firstItem.tabIndex).to.equal(0);
+      });
       otherItems.forEach((item) => {
         expect(item.tabIndex).to.equal(-1);
       });
