@@ -14,15 +14,18 @@ export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props
 
   const [value, setValue] = React.useState(options[0].value);
 
-  const handleValueChange = React.useCallback((newValue: string) => {
-    setGlobalPreference(newValue);
-  }, []);
+  const handleValueChange = React.useCallback(
+    (newValue: string) => {
+      setGlobalPreference(newValue);
+    },
+    [setGlobalPreference],
+  );
 
   useEnhancedEffect(() => {
     if (options.some((option) => option.value === globalPreference)) {
       setValue(globalPreference);
     }
-  }, [globalPreference]);
+  }, [options, globalPreference]);
 
   return (
     <Tabs.Root value={value} onValueChange={handleValueChange}>

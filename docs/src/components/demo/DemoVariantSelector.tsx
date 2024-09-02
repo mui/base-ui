@@ -94,7 +94,13 @@ export function DemoVariantSelector(props: DemoVariantSelectorProps) {
 
       // If we can't, we do not change anything.
     }
-  }, [selectedGlobalLanguageId, selectedGlobalVariantId, setLocalVariant, variantsMap]);
+  }, [
+    selectedGlobalLanguageId,
+    selectedGlobalVariantId,
+    setLocalVariant,
+    variantsMap,
+    selectedLocalVariant.name,
+  ]);
 
   const currentVariantLanguages = React.useMemo(
     () =>
