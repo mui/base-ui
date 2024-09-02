@@ -61,7 +61,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const valuesRef = React.useRef<Array<string | null>>([]);
-  const selectionRef = React.useRef({ mouseUp: false, select: false });
+  const selectionRef = React.useRef({ allowMouseUp: false, allowSelect: false });
   const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
 
   const [open, setOpenUnwrapped] = useControlled({
@@ -346,8 +346,8 @@ export namespace useSelectRoot {
     positionerElement: HTMLElement | null;
     typingRef: React.MutableRefObject<boolean>;
     selectionRef: React.MutableRefObject<{
-      mouseUp: boolean;
-      select: boolean;
+      allowMouseUp: boolean;
+      allowSelect: boolean;
     }>;
     innerOffset: number;
     setInnerOffset: React.Dispatch<React.SetStateAction<number>>;

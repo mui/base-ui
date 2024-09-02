@@ -1,9 +1,7 @@
 {
   "props": {
     "value": { "type": { "name": "string" }, "required": true },
-    "closeOnClick": { "type": { "name": "bool" }, "default": "true" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "id": { "type": { "name": "string" } },
     "label": { "type": { "name": "string" } },
     "onClick": { "type": { "name": "func" } }
   },

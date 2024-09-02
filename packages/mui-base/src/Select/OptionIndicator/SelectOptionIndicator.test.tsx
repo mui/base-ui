@@ -8,7 +8,7 @@ const selectItemContextValue = {
   selected: true,
 };
 
-describe('<Select.ItemIndicator />', () => {
+describe('<Select.OptionIndicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Select.OptionIndicator />, () => ({

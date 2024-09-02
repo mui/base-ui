@@ -20,7 +20,6 @@ const InnerSelectOption = React.memo(
   ) {
     const {
       className,
-      closeOnClick = true,
       disabled = false,
       highlighted,
       selected,
@@ -37,7 +36,6 @@ const InnerSelectOption = React.memo(
 
     const { getItemProps } = useSelectOption({
       setOpen,
-      closeOnClick,
       disabled,
       highlighted,
       selected,
@@ -197,16 +195,6 @@ namespace SelectOption {
      * Used for keyboard text navigation matching.
      */
     label?: string;
-    /**
-     * The id of the select option.
-     */
-    id?: string;
-    /**
-     * If `true`, the select will close when the select option is clicked.
-     *
-     * @default true
-     */
-    closeOnClick?: boolean;
   }
 }
 
@@ -220,18 +208,12 @@ SelectOption.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the select will close when the select option is clicked.
-   *
-   * @default true
-   */
-  closeOnClick: PropTypes.bool,
-  /**
    * If `true`, the select option will be disabled.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the select option.
+   * @ignore
    */
   id: PropTypes.string,
   /**

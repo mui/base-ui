@@ -9,3 +9,4 @@ export { SelectOptionGroup as OptionGroup } from './OptionGroup/SelectOptionGrou
 export { SelectOptionGroupLabel as OptionGroupLabel } from './OptionGroupLabel/SelectOptionGroupLabel';
 export { SelectValue as Value } from './Value/SelectValue';
 export { SelectScrollArrow as ScrollArrow } from './ScrollArrow/SelectScrollArrow';
+export { SelectSeparator as Separator } from './Separator/SelectSeparator';

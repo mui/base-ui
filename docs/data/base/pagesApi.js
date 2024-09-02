@@ -261,6 +261,10 @@ module.exports = [
     title: 'SelectScrollArrow',
   },
   {
+    pathname: '/base-ui/react-select/components-api/#select-separator',
+    title: 'SelectSeparator',
+  },
+  {
     pathname: '/base-ui/react-select/components-api/#select-trigger',
     title: 'SelectTrigger',
   },

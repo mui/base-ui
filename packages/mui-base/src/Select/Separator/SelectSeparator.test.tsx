@@ -2,10 +2,10 @@ import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Select.OptionGroup />', () => {
+describe('<Select.Separator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.OptionGroup />, () => ({
+  describeConformance(<Select.Separator />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

@@ -50,10 +50,10 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             pointerEvents: disabled ? 'none' : undefined,
           },
           onTouchStart() {
-            selectionRef.current = { mouseUp: false, select: true };
+            selectionRef.current = { allowMouseUp: false, allowSelect: true };
           },
           onKeyDown(event) {
-            selectionRef.current.select = true;
+            selectionRef.current.allowSelect = true;
             lastKeyRef.current = event.key;
           },
           onClick(event) {
@@ -64,7 +64,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
               return;
             }
 
-            if (selectionRef.current.select) {
+            if (selectionRef.current.allowSelect) {
               lastKeyRef.current = null;
               commitSelection(event.nativeEvent);
             }
@@ -77,17 +77,17 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
           },
           onMouseUp(event) {
             if (
-              !selectionRef.current.mouseUp ||
+              !selectionRef.current.allowMouseUp ||
               (pointerTypeRef.current !== 'touch' && !highlighted)
             ) {
               return;
             }
 
-            if (selectionRef.current.select || !selected) {
+            if (selectionRef.current.allowSelect || !selected) {
               commitSelection(event.nativeEvent);
             }
 
-            selectionRef.current.select = true;
+            selectionRef.current.allowSelect = true;
           },
         }),
       );
@@ -106,10 +106,6 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
 
 export namespace useSelectOption {
   export interface Parameters {
-    /**
-     * If `true`, the select will close when the select item is clicked.
-     */
-    closeOnClick: boolean;
     /**
      * If `true`, the select item will be disabled.
      */
@@ -130,12 +126,24 @@ export namespace useSelectOption {
      * The ref of the trigger element.
      */
     ref?: React.Ref<Element>;
+    /**
+     * The function to set the open state of the select.
+     */
     setOpen: SelectRootContext['setOpen'];
+    /**
+     * Determines if the user is currently typing for typeahead matching.
+     */
     typingRef: React.MutableRefObject<boolean>;
+    /**
+     * The function to handle the selection of the option.
+     */
     handleSelect: () => void;
+    /**
+     * The ref to the selection state of the option.
+     */
     selectionRef: React.MutableRefObject<{
-      mouseUp: boolean;
-      select: boolean;
+      allowMouseUp: boolean;
+      allowSelect: boolean;
     }>;
   }
 

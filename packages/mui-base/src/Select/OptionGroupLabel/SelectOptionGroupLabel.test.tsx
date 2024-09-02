@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Select.Group />', () => {
+describe('<Select.OptionGroupLabel />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Select.OptionGroupLabel />, () => ({

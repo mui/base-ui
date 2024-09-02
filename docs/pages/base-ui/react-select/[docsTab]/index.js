@@ -12,6 +12,7 @@ import SelectPopupApiJsonPageContent from '../../api/select-popup.json';
 import SelectPositionerApiJsonPageContent from '../../api/select-positioner.json';
 import SelectRootApiJsonPageContent from '../../api/select-root.json';
 import SelectScrollArrowApiJsonPageContent from '../../api/select-scroll-arrow.json';
+import SelectSeparatorApiJsonPageContent from '../../api/select-separator.json';
 import SelectTriggerApiJsonPageContent from '../../api/select-trigger.json';
 import SelectValueApiJsonPageContent from '../../api/select-value.json';
 
@@ -97,6 +98,13 @@ export const getStaticProps = () => {
   );
   const SelectScrollArrowApiDescriptions = mapApiPageTranslations(SelectScrollArrowApiReq);
 
+  const SelectSeparatorApiReq = require.context(
+    'docs-base/translations/api-docs/select-separator',
+    false,
+    /\.\/select-separator.*.json$/,
+  );
+  const SelectSeparatorApiDescriptions = mapApiPageTranslations(SelectSeparatorApiReq);
+
   const SelectTriggerApiReq = require.context(
     'docs-base/translations/api-docs/select-trigger',
     false,
@@ -123,6 +131,7 @@ export const getStaticProps = () => {
         SelectPositioner: SelectPositionerApiDescriptions,
         SelectRoot: SelectRootApiDescriptions,
         SelectScrollArrow: SelectScrollArrowApiDescriptions,
+        SelectSeparator: SelectSeparatorApiDescriptions,
         SelectTrigger: SelectTriggerApiDescriptions,
         SelectValue: SelectValueApiDescriptions,
       },
@@ -136,6 +145,7 @@ export const getStaticProps = () => {
         SelectPositioner: SelectPositionerApiJsonPageContent,
         SelectRoot: SelectRootApiJsonPageContent,
         SelectScrollArrow: SelectScrollArrowApiJsonPageContent,
+        SelectSeparator: SelectSeparatorApiJsonPageContent,
         SelectTrigger: SelectTriggerApiJsonPageContent,
         SelectValue: SelectValueApiJsonPageContent,
       },

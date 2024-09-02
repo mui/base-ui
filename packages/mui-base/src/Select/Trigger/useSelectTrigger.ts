@@ -50,16 +50,19 @@ export function useSelectTrigger(
   React.useEffect(() => {
     if (open) {
       timeoutRef.current = window.setTimeout(() => {
-        selectionRef.current.select = true;
-      }, 300);
+        selectionRef.current.allowMouseUp = true;
+      }, 400);
 
       return () => {
         window.clearTimeout(timeoutRef.current);
       };
     }
 
-    selectionRef.current.mouseUp = true;
-    selectionRef.current.select = false;
+    selectionRef.current = {
+      allowMouseUp: true,
+      allowSelect: false,
+    };
+
     return undefined;
   }, [open, selectionRef]);
 
