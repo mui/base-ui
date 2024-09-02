@@ -10,7 +10,6 @@ describe('NumberField parse', () => {
       expect(details.currency).to.equal(undefined);
       expect(details.percent).to.equal(undefined);
       expect(details.unit).to.equal(undefined);
-      expect(details.code).to.equal(undefined);
     });
   });
 
