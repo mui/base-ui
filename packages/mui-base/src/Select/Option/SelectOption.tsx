@@ -161,8 +161,8 @@ interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   typingRef: React.MutableRefObject<boolean>;
   handleSelect: () => void;
   selectionRef: React.MutableRefObject<{
-    mouseUp: boolean;
-    select: boolean;
+    allowMouseUp: boolean;
+    allowSelect: boolean;
   }>;
   open: boolean;
 }

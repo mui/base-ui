@@ -65,9 +65,9 @@ const entries = Object.entries(data);
 
 export default function UnstyledSelectIntroduction() {
   return (
-    <Select.Root defaultValue="apple">
+    <Select.Root>
       <SelectTrigger aria-label="Select food">
-        <Select.Value placeholder="Apple" />
+        <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Backdrop />
