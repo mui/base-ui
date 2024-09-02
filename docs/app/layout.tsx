@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Metadata } from 'next';
 import { GoogleTagManager } from 'docs-base/src/components/GoogleTagManager';
-import { GoogleAnalytics } from 'docs-base/src/components/GoogleAnalytics';
+import { BaseUiGoogleAnalytics } from 'docs-base/src/components/GoogleAnalytics';
 import * as Tooltip from '@base_ui/react/Tooltip';
 import { DemoVariantSelectorProvider } from 'docs-base/src/components/demo/DemoVariantSelectorProvider';
 import { PackageManagerSnippetProvider } from 'docs-base/src/blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
@@ -32,12 +32,12 @@ export default function Layout({ children }: Props) {
           <DemoVariantSelectorProvider defaultVariant="css-modules" defaultLanguage="ts">
             <PackageManagerSnippetProvider defaultValue="npm">
               {children}
+
+              <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
+              <BaseUiGoogleAnalytics />
             </PackageManagerSnippetProvider>
           </DemoVariantSelectorProvider>
         </Tooltip.Provider>
-
-        <GoogleAnalytics />
-        <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
       </body>
     </html>
   );

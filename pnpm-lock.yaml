@@ -494,6 +494,9 @@ importers:
       '@types/chai':
         specifier: ^4.3.19
         version: 4.3.19
+      '@types/gtag.js':
+        specifier: ^0.0.20
+        version: 0.0.20
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -581,6 +584,9 @@ importers:
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
+      use-sync-external-store:
+        specifier: ^1.2.2
+        version: 1.2.2(react@18.3.1)
     devDependencies:
       '@mui/internal-babel-macros':
         specifier: ^1.0.1
@@ -612,6 +618,9 @@ importers:
       '@types/sinon':
         specifier: ^17.0.3
         version: 17.0.3
+      '@types/use-sync-external-store':
+        specifier: ^0.0.6
+        version: 0.0.6
       chai:
         specifier: ^4.5.0
         version: 4.5.0
@@ -2774,6 +2783,9 @@ packages:
   '@types/fs-extra@11.0.4':
     resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
 
+  '@types/gtag.js@0.0.20':
+    resolution: {integrity: sha512-wwAbk3SA2QeU67unN7zPxjEHmPmlXwZXZvQEpbEUQuMCRGgKyE1m6XDuTUA9b6pCGb/GqJmdfMOY5LuDjJSbbg==}
+
   '@types/hast@2.3.10':
     resolution: {integrity: sha512-McWspRw8xx8J9HurkVBfYj0xKoE25tOFlHGdx4MJ5xORQrMGZNqJhVQWaIbm6Oyla5kYOXtDiopzKRJzEOkwJw==}
 
@@ -2893,6 +2905,9 @@ packages:
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
+
+  '@types/use-sync-external-store@0.0.6':
+    resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
 
   '@types/ws@7.4.7':
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
@@ -7334,6 +7349,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
@@ -8516,6 +8532,11 @@ packages:
 
   urlpattern-polyfill@8.0.2:
     resolution: {integrity: sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==}
+
+  use-sync-external-store@1.2.2:
+    resolution: {integrity: sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -11409,6 +11430,8 @@ snapshots:
       '@types/jsonfile': 6.1.4
       '@types/node': 18.19.48
 
+  '@types/gtag.js@0.0.20': {}
+
   '@types/hast@2.3.10':
     dependencies:
       '@types/unist': 2.0.10
@@ -11522,6 +11545,8 @@ snapshots:
   '@types/unist@2.0.10': {}
 
   '@types/unist@3.0.3': {}
+
+  '@types/use-sync-external-store@0.0.6': {}
 
   '@types/ws@7.4.7':
     dependencies:
@@ -18554,6 +18579,10 @@ snapshots:
   url-template@2.0.8: {}
 
   urlpattern-polyfill@8.0.2: {}
+
+  use-sync-external-store@1.2.2(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   util-deprecate@1.0.2: {}
 
