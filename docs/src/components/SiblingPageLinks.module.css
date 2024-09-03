@@ -26,7 +26,7 @@
   user-select: none;
   display: flex;
   padding: var(--space-3);
-  border-radius: 6px;
+  border-radius: 60px;
   align-items: center;
   font-family: var(--ff-sans);
   font-size: var(--fs-3);
@@ -35,6 +35,7 @@
   min-width: 200px;
   height: auto;
   position: relative;
+  overflow: hidden;
 
   @media screen and (hover: hover) {
     &:hover {
