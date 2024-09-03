@@ -81,6 +81,7 @@ describe('<CheckboxGroup.Root />', () => {
             allValues={['red', 'green', 'blue']}
             value={value}
             onValueChange={setValue}
+            preserveChildStates
           >
             <Checkbox.Root parent data-testid="parent" />
             <Checkbox.Root name="red" data-testid="red" />
