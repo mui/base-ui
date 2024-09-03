@@ -113,7 +113,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
 
 namespace useRadioRoot {
   export interface Parameters {
-    value: string | number;
+    value: unknown;
     disabled?: boolean;
     readOnly?: boolean;
     required?: boolean;

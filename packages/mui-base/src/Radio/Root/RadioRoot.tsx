@@ -87,7 +87,7 @@ namespace RadioRoot {
     /**
      * The unique identifying value of the radio in a group.
      */
-    value: string | number;
+    value: unknown;
     /**
      * Determines if the radio is disabled.
      * @default false
@@ -148,7 +148,7 @@ RadioRoot.propTypes /* remove-proptypes */ = {
   /**
    * The unique identifying value of the radio in a group.
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  value: PropTypes.any.isRequired,
 } as any;
 
 export { RadioRoot };

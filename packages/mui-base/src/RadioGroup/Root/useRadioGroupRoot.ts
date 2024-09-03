@@ -45,7 +45,7 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
     };
   }, [id, setControlId]);
 
-  const [checkedValue, setCheckedValue] = useControlled<string | number | undefined>({
+  const [checkedValue, setCheckedValue] = useControlled({
     controlled: externalValue,
     default: defaultValue,
     name: 'RadioGroup',
@@ -91,18 +91,36 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
     ],
   );
 
+  const serializedCheckedValue = React.useMemo(() => {
+    if (checkedValue == null) {
+      return ''; // avoid uncontrolled -> controlled error
+    }
+    if (typeof checkedValue === 'string') {
+      return checkedValue;
+    }
+    return JSON.stringify(checkedValue);
+  }, [checkedValue]);
+
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(getInputValidationProps(externalProps), {
         type: 'hidden',
-        value: checkedValue ?? '', // avoid uncontrolled -> controlled error
+        value: serializedCheckedValue,
         ref: inputValidationRef,
         id,
         name,
         disabled,
         readOnly,
       }),
-    [id, checkedValue, disabled, getInputValidationProps, inputValidationRef, name, readOnly],
+    [
+      getInputValidationProps,
+      serializedCheckedValue,
+      inputValidationRef,
+      id,
+      name,
+      disabled,
+      readOnly,
+    ],
   );
 
   return React.useMemo(
@@ -123,7 +141,7 @@ namespace useRadioGroupRoot {
     name?: string;
     disabled?: boolean;
     readOnly?: boolean;
-    defaultValue?: string | number;
-    value?: string | number;
+    defaultValue?: unknown;
+    value?: unknown;
   }
 }

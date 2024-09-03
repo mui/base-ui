@@ -113,15 +113,15 @@ namespace RadioGroupRoot {
     /**
      * The value of the selected radio button. Use when controlled.
      */
-    value?: string | number;
+    value?: unknown;
     /**
      * The default value of the selected radio button. Use when uncontrolled.
      */
-    defaultValue?: string | number;
+    defaultValue?: unknown;
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: string | number, event: React.ChangeEvent<HTMLInputElement>) => void;
+    onValueChange?: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
   }
 }
 
@@ -141,7 +141,7 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * The default value of the selected radio button. Use when uncontrolled.
    */
-  defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  defaultValue: PropTypes.any,
   /**
    * Determines if the radio group is disabled.
    * @default false
@@ -172,7 +172,7 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * The value of the selected radio button. Use when controlled.
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.any,
 } as any;
 
 export { RadioGroupRoot };
