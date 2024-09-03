@@ -27,7 +27,7 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
     useCollapsibleContext();
 
-  const { getRootProps, height } = useCollapsibleContent({
+  const { getRootProps, height, width } = useCollapsibleContent({
     animated,
     htmlHidden,
     id: contentId,
@@ -48,6 +48,7 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
       ...otherProps,
       style: {
         '--collapsible-content-height': height ? `${height}px` : undefined,
+        '--collapsible-content-width': width ? `${width}px` : undefined,
       },
     },
     customStyleHookMapping: collapsibleStyleHookMapping,

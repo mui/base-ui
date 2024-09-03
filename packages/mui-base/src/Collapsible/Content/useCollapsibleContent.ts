@@ -52,6 +52,7 @@ export function useCollapsibleContent(
   const contentRef = React.useRef<HTMLElement | null>(null);
 
   const [height, setHeight] = React.useState(0);
+  const [width, setWidth] = React.useState(0);
 
   const latestAnimationNameRef = React.useRef<string | undefined>('none');
   const originalTransitionDurationStyleRef = React.useRef<string | undefined>();
@@ -114,6 +115,7 @@ export function useCollapsibleContent(
 
       if (!isTransitioning || !(open || contextMounted)) {
         setHeight(rect.height);
+        setWidth(rect.width);
       }
 
       element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
@@ -264,8 +266,9 @@ export function useCollapsibleContent(
     () => ({
       getRootProps,
       height,
+      width,
     }),
-    [getRootProps, height],
+    [getRootProps, height, width],
   );
 }
 
@@ -298,5 +301,6 @@ export namespace useCollapsibleContent {
       externalProps?: React.ComponentPropsWithRef<'button'>,
     ) => React.ComponentPropsWithRef<'button'>;
     height: number;
+    width: number;
   }
 }
