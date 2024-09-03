@@ -67,6 +67,15 @@
   }
 }
 
+.focusTarget {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--space-1);
+  height: var(--space-1);
+  pointer-events: none;
+}
+
 @keyframes slideDown {
   from {
     height: 0;

@@ -29,22 +29,15 @@ export interface DemoProps {
 export function Demo(props: DemoProps) {
   const { componentName, demoName, variants: demoVariants, defaultCodeOpen = true } = props;
 
-  const playgroundRef = React.useRef<HTMLDivElement>(null);
+  const focusTargetRef = React.useRef<HTMLButtonElement>(null);
 
   const [key, setKey] = React.useState(0);
 
   const [codeOpen, setCodeOpen] = React.useState(defaultCodeOpen);
 
   const resetFocus = React.useCallback(() => {
-    const playground = playgroundRef.current;
-    if (playground) {
-      playground.focus();
-    }
-  }, []);
-
-  const handlePlaygroundMouseDown = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      event.preventDefault();
+    if (focusTargetRef.current) {
+      focusTargetRef.current.focus();
     }
   }, []);
 
@@ -61,13 +54,14 @@ export function Demo(props: DemoProps) {
       className={clsx(classes.root, codeOpen ? classes.codeOpen : classes.codeClosed)}
     >
       <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-        <BaseDemo.Playground
-          className={classes.playground}
+        <button
+          className={classes.focusTarget}
+          type="button"
           tabIndex={-1}
-          ref={playgroundRef}
-          onMouseDown={handlePlaygroundMouseDown}
-          key={key}
+          aria-label="A generic control that is programmatically focused to test keyboard navigation of our components."
+          ref={focusTargetRef}
         />
+        <BaseDemo.Playground className={classes.playground} key={key} />
       </ErrorBoundary>
 
       <Collapsible.Root open={codeOpen} onOpenChange={setCodeOpen}>
