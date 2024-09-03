@@ -4,8 +4,6 @@ import { components } from 'docs-base/src/components/content/MDXComponents';
 import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/app/(content)/getMarkdownPage';
 import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
-import { AppBar } from 'docs-base/src/components/AppBar';
-import { Navigation } from 'docs-base/src/components/Navigation';
 import { Description } from 'docs-base/src/components/content/Description';
 import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
 import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithhubLink';
@@ -35,8 +33,6 @@ export default async function DocsPage(props: Props) {
 
   return (
     <React.Fragment>
-      <AppBar />
-      <Navigation routes={routes} />
       <main className={classes.content}>
         <MDXContent components={allComponents} />
         <div>
