@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { useMediaQuery } from '@base_ui/react/useMediaQuery';
 
 let boundDataGaListener = false;
 
@@ -123,10 +123,10 @@ namespace GoogleAnalytics {
 //   Foo
 // </Button>
 function handleDocumentClick(event: MouseEvent) {
-  const node = event.target as Node;
+  let node = event.target as Node | null;
 
   while (node && node !== document) {
-    let element: Element | null = node as Element;
+    const element: Element | null = node as Element;
     const category = (element as Element).getAttribute('data-ga-event-category');
 
     // We reach a tracking element, no need to look higher in the dom tree.
@@ -144,7 +144,7 @@ function handleDocumentClick(event: MouseEvent) {
       break;
     }
 
-    element = element.parentElement;
+    node = element.parentElement;
   }
 }
 
