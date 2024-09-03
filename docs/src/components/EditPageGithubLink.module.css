@@ -10,6 +10,7 @@
   z-index: 0;
   font-size: var(--fs-3);
   line-height: 20px;
+  font-family: var(--ff-sans);
 
   @media screen and (hover: hover) {
     &:hover {
