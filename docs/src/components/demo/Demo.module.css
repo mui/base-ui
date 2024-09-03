@@ -33,6 +33,7 @@
   pre {
     border: none !important;
     border-radius: 0;
+    overflow: visible;
   }
 }
 
@@ -41,7 +42,7 @@
     max-height 200ms,
     overflow 0 200ms;
   max-height: 600px;
-  overflow-y: scroll;
+  overflow: auto;
 
   .codeClosed & {
     transition: max-height 200ms;
