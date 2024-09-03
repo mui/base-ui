@@ -154,11 +154,16 @@ describe('useCheckboxGroupParent', () => {
     expect(parent).to.have.attribute('aria-controls', allValues.map((v) => `${id}-${v}`).join(' '));
   });
 
-  it('preserves initial state if mixed when parent is clicked', () => {
+  it('preserves initial state if mixed when parent is clicked with preserveChildStates=true', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup.Root
+          value={value}
+          onValueChange={setValue}
+          allValues={allValues}
+          preserveChildStates
+        >
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />

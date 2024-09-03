@@ -57,6 +57,8 @@ Checkbox Group is composed of a `Root` component and `Checkbox` components:
 </CheckboxGroup.Root>
 ```
 
+## Labeling
+
 `Field` components are used to label the Checkbox Group and individual Checkboxes:
 
 ```jsx
@@ -88,7 +90,6 @@ const [value, setValue] = useState(['red']);
 
 return (
   <CheckboxGroup.Root value={value} onValueChange={setValue}>
-    <CheckboxGroup.Label />
     <Checkbox.Root name="red" /> {/* Checked */}
     <Checkbox.Root name="green" />
     <Checkbox.Root name="blue" />
@@ -111,7 +112,6 @@ function App() {
   const [value, setValue] = useState([]);
   return (
     <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
-      <CheckboxGroup.Label />
       <Checkbox.Root parent />
       {allValues.map((value) => (
         <Checkbox.Root key={value} name={value} />
