@@ -22,6 +22,7 @@
   align-items: center;
   font-weight: var(--fw-2);
   font-size: var(--fs-3);
+  font-family: var(--ff-sans);
   line-height: 20px;
   padding-left: var(--space-3);
   margin: 0;
