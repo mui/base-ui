@@ -15,7 +15,7 @@ export function useCheckboxGroupParent(
     allValues = [],
     value = [],
     onValueChange: onValueChangeProp = () => {},
-    preserveChildStates = true,
+    preserveChildStates = false,
   } = params;
 
   const uncontrolledStateRef = React.useRef(value);

@@ -31,7 +31,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     onValueChange,
     allValues,
     disabled: disabledProp = false,
-    preserveChildStates = true,
+    preserveChildStates = false,
     ...otherProps
   } = props;
 
@@ -111,7 +111,7 @@ namespace CheckboxGroupRoot {
     /**
      * Whether the parent checkbox should preserve its child states when checked/unchecked, leading
      * to a tri-state checkbox group.
-     * @default true
+     * @default false
      */
     preserveChildStates?: boolean;
   }
@@ -151,7 +151,7 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * Whether the parent checkbox should preserve its child states when checked/unchecked, leading
    * to a tri-state checkbox group.
-   * @default true
+   * @default false
    */
   preserveChildStates: PropTypes.bool,
   /**
