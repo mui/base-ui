@@ -1,8 +1,6 @@
 import * as React from 'react';
 import Script from 'next/script';
 
-// TODO: Move to @mui/docs
-
 interface GoogleTagManagerProps {
   id: string;
 }
