@@ -37,10 +37,11 @@ pnpm add @base_ui/react
 
 </codeblock>
 
-Once you have the package installed, import the component.
+Once you have the package installed, import the components:
 
 ```ts
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
+import * as Checkbox from '@base_ui/react/Checkbox';
 ```
 
 ## Anatomy
@@ -123,7 +124,7 @@ function App() {
 
 {{"demo": "UnstyledCheckboxGroupNested.js"}}
 
-To preserve the initial state of the child checkboxes when the parent checkbox is clicked to prevent their state from being lost, set the `preserveChildStates` prop to `true`:
+To preserve the initial state of the child checkboxes when the parent checkbox is toggled, set the `preserveChildStates` prop to `true`:
 
 ```tsx
 <CheckboxGroup.Root preserveChildStates>
