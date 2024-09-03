@@ -5,7 +5,7 @@ import * as BaseTooltip from '@base_ui/react/Tooltip';
 import classes from './Tooltip.module.css';
 
 export function Tooltip(props: Tooltip.Props) {
-  const { label, children } = props;
+  const { label, children, side = 'top' } = props;
 
   return (
     <BaseTooltip.Root>
@@ -14,7 +14,7 @@ export function Tooltip(props: Tooltip.Props) {
           React.cloneElement(children, triggerProps)
         }
       />
-      <BaseTooltip.Positioner sideOffset={8} className={classes.popup}>
+      <BaseTooltip.Positioner side={side} sideOffset={8} className={classes.popup}>
         <BaseTooltip.Popup>
           {label}
           <BaseTooltip.Arrow className={classes.arrow} />
@@ -28,5 +28,6 @@ export namespace Tooltip {
   export interface Props {
     label: string;
     children: React.ReactElement;
+    side?: 'top' | 'right' | 'bottom' | 'left';
   }
 }
