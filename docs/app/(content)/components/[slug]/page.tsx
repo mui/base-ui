@@ -6,8 +6,7 @@ import { ComponentLinkHeader } from 'docs-base/src/components/content/ComponentL
 import { Description } from 'docs-base/src/components/content/Description';
 import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
-import { AppBar } from 'docs-base/src/components/AppBar';
-import { Navigation } from 'docs-base/src/components/Navigation';
+
 import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
 import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithhubLink';
 import {
@@ -64,8 +63,6 @@ export default async function ComponentPage(props: Props) {
 
   return (
     <React.Fragment>
-      <AppBar />
-      <Navigation routes={routes} />
       <main className={classes.content}>
         <MDXContent components={{ ...allComponents }} />
         <ApiReference componentsApi={componentsApi} />
