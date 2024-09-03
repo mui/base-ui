@@ -83,7 +83,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 namespace RadioRoot {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+  export interface Props extends Omit<BaseUIComponentProps<'button', OwnerState>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
      */
