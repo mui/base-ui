@@ -10,7 +10,205 @@ packageName: '@base_ui/react'
 
 # Accordion
 
-<p class="description">
-  Accordion is a stacked set of interactive headings that each reveal an associated section of
-  content.
-</p>
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+## Introduction
+
+<Demo demo="UnstyledAccordionIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
+```
+
+```bash yarn
+yarn add @base_ui/react
+```
+
+```bash pnpm
+pnpm add @base_ui/react
+```
+
+</codeblock>
+
+Once you have the package installed, import the components.
+
+```ts
+import * as Accordion from '@base_ui/react/Accordion';
+```
+
+## Anatomy
+
+Accordions are implemented using a collection of related components:
+
+- `<Accordion.Root />` is a top-level component that wraps the other components.
+- `<Accordion.Section />` is a component that wraps each section of content
+- `<Accordion.Trigger />` is a button that toggles the open state of it's section
+- `<Accordion.Heading />` is an element that wraps the `Trigger`
+- `<Accordion.Panel />` is the element that contains content in a `Section`
+
+```tsx
+<Accordion.Root>
+  <Accordion.Section>
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle one</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section one content</Accordion.Panel>
+  </Accordion.Section>
+  <Accordion.Section>
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle two</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section two content</Accordion.Panel>
+  </Accordion.Section>
+</Accordion.Root>
+```
+
+## Value
+
+Each `Accordion.Section` is represented by a value, which by default is its zero-based index by DOM position.
+The first section has an implicit `value` of `0`, the second section has a `value` of `1`, and so on.
+
+The open state of the accordion is represented an array holding the `value`s of all open `Section`s.
+
+You can optionally specify a custom `value` prop on `Section`:
+
+```tsx
+<Accordion.Root>
+  <Accordion.Section value="one">
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle one</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section one content</Accordion.Panel>
+  </Accordion.Section>
+  <Accordion.Section value="two">
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle two</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section two content</Accordion.Panel>
+  </Accordion.Section>
+</Accordion.Root>
+```
+
+### Default value
+
+When uncontrolled, use the `defaultValue` prop to set the initial state of the accordion:
+
+```tsx
+<Accordion.Root defaultValue={[0]}>
+  <Accordion.Section>
+    {' '}
+    {/* `value={0}` by default */}
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle one</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section one content</Accordion.Panel>
+  </Accordion.Section>
+  <Accordion.Section>
+    {' '}
+    {/* `value={1}` by default */}
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle two</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section two content</Accordion.Panel>
+  </Accordion.Section>
+</Accordion.Root>;
+
+{
+  /* with custom `value`s */
+}
+<Accordion.Root defaultValue={['a']}>
+  <Accordion.Section value="a">
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle one</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section one content</Accordion.Panel>
+  </Accordion.Section>
+  <Accordion.Section value="b">
+    <Accordion.Heading>
+      <Accordion.Trigger>Toggle two</Accordion.Trigger>
+    </Accordion.Heading>
+    <Accordion.Panel>Section two content</Accordion.Panel>
+  </Accordion.Section>
+</Accordion.Root>;
+```
+
+### Controlled
+
+When controlled, pass the `value` and `onOpenChange` props to `Accordion.Root`:
+
+```tsx
+const [value, setValue] = React.useState(['a']);
+
+return (
+  <Accordion.Root value={value} onOpenChange={setValue}>
+    <Accordion.Section value="a">
+      <Accordion.Heading>
+        <Accordion.Trigger>Toggle one</Accordion.Trigger>
+      </Accordion.Heading>
+      <Accordion.Panel>Section one content</Accordion.Panel>
+    </Accordion.Section>
+    <Accordion.Section value="b">
+      <Accordion.Heading>
+        <Accordion.Trigger>Toggle two</Accordion.Trigger>
+      </Accordion.Heading>
+      <Accordion.Panel>Section two content</Accordion.Panel>
+    </Accordion.Section>
+  </Accordion.Root>
+);
+```
+
+## Customization
+
+### Only one section open at a time
+
+By default, all accordion sections can be opened at the same time. Use the `openMultiple` prop to only allow one open section at a time:
+
+```tsx
+<Accordion.Root openMultiple={false}>{/* subcomponents */}</Accordion.Root>
+```
+
+### At least one section remains open
+
+Use controlled mode to always keep one section open:
+
+```tsx
+const [value, setValue] = React.useState([0]);
+
+const handleOpenChange = (newValue) => {
+  if (newValue.length > 0) {
+    setValue(newValue);
+  }
+};
+
+return (
+  <Accordion.Root value={value} onOpenChange={handleOpenChange}>
+    {/* subcomponents */}
+  </Accordion.Root>
+);
+```
+
+## Horizontal
+
+Use the `orientation` prop to configure a horizontal accordion. In a horizontal accordion, focus will move between `Accordion.Trigger`s with the <kbd class="key">Right Arrow</kbd> and <kbd class="key">Left Arrow</kbd> keys, instead of Down/Up.
+
+```tsx
+<Accordion.Root orientation="horizontal">{/* subcomponents */}</Accordion.Root>
+```
+
+## RTL
+
+Use the `direction` prop to configure a RTL accordion:
+
+```tsx
+<Accordion.Root direction="rtl">{/* subcomponents */}</Accordion.Root>
+```
+
+When a horizontal accordion is set to `direction="rtl"`, keyboard actions are reversed accordingly - <kbd class="key">Left Arrow</kbd> moves focus to the next trigger and <kbd class="key">Right Arrow</kbd> moves focus to the previous trigger.

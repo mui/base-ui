@@ -1,12 +1,14 @@
+'use client';
 import * as React from 'react';
 import Check from '@mui/icons-material/Check';
-import { useTheme } from '@mui/system';
+// import { useTheme } from '@mui/system';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Accordion from '@base_ui/react/Accordion';
 
 export default function App() {
   const [openMultiple, setOpenMultiple] = React.useState(true);
   const [val, setVal] = React.useState(['one']);
+  const [val2, setVal2] = React.useState(['one']);
   return (
     <div className="AccordionDemo">
       <span>multiple `Accordion.Section`s can be open at the same time:</span>
@@ -116,6 +118,50 @@ export default function App() {
           </Accordion.Panel>
         </Accordion.Section>
       </Accordion.Root>
+
+      <hr style={{ marginTop: 32, marginBottom: 32 }} role="presentation" />
+
+      <h2>Controlled, at least one section must remain open</h2>
+
+      <Accordion.Root
+        className="MyAccordion-root"
+        value={val2}
+        onOpenChange={(newValue: Accordion.Root.Props['Value']) => {
+          // console.log(newValue);
+          if (newValue.length > 0) {
+            setVal2(newValue);
+          }
+        }}
+        aria-label="Controlled Accordion, one section must remain open"
+        openMultiple={openMultiple}
+      >
+        <Accordion.Section className="MyAccordion-section" value="one">
+          <Accordion.Heading className="MyAccordion-heading">
+            <Accordion.Trigger className="MyAccordion-trigger">Trigger 1</Accordion.Trigger>
+          </Accordion.Heading>
+          <Accordion.Panel className="MyAccordion-panel">
+            This is the contents of Accordion.Panel 1, the value is &quot;one&quot;
+          </Accordion.Panel>
+        </Accordion.Section>
+
+        <Accordion.Section className="MyAccordion-section" value="two">
+          <Accordion.Heading className="MyAccordion-heading">
+            <Accordion.Trigger className="MyAccordion-trigger">Trigger 2</Accordion.Trigger>
+          </Accordion.Heading>
+          <Accordion.Panel className="MyAccordion-panel">
+            This is the contents of Accordion.Panel 2, the value is &quot;two&quot;
+          </Accordion.Panel>
+        </Accordion.Section>
+
+        <Accordion.Section className="MyAccordion-section" value="three">
+          <Accordion.Heading className="MyAccordion-heading">
+            <Accordion.Trigger className="MyAccordion-trigger">Trigger 3</Accordion.Trigger>
+          </Accordion.Heading>
+          <Accordion.Panel className="MyAccordion-panel">
+            This is the contents of Accordion.Panel 3, the value is &quot;three&quot;
+          </Accordion.Panel>
+        </Accordion.Section>
+      </Accordion.Root>
       <Styles />
     </div>
   );
@@ -130,14 +176,14 @@ const grey = {
   900: '#1C2025',
 };
 
-function useIsDarkMode() {
-  const theme = useTheme();
-  return theme.palette.mode === 'dark';
-}
+// function useIsDarkMode() {
+//   const theme = useTheme();
+//   return theme.palette.mode === 'dark';
+// }
 
 function Styles() {
   // Replace this with your app logic for determining dark mode
-  const isDarkMode = useIsDarkMode();
+  // const isDarkMode = useIsDarkMode();
   return (
     <style suppressHydrationWarning>
       {`
@@ -174,7 +220,7 @@ function Styles() {
           height: 100%;
           display: inline-block;
           visibility: hidden;
-          color: ${/* isDarkMode ? grey[900] : */ grey[100]};
+          color: ${/* isDarkMode ? grey[900] : */ grey[300]};
         }
 
         .Checkbox-indicator[data-state="checked"] {
