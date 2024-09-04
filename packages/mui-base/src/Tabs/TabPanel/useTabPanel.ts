@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { UseTabPanelParameters, UseTabPanelReturnValue } from './TabPanel.types';
 import { useTabsContext } from '../Root/TabsContext';

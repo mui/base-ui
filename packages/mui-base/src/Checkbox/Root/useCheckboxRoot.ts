@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import type { UseCheckboxRootParameters, UseCheckboxRootReturnValue } from './CheckboxRoot.types';
 import { useControlled } from '../../utils/useControlled';

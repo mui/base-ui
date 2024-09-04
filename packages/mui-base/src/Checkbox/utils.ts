@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import type { CheckboxRootOwnerState } from './Root/CheckboxRoot.types';
 import { getStyleHookProps } from '../utils/getStyleHookProps';

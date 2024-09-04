@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { PopoverTriggerOwnerState, PopoverTriggerProps } from './PopoverTrigger.types';

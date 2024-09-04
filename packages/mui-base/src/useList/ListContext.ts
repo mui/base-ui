@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { ListAction } from './listActions.types';
 import { ListItemState } from './useList.types';

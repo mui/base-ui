@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
 import type { FloatingRootContext, ElementProps } from '@floating-ui/react';

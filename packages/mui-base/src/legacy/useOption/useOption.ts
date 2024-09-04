@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef, unstable_useId as useId } from '@mui/utils';
 import { SelectOption, UseOptionParameters, UseOptionReturnValue } from './useOption.types';

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { useId } from '../../utils/useId';
 import { useEventCallback } from '../../utils/useEventCallback';

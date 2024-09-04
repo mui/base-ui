@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { UseTabParameters, UseTabReturnValue } from './Tab.types';
 import { useTabsContext } from '../Root/TabsContext';

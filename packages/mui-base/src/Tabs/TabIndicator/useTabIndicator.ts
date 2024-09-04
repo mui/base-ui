@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { UseTabIndicatorReturnValue } from './TabIndicator.types';
 import { useTabsListContext } from '../TabsList/TabsListContext';

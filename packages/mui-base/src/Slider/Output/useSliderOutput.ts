@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { UseSliderOutputParameters, UseSliderOutputReturnValue } from './SliderOutput.types';
