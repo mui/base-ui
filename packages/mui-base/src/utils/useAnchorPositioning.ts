@@ -159,25 +159,20 @@ export function useAnchorPositioning(
           innerOptions.touchModality
             ? shift({ crossAxis: true, ...commonCollisionProps })
             : (false as const),
-          size({
-            ...commonCollisionProps,
-            apply({
-              elements: { floating },
-              rects: { reference },
-              availableWidth,
-              availableHeight,
-            }) {
-              Object.entries({
-                '--available-width': `${availableWidth}px`,
-                '--available-height': `${availableHeight}px`,
-                '--anchor-width': `${reference.width}px`,
-                '--anchor-height': `${reference.height}px`,
-              }).forEach(([key, value]) => {
-                floating.style.setProperty(key, value);
-              });
-            },
-          }),
         ]),
+    size({
+      ...commonCollisionProps,
+      apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
+        Object.entries({
+          '--available-width': `${availableWidth}px`,
+          '--available-height': `${availableHeight}px`,
+          '--anchor-width': `${reference.width}px`,
+          '--anchor-height': `${reference.height}px`,
+        }).forEach(([key, value]) => {
+          floating.style.setProperty(key, value);
+        });
+      },
+    }),
     arrow(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,

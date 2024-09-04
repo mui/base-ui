@@ -1,7 +1,9 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "alignToItem": { "description": "Determines if the Select should align to the item." },
+    "alignMethod": {
+      "description": "Determines if the select should align to the selected item inside the popup or the trigger element."
+    },
     "animated": {
       "description": "If <code>true</code>, the Select supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
     },

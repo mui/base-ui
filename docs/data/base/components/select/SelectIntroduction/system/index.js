@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
-import { styled } from '@mui/system';
+import { css, styled } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 
@@ -71,19 +71,16 @@ export default function UnstyledSelectIntroduction() {
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Backdrop />
-      <Select.Positioner alignment="start" alignmentOffset={-4}>
-        <SelectScrollArrow direction="up">
+      <Select.Positioner alignment="start" alignmentOffset={-16}>
+        <SelectScrollUpArrow>
           <div>
             <ArrowDropDown />
           </div>
-        </SelectScrollArrow>
+        </SelectScrollUpArrow>
         <SelectPopup>
           <SelectOption value="">
+            <SelectOptionIndicator render={<Check />} />
             Select food...
-            <SelectOptionIndicator
-              render={<Check fontSize="small" />}
-              keepMounted={false}
-            />
           </SelectOption>
           {entries.map(([group, items]) => (
             <React.Fragment key={group}>
@@ -96,22 +93,19 @@ export default function UnstyledSelectIntroduction() {
                     value={item.value}
                     disabled={item.value === 'banana'}
                   >
+                    <SelectOptionIndicator render={<Check />} />
                     {item.label}
-                    <SelectOptionIndicator
-                      render={<Check fontSize="small" />}
-                      keepMounted={false}
-                    />
                   </SelectOption>
                 ))}
               </Select.OptionGroup>
             </React.Fragment>
           ))}
         </SelectPopup>
-        <SelectScrollArrow direction="down">
+        <SelectScrollDownArrow>
           <div>
             <ArrowDropDown />
           </div>
-        </SelectScrollArrow>
+        </SelectScrollDownArrow>
       </Select.Positioner>
     </Select.Root>
   );
@@ -154,10 +148,11 @@ const SelectPopup = styled(Select.Popup)`
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
   outline: 0;
+  min-width: calc(var(--anchor-width) + 16px);
 `;
 
 const SelectOption = styled(Select.Option)`
-  padding: 6px 12px;
+  padding: 6px 16px 6px 4px;
   outline: 0;
   cursor: default;
   border-radius: 4px;
@@ -165,7 +160,6 @@ const SelectOption = styled(Select.Option)`
   user-select: none;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   line-height: 1.5;
   scroll-margin: 15px;
 
@@ -181,28 +175,26 @@ const SelectOption = styled(Select.Option)`
 `;
 
 const SelectOptionIndicator = styled(Select.OptionIndicator)`
-  margin-left: 8px;
+  margin-right: 4px;
+  visibility: hidden;
+  width: 16px;
+  height: 16px;
+
+  &[data-selected] {
+    visibility: visible;
+  }
 `;
 
 const SelectOptionGroupLabel = styled(Select.OptionGroupLabel)`
   font-weight: bold;
-  padding: 4px 12px;
+  padding: 4px 24px;
   cursor: default;
   user-select: none;
 `;
 
-const SelectScrollArrow = styled(Select.ScrollArrow)`
+const scrollArrowStyles = css`
   width: 100%;
   height: 25px;
-
-  &[data-direction='up'] {
-    transform: rotate(180deg);
-    top: -10px;
-  }
-
-  &[data-direction='down'] {
-    bottom: -10px;
-  }
 
   > div {
     position: absolute;
@@ -215,6 +207,17 @@ const SelectScrollArrow = styled(Select.ScrollArrow)`
     border-radius: 5px;
     top: 0;
   }
+`;
+
+const SelectScrollUpArrow = styled(Select.ScrollUpArrow)`
+  transform: rotate(180deg);
+  top: -10px;
+  ${scrollArrowStyles}
+`;
+
+const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
+  bottom: -10px;
+  ${scrollArrowStyles}
 `;
 
 const SelectSeparator = styled(Select.Separator)`

@@ -6,7 +6,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useSelectBackdrop } from './useSelectBackdrop';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
@@ -20,18 +19,13 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { className, render, keepMounted = false, container, ...otherProps } = props;
 
-  const { open, mounted, innerFallback, alignToItem, selectedIndex, backdropRef } =
-    useSelectRootContext();
+  const { open, mounted, backdropRef } = useSelectRootContext();
 
   const { getBackdropProps } = useSelectBackdrop();
 
   const mergedRef = useForkRef(backdropRef, forwardedRef);
 
   const ownerState: SelectBackdrop.OwnerState = React.useMemo(() => ({ open }), [open]);
-
-  const standardMode = !(selectedIndex !== null && alignToItem && !innerFallback);
-
-  useScrollLock(!standardMode && mounted);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getBackdropProps,

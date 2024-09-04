@@ -19,7 +19,7 @@ function SelectRoot(props: SelectRoot.Props) {
     loop = true,
     onOpenChange,
     open,
-    alignToItem = true,
+    alignMethod = 'item',
   } = props;
 
   const selectRoot = useSelectRoot({
@@ -29,7 +29,7 @@ function SelectRoot(props: SelectRoot.Props) {
     loop,
     defaultOpen,
     open,
-    alignToItem,
+    alignMethod,
     value,
     defaultValue,
   });
@@ -38,13 +38,13 @@ function SelectRoot(props: SelectRoot.Props) {
     () => ({
       ...selectRoot,
       disabled,
-      alignToItem,
+      alignMethod,
       id,
       name,
       required,
       readOnly,
     }),
-    [selectRoot, disabled, alignToItem, id, name, required, readOnly],
+    [selectRoot, disabled, alignMethod, id, name, required, readOnly],
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
@@ -113,10 +113,11 @@ namespace SelectRoot {
      */
     open?: boolean;
     /**
-     * Determines if the Select should align to the item.
-     * @default true
+     * Determines if the select should align to the selected item inside the popup or the trigger
+     * element.
+     * @default 'item'
      */
-    alignToItem?: boolean;
+    alignMethod?: 'item' | 'trigger';
   }
 }
 
@@ -126,10 +127,11 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Determines if the Select should align to the item.
-   * @default true
+   * Determines if the select should align to the selected item inside the popup or the trigger
+   * element.
+   * @default 'item'
    */
-  alignToItem: PropTypes.bool,
+  alignMethod: PropTypes.oneOf(['item', 'trigger']),
   /**
    * If `true`, the Select supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.

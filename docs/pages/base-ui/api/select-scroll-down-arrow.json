@@ -1,0 +1,16 @@
+{
+  "props": { "keepMounted": { "type": { "name": "bool" }, "default": "false" } },
+  "name": "SelectScrollDownArrow",
+  "imports": [
+    "import * as Select from '@base_ui/react/Select';\nconst SelectScrollDownArrow = Select.ScrollDownArrow;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectScrollDownArrow",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/ScrollDownArrow/SelectScrollDownArrow.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

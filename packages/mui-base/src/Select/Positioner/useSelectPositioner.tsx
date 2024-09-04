@@ -12,6 +12,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 /**
  *
@@ -24,7 +25,9 @@ export function useSelectPositioner(
 ): useSelectPositioner.ReturnValue {
   const { open = false, keepMounted } = params;
 
-  const { touchModality } = useSelectRootContext();
+  const { touchModality, alignMethod, innerFallback, mounted } = useSelectRootContext();
+
+  useScrollLock(alignMethod && !innerFallback && mounted);
 
   const {
     positionerStyles,

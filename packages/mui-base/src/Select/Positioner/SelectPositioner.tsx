@@ -68,7 +68,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     popupRef,
     overflowRef,
     innerOffset,
-    alignToItem,
+    alignMethod,
     innerFallback,
     setInnerFallback,
     selectedIndex,
@@ -129,7 +129,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     allowAxisFlip: false,
     innerFallback,
     inner:
-      alignToItem && selectedIndexOnMount !== null
+      alignMethod && selectedIndexOnMount !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({

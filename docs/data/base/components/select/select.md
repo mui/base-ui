@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Select components and hook
-components: SelectRoot, SelectTrigger, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionIndicator, SelectOptionGroup, SelectOptionGroupLabel, SelectValue, SelectScrollArrow, SelectSeparator
+components: SelectRoot, SelectTrigger, SelectValue, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionIndicator, SelectOptionGroup, SelectOptionGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectSeparator
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -56,7 +56,9 @@ Selects are implemented using a collection of related components:
 - `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
 - `<Select.OptionGroup />` renders an option group, wrapping `<Select.Option>` components.
 - `<Select.OptionGroupLabel />` renders a label for an option group.
-- `<Select.ScrollArrow />` renders a scrolling arrow for the `alignToItem` (default) anchoring mode.
+- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
+- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
+- `<Select.Separator />` renders a separator between option groups.
 
 ```jsx
 <Select.Root>
@@ -67,7 +69,7 @@ Selects are implemented using a collection of related components:
   <Select.Backdrop />
 
   <Select.Positioner>
-    <Select.ScrollArrow direction="up" />
+    <Select.ScrollUpArrow />
 
     <Select.Popup>
       <Select.OptionGroup>
@@ -79,7 +81,22 @@ Selects are implemented using a collection of related components:
       <Select.Separator />
     </Select.Popup>
 
-    <Select.ScrollArrow direction="down" />
+    <Select.ScrollDownArrow />
   </Select.Positioner>
 </Select.Root>
 ```
+
+## Align method
+
+Two different methods to align the popup are available:
+
+- `alignMethod="item"` (default)
+- `alignMethod="trigger"`
+
+```jsx
+<Select.Root alignMethod="trigger">
+```
+
+The `item` method aligns the popup such that the selected item inside of it appears centered over the trigger. If there's not enough space, it falls back to `trigger` anchoring.
+
+The `trigger` method aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.

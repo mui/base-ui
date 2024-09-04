@@ -257,8 +257,12 @@ module.exports = [
     title: 'SelectRoot',
   },
   {
-    pathname: '/base-ui/react-select/components-api/#select-scroll-arrow',
-    title: 'SelectScrollArrow',
+    pathname: '/base-ui/react-select/components-api/#select-scroll-down-arrow',
+    title: 'SelectScrollDownArrow',
+  },
+  {
+    pathname: '/base-ui/react-select/components-api/#select-scroll-up-arrow',
+    title: 'SelectScrollUpArrow',
   },
   {
     pathname: '/base-ui/react-select/components-api/#select-separator',

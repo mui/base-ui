@@ -8,19 +8,22 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 
+/**
+ * @ignore - internal component.
+ */
 const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   props: SelectScrollArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, direction, ...otherProps } = props;
+  const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
-  const { innerOffset, setInnerOffset, innerFallback, alignToItem, popupRef, touchModality } =
+  const { innerOffset, setInnerOffset, innerFallback, alignMethod, popupRef, touchModality } =
     useSelectRootContext();
   const { isPositioned } = useSelectPositionerContext();
 
   const [rendered, setRendered] = React.useState(false);
 
-  const inert = !(!touchModality && alignToItem && !innerFallback);
+  const inert = !(!touchModality && alignMethod && !innerFallback);
 
   if (rendered && inert) {
     setRendered(false);
@@ -31,8 +34,9 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const ownerState: SelectScrollArrow.OwnerState = React.useMemo(
     () => ({
       direction,
+      rendered,
     }),
-    [direction],
+    [direction, rendered],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -146,7 +150,8 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     extraProps: otherProps,
   });
 
-  if (!rendered) {
+  const shouldRender = rendered || keepMounted;
+  if (!shouldRender) {
     return null;
   }
 
@@ -159,6 +164,11 @@ namespace SelectScrollArrow {
   }
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     direction: 'up' | 'down';
+    /**
+     * Whether the component should be kept mounted when it is not rendered.
+     * @default false
+     */
+    keepMounted?: boolean;
   }
 }
 
@@ -179,6 +189,11 @@ SelectScrollArrow.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   direction: PropTypes.oneOf(['down', 'up']).isRequired,
+  /**
+   * Whether the component should be kept mounted when it is not rendered.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

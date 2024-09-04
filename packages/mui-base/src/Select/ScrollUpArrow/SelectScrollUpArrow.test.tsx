@@ -2,10 +2,10 @@ import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Select.ScrollArrow />', () => {
+describe('<Select.ScrollDownArrow />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.ScrollArrow direction="up" />, () => ({
+  describeConformance(<Select.ScrollDownArrow />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
