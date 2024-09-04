@@ -26,7 +26,7 @@ const availableLinksCore = {};
 const usedBaseUILinks = {};
 const usedLinksCore = {};
 
-parseDocFolder(path.join(docsSpaceRoot, './pages/'), availableBaseUILinks, usedBaseUILinks, '');
+parseDocFolder(path.join(docsSpaceRoot, './pages'), availableBaseUILinks, usedBaseUILinks, '');
 parseDocFolder(
   path.resolve(__dirname, '../../node_modules/@mui/monorepo/docs/pages/'),
   availableLinksCore,
@@ -50,7 +50,7 @@ const usedLinks = { ...usedLinksCore, ...usedBaseUILinks };
 const availableLinks = { ...availableLinksCore, ...availableBaseUILinks };
 
 write('Broken links found by `pnpm docs:link-check` that exist:\n');
-Object.keys(usedLinks)
+Object.keys(usedBaseUILinks)
   .filter((link) => link.startsWith('/'))
   .filter((link) => !availableLinks[removeApiLinkHash(link)])
   // these url segments are specific to Base UI and added by scripts (can not be found in markdown)

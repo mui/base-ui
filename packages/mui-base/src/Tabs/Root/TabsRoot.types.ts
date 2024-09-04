@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TabsProviderValue } from './TabsProvider';
-import { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 export type TabsRootOwnerState = {
   orientation: TabsOrientation;

@@ -7,6 +7,7 @@ import { useNumberFieldRoot } from './useNumberFieldRoot';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
   return <div {...props} />;
@@ -36,13 +37,13 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     largeStep,
     autoFocus,
     required = false,
-    disabled = false,
+    disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
     name,
     defaultValue,
     value,
-    onChange,
+    onValueChange,
     allowWheelScrub,
     format,
     render: renderProp,
@@ -53,8 +54,12 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const numberField = useNumberFieldRoot(props);
 
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
   const ownerState: NumberFieldRootOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       disabled,
       invalid,
       readOnly,
@@ -64,6 +69,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       scrubbing: numberField.isScrubbing,
     }),
     [
+      fieldOwnerState,
       disabled,
       invalid,
       readOnly,
@@ -136,17 +142,18 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
   format: PropTypes.shape({
     compactDisplay: PropTypes.oneOf(['long', 'short']),
     currency: PropTypes.string,
-    currencyDisplay: PropTypes.string,
-    currencySign: PropTypes.string,
-    localeMatcher: PropTypes.string,
+    currencyDisplay: PropTypes.oneOf(['code', 'name', 'narrowSymbol', 'symbol']),
+    currencySign: PropTypes.oneOf(['accounting', 'standard']),
+    localeMatcher: PropTypes.oneOf(['best fit', 'lookup']),
     maximumFractionDigits: PropTypes.number,
     maximumSignificantDigits: PropTypes.number,
     minimumFractionDigits: PropTypes.number,
     minimumIntegerDigits: PropTypes.number,
     minimumSignificantDigits: PropTypes.number,
     notation: PropTypes.oneOf(['compact', 'engineering', 'scientific', 'standard']),
+    numberingSystem: PropTypes.string,
     signDisplay: PropTypes.oneOf(['always', 'auto', 'exceptZero', 'never']),
-    style: PropTypes.string,
+    style: PropTypes.oneOf(['currency', 'decimal', 'percent', 'unit']),
     unit: PropTypes.string,
     unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
     useGrouping: PropTypes.bool,
@@ -181,8 +188,9 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback fired when the number value changes.
    * @param {number | null} value The new value.
+   * @param {Event} event The event that triggered the change.
    */
-  onChange: PropTypes.func,
+  onValueChange: PropTypes.func,
   /**
    * If `true`, the input element is read only.
    * @default false

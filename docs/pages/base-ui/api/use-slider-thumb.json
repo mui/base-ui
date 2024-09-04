@@ -1,0 +1,105 @@
+{
+  "parameters": {
+    "active": { "type": { "name": "number", "description": "number" }, "required": true },
+    "axis": { "type": { "name": "Axis", "description": "Axis" }, "required": true },
+    "changeValue": {
+      "type": {
+        "name": "(valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) =&gt; void",
+        "description": "(valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) =&gt; void"
+      },
+      "required": true
+    },
+    "direction": {
+      "type": { "name": "SliderDirection", "description": "SliderDirection" },
+      "required": true
+    },
+    "largeStep": {
+      "type": { "name": "number", "description": "number" },
+      "default": "10",
+      "required": true
+    },
+    "max": { "type": { "name": "number", "description": "number" }, "required": true },
+    "min": { "type": { "name": "number", "description": "number" }, "required": true },
+    "minStepsBetweenValues": {
+      "type": { "name": "number", "description": "number" },
+      "required": true
+    },
+    "orientation": {
+      "type": { "name": "SliderOrientation", "description": "SliderOrientation" },
+      "default": "'horizontal'",
+      "required": true
+    },
+    "percentageValues": {
+      "type": { "name": "readonly number[]", "description": "readonly number[]" },
+      "required": true
+    },
+    "step": {
+      "type": { "name": "number", "description": "number" },
+      "default": "1",
+      "required": true
+    },
+    "values": {
+      "type": { "name": "readonly number[]", "description": "readonly number[]" },
+      "required": true
+    },
+    "aria-label": { "type": { "name": "string", "description": "string" } },
+    "aria-labelledby": { "type": { "name": "string", "description": "string" } },
+    "aria-valuetext": { "type": { "name": "string", "description": "string" } },
+    "disabled": { "type": { "name": "boolean", "description": "boolean" } },
+    "getAriaLabel": {
+      "type": {
+        "name": "(index: number) =&gt; string",
+        "description": "(index: number) =&gt; string"
+      }
+    },
+    "getAriaValueText": {
+      "type": {
+        "name": "(value: number, index: number) =&gt; string",
+        "description": "(value: number, index: number) =&gt; string"
+      }
+    },
+    "id": { "type": { "name": "string", "description": "string" } },
+    "name": { "type": { "name": "string", "description": "string" } },
+    "onBlur": {
+      "type": { "name": "React.FocusEventHandler", "description": "React.FocusEventHandler" }
+    },
+    "onFocus": {
+      "type": { "name": "React.FocusEventHandler", "description": "React.FocusEventHandler" }
+    },
+    "onKeyDown": {
+      "type": { "name": "React.KeyboardEventHandler", "description": "React.KeyboardEventHandler" }
+    },
+    "rootRef": {
+      "type": { "name": "React.Ref&lt;Element&gt;", "description": "React.Ref&lt;Element&gt;" }
+    },
+    "tabIndex": { "type": { "name": "number", "description": "number" } }
+  },
+  "returnValue": {
+    "getRootProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;React.ElementType&gt;) =&gt; React.ComponentPropsWithRef&lt;React.ElementType&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;React.ElementType&gt;) =&gt; React.ComponentPropsWithRef&lt;React.ElementType&gt;"
+      },
+      "required": true
+    },
+    "getThumbInputProps": {
+      "type": {
+        "name": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;",
+        "description": "(externalProps?: React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;) =&gt; React.ComponentPropsWithRef&lt;&#39;input&#39;&gt;"
+      },
+      "required": true
+    },
+    "getThumbStyle": {
+      "type": {
+        "name": "(index: number) =&gt; Record&lt;string, unknown&gt;",
+        "description": "(index: number) =&gt; Record&lt;string, unknown&gt;"
+      },
+      "required": true
+    },
+    "index": { "type": { "name": "number", "description": "number" }, "required": true }
+  },
+  "name": "useSliderThumb",
+  "filename": "/packages/mui-base/src/Slider/Thumb/useSliderThumb.ts",
+  "imports": ["import { useSliderThumb } from '@base_ui/react/Slider';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-slider/#hooks\">Slider</a></li></ul>"
+}

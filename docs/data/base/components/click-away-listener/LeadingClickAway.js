@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { ClickAwayListener } from '@base_ui/react/ClickAwayListener';
+import { ClickAwayListener } from '@base_ui/react/legacy/ClickAwayListener';
 
 export default function LeadingClickAway() {
   const [open, setOpen] = React.useState(false);

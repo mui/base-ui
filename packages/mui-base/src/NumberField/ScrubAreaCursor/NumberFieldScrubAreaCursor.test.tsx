@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
+import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { describeConformance } from '../../../test/describeConformance';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,
@@ -27,18 +27,16 @@ describe('<NumberField.ScrubAreaCursor />', () => {
   }
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
-    inheritComponent: 'span',
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
         <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
       );
     },
-    skip: ['reactTestRenderer'],
   }));
 
-  it('has presentation role', () => {
-    render(
+  it('has presentation role', async () => {
+    await render(
       <NumberField.Root>
         <NumberField.ScrubArea />
       </NumberField.Root>,

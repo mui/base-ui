@@ -3,12 +3,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { CheckboxContext } from './CheckboxContext';
 import { useCheckboxRoot } from './useCheckboxRoot';
-import type { CheckboxOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
+import type { CheckboxRootOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
 import { useCheckboxStyleHooks } from '../utils';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -27,12 +29,13 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 ) {
   const {
     name,
-    onChange,
+    onCheckedChange,
     defaultChecked,
-    disabled = false,
+    parent = false,
     readOnly = false,
     indeterminate = false,
     required = false,
+    disabled: disabledProp = false,
     checked: checkedProp,
     render: renderProp,
     className,
@@ -40,17 +43,48 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
+  const groupContext = useCheckboxGroupRootContext();
+  const isGrouped = groupContext?.parent && groupContext.allValues;
 
-  const ownerState: CheckboxOwnerState = React.useMemo(
+  let groupProps: Partial<Omit<CheckboxRootProps, 'className'>> = {};
+  if (isGrouped) {
+    if (parent) {
+      groupProps = groupContext.parent.getParentProps();
+    } else if (name) {
+      groupProps = groupContext.parent.getChildProps(name);
+    }
+  }
+
+  const {
+    checked: groupChecked = checkedProp,
+    indeterminate: groupIndeterminate = indeterminate,
+    onCheckedChange: groupOnChange = onCheckedChange,
+    ...otherGroupProps
+  } = groupProps;
+
+  const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
+    ...props,
+    checked: groupChecked,
+    indeterminate: groupIndeterminate,
+    onCheckedChange: groupOnChange,
+  });
+
+  const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
+  const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
+
+  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
+  const ownerState: CheckboxRootOwnerState = React.useMemo(
     () => ({
-      checked,
+      ...fieldOwnerState,
+      checked: computedChecked,
       disabled,
       readOnly,
       required,
-      indeterminate,
+      indeterminate: computedIndeterminate,
     }),
-    [checked, disabled, readOnly, required, indeterminate],
+    [fieldOwnerState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
   const styleHooks = useCheckboxStyleHooks(ownerState);
@@ -61,6 +95,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: mergedRef,
     ...styleHooks,
     ...otherProps,
+    ...otherGroupProps,
   });
 
   return (
@@ -110,6 +145,10 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * The id of the input element.
+   */
+  id: PropTypes.string,
+  /**
    * If `true`, the checkbox will be indeterminate.
    *
    * @default false
@@ -131,13 +170,17 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
-   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
+   * @param {boolean} checked The new checked state.
+   * @param {Event} event The event source of the callback.
    */
-  onChange: PropTypes.func,
+  onCheckedChange: PropTypes.func,
+  /**
+   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * @default false
+   */
+  parent: PropTypes.bool,
   /**
    * If `true`, the component is read only.
    *

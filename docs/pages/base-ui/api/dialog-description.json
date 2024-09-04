@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "DialogDescription",
+  "imports": [
+    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogDescription = Dialog.Description;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "DialogDescription",
+  "forwardsRefTo": "HTMLParagraphElement",
+  "filename": "/packages/mui-base/src/Dialog/Description/DialogDescription.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-dialog/\">Dialog</a></li></ul>",
+  "cssComponent": false
+}

@@ -1,0 +1,23 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "htmlHidden": {
+      "type": { "name": "enum", "description": "'hidden'<br>&#124;&nbsp;'until-found'" },
+      "default": "'hidden'"
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "CollapsibleContent",
+  "imports": [
+    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleContent = Collapsible.Content;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "CollapsibleContent",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Collapsible/Content/CollapsibleContent.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-collapsible/\">Collapsible</a></li></ul>",
+  "cssComponent": false
+}

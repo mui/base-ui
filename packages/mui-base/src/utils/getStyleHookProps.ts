@@ -18,7 +18,7 @@ export function getStyleHookProps<State extends Record<string, any>>(
       return;
     }
 
-    if (value !== false) {
+    if (value) {
       props[`data-${key.toLowerCase()}`] = value.toString();
     }
   });

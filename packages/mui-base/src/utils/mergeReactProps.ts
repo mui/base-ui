@@ -1,8 +1,8 @@
 import type * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './BaseUI.types';
+import type { BaseUIEvent, WithBaseUIEvent } from './types';
 
 /**
- * Merges two sets of React props such that their event handlers are called in sequence (the user's
+ * Merges multiple sets of React props such that their event handlers are called in sequence (the user's
  * before our internal ones), and allows the user to prevent the internal event handlers from being
  * executed by attaching a `preventBaseUIHandler` method. It also merges the `style` prop, whereby
  * the user's styles overwrite the internal ones.
@@ -12,12 +12,35 @@ import type { BaseUIEvent, WithBaseUIEvent } from './BaseUI.types';
  * @returns the merged props.
  */
 export function mergeReactProps<T extends React.ElementType>(
-  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
+  ...internalProps: React.ComponentPropsWithRef<T>[]
+): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+  let mergedInternalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> = internalProps[0];
+  for (let i = 1; i < internalProps.length; i += 1) {
+    mergedInternalProps = merge(mergedInternalProps, internalProps[i]);
+  }
+
+  return merge(externalProps, mergedInternalProps as React.ComponentPropsWithRef<T>);
+}
+
+function merge<T extends React.ElementType>(
+  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
   internalProps: React.ComponentPropsWithRef<T>,
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+  if (!externalProps) {
+    return internalProps;
+  }
+
   return Object.entries(externalProps).reduce(
     (acc, [key, value]) => {
-      if (/^on[A-Z]/.test(key) && typeof value === 'function') {
+      if (
+        // This approach is more efficient than using a regex.
+        key[0] === 'o' &&
+        key[1] === 'n' &&
+        key.charCodeAt(2) >= 65 /* A */ &&
+        key.charCodeAt(2) <= 90 /* Z */ &&
+        typeof value === 'function'
+      ) {
         acc[key] = (event: React.SyntheticEvent) => {
           let isPrevented = false;
 

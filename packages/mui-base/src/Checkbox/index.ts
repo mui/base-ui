@@ -3,7 +3,7 @@ export { useCheckboxRoot } from './Root/useCheckboxRoot';
 export { CheckboxContext } from './Root/CheckboxContext';
 export type {
   CheckboxRootProps as RootProps,
-  CheckboxOwnerState as OwnerState,
+  CheckboxRootOwnerState as OwnerState,
   CheckboxContextValue,
   UseCheckboxRootParameters,
   UseCheckboxRootReturnValue,

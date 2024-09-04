@@ -1,0 +1,19 @@
+{
+  "props": {
+    "closeDelay": { "type": { "name": "number" } },
+    "delay": { "type": { "name": "number" } },
+    "timeout": { "type": { "name": "number" }, "default": "400" }
+  },
+  "name": "TooltipProvider",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipProvider = Tooltip.Provider;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "TooltipProvider",
+  "filename": "/packages/mui-base/src/Tooltip/Provider/TooltipProvider.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/base-ui/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

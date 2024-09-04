@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FocusTrap } from '@base_ui/react/FocusTrap';
+import { FocusTrap } from '@base_ui/react/legacy/FocusTrap';
 
 export default function BaseFocusTrap() {
   const [open, close] = React.useReducer(() => false, true);

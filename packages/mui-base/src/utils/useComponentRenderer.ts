@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from './BaseUI.types';
+import type { ComponentRenderFn } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';

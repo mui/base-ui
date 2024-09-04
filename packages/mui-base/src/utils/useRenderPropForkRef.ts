@@ -1,4 +1,4 @@
-import type { BaseUIComponentProps } from './BaseUI.types';
+import type { BaseUIComponentProps } from './types';
 import { useForkRef } from './useForkRef';
 
 /**

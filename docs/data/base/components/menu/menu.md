@@ -1,181 +1,363 @@
 ---
 productId: base-ui
 title: React Menu components and hooks
-components: Menu, MenuItem, MenuButton, Dropdown
-hooks: useMenu, useMenuItem, useMenuButton, useDropdown, useMenuItemContextStabilizer
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
 
 # Menu
 
-<p class="description">The Dropdown Menu components provide end users with a list of options on temporary surfaces.</p>
+<p class="description">The Menu component provide end users with a list of options on temporary surfaces.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
-## Introduction
-
-The Base UI Dropdown Menu is implemented using a collection of related components:
-
-- Dropdown - The outermost container that houses all Menu components.
-- Menu Button - The button that toggles the visibility of the Menu.
-- Menu - The unordered list of Menu Items.
-- Menu Item - The individual list items of the Menu.
-
 {{"demo": "MenuIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
-## Components
+## Installation
 
-```jsx
-import { Dropdown } from '@base_ui/react/Dropdown';
-import { MenuButton } from '@base_ui/react/MenuButton';
-import { Menu } from '@base_ui/react/Menu';
-import { MenuItem } from '@base_ui/react/MenuItem';
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
 ```
 
-The demo below shows how to create and style a Dropdown Menu.
-Click **Dashboard** to view the menu.
-Note that it uses the built-in [Popper](/base-ui/react-popper/) component to visually break out of its parent container:
+```bash yarn
+yarn add @base_ui/react
+```
 
-{{"demo": "MenuSimple"}}
+```bash pnpm
+pnpm add @base_ui/react
+```
 
-The `<Dropdown />` should be the outermost component—all other Menu-related components must be placed as its children (but not necessarily as direct ones).
-If you need to control the open state of the Menu or react to its changes, place `open`/`onOpenChange` props on the `<Dropdown />`.
+</codeblock>
 
-The `<Dropdown />` must only contain one `<MenuButton />` and one `<Menu />`.
-It will wire them together, so that pressing the Button will open the Menu.
-It also takes care of assigning proper accessibility attributes, so the Dropdown Menu can be used with assistive technologies or a keyboard.
+Once you have the package installed, import the component.
 
-The `<Menu />` hosts `<MenuItem />` components can be wrapped in arbitrary tags and components, as well as grouped together.
-Clicking on a Menu Item closes its associated Menu.
+```ts
+import * as Menu from '@base_ui/react/Menu';
+```
 
-### Anatomy
+## Anatomy
 
-- The `<Dropdown />` does not render any HTML element—it only provides the context that links a Menu Button to a Menu, so you don't have to.
-- The `<MenuButton />` renders a `<button>`.
-- The `<Menu />` component renders a `<div>` with a `<ul>` nested inside.
-- The `<MenuItem />` renders a `<li>`.
+Menus are implemented using a collection of related components:
 
-```html
-<button class="base-MenuButton-root">Click me</button>
-<div class="base-Menu-root">
-  <ul class="base-Menu-listbox">
-    <li class="base-MenuItem-root">List item</li>
-  </ul>
+- `<Menu.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
+- `<Menu.Trigger />` is an optional component (a button by default) that, when clicked, shows the menu. When not used, menu can be shown programmatically using the `open` prop.
+- `<Menu.Positioner />` renders the element responsible for positioning the popup.
+- `<Menu.Popup />` is the menu popup.
+- `<Menu.Item />` is the menu item.
+- `<Menu.Arrow />` renders an optional pointing arrow, placed inside the popup.
+- `<Menu.SubmenuTrigger />` is a menu item that opens a submenu. See [Nested menu](#nested-menu) for more details.
+
+```tsx
+<Menu.Root>
+  <Menu.Trigger />
+
+  <Menu.Positioner>
+    <Menu.Popup>
+      <Menu.Item />
+      <Menu.Item />
+
+      <Menu.Root>
+        <Menu.SubmenuTrigger />
+
+        <Menu.Positioner>
+          <Menu.Popup>
+            <Menu.Arrow />
+            <Menu.Item />
+            <Menu.Item />
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Root>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+## Placement
+
+By default, the menu is placed on the bottom side of its trigger, the default anchor. To change this, use the `side` prop:
+
+```jsx
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Positioner side="right">
+    <Menu.Popup>
+      <Menu.Item>Item 1</Menu.Item>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+You can also change the alignment of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `alignment` prop:
+
+```jsx
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Positioner side="right" alignment="end">
+    <Menu.Popup>
+      <Menu.Item>Item 1</Menu.Item>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+Due to collision detection, the menu may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
+
+To access the true rendered values, which may change as the result of a collision, the menu element receives data attributes:
+
+```jsx
+// Rendered HTML (simplified)
+<div>
+  <div data-side="left" data-alignment="end">
+    <div>Item 1</div>
+  </div>
 </div>
 ```
 
-### Custom structure
+This allows you to conditionally style the menu based on its rendered side or alignment.
 
-Use the `slots` prop to override the slots on any component except the `<Dropdown />` (since it renders no HTML):
+## Offset
 
-```jsx
-<Menu slots={{ listbox: 'ol' }} />
-```
-
-:::info
-The `slots` prop is available on all non-utility Base components.
-See [Overriding component structure](/base-ui/guides/overriding-component-structure/) for complete details.
-:::
-
-Use the `slotProps` prop to pass custom props to internal slots.
-The following code snippet applies a CSS class called `my-listbox` to the listbox slot on the Menu:
+The `sideOffset` prop creates a gap between the anchor and menu popup, while `alignmentOffset` slides the menu popup from its alignment, acting logically for `start` and `end` alignments.
 
 ```jsx
-<Menu slotProps={{ listbox: { className: 'my-listbox' } }} />
+<Menu.Positioner sideOffset={10} alignmentOffset={10}>
 ```
 
-### Usage with TypeScript
+## Orientation
 
-In TypeScript, you can specify the custom component type used in the `slots.root` as a generic parameter of the unstyled component.
-This way, you can safely provide the custom root's props directly on the component:
-
-```tsx
-<Menu<typeof CustomComponent> slots={{ root: CustomComponent }} customProp />
-```
-
-The same applies to props specific to custom primitive elements:
-
-```tsx
-<Menu<'ol'> slots={{ root: 'ol' }} start={5} />
-```
-
-### Transitions
-
-The Menu component supports the [Transitions API](/base-ui/react-transitions/), so it's possible to animate the appearing and disappearing Listbox.
-To do this, override the Listbox slot of the Menu and wrap it with a transition component ([CssTransition](/base-ui/react-transitions/#css-transition), [CssAnimation](/base-ui/react-transitions/#css-animation), or a custom-built one).
-
-{{"demo": "MenuTransitions.js", "defaultCodeOpen": false}}
-
-## Hooks
+By default, menus are vertical, so the up/down arrow keys navigate through options and left/right keys open and close submenus.
+You can change this with the `orientation` prop"
 
 ```jsx
-import { useDropdown } from '@base_ui/react/useDropdown';
-import { useMenuButton } from '@base_ui/react/useMenuButton';
-import { useMenu } from '@base_ui/react/useMenu';
-import { useMenuItem } from '@base_ui/react/useMenuItem';
+<Menu.Root orientation="horizontal">
+  <Menu.Trigger />
+  <Menu.Positioner>
+    <Menu.Popup>
+      <Menu.Item>Item 1</Menu.Item>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
 ```
 
-The Dropdown Menu hooks let you apply the functionality of the Dropdown Menu suite to fully custom components.
-They return props to be placed on the custom components, along with fields representing the components' internal states.
+## Hover
 
-Hooks _do not_ support [slot props](#custom-structure), but they do support [customization props](#customization).
+To open the Menu on hover, add the `openOnHover` prop:
 
-:::info
-Hooks give you the most room for customization but require more work to implement.
-With hooks, you can take complete control over how your component is rendered and define all the custom props and CSS classes you need.
+```jsx
+<Menu.Root openOnHover>
+```
 
-You may not need to use hooks unless you find that you're limited by the customization options of their component counterparts—for instance, if your component requires a significantly different [structure](#anatomy).
-:::
+By default submenus are opened on hover, but top-level menus aren't.
 
-The following demo shows how to build a Dropdown Menu using hooks:
+### Delay
 
-{{"demo": "UseMenu.js"}}
+To change how long the menu waits until it opens or closes when `openOnHover` is enabled, use the `delay` prop, which represent how long the Menu waits after the cursor enters the trigger, in milliseconds:
 
-Components and their corresponding hooks work interchangeably with one another—for example, you can create a Menu component that contains custom menu items built with the `useMenuItem` hook.
+```jsx
+<Menu.Root openOnHover delay={200}>
+```
 
-### Performance
+## Nested menu
 
-The `useMenuItem` hook listens to changes in a context that is set up by the parent Menu component.
-This context changes every time an item is highlighted.
-Usually, it shouldn't be a problem, however, when your menu has hundreds of items, you may notice it's not very responsive, as every item is rerendered whenever highlight changes.
+Menu items can open submenus.
+To make this happen, place the `<Menu.Root>` with all its required children where a submenu trigger has to be placed, but instead of `<Menu.Trigger>`, use `<Menu.SubitemTrigger>`, as on the demo below.
 
-To improve performance by preventing menu items from rendering unnecessarily, you can create a component that wraps the menu item.
-Inside this component, call `useMenuItemContextStabilizer` and create a ListContext with the value from the hook's result:
+{{"demo": "NestedMenu.js"}}
 
-```tsx
-const StableMenuItem = React.forwardRef(function StableMenuItem(
-  props: MenuItemProps,
-  ref: React.ForwardedRef<Element>,
-) {
-  const { contextValue, id } = useMenuItemContextStabilizer(props.id);
+### Escape key behavior
 
+You can control if pressing the <kbd class="key">Escape</kbd> key closes just the current submenu or the whole tree.
+By default, the whole menu closes, but setting the `closeParentOnEsc` prop modifies this behavior:
+
+```jsx
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Positioner>
+    <Menu.Popup>
+      <Menu.Item>Item 1</Menu.Item>
+      <Menu.Root closeParentOnEsc={false}>
+        <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+
+        <Menu.Positioner>
+          <Menu.Popup>
+            <Menu.Item>Submenu item 1</Menu.Item>
+            <Menu.Item>Submenu item 2</Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Root>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+## Arrow
+
+To add an arrow (caret or triangle) inside the menu popup that points toward the center of the anchor element, use the `Menu.Arrow` component:
+
+```jsx
+<Menu.Positioner>
+  <Menu.Popup>
+    <Menu.Arrow />
+    <Menu.Item>Item 1</Menu.Item>
+    <Menu.Item>Item 2</Menu.Item>
+  </Menu.Popup>
+</Menu.Positioner>
+```
+
+It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
+
+## Animations
+
+The menu can animate when opening or closing with either:
+
+- CSS transitions
+- CSS animations
+- JavaScript animations
+
+### CSS transitions
+
+Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
+
+```jsx
+<Menu.Popup className="MenuPopup">
+  <Menu.Item>Item 1</Menu.Item>
+</Menu.Popup>
+```
+
+```css
+.MenuPopup {
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: 0.2s;
+  /* Represents the final styles once exited */
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Represents the final styles once entered */
+.MenuPopup[data-state='open'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Represents the initial styles when entering */
+.MenuPopup[data-entering] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+```
+
+Styles need to be applied in three states:
+
+- The exiting styles, placed on the base element class
+- The open styles, placed on the base element class with `[data-state="open"]`
+- The entering styles, placed on the base element class with `[data-entering]`
+
+In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
+
+```css
+/* Base UI API - Polyfill */
+.MenuPopup[data-entering] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Official Browser API - no Firefox support as of May 2024 */
+@starting-style {
+  .MenuPopup[data-state='open'] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+```
+
+### CSS animations
+
+CSS animations can also be used, requiring only two separate declarations:
+
+```css
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes scale-out {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.MenuPopup {
+  animation: scale-in 0.2s forwards;
+}
+
+.MenuPopup[data-exiting] {
+  animation: scale-out 0.2s forwards;
+}
+```
+
+### JavaScript animations
+
+The `keepMounted` prop lets an external library control the mounting, for example `framer-motion`'s `AnimatePresence` component.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
   return (
-    <ListContext.Provider value={contextValue}>
-      <MenuItem {...props} id={id} ref={ref} />
-    </ListContext.Provider>
+    <Menu.Root open={open} onOpenChange={setOpen}>
+      <Menu.Trigger>Trigger</Menu.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Menu.Positioner keepMounted>
+            <Menu.Popup
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              <Menu.Item>Item 1</Menu.Item>
+              <Menu.Item>Item 2</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        )}
+      </AnimatePresence>
+    </Menu.Root>
   );
-});
+}
 ```
 
-The `useMenuItemContextStabilizer` hook ensures that the context value changes only when the state of the menu item is updated.
+### Animation states
 
-## Customization
+Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
 
-:::info
-The following features can be used with both components and hooks.
-For the sake of simplicity, demos, and code snippets primarily feature components.
-:::
+- `[data-state="open"]` - `open` state is `true`.
+- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
+- `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
 
-### Wrapping Menu Items
+## Overriding default components
 
-Menu Item components don't have to be direct children of a Menu component.
-You can wrap them in any component needed to achieve the desired appearance.
+Use the `render` prop to override the rendered elements with your own components.
 
-In addition to Menu Item components, the Menu component can also contain non-interactive children, such as helper text.
+```jsx
+// Element shorthand
+<Menu.Popup render={<MyMenuPopup />} />
+```
 
-The following demo shows an example of a Dropdown Menu with Items grouped under non-interactive headers, along with helper text that displays the **Current zoom level**:
-
-{{"demo": "WrappedMenuItems.js"}}
+```jsx
+// Function
+<Menu.Popup render={(props) => <MyMenuPopup {...props} />} />
+```

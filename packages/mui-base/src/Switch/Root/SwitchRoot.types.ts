@@ -1,11 +1,13 @@
-import type { BaseUIComponentProps } from '../../utils/BaseUI.types';
+import type * as React from 'react';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
-export type SwitchOwnerState = {
+export interface SwitchOwnerState extends FieldRootOwnerState {
   checked: boolean;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
-};
+}
 
 export interface SwitchRootProps
   extends UseSwitchRootParameters,
@@ -14,6 +16,10 @@ export interface SwitchRootProps
 export type SwitchContextValue = SwitchOwnerState;
 
 export interface UseSwitchRootParameters {
+  /**
+   * The id of the switch element.
+   */
+  id?: string;
   /**
    * If `true`, the switch is checked.
    */
@@ -37,13 +43,12 @@ export interface UseSwitchRootParameters {
    */
   name?: string;
   /**
-   * Callback fired when the state is changed.
+   * Callback fired when the checked state is changed.
    *
+   * @param {boolean} checked The new checked state.
    * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   * You can pull out the new checked state by accessing `event.target.checked` (boolean).
    */
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   /**
    * If `true`, the component is read-only.
    * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.

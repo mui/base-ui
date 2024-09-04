@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useTooltipRoot",
+  "filename": "/packages/mui-base/src/Tooltip/Root/useTooltipRoot.ts",
+  "imports": ["import { useTooltipRoot } from '@base_ui/react/Tooltip';"],
+  "demos": "<ul></ul>"
+}

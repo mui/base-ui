@@ -5,18 +5,20 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultChecked": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "id": { "type": { "name": "string" } },
     "indeterminate": { "type": { "name": "bool" }, "default": "false" },
     "inputRef": {
       "type": { "name": "union", "description": "func<br>&#124;&nbsp;{ current?: object }" }
     },
     "name": { "type": { "name": "string" }, "default": "undefined" },
-    "onChange": {
+    "onCheckedChange": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(event: React.ChangeEvent<HTMLInputElement>) => void",
-        "describedArgs": ["event"]
+        "type": "function(checked: boolean, event: Event) => void",
+        "describedArgs": ["checked", "event"]
       }
     },
+    "parent": { "type": { "name": "bool" }, "default": "false" },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" }

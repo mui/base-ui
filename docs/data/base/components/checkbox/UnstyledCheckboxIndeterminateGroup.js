@@ -7,10 +7,11 @@ import Check from '@mui/icons-material/Check';
 const colors = ['Red', 'Green', 'Blue'];
 
 export default function UnstyledCheckboxIndeterminateGroup() {
-  const [checkedValues, setCheckedValues] = React.useState([false, true, false]);
+  const [checkedValues, setCheckedValues] = React.useState(['Green']);
 
-  const isChecked = checkedValues.every((value) => value);
-  const isIndeterminate = checkedValues.some((value) => value) && !isChecked;
+  const isChecked = checkedValues.length === colors.length;
+  const isIndeterminate =
+    checkedValues.length !== colors.length && checkedValues.length > 0;
 
   const id = React.useId();
 
@@ -22,28 +23,31 @@ export default function UnstyledCheckboxIndeterminateGroup() {
           aria-controls={colors.map((color) => `${id}-${color}`).join(' ')}
           indeterminate={isIndeterminate}
           checked={isChecked}
-          onChange={(event) => {
-            const checked = event.target.checked;
-            setCheckedValues([checked, checked, checked]);
+          onCheckedChange={(checked) => {
+            setCheckedValues(checked ? colors : []);
           }}
         >
           <Indicator>
             {isIndeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}
           </Indicator>
         </Checkbox>
-        <Label htmlFor={id} onMouseDown={(e) => e.preventDefault()}>
+        <Label htmlFor={id} onMouseDown={(event) => event.preventDefault()}>
           Colors
         </Label>
       </ListRoot>
       <List>
-        {colors.map((color, index) => (
+        {colors.map((color) => (
           <ListItem key={color}>
             <Checkbox
               id={`${id}-${color}`}
-              checked={checkedValues[index]}
-              onChange={(event) => {
+              checked={checkedValues.includes(color)}
+              onCheckedChange={(checked) => {
                 const newCheckedValues = [...checkedValues];
-                newCheckedValues[index] = event.target.checked;
+                if (checked) {
+                  newCheckedValues.push(color);
+                } else {
+                  newCheckedValues.splice(newCheckedValues.indexOf(color), 1);
+                }
                 setCheckedValues(newCheckedValues);
               }}
             >
@@ -53,7 +57,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             </Checkbox>
             <Label
               htmlFor={`${id}-${color}`}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={(event) => event.preventDefault()}
             >
               {color}
             </Label>

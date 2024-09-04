@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "rootDir": ".",
+    "outDir": "build-tests"
+  },
+  "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "test"],
+  "references": [{ "path": "./tsconfig.build.json" }]
+}

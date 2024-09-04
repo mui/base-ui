@@ -72,9 +72,9 @@
         "react",
         "react-dom",
         "react-is",
-        "react-test-renderer",
         "@types/react",
-        "@types/react-dom"
+        "@types/react-dom",
+        "@types/react-is"
       ]
     },
     {
@@ -88,6 +88,7 @@
     },
     {
       "matchDepTypes": ["engines"],
+      "matchFileNames": ["packages/*/package.json"],
       "enabled": false
     },
     {
@@ -135,6 +136,11 @@
       "groupName": "react-docgen - incompatible versions",
       "matchPackageNames": ["react-docgen"],
       "allowedVersions": "< 6.0.0"
+    },
+    {
+      "groupName": "eslint - incompatible versions",
+      "matchPackageNames": ["eslint"],
+      "allowedVersions": "< 9.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],

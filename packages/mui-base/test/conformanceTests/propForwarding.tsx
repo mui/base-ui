@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { randomStringValue } from '@mui/internal-test-utils';
+import { flushMicrotasks, randomStringValue } from '@mui/internal-test-utils';
 import { throwMissingPropError } from './utils';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
 
@@ -25,6 +25,8 @@ export function testPropForwarding(
         React.cloneElement(element, { 'data-testid': 'root', ...otherProps }),
       );
 
+      await flushMicrotasks();
+
       const customRoot = getByTestId('root');
       expect(customRoot).to.have.attribute('lang', otherProps.lang);
       expect(customRoot).to.have.attribute('data-foobar', otherProps['data-foobar']);
@@ -42,6 +44,8 @@ export function testPropForwarding(
           ...otherProps,
         }),
       );
+
+      await flushMicrotasks();
 
       const customRoot = getByTestId('custom-root');
       expect(customRoot).to.have.attribute('lang', otherProps.lang);

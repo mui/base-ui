@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "useCollapsibleTrigger",
+  "filename": "/packages/mui-base/src/Collapsible/Trigger/useCollapsibleTrigger.ts",
+  "imports": ["import { useCollapsibleTrigger } from '@base_ui/react/Collapsible';"],
+  "demos": "<ul><li><a href=\"/base-ui/react-collapsible/#hooks\">Collapsible</a></li></ul>"
+}

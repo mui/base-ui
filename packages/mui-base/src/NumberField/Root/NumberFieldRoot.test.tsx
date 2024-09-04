@@ -1,16 +1,14 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, createRenderer, screen } from '@mui/internal-test-utils';
-import { fireEvent } from '@testing-library/react';
+import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberFieldBase from '@base_ui/react/NumberField';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberFieldBase.Root />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));
@@ -29,164 +27,164 @@ describe('<NumberField />', () => {
   }
 
   describe('prop: defaultValue', () => {
-    it('should accept a number value', () => {
-      render(<NumberField defaultValue={1} />);
+    it('should accept a number value', async () => {
+      await render(<NumberField defaultValue={1} />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('1');
     });
 
-    it('should accept an `undefined` value', () => {
-      render(<NumberField />);
+    it('should accept an `undefined` value', async () => {
+      await render(<NumberField />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('');
     });
   });
 
   describe('prop: value', () => {
-    it('should accept a number value that can change over time', () => {
-      const { rerender } = render(<NumberField value={1} />);
+    it('should accept a number value that can change over time', async () => {
+      const { rerender } = await render(<NumberField value={1} />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('1');
       rerender(<NumberField value={2} />);
       expect(input).to.have.value('2');
     });
 
-    it('should accept an `undefined` value', () => {
-      render(<NumberField />);
+    it('should accept an `undefined` value', async () => {
+      await render(<NumberField />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('');
     });
 
-    it('should accept a `null` value', () => {
-      render(<NumberField value={null} />);
+    it('should accept a `null` value', async () => {
+      await render(<NumberField value={null} />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('');
     });
 
-    it('should be `null` when the input is empty but not trimmed', () => {
-      const onChange = spy();
-      render(<NumberField value={1} onChange={onChange} />);
+    it('should be `null` when the input is empty but not trimmed', async () => {
+      const onValueChange = spy();
+      await render(<NumberField value={1} onValueChange={onValueChange} />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '  ' } });
-      expect(onChange.firstCall.args[0]).to.equal(null);
+      expect(onValueChange.firstCall.args[0]).to.equal(null);
     });
   });
 
-  describe('prop: onChange', () => {
-    it('should be called when the value changes', () => {
-      const onChange = spy();
+  describe('prop: onValueChange', () => {
+    it('should be called when the value changes', async () => {
+      const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(1);
         return (
           <NumberField
             value={value}
-            onChange={(val) => {
-              onChange(val);
+            onValueChange={(val) => {
+              onValueChange(val);
               setValue(val);
             }}
           />
         );
       }
-      render(<App />);
+      await render(<App />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '2' } });
-      expect(onChange.callCount).to.equal(1);
-      expect(onChange.firstCall.args[0]).to.equal(2);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(2);
     });
 
-    it('should be called with a number when transitioning from `null`', () => {
-      const onChange = spy();
+    it('should be called with a number when transitioning from `null`', async () => {
+      const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(null);
         return (
           <NumberField
             value={value}
-            onChange={(val) => {
-              onChange(val);
+            onValueChange={(val) => {
+              onValueChange(val);
               setValue(val);
             }}
           />
         );
       }
-      render(<App />);
+      await render(<App />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '5' } });
-      expect(onChange.callCount).to.equal(1);
-      expect(onChange.firstCall.args[0]).to.equal(5);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(5);
     });
 
-    it('should be called with `null` when empty and transitioning from a number', () => {
-      const onChange = spy();
+    it('should be called with `null` when empty and transitioning from a number', async () => {
+      const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(5);
         return (
           <NumberField
             value={value}
-            onChange={(val) => {
-              onChange(val);
+            onValueChange={(val) => {
+              onValueChange(val);
               setValue(val);
             }}
           />
         );
       }
-      render(<App />);
+      await render(<App />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '' } });
-      expect(onChange.callCount).to.equal(1);
-      expect(onChange.firstCall.args[0]).to.equal(null);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(null);
     });
   });
 
   describe('prop: disabled', () => {
-    it('should disable the input', () => {
-      render(<NumberField disabled />);
+    it('should disable the input', async () => {
+      await render(<NumberField disabled />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('disabled');
     });
   });
 
   describe('prop: readOnly', () => {
-    it('should mark the input as readOnly', () => {
-      render(<NumberField readOnly />);
+    it('should mark the input as readOnly', async () => {
+      await render(<NumberField readOnly />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('readonly');
     });
   });
 
   describe('prop: autoFocus', () => {
-    it('should focus the input', () => {
-      render(<NumberField autoFocus />);
+    it('should focus the input', async () => {
+      await render(<NumberField autoFocus />);
       const input = screen.getByRole('textbox');
       expect(document.activeElement).to.equal(input);
     });
   });
 
   describe('prop: required', () => {
-    it('should mark the input as required', () => {
-      render(<NumberField required />);
+    it('should mark the input as required', async () => {
+      await render(<NumberField required />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('required');
     });
   });
 
   describe('prop: invalid', () => {
-    it('sets `aria-invalid` on the input', () => {
-      render(<NumberField invalid />);
+    it('sets `aria-invalid` on the input', async () => {
+      await render(<NumberField invalid />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
   });
 
   describe('prop: name', () => {
-    it('should set the name attribute on the input', () => {
-      render(<NumberField name="test" />);
+    it('should set the name attribute on the input', async () => {
+      await render(<NumberField name="test" />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('name', 'test');
     });
   });
 
   describe('prop: min', () => {
-    it('prevents the raw value from going below the `min` prop', () => {
+    it('prevents the raw value from going below the `min` prop', async () => {
       const fn = spy();
 
       function App() {
@@ -194,7 +192,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -203,7 +201,7 @@ describe('<NumberField />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '4' } });
@@ -212,7 +210,7 @@ describe('<NumberField />', () => {
       expect(fn.firstCall.args[0]).to.equal(5);
     });
 
-    it('allows the value to go above the `min` prop', () => {
+    it('allows the value to go above the `min` prop', async () => {
       const fn = spy();
 
       function App() {
@@ -220,7 +218,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -229,7 +227,7 @@ describe('<NumberField />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '6' } });
@@ -239,7 +237,7 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: max', () => {
-    it('prevents the value from going above the `max` prop', () => {
+    it('prevents the value from going above the `max` prop', async () => {
       const fn = spy();
 
       function App() {
@@ -247,7 +245,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -256,7 +254,7 @@ describe('<NumberField />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '6' } });
@@ -265,7 +263,7 @@ describe('<NumberField />', () => {
       expect(fn.firstCall.args[0]).to.equal(5);
     });
 
-    it('allows the value to go below the `max` prop', () => {
+    it('allows the value to go below the `max` prop', async () => {
       const fn = spy();
 
       function App() {
@@ -273,7 +271,7 @@ describe('<NumberField />', () => {
         return (
           <NumberField
             value={value}
-            onChange={(v) => {
+            onValueChange={(v) => {
               fn(v);
               setValue(v);
             }}
@@ -282,7 +280,7 @@ describe('<NumberField />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '4' } });
@@ -293,37 +291,37 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: step', () => {
-    it('defaults to 1', () => {
-      render(<NumberField defaultValue={5} />);
+    it('defaults to 1', async () => {
+      await render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
       fireEvent.click(screen.getByLabelText('Increase'));
       expect(input).to.have.value('6');
     });
 
-    it('should increment the value by the `step` prop', () => {
-      render(<NumberField defaultValue={4} step={2} />);
+    it('should increment the value by the `step` prop', async () => {
+      await render(<NumberField defaultValue={4} step={2} />);
       const input = screen.getByRole('textbox');
       fireEvent.click(screen.getByLabelText('Increase'));
       expect(input).to.have.value('6');
     });
 
-    it('should snap when incrementing to the nearest multiple of the `step` prop', () => {
-      render(<NumberField defaultValue={5} step={2} />);
+    it('should snap when incrementing to the nearest multiple of the `step` prop', async () => {
+      await render(<NumberField defaultValue={5} step={2} />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '6' } });
       fireEvent.blur(input);
       expect(input).to.have.value('6');
     });
 
-    it('should decrement the value by the `step` prop', () => {
-      render(<NumberField defaultValue={6} step={2} />);
+    it('should decrement the value by the `step` prop', async () => {
+      await render(<NumberField defaultValue={6} step={2} />);
       const input = screen.getByRole('textbox');
       fireEvent.click(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('4');
     });
 
-    it('should snap when decrementing to the nearest multiple of the `step` prop', () => {
-      render(<NumberField defaultValue={5} step={2} />);
+    it('should snap when decrementing to the nearest multiple of the `step` prop', async () => {
+      await render(<NumberField defaultValue={5} step={2} />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '4' } });
       fireEvent.blur(input);
@@ -332,103 +330,109 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: largeStep', () => {
-    it('should increment the value by the default `largeStep` prop of 10 while holding the shift key', () => {
-      render(<NumberField defaultValue={5} />);
+    it('should increment the value by the default `largeStep` prop of 10 while holding the shift key', async () => {
+      await render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('20');
     });
 
-    it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', () => {
-      render(<NumberField defaultValue={6} />);
+    it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', async () => {
+      await render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
       expect(input).to.have.value('0');
     });
 
-    it('should use explicit `largeStep` value if provided while holding the shift key', () => {
-      render(<NumberField defaultValue={5} largeStep={5} />);
+    it('should use explicit `largeStep` value if provided while holding the shift key', async () => {
+      await render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('10');
     });
 
-    it('should not use the `largeStep` prop if no longer holding the shift key', () => {
-      render(<NumberField defaultValue={5} largeStep={5} />);
+    it('should not use the `largeStep` prop if no longer holding the shift key', async () => {
+      await render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { shiftKey: true });
+      fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('10');
-      fireEvent.keyUp(window, { shiftKey: true });
+      fireEvent.keyUp(input, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
       expect(input).to.have.value('15');
     });
   });
 
   describe('prop: smallStep', () => {
-    it('should increment the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
-      render(<NumberField defaultValue={5} />);
+    it('should increment the value by the default `smallStep` prop of 0.1 while holding the alt key', async () => {
+      await render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
-      expect(input).to.have.value('5.1');
+      expect(input).to.have.value((5.1).toLocaleString());
     });
 
-    it('should decrement the value by the default `smallStep` prop of 0.1 while holding the alt key', () => {
-      render(<NumberField defaultValue={6} />);
+    it('should decrement the value by the default `smallStep` prop of 0.1 while holding the alt key', async () => {
+      await render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
-      expect(input).to.have.value('5.9');
+      expect(input).to.have.value((5.9).toLocaleString());
     });
 
-    it('should use explicit `smallStep` value if provided while holding the alt key', () => {
-      render(<NumberField defaultValue={5} smallStep={0.5} />);
+    it('should use explicit `smallStep` value if provided while holding the alt key', async () => {
+      await render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
-      expect(input).to.have.value('5.5');
+      expect(input).to.have.value((5.5).toLocaleString());
     });
 
-    it('should not use the `smallStep` prop if no longer holding the alt key', () => {
-      render(<NumberField defaultValue={5} smallStep={0.5} />);
+    it('should not use the `smallStep` prop if no longer holding the alt key', async () => {
+      await render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
       const button = screen.getByLabelText('Increase');
-      fireEvent.keyDown(window, { altKey: true });
+      fireEvent.keyDown(document.body, { altKey: true });
       fireEvent.pointerDown(button);
-      expect(input).to.have.value('5.5');
-      fireEvent.keyUp(window, { altKey: false });
+      expect(input).to.have.value((5.5).toLocaleString());
+      fireEvent.keyUp(input, { altKey: false });
       fireEvent.pointerDown(button);
-      expect(input).to.have.value('6.5');
+      expect(input).to.have.value((6.5).toLocaleString());
     });
   });
 
   describe('prop: format', () => {
-    it('should format the value using the provided options', () => {
-      render(<NumberField defaultValue={1000} format={{ style: 'currency', currency: 'USD' }} />);
+    it('should format the value using the provided options', async () => {
+      await render(
+        <NumberField defaultValue={1000} format={{ style: 'currency', currency: 'USD' }} />,
+      );
       const input = screen.getByRole('textbox');
-      expect(input).to.have.value('$1,000.00');
+      const expectedValue = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: 'USD',
+      }).format(1000);
+      expect(input).to.have.value(expectedValue);
     });
   });
 
   describe('prop: allowWheelScrub', () => {
-    it('should allow the user to scrub the input value with the mouse wheel', () => {
-      render(<NumberField defaultValue={5} allowWheelScrub />);
+    it('should allow the user to scrub the input value with the mouse wheel', async () => {
+      await render(<NumberField defaultValue={5} allowWheelScrub />);
       const input = screen.getByRole('textbox');
-      act(() => input.focus());
+      await act(() => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('4');
       fireEvent.wheel(input, { deltaY: -1 });
       expect(input).to.have.value('5');
     });
 
-    it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', () => {
-      render(<NumberField defaultValue={5} allowWheelScrub={false} />);
+    it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', async () => {
+      await render(<NumberField defaultValue={5} allowWheelScrub={false} />);
       const input = screen.getByRole('textbox');
-      act(() => input.focus());
+      await act(() => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('5');
       fireEvent.wheel(input, { deltaY: -5 });
@@ -437,7 +441,7 @@ describe('<NumberField />', () => {
   });
 
   describe('form handling', () => {
-    it('should include the input value in the form submission', function test() {
+    it('should include the input value in the form submission', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
         this.skip();
@@ -445,7 +449,7 @@ describe('<NumberField />', () => {
 
       let stringifiedFormData = '';
 
-      render(
+      await render(
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -463,21 +467,21 @@ describe('<NumberField />', () => {
       const numberField = screen.getByRole('textbox');
       const submitButton = screen.getByTestId('submit');
 
-      act(() => submitButton.click());
+      await act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=');
 
       fireEvent.change(numberField, { target: { value: '5' } });
 
-      act(() => submitButton.click());
+      await act(() => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
     });
   });
 
   describe('inputMode', () => {
-    it('should set the inputMode to numeric', () => {
-      render(<NumberField />);
+    it('should set the inputMode to numeric', async () => {
+      await render(<NumberField />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('inputmode', 'numeric');
     });
@@ -489,8 +493,8 @@ describe('<NumberField />', () => {
       return;
     }
 
-    it('should allow pasting a valid number', () => {
-      render(<NumberField />);
+    it('should allow pasting a valid number', async () => {
+      await render(<NumberField />);
       const input = screen.getByRole('textbox');
 
       const dataTransfer = new DataTransfer();
@@ -501,8 +505,8 @@ describe('<NumberField />', () => {
       expect(input).to.have.value('123');
     });
 
-    it('should not allow pasting an invalid number', () => {
-      render(<NumberField />);
+    it('should not allow pasting an invalid number', async () => {
+      await render(<NumberField />);
       const input = screen.getByRole('textbox');
 
       const dataTransfer = new DataTransfer();
@@ -516,9 +520,10 @@ describe('<NumberField />', () => {
     });
   });
 
-  it('should allow navigation keys and not prevent their default behavior', () => {
-    render(<NumberField />);
+  it('should allow navigation keys and not prevent their default behavior', async () => {
+    await render(<NumberField />);
     const input = screen.getByRole('textbox') as HTMLInputElement;
+    input.focus();
     fireEvent.change(input, { target: { value: '123' } });
 
     const navigateKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];

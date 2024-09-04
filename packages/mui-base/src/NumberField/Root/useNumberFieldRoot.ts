@@ -31,6 +31,9 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * The basic building block for creating custom number fields.
@@ -62,9 +65,31 @@ export function useNumberFieldRoot(
     allowWheelScrub = false,
     format,
     value: externalValue,
-    onChange,
+    onValueChange: onValueChangeProp = () => {},
     defaultValue,
   } = params;
+
+  const {
+    labelId,
+    setDisabled,
+    setControlId,
+    validateOnChange,
+    setTouched,
+    setDirty,
+    validityData,
+    setValidityData,
+  } = useFieldRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
+  const {
+    getInputValidationProps,
+    getValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -73,11 +98,20 @@ export function useNumberFieldRoot(
 
   const id = useId(idProp);
 
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
+
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
@@ -100,6 +134,13 @@ export function useNumberFieldRoot(
   });
 
   const value = valueUnwrapped ?? null;
+  const valueRef = useLatestRef(value);
+
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && value !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: value }));
+    }
+  }, [setValidityData, validityData.initialValue, value]);
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
@@ -139,7 +180,7 @@ export function useNumberFieldRoot(
     return step;
   });
 
-  const setValue = useEventCallback((unvalidatedValue: number | null) => {
+  const setValue = useEventCallback((unvalidatedValue: number | null, event?: Event) => {
     const validatedValue = toValidatedNumber(unvalidatedValue, {
       step: getStepAmount(),
       format: formatOptionsRef.current,
@@ -148,8 +189,14 @@ export function useNumberFieldRoot(
       minWithZeroDefault,
     });
 
-    onChange?.(validatedValue);
+    onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
+    setDirty(validatedValue !== validityData.initialValue);
+
+    if (validateOnChange) {
+      commitValidation(validatedValue);
+    }
+
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
     // truth to sync the input value.
@@ -157,11 +204,11 @@ export function useNumberFieldRoot(
   });
 
   const incrementValue = useEventCallback(
-    (amount: number, dir: 1 | -1, currentValue?: number | null) => {
+    (amount: number, dir: 1 | -1, currentValue?: number | null, event?: Event) => {
       const prevValue = currentValue == null ? value : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
-      setValue(nextValue);
+      setValue(nextValue, event);
     },
   );
 
@@ -330,7 +377,7 @@ export function useNumberFieldRoot(
 
         const amount = getStepAmount() ?? DEFAULT_STEP;
 
-        incrementValue(amount, event.deltaY > 0 ? -1 : 1);
+        incrementValue(amount, event.deltaY > 0 ? -1 : 1, undefined, event);
       }
 
       element.addEventListener('wheel', handleWheel);
@@ -385,7 +432,7 @@ export function useNumberFieldRoot(
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
-          incrementValue(amount, isIncrement ? 1 : -1);
+          incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
         },
         onPointerDown(event) {
           const isMainButton = !event.button || event.button === 0;
@@ -489,7 +536,7 @@ export function useNumberFieldRoot(
 
   const getInputProps: UseNumberFieldRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(externalProps, {
+      mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
         id,
         required,
         autoFocus,
@@ -497,13 +544,18 @@ export function useNumberFieldRoot(
         disabled,
         readOnly,
         inputMode,
-        ref: inputRef,
+        value: inputValue,
+        ref: mergedRef,
         type: 'text',
         autoComplete: 'off',
         autoCorrect: 'off',
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
+        'aria-labelledby': labelId,
+        // If the server's locale does not match the client's locale, the formatting may not match,
+        // causing a hydration mismatch.
+        suppressHydrationWarning: true,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;
@@ -522,6 +574,9 @@ export function useNumberFieldRoot(
             return;
           }
 
+          setTouched(true);
+          commitValidation(valueRef.current);
+
           allowInputSyncRef.current = true;
 
           if (inputValue.trim() === '') {
@@ -532,7 +587,7 @@ export function useNumberFieldRoot(
           const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
 
           if (parsedValue !== null) {
-            setValue(parsedValue);
+            setValue(parsedValue, event.nativeEvent);
           }
         },
         onChange(event) {
@@ -546,7 +601,7 @@ export function useNumberFieldRoot(
 
           if (targetValue.trim() === '') {
             setInputValue(targetValue);
-            setValue(null);
+            setValue(null, event.nativeEvent);
             return;
           }
 
@@ -559,13 +614,15 @@ export function useNumberFieldRoot(
 
           if (parsedValue !== null) {
             setInputValue(targetValue);
-            setValue(parsedValue);
+            setValue(parsedValue, event.nativeEvent);
           }
         },
         onKeyDown(event) {
           if (event.defaultPrevented || readOnly || disabled) {
             return;
           }
+
+          const nativeEvent = event.nativeEvent;
 
           allowInputSyncRef.current = true;
 
@@ -616,7 +673,7 @@ export function useNumberFieldRoot(
 
           if (
             // Allow composition events (e.g., pinyin)
-            event.nativeEvent.isComposing ||
+            nativeEvent.isComposing ||
             event.altKey ||
             event.ctrlKey ||
             event.metaKey ||
@@ -638,13 +695,13 @@ export function useNumberFieldRoot(
           event.preventDefault();
 
           if (event.key === 'ArrowUp') {
-            incrementValue(amount, 1, parsedValue);
+            incrementValue(amount, 1, parsedValue, nativeEvent);
           } else if (event.key === 'ArrowDown') {
-            incrementValue(amount, -1, parsedValue);
+            incrementValue(amount, -1, parsedValue, nativeEvent);
           } else if (event.key === 'Home' && min != null) {
-            setValue(min);
+            setValue(min, nativeEvent);
           } else if (event.key === 'End' && max != null) {
-            setValue(max);
+            setValue(max, nativeEvent);
           }
         },
         onPaste(event) {
@@ -661,12 +718,14 @@ export function useNumberFieldRoot(
 
           if (parsedValue !== null) {
             allowInputSyncRef.current = false;
-            setValue(parsedValue);
+            setValue(parsedValue, event.nativeEvent);
             setInputValue(pastedData);
           }
         },
       }),
     [
+      getInputValidationProps,
+      getValidationProps,
       id,
       required,
       autoFocus,
@@ -674,9 +733,14 @@ export function useNumberFieldRoot(
       disabled,
       readOnly,
       inputMode,
-      invalid,
       inputValue,
+      mergedRef,
+      invalid,
+      labelId,
+      setTouched,
       formatOptionsRef,
+      commitValidation,
+      valueRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,
@@ -701,7 +765,7 @@ export function useNumberFieldRoot(
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
-      inputRef,
+      inputRef: mergedRef,
       inputValue,
       value,
       ...scrub,
@@ -711,6 +775,7 @@ export function useNumberFieldRoot(
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
+      mergedRef,
       inputValue,
       value,
       scrub,

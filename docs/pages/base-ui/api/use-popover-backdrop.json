@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "usePopoverBackdrop",
+  "filename": "/packages/mui-base/src/Popover/Backdrop/usePopoverBackdrop.ts",
+  "imports": ["import { usePopoverBackdrop } from '@base_ui/react/Popover';"],
+  "demos": "<ul></ul>"
+}

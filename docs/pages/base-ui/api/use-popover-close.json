@@ -1,0 +1,8 @@
+{
+  "parameters": {},
+  "returnValue": {},
+  "name": "usePopoverClose",
+  "filename": "/packages/mui-base/src/Popover/Close/usePopoverClose.ts",
+  "imports": ["import { usePopoverClose } from '@base_ui/react/Popover';"],
+  "demos": "<ul></ul>"
+}

@@ -1,17 +1,26 @@
 <!-- markdownlint-disable-next-line -->
+<p align="center">
+  <a href="https://mui.com/base-ui/" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
+      <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
+    </picture>
+  </a>
+</p>
 
-<h1 align="center">Base UI</h1>
-
-[Base UI](https://mui.com/base-ui/) is a library of unstyled React UI components and hooks. With Base UI, you gain complete control over your app's CSS and accessibility features.
+<p align="center">
+Base UI is an unstyled UI component library for building accessible user interfaces while maintaining complete control over styling.
+</p>
 
 <div align="center">
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mui/base-ui/blob/HEAD/LICENSE)
 [![npm latest package](https://img.shields.io/npm/v/@base_ui/react/latest.svg)](https://www.npmjs.com/package/@base_ui/react)
 [![npm downloads](https://img.shields.io/npm/dm/@base_ui/react.svg)](https://www.npmjs.com/package/@base_ui/react)
-[![CircleCI](https://circleci.com/gh/mui/base-ui/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/mui/base-ui?branch=master)
-[![Coverage status](https://img.shields.io/codecov/c/github/mui/base-ui/master.svg)](https://codecov.io/gh/mui/base-ui/branch/master)
-[![Follow on X](https://img.shields.io/twitter/follow/MUI_hq.svg?label=follow+MUI)](https://twitter.com/MUI_hq)
+[![GitHub branch status](https://img.shields.io/github/checks-status/mui/base-ui/HEAD)](https://github.com/mui/base-ui/commits/HEAD/)
+[![Coverage status](https://img.shields.io/codecov/c/github/mui/base-ui.svg)](https://app.codecov.io/gh/mui/base-ui/)
+[![Follow on X](https://img.shields.io/twitter/follow/Base_UI.svg?label=follow+Base+UI)](https://x.com/Base_UI)
 [![Renovate status](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/mui/base-ui/issues/2)
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/mui/base-ui.svg)](https://isitmaintained.com/project/mui/base-ui 'Average time to resolve an issue')
 [![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/mui-org)](https://opencollective.com/mui-org)
@@ -19,12 +28,14 @@
 
 </div>
 
+---
+
 ## Documentation
 
-Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full documentation.
+Visit [mui.com/base-ui/getting-started](https://mui.com/base-ui/getting-started/) to view the full documentation.
 
-**Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
-Learn more about plans for Base UI in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
+> **Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
+> Learn more about the roadmap in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
 
 ## Sponsors
 
@@ -40,8 +51,6 @@ Diamond sponsors are those who have pledged \$1,500/month or more to MUI.
 
 ### Gold 🏆
 
-via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](https://www.patreon.com/oliviertassinari)
-
 <p>
   <a href="https://tidelift.com/subscription/pkg/npm-material-ui?utm_source=npm-material-ui&utm_medium=referral&utm_campaign=homepage" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://avatars.githubusercontent.com/u/30204434?s=288" alt="tidelift.com" title="Tidelift: Enterprise-ready open-source software." loading="lazy" /></a>
   <a href="https://open.spotify.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://avatars.githubusercontent.com/u/251374?s=288" alt="Spotify" title="Spotify: Music service for accessing millions of songs." loading="lazy" /></a>
@@ -54,6 +63,7 @@ via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](http
 </p>
 
 Gold sponsors are those who have pledged \$500/month or more to MUI.
+Via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](https://www.patreon.com/oliviertassinari).
 
 ### More backers
 

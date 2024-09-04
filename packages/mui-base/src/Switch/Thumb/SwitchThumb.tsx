@@ -7,6 +7,7 @@ import { useSwitchStyleHooks } from '../Root/useSwitchStyleHooks';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -19,13 +20,17 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
   const { render: renderProp, className: classNameProp, ...other } = props;
   const render = renderProp ?? defaultRender;
 
+  const { ownerState: fieldOwnerState } = useFieldRootContext();
+
   const ownerState = React.useContext(SwitchContext);
   if (ownerState === null) {
     throw new Error('Base UI: Switch.Thumb is not placed inside the Switch component.');
   }
 
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useSwitchStyleHooks(ownerState);
+  const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
+
+  const className = resolveClassName(classNameProp, extendedOwnerState);
+  const styleHooks = useSwitchStyleHooks(extendedOwnerState);
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   const elementProps = {

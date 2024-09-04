@@ -1,26 +1,43 @@
 import * as React from 'react';
-import { styled, alpha, Box } from '@mui/system';
-import { Slider as BaseSlider, sliderClasses } from '@base_ui/react/Slider';
+import { styled, useTheme, Box } from '@mui/system';
+import * as BaseSlider from '@base_ui/react/Slider';
 
 export default function UnstyledSliderIntroduction() {
+  // Replace this with your app logic for determining dark mode
+  const isDarkMode = useIsDarkMode();
   return (
-    <Box sx={{ width: 320 }}>
-      <Slider defaultValue={50} />
-      <Slider defaultValue={30} disabled />
+    <Box
+      className={isDarkMode ? 'dark' : ''}
+      sx={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
+    >
+      <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
+        <Label id="VolumeSliderLabel">Volume</Label>
+        <SliderOutput />
+        <SliderControl>
+          <SliderTrack>
+            <SliderIndicator />
+            <SliderThumb />
+          </SliderTrack>
+        </SliderControl>
+      </Slider>
     </Box>
   );
 }
 
-const blue = {
-  100: '#DAECFF',
-  200: '#99CCF3',
-  400: '#3399FF',
-  300: '#66B2FF',
-  500: '#007FFF',
-  600: '#0072E5',
-  700: '#0059B3',
-  900: '#003A75',
-};
+function BaseLabel(props: React.HTMLAttributes<HTMLLabelElement>) {
+  const { id, ...otherProps } = props;
+  const { subitems, disabled } = BaseSlider.useSliderContext();
+
+  const htmlFor = Array.from(subitems.values())
+    .reduce((acc, item) => {
+      return `${acc} ${item.inputId}`;
+    }, '')
+    .trim();
+
+  return (
+    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
+  );
+}
 
 const grey = {
   50: '#F3F6F9',
@@ -35,88 +52,105 @@ const grey = {
   900: '#1C2025',
 };
 
-const Slider = styled(BaseSlider)(
-  ({ theme }) => `
-  color: ${theme.palette.mode === 'light' ? blue[500] : blue[400]};
-  height: 4px;
+function useIsDarkMode() {
+  const theme = useTheme();
+  return theme.palette.mode === 'dark';
+}
+
+const Slider = styled(BaseSlider.Root)`
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 1rem;
   width: 100%;
-  padding: 16px 0;
-  display: inline-flex;
   align-items: center;
   position: relative;
-  cursor: pointer;
-  touch-action: none;
   -webkit-tap-highlight-color: transparent;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+`;
 
-  &.${sliderClasses.disabled} { 
-    pointer-events: none;
-    cursor: default;
-    color: ${theme.palette.mode === 'light' ? grey[300] : grey[600]};
-    opacity: 0.4;
+const SliderOutput = styled(BaseSlider.Output)`
+  text-align: right;
+`;
+
+const SliderControl = styled(BaseSlider.Control)`
+  grid-column: 1/3;
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  height: 16px;
+  border-radius: 9999px;
+  touch-action: none;
+
+  &[data-disabled] {
+    cursor: not-allowed;
+  }
+`;
+
+const SliderTrack = styled(BaseSlider.Track)`
+  width: 100%;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: ${grey[400]};
+  touch-action: none;
+
+  .dark & {
+    background-color: ${grey[700]};
+  }
+`;
+
+const SliderIndicator = styled(BaseSlider.Indicator)`
+  border-radius: 9999px;
+  background-color: black;
+
+  .dark & {
+    background-color: ${grey[100]};
+  }
+`;
+
+const SliderThumb = styled(BaseSlider.Thumb)`
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background-color: black;
+  touch-action: none;
+
+  &:focus-visible {
+    outline: 2px solid black;
+    outline-offset: 2px;
   }
 
-  & .${sliderClasses.rail} {
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: 4px;
-    border-radius: 6px;
-    background-color: currentColor;
-    opacity: 0.3;
+  .dark & {
+    background-color: ${grey[100]};
   }
 
-  & .${sliderClasses.track} {
-    display: block;
-    position: absolute;
-    height: 4px;
-    border-radius: 6px;
-    background-color: currentColor;
+  .dark &:focus-visible {
+    outline-color: ${grey[300]};
+    outline-width: 1px;
+    outline-offset: 3px;
   }
 
-  & .${sliderClasses.thumb} {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    margin-left: -6px;
-    width: 20px;
-    height: 20px;
-    box-sizing: border-box;
-    border-radius: 50%;
-    outline: 0;
-    background-color: ${theme.palette.mode === 'light' ? blue[500] : blue[400]};
-    transition-property: box-shadow, transform;
-    transition-timing-function: ease;
-    transition-duration: 120ms;
-    transform-origin: center;
-
-    &:hover {
-      box-shadow: 0 0 0 6px ${alpha(
-        theme.palette.mode === 'light' ? blue[200] : blue[300],
-        0.3,
-      )};
-    }
-
-    &.${sliderClasses.focusVisible} {
-      box-shadow: 0 0 0 8px ${alpha(
-        theme.palette.mode === 'light' ? blue[200] : blue[400],
-        0.5,
-      )};
-      outline: none;
-    }
-
-    &.${sliderClasses.active} {
-      box-shadow: 0 0 0 8px ${alpha(
-        theme.palette.mode === 'light' ? blue[200] : blue[400],
-        0.5,
-      )};
-      outline: none;
-      transform: scale(1.2);
-    }
-    
-    &.${sliderClasses.disabled} {
-      background-color: ${theme.palette.mode === 'light' ? grey[300] : grey[600]};
-    }
+  &[data-dragging='true'] {
+    background-color: pink;
   }
-`,
-);
+
+  &[data-disabled],
+  .dark &[data-disabled] {
+    background-color: ${grey[600]};
+  }
+
+  .dark &[data-dragging='true'] {
+    background-color: pink;
+  }
+`;
+
+const Label = styled(BaseLabel)`
+  cursor: unset;
+  font-weight: bold;
+
+  &[data-disabled='true'] {
+    color: ${grey[600]};
+  }
+`;

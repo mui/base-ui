@@ -10,27 +10,51 @@ packageName: '@base_ui/react'
 
 # Number Field
 
-<p class="description">The Number Field component provides users with a field for number values, with stepper buttons and a scrub area to increment or decrement the value.</p>
+<p class="description">Number Field provides users with a numeric input, with buttons and a scrub area to increment or decrement its value.</p>
 
 {{"component": "@mui/docs/ComponentLinkHeader", "design": false}}
 
 {{"component": "modules/components/ComponentPageTabs.js"}}
 
-## Introduction
-
-A number field is a UI element that accepts numeric values from the user. `NumberField` is a customizable replacement for the native HTML `<input type="number">` that solves some usability and visual issues while enhancing its functionality.
-
 {{"demo": "UnstyledNumberFieldIntroduction", "defaultCodeOpen": false, "bg": "gradient"}}
 
-## Component
+## Installation
 
-```jsx
+Base UI components are all available as a single package.
+
+<codeblock storageKey="package-manager">
+
+```bash npm
+npm install @base_ui/react
+```
+
+```bash yarn
+yarn add @base_ui/react
+```
+
+```bash pnpm
+pnpm add @base_ui/react
+```
+
+</codeblock>
+
+Once you have the package installed, import the component.
+
+```ts
 import * as NumberField from '@base_ui/react/NumberField';
 ```
 
-### Anatomy
+## Anatomy
 
-The `NumberField` component is composed of a root component and a group component which contains an input, and optionally, an increment button, decrement button, and a scrub area with a virtual cursor:
+Number Field is implemented using a collection of related components:
+
+- `<NumberField.Root />` is a top-level component that wraps all other components.
+- `<NumberField.Group />` semantically groups the input with the buttons.
+- `<NumberField.Input />` is the input itself.
+- `<NumberField.Increment />` is an optional button for incrementing the input value.
+- `<NumberField.Decrement />` is an optional button for decrementing the input value.
+- `<NumberField.ScrubArea />` can wrap an area, icon, or `<label/>` to make it scrubbable.
+- `<NumberField.ScrubAreaCursor />` is an optional component for rendering a virtual cursor while scrubbing.
 
 ```tsx
 <NumberField.Root>
@@ -45,55 +69,11 @@ The `NumberField` component is composed of a root component and a group componen
 </NumberField.Root>
 ```
 
-### Custom structure
-
-Use the `render` prop to override the rendered elements with your own components:
-
-```jsx
-<NumberField.Root render={(props) => <MyNumberField {...props} />}>
-  {/* Subcomponents */}
-</NumberField.Root>
-```
-
-All subcomponents accept the `render` prop.
-
-To ensure behavior works as expected:
-
-- **Forward all props**: Your component should spread all props to the underlying element.
-- **Forward the `ref`**: Your component should use [`forwardRef`](https://react.dev/reference/react/forwardRef) to ensure the Number Field components can access the element via a ref.
-
-A custom component that adheres to these two principles looks like this:
-
-```jsx
-const MyNumberField = React.forwardRef(function MyNumberField(props, ref) {
-  return <div ref={ref} {...props} />;
-});
-```
-
-### Value
-
-The `value` prop holds the number value, and `onChange` is called when it updates:
-
-```jsx
-function App() {
-  const [value, setValue] = useState(0);
-  return (
-    <NumberField.Root value={value} onChange={setValue}>
-      <NumberField.Group>
-        <NumberField.Decrement>&minus;</NumberField.Decrement>
-        <NumberField.Input />
-        <NumberField.Increment>+</NumberField.Increment>
-      </NumberField.Group>
-    </NumberField.Root>
-  );
-}
-```
-
-This is the controlled way of handling the number field.
+## Value
 
 ### Default value
 
-When the number field is uncontrolled, the `defaultValue` prop sets the initial value of the input:
+When Number Field is uncontrolled, the `defaultValue` prop sets the initial value of the input.
 
 ```jsx
 <NumberField.Root defaultValue={10}>
@@ -105,9 +85,30 @@ When the number field is uncontrolled, the `defaultValue` prop sets the initial 
 </NumberField.Root>
 ```
 
-### Min and max values
+### Controlled
 
-To prevent the value from going below or above a certain amount, the `min` and `max` props can be used:
+The `value` prop holds the number value, and `onValueChange` is called when it updates.
+
+```jsx
+function App() {
+  const [value, setValue] = useState(0);
+  return (
+    <NumberField.Root value={value} onValueChange={setValue}>
+      <NumberField.Group>
+        <NumberField.Decrement>&minus;</NumberField.Decrement>
+        <NumberField.Input />
+        <NumberField.Increment>+</NumberField.Increment>
+      </NumberField.Group>
+    </NumberField.Root>
+  );
+}
+```
+
+## Validation
+
+### Min and max
+
+The `min` and `max` props can be used to prevent the value from going above or below a certain range.
 
 ```jsx
 <NumberField.Root min={0} max={100}>
@@ -121,7 +122,7 @@ To prevent the value from going below or above a certain amount, the `min` and `
 
 ### Step
 
-The `step` prop snaps values of the input to ones that are multiples of the given number, affecting how the stepper buttons change the value:
+The `step` prop snaps the input value to multiples of the given number. In the below example, the input value snaps to multiples of `step` starting from the `min` value: `2`, `7`, `12`, `17`, and so on.
 
 ```jsx
 <NumberField.Root step={5} min={2}>
@@ -133,12 +134,10 @@ The `step` prop snaps values of the input to ones that are multiples of the give
 </NumberField.Root>
 ```
 
-In the above example, the numbers are snapped to multiples of `step` starting from the `min` value: `2`, `7`, `12`, `17` and so on.
+You can specify the `largeStep` and `smallStep` props to change the step when the user holds a modifier key:
 
-The `largeStep` and `smallStep` props can be specified to change the step when a modifier key is held:
-
-- `largeStep` is used when <kbd>shift</kbd> is held, incrementing and snapping to multiples of `10`.
-- `smallStep` is used when <kbd>alt</kbd> is held, incrementing and snapping to multiples of `0.1`.
+- `largeStep` applies when <kbd>shift</kbd> is held, snapping to multiples of 10 by default.
+- `smallStep` applies when <kbd>alt</kbd> is held, snapping to multiples of 0.1 by default.
 
 ```jsx
 <NumberField.Root step={5} largeStep={50} smallStep={0.5}>
@@ -150,19 +149,19 @@ The `largeStep` and `smallStep` props can be specified to change the step when a
 </NumberField.Root>
 ```
 
-### Format
+## Format
 
 The `format` prop accepts [`Intl.NumberFormat` options](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) to customize the formatting of the input value:
 
 {{"demo": "UnstyledNumberFieldFormat.js"}}
 
-### Scrubbing
+## Scrubbing
 
-The `ScrubArea` subcomponent lets users scrub the value with their pointer as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer:
+The `NumberField.ScrubArea` subcomponent lets users increment/decrement the value via a click+drag interaction with pointer, as a faster alternative to the stepper buttons. This is useful in high-density UIs, such as an image editor that changes the width, height, or location of a layer. You could wrap an icon or a `<label/>` in the `NumberField.ScrubArea` component.
 
 {{"demo": "UnstyledNumberFieldScrub.js"}}
 
-The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `NumberField.ScrubAreaCursor` subcomponent, which automatically loops around the boundary:
+The pointer is locked while scrubbing, allowing the user to scrub infinitely without hitting the window boundary. Since this hides the cursor, you can add a virtual cursor asset using the `<NumberField.ScrubAreaCursor />` subcomponent, which automatically loops around the boundary.
 
 ```jsx
 <NumberField.ScrubArea direction="horizontal" style={{ cursor: 'ew-resize' }}>
@@ -191,15 +190,15 @@ The pointer is locked while scrubbing, allowing the user to scrub infinitely wit
 </NumberField.ScrubArea>
 ```
 
-In your CSS, ensure any `label` elements inside the `ScrubArea` specify `cursor: unset`. You can rotate the above macOS-style cursor 90 degrees using a `transform` style.
+In your CSS, ensure any `<label>` elements inside `<ScrubArea />` specify `cursor: unset`. You can rotate the above macOS-style cursor 90 degrees using a `transform` style.
 
 :::info
 In Safari, the pointer is not locked. However, this doesn't affect the ability to scrub infinitely.
 :::
 
-#### Teleport distance
+### Teleport distance
 
-To teleport the virtual cursor closer to the input rather than the entire viewport, use the `teleportDistance` prop:
+Rather than teleporting the virtual cursor at the viewport boundary, you can use the `teleportDistance` prop to teleport the cursor at a custom boundary.
 
 ```js
 <NumberField.ScrubArea teleportDistance={200}>
@@ -207,30 +206,24 @@ To teleport the virtual cursor closer to the input rather than the entire viewpo
 </NumberField.ScrubArea>
 ```
 
-This specifies in pixels the distance the cursor can travel around the center of the scrub area element before it loops back around.
+This specifies the `px` distance the cursor can travel from the center of the scrub area element before it loops back around.
 
-#### Wheel scrubbing
+### Wheel scrubbing
 
-To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop:
+To allow the input to be scrubbed using the mouse wheel, add the `allowWheelScrub` prop. The input must be focused and the pointer must be hovering over it.
 
 {{"demo": "UnstyledNumberFieldWheelScrub.js"}}
 
-## Hook
+## Overriding default components
 
-```js
-import { useNumberField } from '@base_ui/react/useNumberField';
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+<NumberField.Input render={(props) => <MyCustomInput {...props} />}> />
 ```
 
-The `useNumberField` hook lets you apply the functionality of a Number Field to a fully custom component.
-It returns props to be placed on the custom component, along with fields representing the component's internal state.
-
-:::info
-Hooks give you the most room for customization, but require more work to implement.
-With hooks, you can take full control over how your component is rendered, and define all the custom props and CSS classes you need.
-
-You may not need to use hooks unless you find that you're limited by the customization options of their component counterparts—for instance, if your component requires significantly different [HTML structure](#anatomy).
-:::
+All subcomponents accept the `render` prop.
 
 ## Accessibility
 
-Ensure the number field has an accessible name via a `label` element.
+Ensure the Number Field has an accessible name via a `<label>` element.

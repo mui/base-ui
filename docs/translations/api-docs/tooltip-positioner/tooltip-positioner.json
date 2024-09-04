@@ -1,0 +1,47 @@
+{
+  "componentDescription": "The tooltip positioner element.",
+  "propDescriptions": {
+    "alignment": {
+      "description": "The alignment of the tooltip popup element to the anchor element along its cross axis."
+    },
+    "alignmentOffset": {
+      "description": "The offset of the tooltip popup element along its alignment axis."
+    },
+    "anchor": { "description": "The element to which the tooltip popup element is anchored to." },
+    "arrowPadding": {
+      "description": "Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip popup element has rounded corners via <code>border-radius</code>."
+    },
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "collisionBoundary": {
+      "description": "The boundary that the tooltip popup element should be constrained to."
+    },
+    "collisionPadding": {
+      "description": "The padding between the tooltip popup element and the edges of the collision boundary to add whitespace between them to prevent them from touching."
+    },
+    "container": {
+      "description": "The container element to which the tooltip positioner is appended to."
+    },
+    "hideWhenDetached": {
+      "description": "Whether the tooltip popup element is hidden if it appears detached from its anchor element due to the anchor element being clipped (or hidden) from view."
+    },
+    "keepMounted": {
+      "description": "Whether the tooltip popup remains mounted in the DOM while closed."
+    },
+    "positionStrategy": {
+      "description": "The CSS position strategy for positioning the tooltip popup element."
+    },
+    "render": { "description": "A function to customize rendering of the component." },
+    "side": {
+      "description": "The side of the anchor element that the tooltip popup element should be placed at."
+    },
+    "sideOffset": {
+      "description": "The gap between the anchor element and the tooltip popup element."
+    },
+    "sticky": {
+      "description": "Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out of view."
+    }
+  },
+  "classDescriptions": {}
+}
