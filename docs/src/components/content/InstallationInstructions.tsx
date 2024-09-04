@@ -2,11 +2,19 @@ import * as React from 'react';
 import { PackageManagerSnippet, Npm, Pnpm, Yarn } from './PackageManagerSnippet';
 
 export interface InstallationInstructionsProps {
-  componentName: string;
+  componentName: string | string[];
 }
 
 export function InstallationInstructions(props: InstallationInstructionsProps) {
   const { componentName } = props;
+
+  let componentNames: string[];
+
+  if (!Array.isArray(componentName)) {
+    componentNames = [componentName];
+  } else {
+    componentNames = componentName;
+  }
 
   return (
     <React.Fragment>
@@ -18,7 +26,9 @@ export function InstallationInstructions(props: InstallationInstructionsProps) {
       </PackageManagerSnippet>
       <p>Once you have the package installed, import the component.</p>
       <pre>
-        import * as {componentName} from &apos;@base_ui/react/{componentName}&apos;;
+        {componentNames
+          .map((name) => `import * as ${name} from '@base_ui/react/${name}';`)
+          .join('\n')}
       </pre>
     </React.Fragment>
   );
