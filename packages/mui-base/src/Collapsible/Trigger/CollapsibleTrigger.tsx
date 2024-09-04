@@ -30,6 +30,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     contentId,
     open,
     setOpen,
+    rootRef: forwardedRef,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -37,7 +38,6 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     render: render ?? 'button',
     ownerState,
     className,
-    ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping: collapsibleStyleHookMapping,
   });

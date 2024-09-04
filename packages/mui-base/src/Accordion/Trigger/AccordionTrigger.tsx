@@ -20,7 +20,7 @@ import { accordionStyleHookMapping } from '../Section/styleHooks';
  */
 const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   props: AccordionTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { disabled: disabledProp, className, render, ...otherProps } = props;
 
@@ -28,9 +28,10 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { getRootProps } = useCollapsibleTrigger({
     contentId,
-    open,
-    setOpen,
     disabled: disabledProp || contextDisabled,
+    open,
+    rootRef: forwardedRef,
+    setOpen,
   });
 
   const { ownerState, triggerId } = useAccordionSectionContext();
@@ -40,7 +41,6 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     render: render ?? 'button',
     ownerState,
     className,
-    ref: forwardedRef,
     extraProps: { ...otherProps, id: triggerId },
     customStyleHookMapping: accordionStyleHookMapping,
   });
