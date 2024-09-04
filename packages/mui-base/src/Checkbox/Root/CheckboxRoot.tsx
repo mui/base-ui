@@ -8,6 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
+import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 /**
@@ -29,6 +30,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     name,
     onCheckedChange,
     defaultChecked,
+    parent = false,
     readOnly = false,
     indeterminate = false,
     required = false,
@@ -40,7 +42,34 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
 
-  const { checked, getInputProps, getButtonProps } = useCheckboxRoot(props);
+  const groupContext = useCheckboxGroupRootContext();
+  const isGrouped = groupContext?.parent && groupContext.allValues;
+
+  let groupProps: Partial<Omit<CheckboxRootProps, 'className'>> = {};
+  if (isGrouped) {
+    if (parent) {
+      groupProps = groupContext.parent.getParentProps();
+    } else if (name) {
+      groupProps = groupContext.parent.getChildProps(name);
+    }
+  }
+
+  const {
+    checked: groupChecked = checkedProp,
+    indeterminate: groupIndeterminate = indeterminate,
+    onCheckedChange: groupOnChange = onCheckedChange,
+    ...otherGroupProps
+  } = groupProps;
+
+  const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
+    ...props,
+    checked: groupChecked,
+    indeterminate: groupIndeterminate,
+    onCheckedChange: groupOnChange,
+  });
+
+  const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
+  const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
@@ -48,13 +77,13 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const ownerState: CheckboxRootOwnerState = React.useMemo(
     () => ({
       ...fieldOwnerState,
-      checked,
+      checked: computedChecked,
       disabled,
       readOnly,
       required,
-      indeterminate,
+      indeterminate: computedIndeterminate,
     }),
-    [checked, disabled, readOnly, required, indeterminate, fieldOwnerState],
+    [fieldOwnerState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
   const styleHooks = useCheckboxStyleHooks(ownerState);
@@ -65,6 +94,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: mergedRef,
     ...styleHooks,
     ...otherProps,
+    ...otherGroupProps,
   });
 
   return (
@@ -142,9 +172,14 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * Callback fired when the checked state is changed.
    *
    * @param {boolean} checked The new checked state.
-   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
+   * @param {Event} event The event source of the callback.
    */
   onCheckedChange: PropTypes.func,
+  /**
+   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * @default false
+   */
+  parent: PropTypes.bool,
   /**
    * If `true`, the component is read only.
    *

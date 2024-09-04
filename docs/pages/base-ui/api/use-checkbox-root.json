@@ -21,10 +21,11 @@
     "name": { "type": { "name": "string", "description": "string" }, "default": "undefined" },
     "onCheckedChange": {
       "type": {
-        "name": "(checked: boolean, event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void",
-        "description": "(checked: boolean, event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void"
+        "name": "(checked: boolean, event: Event) =&gt; void",
+        "description": "(checked: boolean, event: Event) =&gt; void"
       }
     },
+    "parent": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "readOnly": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" },
     "required": { "type": { "name": "boolean", "description": "boolean" }, "default": "false" }
   },

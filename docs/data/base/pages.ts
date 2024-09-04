@@ -23,6 +23,7 @@ const pages: readonly MuiPage[] = [
         children: [
           // { pathname: '/base-ui/react-autocomplete', title: 'Autocomplete' },
           { pathname: '/base-ui/react-checkbox', title: 'Checkbox' },
+          { pathname: '/base-ui/react-checkbox-group', title: 'Checkbox Group' },
           { pathname: '/base-ui/react-number-field', title: 'Number Field' },
           // { pathname: '/base-ui/react-radio-group', title: 'Radio Group', planned: true },
           // { pathname: '/base-ui/react-select', title: 'Select' },

@@ -12,6 +12,9 @@
     "inputRef": { "description": "The ref to the input element." },
     "name": { "description": "Name of the underlying input element." },
     "onCheckedChange": { "description": "Callback fired when the checked state is changed." },
+    "parent": {
+      "description": "If <code>true</code>, the checkbox is a parent checkbox for a group of child checkboxes."
+    },
     "readOnly": { "description": "If <code>true</code>, the component is read only." },
     "required": {
       "description": "If <code>true</code>, the <code>input</code> element is required."
