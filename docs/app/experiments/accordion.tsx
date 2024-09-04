@@ -185,7 +185,7 @@ function Styles() {
   // Replace this with your app logic for determining dark mode
   // const isDarkMode = useIsDarkMode();
   return (
-    <style suppressHydrationWarning>
+    <style>
       {`
         .Checkbox {
           all: unset;

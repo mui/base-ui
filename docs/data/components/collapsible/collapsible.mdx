@@ -74,7 +74,7 @@ The component can be animate when opening or closing using either:
 - CSS transitions
 - JavaScript animations
 
-The height of the `Content` subcomponent is provided as the `--collapsible-content-height` CSS variable
+The dimensions of the `Content` subcomponent are provided as the `--collapsible-content-height` and `--collapsible-content-width` CSS variables
 
 ### CSS Animations
 
@@ -127,7 +127,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
   overflow: hidden;
 }
 
-.Collapsible2-content[data-state='open'] {
+.Collapsible-content[data-state='open'] {
   height: var(--collapsible-content-height);
   transition: height 300ms ease-out;
 }
@@ -136,7 +136,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
   height: 0;
 }
 
-.Collapsible2-content[data-state='closed'] {
+.Collapsible-content[data-state='closed'] {
   height: 0;
   transition: height 300ms ease-in;
 }

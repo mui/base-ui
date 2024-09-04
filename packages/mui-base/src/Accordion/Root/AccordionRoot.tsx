@@ -31,10 +31,20 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     openMultiple = true,
     orientation,
     value,
-    defaultValue,
+    defaultValue: defaultValueProp,
     render,
     ...otherProps
   } = props;
+
+  // memoized to allow omitting both defaultValue and value
+  // which would otherwise trigger a warning in useControlled
+  const defaultValue = React.useMemo(() => {
+    if (value === undefined) {
+      return defaultValueProp ?? [];
+    }
+
+    return undefined;
+  }, [value, defaultValueProp]);
 
   const { getRootProps, ...accordion } = useAccordionRoot({
     animated,

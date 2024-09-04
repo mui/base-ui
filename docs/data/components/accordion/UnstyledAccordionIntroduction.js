@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as Accordion from '@base_ui/react/Accordion';
@@ -122,7 +123,7 @@ function Styles() {
           margin: 12px auto 12px 0;
         }
 
-        .Accordion-trigger[data-state="open"] svg {
+        .Accordion-trigger[data-collapsible="open"] svg {
           transform: rotate(180deg);
         }
 

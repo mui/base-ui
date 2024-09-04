@@ -7,6 +7,26 @@ import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../Composite/c
 
 const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, 'Home', 'End'];
 
+function getActiveTriggers(accordionSectionRefs: {
+  current: (HTMLElement | null)[];
+}): HTMLButtonElement[] {
+  const { current: accordionSectionElements } = accordionSectionRefs;
+
+  const output: HTMLButtonElement[] = [];
+
+  for (let i = 0; i < accordionSectionElements.length; i += 1) {
+    const section = accordionSectionElements[i];
+    if (!isDisabled(section)) {
+      const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
+      if (!isDisabled(trigger)) {
+        output.push(trigger);
+      }
+    }
+  }
+
+  return output;
+}
+
 function isDisabled(element: HTMLElement | null) {
   return (
     element === null ||
@@ -42,15 +62,13 @@ export function useAccordionRoot(
 
   const [value, setValue] = useControlled({
     controlled: valueParam,
-    default: valueParam ?? defaultValue ?? [],
+    default: defaultValue,
     name: 'Accordion',
     state: 'value',
   });
 
   const handleOpenChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
-      // console.group('useAccordionRoot handleOpenChange');
-      // console.log('newValue', newValue, 'nextOpen', nextOpen, 'openValues', value);
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
         setValue(nextValue);
@@ -58,16 +76,13 @@ export function useAccordionRoot(
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
-        // console.log('nextOpenValues', nextOpenValues);
         setValue(nextOpenValues);
         onOpenChange(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
-        // console.log('nextOpenValues', nextOpenValues);
         setValue(nextOpenValues);
         onOpenChange(nextOpenValues);
       }
-      // console.groupEnd();
     },
     [onOpenChange, openMultiple, setValue, value],
   );
@@ -84,21 +99,9 @@ export function useAccordionRoot(
             return;
           }
 
-          // console.group('onKeyDown');
-          const { current: accordionSectionElements } = accordionSectionRefs;
+          event.preventDefault();
 
-          // TODO: memo this outside
-          const triggers: HTMLButtonElement[] = [];
-
-          for (let i = 0; i < accordionSectionElements.length; i += 1) {
-            const section = accordionSectionElements[i];
-            if (!isDisabled(section)) {
-              const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
-              if (!isDisabled(trigger)) {
-                triggers.push(trigger);
-              }
-            }
-          }
+          const triggers = getActiveTriggers(accordionSectionRefs);
 
           const numOfEnabledTriggers = triggers.length;
           const lastIndex = numOfEnabledTriggers - 1;
@@ -155,10 +158,8 @@ export function useAccordionRoot(
           }
 
           if (nextIndex > -1) {
-            // console.log('focus nextIndex', nextIndex);
             triggers[nextIndex].focus();
           }
-          // console.groupEnd();
         },
       });
     },

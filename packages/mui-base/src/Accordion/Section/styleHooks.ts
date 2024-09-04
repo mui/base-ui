@@ -12,7 +12,7 @@ export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionSection.
     return Number.isInteger(value) ? { 'data-index': String(value) } : null;
   },
   open: (value) => {
-    return value ? { 'data-state': 'open' } : { 'data-state': 'closed' };
+    return value ? { 'data-collapsible': 'open' } : { 'data-collapsible': 'closed' };
   },
   transitionStatus: (value) => {
     if (value === 'entering') {

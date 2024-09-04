@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import * as Accordion from '@base_ui/react/Accordion';
 
