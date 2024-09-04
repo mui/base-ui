@@ -71,8 +71,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(@emotion/react@11.13.3(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/monorepo':
-        specifier: github:michaldudak/material-ui#3b7d609357
-        version: https://codeload.github.com/michaldudak/material-ui/tar.gz/3b7d609357(encoding@0.1.13)
+        specifier: github:mui/material-ui#8094d0bf72a
+        version: https://codeload.github.com/mui/material-ui/tar.gz/8094d0bf72a(encoding@0.1.13)
       '@mui/utils':
         specifier: 6.0.1
         version: 6.0.1(@types/react@18.3.1)(react@18.3.1)
@@ -2050,9 +2050,9 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/monorepo@https://codeload.github.com/michaldudak/material-ui/tar.gz/3b7d609357':
-    resolution: {tarball: https://codeload.github.com/michaldudak/material-ui/tar.gz/3b7d609357}
-    version: 6.0.1
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/8094d0bf72a':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/8094d0bf72a}
+    version: 6.0.2
     engines: {pnpm: 9.7.1}
 
   '@mui/private-theming@5.16.1':
@@ -10522,7 +10522,7 @@ snapshots:
       '@emotion/styled': 11.13.0(@emotion/react@11.13.3(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
       '@types/react': 18.3.1
 
-  '@mui/monorepo@https://codeload.github.com/michaldudak/material-ui/tar.gz/3b7d609357(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/8094d0bf72a(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.0(encoding@0.1.13)
       '@netlify/functions': 2.8.1
