@@ -25,7 +25,7 @@ const pages: readonly MuiPage[] = [
           { pathname: '/base-ui/react-checkbox', title: 'Checkbox' },
           { pathname: '/base-ui/react-checkbox-group', title: 'Checkbox Group' },
           { pathname: '/base-ui/react-number-field', title: 'Number Field' },
-          // { pathname: '/base-ui/react-radio-group', title: 'Radio Group', planned: true },
+          { pathname: '/base-ui/react-radio-group', title: 'Radio Group' },
           // { pathname: '/base-ui/react-select', title: 'Select' },
           { pathname: '/base-ui/react-slider', title: 'Slider' },
           { pathname: '/base-ui/react-switch', title: 'Switch' },

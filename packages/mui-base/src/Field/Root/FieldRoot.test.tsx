@@ -4,6 +4,9 @@ import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Switch from '@base_ui/react/Switch';
 import * as NumberField from '@base_ui/react/NumberField';
 import * as Slider from '@base_ui/react/Slider';
+import * as RadioGroup from '@base_ui/react/RadioGroup';
+import * as Radio from '@base_ui/react/Radio';
+import userEvent from '@testing-library/user-event';
 import {
   act,
   createRenderer,
@@ -221,6 +224,7 @@ describe('<Field.Root />', () => {
           </Field.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-node-access
         const input = container.querySelector<HTMLInputElement>('input')!;
         const thumb = screen.getByTestId('thumb');
 
@@ -230,6 +234,27 @@ describe('<Field.Root />', () => {
         fireEvent.blur(thumb);
 
         expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('supports RadioGroup', () => {
+        render(
+          <Field.Root validate={() => 'error'}>
+            <RadioGroup.Root data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+
+        expect(group).not.to.have.attribute('aria-invalid');
+
+        fireEvent.focus(group);
+        fireEvent.blur(group);
+
+        expect(group).to.have.attribute('aria-invalid', 'true');
       });
     });
   });
@@ -405,6 +430,50 @@ describe('<Field.Root />', () => {
 
         expect(root).to.have.attribute('data-touched', 'true');
       });
+
+      it('supports RadioGroup (click)', () => {
+        render(
+          <Field.Root>
+            <RadioGroup.Root data-testid="group">
+              <Radio.Root value="1" data-testid="control">
+                One
+              </Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup.Root>
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+        const control = screen.getByTestId('control');
+
+        fireEvent.click(control);
+
+        expect(group).to.have.attribute('data-touched', 'true');
+        expect(control).to.have.attribute('data-touched', 'true');
+      });
+
+      it('supports RadioGroup (blur)', async () => {
+        render(
+          <Field.Root>
+            <RadioGroup.Root data-testid="group">
+              <Radio.Root value="1" data-testid="control">
+                One
+              </Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup.Root>
+            <button />
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+        const control = screen.getByTestId('control');
+
+        await userEvent.tab(); // onto control
+        await userEvent.tab(); // onto last button
+
+        expect(group).to.have.attribute('data-touched', 'true');
+        expect(control).to.have.attribute('data-touched', 'true');
+      });
     });
 
     describe('dirty', () => {
@@ -505,6 +574,7 @@ describe('<Field.Root />', () => {
         );
 
         const root = screen.getByTestId('root');
+        // eslint-disable-next-line testing-library/no-node-access
         const input = container.querySelector<HTMLInputElement>('input')!;
 
         expect(root).not.to.have.attribute('data-dirty');
@@ -512,6 +582,25 @@ describe('<Field.Root />', () => {
         fireEvent.change(input, { target: { value: 'value' } });
 
         expect(root).to.have.attribute('data-dirty', 'true');
+      });
+
+      it('supports RadioGroup', () => {
+        render(
+          <Field.Root>
+            <RadioGroup.Root data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup.Root>
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+
+        expect(group).not.to.have.attribute('data-dirty');
+
+        fireEvent.click(screen.getByText('One'));
+
+        expect(group).to.have.attribute('data-dirty', 'true');
       });
     });
   });
