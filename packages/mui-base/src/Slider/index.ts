@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-export { Slider } from './Slider';
-export * from './Slider.types';
-export * from './sliderClasses';
-=======
 export { SliderRoot as Root } from './Root/SliderRoot';
 export type {
   SliderRootOwnerState as SliderOwnerState,
@@ -52,4 +47,3 @@ export type {
   UseSliderIndicatorReturnValue,
 } from './Indicator/SliderIndicator.types';
 export { useSliderIndicator } from './Indicator/useSliderIndicator';
->>>>>>> upstream/master
