@@ -14,10 +14,11 @@
     "onCheckedChange": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void",
+        "type": "function(checked: boolean, event: Event) => void",
         "describedArgs": ["checked", "event"]
       }
     },
+    "parent": { "type": { "name": "bool" }, "default": "false" },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "required": { "type": { "name": "bool" }, "default": "false" }

@@ -4,8 +4,8 @@ import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useId } from '../../utils/useId';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
@@ -24,6 +24,13 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     indeterminate = false,
     disabled = false,
   } = params;
+
+  const [checked, setCheckedState] = useControlled({
+    controlled: externalChecked,
+    default: defaultChecked,
+    name: 'Checkbox',
+    state: 'checked',
+  });
 
   const {
     labelId,
@@ -64,13 +71,6 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       inputRef.current.indeterminate = indeterminate;
     }
   }, [indeterminate]);
-
-  const [checked, setCheckedState] = useControlled({
-    controlled: externalChecked,
-    default: defaultChecked,
-    name: 'Checkbox',
-    state: 'checked',
-  });
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && checked !== validityData.initialValue) {
@@ -132,6 +132,8 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         tabIndex: -1,
         type: 'checkbox',
         'aria-hidden': true,
+        // @ts-ignore
+        inert: 'true',
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
           if (event.nativeEvent.defaultPrevented) {
@@ -142,7 +144,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
 
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event);
+          onCheckedChange?.(nextChecked, event.nativeEvent);
         },
       }),
     [

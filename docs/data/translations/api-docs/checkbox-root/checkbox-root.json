@@ -21,6 +21,9 @@
         "event": "The event source of the callback."
       }
     },
+    "parent": {
+      "description": "If <code>true</code>, the checkbox is a parent checkbox for a group of child checkboxes."
+    },
     "readOnly": { "description": "If <code>true</code>, the component is read only." },
     "render": { "description": "A function to customize rendering of the component." },
     "required": {

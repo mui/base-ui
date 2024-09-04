@@ -4,6 +4,8 @@ import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Switch from '@base_ui/react/Switch';
 import * as NumberField from '@base_ui/react/NumberField';
 import * as Slider from '@base_ui/react/Slider';
+import * as RadioGroup from '@base_ui/react/RadioGroup';
+import * as Radio from '@base_ui/react/Radio';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
@@ -90,6 +92,24 @@ describe('<Field.Label />', () => {
         );
 
         expect(screen.getByTestId('slider')).to.have.attribute(
+          'aria-labelledby',
+          screen.getByTestId('label').id,
+        );
+      });
+    });
+
+    describe('RadioGroup', () => {
+      it('supports RadioGroup', () => {
+        render(
+          <Field.Root>
+            <RadioGroup.Root data-testid="radio-group">
+              <Radio.Root value="1" />
+            </RadioGroup.Root>
+            <Field.Label data-testid="label" />
+          </Field.Root>,
+        );
+
+        expect(screen.getByTestId('radio-group')).to.have.attribute(
           'aria-labelledby',
           screen.getByTestId('label').id,
         );

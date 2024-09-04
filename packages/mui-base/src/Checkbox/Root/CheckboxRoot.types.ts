@@ -49,9 +49,9 @@ export interface UseCheckboxRootParameters {
    * Callback fired when the checked state is changed.
    *
    * @param {boolean} checked The new checked state.
-   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
+   * @param {Event} event The event source of the callback.
    */
-  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
+  onCheckedChange?: (checked: boolean, event: Event) => void;
   /**
    * If `true`, the component is read only.
    *
@@ -80,6 +80,11 @@ export interface UseCheckboxRootParameters {
    * The ref to the input element.
    */
   inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * @default false
+   */
+  parent?: boolean;
 }
 
 export interface UseCheckboxRootReturnValue {

@@ -24,6 +24,7 @@ const pages: readonly RouteMetadata[] = [
     children: [
       { pathname: '/components/react-alert-dialog', title: 'Alert Dialog' },
       { pathname: '/components/react-checkbox', title: 'Checkbox' },
+      { pathname: '/components/react-checkbox-group', title: 'Checkbox Group' },
       { pathname: '/components/react-collapsible', title: 'Collapsible' },
       { pathname: '/components/react-dialog', title: 'Dialog' },
       { pathname: '/components/react-field', title: 'Field' },
@@ -33,6 +34,7 @@ const pages: readonly RouteMetadata[] = [
       { pathname: '/components/react-popover', title: 'Popover' },
       { pathname: '/components/react-preview-card', title: 'Preview Card' },
       { pathname: '/components/react-progress', title: 'Progress' },
+      { pathname: '/components/react-radio-group', title: 'Radio Group' },
       { pathname: '/components/react-slider', title: 'Slider' },
       { pathname: '/components/react-switch', title: 'Switch' },
       { pathname: '/components/react-tabs', title: 'Tabs' },
