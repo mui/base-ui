@@ -225,8 +225,16 @@ module.exports = [
     title: 'ProgressTrack',
   },
   {
+    pathname: '/base-ui/react-select/components-api/#select-arrow',
+    title: 'SelectArrow',
+  },
+  {
     pathname: '/base-ui/react-select/components-api/#select-backdrop',
     title: 'SelectBackdrop',
+  },
+  {
+    pathname: '/base-ui/react-select/components-api/#select-icon',
+    title: 'SelectIcon',
   },
   {
     pathname: '/base-ui/react-select/components-api/#select-option',

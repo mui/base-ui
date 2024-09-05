@@ -11,3 +11,5 @@ export { SelectValue } from './Value/SelectValue';
 export { SelectScrollUpArrow } from './ScrollUpArrow/SelectScrollUpArrow';
 export { SelectScrollDownArrow } from './ScrollDownArrow/SelectScrollDownArrow';
 export { SelectSeparator } from './Separator/SelectSeparator';
+export { SelectIcon } from './Icon/SelectIcon';
+export { SelectArrow } from './Arrow/SelectArrow';

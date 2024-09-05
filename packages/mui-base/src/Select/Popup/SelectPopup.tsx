@@ -69,7 +69,7 @@ namespace SelectPopup {
   export interface OwnerState {
     entering: boolean;
     exiting: boolean;
-    side: Side;
+    side: Side | 'none';
     alignment: 'start' | 'end' | 'center';
     open: boolean;
   }

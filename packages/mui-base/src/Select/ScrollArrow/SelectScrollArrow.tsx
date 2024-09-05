@@ -17,15 +17,13 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
-  const { innerOffset, setInnerOffset, innerFallback, alignMethod, popupRef, touchModality } =
+  const { innerOffset, setInnerOffset, innerFallback, popupRef, touchModality } =
     useSelectRootContext();
-  const { isPositioned } = useSelectPositionerContext();
+  const { isPositioned, side } = useSelectPositionerContext();
 
   const [rendered, setRendered] = React.useState(false);
 
-  const inert = !(!touchModality && alignMethod && !innerFallback);
-
-  if (rendered && inert) {
+  if (rendered && touchModality) {
     setRendered(false);
   }
 
@@ -35,8 +33,9 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     () => ({
       direction,
       rendered,
+      side,
     }),
-    [direction, rendered],
+    [direction, rendered, side],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -48,7 +47,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           zIndex: 2147483647, // max z-index
         },
         onMouseEnter() {
-          if (inert) {
+          if (touchModality) {
             return;
           }
 
@@ -89,7 +88,14 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             }
 
             const scrollDirection = direction === 'up' ? -1 : 1;
-            setInnerOffset((o) => o + scrollDirection * pixelsToScroll);
+
+            if (innerFallback) {
+              setInnerOffset(0);
+              popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
+            } else {
+              setInnerOffset((o) => o + scrollDirection * pixelsToScroll);
+            }
+
             frameRef.current = requestAnimationFrame(handleFrame);
           }
 
@@ -99,7 +105,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           cancelAnimationFrame(frameRef.current);
         },
       }),
-    [direction, popupRef, setInnerOffset, inert],
+    [direction, innerFallback, popupRef, setInnerOffset, touchModality],
   );
 
   const handleScrollArrowRendered = useEventCallback(() => {
@@ -120,7 +126,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   React.useEffect(() => {
     const popupElement = popupRef.current;
-    if (!popupElement || inert) {
+    if (!popupElement || touchModality) {
       return undefined;
     }
 
@@ -131,15 +137,15 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       popupElement.removeEventListener('wheel', handleScrollArrowRendered);
       popupElement.removeEventListener('scroll', handleScrollArrowRendered);
     };
-  }, [inert, popupRef, direction, handleScrollArrowRendered]);
+  }, [touchModality, popupRef, direction, handleScrollArrowRendered]);
 
   useEnhancedEffect(() => {
-    if (!isPositioned || inert) {
+    if (!isPositioned || touchModality) {
       return;
     }
 
     handleScrollArrowRendered();
-  }, [isPositioned, innerOffset, inert, handleScrollArrowRendered]);
+  }, [isPositioned, innerOffset, touchModality, handleScrollArrowRendered]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,
@@ -161,6 +167,8 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 namespace SelectScrollArrow {
   export interface OwnerState {
     direction: 'up' | 'down';
+    side: 'top' | 'right' | 'bottom' | 'left' | 'none';
+    rendered: boolean;
   }
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     direction: 'up' | 'down';

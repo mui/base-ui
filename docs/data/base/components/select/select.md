@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Select components and hook
-components: SelectRoot, SelectTrigger, SelectValue, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionIndicator, SelectOptionGroup, SelectOptionGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectSeparator
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionIndicator, SelectOptionGroup, SelectOptionGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectSeparator, SelectArrow
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -49,6 +49,7 @@ Selects are implemented using a collection of related components:
 - `<Select.Root />` is a top-level component that wraps the other components.
 - `<Select.Trigger />` renders the trigger element that opens the select popup on click.
 - `<Select.Value />` renders the value of the select.
+- `<Select.Icon />` renders a caret icon.
 - `<Select.Backdrop />` renders a backdrop element behind the popup.
 - `<Select.Positioner />` renders the select popup's positioning element.
 - `<Select.Popup />` renders the select popup itself.
@@ -59,11 +60,13 @@ Selects are implemented using a collection of related components:
 - `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
 - `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
 - `<Select.Separator />` renders a separator between option groups.
+- `<Select.Arrow />` renders the select popup's arrow when using `alignMethod="trigger"`.
 
 ```jsx
 <Select.Root>
   <Select.Trigger>
     <Select.Value />
+    <Select.Icon />
   </Select.Trigger>
 
   <Select.Backdrop />
@@ -80,6 +83,8 @@ Selects are implemented using a collection of related components:
       </Select.OptionGroup>
       <Select.Separator />
     </Select.Popup>
+
+    <Select.Arrow />
 
     <Select.ScrollDownArrow />
   </Select.Positioner>
@@ -100,3 +105,21 @@ Two different methods to align the popup are available:
 The `item` method aligns the popup such that the selected item inside of it appears centered over the trigger. If there's not enough space, it falls back to `trigger` anchoring.
 
 The `trigger` method aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+
+## Value
+
+The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Option` by default.
+
+The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected option, the value isn't available until hydration:
+
+```jsx
+<Select.Trigger>
+  <Select.Value placeholder="Select value..." />
+</Select.Trigger>
+```
+
+A function can be specified as a child to customize the rendering of the value:
+
+```jsx
+<Select.Value>{(value) => <span>{value}</span>}</Select.Value>
+```

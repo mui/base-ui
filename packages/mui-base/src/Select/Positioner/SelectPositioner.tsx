@@ -272,11 +272,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 export { SelectPositioner };
 
 export namespace SelectPositioner {
-  export type OwnerState = {
+  export interface OwnerState {
     open: boolean;
-    side: Side;
+    side: Side | 'none';
     alignment: 'start' | 'end' | 'center';
-  };
+  }
 
   export interface Props
     extends useSelectPositioner.SharedParameters,

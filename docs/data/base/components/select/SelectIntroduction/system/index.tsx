@@ -135,8 +135,11 @@ const SelectTrigger = styled(Select.Trigger)`
   }
 `;
 
-const SelectDropdownArrow = styled(ArrowDropDown)`
-  margin-right: -6px;
+const SelectDropdownArrow = styled(Select.Icon)`
+  margin-left: 6px;
+  font-size: 10px;
+  line-height: 1;
+  height: 6px;
 `;
 
 const SelectPopup = styled(Select.Popup)`
@@ -194,7 +197,11 @@ const SelectOptionGroupLabel = styled(Select.OptionGroupLabel)`
 
 const scrollArrowStyles = css`
   width: 100%;
-  height: 25px;
+  height: 15px;
+
+  &[data-side='none'] {
+    height: 25px;
+  }
 
   > div {
     position: absolute;
@@ -211,13 +218,21 @@ const scrollArrowStyles = css`
 
 const SelectScrollUpArrow = styled(Select.ScrollUpArrow)`
   transform: rotate(180deg);
-  top: -10px;
+  top: 0;
   ${scrollArrowStyles}
+
+  &[data-side='none'] {
+    top: -10px;
+  }
 `;
 
 const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
-  bottom: -10px;
+  bottom: 0;
   ${scrollArrowStyles}
+
+  &[data-side='none'] {
+    bottom: -10px;
+  }
 `;
 
 const SelectSeparator = styled(Select.Separator)`

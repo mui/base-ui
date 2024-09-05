@@ -7,6 +7,7 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectOptionContext } from '../Option/SelectOptionContext';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectOptionIndicator.OwnerState> =
   commonStyleHooks;
@@ -20,6 +21,14 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   const { open } = useSelectRootContext();
   const { selected } = useSelectOptionContext();
 
+  const getOptionProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps(externalProps, {
+        'aria-hidden': true,
+      }),
+    [],
+  );
+
   const ownerState: SelectOptionIndicator.OwnerState = React.useMemo(
     () => ({
       open,
@@ -29,6 +38,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   );
 
   const { renderElement } = useComponentRenderer({
+    propGetter: getOptionProps,
     render: render ?? 'span',
     ref: forwardedRef,
     className,

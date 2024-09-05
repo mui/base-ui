@@ -6,7 +6,7 @@ export interface SelectPositionerContext {
   /**
    * The side of the anchor element the popup is positioned relative to.
    */
-  side: Side;
+  side: Side | 'none';
   /**
    * The alignment of the anchor element the popup is positioned relative to.
    */

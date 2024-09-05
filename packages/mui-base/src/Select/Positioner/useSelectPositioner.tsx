@@ -78,7 +78,7 @@ export function useSelectPositioner(
       arrowRef,
       arrowUncentered,
       arrowStyles,
-      side: renderedSide,
+      side: alignMethod === 'item' && !innerFallback ? 'none' : renderedSide,
       alignment: renderedAlignment,
       floatingContext,
       isPositioned,
@@ -88,6 +88,8 @@ export function useSelectPositioner(
       arrowRef,
       arrowUncentered,
       arrowStyles,
+      alignMethod,
+      innerFallback,
       renderedSide,
       renderedAlignment,
       floatingContext,
@@ -228,7 +230,7 @@ export namespace useSelectPositioner {
     /**
      * The rendered side of the Select element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: 'top' | 'right' | 'bottom' | 'left' | 'none';
     /**
      * The rendered alignment of the Select element.
      */
