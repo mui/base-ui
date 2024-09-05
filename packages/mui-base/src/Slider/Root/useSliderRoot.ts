@@ -6,10 +6,10 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
-import { useCompoundParent } from '../../useCompound';
+import { type CompoundComponentContextValue, useCompoundParent } from '../../useCompound';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
-import { SliderThumbMetadata, UseSliderParameters, UseSliderReturnValue } from './SliderRoot.types';
+import type { useSliderThumb } from '../Thumb/useSliderThumb';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
@@ -119,7 +119,7 @@ export function trackFinger(
  *
  * - [useSliderRoot API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-root)
  */
-function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
+export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRoot.ReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
     id: idProp,
@@ -191,7 +191,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
-    SliderThumbMetadata
+    useSliderThumb.Metadata
   >();
 
   const handleValueChange = React.useCallback(
@@ -389,7 +389,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     setActive(-1);
   }
 
-  const getRootProps: UseSliderReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useSliderRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(getValidationProps(externalProps), {
         'aria-labelledby': ariaLabelledby,
@@ -465,4 +465,190 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   );
 }
 
-export { useSliderRoot };
+export namespace useSliderRoot {
+  export type Direction = 'ltr' | 'rtl';
+
+  export type Orientation = 'horizontal' | 'vertical';
+
+  export interface Parameters {
+    /**
+     * The id of the slider element.
+     */
+    id?: string;
+    /**
+     * The id of the element containing a label for the slider.
+     */
+    'aria-labelledby'?: string;
+    /**
+     * The default value. Use when the component is not controlled.
+     */
+    defaultValue?: number | ReadonlyArray<number>;
+    /**
+     * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
+     * @default 'ltr'
+     */
+    direction?: Direction;
+    /**
+     * If `true`, the component is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * The maximum allowed value of the slider.
+     * Should not be equal to min.
+     * @default 100
+     */
+    max?: number;
+    /**
+     * The minimum allowed value of the slider.
+     * Should not be equal to max.
+     * @default 0
+     */
+    min?: number;
+    /**
+     * The minimum steps between values in a range slider.
+     * @default 0
+     */
+    minStepsBetweenValues?: number;
+    /**
+     * Name attribute of the hidden `input` element.
+     */
+    name?: string;
+    /**
+     * Callback function that is fired when the slider's value changed.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {number} activeThumb Index of the currently moved thumb.
+     * @param {Event} event The event source of the callback.
+     * You can pull out the new value by accessing `event.target.value` (any).
+     * **Warning**: This is a generic event not a change event.
+     */
+    onValueChange?: (value: number | number[], activeThumb: number, event: Event) => void;
+    /**
+     * Callback function that is fired when the `pointerup` is triggered.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The event source of the callback.
+     * **Warning**: This is a generic event not a change event.
+     */
+    onValueCommitted?: (value: number | number[], event: Event) => void;
+    /**
+     * The component orientation.
+     * @default 'horizontal'
+     */
+    orientation?: Orientation;
+    /**
+     * The ref attached to the root of the Slider.
+     */
+    rootRef?: React.Ref<Element>;
+    /**
+     * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
+     * @default 10
+     */
+    largeStep?: number;
+    /**
+     * The granularity with which the slider can step through values. (A "discrete" slider.)
+     * The `min` prop serves as the origin for the valid values.
+     * We recommend (max - min) to be evenly divisible by the step.
+     * @default 1
+     */
+    step?: number;
+    /**
+     * Tab index attribute of the Thumb component's `input` element.
+     */
+    tabIndex?: number;
+    /**
+     * The value of the slider.
+     * For ranged sliders, provide an array with two values.
+     */
+    value?: number | ReadonlyArray<number>;
+  }
+
+  export interface ReturnValue {
+    getRootProps: (
+      externalProps?: React.ComponentPropsWithRef<'span'>,
+    ) => React.ComponentPropsWithRef<'span'>;
+    /**
+     * The index of the active thumb.
+     */
+    active: number;
+    /**
+     * A function that compares a new value with the internal value of the slider.
+     * The internal value is potentially unsorted, e.g. to support frozen arrays: https://github.com/mui/material-ui/pull/28472
+     */
+    areValuesEqual: (newValue: number | ReadonlyArray<number>) => boolean;
+    'aria-labelledby'?: string;
+    /**
+     * The orientation of the slider.
+     */
+    axis: Orientation | 'horizontal-reverse';
+    changeValue: (
+      valueInput: number,
+      index: number,
+      event: React.KeyboardEvent | React.ChangeEvent,
+    ) => void;
+    compoundComponentContextValue: CompoundComponentContextValue<any, useSliderThumb.Metadata>;
+    dragging: boolean;
+    direction: Direction;
+    disabled: boolean;
+    getFingerNewValue: (args: {
+      finger: { x: number; y: number };
+      move?: boolean;
+      offset?: number;
+      activeIndex?: number;
+    }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null;
+    handleValueChange: (
+      value: number | number[],
+      activeThumb: number,
+      event: React.SyntheticEvent | Event,
+    ) => void;
+    /**
+     * The large step value of the slider when incrementing or decrementing while the shift key is held,
+     * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.
+     * @default 10
+     */
+    largeStep: number;
+    /**
+     * The maximum allowed value of the slider.
+     */
+    max: number;
+    /**
+     * The minimum allowed value of the slider.
+     */
+    min: number;
+    /**
+     * The minimum steps between values in a range slider.
+     */
+    minStepsBetweenValues: number;
+    name?: string;
+    onValueCommitted?: (value: number | number[], event: Event) => void;
+    /**
+     * The component orientation.
+     * @default 'horizontal'
+     */
+    orientation: Orientation;
+    registerSliderControl: (element: HTMLElement | null) => void;
+    /**
+     * The value(s) of the slider as percentages
+     */
+    percentageValues: readonly number[];
+    setActive: (activeIndex: number) => void;
+    setDragging: (isDragging: boolean) => void;
+    setValueState: (newValue: number | number[]) => void;
+    /**
+     * The step increment of the slider when incrementing or decrementing. It will snap
+     * to multiples of this value. Decimal values are supported.
+     * @default 1
+     */
+    step: number;
+    /**
+     * A map containing all the Thumb components registered to the slider
+     */
+    subitems: Map<string, useSliderThumb.Metadata>;
+    tabIndex?: number;
+    /**
+     * The value(s) of the slider
+     */
+    values: readonly number[];
+  }
+}

@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import * as Slider from '@base_ui/react/Slider';
-import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
+import { SliderProvider } from '../Root/SliderProvider';
 
 const NOOP = () => {};
 
 describe('<Slider.Output />', () => {
   const { render } = createRenderer();
 
-  const testProviderValue: SliderProviderValue = {
+  const testProviderValue: SliderProvider.Value = {
     active: -1,
     areValuesEqual: () => true,
     axis: 'horizontal',

@@ -1,9 +1,20 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { UseSliderOutputParameters, UseSliderOutputReturnValue } from './SliderOutput.types';
-
-function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutputReturnValue {
+import type { useSliderRoot } from '../Root/useSliderRoot';
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
+ * API:
+ *
+ * - [useSliderOutput API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-output)
+ */
+export function useSliderOutput(
+  parameters: useSliderOutput.Parameters,
+): useSliderOutput.ReturnValue {
   const { 'aria-live': ariaLive = 'off', subitems } = parameters;
 
   const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
@@ -30,4 +41,14 @@ function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutput
   );
 }
 
-export { useSliderOutput };
+export namespace useSliderOutput {
+  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'subitems'> {
+    'aria-live'?: React.AriaAttributes['aria-live'];
+  }
+
+  export interface ReturnValue {
+    getRootProps: (
+      externalProps?: React.ComponentPropsWithRef<'output'>,
+    ) => React.ComponentPropsWithRef<'output'>;
+  }
+}

@@ -36,7 +36,7 @@ export default function UnstyledSliderIntroduction() {
 }
 
 const Slider = React.forwardRef(function Slider(
-  props: BaseSlider.RootProps,
+  props: BaseSlider.Root.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -56,7 +56,7 @@ const Slider = React.forwardRef(function Slider(
 });
 
 const SliderOutput = React.forwardRef(function SliderOutput(
-  props: BaseSlider.OutputProps,
+  props: BaseSlider.Output.Props,
   ref: React.ForwardedRef<HTMLOutputElement>,
 ) {
   return (
@@ -76,7 +76,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 });
 
 const SliderControl = React.forwardRef(function SliderControl(
-  props: BaseSlider.ControlProps,
+  props: BaseSlider.Control.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -97,7 +97,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 });
 
 const SliderTrack = React.forwardRef(function SliderTrack(
-  props: BaseSlider.TrackProps,
+  props: BaseSlider.Track.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -117,7 +117,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 });
 
 const SliderThumb = React.forwardRef(function SliderThumb(
-  props: BaseSlider.ThumbProps,
+  props: BaseSlider.Thumb.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -139,7 +139,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 const SliderIndicator = React.forwardRef(function SliderIndicator(
-  props: BaseSlider.IndicatorProps,
+  props: BaseSlider.Indicator.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (

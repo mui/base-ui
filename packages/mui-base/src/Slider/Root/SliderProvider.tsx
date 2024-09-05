@@ -1,15 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { CompoundComponentContext } from '../../useCompound';
-import { SliderContextValue, SliderProviderValue } from './SliderRoot.types';
+import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
+import type { useSliderThumb } from '../Thumb/useSliderThumb';
+import type { SliderRoot } from './SliderRoot';
 
-export interface SliderProviderProps {
-  value: SliderProviderValue;
-  children: React.ReactNode;
-}
-
-export const SliderContext = React.createContext<SliderContextValue | undefined>(undefined);
+export const SliderContext = React.createContext<SliderRoot.Context | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   SliderContext.displayName = 'SliderContext';
@@ -28,7 +24,7 @@ export function useSliderContext() {
  *
  * @ignore - do not document.
  */
-function SliderProvider(props: SliderProviderProps) {
+export function SliderProvider(props: SliderProvider.Props) {
   const { value: valueProp, children } = props;
 
   const { compoundComponentContextValue, ...contextValue } = valueProp;
@@ -78,6 +74,7 @@ SliderProvider.propTypes /* remove-proptypes */ = {
     ownerState: PropTypes.shape({
       activeThumbIndex: PropTypes.number.isRequired,
       direction: PropTypes.oneOf(['ltr', 'rtl']).isRequired,
+      dirty: PropTypes.bool.isRequired,
       disabled: PropTypes.bool.isRequired,
       dragging: PropTypes.bool.isRequired,
       max: PropTypes.number.isRequired,
@@ -85,6 +82,8 @@ SliderProvider.propTypes /* remove-proptypes */ = {
       minStepsBetweenValues: PropTypes.number.isRequired,
       orientation: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
       step: PropTypes.number.isRequired,
+      touched: PropTypes.bool.isRequired,
+      valid: PropTypes.bool,
       values: PropTypes.arrayOf(PropTypes.number).isRequired,
     }).isRequired,
     percentageValues: PropTypes.arrayOf(PropTypes.number).isRequired,
@@ -99,4 +98,13 @@ SliderProvider.propTypes /* remove-proptypes */ = {
   }).isRequired,
 } as any;
 
-export { SliderProvider };
+export namespace SliderProvider {
+  export interface Props {
+    value: Value;
+    children: React.ReactNode;
+  }
+
+  export interface Value extends SliderRoot.Context {
+    compoundComponentContextValue: CompoundComponentContextValue<any, useSliderThumb.Metadata>;
+  }
+}

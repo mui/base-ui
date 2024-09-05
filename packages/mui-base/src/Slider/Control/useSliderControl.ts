@@ -2,17 +2,22 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+import type { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { focusThumb, trackFinger, validateMinimumDistance } from '../Root/useSliderRoot';
-import { UseSliderControlParameters, UseSliderControlReturnValue } from './SliderControl.types';
+import {
+  focusThumb,
+  trackFinger,
+  type useSliderRoot,
+  validateMinimumDistance,
+} from '../Root/useSliderRoot';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
 export function useSliderControl(
-  parameters: UseSliderControlParameters,
-): UseSliderControlReturnValue {
+  parameters: useSliderControl.Parameters,
+): useSliderControl.ReturnValue {
   const {
     areValuesEqual,
     disabled,
@@ -282,4 +287,34 @@ export function useSliderControl(
     }),
     [getRootProps],
   );
+}
+
+export namespace useSliderControl {
+  export interface Parameters
+    extends Pick<
+      useSliderRoot.ReturnValue,
+      | 'areValuesEqual'
+      | 'disabled'
+      | 'dragging'
+      | 'getFingerNewValue'
+      | 'handleValueChange'
+      | 'minStepsBetweenValues'
+      | 'onValueCommitted'
+      | 'percentageValues'
+      | 'registerSliderControl'
+      | 'setActive'
+      | 'setDragging'
+      | 'setValueState'
+      | 'step'
+      | 'subitems'
+    > {
+    /**
+     * The ref attached to the control area of the Slider.
+     */
+    rootRef?: React.Ref<Element>;
+  }
+
+  export interface ReturnValue {
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

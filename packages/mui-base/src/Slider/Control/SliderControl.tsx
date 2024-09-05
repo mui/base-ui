@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderContext } from '../Root/SliderProvider';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
-import { SliderControlProps } from './SliderControl.types';
+import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderControl } from './useSliderControl';
-
 /**
  *
  * Demos:
@@ -18,7 +18,7 @@ import { useSliderControl } from './useSliderControl';
  * - [SliderControl API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderControl)
  */
 const SliderControl = React.forwardRef(function SliderControl(
-  props: SliderControlProps,
+  props: SliderControl.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render: renderProp, className, ...otherProps } = props;
@@ -89,5 +89,9 @@ SliderControl.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
+
+export namespace SliderControl {
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+}
 
 export { SliderControl };

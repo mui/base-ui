@@ -1,14 +1,14 @@
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
-import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
+import { SliderProvider } from '../Root/SliderProvider';
 
 const NOOP = () => {};
 
 describe('<Slider.Thumb />', () => {
   const { render } = createRenderer();
 
-  const testProviderValue: SliderProviderValue = {
+  const testProviderValue: SliderProvider.Value = {
     active: -1,
     areValuesEqual: () => true,
     axis: 'horizontal',

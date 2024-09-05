@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderContext } from '../Root/SliderProvider';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
-import { SliderIndicatorProps } from './SliderIndicator.types';
+import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderIndicator } from './useSliderIndicator';
-
 /**
  *
  * Demos:
@@ -18,8 +18,8 @@ import { useSliderIndicator } from './useSliderIndicator';
  * - [SliderIndicator API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderIndicator)
  */
 const SliderIndicator = React.forwardRef(function SliderIndicator(
-  props: SliderIndicatorProps,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  props: SliderIndicator.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
@@ -65,5 +65,9 @@ SliderIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
+
+export namespace SliderIndicator {
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+}
 
 export { SliderIndicator };

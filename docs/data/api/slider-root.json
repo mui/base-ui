@@ -10,12 +10,8 @@
       "default": "'ltr'"
     },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "id": { "type": { "name": "string" } },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
-    "max": { "type": { "name": "number" }, "default": "100" },
-    "min": { "type": { "name": "number" }, "default": "0" },
     "minStepsBetweenValues": { "type": { "name": "number" }, "default": "0" },
-    "name": { "type": { "name": "string" } },
     "onValueChange": {
       "type": { "name": "func" },
       "signature": {
@@ -35,8 +31,6 @@
       "default": "'horizontal'"
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "step": { "type": { "name": "number" }, "default": "1" },
-    "tabIndex": { "type": { "name": "number" } },
     "value": {
       "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
     }

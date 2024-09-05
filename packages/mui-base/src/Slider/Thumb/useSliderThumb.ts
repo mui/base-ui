@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompoundItem } from '../../useCompound';
-import { SliderThumbMetadata } from '../Root/SliderRoot.types';
-import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
+import type { useSliderRoot } from '../Root/useSliderRoot';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -41,7 +41,7 @@ function getDefaultAriaValueText(values: readonly number[], index: number): stri
   return undefined;
 }
 
-export function useSliderThumb(parameters: UseSliderThumbParameters) {
+export function useSliderThumb(parameters: useSliderThumb.Parameters): useSliderThumb.ReturnValue {
   const {
     active: activeIndex,
     'aria-label': ariaLabel,
@@ -81,7 +81,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const mergedInputRef = useForkRef(inputRef, inputValidationRef);
   const handleRef = useForkRef(externalRef, thumbRef);
 
-  const thumbMetadata: SliderThumbMetadata = React.useMemo(
+  const thumbMetadata: useSliderThumb.Metadata = React.useMemo(
     () => ({ inputId: thumbId ? `${thumbId}-input` : '', ref: thumbRef, inputRef }),
     [thumbId],
   );
@@ -120,7 +120,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     };
   }, [activeIndex, axis, isRtl, orientation, percent, index]);
 
-  const getRootProps: UseSliderThumbReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
         'data-index': index,
@@ -230,7 +230,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     ],
   );
 
-  const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
+  const getThumbInputProps: useSliderThumb.ReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
@@ -298,4 +298,70 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     }),
     [getRootProps, getThumbInputProps, index, disabled],
   );
+}
+
+export namespace useSliderThumb {
+  export interface Metadata {
+    inputId: string;
+    ref: React.RefObject<HTMLElement>;
+    inputRef: React.RefObject<HTMLInputElement>;
+  }
+
+  export interface Parameters
+    extends Pick<
+      useSliderRoot.ReturnValue,
+      | 'active'
+      | 'aria-labelledby'
+      | 'axis'
+      | 'changeValue'
+      | 'direction'
+      | 'largeStep'
+      | 'max'
+      | 'min'
+      | 'minStepsBetweenValues'
+      | 'name'
+      | 'orientation'
+      | 'percentageValues'
+      | 'step'
+      | 'tabIndex'
+      | 'values'
+    > {
+    /**
+     * The label for the input element.
+     */
+    'aria-label'?: string;
+    /**
+     * A string value that provides a user-friendly name for the current value of the slider.
+     */
+    'aria-valuetext'?: string;
+    /**
+     * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
+     * @param {number} index The index of the input
+     * @returns {string}
+     */
+    getAriaLabel?: (index: number) => string;
+    /**
+     * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
+     * This is important for screen reader users.
+     * @param {number} value The thumb label's value to format.
+     * @param {number} index The thumb label's index to format.
+     * @returns {string}
+     */
+    getAriaValueText?: (value: number, index: number) => string;
+    id?: string;
+    disabled: boolean;
+    onBlur?: React.FocusEventHandler;
+    onFocus?: React.FocusEventHandler;
+    onKeyDown?: React.KeyboardEventHandler;
+    rootRef?: React.Ref<Element>;
+  }
+
+  export interface ReturnValue {
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getThumbInputProps: (
+      externalProps?: React.ComponentPropsWithRef<'input'>,
+    ) => React.ComponentPropsWithRef<'input'>;
+    index: number;
+    disabled: boolean;
+  }
 }

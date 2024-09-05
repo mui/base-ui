@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderProvider } from './SliderProvider';
-import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-
 /**
  *
  * Demos:
@@ -19,7 +19,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
  * - [SliderRoot API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderRoot)
  */
 const SliderRoot = React.forwardRef(function SliderRoot(
-  props: SliderRootProps,
+  props: SliderRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -56,7 +56,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps,
   });
 
-  const ownerState: SliderRootOwnerState = React.useMemo(
+  const ownerState: SliderRoot.OwnerState = React.useMemo(
     () => ({
       ...fieldOwnerState,
       activeThumbIndex: slider.active,
@@ -137,35 +137,15 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the slider element.
-   */
-  id: PropTypes.string,
-  /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10
    */
   largeStep: PropTypes.number,
   /**
-   * The maximum allowed value of the slider.
-   * Should not be equal to min.
-   * @default 100
-   */
-  max: PropTypes.number,
-  /**
-   * The minimum allowed value of the slider.
-   * Should not be equal to max.
-   * @default 0
-   */
-  min: PropTypes.number,
-  /**
    * The minimum steps between values in a range slider.
    * @default 0
    */
   minStepsBetweenValues: PropTypes.number,
-  /**
-   * Name attribute of the hidden `input` element.
-   */
-  name: PropTypes.string,
   /**
    * Callback function that is fired when the slider's value changed.
    *
@@ -194,21 +174,73 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The granularity with which the slider can step through values. (A "discrete" slider.)
-   * The `min` prop serves as the origin for the valid values.
-   * We recommend (max - min) to be evenly divisible by the step.
-   * @default 1
-   */
-  step: PropTypes.number,
-  /**
-   * Tab index attribute of the Thumb component's `input` element.
-   */
-  tabIndex: PropTypes.number,
-  /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.
    */
   value: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
 } as any;
+
+export namespace SliderRoot {
+  export interface Context
+    extends Omit<useSliderRoot.ReturnValue, 'compoundComponentContextValue' | 'getRootProps'> {
+    ownerState: OwnerState;
+  }
+
+  export interface OwnerState extends FieldRootOwnerState {
+    /**
+     * The index of the active thumb.
+     */
+    activeThumbIndex: number;
+    /**
+     * If `true`, the component is disabled.
+     */
+    disabled: boolean;
+    /**
+     * If `true`, a thumb is being dragged by a pointer.
+     */
+    dragging: boolean;
+    direction: useSliderRoot.Direction;
+    max: number;
+    min: number;
+    /**
+     * The minimum steps between values in a range slider.
+     * @default 0
+     */
+    minStepsBetweenValues: number;
+    /**
+     * The component orientation.
+     */
+    orientation: useSliderRoot.Orientation;
+    /**
+     * The step increment of the slider when incrementing or decrementing. It will snap
+     * to multiples of this value. Decimal values are supported.
+     * @default 1
+     */
+    step: number;
+    /**
+     * The raw number value of the slider.
+     */
+    values: ReadonlyArray<number>;
+  }
+
+  export interface Props
+    extends Omit<useSliderRoot.Parameters, 'rootRef'>,
+      Omit<BaseUIComponentProps<'span', OwnerState>, 'defaultValue' | 'onChange' | 'values'> {
+    /**
+     * The default value of the slider. Use when the component is not controlled.
+     */
+    defaultValue?: number | ReadonlyArray<number>;
+    /**
+     * If `true`, the component is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * The value of the slider.
+     * For ranged sliders, provide an array with two values.
+     */
+    value?: number | ReadonlyArray<number>;
+  }
+}
 
 export { SliderRoot };
