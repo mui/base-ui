@@ -8,16 +8,10 @@ import * as RadioGroup from '@base_ui/react/RadioGroup';
 import * as Radio from '@base_ui/react/Radio';
 import * as Select from '@base_ui/react/Select';
 import userEvent from '@testing-library/user-event';
-import {
-  act,
-  createRenderer,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer } from '../../../test/createRenderer';
 
 const user = userEvent.setup();
 
@@ -215,8 +209,8 @@ describe('<Field.Root />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('supports Slider', () => {
-        const { container } = render(
+      it('supports Slider', async () => {
+        const { container } = await render(
           <Field.Root validate={() => 'error'}>
             <Slider.Root>
               <Slider.Control>
@@ -635,8 +629,8 @@ describe('<Field.Root />', () => {
         expect(input).to.have.attribute('data-dirty', 'true');
       });
 
-      it('supports Slider', () => {
-        const { container } = render(
+      it('supports Slider', async () => {
+        const { container } = await render(
           <Field.Root>
             <Slider.Root data-testid="root">
               <Slider.Control>
@@ -677,7 +671,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        render(
+        await render(
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
