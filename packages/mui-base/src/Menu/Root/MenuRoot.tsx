@@ -5,6 +5,16 @@ import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuRoot API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRoot)
+ */
 function MenuRoot(props: MenuRoot.Props) {
   const {
     animated = true,

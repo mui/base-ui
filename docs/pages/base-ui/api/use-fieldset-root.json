@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldsetRoot",
-  "filename": "/packages/mui-base/src/Fieldset/Root/useFieldsetRoot.ts",
-  "imports": ["import { useFieldsetRoot } from '@base_ui/react/Fieldset';"],
-  "demos": "<ul></ul>"
-}

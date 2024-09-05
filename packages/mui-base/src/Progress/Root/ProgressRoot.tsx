@@ -11,6 +11,16 @@ import {
   ProgressRootProps,
 } from './ProgressRoot.types';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Progress](https://base-ui.netlify.app/components/react-progress/)
+ *
+ * API:
+ *
+ * - [ProgressRoot API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressRoot)
+ */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
   props: ProgressRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

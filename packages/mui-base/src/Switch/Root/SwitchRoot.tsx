@@ -20,11 +20,11 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  *
  * Demos:
  *
- * - [Switch](https://mui.com/base-ui/react-switch/)
+ * - [Switch](https://base-ui.netlify.app/components/react-switch/)
  *
  * API:
  *
- * - [Switch API](https://mui.com/base-ui/react-switch/components-api/#switch)
+ * - [SwitchRoot API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchRoot)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
   props: SwitchRootProps,

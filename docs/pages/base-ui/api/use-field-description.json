@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldDescription",
-  "filename": "/packages/mui-base/src/Field/Description/useFieldDescription.ts",
-  "imports": ["import { useFieldDescription } from '@base_ui/react/Field';"],
-  "demos": "<ul></ul>"
-}

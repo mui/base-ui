@@ -6,12 +6,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 
-/**
- *
- * API:
- *
- * - [useMenuItem API](https://mui.com/base-ui/api/use-menu-item/)
- */
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
     closeOnClick,

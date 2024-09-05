@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldsetLegend",
-  "filename": "/packages/mui-base/src/Fieldset/Legend/useFieldsetLegend.ts",
-  "imports": ["import { useFieldsetLegend } from '@base_ui/react/Fieldset';"],
-  "demos": "<ul></ul>"
-}

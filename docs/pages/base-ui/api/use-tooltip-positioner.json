@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useTooltipPositioner",
-  "filename": "/packages/mui-base/src/Tooltip/Positioner/useTooltipPositioner.ts",
-  "imports": ["import { useTooltipPositioner } from '@base_ui/react/Tooltip';"],
-  "demos": "<ul></ul>"
-}

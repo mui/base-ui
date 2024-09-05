@@ -52,16 +52,6 @@ function defaultFormValueProvider<OptionValue>(
   return JSON.stringify(selectedOption.value);
 }
 
-/**
- *
- * Demos:
- *
- * - [Select](https://mui.com/base-ui/react-select/#hooks)
- *
- * API:
- *
- * - [useSelect API](https://mui.com/base-ui/react-select/hooks-api/#use-select)
- */
 function useSelect<OptionValue, Multiple extends boolean = false>(
   props: UseSelectParameters<OptionValue, Multiple>,
 ): UseSelectReturnValue<OptionValue, Multiple> {

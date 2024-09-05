@@ -13,11 +13,11 @@ import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
  *
  * Demos:
  *
- * - [CheckboxGroup](https://mui.com/base-ui/react-checkbox-group/)
+ * - [Checkbox Group](https://base-ui.netlify.app/components/react-checkbox-group/)
  *
  * API:
  *
- * - [CheckboxGroup API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-group-root)
+ * - [CheckboxGroupRoot API](https://base-ui.netlify.app/components/react-checkbox-group/#api-reference-CheckboxGroupRoot)
  */
 const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
   props: CheckboxGroupRoot.Props,

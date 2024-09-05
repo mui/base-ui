@@ -16,11 +16,11 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * Demos:
  *
- * - [No SSR](https://mui.com/base-ui/react-no-ssr/)
+ * - [No SSR](https://base-ui.netlify.app/components/react-no-ssr/)
  *
  * API:
  *
- * - [NoSsr API](https://mui.com/base-ui/react-no-ssr/components-api/#no-ssr)
+ * - [NoSsr API](https://base-ui.netlify.app/components/react-no-ssr/#api-reference-NoSsr)
  */
 function NoSsr(props: NoSsrProps): JSX.Element {
   const { children, defer = false, fallback = null } = props;

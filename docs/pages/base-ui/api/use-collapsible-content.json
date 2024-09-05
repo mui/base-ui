@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useCollapsibleContent",
-  "filename": "/packages/mui-base/src/Collapsible/Content/useCollapsibleContent.ts",
-  "imports": ["import { useCollapsibleContent } from '@base_ui/react/Collapsible';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-collapsible/#hooks\">Collapsible</a></li></ul>"
-}

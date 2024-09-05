@@ -81,11 +81,11 @@ const InnerOption = React.memo(
  *
  * Demos:
  *
- * - [Select](https://mui.com/base-ui/react-select/)
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
  *
  * API:
  *
- * - [Option API](https://mui.com/base-ui/react-select/components-api/#option)
+ * - [Option API](https://base-ui.netlify.app/components/react-select/#api-reference-Option)
  */
 const Option = React.forwardRef(function Option<OptionValue>(
   props: OptionProps<OptionValue>,

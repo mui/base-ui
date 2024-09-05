@@ -12,6 +12,16 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
 }
 
+/**
+ *
+ * Demos:
+ *
+ * - [Switch](https://base-ui.netlify.app/components/react-switch/)
+ *
+ * API:
+ *
+ * - [SwitchThumb API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchThumb)
+ */
 const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumbProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

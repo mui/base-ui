@@ -6,6 +6,16 @@ import { useProgressContext } from '../Root/ProgressContext';
 import { progressStyleHookMapping } from '../Root/styleHooks';
 import { ProgressTrackProps } from './ProgressTrack.types';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Progress](https://base-ui.netlify.app/components/react-progress/)
+ *
+ * API:
+ *
+ * - [ProgressTrack API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressTrack)
+ */
 const ProgressTrack = React.forwardRef(function ProgressTrack(
   props: ProgressTrackProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

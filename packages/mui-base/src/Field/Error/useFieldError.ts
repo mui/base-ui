@@ -10,12 +10,6 @@ interface UseFieldErrorParameters {
   rendered: boolean;
 }
 
-/**
- *
- * API:
- *
- * - [useFieldError API](https://mui.com/base-ui/api/use-field-error/)
- */
 export function useFieldError(params: UseFieldErrorParameters) {
   const { id: idProp, rendered } = params;
 

@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldControl",
-  "filename": "/packages/mui-base/src/Field/Control/useFieldControl.ts",
-  "imports": ["import { useFieldControl } from '@base_ui/react/Field';"],
-  "demos": "<ul></ul>"
-}

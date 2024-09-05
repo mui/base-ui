@@ -13,11 +13,11 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverPopup API](https://mui.com/base-ui/react-popover/components-api/#popover-popup)
+ * - [PopoverPopup API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverPopup)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
   props: PopoverPopupProps,

@@ -126,11 +126,11 @@ function defaultIsEnabled(): boolean {
  *
  * Demos:
  *
- * - [Focus Trap](https://mui.com/base-ui/react-focus-trap/)
+ * - [Focus Trap](https://base-ui.netlify.app/components/react-focus-trap/)
  *
  * API:
  *
- * - [FocusTrap API](https://mui.com/base-ui/react-focus-trap/components-api/#focus-trap)
+ * - [FocusTrap API](https://base-ui.netlify.app/components/react-focus-trap/#api-reference-FocusTrap)
  */
 function FocusTrap(props: FocusTrapProps): JSX.Element {
   const {

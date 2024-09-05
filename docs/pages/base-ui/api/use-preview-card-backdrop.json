@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePreviewCardBackdrop",
-  "filename": "/packages/mui-base/src/PreviewCard/Backdrop/usePreviewCardBackdrop.ts",
-  "imports": ["import { usePreviewCardBackdrop } from '@base_ui/react/PreviewCard';"],
-  "demos": "<ul></ul>"
-}

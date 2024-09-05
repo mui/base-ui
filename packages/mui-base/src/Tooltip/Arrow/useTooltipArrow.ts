@@ -6,12 +6,6 @@ import type {
   UseTooltipArrowReturnValue,
 } from './useTooltipArrow.types';
 
-/**
- *
- * API:
- *
- * - [useTooltipArrow API](https://mui.com/base-ui/api/use-tooltip-arrow/)
- */
 export function useTooltipArrow(params: UseTooltipArrowParameters): UseTooltipArrowReturnValue {
   const { arrowStyles } = params;
 

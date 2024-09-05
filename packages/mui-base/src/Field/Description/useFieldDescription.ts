@@ -9,12 +9,6 @@ interface UseFieldDescriptionParameters {
   id: string | undefined;
 }
 
-/**
- *
- * API:
- *
- * - [useFieldDescription API](https://mui.com/base-ui/api/use-field-description/)
- */
 export function useFieldDescription(params: UseFieldDescriptionParameters) {
   const { id: idProp } = params;
 

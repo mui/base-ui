@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "hideWhenUncentered": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "TooltipArrow",
+  "imports": [
+    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipArrow = Tooltip.Arrow;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TooltipArrow",
+  "forwardsRefTo": "Element",
+  "filename": "/packages/mui-base/src/Tooltip/Arrow/TooltipArrow.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

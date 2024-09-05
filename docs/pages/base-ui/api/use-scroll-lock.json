@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useScrollLock",
-  "filename": "/packages/mui-base/src/utils/useScrollLock.ts",
-  "imports": ["import { useScrollLock } from '@base_ui/react/utils';"],
-  "demos": "<ul></ul>"
-}

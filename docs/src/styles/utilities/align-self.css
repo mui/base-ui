@@ -1,0 +1,19 @@
+.as-center {
+  align-self: center;
+}
+
+.as-start {
+  align-self: start;
+}
+
+.as-end {
+  align-self: end;
+}
+
+.as-stretch {
+  align-self: stretch;
+}
+
+.as-baseline {
+  align-self: baseline;
+}

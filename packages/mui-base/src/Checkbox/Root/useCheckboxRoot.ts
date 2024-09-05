@@ -10,17 +10,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
-/**
- * The basic building block for creating custom checkboxes.
- *
- * Demos:
- *
- * - [Checkbox](https://mui.com/base-ui/react-checkbox/#hook)
- *
- * API:
- *
- * - [useCheckboxRoot API](https://mui.com/base-ui/react-checkbox/hooks-api/#use-checkbox-root)
- */
 export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
   const {
     id: idProp,

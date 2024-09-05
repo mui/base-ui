@@ -48,7 +48,8 @@
     "@mui/types": "^7.2.16",
     "@mui/utils": "^5.16.6",
     "clsx": "^2.1.1",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "use-sync-external-store": "^1.2.2"
   },
   "devDependencies": {
     "@mui/internal-babel-macros": "^1.0.1",
@@ -61,6 +62,7 @@
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
     "@types/sinon": "^17.0.3",
+    "@types/use-sync-external-store": "^0.0.6",
     "chai": "^4.5.0",
     "fast-glob": "^3.3.2",
     "lodash": "^4.17.21",

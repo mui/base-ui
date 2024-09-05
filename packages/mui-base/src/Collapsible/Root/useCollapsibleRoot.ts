@@ -4,16 +4,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
 import { useId } from '../../utils/useId';
-/**
- *
- * Demos:
- *
- * - [Collapsible](https://mui.com/base-ui/react-collapsible/#hooks)
- *
- * API:
- *
- * - [useCollapsibleRoot API](https://mui.com/base-ui/react-collapsible/hooks-api/#use-collapsible-root)
- */
+
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {

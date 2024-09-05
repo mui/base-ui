@@ -13,11 +13,11 @@ import { usePopoverArrow } from './usePopoverArrow';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverArrow API](https://mui.com/base-ui/react-popover/components-api/#popover-arrow)
+ * - [PopoverArrow API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverArrow)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrowProps,

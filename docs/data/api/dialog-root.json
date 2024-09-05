@@ -1,0 +1,20 @@
+{
+  "props": {
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "defaultOpen": { "type": { "name": "bool" } },
+    "dismissible": { "type": { "name": "bool" }, "default": "true" },
+    "modal": { "type": { "name": "bool" }, "default": "true" },
+    "onOpenChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } }
+  },
+  "name": "DialogRoot",
+  "imports": ["import * as Dialog from '@base_ui/react/Dialog';\nconst DialogRoot = Dialog.Root;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "DialogRoot",
+  "filename": "/packages/mui-base/src/Dialog/Root/DialogRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
+  "cssComponent": false
+}

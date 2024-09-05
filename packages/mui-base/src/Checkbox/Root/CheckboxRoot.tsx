@@ -16,11 +16,11 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
  *
  * Demos:
  *
- * - [Checkbox](https://mui.com/base-ui/react-checkbox/)
+ * - [Checkbox](https://base-ui.netlify.app/components/react-checkbox/)
  *
  * API:
  *
- * - [Checkbox API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox)
+ * - [CheckboxRoot API](https://base-ui.netlify.app/components/react-checkbox/#api-reference-CheckboxRoot)
  */
 const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   props: CheckboxRootProps,

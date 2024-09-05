@@ -1,16 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-/**
- *
- * Demos:
- *
- * - [Collapsible](https://mui.com/base-ui/react-collapsible/#hooks)
- *
- * API:
- *
- * - [useCollapsibleTrigger API](https://mui.com/base-ui/react-collapsible/hooks-api/#use-collapsible-trigger)
- */
+
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,
 ): useCollapsibleTrigger.ReturnValue {

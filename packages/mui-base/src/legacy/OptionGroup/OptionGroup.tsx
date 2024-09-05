@@ -30,11 +30,11 @@ function useUtilityClasses(disabled: boolean) {
  *
  * Demos:
  *
- * - [Select](https://mui.com/base-ui/react-select/)
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
  *
  * API:
  *
- * - [OptionGroup API](https://mui.com/base-ui/react-select/components-api/#option-group)
+ * - [OptionGroup API](https://base-ui.netlify.app/components/react-select/#api-reference-OptionGroup)
  */
 const OptionGroup = React.forwardRef(function OptionGroup<
   RootComponentType extends React.ElementType,

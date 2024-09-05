@@ -13,16 +13,8 @@ function getDefaultAriaValueText(value: number | null) {
   }
 
   return `${value}%`;
-} /**
- *
- * Demos:
- *
- * - [Progress](https://mui.com/base-ui/react-progress/#hooks)
- *
- * API:
- *
- * - [useProgressRoot API](https://mui.com/base-ui/react-progress/hooks-api/#use-progress-root)
- */
+}
+
 function useProgressRoot(parameters: UseProgressRootParameters): UseProgressRootReturnValue {
   const {
     'aria-label': ariaLabel,

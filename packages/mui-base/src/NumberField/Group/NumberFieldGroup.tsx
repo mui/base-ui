@@ -15,11 +15,11 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  *
  * Demos:
  *
- * - [NumberField](https://mui.com/base-ui/react-number-field/)
+ * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldGroup API](https://mui.com/base-ui/react-number-field/components-api/#number-field-group)
+ * - [NumberFieldGroup API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldGroup)
  */
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   props: NumberFieldGroupProps,

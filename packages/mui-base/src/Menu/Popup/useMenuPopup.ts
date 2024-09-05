@@ -2,12 +2,6 @@
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 
-/**
- *
- * API:
- *
- * - [useMenuPopup API](https://mui.com/base-ui/api/use-menu-popup/)
- */
 export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.ReturnValue {
   const { menuEvents, setOpen } = parameters;
 

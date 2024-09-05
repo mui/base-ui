@@ -7,10 +7,6 @@ const activeLocks = new Set<string>();
 /**
  * Locks the scroll of the document when enabled.
  *
- * API:
- *
- * - [useScrollLock API](https://mui.com/base-ui/api/use-scroll-lock/)
- *
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true) {
