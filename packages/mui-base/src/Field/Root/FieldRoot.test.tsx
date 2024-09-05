@@ -46,8 +46,8 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validate', () => {
-    it('should validate the field on blur', () => {
-      render(
+    it('should validate the field on blur', async () => {
+      await render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
           <Field.Error />
@@ -66,7 +66,7 @@ describe('<Field.Root />', () => {
     });
 
     it('supports async validation', async () => {
-      render(
+      await render(
         <Field.Root validate={() => Promise.resolve('error')}>
           <Field.Control />
           <Field.Error />
@@ -88,8 +88,8 @@ describe('<Field.Root />', () => {
       });
     });
 
-    it('should apply [data-field] style hooks to field components', () => {
-      render(
+    it('should apply [data-field] style hooks to field components', async () => {
+      await render(
         <Field.Root>
           <Field.Label data-testid="label">Label</Field.Label>
           <Field.Description data-testid="description">Description</Field.Description>
@@ -134,8 +134,8 @@ describe('<Field.Root />', () => {
       expect(error).to.equal(null);
     });
 
-    it('should apply aria-invalid prop to control once validated', () => {
-      render(
+    it('should apply aria-invalid prop to control once validated', async () => {
+      await render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
           <Field.Error />
@@ -153,8 +153,8 @@ describe('<Field.Root />', () => {
     });
 
     describe('component integration', () => {
-      it('supports Checkbox', () => {
-        render(
+      it('supports Checkbox', async () => {
+        await render(
           <Field.Root validate={() => 'error'}>
             <Checkbox.Root data-testid="button" />
             <Field.Error data-testid="error" />
@@ -171,8 +171,8 @@ describe('<Field.Root />', () => {
         expect(button).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('supports Switch', () => {
-        render(
+      it('supports Switch', async () => {
+        await render(
           <Field.Root validate={() => 'error'}>
             <Switch.Root data-testid="button" />
             <Field.Error data-testid="error" />
@@ -189,8 +189,8 @@ describe('<Field.Root />', () => {
         expect(button).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('supports NumberField', () => {
-        render(
+      it('supports NumberField', async () => {
+        await render(
           <Field.Root validate={() => 'error'}>
             <NumberField.Root>
               <NumberField.Input />
@@ -255,7 +255,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        render(
+        await render(
           <Field.Root validate={() => 'error'}>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
@@ -276,8 +276,8 @@ describe('<Field.Root />', () => {
         expect(trigger).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('supports RadioGroup', () => {
-        render(
+      it('supports RadioGroup', async () => {
+        await render(
           <Field.Root validate={() => 'error'}>
             <RadioGroup.Root data-testid="group">
               <Radio.Root value="1">One</Radio.Root>
@@ -301,7 +301,7 @@ describe('<Field.Root />', () => {
 
   describe('prop: validateOnChange', () => {
     it('should validate the field on change', async () => {
-      render(
+      await render(
         <Field.Root
           validateOnChange
           validate={(value) => {
@@ -332,7 +332,7 @@ describe('<Field.Root />', () => {
     clock.withFakeTimers();
 
     it('should debounce validation', async () => {
-      renderFakeTimers(
+      await renderFakeTimers(
         <Field.Root
           validateDebounceTime={100}
           validateOnChange
@@ -372,8 +372,8 @@ describe('<Field.Root />', () => {
 
   describe('style hooks', () => {
     describe('touched', () => {
-      it('should apply [data-touched] style hook to all components when touched', () => {
-        render(
+      it('should apply [data-touched] style hook to all components when touched', async () => {
+        await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
             <Field.Label data-testid="label" />
@@ -404,8 +404,8 @@ describe('<Field.Root />', () => {
         expect(error).to.equal(null);
       });
 
-      it('supports Checkbox', () => {
-        render(
+      it('supports Checkbox', async () => {
+        await render(
           <Field.Root>
             <Checkbox.Root data-testid="button" />
           </Field.Root>,
@@ -419,8 +419,8 @@ describe('<Field.Root />', () => {
         expect(button).to.have.attribute('data-touched', 'true');
       });
 
-      it('supports Switch', () => {
-        render(
+      it('supports Switch', async () => {
+        await render(
           <Field.Root>
             <Switch.Root data-testid="button" />
           </Field.Root>,
@@ -434,8 +434,8 @@ describe('<Field.Root />', () => {
         expect(button).to.have.attribute('data-touched', 'true');
       });
 
-      it('supports NumberField', () => {
-        render(
+      it('supports NumberField', async () => {
+        await render(
           <Field.Root>
             <NumberField.Root>
               <NumberField.Input />
@@ -451,8 +451,8 @@ describe('<Field.Root />', () => {
         expect(input).to.have.attribute('data-touched', 'true');
       });
 
-      it('supports Slider', () => {
-        render(
+      it('supports Slider', async () => {
+        await render(
           <Field.Root>
             <Slider.Root data-testid="root">
               <Slider.Control>
@@ -471,8 +471,35 @@ describe('<Field.Root />', () => {
         expect(root).to.have.attribute('data-touched', 'true');
       });
 
-      it('supports RadioGroup (click)', () => {
-        render(
+      it('supports Select', async () => {
+        await render(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Option value="">Select</Select.Option>
+                  <Select.Option value="1">Option 1</Select.Option>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-dirty');
+
+        fireEvent.focus(trigger);
+        fireEvent.blur(trigger);
+
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-touched', 'true');
+      });
+
+      it('supports RadioGroup (click)', async () => {
+        await render(
           <Field.Root>
             <RadioGroup.Root data-testid="group">
               <Radio.Root value="1" data-testid="control">
@@ -493,7 +520,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports RadioGroup (blur)', async () => {
-        render(
+        await render(
           <Field.Root>
             <RadioGroup.Root data-testid="group">
               <Radio.Root value="1" data-testid="control">
@@ -544,8 +571,8 @@ describe('<Field.Root />', () => {
     });
 
     describe('dirty', () => {
-      it('should apply [data-dirty] style hook to all components when dirty', () => {
-        render(
+      it('should apply [data-dirty] style hook to all components when dirty', async () => {
+        await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
             <Field.Label data-testid="label" />
@@ -579,8 +606,8 @@ describe('<Field.Root />', () => {
         expect(description).not.to.have.attribute('data-dirty');
       });
 
-      it('supports Checkbox', () => {
-        render(
+      it('supports Checkbox', async () => {
+        await render(
           <Field.Root>
             <Checkbox.Root data-testid="button" />
           </Field.Root>,
@@ -595,8 +622,8 @@ describe('<Field.Root />', () => {
         expect(button).to.have.attribute('data-dirty', 'true');
       });
 
-      it('supports Switch', () => {
-        render(
+      it('supports Switch', async () => {
+        await render(
           <Field.Root>
             <Switch.Root data-testid="button" />
           </Field.Root>,
@@ -611,8 +638,8 @@ describe('<Field.Root />', () => {
         expect(button).to.have.attribute('data-dirty', 'true');
       });
 
-      it('supports NumberField', () => {
-        render(
+      it('supports NumberField', async () => {
+        await render(
           <Field.Root>
             <NumberField.Root>
               <NumberField.Input />
@@ -671,6 +698,11 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
+        // ResizeObserver error
+        if (/jsdom/.test(window.navigator.userAgent)) {
+          return;
+        }
+
         await render(
           <Field.Root>
             <Select.Root>
@@ -708,8 +740,8 @@ describe('<Field.Root />', () => {
         expect(trigger).to.have.attribute('data-dirty', 'true');
       });
 
-      it('supports RadioGroup', () => {
-        render(
+      it('supports RadioGroup', async () => {
+        await render(
           <Field.Root>
             <RadioGroup.Root data-testid="group">
               <Radio.Root value="1">One</Radio.Root>
