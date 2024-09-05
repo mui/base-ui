@@ -10,16 +10,7 @@ import {
 function valueToPercent(value: number, min: number, max: number) {
   return ((value - min) * 100) / (max - min);
 }
-/**
- *
- * Demos:
- *
- * - [Progress](https://mui.com/base-ui/react-progress/#hooks)
- *
- * API:
- *
- * - [useProgressIndicator API](https://mui.com/base-ui/react-progress/hooks-api/#use-progress-indicator)
- */
+
 function useProgressIndicator(
   parameters: UseProgressIndicatorParameters,
 ): UseProgressIndicatorReturnValue {

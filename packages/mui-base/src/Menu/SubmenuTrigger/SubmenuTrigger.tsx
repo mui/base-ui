@@ -11,6 +11,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [SubmenuTrigger API](https://base-ui.netlify.app/components/react-menu/#api-reference-SubmenuTrigger)
+ */
 const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: SubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,

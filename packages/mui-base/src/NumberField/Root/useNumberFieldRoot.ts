@@ -36,17 +36,6 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
 
-/**
- * The basic building block for creating custom number fields.
- *
- * Demos:
- *
- * - [Number Field](https://mui.com/base-ui/react-number-field/#hook)
- *
- * API:
- *
- * - [useNumberFieldRoot API](https://mui.com/base-ui/react-number-field/hooks-api/#use-number-field-root)
- */
 export function useNumberFieldRoot(
   params: UseNumberFieldRootParameters,
 ): UseNumberFieldRootReturnValue {

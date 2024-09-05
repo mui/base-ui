@@ -20,11 +20,11 @@ import { TooltipPositionerContext } from './TooltipPositionerContext';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipPositioner API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-positioner)
+ * - [TooltipPositioner API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipPositioner)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositionerProps,

@@ -11,11 +11,11 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  *
  * Demos:
  *
- * - [Tabs](https://mui.com/base-ui/react-tabs/)
+ * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
  *
  * API:
  *
- * - [TabPanel API](https://mui.com/base-ui/react-tabs/components-api/#tab-panel)
+ * - [TabPanel API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabPanel)
  */
 const TabPanel = React.forwardRef(function TabPanel(
   props: TabPanelProps,

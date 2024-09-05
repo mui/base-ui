@@ -12,11 +12,11 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipTrigger API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-trigger)
+ * - [TooltipTrigger API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipTrigger)
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTriggerProps,

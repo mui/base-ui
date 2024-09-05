@@ -16,11 +16,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Menu](https://mui.com/base-ui/react-menu/)
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
  *
  * API:
  *
- * - [MenuArrow API](https://mui.com/base-ui/react-menu/components-api/#menu-arrow)
+ * - [MenuArrow API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuArrow)
  */
 const MenuArrow = React.forwardRef(function MenuArrow(
   props: MenuArrow.Props,

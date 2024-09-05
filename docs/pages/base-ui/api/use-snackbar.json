@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useSnackbar",
-  "filename": "/packages/mui-base/src/legacy/useSnackbar/useSnackbar.ts",
-  "imports": ["import { useSnackbar } from '@base_ui/react/legacy/useSnackbar';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-snackbar/#hook\">Snackbar</a></li></ul>"
-}

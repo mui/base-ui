@@ -21,13 +21,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useFocusExtended } from '../utils/useFocusExtended';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 
-/**
- * Manages the root state for a preview card.
- *
- * API:
- *
- * - [usePreviewCardRoot API](https://mui.com/base-ui/api/use-preview-card-root/)
- */
 export function usePreviewCardRoot(
   params: UsePreviewCardRootParameters,
 ): UsePreviewCardRootReturnValue {

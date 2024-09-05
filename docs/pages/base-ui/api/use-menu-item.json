@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useMenuItem",
-  "filename": "/packages/mui-base/src/Menu/Item/useMenuItem.ts",
-  "imports": ["import { useMenuItem } from '@base_ui/react/Menu';"],
-  "demos": "<ul></ul>"
-}

@@ -22,6 +22,16 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
   },
 };
 
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuPopup API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuPopup)
+ */
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,

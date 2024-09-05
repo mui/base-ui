@@ -15,6 +15,16 @@ import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ *
+ * API:
+ *
+ * - [PreviewCardPositioner API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardPositioner)
+ */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositionerProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

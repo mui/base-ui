@@ -14,11 +14,11 @@ import { usePopoverBackdrop } from './usePopoverBackdrop';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverBackdrop API](https://mui.com/base-ui/react-popover/components-api/#popover-backdrop)
+ * - [PopoverBackdrop API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverBackdrop)
  */
 const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdropProps,

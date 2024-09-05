@@ -8,12 +8,6 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-/**
- *
- * API:
- *
- * - [useDialogBackdrop API](https://mui.com/base-ui/api/use-dialog-backdrop/)
- */
 export function useDialogBackdrop(params: UseDialogBackdropParams): UseDialogBackdropReturnValue {
   const { animated, open, ref, onMount: onMountParam, onUnmount: onUnmountParam } = params;
 

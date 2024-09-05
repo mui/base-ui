@@ -11,6 +11,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const noop = () => null;
 
+/**
+ *
+ * Demos:
+ *
+ * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
+ *
+ * API:
+ *
+ * - [TabIndicator API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabIndicator)
+ */
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicatorProps>(
   function TabIndicator(props, forwardedRef) {
     const { className, render, renderBeforeHydration = false, ...other } = props;

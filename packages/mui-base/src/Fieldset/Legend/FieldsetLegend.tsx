@@ -12,11 +12,11 @@ import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
  *
  * Demos:
  *
- * - [Fieldset](https://mui.com/base-ui/react-fieldset/)
+ * - [Fieldset](https://base-ui.netlify.app/components/react-fieldset/)
  *
  * API:
  *
- * - [FieldsetLegend API](https://mui.com/base-ui/react-field/components-api/#fieldset-root)
+ * - [FieldsetLegend API](https://base-ui.netlify.app/components/react-fieldset/#api-reference-FieldsetLegend)
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegendProps,

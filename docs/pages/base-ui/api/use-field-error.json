@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldError",
-  "filename": "/packages/mui-base/src/Field/Error/useFieldError.ts",
-  "imports": ["import { useFieldError } from '@base_ui/react/Field';"],
-  "demos": "<ul></ul>"
-}

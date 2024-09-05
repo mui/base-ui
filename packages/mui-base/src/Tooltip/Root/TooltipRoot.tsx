@@ -12,11 +12,11 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipRoot API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-root)
+ * - [TooltipRoot API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipRoot)
  */
 function TooltipRoot(props: TooltipRootProps) {
   const {

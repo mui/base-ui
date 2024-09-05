@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePreviewCardArrow",
-  "filename": "/packages/mui-base/src/PreviewCard/Arrow/usePreviewCardArrow.ts",
-  "imports": ["import { usePreviewCardArrow } from '@base_ui/react/PreviewCard';"],
-  "demos": "<ul></ul>"
-}

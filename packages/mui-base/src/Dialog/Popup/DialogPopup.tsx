@@ -9,6 +9,16 @@ import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ *
+ * API:
+ *
+ * - [DialogPopup API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogPopup)
+ */
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

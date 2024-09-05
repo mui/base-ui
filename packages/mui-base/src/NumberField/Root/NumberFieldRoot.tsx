@@ -19,11 +19,11 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  *
  * Demos:
  *
- * - [NumberField](https://mui.com/base-ui/react-number-field/)
+ * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
  *
  * API:
  *
- * - [NumberField API](https://mui.com/base-ui/react-number-field/components-api/#number-field)
+ * - [NumberFieldRoot API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldRoot)
  */
 const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   props: NumberFieldRootProps,

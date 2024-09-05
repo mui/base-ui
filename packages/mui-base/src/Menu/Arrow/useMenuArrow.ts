@@ -4,12 +4,6 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
 
-/**
- *
- * API:
- *
- * - [useMenuArrow API](https://mui.com/base-ui/api/use-menu-arrow/)
- */
 export function useMenuArrow(params: useMenuArrow.Parameters): useMenuArrow.ReturnValue {
   const { arrowStyles } = params;
 

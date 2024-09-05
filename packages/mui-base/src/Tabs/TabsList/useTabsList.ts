@@ -17,16 +17,6 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-/**
- *
- * Demos:
- *
- * - [Tabs](https://mui.com/base-ui/react-tabs/#hooks)
- *
- * API:
- *
- * - [useTabsList API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tabs-list)
- */
 function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue {
   const { rootRef: externalRef, loop, activateOnFocus } = parameters;
 

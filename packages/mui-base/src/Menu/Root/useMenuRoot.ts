@@ -22,12 +22,6 @@ import { useControlled } from '../../utils/useControlled';
 
 const EMPTY_ARRAY: never[] = [];
 
-/**
- *
- * API:
- *
- * - [useMenuRoot API](https://mui.com/base-ui/api/use-menu-root/)
- */
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
     animated,

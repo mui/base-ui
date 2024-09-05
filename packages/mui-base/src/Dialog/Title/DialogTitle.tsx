@@ -8,6 +8,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ *
+ * API:
+ *
+ * - [DialogTitle API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogTitle)
+ */
 const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitleProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,

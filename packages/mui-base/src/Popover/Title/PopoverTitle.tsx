@@ -12,11 +12,11 @@ import { usePopoverTitle } from './usePopoverTitle';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverTitle API](https://mui.com/base-ui/react-popover/components-api/#popover-title)
+ * - [PopoverTitle API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverTitle)
  */
 const PopoverTitle = React.forwardRef(function PopoverTitle(
   props: PopoverTitleProps,

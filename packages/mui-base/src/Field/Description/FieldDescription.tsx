@@ -13,11 +13,11 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-field/)
+ * - [Field](https://base-ui.netlify.app/components/react-field/)
  *
  * API:
  *
- * - [FieldDescription API](https://mui.com/base-ui/react-field/components-api/#field-description)
+ * - [FieldDescription API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldDescription)
  */
 const FieldDescription = React.forwardRef(function FieldDescription(
   props: FieldDescriptionProps,

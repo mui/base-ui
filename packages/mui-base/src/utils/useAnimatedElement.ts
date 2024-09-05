@@ -7,6 +7,7 @@ interface UseAnimatedElementParameters {
   ref: React.RefObject<HTMLElement>;
   enabled: boolean;
 }
+
 /**
  * @ignore - internal hook.
  */

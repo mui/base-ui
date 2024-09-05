@@ -10,6 +10,16 @@ import type {
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { useForkRef } from '../../utils/useForkRef';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ *
+ * API:
+ *
+ * - [PreviewCardTrigger API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardTrigger)
+ */
 const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   props: PreviewCardTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,

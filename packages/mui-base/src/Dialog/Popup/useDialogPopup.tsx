@@ -10,16 +10,6 @@ import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-/**
- *
- * Demos:
- *
- * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
- *
- * API:
- *
- * - [useDialogPopup API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-popup)
- */
 export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogPopupReturnValue {
   const {
     animated,

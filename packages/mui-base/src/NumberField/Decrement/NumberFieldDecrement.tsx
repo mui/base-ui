@@ -17,11 +17,11 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  *
  * Demos:
  *
- * - [NumberField](https://mui.com/base-ui/react-number-field/)
+ * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldDecrement API](https://mui.com/base-ui/react-number-field/components-api/#number-field-decrement)
+ * - [NumberFieldDecrement API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldDecrement)
  */
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrementProps,

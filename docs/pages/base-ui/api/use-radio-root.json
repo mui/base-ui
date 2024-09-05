@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useRadioRoot",
-  "filename": "/packages/mui-base/src/Radio/Root/useRadioRoot.tsx",
-  "imports": ["import { useRadioRoot } from '@base_ui/react/Radio';"],
-  "demos": "<ul></ul>"
-}

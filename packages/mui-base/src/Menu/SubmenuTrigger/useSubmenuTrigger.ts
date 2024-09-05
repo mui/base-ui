@@ -6,12 +6,6 @@ import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 
-/**
- *
- * API:
- *
- * - [useSubmenuTrigger API](https://mui.com/base-ui/api/use-submenu-trigger/)
- */
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
 ): useSubmenuTrigger.ReturnValue {

@@ -8,6 +8,16 @@ import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderControlProps } from './SliderControl.types';
 import { useSliderControl } from './useSliderControl';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderControl API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderControl)
+ */
 const SliderControl = React.forwardRef(function SliderControl(
   props: SliderControlProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

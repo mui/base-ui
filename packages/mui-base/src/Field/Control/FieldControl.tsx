@@ -15,11 +15,11 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-field/)
+ * - [Field](https://base-ui.netlify.app/components/react-field/)
  *
  * API:
  *
- * - [FieldControl API](https://mui.com/base-ui/react-field/components-api/#field-control)
+ * - [FieldControl API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldControl)
  */
 const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControlProps,

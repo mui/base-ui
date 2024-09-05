@@ -7,6 +7,16 @@ import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ *
+ * API:
+ *
+ * - [DialogClose API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogClose)
+ */
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogCloseProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,

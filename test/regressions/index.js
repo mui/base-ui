@@ -4,37 +4,34 @@ import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
+import 'docs-base/src/styles/demo-colors.css';
+import './tailwind.css';
 
 // Get all the fixtures specifically written for preventing visual regressions.
 const importRegressionFixtures = require.context('./fixtures', true, /\.(js|ts|tsx)$/, 'lazy');
 const regressionFixtures = [];
-importRegressionFixtures.keys().forEach((path) => {
-  const [suite, name] = path
-    .replace('./', '')
-    .replace(/\.\w+$/, '')
-    .split('/');
-
-  // TODO: Why does webpack include a key for the absolute and relative path?
-  // We just want the relative path
-  if (path.startsWith('./')) {
+importRegressionFixtures
+  .keys()
+  .filter((path) => path.startsWith('./'))
+  .forEach((path) => {
+    const [suite, name] = path
+      .replace('./', '')
+      .replace(/\.\w+$/, '')
+      .split('/');
     regressionFixtures.push({
       path,
       suite: `regression-${suite}`,
       name,
       Component: React.lazy(() => importRegressionFixtures(path)),
     });
-  }
-}, []);
+  }, []);
 
-const blacklist = [
-  'docs-base-guides-working-with-tailwind-css/PlayerFinal.png', // No public components
-  'docs-base-getting-started-quickstart/BaseButtonTailwind.png', // CodeSandbox
-];
+const blacklist = [];
 
 const unusedBlacklistPatterns = new Set(blacklist);
 
-function excludeDemoFixture(suite, name) {
-  return blacklist.some((pattern) => {
+function excludeDemoFixture(suite, name, path) {
+  const blacklisted = blacklist.some((pattern) => {
     if (typeof pattern === 'string') {
       if (pattern === suite) {
         unusedBlacklistPatterns.delete(pattern);
@@ -57,26 +54,40 @@ function excludeDemoFixture(suite, name) {
     }
     return false;
   });
+
+  if (blacklisted) {
+    return true;
+  }
+
+  const pathSegments = path.split('/');
+  if (pathSegments[1] === 'components' && pathSegments.length === 6) {
+    // For demos inside subdirectories under components, include just the entry point - index.js.
+    return pathSegments[5] !== 'index.js';
+  }
+
+  return false;
 }
 
 // Also use some of the demos to avoid code duplication.
-const importDemos = require.context('docs/data', true, /(?<!pagesApi)\.js$/, 'lazy');
+const importDemos = require.context('docs/data', true, /\.js$/, 'lazy');
 const demoFixtures = [];
-importDemos.keys().forEach((path) => {
-  const [name, ...suiteArray] = path.replace('./', '').replace('.js', '').split('/').reverse();
-  const suite = `docs-${suiteArray.reverse().join('-')}`;
 
-  // TODO: Why does webpack include a key for the absolute and relative path?
-  // We just want the relative path
-  if (path.startsWith('./') && !excludeDemoFixture(suite, name)) {
-    demoFixtures.push({
-      path,
-      suite,
-      name,
-      Component: React.lazy(() => importDemos(path)),
-    });
-  }
-}, []);
+importDemos
+  .keys()
+  .filter((path) => path.startsWith('./'))
+  .forEach((path) => {
+    const [name, ...suiteArray] = path.replace('./', '').replace('.js', '').split('/').reverse();
+    const suite = `docs-${suiteArray.reverse().join('-')}`;
+
+    if (!excludeDemoFixture(suite, name, path)) {
+      demoFixtures.push({
+        path,
+        suite,
+        name,
+        Component: React.lazy(() => importDemos(path)),
+      });
+    }
+  }, []);
 
 if (unusedBlacklistPatterns.size > 0) {
   console.warn(

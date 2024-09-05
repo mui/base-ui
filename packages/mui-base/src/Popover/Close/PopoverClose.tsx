@@ -12,11 +12,11 @@ import { usePopoverClose } from './usePopoverClose';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverClose API](https://mui.com/base-ui/react-popover/components-api/#popover-close)
+ * - [PopoverClose API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverClose)
  */
 const PopoverClose = React.forwardRef(function PopoverClose(
   props: PopoverCloseProps,

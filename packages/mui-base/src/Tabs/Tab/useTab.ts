@@ -15,16 +15,6 @@ function tabValueGenerator(otherTabValues: Set<any>) {
   return otherTabValues.size;
 }
 
-/**
- *
- * Demos:
- *
- * - [Tabs](https://mui.com/base-ui/react-tabs/#hooks)
- *
- * API:
- *
- * - [useTab API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab)
- */
 function useTab(parameters: UseTabParameters): UseTabReturnValue {
   const { value: valueParam, rootRef: externalRef, disabled = false, id: idParam } = parameters;
 

@@ -8,12 +8,6 @@ import type {
 } from './usePopoverClose.types';
 import { useEventCallback } from '../../utils/useEventCallback';
 
-/**
- *
- * API:
- *
- * - [usePopoverClose API](https://mui.com/base-ui/api/use-popover-close/)
- */
 export function usePopoverClose(params: UsePopoverCloseParameters): UsePopoverCloseReturnValue {
   const { onClose } = params;
 

@@ -7,16 +7,6 @@ import type {
   UseDialogTriggerReturnValue,
 } from './DialogTrigger.types';
 
-/**
- *
- * Demos:
- *
- * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
- *
- * API:
- *
- * - [useDialogTrigger API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-trigger)
- */
 export function useDialogTrigger(params: UseDialogTriggerParameters): UseDialogTriggerReturnValue {
   const { open, onOpenChange, popupElementId } = params;
 

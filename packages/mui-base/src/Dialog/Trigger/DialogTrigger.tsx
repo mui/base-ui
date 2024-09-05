@@ -7,6 +7,16 @@ import type { DialogTriggerOwnerState, DialogTriggerProps } from './DialogTrigge
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ *
+ * API:
+ *
+ * - [DialogTrigger API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogTrigger)
+ */
 const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,

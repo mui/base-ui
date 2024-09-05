@@ -10,11 +10,11 @@ import type { FieldValidityProps } from './FieldValidity.types';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-field/)
+ * - [Field](https://base-ui.netlify.app/components/react-field/)
  *
  * API:
  *
- * - [FieldValidity API](https://mui.com/base-ui/react-field/components-api/#field-validity)
+ * - [FieldValidity API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldValidity)
  */
 function FieldValidity(props: FieldValidityProps) {
   const { validityData } = useFieldRootContext(false);

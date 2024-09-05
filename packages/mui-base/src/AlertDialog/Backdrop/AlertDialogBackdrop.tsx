@@ -11,6 +11,16 @@ import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ *
+ * API:
+ *
+ * - [AlertDialogBackdrop API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogBackdrop)
+ */
 const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

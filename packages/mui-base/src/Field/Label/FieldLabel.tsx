@@ -15,11 +15,11 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-field/)
+ * - [Field](https://base-ui.netlify.app/components/react-field/)
  *
  * API:
  *
- * - [FieldLabel API](https://mui.com/base-ui/react-field/components-api/#field-label)
+ * - [FieldLabel API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldLabel)
  */
 const FieldLabel = React.forwardRef(function FieldLabel(
   props: FieldLabelProps,

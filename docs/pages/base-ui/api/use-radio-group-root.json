@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useRadioGroupRoot",
-  "filename": "/packages/mui-base/src/RadioGroup/Root/useRadioGroupRoot.ts",
-  "imports": ["import { useRadioGroupRoot } from '@base_ui/react/RadioGroup';"],
-  "demos": "<ul></ul>"
-}

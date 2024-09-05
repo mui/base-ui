@@ -14,11 +14,11 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipPopup API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-popup)
+ * - [TooltipPopup API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipPopup)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopupProps,

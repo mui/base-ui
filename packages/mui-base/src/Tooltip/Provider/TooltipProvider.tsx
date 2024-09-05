@@ -11,11 +11,11 @@ import type { TooltipProviderProps } from './TooltipProvider.types';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipProvider API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-provider)
+ * - [TooltipProvider API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipProvider)
  */
 function TooltipProvider(props: TooltipProviderProps) {
   const { delay, closeDelay, timeout = 400 } = props;

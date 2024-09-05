@@ -4,12 +4,6 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { UsePopoverBackdropReturnValue } from './usePopoverBackdrop.types';
 
-/**
- *
- * API:
- *
- * - [usePopoverBackdrop API](https://mui.com/base-ui/api/use-popover-backdrop/)
- */
 export function usePopoverBackdrop(): UsePopoverBackdropReturnValue {
   const getBackdropProps = React.useCallback((externalProps = {}) => {
     return mergeReactProps<'div'>(externalProps, {

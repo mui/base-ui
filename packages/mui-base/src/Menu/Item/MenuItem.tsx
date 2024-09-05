@@ -59,11 +59,11 @@ const InnerMenuItem = React.memo(
  *
  * Demos:
  *
- * - [Menu](https://mui.com/base-ui/react-menu/)
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
  *
  * API:
  *
- * - [MenuItem API](https://mui.com/base-ui/react-menu/components-api/#menu-item)
+ * - [MenuItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuItem)
  */
 const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,

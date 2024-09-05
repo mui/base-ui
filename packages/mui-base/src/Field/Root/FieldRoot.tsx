@@ -14,11 +14,11 @@ import { useEventCallback } from '../../utils/useEventCallback';
  *
  * Demos:
  *
- * - [Field](https://mui.com/base-ui/react-field/)
+ * - [Field](https://base-ui.netlify.app/components/react-field/)
  *
  * API:
  *
- * - [FieldRoot API](https://mui.com/base-ui/react-field/components-api/#field-root)
+ * - [FieldRoot API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldRoot)
  */
 const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRootProps,

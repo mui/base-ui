@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "NumberFieldScrubAreaCursor",
+  "imports": [
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldScrubAreaCursor = NumberField.ScrubAreaCursor;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "NumberFieldScrubAreaCursor",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/NumberField/ScrubAreaCursor/NumberFieldScrubAreaCursor.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
+  "cssComponent": false
+}

@@ -21,16 +21,7 @@ const axisProps = {
     leap: (percent: number) => ({ height: `${percent}%`, width: 'inherit' }),
   },
 };
-/**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderIndicator API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-indicator)
- */
+
 function useSliderIndicator(
   parameters: UseSliderIndicatorParameters,
 ): UseSliderIndicatorReturnValue {

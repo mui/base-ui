@@ -33,16 +33,6 @@ function supportsHiddenUntilFound(element: HTMLElement) {
   return cachedSupportsHiddenUntilFound;
 }
 
-/**
- *
- * Demos:
- *
- * - [Collapsible](https://mui.com/base-ui/react-collapsible/#hooks)
- *
- * API:
- *
- * - [useCollapsibleContent API](https://mui.com/base-ui/react-collapsible/hooks-api/#use-collapsible-content)
- */
 export function useCollapsibleContent(
   parameters: useCollapsibleContent.Parameters,
 ): useCollapsibleContent.ReturnValue {

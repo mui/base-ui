@@ -10,12 +10,6 @@ interface UseFieldsetLegendParameters {
   id?: string;
 }
 
-/**
- *
- * API:
- *
- * - [useFieldsetLegend API](https://mui.com/base-ui/api/use-fieldset-legend/)
- */
 export function useFieldsetLegend(params: UseFieldsetLegendParameters) {
   const { id: idProp } = params;
 

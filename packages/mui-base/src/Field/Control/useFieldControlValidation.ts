@@ -8,12 +8,6 @@ import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
-/**
- *
- * API:
- *
- * - [useFieldControlValidation API](https://mui.com/base-ui/api/use-field-control-validation/)
- */
 export function useFieldControlValidation() {
   const {
     setValidityData,

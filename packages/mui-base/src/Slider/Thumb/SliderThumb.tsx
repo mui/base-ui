@@ -23,6 +23,16 @@ function defaultRender(
   );
 }
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderThumb API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderThumb)
+ */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumbProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

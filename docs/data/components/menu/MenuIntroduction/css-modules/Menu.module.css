@@ -1,0 +1,128 @@
+.positioner {
+  z-index: 1;
+
+  &:focus-visible {
+    outline: 0;
+  }
+
+  &[data-state='closed'] {
+    pointer-events: none;
+  }
+}
+
+.popup {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  padding: 6px;
+  margin: 12px 0;
+  min-width: 200px;
+  border-radius: 12px;
+  overflow: auto;
+  outline: 0;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-300);
+  box-shadow: 0px 4px 30px var(--gray-200);
+  transform-origin: var(--transform-origin);
+
+  :global(.dark) & {
+    background: var(--gray-900);
+    border: 1px solid var(--gray-700);
+    color: var(--gray-300);
+    box-shadow: 0px 4px 30px var(--gray-900);
+  }
+
+  &[data-state='closed'] {
+    opacity: 0;
+    transform: scale(0.95, 0.8);
+    transition:
+      opacity 200ms ease-in,
+      transform 200ms ease-in;
+  }
+
+  &[data-state='open'] {
+    opacity: 1;
+    transform: scale(1, 1);
+    transition:
+      opacity 100ms ease-out,
+      transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48);
+  }
+}
+
+.trigger {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: white;
+  transition: all 150ms ease;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-900);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  :global(.dark) & {
+    background: var(--gray-900);
+    border-color: var(--gray-200);
+    color: var(--gray-200);
+  }
+
+  &:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-300);
+
+    :global(.dark) & {
+      background: var(--gray-800);
+      border-color: var(--gray-600);
+    }
+  }
+
+  &:active {
+    background: var(--gray-100);
+
+    :global(.dark) & {
+      background: var(--gray-700);
+    }
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 4px var(--cyan-300);
+    outline: none;
+  }
+}
+
+.item {
+  list-style: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: default;
+  user-select: none;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &[data-disabled] {
+    color: var(--gray-400);
+
+    :global(.dark) & {
+      color: var(--gray-700);
+    }
+  }
+
+  &:focus {
+    outline: 3px solid var(--cyan-200);
+    background-color: var(--gray-100);
+    color: var(--gray-900);
+
+    :global(.dark) & {
+      outline: 3px solid var(--cyan-600);
+      background-color: var(--gray-800);
+      color: var(--gray-300);
+    }
+  }
+}

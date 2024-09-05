@@ -12,11 +12,11 @@ import { useFieldsetRoot } from './useFieldsetRoot';
  *
  * Demos:
  *
- * - [Fieldset](https://mui.com/base-ui/react-fieldset/)
+ * - [Fieldset](https://base-ui.netlify.app/components/react-fieldset/)
  *
  * API:
  *
- * - [FieldsetRoot API](https://mui.com/base-ui/react-field/components-api/#fieldset-root)
+ * - [FieldsetRoot API](https://base-ui.netlify.app/components/react-fieldset/#api-reference-FieldsetRoot)
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRootProps,

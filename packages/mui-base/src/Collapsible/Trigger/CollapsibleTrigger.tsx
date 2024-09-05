@@ -9,6 +9,16 @@ import { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Collapsible](https://base-ui.netlify.app/components/react-collapsible/)
+ *
+ * API:
+ *
+ * - [CollapsibleTrigger API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsibleTrigger)
+ */
 const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,

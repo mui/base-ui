@@ -19,12 +19,6 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { OPEN_DELAY } from '../utils/constants';
 
-/**
- *
- * API:
- *
- * - [usePopoverRoot API](https://mui.com/base-ui/api/use-popover-root/)
- */
 export function usePopoverRoot(params: UsePopoverRootParameters): UsePopoverRootReturnValue {
   const {
     open: externalOpen,

@@ -12,17 +12,6 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
-/**
- * The basic building block for creating custom switches.
- *
- * Demos:
- *
- * - [Switch](https://mui.com/base-ui/react-switch/#hook)
- *
- * API:
- *
- * - [useSwitchRoot API](https://mui.com/base-ui/react-switch/hooks-api/#use-switch-root)
- */
 export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootReturnValue {
   const {
     id: idProp,

@@ -9,6 +9,16 @@ import { usePreviewCardArrow } from './usePreviewCardArrow';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ *
+ * API:
+ *
+ * - [PreviewCardArrow API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardArrow)
+ */
 const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   props: PreviewCardArrowProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

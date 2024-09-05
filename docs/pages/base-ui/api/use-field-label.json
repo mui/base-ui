@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFieldLabel",
-  "filename": "/packages/mui-base/src/Field/Label/useFieldLabel.ts",
-  "imports": ["import { useFieldLabel } from '@base_ui/react/Field';"],
-  "demos": "<ul></ul>"
-}

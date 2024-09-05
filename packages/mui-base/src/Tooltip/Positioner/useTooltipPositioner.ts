@@ -8,12 +8,6 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
-/**
- *
- * API:
- *
- * - [useTooltipPositioner API](https://mui.com/base-ui/api/use-tooltip-positioner/)
- */
 export function useTooltipPositioner(
   params: UseTooltipPositionerParameters,
 ): UseTooltipPositionerReturnValue {

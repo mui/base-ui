@@ -13,12 +13,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 
-/**
- *
- * API:
- *
- * - [useMenuPositioner API](https://mui.com/base-ui/api/use-menu-positioner/)
- */
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {

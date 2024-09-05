@@ -6,6 +6,16 @@ import { DialogRootProps } from './DialogRoot.types';
 import { DialogRootContext } from './DialogRootContext';
 import { useDialogRoot } from './useDialogRoot';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ *
+ * API:
+ *
+ * - [DialogRoot API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogRoot)
+ */
 const DialogRoot = function DialogRoot(props: DialogRootProps) {
   const {
     children,

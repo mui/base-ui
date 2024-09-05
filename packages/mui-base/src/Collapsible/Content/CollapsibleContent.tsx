@@ -9,7 +9,17 @@ import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleContent } from './useCollapsibleContent';
 
-export const CollapsibleContent = React.forwardRef(function CollapsibleContent(
+/**
+ *
+ * Demos:
+ *
+ * - [Collapsible](https://base-ui.netlify.app/components/react-collapsible/)
+ *
+ * API:
+ *
+ * - [CollapsibleContent API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsibleContent)
+ */
+const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   props: CollapsibleContent.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -47,7 +57,7 @@ export const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   return renderElement();
 });
 
-export namespace CollapsibleContent {
+namespace CollapsibleContent {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
       Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
@@ -76,3 +86,5 @@ CollapsibleContent.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
+
+export { CollapsibleContent };

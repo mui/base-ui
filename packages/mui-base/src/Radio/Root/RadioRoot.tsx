@@ -19,7 +19,16 @@ const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.OwnerState> = {
     };
   },
 };
-
+/**
+ *
+ * Demos:
+ *
+ * - [Radio Group](https://base-ui.netlify.app/components/react-radio-group/)
+ *
+ * API:
+ *
+ * - [RadioRoot API](https://base-ui.netlify.app/components/react-radio-group/#api-reference-RadioRoot)
+ */
 const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,

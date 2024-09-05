@@ -8,6 +8,16 @@ import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleContext } from './CollapsibleContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Collapsible](https://base-ui.netlify.app/components/react-collapsible/)
+ *
+ * API:
+ *
+ * - [CollapsibleRoot API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsibleRoot)
+ */
 const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   props: CollapsibleRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

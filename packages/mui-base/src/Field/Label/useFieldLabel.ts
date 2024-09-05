@@ -8,12 +8,6 @@ interface UseFieldLabelParameters {
   customTag: boolean;
 }
 
-/**
- *
- * API:
- *
- * - [useFieldLabel API](https://mui.com/base-ui/api/use-field-label/)
- */
 export function useFieldLabel(params: UseFieldLabelParameters) {
   const { customTag } = params;
 

@@ -20,11 +20,11 @@ import { HTMLElementType } from '../../utils/proptypes';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverPositioner API](https://mui.com/base-ui/react-popover/components-api/#popover-positioner)
+ * - [PopoverPositioner API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverPositioner)
  */
 const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   props: PopoverPositionerProps,

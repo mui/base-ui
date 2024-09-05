@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useFormControlContext",
-  "filename": "/packages/mui-base/src/legacy/FormControl/useFormControlContext.ts",
-  "imports": ["import { useFormControlContext } from '@base_ui/react/legacy/FormControl';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-form-control/#hook\">Form Control</a></li></ul>"
-}

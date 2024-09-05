@@ -1,0 +1,12 @@
+code[data-theme*=' '],
+code[data-theme*=' '] span,
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+
+  html.dark & {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+}

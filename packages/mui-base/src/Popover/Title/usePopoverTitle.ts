@@ -9,12 +9,6 @@ import type {
 } from './usePopoverTitle.types';
 import { useId } from '../../utils/useId';
 
-/**
- *
- * API:
- *
- * - [usePopoverTitle API](https://mui.com/base-ui/api/use-popover-title/)
- */
 export function usePopoverTitle(params: UsePopoverTitleParameters): UsePopoverTitleReturnValue {
   const { titleId, setTitleId } = params;
 

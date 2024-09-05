@@ -8,12 +8,6 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
-/**
- *
- * API:
- *
- * - [usePopoverPositioner API](https://mui.com/base-ui/api/use-popover-positioner/)
- */
 export function usePopoverPositioner(
   params: UsePopoverPositionerParameters,
 ): UsePopoverPositionerReturnValue {
