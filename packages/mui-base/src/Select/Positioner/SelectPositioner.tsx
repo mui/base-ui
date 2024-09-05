@@ -129,7 +129,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     allowAxisFlip: false,
     innerFallback,
     inner:
-      alignMethod && selectedIndexOnMount !== null
+      alignMethod === 'item' && selectedIndexOnMount !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({

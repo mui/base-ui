@@ -17,13 +17,15 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
-  const { innerOffset, setInnerOffset, innerFallback, popupRef, touchModality } =
+  const { alignMethod, innerOffset, setInnerOffset, innerFallback, popupRef, touchModality } =
     useSelectRootContext();
   const { isPositioned, side } = useSelectPositionerContext();
 
   const [rendered, setRendered] = React.useState(false);
 
-  if (rendered && touchModality) {
+  const inert = alignMethod === 'trigger' || touchModality;
+
+  if (rendered && inert) {
     setRendered(false);
   }
 
@@ -47,7 +49,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           zIndex: 2147483647, // max z-index
         },
         onMouseEnter() {
-          if (touchModality) {
+          if (inert) {
             return;
           }
 
@@ -105,7 +107,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           cancelAnimationFrame(frameRef.current);
         },
       }),
-    [direction, innerFallback, popupRef, setInnerOffset, touchModality],
+    [direction, innerFallback, popupRef, setInnerOffset, inert],
   );
 
   const handleScrollArrowRendered = useEventCallback(() => {
@@ -126,7 +128,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   React.useEffect(() => {
     const popupElement = popupRef.current;
-    if (!popupElement || touchModality) {
+    if (!popupElement || inert) {
       return undefined;
     }
 
@@ -137,15 +139,15 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       popupElement.removeEventListener('wheel', handleScrollArrowRendered);
       popupElement.removeEventListener('scroll', handleScrollArrowRendered);
     };
-  }, [touchModality, popupRef, direction, handleScrollArrowRendered]);
+  }, [inert, popupRef, direction, handleScrollArrowRendered]);
 
   useEnhancedEffect(() => {
-    if (!isPositioned || touchModality) {
+    if (!isPositioned || inert) {
       return;
     }
 
     handleScrollArrowRendered();
-  }, [isPositioned, innerOffset, touchModality, handleScrollArrowRendered]);
+  }, [isPositioned, innerOffset, inert, handleScrollArrowRendered]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,

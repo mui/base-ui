@@ -27,7 +27,7 @@ export function useSelectPositioner(
 
   const { touchModality, alignMethod, innerFallback, mounted } = useSelectRootContext();
 
-  useScrollLock(alignMethod && !innerFallback && mounted);
+  useScrollLock(alignMethod === 'item' && !innerFallback && mounted);
 
   const {
     positionerStyles,
