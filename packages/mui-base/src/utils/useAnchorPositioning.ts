@@ -231,8 +231,8 @@ export function useAnchorPositioning(
             // Keep `ancestorResize` for window resizing. TODO: determine the best configuration, or
             // if we need to allow options.
             ancestorScroll: trackAnchor,
-            elementResize: trackAnchor,
-            layoutShift: trackAnchor,
+            elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
+            layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
           }),
     nodeId,
   });
