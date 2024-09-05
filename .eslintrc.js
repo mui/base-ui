@@ -8,7 +8,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base_ui/react/*/*', '!@base_ui/react/legacy/*'],
+    group: ['@base_ui/react/*/*'],
     message: OneLevelImportMessage,
   },
 ];
@@ -54,7 +54,6 @@ module.exports = {
     },
     {
       files: ['packages/**/*.test{.tsx,.js}'],
-      excludedFiles: 'packages/mui-base/src/legacy/**/*.*',
       extends: ['plugin:testing-library/react'],
       rules: {
         'testing-library/prefer-screen-queries': 'off', // TODO: enable and fix
