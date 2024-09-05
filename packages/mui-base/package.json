@@ -46,7 +46,7 @@
     "@floating-ui/react-dom": "^2.1.1",
     "@floating-ui/utils": "^0.2.7",
     "@mui/types": "^7.2.16",
-    "@mui/utils": "^5.16.6",
+    "@mui/utils": "^6.0.2",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1",
     "use-sync-external-store": "^1.2.2"
