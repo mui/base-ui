@@ -61,6 +61,9 @@ const nextConfig = {
         output: 'export',
       }
     : {}),
+  experimental: {
+    esmExternals: true,
+  },
 };
 
 export default withDocsInfra(nextConfig);
