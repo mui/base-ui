@@ -4,12 +4,9 @@ import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Switch from '@base_ui/react/Switch';
 import * as NumberField from '@base_ui/react/NumberField';
 import * as Slider from '@base_ui/react/Slider';
-<<<<<<< HEAD
 import * as RadioGroup from '@base_ui/react/RadioGroup';
 import * as Radio from '@base_ui/react/Radio';
-=======
 import * as Select from '@base_ui/react/Select';
->>>>>>> e667fe6d (Add Field integration)
 import userEvent from '@testing-library/user-event';
 import {
   act,
@@ -242,7 +239,6 @@ describe('<Field.Root />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
-<<<<<<< HEAD
       it('supports RadioGroup', () => {
         render(
           <Field.Root validate={() => 'error'}>
@@ -262,7 +258,8 @@ describe('<Field.Root />', () => {
         fireEvent.blur(group);
 
         expect(group).to.have.attribute('aria-invalid', 'true');
-=======
+      });
+
       it('supports Select', async () => {
         render(
           <Field.Root validate={() => 'error'}>
@@ -283,7 +280,27 @@ describe('<Field.Root />', () => {
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('aria-invalid', 'true');
->>>>>>> e667fe6d (Add Field integration)
+      });
+
+      it('supports RadioGroup', () => {
+        render(
+          <Field.Root validate={() => 'error'}>
+            <RadioGroup.Root data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+
+        expect(group).not.to.have.attribute('aria-invalid');
+
+        fireEvent.focus(group);
+        fireEvent.blur(group);
+
+        expect(group).to.have.attribute('aria-invalid', 'true');
       });
     });
   });
@@ -460,7 +477,6 @@ describe('<Field.Root />', () => {
         expect(root).to.have.attribute('data-touched', 'true');
       });
 
-<<<<<<< HEAD
       it('supports RadioGroup (click)', () => {
         render(
           <Field.Root>
@@ -503,7 +519,8 @@ describe('<Field.Root />', () => {
 
         expect(group).to.have.attribute('data-touched', 'true');
         expect(control).to.have.attribute('data-touched', 'true');
-=======
+      });
+
       it('supports Select', async () => {
         render(
           <Field.Root>
@@ -529,7 +546,6 @@ describe('<Field.Root />', () => {
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('data-touched', 'true');
->>>>>>> e667fe6d (Add Field integration)
       });
     });
 
@@ -641,7 +657,6 @@ describe('<Field.Root />', () => {
         expect(root).to.have.attribute('data-dirty', 'true');
       });
 
-<<<<<<< HEAD
       it('supports RadioGroup', () => {
         render(
           <Field.Root>
@@ -659,7 +674,8 @@ describe('<Field.Root />', () => {
         fireEvent.click(screen.getByText('One'));
 
         expect(group).to.have.attribute('data-dirty', 'true');
-=======
+      });
+
       it('supports Select', async () => {
         render(
           <Field.Root>
@@ -696,7 +712,25 @@ describe('<Field.Root />', () => {
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('data-dirty', 'true');
->>>>>>> e667fe6d (Add Field integration)
+      });
+
+      it('supports RadioGroup', () => {
+        render(
+          <Field.Root>
+            <RadioGroup.Root data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup.Root>
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+
+        expect(group).not.to.have.attribute('data-dirty');
+
+        fireEvent.click(screen.getByText('One'));
+
+        expect(group).to.have.attribute('data-dirty', 'true');
       });
     });
   });

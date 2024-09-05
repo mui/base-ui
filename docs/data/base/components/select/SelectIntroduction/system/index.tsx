@@ -159,7 +159,6 @@ const SelectOption = styled(Select.Option)`
   outline: 0;
   cursor: default;
   border-radius: 4px;
-  scroll-margin: 4px;
   user-select: none;
   display: flex;
   align-items: center;
