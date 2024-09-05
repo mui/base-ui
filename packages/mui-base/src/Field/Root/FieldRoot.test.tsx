@@ -13,8 +13,6 @@ import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 import { createRenderer } from '../../../test/createRenderer';
 
-console.log(typeof ResizeObserver);
-
 const user = userEvent.setup();
 
 describe('<Field.Root />', () => {
