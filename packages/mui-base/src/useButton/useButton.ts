@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {
   unstable_useForkRef as useForkRef,
-  unstable_useIsFocusVisible as useIsFocusVisible,
+  unstable_isFocusVisible as isFocusVisible,
 } from '@mui/utils';
 import {
   UseButtonParameters,
@@ -13,7 +13,6 @@ import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { useRootElementName } from '../utils/useRootElementName';
 import { EventHandlers } from '../utils/types';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-
 /**
  * @ignore - internal hook.
  */
@@ -28,25 +27,14 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     type,
     rootElementName: rootElementNameProp,
   } = parameters;
-  const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement>();
+  const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
   const [active, setActive] = React.useState<boolean>(false);
-
-  const {
-    isFocusVisibleRef,
-    onFocus: handleFocusVisible,
-    onBlur: handleBlurVisible,
-    ref: focusVisibleRef,
-  } = useIsFocusVisible();
 
   const [focusVisible, setFocusVisible] = React.useState(false);
   if (disabled && !focusableWhenDisabled && focusVisible) {
     setFocusVisible(false);
   }
-
-  React.useEffect(() => {
-    isFocusVisibleRef.current = focusVisible;
-  }, [focusVisible, isFocusVisibleRef]);
 
   const [rootElementName, updateRootElementName] = useRootElementName({
     rootElementName: rootElementNameProp ?? (href || to ? 'a' : undefined),
@@ -62,9 +50,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   };
 
   const createHandleBlur = (otherHandlers: EventHandlers) => (event: React.FocusEvent) => {
-    handleBlurVisible(event);
-
-    if (isFocusVisibleRef.current === false) {
+    if (!isFocusVisible(event.target)) {
       setFocusVisible(false);
     }
 
@@ -78,8 +64,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
         buttonRef.current = event.currentTarget;
       }
 
-      handleFocusVisible(event);
-      if (isFocusVisibleRef.current === true) {
+      if (isFocusVisible(event.target)) {
         setFocusVisible(true);
         otherHandlers.onFocusVisible?.(event);
       }
@@ -170,7 +155,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
       }
     };
 
-  const handleRef = useForkRef(updateRootElementName, externalRef, focusVisibleRef, buttonRef);
+  const handleRef = useForkRef(updateRootElementName, externalRef, buttonRef);
 
   interface AdditionalButtonProps {
     type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
@@ -188,19 +173,17 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
   if (rootElementName === 'BUTTON') {
     buttonProps.type = type ?? 'button';
-    if (disabled) {
-      if (focusableWhenDisabled) {
-        buttonProps['aria-disabled'] = true;
-      } else {
-        buttonProps.disabled = true;
-      }
+    if (focusableWhenDisabled) {
+      buttonProps['aria-disabled'] = disabled;
+    } else {
+      buttonProps.disabled = disabled;
     }
-  } else if (disabled && rootElementName === 'INPUT') {
+  } else if (rootElementName === 'INPUT') {
     if (type && ['button', 'submit', 'reset'].includes(type)) {
       if (focusableWhenDisabled) {
-        buttonProps['aria-disabled'] = true;
+        buttonProps['aria-disabled'] = disabled;
       } else {
-        buttonProps.disabled = true;
+        buttonProps.disabled = disabled;
       }
     }
   } else if (rootElementName !== '') {
@@ -209,7 +192,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
       buttonProps.tabIndex = tabIndex ?? 0;
     }
     if (disabled) {
-      buttonProps['aria-disabled'] = true;
+      buttonProps['aria-disabled'] = disabled as boolean;
       buttonProps.tabIndex = focusableWhenDisabled ? tabIndex ?? 0 : -1;
     }
   }

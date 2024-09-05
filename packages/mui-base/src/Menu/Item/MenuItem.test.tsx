@@ -98,13 +98,12 @@ describe('<Menu.Item />', () => {
     await user.keyboard('{ArrowDown}'); // highlights '2'
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
-    // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
     await waitFor(() => {
-      expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+      expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
     });
     await waitFor(() => {
-      expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+      expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
     });
 
     // neither the highlighted nor the selected state of these options changed,
