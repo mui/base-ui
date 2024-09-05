@@ -725,9 +725,6 @@ describe('<Field.Root />', () => {
         // Arrow Down to focus the Option 1
         await user.keyboard('{ArrowDown}');
 
-        // Allow selection to take place by entering keyboard modality
-        fireEvent.keyDown(option, { key: '' });
-
         fireEvent.click(option);
 
         await flushMicrotasks();
