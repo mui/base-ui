@@ -22,8 +22,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './template.html'),
     }),
-    // Avoid bundling the whole @mui/icons-material package. x2 the bundling speed.
-    new webpack.IgnorePlugin({ resourceRegExp: /material-icons\/SearchIcons\.js/ }),
     new webpack.ProvidePlugin({
       // required by code accessing `process.env` in the browser
       process: 'process/browser.js',

@@ -5,7 +5,6 @@ import { useTheme } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
 import * as Field from '@base_ui/react/Field';
-import Check from '@mui/icons-material/Check';
 
 function classNames(...classes: Array<string | undefined | null | false>) {
   return classes.filter(Boolean).join(' ');
@@ -40,7 +39,7 @@ export default function UnstyledCheckboxIntroduction() {
             <Label>
               <Checkbox name="red">
                 <Indicator>
-                  <Check className="w-full h-full" />
+                  <CheckIcon className="w-full h-full" />
                 </Indicator>
               </Checkbox>
               Red
@@ -48,7 +47,7 @@ export default function UnstyledCheckboxIntroduction() {
             <Label>
               <Checkbox name="green">
                 <Indicator>
-                  <Check className="w-full h-full" />
+                  <CheckIcon className="w-full h-full" />
                 </Indicator>
               </Checkbox>
               Green
@@ -56,7 +55,7 @@ export default function UnstyledCheckboxIntroduction() {
             <Label>
               <Checkbox name="blue">
                 <Indicator>
-                  <Check className="w-full h-full" />
+                  <CheckIcon className="w-full h-full" />
                 </Indicator>
               </Checkbox>
               Blue
@@ -108,8 +107,26 @@ const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.IndicatorProps>
           )
         }
       >
-        <Check className="w-full h-full" />
+        <CheckIcon className="w-full h-full" />
       </BaseCheckbox.Indicator>
     );
   },
 );
+
+function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

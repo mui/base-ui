@@ -4,7 +4,6 @@ import * as React from 'react';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
 import * as Field from '@base_ui/react/Field';
-import Check from '@mui/icons-material/Check';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (
@@ -16,7 +15,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             <Field.Root>
               <Checkbox.Root className="Checkbox" name="red">
                 <Checkbox.Indicator className="Checkbox-indicator">
-                  <Check className="Check" />
+                  <CheckIcon className="Check" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
               <Field.Label className="Checkbox-label">Red</Field.Label>
@@ -24,7 +23,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             <Field.Root>
               <Checkbox.Root className="Checkbox" name="green">
                 <Checkbox.Indicator className="Checkbox-indicator">
-                  <Check className="Check" />
+                  <CheckIcon className="Check" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
               <Field.Label className="Checkbox-label">Green</Field.Label>
@@ -32,7 +31,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
             <Field.Root>
               <Checkbox.Root className="Checkbox" name="blue">
                 <Checkbox.Indicator className="Checkbox-indicator">
-                  <Check className="Check" />
+                  <CheckIcon className="Check" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
               <Field.Label className="Checkbox-label">Blue</Field.Label>
@@ -148,5 +147,23 @@ function Styles() {
       }
     `}
     </style>
+  );
+}
+
+function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }

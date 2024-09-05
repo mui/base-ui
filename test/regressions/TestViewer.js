@@ -1,10 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFakeTimers } from 'sinon';
-import Box from '@mui/material/Box';
-import GlobalStyles from '@mui/material/GlobalStyles';
-import JoyBox from '@mui/joy/Box';
-import { CssVarsProvider } from '@mui/joy/styles';
 
 function TestViewer(props) {
   const { children } = props;
@@ -48,48 +44,39 @@ function TestViewer(props) {
     };
   }, []);
 
+  const globalStyles = `
+    html {
+      --webkit-font-smoothing: antialiased;
+      --moz-osx-font-smoothing: grayscale;
+      /* Do the opposite of the docs in order to help catching issues. */
+      box-sizing: content-box;
+    }
+
+    *, *::before, *::after {
+      boxSizing: inherit;
+      /* Disable transitions to avoid flaky screenshots */
+      transition: none !important;
+      animation: none !important;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+    }
+  `;
+
   return (
     <React.Fragment>
-      <GlobalStyles
-        styles={{
-          html: {
-            WebkitFontSmoothing: 'antialiased', // Antialiasing.
-            MozOsxFontSmoothing: 'grayscale', // Antialiasing.
-            // Do the opposite of the docs in order to help catching issues.
-            boxSizing: 'content-box',
-          },
-          '*, *::before, *::after': {
-            boxSizing: 'inherit',
-            // Disable transitions to avoid flaky screenshots
-            transition: 'none !important',
-            animation: 'none !important',
-          },
-          body: {
-            margin: 0,
-            overflowX: 'hidden',
-          },
-        }}
-      />
+      {/* eslint-disable-next-line react/no-danger */}
+      <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       <React.Suspense fallback={<div aria-busy />}>
-        {window.location.pathname.startsWith('/docs-joy') ? (
-          <CssVarsProvider>
-            <JoyBox
-              aria-busy={!ready}
-              data-testid="testcase"
-              sx={{ bgcolor: 'background.body', display: 'inline-block', p: 1 }}
-            >
-              {children}
-            </JoyBox>
-          </CssVarsProvider>
-        ) : (
-          <Box
-            aria-busy={!ready}
-            data-testid="testcase"
-            sx={{ bgcolor: 'background.default', display: 'inline-block', p: 1 }}
-          >
-            {children}
-          </Box>
-        )}
+        <div
+          aria-busy={!ready}
+          data-testid="testcase"
+          style={{ backgroundColor: '#fff', display: 'inline-block', padding: '4px' }}
+        >
+          {children}
+        </div>
       </React.Suspense>
     </React.Fragment>
   );
