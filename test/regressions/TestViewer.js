@@ -73,7 +73,7 @@ function TestViewer(props) {
         <div
           aria-busy={!ready}
           data-testid="testcase"
-          style={{ backgroundColor: '#fff', display: 'inline-block', padding: '4px' }}
+          style={{ backgroundColor: '#fff', display: 'inline-block', padding: '8px' }}
         >
           {children}
         </div>
