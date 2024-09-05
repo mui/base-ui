@@ -225,6 +225,18 @@ module.exports = [
     title: 'ProgressTrack',
   },
   {
+    pathname: '/base-ui/react-radio-group/components-api/#radio-group-root',
+    title: 'RadioGroupRoot',
+  },
+  {
+    pathname: '/base-ui/react-radio-group/components-api/#radio-indicator',
+    title: 'RadioIndicator',
+  },
+  {
+    pathname: '/base-ui/react-radio-group/components-api/#radio-root',
+    title: 'RadioRoot',
+  },
+  {
     pathname: '/base-ui/react-select/components-api/#select-arrow',
     title: 'SelectArrow',
   },
