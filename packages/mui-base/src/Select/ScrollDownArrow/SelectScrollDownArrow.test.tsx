@@ -5,7 +5,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.ScrollUpArrow />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.ScrollUpArrow />, () => ({
+  describeConformance(<Select.ScrollUpArrow keepMounted />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

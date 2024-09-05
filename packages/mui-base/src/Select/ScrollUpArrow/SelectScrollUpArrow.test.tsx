@@ -5,7 +5,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.ScrollDownArrow />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.ScrollDownArrow />, () => ({
+  describeConformance(<Select.ScrollDownArrow keepMounted />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

@@ -9,7 +9,7 @@ describe('<Select.Arrow />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Select.Root open animated={false}>
+        <Select.Root open animated={false} alignMethod="trigger">
           <Select.Positioner>{node}</Select.Positioner>
         </Select.Root>,
       );
