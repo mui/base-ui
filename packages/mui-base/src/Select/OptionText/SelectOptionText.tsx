@@ -7,6 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { useSelectOptionContext } from '../Option/SelectOptionContext';
+
 /**
  *
  * Demos:
@@ -23,9 +24,12 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, triggerElement, valueRef, popupRef } = useSelectRootContext();
+  const { open, triggerElement, valueRef, popupRef, touchModality, innerFallback } =
+    useSelectRootContext();
   const { isPositioned, setOptionTextOffset } = useSelectPositionerContext();
   const { selected } = useSelectOptionContext();
+
+  const inert = touchModality || innerFallback;
 
   const textRef = React.useRef<HTMLDivElement>(null);
 
@@ -35,6 +39,7 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 
   useEnhancedEffect(() => {
     if (
+      inert ||
       !open ||
       !isPositioned ||
       !selected ||
@@ -55,7 +60,16 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
     const popupDiff = textX - popupX;
 
     setOptionTextOffset(triggerDiff - popupDiff);
-  }, [open, isPositioned, popupRef, selected, setOptionTextOffset, triggerElement, valueRef]);
+  }, [
+    inert,
+    open,
+    isPositioned,
+    popupRef,
+    selected,
+    setOptionTextOffset,
+    triggerElement,
+    valueRef,
+  ]);
 
   const { renderElement } = useComponentRenderer({
     ref: mergedRef,

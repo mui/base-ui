@@ -97,7 +97,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const [optionTextOffset, setOptionTextOffset] = React.useState<number | null>(null);
   const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState(selectedIndex);
 
-  if (!mounted && optionTextOffset !== null) {
+  if (optionTextOffset !== null && (!mounted || innerFallback || touchModality)) {
     setOptionTextOffset(null);
   }
 
