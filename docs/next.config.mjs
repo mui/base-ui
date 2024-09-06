@@ -55,12 +55,15 @@ const nextConfig = {
     };
   },
   distDir: 'export',
-  transpilePackages: ['@mui/docs', '@mui/monorepo'],
+  transpilePackages: ['@mui/monorepo'],
   ...(process.env.NODE_ENV === 'production'
     ? {
         output: 'export',
       }
     : {}),
+  experimental: {
+    esmExternals: true,
+  },
 };
 
 export default withDocsInfra(nextConfig);

@@ -5,7 +5,6 @@ import { css, styled } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
 import * as Field from '@base_ui/react/Field';
-import Check from '@mui/icons-material/Check';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (
@@ -107,7 +106,23 @@ const Checkbox = styled(BaseCheckbox.Root)(
   `,
 );
 
-const CheckIcon = styled(Check)`
+const CheckIcon = styled(function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+})`
   height: 100%;
   width: 100%;
 `;

@@ -3,8 +3,6 @@
 import * as React from 'react';
 import { styled } from '@mui/system';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
-import HorizontalRule from '@mui/icons-material/HorizontalRule';
-import Check from '@mui/icons-material/Check';
 
 const colors = ['Red', 'Green', 'Blue'];
 
@@ -111,12 +109,41 @@ const Checkbox = styled(BaseCheckbox.Root)(
   `,
 );
 
-const HorizontalRuleIcon = styled(HorizontalRule)`
+const HorizontalRuleIcon = styled(function HorizontalRuleIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path d="M4 11h16v2H4z" fill="currentColor" />
+    </svg>
+  );
+})`
   height: 100%;
   width: 100%;
 `;
 
-const CheckIcon = styled(Check)`
+const CheckIcon = styled(function CheckIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+})`
   height: 100%;
   width: 100%;
 `;
