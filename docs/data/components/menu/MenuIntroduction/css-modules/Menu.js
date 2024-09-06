@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import * as BaseMenu from '@base_ui/react/Menu';
 import classes from './Menu.module.css';
 
-export const Menu = function Menu(props) {
-  return <BaseMenu.Root {...props} />;
-};
+export const Menu = BaseMenu.Root;
+
+export const MenuGroup = BaseMenu.Group;
 
 const MenuItems = React.forwardRef(function MenuItems(props, ref) {
   return (
