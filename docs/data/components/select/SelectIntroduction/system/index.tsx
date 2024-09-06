@@ -151,7 +151,7 @@ const SelectPopup = styled(Select.Popup)`
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
   outline: 0;
-  min-width: calc(var(--anchor-width) + 16px);
+  min-width: calc(var(--anchor-width) + 20px);
 `;
 
 const SelectOption = styled(Select.Option)`

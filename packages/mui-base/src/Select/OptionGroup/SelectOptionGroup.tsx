@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { SelectOptionGroupContext } from './SelectOptionGroupContext';
 import { useSelectRootContext } from '../Root/SelectRootContext';
+
 /**
  *
  * Demos:
@@ -66,6 +67,13 @@ const SelectOptionGroup = React.forwardRef(function SelectOptionGroup(
   );
 });
 
+namespace SelectOptionGroup {
+  export interface OwnerState {
+    open: boolean;
+  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
+
 SelectOptionGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -84,12 +92,5 @@ SelectOptionGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace SelectOptionGroup {
-  export interface OwnerState {
-    open: boolean;
-  }
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
-}
 
 export { SelectOptionGroup };

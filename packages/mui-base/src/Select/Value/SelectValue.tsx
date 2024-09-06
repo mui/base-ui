@@ -4,6 +4,7 @@ import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  *
@@ -20,16 +21,23 @@ const SelectValue = React.forwardRef(function SelectValue(
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, children, placeholder, ...otherProps } = props;
+
   const { label, valueRef } = useSelectRootContext();
 
   const mergedRef = useForkRef(forwardedRef, valueRef);
 
   const ownerState: SelectValue.OwnerState = React.useMemo(() => ({}), []);
 
+  const getValueProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps(externalProps, {
+        children: typeof children === 'function' ? children(label) : label || placeholder,
+      }),
+    [children, label, placeholder],
+  );
+
   const { renderElement } = useComponentRenderer({
-    propGetter: () => ({
-      children: typeof children === 'function' ? children(label) : label || placeholder,
-    }),
+    propGetter: getValueProps,
     render: render ?? 'span',
     className,
     ownerState,

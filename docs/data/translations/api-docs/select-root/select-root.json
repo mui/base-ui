@@ -18,6 +18,9 @@
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."
     },
+    "onValueChange": {
+      "description": "Callback fired when the value of the select changes. Use when controlled."
+    },
     "open": {
       "description": "Allows to control whether the dropdown is open. This is a controlled counterpart of <code>defaultOpen</code>."
     },

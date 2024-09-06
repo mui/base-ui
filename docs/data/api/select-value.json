@@ -9,7 +9,10 @@
     "import * as Select from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "SelectValue",
+  "forwardsRefTo": "HTMLSpanElement",
   "filename": "/packages/mui-base/src/Select/Value/SelectValue.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",

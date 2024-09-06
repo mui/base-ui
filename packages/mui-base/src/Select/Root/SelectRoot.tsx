@@ -20,6 +20,7 @@ function SelectRoot(props: SelectRoot.Props) {
     name,
     children,
     value,
+    onValueChange,
     defaultValue,
     defaultOpen = false,
     disabled = false,
@@ -39,8 +40,9 @@ function SelectRoot(props: SelectRoot.Props) {
     defaultOpen,
     open,
     alignMethod,
-    value,
     defaultValue,
+    value,
+    onValueChange,
   });
 
   const context: SelectRootContext = React.useMemo(
@@ -97,6 +99,10 @@ namespace SelectRoot {
      * The value of the select.
      */
     value?: string;
+    /**
+     * Callback fired when the value of the select changes. Use when controlled.
+     */
+    onValueChange?: (value: string, event?: Event) => void;
     /**
      * The default value of the select.
      */
@@ -185,6 +191,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * Callback fired when the component requests to be opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Callback fired when the value of the select changes. Use when controlled.
+   */
+  onValueChange: PropTypes.func,
   /**
    * Allows to control whether the dropdown is open.
    * This is a controlled counterpart of `defaultOpen`.

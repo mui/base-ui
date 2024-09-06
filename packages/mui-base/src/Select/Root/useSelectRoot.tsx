@@ -7,10 +7,10 @@ import {
   useFloatingRootContext,
   useInnerOffset,
   useInteractions,
-  UseInteractionsReturn,
   useListNavigation,
   useRole,
   useTypeahead,
+  type UseInteractionsReturn,
   type FloatingRootContext,
   type SideObject,
 } from '@floating-ui/react';
