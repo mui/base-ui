@@ -1,6 +1,18 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["next-env.d.ts", "types", "src", "pages", "data", "next.config.mjs"],
+  "include": [
+    "app",
+    "data",
+    "pages",
+    "scripts/*.mts",
+    "src",
+    "types",
+    "next-env.d.ts",
+    "next.config.mjs",
+    ".next/types/**/*.ts",
+    "export/types/**/*.ts",
+    "config.ts"
+  ],
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,
@@ -12,7 +24,16 @@
     "esModuleInterop": true,
     "types": ["react"],
     "incremental": true,
-    "composite": true
+    "composite": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "exclude": ["node_modules"],
   "references": [

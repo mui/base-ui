@@ -30,18 +30,10 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useForkRef } from '../../utils/useForkRef';
 
-/**
- * The basic building block for creating custom number fields.
- *
- * Demos:
- *
- * - [Number Field](https://mui.com/base-ui/react-number-field/#hook)
- *
- * API:
- *
- * - [useNumberFieldRoot API](https://mui.com/base-ui/react-number-field/hooks-api/#use-number-field-root)
- */
 export function useNumberFieldRoot(
   params: UseNumberFieldRootParameters,
 ): UseNumberFieldRootReturnValue {
@@ -65,6 +57,28 @@ export function useNumberFieldRoot(
     defaultValue,
   } = params;
 
+  const {
+    labelId,
+    setDisabled,
+    setControlId,
+    validateOnChange,
+    setTouched,
+    setDirty,
+    validityData,
+    setValidityData,
+  } = useFieldRootContext();
+
+  useEnhancedEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
+
+  const {
+    getInputValidationProps,
+    getValidationProps,
+    inputRef: inputValidationRef,
+    commitValidation,
+  } = useFieldControlValidation();
+
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
   const minWithZeroDefault = min ?? 0;
@@ -72,12 +86,20 @@ export function useNumberFieldRoot(
 
   const id = useId(idProp);
 
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
+
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
   const onValueChange = useEventCallback(onValueChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
@@ -100,6 +122,13 @@ export function useNumberFieldRoot(
   });
 
   const value = valueUnwrapped ?? null;
+  const valueRef = useLatestRef(value);
+
+  useEnhancedEffect(() => {
+    if (validityData.initialValue === null && value !== validityData.initialValue) {
+      setValidityData((prev) => ({ ...prev, initialValue: value }));
+    }
+  }, [setValidityData, validityData.initialValue, value]);
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
@@ -150,6 +179,12 @@ export function useNumberFieldRoot(
 
     onValueChange?.(validatedValue, event);
     setValueUnwrapped(validatedValue);
+    setDirty(validatedValue !== validityData.initialValue);
+
+    if (validateOnChange) {
+      commitValidation(validatedValue);
+    }
+
     // We need to force a re-render, because while the value may be unchanged, the formatting may
     // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
     // truth to sync the input value.
@@ -489,7 +524,7 @@ export function useNumberFieldRoot(
 
   const getInputProps: UseNumberFieldRootReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(externalProps, {
+      mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
         id,
         required,
         autoFocus,
@@ -497,13 +532,18 @@ export function useNumberFieldRoot(
         disabled,
         readOnly,
         inputMode,
-        ref: inputRef,
+        value: inputValue,
+        ref: mergedRef,
         type: 'text',
         autoComplete: 'off',
         autoCorrect: 'off',
         spellCheck: 'false',
         'aria-roledescription': 'Number field',
         'aria-invalid': invalid || undefined,
+        'aria-labelledby': labelId,
+        // If the server's locale does not match the client's locale, the formatting may not match,
+        // causing a hydration mismatch.
+        suppressHydrationWarning: true,
         onFocus(event) {
           if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
             return;
@@ -521,6 +561,9 @@ export function useNumberFieldRoot(
           if (event.defaultPrevented || readOnly || disabled) {
             return;
           }
+
+          setTouched(true);
+          commitValidation(valueRef.current);
 
           allowInputSyncRef.current = true;
 
@@ -669,6 +712,8 @@ export function useNumberFieldRoot(
         },
       }),
     [
+      getInputValidationProps,
+      getValidationProps,
       id,
       required,
       autoFocus,
@@ -676,9 +721,14 @@ export function useNumberFieldRoot(
       disabled,
       readOnly,
       inputMode,
-      invalid,
       inputValue,
+      mergedRef,
+      invalid,
+      labelId,
+      setTouched,
       formatOptionsRef,
+      commitValidation,
+      valueRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,
@@ -703,7 +753,7 @@ export function useNumberFieldRoot(
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
-      inputRef,
+      inputRef: mergedRef,
       inputValue,
       value,
       ...scrub,
@@ -713,6 +763,7 @@ export function useNumberFieldRoot(
       getInputProps,
       getIncrementButtonProps,
       getDecrementButtonProps,
+      mergedRef,
       inputValue,
       value,
       scrub,

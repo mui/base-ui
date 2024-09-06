@@ -1,0 +1,17 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "FieldLabel",
+  "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldLabel = Field.Label;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "FieldLabel",
+  "forwardsRefTo": "HTMLLabelElement",
+  "filename": "/packages/mui-base/src/Field/Label/FieldLabel.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-field/\">Field</a></li></ul>",
+  "cssComponent": false
+}

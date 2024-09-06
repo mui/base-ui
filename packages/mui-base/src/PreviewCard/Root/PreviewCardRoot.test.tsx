@@ -3,8 +3,8 @@ import * as PreviewCard from '@base_ui/react/PreviewCard';
 import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { createRenderer } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { createRenderer } from '../../../test';
 
 function Root(props: PreviewCard.RootProps) {
   return <PreviewCard.Root animated={false} {...props} />;
@@ -91,7 +91,7 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger = screen.getByRole('link');
 
-      act(() => trigger.focus());
+      await act(() => trigger.focus());
 
       clock.tick(OPEN_DELAY);
 
@@ -112,14 +112,11 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger = screen.getByRole('link');
 
-      act(() => trigger.focus());
-
+      await act(async () => trigger.focus());
       clock.tick(OPEN_DELAY);
-
       await flushMicrotasks();
 
-      act(() => trigger.blur());
-
+      await act(async () => trigger.blur());
       clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);

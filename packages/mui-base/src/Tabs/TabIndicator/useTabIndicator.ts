@@ -10,16 +10,6 @@ function round(value: number) {
   return Math.round(value * 100) * 0.01;
 }
 
-/**
- *
- * Demos:
- *
- * - [Tabs](https://mui.com/base-ui/react-tabs/#hooks)
- *
- * API:
- *
- * - [useTabIndicator API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab-indicator)
- */
 export function useTabIndicator(): UseTabIndicatorReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
   const { orientation, direction, value, tabActivationDirection } = useTabsContext();

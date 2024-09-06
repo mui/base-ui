@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import * as Slider from '@base_ui/react/Slider';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 import type { SliderRootProps } from './SliderRoot.types';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
@@ -76,13 +76,12 @@ describe('<Slider.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Slider.Root defaultValue={50} />, () => ({
-    inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('renders a slider', () => {
-    render(
+  it('renders a slider', async () => {
+    await render(
       <Slider.Root defaultValue={30}>
         <Slider.Output />
         <Slider.Control>
@@ -97,8 +96,8 @@ describe('<Slider.Root />', () => {
     expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '30');
   });
 
-  it('should not break when initial value is out of range', () => {
-    const { getByTestId } = render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
+  it('should not break when initial value is out of range', async () => {
+    const { getByTestId } = await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
 
     const sliderControl = getByTestId('control');
 
@@ -115,8 +114,8 @@ describe('<Slider.Root />', () => {
   });
 
   describe('ARIA attributes', () => {
-    it('it has the correct aria attributes', () => {
-      const { container, getByRole, getByTestId } = render(
+    it('it has the correct aria attributes', async () => {
+      const { container, getByRole, getByTestId } = await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Output />
           <Slider.Control>
@@ -143,10 +142,10 @@ describe('<Slider.Root />', () => {
       expect(input).to.have.attribute('aria-valuenow', '30');
     });
 
-    it('should update aria-valuenow', () => {
-      const { getByRole } = render(<TestSlider defaultValue={50} />);
+    it('should update aria-valuenow', async () => {
+      const { getByRole } = await render(<TestSlider defaultValue={50} />);
       const slider = getByRole('slider');
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -157,8 +156,8 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '52');
     });
 
-    it('should set default aria-valuetext on range slider thumbs', () => {
-      const { getByTestId } = render(<TestRangeSlider defaultValue={[44, 50]} />);
+    it('should set default aria-valuetext on range slider thumbs', async () => {
+      const { getByTestId } = await render(<TestRangeSlider defaultValue={[44, 50]} />);
 
       const thumbOne = getByTestId('thumb-0');
       const thumbTwo = getByTestId('thumb-1');
@@ -169,9 +168,9 @@ describe('<Slider.Root />', () => {
   });
 
   describe('rtl', () => {
-    it('should handle RTL', () => {
+    it('should handle RTL', async () => {
       const handleValueChange = spy();
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestSlider direction="rtl" value={30} onValueChange={handleValueChange} />,
       );
       const sliderControl = getByTestId('control');
@@ -197,9 +196,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.equal(78);
     });
 
-    it('increments on ArrowUp', () => {
+    it('increments on ArrowUp', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -207,7 +206,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -220,9 +219,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(31);
     });
 
-    it('increments on ArrowLeft', () => {
+    it('increments on ArrowLeft', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -230,7 +229,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -243,9 +242,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(31);
     });
 
-    it('decrements on ArrowDown', () => {
+    it('decrements on ArrowDown', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -253,7 +252,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -266,9 +265,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
-    it('decrements on ArrowRight', () => {
+    it('decrements on ArrowRight', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
       );
 
@@ -276,7 +275,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -291,8 +290,8 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should render data-disabled on all subcomponents', () => {
-      const { getByTestId } = render(
+    it('should render data-disabled on all subcomponents', async () => {
+      const { getByTestId } = await render(
         <Slider.Root defaultValue={30} disabled data-testid="root">
           <Slider.Output data-testid="output" />
           <Slider.Control data-testid="control">
@@ -316,13 +315,13 @@ describe('<Slider.Root />', () => {
       });
     });
 
-    it('should not respond to drag events after becoming disabled', function test() {
+    it('should not respond to drag events after becoming disabled', async function test() {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      const { getByRole, setProps, getByTestId } = render(
+      const { getByRole, setProps, getByTestId } = await render(
         <TestSlider defaultValue={0} data-testid="slider-root" />,
       );
 
@@ -353,13 +352,13 @@ describe('<Slider.Root />', () => {
       expect(thumb).to.have.attribute('aria-valuenow', '21');
     });
 
-    it('should not respond to drag events if disabled', function test() {
+    it('should not respond to drag events if disabled', async function test() {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={21} data-testid="slider-root" disabled />,
       );
 
@@ -390,15 +389,15 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: orientation', () => {
-    it('sets the orientation via ARIA', () => {
-      render(<TestSlider orientation="vertical" />);
+    it('sets the orientation via ARIA', async () => {
+      await render(<TestSlider orientation="vertical" />);
 
       const sliderRoot = screen.getByRole('slider');
       expect(sliderRoot).to.have.attribute('aria-orientation', 'vertical');
     });
 
-    it('sets the data-orientation attribute', () => {
-      const { getByTestId } = render(<TestSlider />);
+    it('sets the data-orientation attribute', async () => {
+      const { getByTestId } = await render(<TestSlider />);
 
       const sliderRoot = screen.getByRole('group');
       expect(sliderRoot).to.have.attribute('data-orientation', 'horizontal');
@@ -408,12 +407,12 @@ describe('<Slider.Root />', () => {
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    it('does not set the orientation via appearance for WebKit browsers', function test() {
+    it('does not set the orientation via appearance for WebKit browsers', async function test() {
       if (/jsdom/.test(window.navigator.userAgent) || !/WebKit/.test(window.navigator.userAgent)) {
         this.skip();
       }
 
-      render(<TestSlider orientation="vertical" />);
+      await render(<TestSlider orientation="vertical" />);
 
       const slider = screen.getByRole('slider');
 
@@ -424,9 +423,9 @@ describe('<Slider.Root />', () => {
       expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
     });
 
-    it('should report the right position', () => {
+    it('should report the right position', async () => {
       const handleValueChange = spy();
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -459,13 +458,13 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: step', () => {
-    it('supports non-integer values', () => {
-      const { getByRole } = render(
+    it('supports non-integer values', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={0.2} min={-100} max={100} step={0.00000001} />,
       );
       const slider = getByRole('slider');
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -479,13 +478,13 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
 
-    it('should round value to step precision', () => {
-      const { getByRole, getByTestId } = render(
+    it('should round value to step precision', async () => {
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.2} min={0} max={1} step={0.1} />,
       );
       const slider = getByRole('slider');
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -494,7 +493,7 @@ describe('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -518,13 +517,13 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '0.4');
     });
 
-    it('should not fail to round value to step precision when step is very small', () => {
-      const { getByRole, getByTestId } = render(
+    it('should not fail to round value to step precision when step is very small', async () => {
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.00000002} min={0} max={0.0000001} step={0.00000001} />,
       );
       const slider = getByRole('slider');
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -533,7 +532,7 @@ describe('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -551,13 +550,13 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '8e-8');
     });
 
-    it('should not fail to round value to step precision when step is very small and negative', () => {
-      const { getByRole, getByTestId } = render(
+    it('should not fail to round value to step precision when step is very small and negative', async () => {
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={-0.00000002} min={-0.0000001} max={0} step={0.00000001} />,
       );
       const slider = getByRole('slider');
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -566,7 +565,7 @@ describe('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -588,8 +587,8 @@ describe('<Slider.Root />', () => {
   describe('prop: max', () => {
     const MAX = 750;
 
-    it('should set the max and aria-valuemax on the input', () => {
-      const { getByRole } = render(
+    it('should set the max and aria-valuemax on the input', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={MAX} min={150} />,
       );
       const slider = getByRole('slider');
@@ -598,13 +597,13 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('max', String(MAX));
     });
 
-    it('should not go more than the max', () => {
-      const { getByRole } = render(
+    it('should not go more than the max', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={MAX} min={150} />,
       );
 
       const slider = getByRole('slider');
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -612,8 +611,8 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', String(MAX));
     });
 
-    it('should reach right edge value', () => {
-      const { getByRole, getByTestId } = render(
+    it('should reach right edge value', async () => {
+      const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
 
@@ -624,7 +623,7 @@ describe('<Slider.Root />', () => {
       );
 
       const slider = getByRole('slider');
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -664,8 +663,8 @@ describe('<Slider.Root />', () => {
   describe('prop: min', () => {
     const MIN = 150;
 
-    it('should set the min and aria-valuemin on the input', () => {
-      const { getByRole } = render(
+    it('should set the min and aria-valuemin on the input', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
@@ -674,24 +673,24 @@ describe('<Slider.Root />', () => {
       expect(slider).to.have.attribute('min', String(MIN));
     });
 
-    it('should use min as the step origin', () => {
-      const { getByRole } = render(
+    it('should use min as the step origin', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
       expect(slider).to.have.attribute('aria-valuenow', String(MIN));
     });
 
-    it('should not go less than the min', () => {
-      const { getByRole } = render(
+    it('should not go less than the min', async () => {
+      const { getByRole } = await render(
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -701,10 +700,10 @@ describe('<Slider.Root />', () => {
   });
 
   describe('prop: minStepsBetweenValues', () => {
-    it('should enforce a minimum difference between range slider values', () => {
+    it('should enforce a minimum difference between range slider values', async () => {
       const handleValueChange = spy();
 
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestRangeSlider
           onValueChange={handleValueChange}
           defaultValue={[44, 50]}
@@ -716,7 +715,7 @@ describe('<Slider.Root />', () => {
       const thumbOne = getByTestId('thumb-0');
       const thumbTwo = getByTestId('thumb-1');
 
-      act(() => {
+      await act(() => {
         thumbOne.focus();
       });
 
@@ -726,7 +725,7 @@ describe('<Slider.Root />', () => {
       fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(1);
 
-      act(() => {
+      await act(() => {
         thumbTwo.focus();
       });
 
@@ -741,11 +740,11 @@ describe('<Slider.Root />', () => {
   });
 
   describe('events', () => {
-    it('should call handlers', () => {
+    it('should call handlers', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
-      const { getByRole, getByTestId } = render(
+      const { getByRole, getByTestId } = await render(
         <TestSlider
           onValueChange={handleValueChange}
           onValueCommitted={handleValueCommitted}
@@ -775,7 +774,7 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
 
@@ -784,9 +783,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(2);
     });
 
-    it('should support touch events', () => {
+    it('should support touch events', async () => {
       const handleValueChange = spy();
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
       );
       const sliderControl = getByTestId('control');
@@ -844,11 +843,11 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal([22, 30]);
     });
 
-    it('should only listen to changes from the same touchpoint', () => {
+    it('should only listen to changes from the same touchpoint', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
-      const { getByTestId } = render(
+      const { getByTestId } = await render(
         <TestSlider
           onValueChange={handleValueChange}
           onValueCommitted={handleValueCommitted}
@@ -895,10 +894,12 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(1);
     });
 
-    it('should hedge against a dropped mouseup event', () => {
+    it('should hedge against a dropped mouseup event', async () => {
       const handleValueChange = spy();
 
-      const { getByTestId } = render(<TestSlider onValueChange={handleValueChange} value={0} />);
+      const { getByTestId } = await render(
+        <TestSlider onValueChange={handleValueChange} value={0} />,
+      );
 
       const sliderControl = getByTestId('control');
 
@@ -928,8 +929,8 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
     });
 
-    it('should focus the slider when touching', () => {
-      const { getByRole, getByTestId } = render(<TestSlider defaultValue={30} />);
+    it('should focus the slider when touching', async () => {
+      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} />);
       const slider = getByRole('slider');
       const sliderControl = getByTestId('control');
 
@@ -945,8 +946,8 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveFocus();
     });
 
-    it('should focus the slider when dragging', () => {
-      const { getByRole, getByTestId } = render(<TestSlider defaultValue={30} step={10} />);
+    it('should focus the slider when dragging', async () => {
+      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} step={10} />);
       const slider = getByRole('slider');
       const sliderThumb = getByTestId('thumb');
       const sliderControl = getByTestId('control');
@@ -963,7 +964,7 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveFocus();
     });
 
-    it('should not override the event.target on touch events', () => {
+    it('should not override the event.target on touch events', async () => {
       const handleValueChange = spy();
       const handleNativeEvent = spy();
       const handleEvent = spy();
@@ -982,7 +983,7 @@ describe('<Slider.Root />', () => {
         );
       }
 
-      const { getByTestId } = render(<Test />);
+      const { getByTestId } = await render(<Test />);
       const sliderControl = getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
@@ -1001,7 +1002,7 @@ describe('<Slider.Root />', () => {
       expect(handleEvent.firstCall.args[0]).to.have.property('target', sliderControl);
     });
 
-    it('should not override the event.target on mouse events', () => {
+    it('should not override the event.target on mouse events', async () => {
       const handleValueChange = spy();
       const handleNativeEvent = spy();
       const handleEvent = spy();
@@ -1019,7 +1020,7 @@ describe('<Slider.Root />', () => {
           </div>
         );
       }
-      const { getByTestId } = render(<Test />);
+      const { getByTestId } = await render(<Test />);
       const sliderControl = getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
@@ -1037,8 +1038,8 @@ describe('<Slider.Root />', () => {
   });
 
   describe('dragging state', () => {
-    it('should not apply data-dragging for click modality', () => {
-      const { getByTestId } = render(<TestSlider defaultValue={90} />);
+    it('should not apply data-dragging for click modality', async () => {
+      const { getByTestId } = await render(<TestSlider defaultValue={90} />);
 
       const sliderControl = getByTestId('control');
 
@@ -1058,8 +1059,8 @@ describe('<Slider.Root />', () => {
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
     });
 
-    it('should apply data-dragging for dragging modality', () => {
-      const { getByTestId } = render(<TestSlider defaultValue={90} />);
+    it('should apply data-dragging for dragging modality', async () => {
+      const { getByTestId } = await render(<TestSlider defaultValue={90} />);
 
       const sliderControl = getByTestId('control');
 
@@ -1095,7 +1096,7 @@ describe('<Slider.Root />', () => {
 
   describe('form submission', () => {
     // doesn't work with two `<input type="range" />` elements with the same name attribute
-    it('includes the slider value in formData when the `name` attribute is provided', function test() {
+    it('includes the slider value in formData when the `name` attribute is provided', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
         this.skip();
@@ -1111,7 +1112,7 @@ describe('<Slider.Root />', () => {
         expect(Object.keys(formDataAsObject).length).to.equal(1);
       };
 
-      const { getByText } = render(
+      const { getByText } = await render(
         <form onSubmit={handleSubmit}>
           <TestSlider defaultValue={51} name="sliderField" />
           <button type="submit">Submit</button>
@@ -1119,16 +1120,16 @@ describe('<Slider.Root />', () => {
       );
 
       const button = getByText('Submit');
-      act(() => {
+      await act(() => {
         button.click();
       });
     });
   });
 
   describe('prop: onValueChange', () => {
-    it('is called when clicking on the control', () => {
+    it('is called when clicking on the control', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
 
@@ -1144,9 +1145,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(1);
     });
 
-    it('is not called when clicking on the thumb', () => {
+    it('is not called when clicking on the thumb', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
       const sliderThumb = screen.getByTestId('thumb');
@@ -1163,9 +1164,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
-    it('should not react to right clicks', () => {
+    it('should not react to right clicks', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
 
@@ -1181,9 +1182,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
-    it('should fire only when the value changes', () => {
+    it('should fire only when the value changes', async () => {
       const handleValueChange = spy();
-      render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
+      await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
 
       const sliderControl = screen.getByTestId('control');
 
@@ -1218,10 +1219,12 @@ describe('<Slider.Root />', () => {
       ['range', [2, 1]],
     ] as Values;
     values.forEach(([valueLabel, value]) => {
-      it(`is called even if the ${valueLabel} did not change`, () => {
+      it(`is called even if the ${valueLabel} did not change`, async () => {
         const handleValueChange = spy();
 
-        render(<TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />);
+        await render(
+          <TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />,
+        );
 
         const sliderControl = screen.getByTestId('control');
 
@@ -1232,8 +1235,8 @@ describe('<Slider.Root />', () => {
         // pixel:  0   20  40  60  80  100
         // slider: |---|---|---|---|---|
         // values: 0   1   2   3   4   5
-        // value:      ¡ü   ¡ü
-        // mouse:           ¡ü
+        // value:      ï¿½ï¿½   ï¿½ï¿½
+        // mouse:           ï¿½ï¿½
 
         fireEvent.pointerDown(sliderControl, {
           buttons: 1,
@@ -1246,15 +1249,15 @@ describe('<Slider.Root />', () => {
       });
     });
 
-    it('should pass "name" and "value" as part of the event.target for onValueChange', () => {
+    it('should pass "name" and "value" as part of the event.target for onValueChange', async () => {
       const handleValueChange = stub().callsFake((newValue, thumbIndex, event) => event.target);
 
-      const { getByRole } = render(
+      const { getByRole } = await render(
         <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
       );
       const slider = getByRole('slider');
 
-      act(() => {
+      await act(() => {
         slider.focus();
       });
       fireEvent.change(slider, {
@@ -1273,9 +1276,9 @@ describe('<Slider.Root />', () => {
   });
 
   describe('keyboard interactions', () => {
-    it('increments on ArrowUp', () => {
+    it('increments on ArrowUp', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1283,7 +1286,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1296,9 +1299,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(31);
     });
 
-    it('increments on ArrowRight', () => {
+    it('increments on ArrowRight', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1306,7 +1309,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1319,9 +1322,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(31);
     });
 
-    it('decrements on ArrowDown', () => {
+    it('decrements on ArrowDown', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1329,7 +1332,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1342,9 +1345,9 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
-    it('decrements on ArrowLeft', () => {
+    it('decrements on ArrowLeft', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1352,7 +1355,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1365,10 +1368,10 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(9);
     });
 
-    describe('key: Home', () => {
-      it('sets value to max in a single value slider', () => {
+    describe('key: End', () => {
+      it('sets value to max in a single value slider', async () => {
         const handleValueChange = spy();
-        const { container } = render(
+        const { container } = await render(
           <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
         );
 
@@ -1376,48 +1379,48 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(document.body, { key: 'TAB' });
 
-        act(() => {
+        await act(() => {
           (input as HTMLInputElement).focus();
         });
 
-        fireEvent.keyDown(input!, { key: 'Home' });
+        fireEvent.keyDown(input!, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal(77);
       });
 
-      it('sets value to the maximum possible value in a range slider', () => {
+      it('sets value to the maximum possible value in a range slider', async () => {
         const handleValueChange = spy();
-        const { getByTestId } = render(
+        const { getByTestId } = await render(
           <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} max={77} />,
         );
 
         const thumbOne = getByTestId('thumb-0');
         const thumbTwo = getByTestId('thumb-1');
 
-        act(() => {
+        await act(() => {
           thumbOne.focus();
         });
 
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal([50, 50]);
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
+        fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
 
-        act(() => {
+        await act(() => {
           thumbTwo.focus();
         });
 
-        fireEvent.keyDown(thumbTwo, { key: 'Home' });
+        fireEvent.keyDown(thumbTwo, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal([50, 77]);
       });
     });
 
-    describe('key: End', () => {
-      it('sets value to min on End', () => {
+    describe('key: Home', () => {
+      it('sets value to min on Home', async () => {
         const handleValueChange = spy();
-        const { container } = render(
+        const { container } = await render(
           <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
         );
 
@@ -1425,47 +1428,47 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(document.body, { key: 'TAB' });
 
-        act(() => {
+        await act(() => {
           (input as HTMLInputElement).focus();
         });
 
-        fireEvent.keyDown(input!, { key: 'End' });
+        fireEvent.keyDown(input!, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal(17);
       });
 
-      it('sets value to the minimum possible value in a range slider', () => {
+      it('sets value to the minimum possible value in a range slider', async () => {
         const handleValueChange = spy();
-        const { getByTestId } = render(
+        const { getByTestId } = await render(
           <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} min={7} />,
         );
 
         const thumbOne = getByTestId('thumb-0');
         const thumbTwo = getByTestId('thumb-1');
 
-        act(() => {
+        await act(() => {
           thumbTwo.focus();
         });
 
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.deep.equal([20, 20]);
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
+        fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
 
-        act(() => {
+        await act(() => {
           thumbOne.focus();
         });
 
-        fireEvent.keyDown(thumbOne, { key: 'End' });
+        fireEvent.keyDown(thumbOne, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal([7, 20]);
       });
     });
 
-    it('should support Shift + Left Arrow / Right Arrow keys', () => {
+    it('should support Shift + Left Arrow / Right Arrow keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
@@ -1473,7 +1476,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1486,16 +1489,16 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(20);
     });
 
-    it('should support Shift + Up Arrow / Down Arrow keys', () => {
+    it('should support Shift + Up Arrow / Down Arrow keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1508,16 +1511,16 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(20);
     });
 
-    it('should support PageUp / PageDown keys', () => {
+    it('should support PageUp / PageDown keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
       );
 
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1530,12 +1533,12 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(20);
     });
 
-    it('should support Shift + Left Arrow / Right Arrow keys by taking acount step and largeStep', () => {
+    it('should support Shift + Left Arrow / Right Arrow keys by taking acount step and largeStep', async () => {
       const handleValueChange = spy();
       const DEFAULT_VALUE = 20;
       const LARGE_STEP = 15;
       const STEP = 5;
-      const { container } = render(
+      const { container } = await render(
         <TestSlider
           defaultValue={DEFAULT_VALUE}
           onValueChange={handleValueChange}
@@ -1547,7 +1550,7 @@ describe('<Slider.Root />', () => {
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1562,16 +1565,16 @@ describe('<Slider.Root />', () => {
       expect(input).to.have.attribute('aria-valuenow', `${DEFAULT_VALUE}`);
     });
 
-    it('should stop at max/min when using Shift + Left Arrow / Right Arrow keys', () => {
+    it('should stop at max/min when using Shift + Left Arrow / Right Arrow keys', async () => {
       const handleValueChange = spy();
-      const { container } = render(
+      const { container } = await render(
         <TestSlider defaultValue={5} max={8} onValueChange={handleValueChange} />,
       );
 
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      act(() => {
+      await act(() => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1584,8 +1587,8 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(8);
     });
 
-    it('can be removed from the tab sequence', () => {
-      render(<TestSlider tabIndex={-1} value={30} />);
+    it('can be removed from the tab sequence', async () => {
+      await render(<TestSlider tabIndex={-1} value={30} />);
       expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
     });
   });

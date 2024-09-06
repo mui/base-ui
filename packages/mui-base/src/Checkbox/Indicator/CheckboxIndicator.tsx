@@ -6,6 +6,7 @@ import { useCheckboxStyleHooks } from '../utils';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -16,11 +17,11 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  *
  * Demos:
  *
- * - [Checkbox](https://mui.com/base-ui/react-checkbox/)
+ * - [Checkbox](https://base-ui.netlify.app/components/react-checkbox/)
  *
  * API:
  *
- * - [CheckboxIndicator API](https://mui.com/base-ui/react-checkbox/components-api/#checkbox-indicator)
+ * - [CheckboxIndicator API](https://base-ui.netlify.app/components/react-checkbox/#api-reference-CheckboxIndicator)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicatorProps,
@@ -29,12 +30,16 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   const { render: renderProp, className, keepMounted = false, ...otherProps } = props;
   const render = renderProp ?? defaultRender;
 
+  const { ownerState: fieldOwnerState } = useFieldRootContext();
+
   const ownerState = React.useContext(CheckboxContext);
   if (ownerState === null) {
     throw new Error('Base UI: Checkbox.Indicator is not placed inside the Checkbox component.');
   }
 
-  const styleHooks = useCheckboxStyleHooks(ownerState);
+  const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
+
+  const styleHooks = useCheckboxStyleHooks(extendedOwnerState);
   const mergedRef = useRenderPropForkRef(render, forwardedRef);
 
   if (!keepMounted && !ownerState.checked && !ownerState.indeterminate) {
@@ -42,7 +47,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   }
 
   const elementProps = {
-    className: resolveClassName(className, ownerState),
+    className: resolveClassName(className, extendedOwnerState),
     ref: mergedRef,
     ...styleHooks,
     ...otherProps,

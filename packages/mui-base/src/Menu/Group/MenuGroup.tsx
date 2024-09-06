@@ -5,6 +5,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const EMPTY_OBJECT = {};
 
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuGroup API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuGroup)
+ */
 const MenuGroup = React.forwardRef(function MenuGroup(
   props: MenuGroup.Props,
   forwardedRef: React.ForwardedRef<Element>,

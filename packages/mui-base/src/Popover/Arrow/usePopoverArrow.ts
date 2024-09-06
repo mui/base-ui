@@ -6,12 +6,6 @@ import type {
   UsePopoverArrowReturnValue,
 } from './usePopoverArrow.types';
 
-/**
- *
- * API:
- *
- * - [usePopoverArrow API](https://mui.com/base-ui/api/use-popover-arrow/)
- */
 export function usePopoverArrow(params: UsePopoverArrowParameters): UsePopoverArrowReturnValue {
   const { arrowStyles } = params;
 

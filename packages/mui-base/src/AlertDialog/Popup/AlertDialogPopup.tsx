@@ -7,6 +7,16 @@ import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ *
+ * API:
+ *
+ * - [AlertDialogPopup API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogPopup)
+ */
 const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

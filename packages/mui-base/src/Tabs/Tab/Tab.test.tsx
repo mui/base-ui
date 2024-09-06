@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
 import {
   TabsListProvider,
@@ -7,7 +6,7 @@ import {
   TabsContext,
   TabsContextValue,
 } from '@base_ui/react/Tabs';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
@@ -39,15 +38,12 @@ describe('<Tabs.Tab />', () => {
   };
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
-    inheritComponent: 'div',
     render: (node) => {
-      const { container, ...other } = render(
+      return render(
         <TabsContext.Provider value={testTabsContext}>
           <TabsListProvider value={testTabsListContext}>{node}</TabsListProvider>
         </TabsContext.Provider>,
       );
-
-      return { container, ...other };
     },
     refInstanceof: window.HTMLButtonElement,
   }));

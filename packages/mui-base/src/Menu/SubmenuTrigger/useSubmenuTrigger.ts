@@ -4,12 +4,6 @@ import { useMenuItem } from '../Item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 
-/**
- *
- * API:
- *
- * - [useSubmenuTrigger API](https://mui.com/base-ui/api/use-submenu-trigger/)
- */
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
 ): useSubmenuTrigger.ReturnValue {
@@ -21,6 +15,7 @@ export function useSubmenuTrigger(
     menuEvents,
     setTriggerElement,
     treatMouseupAsClick,
+    typingRef,
   } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
@@ -31,6 +26,7 @@ export function useSubmenuTrigger(
     menuEvents,
     ref: externalRef,
     treatMouseupAsClick,
+    typingRef,
   });
 
   const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
@@ -81,6 +77,10 @@ export namespace useSubmenuTrigger {
      * If `true`, the menu item will listen for mouseup events and treat them as clicks.
      */
     treatMouseupAsClick: boolean;
+    /**
+     * A ref that is set to `true` when the user is using the typeahead feature.
+     */
+    typingRef: React.RefObject<boolean>;
   }
 
   export interface ReturnValue {

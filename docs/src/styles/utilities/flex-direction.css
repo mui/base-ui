@@ -1,0 +1,15 @@
+.fd-row {
+  flex-direction: row;
+}
+
+.fd-rr {
+  flex-direction: row-reverse;
+}
+
+.fd-column {
+  flex-direction: column;
+}
+
+.fd-cr {
+  flex-direction: column-reverse;
+}

@@ -6,12 +6,6 @@ import type {
   UsePopoverPopupReturnValue,
 } from './usePopoverPopup.types';
 
-/**
- *
- * API:
- *
- * - [usePopoverPopup API](https://mui.com/base-ui/api/use-popover-popup/)
- */
 export function usePopoverPopup(params: UsePopoverPopupParameters): UsePopoverPopupReturnValue {
   const { getProps, titleId, descriptionId } = params;
 

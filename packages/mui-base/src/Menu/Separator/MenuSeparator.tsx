@@ -5,6 +5,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const EMPTY_OBJECT = {};
 
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuSeparator API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuSeparator)
+ */
 const MenuSeparator = React.forwardRef(function MenuSeparator(
   props: MenuSeparator.Props,
   forwardedRef: React.ForwardedRef<Element>,

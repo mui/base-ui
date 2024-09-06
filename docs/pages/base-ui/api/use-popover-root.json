@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePopoverRoot",
-  "filename": "/packages/mui-base/src/Popover/Root/usePopoverRoot.ts",
-  "imports": ["import { usePopoverRoot } from '@base_ui/react/Popover';"],
-  "demos": "<ul></ul>"
-}

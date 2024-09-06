@@ -2,16 +2,6 @@ import * as React from 'react';
 import type { UseDialogRootParameters, UseDialogRootReturnValue } from './DialogRoot.types';
 import { useControlled } from '../../utils/useControlled';
 
-/**
- *
- * Demos:
- *
- * - [Dialog](https://mui.com/base-ui/react-dialog/#hooks)
- *
- * API:
- *
- * - [useDialogRoot API](https://mui.com/base-ui/react-dialog/hooks-api/#use-dialog-root)
- */
 export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRootReturnValue {
   const {
     open: openParam,

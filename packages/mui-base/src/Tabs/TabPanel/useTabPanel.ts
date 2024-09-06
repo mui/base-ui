@@ -11,16 +11,6 @@ function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
   return otherTabPanelValues.size;
 }
 
-/**
- *
- * Demos:
- *
- * - [Tabs](https://mui.com/base-ui/react-tabs/#hooks)
- *
- * API:
- *
- * - [useTabPanel API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tab-panel)
- */
 function useTabPanel(parameters: UseTabPanelParameters): UseTabPanelReturnValue {
   const { value: valueParam, id: idParam, rootRef: externalRef } = parameters;
   const {

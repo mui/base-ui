@@ -2,11 +2,11 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
+import { act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer } from '#test-utils';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
@@ -29,6 +29,7 @@ const testRootContext: MenuRootContext = {
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
+  typingRef: { current: false },
 };
 
 describe('<Menu.Item />', () => {
@@ -94,14 +95,15 @@ describe('<Menu.Item />', () => {
 
     expect(renderItem1Spy.callCount).to.equal(0);
 
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' }); // highlights '2'
+    await user.keyboard('{ArrowDown}'); // highlights '2'
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
-    // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
     await waitFor(() => {
-      expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
-      expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+      expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
+    });
+    await waitFor(() => {
+      expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
     });
 
     // neither the highlighted nor the selected state of these options changed,

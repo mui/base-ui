@@ -7,12 +7,6 @@ import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 
-/**
- *
- * API:
- *
- * - [useMenuTrigger API](https://mui.com/base-ui/api/use-menu-trigger/)
- */
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const {
     disabled = false,

@@ -6,12 +6,6 @@ import type {
   UsePreviewCardPopupReturnValue,
 } from './usePreviewCardPopup.types';
 
-/**
- *
- * API:
- *
- * - [usePreviewCardPopup API](https://mui.com/base-ui/api/use-preview-card-popup/)
- */
 export function usePreviewCardPopup(
   params: UsePreviewCardPopupParameters,
 ): UsePreviewCardPopupReturnValue {

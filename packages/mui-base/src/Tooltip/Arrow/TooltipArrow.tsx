@@ -12,11 +12,11 @@ import { useTooltipArrow } from './useTooltipArrow';
  *
  * Demos:
  *
- * - [Tooltip](https://mui.com/base-ui/react-tooltip/)
+ * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipArrow API](https://mui.com/base-ui/react-tooltip/components-api/#tooltip-arrow)
+ * - [TooltipArrow API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipArrow)
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrowProps,
