@@ -8,7 +8,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectTrigger API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectTrigger)
+ */
 const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,

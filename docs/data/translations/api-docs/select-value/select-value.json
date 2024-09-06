@@ -1,0 +1,9 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "placeholder": {
+      "description": "The placeholder value to display when the value is empty (such as during SSR)."
+    }
+  },
+  "classDescriptions": {}
+}

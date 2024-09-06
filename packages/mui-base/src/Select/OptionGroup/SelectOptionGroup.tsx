@@ -6,7 +6,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { SelectOptionGroupContext } from './SelectOptionGroupContext';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectOptionGroup API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOptionGroup)
+ */
 const SelectOptionGroup = React.forwardRef(function SelectOptionGroup(
   props: SelectOptionGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

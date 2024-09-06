@@ -12,7 +12,16 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = commonStyleHooks;
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectBackdrop API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectBackdrop)
+ */
 const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

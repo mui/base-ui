@@ -6,15 +6,17 @@
     "label": { "type": { "name": "string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "MenuTrigger",
-  "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuTrigger = Menu.Trigger;"],
+  "name": "SelectTrigger",
+  "imports": [
+    "import * as Select from '@base_ui/react/Select';\nconst SelectTrigger = Select.Trigger;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "MenuTrigger",
-  "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Menu/Trigger/MenuTrigger.tsx",
+  "muiName": "SelectTrigger",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/Trigger/SelectTrigger.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false
 }

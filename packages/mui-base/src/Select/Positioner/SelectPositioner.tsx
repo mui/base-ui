@@ -28,11 +28,11 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Demos:
  *
- * - [Menu](https://mui.com/base-ui/react-select/)
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
  *
  * API:
  *
- * - [SelectPositioner API](https://mui.com/base-ui/react-select/components-api/#select-positioner)
+ * - [SelectPositioner API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectPositioner)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,

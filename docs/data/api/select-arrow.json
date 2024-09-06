@@ -1,19 +1,20 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "hideWhenUncentered": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "SelectOptionGroupLabel",
+  "name": "SelectArrow",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectOptionGroupLabel = Select.OptionGroupLabel;"
+    "import * as Select from '@base_ui/react/Select';\nconst SelectArrow = Select.Arrow;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectOptionGroupLabel",
+  "muiName": "SelectArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/OptionGroupLabel/SelectOptionGroupLabel.tsx",
+  "filename": "/packages/mui-base/src/Select/Arrow/SelectArrow.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false
 }

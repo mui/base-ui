@@ -20,7 +20,16 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
     return value ? { 'data-select-exiting': '' } : null;
   },
 };
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectPopup API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectPopup)
+ */
 const SelectPopup = React.forwardRef(function SelectPopup(
   props: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,

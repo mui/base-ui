@@ -8,7 +8,16 @@ import { useId } from '../../utils/useId';
 import { useSelectOptionGroupContext } from '../OptionGroup/SelectOptionGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectOptionGroupLabel API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOptionGroupLabel)
+ */
 const SelectOptionGroupLabel = React.forwardRef(function SelectOptionGroupLabel(
   props: SelectOptionGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

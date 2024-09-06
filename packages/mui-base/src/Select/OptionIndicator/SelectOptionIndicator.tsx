@@ -11,7 +11,16 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectOptionIndicator.OwnerState> =
   commonStyleHooks;
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectOptionIndicator API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOptionIndicator)
+ */
 const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   props: SelectOptionIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

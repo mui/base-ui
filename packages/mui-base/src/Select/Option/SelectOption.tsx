@@ -77,11 +77,11 @@ const InnerSelectOption = React.memo(
  *
  * Demos:
  *
- * - [Select](https://mui.com/base-ui/react-select/)
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
  *
  * API:
  *
- * - [SelectOption API](https://mui.com/base-ui/react-select/components-api/#select-item)
+ * - [SelectOption API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOption)
  */
 const SelectOption = React.forwardRef(function SelectOption(
   props: SelectOption.Props,

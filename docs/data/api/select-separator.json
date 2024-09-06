@@ -1,20 +1,19 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "hideWhenUncentered": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "SelectArrow",
+  "name": "SelectSeparator",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectArrow = Select.Arrow;"
+    "import * as Select from '@base_ui/react/Select';\nconst SelectSeparator = Select.Separator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectArrow",
+  "muiName": "SelectSeparator",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Arrow/SelectArrow.tsx",
+  "filename": "/packages/mui-base/src/Select/Separator/SelectSeparator.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/base-ui/react-select/\">Select</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false
 }

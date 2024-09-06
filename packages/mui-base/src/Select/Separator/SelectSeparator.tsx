@@ -3,7 +3,16 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectSeparator API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectSeparator)
+ */
 const SelectSeparator = React.forwardRef(function SelectSeparator(
   props: SelectSeparator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

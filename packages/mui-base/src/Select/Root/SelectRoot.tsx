@@ -3,7 +3,16 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { SelectRootContext } from './SelectRootContext';
 import { useSelectRoot } from './useSelectRoot';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectRoot API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectRoot)
+ */
 function SelectRoot(props: SelectRoot.Props) {
   const {
     animated = true,

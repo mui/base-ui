@@ -1,7 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectValue API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectValue)
+ */
 function SelectValue(props: SelectValue.Props) {
   const { children, placeholder } = props;
   const { label } = useSelectRootContext();
@@ -35,7 +44,7 @@ SelectValue.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     PropTypes.number,
     PropTypes.shape({
-      '__@iterator@68': PropTypes.func.isRequired,
+      '__@iterator@70': PropTypes.func.isRequired,
     }),
     PropTypes.shape({
       children: PropTypes.node,

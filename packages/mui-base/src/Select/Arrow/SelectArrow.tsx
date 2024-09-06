@@ -8,7 +8,16 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectArrow API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectArrow)
+ */
 const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

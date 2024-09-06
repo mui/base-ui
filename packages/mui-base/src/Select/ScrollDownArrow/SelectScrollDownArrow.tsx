@@ -3,7 +3,16 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { SelectScrollArrow } from '../ScrollArrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectScrollDownArrow API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectScrollDownArrow)
+ */
 const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
   props: SelectScrollDownArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

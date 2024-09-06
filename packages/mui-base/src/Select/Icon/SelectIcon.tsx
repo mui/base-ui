@@ -4,7 +4,16 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
+/**
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectIcon API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectIcon)
+ */
 const SelectIcon = React.forwardRef(function SelectIcon(
   props: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
