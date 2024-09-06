@@ -45,7 +45,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         'aria-hidden': true,
-        children: '▼',
+        children: direction === 'down' ? '▼' : '▲',
         style: {
           position: 'absolute',
           zIndex: 2147483647, // max z-index
