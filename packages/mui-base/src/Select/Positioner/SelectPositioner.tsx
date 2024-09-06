@@ -40,12 +40,12 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 ) {
   const {
     anchor,
-    positionStrategy = 'fixed',
+    positionStrategy = 'absolute',
     className,
     render,
     keepMounted = false,
     side = 'bottom',
-    alignment = 'center',
+    alignment = 'start',
     sideOffset = 0,
     alignmentOffset = 0,
     collisionBoundary,
@@ -94,7 +94,12 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [id, setControlId]);
 
+  const [optionTextOffset, setOptionTextOffset] = React.useState<number | null>(null);
   const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState(selectedIndex);
+
+  if (!mounted && optionTextOffset !== null) {
+    setOptionTextOffset(null);
+  }
 
   const selectedIndexRef = useLatestRef(selectedIndex);
 
@@ -120,7 +125,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     side,
     sideOffset,
     alignment,
-    alignmentOffset,
+    alignmentOffset: optionTextOffset ?? alignmentOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
@@ -170,6 +175,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
       floatingContext: positioner.floatingContext,
+      optionTextOffset,
+      setOptionTextOffset,
     }),
     [
       positioner.isPositioned,
@@ -179,6 +186,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       positioner.arrowUncentered,
       positioner.arrowStyles,
       positioner.floatingContext,
+      optionTextOffset,
     ],
   );
 
@@ -290,7 +298,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * The alignment of the Select element to the anchor element along its cross axis.
-   * @default 'center'
+   * @default 'start'
    */
   alignment: PropTypes.oneOf(['center', 'end', 'start']),
   /**
@@ -368,7 +376,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   keepMounted: PropTypes.bool,
   /**
    * The CSS position strategy for positioning the Select popup element.
-   * @default 'fixed'
+   * @default 'absolute'
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
   /**

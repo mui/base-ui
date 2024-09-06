@@ -1,6 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useForkRef } from '../../utils/useForkRef';
+
 /**
  *
  * Demos:
@@ -11,18 +15,34 @@ import { useSelectRootContext } from '../Root/SelectRootContext';
  *
  * - [SelectValue API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectValue)
  */
-function SelectValue(props: SelectValue.Props) {
-  const { children, placeholder } = props;
-  const { label } = useSelectRootContext();
-  return (
-    <React.Fragment>
-      {typeof children === 'function' ? children(label) : label || placeholder}
-    </React.Fragment>
-  );
-}
+const SelectValue = React.forwardRef(function SelectValue(
+  props: SelectValue.Props,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const { className, render, children, placeholder, ...otherProps } = props;
+  const { label, valueRef } = useSelectRootContext();
+
+  const mergedRef = useForkRef(forwardedRef, valueRef);
+
+  const ownerState: SelectValue.OwnerState = React.useMemo(() => ({}), []);
+
+  const { renderElement } = useComponentRenderer({
+    propGetter: () => ({
+      children: typeof children === 'function' ? children(label) : label || placeholder,
+    }),
+    render: render ?? 'span',
+    className,
+    ownerState,
+    ref: mergedRef,
+    extraProps: otherProps,
+  });
+
+  return renderElement();
+});
 
 namespace SelectValue {
-  export interface Props {
+  export interface OwnerState {}
+  export interface Props extends Omit<BaseUIComponentProps<'span', OwnerState>, 'children'> {
     children?: React.ReactNode | ((value: string) => React.ReactNode);
     /**
      * The placeholder value to display when the value is empty (such as during SSR).
@@ -56,9 +76,17 @@ SelectValue.propTypes /* remove-proptypes */ = {
     PropTypes.bool,
   ]),
   /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * The placeholder value to display when the value is empty (such as during SSR).
    */
   placeholder: PropTypes.string,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { SelectValue };

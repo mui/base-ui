@@ -71,7 +71,7 @@ export default function UnstyledSelectIntroduction() {
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Backdrop />
-      <Select.Positioner alignment="start" alignmentOffset={-16}>
+      <Select.Positioner>
         <SelectScrollUpArrow>
           <div>
             <ArrowDropDown />
@@ -80,7 +80,7 @@ export default function UnstyledSelectIntroduction() {
         <SelectPopup>
           <SelectOption value="">
             <SelectOptionIndicator render={<Check />} />
-            Select food...
+            <Select.OptionText>Select food...</Select.OptionText>
           </SelectOption>
           {entries.map(([group, items]) => (
             <React.Fragment key={group}>
@@ -94,7 +94,7 @@ export default function UnstyledSelectIntroduction() {
                     disabled={item.value === 'banana'}
                   >
                     <SelectOptionIndicator render={<Check />} />
-                    {item.label}
+                    <Select.OptionText>{item.label}</Select.OptionText>
                   </SelectOption>
                 ))}
               </Select.OptionGroup>

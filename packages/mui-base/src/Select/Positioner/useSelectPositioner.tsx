@@ -115,7 +115,7 @@ export namespace useSelectPositioner {
       | (() => Element | VirtualElement | null);
     /**
      * The CSS position strategy for positioning the Select popup element.
-     * @default 'fixed'
+     * @default 'absolute'
      */
     positionStrategy?: 'absolute' | 'fixed';
     /**
@@ -134,7 +134,7 @@ export namespace useSelectPositioner {
     sideOffset?: number;
     /**
      * The alignment of the Select element to the anchor element along its cross axis.
-     * @default 'center'
+     * @default 'start'
      */
     alignment?: 'start' | 'end' | 'center';
     /**

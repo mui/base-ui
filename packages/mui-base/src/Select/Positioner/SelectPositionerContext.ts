@@ -15,6 +15,8 @@ export interface SelectPositionerContext {
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
   isPositioned: boolean;
+  optionTextOffset: number | null;
+  setOptionTextOffset: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 export const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);

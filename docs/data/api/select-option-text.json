@@ -1,16 +1,18 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "placeholder": { "type": { "name": "string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "SelectValue",
+  "name": "SelectOptionText",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"
+    "import * as Select from '@base_ui/react/Select';\nconst SelectOptionText = Select.OptionText;"
   ],
   "classes": [],
-  "muiName": "SelectValue",
-  "filename": "/packages/mui-base/src/Select/Value/SelectValue.tsx",
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectOptionText",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/OptionText/SelectOptionText.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

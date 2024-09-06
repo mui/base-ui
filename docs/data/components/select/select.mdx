@@ -1,7 +1,7 @@
 ---
 productId: base-ui
 title: React Select components and hook
-components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionIndicator, SelectOptionGroup, SelectOptionGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectSeparator, SelectArrow
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionText, SelectOptionIndicator, SelectOptionGroup, SelectOptionGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectSeparator, SelectArrow
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -32,6 +32,7 @@ Selects are implemented using a collection of related components:
 - `<Select.Positioner />` renders the select popup's positioning element.
 - `<Select.Popup />` renders the select popup itself.
 - `<Select.Option />` renders an option, placed inside the popup.
+- `<Select.OptionText />` renders the text of an option.
 - `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
 - `<Select.OptionGroup />` renders an option group, wrapping `<Select.Option>` components.
 - `<Select.OptionGroupLabel />` renders a label for an option group.
@@ -56,6 +57,7 @@ Selects are implemented using a collection of related components:
       <Select.OptionGroup>
         <Select.OptionGroupLabel />
         <Select.Option>
+          <Select.OptionText />
           <Select.OptionIndicator />
         </Select.Option>
       </Select.OptionGroup>

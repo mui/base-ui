@@ -5,7 +5,7 @@
         "name": "enum",
         "description": "'center'<br>&#124;&nbsp;'end'<br>&#124;&nbsp;'start'"
       },
-      "default": "'center'"
+      "default": "'start'"
     },
     "alignmentOffset": { "type": { "name": "number" }, "default": "0" },
     "anchor": {
@@ -35,7 +35,7 @@
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "positionStrategy": {
       "type": { "name": "enum", "description": "'absolute'<br>&#124;&nbsp;'fixed'" },
-      "default": "'fixed'"
+      "default": "'absolute'"
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "side": {

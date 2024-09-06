@@ -7,6 +7,7 @@ import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { ownerWindow } from '../../utils/owner';
 
 /**
  * @ignore - internal component.
@@ -44,6 +45,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         'aria-hidden': true,
+        children: '▼',
         style: {
           position: 'absolute',
           zIndex: 2147483647, // max z-index
@@ -64,9 +66,11 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             const msElapsed = currentNow - prevNow;
             prevNow = currentNow;
 
-            const pixelsToScroll = Math.min(
-              msElapsed / 2,
-              popupRef.current.scrollHeight - popupRef.current.clientHeight,
+            const pixelsToScroll = Math.floor(
+              Math.min(
+                msElapsed / 2,
+                popupRef.current.scrollHeight - popupRef.current.clientHeight,
+              ) || 1,
             );
 
             const isScrolledToTop = popupRef.current.scrollTop === 0;
@@ -132,12 +136,16 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       return undefined;
     }
 
+    const win = ownerWindow(popupElement);
+
     popupElement.addEventListener('wheel', handleScrollArrowRendered);
     popupElement.addEventListener('scroll', handleScrollArrowRendered);
+    win.addEventListener('resize', handleScrollArrowRendered);
 
     return () => {
       popupElement.removeEventListener('wheel', handleScrollArrowRendered);
       popupElement.removeEventListener('scroll', handleScrollArrowRendered);
+      win.removeEventListener('resize', handleScrollArrowRendered);
     };
   }, [inert, popupRef, direction, handleScrollArrowRendered]);
 

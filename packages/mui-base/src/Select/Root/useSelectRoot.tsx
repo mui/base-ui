@@ -63,6 +63,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const valuesRef = React.useRef<Array<string | null>>([]);
   const selectionRef = React.useRef({ allowMouseUp: false, allowSelect: false });
   const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
+  const valueRef = React.useRef<HTMLSpanElement>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -246,6 +247,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       setInnerFallback,
       touchModality,
       setTouchModality,
+      valueRef,
     }),
     [
       fieldControlValidation,
@@ -358,5 +360,6 @@ export namespace useSelectRoot {
     setInnerFallback: React.Dispatch<React.SetStateAction<boolean>>;
     touchModality: boolean;
     setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
+    valueRef: React.RefObject<HTMLSpanElement>;
   }
 }
