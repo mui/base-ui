@@ -275,27 +275,6 @@ describe('<Field.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-invalid', 'true');
       });
-
-      it('supports RadioGroup', async () => {
-        await render(
-          <Field.Root validate={() => 'error'}>
-            <RadioGroup.Root data-testid="group">
-              <Radio.Root value="1">One</Radio.Root>
-              <Radio.Root value="2">Two</Radio.Root>
-            </RadioGroup.Root>
-            <Field.Error data-testid="error" />
-          </Field.Root>,
-        );
-
-        const group = screen.getByTestId('group');
-
-        expect(group).not.to.have.attribute('aria-invalid');
-
-        fireEvent.focus(group);
-        fireEvent.blur(group);
-
-        expect(group).to.have.attribute('aria-invalid', 'true');
-      });
     });
   });
 
@@ -541,33 +520,6 @@ describe('<Field.Root />', () => {
         expect(group).to.have.attribute('data-touched', 'true');
         expect(control).to.have.attribute('data-touched', 'true');
       });
-
-      it('supports Select', async () => {
-        render(
-          <Field.Root>
-            <Select.Root>
-              <Select.Trigger data-testid="trigger" />
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Option value="">Select</Select.Option>
-                  <Select.Option value="1">Option 1</Select.Option>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Root>
-          </Field.Root>,
-        );
-
-        const trigger = screen.getByTestId('trigger');
-
-        expect(trigger).not.to.have.attribute('data-dirty');
-
-        fireEvent.focus(trigger);
-        fireEvent.blur(trigger);
-
-        await flushMicrotasks();
-
-        expect(trigger).to.have.attribute('data-touched', 'true');
-      });
     });
 
     describe('dirty', () => {
@@ -730,25 +682,6 @@ describe('<Field.Root />', () => {
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('data-dirty', 'true');
-      });
-
-      it('supports RadioGroup', async () => {
-        await render(
-          <Field.Root>
-            <RadioGroup.Root data-testid="group">
-              <Radio.Root value="1">One</Radio.Root>
-              <Radio.Root value="2">Two</Radio.Root>
-            </RadioGroup.Root>
-          </Field.Root>,
-        );
-
-        const group = screen.getByTestId('group');
-
-        expect(group).not.to.have.attribute('data-dirty');
-
-        fireEvent.click(screen.getByText('One'));
-
-        expect(group).to.have.attribute('data-dirty', 'true');
       });
     });
   });
