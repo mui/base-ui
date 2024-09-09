@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
 import { useMenuCheckboxItem } from './useMenuCheckboxItem';
+import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -11,7 +12,7 @@ import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuCheckboxItem.OwnerState> = {
-  checked: (value: boolean) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
+  checked: (value: boolean) => ({ 'data-checkboxitem': value ? 'checked' : 'unchecked' }),
 };
 
 const InnerMenuCheckboxItem = React.memo(
@@ -50,7 +51,10 @@ const InnerMenuCheckboxItem = React.memo(
       typingRef,
     });
 
-    const ownerState: MenuCheckboxItem.OwnerState = { disabled, highlighted, checked };
+    const ownerState: MenuCheckboxItem.OwnerState = React.useMemo(
+      () => ({ disabled, highlighted, checked }),
+      [disabled, highlighted, checked],
+    );
 
     const { renderElement } = useComponentRenderer({
       render: render || 'div',
@@ -61,10 +65,23 @@ const InnerMenuCheckboxItem = React.memo(
       extraProps: other,
     });
 
-    return renderElement();
+    return (
+      <MenuCheckboxItemContext.Provider value={ownerState}>
+        {renderElement()}
+      </MenuCheckboxItemContext.Provider>
+    );
   }),
 );
-
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuCheckboxItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuCheckboxItem)
+ */
 const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,

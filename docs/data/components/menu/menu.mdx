@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuCheckboxItem
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuCheckboxItem, MenuCheckboxItemIndicator
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -30,6 +30,7 @@ Menus are implemented using a collection of related components:
 - `<Menu.Item />` is the menu item.
 - `<Menu.Arrow />` renders an optional pointing arrow, placed inside the popup.
 - `<Menu.SubmenuTrigger />` is a menu item that opens a submenu. See [Nested menu](#nested-menu) for more details.
+- `<Menu.CheckboxItem />` is a menu item that acts as a checkbox. See [Checkbox items](#checkbox-items) for more details.
 
 ```tsx
 <Menu.Root>
@@ -157,7 +158,9 @@ To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox ite
 <Menu.Root>
   <Menu.Positioner keepMounted>
     <Menu.Popup>
-      <Menu.CheckboxItem defaultChecked>Item 1</Menu.CheckboxItem>
+      <Menu.CheckboxItem defaultChecked>
+        <Menu.CheckboxItemIndicator /> Item 1
+      </Menu.CheckboxItem>
     </Menu.Popup>
   </Menu.Positioner>
 </Menu.Root>

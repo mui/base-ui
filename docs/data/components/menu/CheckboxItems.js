@@ -20,8 +20,14 @@ export default function CheckboxItems() {
           <MenuItem onClick={createHandleMenuClick('Language settings')}>
             Language settings
           </MenuItem>
-          <CheckboxItem>Mute notifications</CheckboxItem>
-          <CheckboxItem defaultChecked>Enable preview features</CheckboxItem>
+          <CheckboxItem>
+            <Indicator />
+            Mute notifications
+          </CheckboxItem>
+          <CheckboxItem defaultChecked>
+            <Indicator />
+            Enable preview features
+          </CheckboxItem>
           <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
         </MenuPopup>
       </MenuPositioner>
@@ -128,15 +134,25 @@ const CheckboxItem = styled(Menu.CheckboxItem)(
   &[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
+  `,
+);
 
-  &::before {
-    content: '☐';
-    display: inline-block;
-    margin-right: 8px;
-  }
+const Indicator = styled(Menu.CheckboxItemIndicator)(
+  ({ theme }) => `
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid;
+  vertical-align: baseline;
+  margin-right: 8px;
+  border-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[700]};
+  box-sizing: border-box;
+  border-radius: 2px;
 
-  &[data-state=checked]::before {
-    content: '▣';
+
+  &[data-checkboxitem=checked] {
+    background: ${theme.palette.mode === 'dark' ? grey[800] : grey[700]};
+    box-shadow: 0 0 0 2px ${theme.palette.mode === 'dark' ? grey[900] : '#fff'} inset;
   }
   `,
 );
