@@ -5,7 +5,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Menu.CheckboxItemIndicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Menu.Arrow />, () => ({
+  describeConformance(<Menu.CheckboxItemIndicator />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(

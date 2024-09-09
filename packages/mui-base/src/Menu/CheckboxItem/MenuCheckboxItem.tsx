@@ -116,11 +116,17 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
+// ESLint reporting false positives here
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
+  // eslint-disable-next-line react/no-unused-prop-types
   highlighted: boolean;
+  // eslint-disable-next-line react/no-unused-prop-types
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  // eslint-disable-next-line react/no-unused-prop-types
   menuEvents: FloatingEvents;
+  // eslint-disable-next-line react/no-unused-prop-types
   treatMouseupAsClick: boolean;
+  // eslint-disable-next-line react/no-unused-prop-types
   typingRef: React.RefObject<boolean>;
 }
 

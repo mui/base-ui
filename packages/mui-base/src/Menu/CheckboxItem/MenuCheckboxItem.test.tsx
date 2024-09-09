@@ -101,11 +101,11 @@ describe('<Menu.CheckboxItem />', () => {
     // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
     await waitFor(() => {
-      expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+      expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
     });
 
     await waitFor(() => {
-      expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+      expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
     });
 
     // neither the highlighted nor the selected state of these options changed,
@@ -138,7 +138,7 @@ describe('<Menu.CheckboxItem />', () => {
 
         const item = getByRole('menuitemcheckbox');
         expect(item).to.have.attribute('aria-checked', ariaChecked);
-        expect(item).to.have.attribute('data-state', dataState);
+        expect(item).to.have.attribute('data-checkboxitem', dataState);
       }),
     );
 
@@ -161,12 +161,12 @@ describe('<Menu.CheckboxItem />', () => {
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'true');
-      expect(item).to.have.attribute('data-state', 'checked');
+      expect(item).to.have.attribute('data-checkboxitem', 'checked');
 
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'false');
-      expect(item).to.have.attribute('data-state', 'unchecked');
+      expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
     });
 
     ['Space', 'Enter'].forEach((key) => {
@@ -194,10 +194,10 @@ describe('<Menu.CheckboxItem />', () => {
         });
 
         await user.keyboard(`[${key}]`);
-        expect(item).to.have.attribute('data-state', 'checked');
+        expect(item).to.have.attribute('data-checkboxitem', 'checked');
 
         await user.keyboard(`[${key}]`);
-        expect(item).to.have.attribute('data-state', 'unchecked');
+        expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
       });
     });
 
@@ -253,7 +253,7 @@ describe('<Menu.CheckboxItem />', () => {
 
       const itemAfterReopen = getByRole('menuitemcheckbox');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
-      expect(itemAfterReopen).to.have.attribute('data-state', 'checked');
+      expect(itemAfterReopen).to.have.attribute('data-checkboxitem', 'checked');
     });
   });
 
