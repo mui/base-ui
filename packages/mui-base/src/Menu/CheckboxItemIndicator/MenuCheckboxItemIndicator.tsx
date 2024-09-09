@@ -9,6 +9,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 const customStyleHookMapping: CustomStyleHookMapping<MenuCheckboxItem.OwnerState> = {
   checked: (value: boolean) => ({ 'data-checkboxitem': value ? 'checked' : 'unchecked' }),
 };
+
 /**
  *
  * Demos:
@@ -23,7 +24,7 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
   props: MenuCheckboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, keepMounted = true, ...other } = props;
 
   const ownerState = useMenuCheckboxItemContext();
 
@@ -35,6 +36,10 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
     extraProps: other,
     ref: forwardedRef,
   });
+
+  if (!keepMounted && !ownerState.checked) {
+    return null;
+  }
 
   return renderElement();
 });
@@ -53,13 +58,26 @@ MenuCheckboxItemIndicator.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * If `true`, the component is mounted even if the checkbox is not checked.
+   *
+   * @default true
+   */
+  keepMounted: PropTypes.bool,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 namespace MenuCheckboxItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+    /**
+     * If `true`, the component is mounted even if the checkbox is not checked.
+     *
+     * @default true
+     */
+    keepMounted?: boolean;
+  }
 
   export interface OwnerState {
     checked: boolean;
