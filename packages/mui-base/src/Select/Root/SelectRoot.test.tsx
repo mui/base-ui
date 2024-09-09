@@ -200,7 +200,7 @@ describe('<Select.Root />', () => {
 
       const { rerender } = await render(<ControlledSelect open={false} />);
 
-      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      expect(screen.queryByRole('listbox')).to.equal(null);
 
       rerender(<ControlledSelect open />);
 
