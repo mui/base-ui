@@ -4,37 +4,46 @@ import { getHeaders, getTitle } from '@mui/internal-markdown';
 import {
   ComponentInfo,
   extractPackageFile,
-  fixPathname,
-  getApiPath,
   parseFile,
 } from '@mui-internal/api-docs-builder/buildApiUtils';
 import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
 
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 
+function getDemosPath(pagePath: string) {
+  return `${pagePath.replace('/components/', '/components/react-')}/`;
+}
+
+const allMarkdowns = findPagesMarkdown(path.join(REPO_ROOT, 'docs/data/components')).map(
+  (markdown) => {
+    const markdownContent = fs.readFileSync(markdown.filename, 'utf8');
+    const markdownHeaders = getHeaders(markdownContent) as any;
+
+    return {
+      ...markdown,
+      markdownContent,
+      components: markdownHeaders.components as string[],
+    };
+  },
+);
+
 export function getBaseUiDemos(name: string) {
-  // resolve demos, so that we can getch the API url
-  const allMarkdowns = findPagesMarkdown(path.join(REPO_ROOT, 'docs/data'))
-    .filter((markdown) => {
-      return markdown.filename.match(/[\\/]data[\\/]base[\\/]/);
-    })
-    .map((markdown) => {
-      const markdownContent = fs.readFileSync(markdown.filename, 'utf8');
-      const markdownHeaders = getHeaders(markdownContent) as any;
-
-      return {
-        ...markdown,
-        markdownContent,
-        components: markdownHeaders.components as string[],
-      };
-    });
-
   return allMarkdowns
     .filter((page) => page.components.includes(name))
     .map((page) => ({
       demoPageTitle: getTitle(page.markdownContent),
-      demoPathname: fixPathname(page.pathname),
+      demoPathname: getDemosPath(page.pathname),
     }));
+}
+
+function getApiPath(demos: Array<{ demoPageTitle: string; demoPathname: string }>, name: string) {
+  let apiPath = null;
+
+  if (demos && demos.length > 0) {
+    apiPath = `${demos[0].demoPathname}#api-reference-${name}`;
+  }
+
+  return apiPath;
 }
 
 export function getBaseUiComponentInfo(filename: string): ComponentInfo {
@@ -45,14 +54,13 @@ export function getBaseUiComponentInfo(filename: string): ComponentInfo {
   }
 
   const demos = getBaseUiDemos(name);
-  const apiPath = getApiPath(demos, name) || '';
 
   return {
     filename,
     name,
     muiName: name,
-    apiPathname: apiPath,
-    apiPagesDirectory: path.join(process.cwd(), `docs/pages/base-ui/api`),
+    apiPathname: getApiPath(demos, name) ?? '',
+    apiPagesDirectory: path.join(process.cwd(), `docs/data/api`),
     isSystemComponent: false,
     readFile: () => {
       srcInfo = parseFile(filename);

@@ -9,7 +9,7 @@
  * List of demos or folders to ignore when transpiling.
  * Only ignore files that aren't used in the UI.
  */
-const ignoreList = ['/pages.ts', 'docs/data/joy/getting-started/templates'];
+const ignoreList = ['/pages.ts'];
 
 const path = require('path');
 const fse = require('fs-extra');
@@ -134,26 +134,16 @@ async function transpileFile(tsxPath, project) {
 }
 
 async function main(argv) {
-  const { watch: watchMode, disableCache, pattern } = argv;
-
-  // TODO: Remove at some point.
-  // Though not too soon so that it isn't disruptive.
-  // It's a no-op anyway.
-  if (disableCache !== undefined) {
-    console.warn(
-      '--disable-cache does not have any effect since it is the default. In the future passing this flag will throw.',
-    );
-  }
+  const { watch: watchMode, pattern } = argv;
 
   const filePattern = new RegExp(pattern);
   if (pattern.length > 0) {
     console.log(`Only considering demos matching ${filePattern}`);
   }
 
-  const tsxFiles = [
-    ...(await getFiles(path.join(workspaceRoot, 'docs/src/pages'))), // old structure
-    ...(await getFiles(path.join(workspaceRoot, 'docs/data'))), // new structure
-  ].filter((fileName) => filePattern.test(fileName));
+  const tsxFiles = (await getFiles(path.join(workspaceRoot, 'docs/data'))).filter((fileName) =>
+    filePattern.test(fileName),
+  );
 
   const buildProject = createTypeScriptProjectBuilder(CORE_TYPESCRIPT_PROJECTS);
   const project = buildProject('docs', { files: tsxFiles });
@@ -219,10 +209,6 @@ yargs
         .option('watch', {
           default: false,
           description: 'transpiles demos as soon as they changed',
-          type: 'boolean',
-        })
-        .option('disable-cache', {
-          description: 'No longer supported. The cache is disabled by default.',
           type: 'boolean',
         })
         .option('pattern', {

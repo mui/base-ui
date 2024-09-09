@@ -19,13 +19,6 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 
-/**
- * Manages the root state for a tooltip.
- *
- * API:
- *
- * - [useTooltipRoot API](https://mui.com/base-ui/api/use-tooltip-root/)
- */
 export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRootReturnValue {
   const {
     open: externalOpen,

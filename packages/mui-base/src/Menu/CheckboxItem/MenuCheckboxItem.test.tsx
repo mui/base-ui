@@ -29,6 +29,7 @@ const testRootContext: MenuRootContext = {
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
+  typingRef: { current: false },
 };
 
 describe('<Menu.CheckboxItem />', () => {
@@ -101,6 +102,9 @@ describe('<Menu.CheckboxItem />', () => {
 
     await waitFor(() => {
       expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+    });
+
+    await waitFor(() => {
       expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
     });
 

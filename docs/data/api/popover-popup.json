@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "PopoverPopup",
+  "imports": [
+    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverPopup = Popover.Popup;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "PopoverPopup",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Popover/Popup/PopoverPopup.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
+  "cssComponent": false
+}

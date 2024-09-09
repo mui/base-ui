@@ -1,0 +1,10 @@
+.root {
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: var(--space-9);
+
+  & > a {
+    font-family: var(--ff-sans);
+    font-size: var(--fs-3);
+  }
+}

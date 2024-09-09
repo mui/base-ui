@@ -18,16 +18,6 @@ export interface TabMetadata {
 
 type IdLookupFunction = (id: any) => string | undefined;
 
-/**
- *
- * Demos:
- *
- * - [Tabs](https://mui.com/base-ui/react-tabs/#hooks)
- *
- * API:
- *
- * - [useTabsRoot API](https://mui.com/base-ui/react-tabs/hooks-api/#use-tabs-root)
- */
 function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
   const {
     value: valueProp,

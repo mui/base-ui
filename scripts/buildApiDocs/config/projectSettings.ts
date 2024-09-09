@@ -1,16 +1,13 @@
 import path from 'path';
-import { LANGUAGES } from 'docs/config';
 import { ProjectSettings } from '@mui-internal/api-docs-builder';
 import findApiPages from '@mui-internal/api-docs-builder/utils/findApiPages';
 import { getBaseUiComponentInfo } from './getBaseUiComponentInfo';
-import { getBaseUiHookInfo } from './getBaseUiHookInfo';
-import { generateBaseUIApiPages } from './generateBaseUiApiPages';
-import { generateApiLinks } from './generateApiLinks';
 import { getComponentImports } from './getComponentImports';
 
 export const projectSettings: ProjectSettings = {
   output: {
-    apiManifestPath: path.join(process.cwd(), 'docs/data/base/pagesApi.js'),
+    apiManifestPath: path.join(process.cwd(), 'docs/data/pagesApi.js'),
+    writeApiManifest: false,
   },
   typeScriptProjects: [
     {
@@ -20,28 +17,18 @@ export const projectSettings: ProjectSettings = {
       tsConfigPath: 'tsconfig.build.json',
     },
   ],
-  getApiPages: () => findApiPages('docs/pages/base-ui/api'),
+  // TODO: Update when we have the domain set up
+  baseApiUrl: 'https://base-ui.netlify.app',
+  getApiPages: () => findApiPages('docs/data/api'),
   getComponentInfo: getBaseUiComponentInfo,
   getComponentImports,
-  getHookInfo: getBaseUiHookInfo,
-  getHookImports: getComponentImports,
-  translationLanguages: LANGUAGES,
+  translationLanguages: ['en'],
   skipComponent: () => false,
-  onCompleted: async () => {
-    await generateBaseUIApiPages();
-  },
-  onWritingManifestFile(builds, source) {
-    const apiLinks = generateApiLinks(builds);
-    if (apiLinks.length > 0) {
-      return `module.exports = ${JSON.stringify(apiLinks)}`;
-    }
-
-    return source;
-  },
-  skipAnnotatingComponentDefinition: true,
+  skipHook: () => true,
+  skipAnnotatingComponentDefinition: false,
   skipSlotsAndClasses: true,
   generateJsonFileOnly: true,
-  translationPagesDirectory: 'docs/translations/api-docs',
+  translationPagesDirectory: 'docs/data/translations/api-docs',
   generateClassName: () => '',
   isGlobalClassName: () => false,
 };

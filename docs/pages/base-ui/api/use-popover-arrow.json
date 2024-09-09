@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePopoverArrow",
-  "filename": "/packages/mui-base/src/Popover/Arrow/usePopoverArrow.ts",
-  "imports": ["import { usePopoverArrow } from '@base_ui/react/Popover';"],
-  "demos": "<ul></ul>"
-}

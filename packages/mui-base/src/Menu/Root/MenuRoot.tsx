@@ -5,6 +5,16 @@ import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuRoot API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRoot)
+ */
 function MenuRoot(props: MenuRoot.Props) {
   const {
     animated = true,
@@ -25,6 +35,11 @@ function MenuRoot(props: MenuRoot.Props) {
   const nested = parentContext != null;
 
   const openOnHover = openOnHoverProp ?? nested;
+  const typingRef = React.useRef(false);
+
+  const onTypingChange = React.useCallback((nextTyping: boolean) => {
+    typingRef.current = nextTyping;
+  }, []);
 
   const menuRoot = useMenuRoot({
     animated,
@@ -39,6 +54,7 @@ function MenuRoot(props: MenuRoot.Props) {
     nested,
     openOnHover,
     delay,
+    onTypingChange,
   });
 
   const [localClickAndDragEnabled, setLocalClickAndDragEnabled] = React.useState(false);
@@ -58,6 +74,7 @@ function MenuRoot(props: MenuRoot.Props) {
       disabled,
       clickAndDragEnabled,
       setClickAndDragEnabled,
+      typingRef,
     }),
     [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled],
   );
@@ -139,8 +156,7 @@ namespace MenuRoot {
     delay?: number;
     /**
      * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-     *
-     * @default nested
+     * By default, `openOnHover` is set to `true` for nested menus.
      */
     openOnHover?: boolean;
   }
@@ -211,8 +227,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   open: PropTypes.bool,
   /**
    * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-   *
-   * @default nested
+   * By default, `openOnHover` is set to `true` for nested menus.
    */
   openOnHover: PropTypes.bool,
   /**

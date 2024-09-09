@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePopoverDescription",
-  "filename": "/packages/mui-base/src/Popover/Description/usePopoverDescription.ts",
-  "imports": ["import { usePopoverDescription } from '@base_ui/react/Popover';"],
-  "demos": "<ul></ul>"
-}

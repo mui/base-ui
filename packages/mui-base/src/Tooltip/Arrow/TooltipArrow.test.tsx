@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
-import { createRenderer } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tooltip.Arrow />', () => {
   const { render } = createRenderer();

@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "NumberFieldGroup",
+  "imports": [
+    "import * as NumberField from '@base_ui/react/NumberField';\nconst NumberFieldGroup = NumberField.Group;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "NumberFieldGroup",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/NumberField/Group/NumberFieldGroup.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
+  "cssComponent": false
+}

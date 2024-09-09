@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 async function wait(timeout: number) {
   return new Promise<void>((resolve) => {
@@ -16,9 +15,8 @@ describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.Indicator />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
-      const { container, ...other } = render(
+      return render(
         <Tabs.Root defaultValue={1}>
           <Tabs.List>
             <Tabs.Tab value={1} />
@@ -26,8 +24,6 @@ describe('<Tabs.Indicator />', () => {
           </Tabs.List>
         </Tabs.Root>,
       );
-
-      return { container, ...other };
     },
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'div',
@@ -40,8 +36,8 @@ describe('<Tabs.Indicator />', () => {
       }
     });
 
-    it('should not render when no tab is selected', () => {
-      const { queryByTestId } = render(
+    it('should not render when no tab is selected', async () => {
+      const { queryByTestId } = await render(
         <Tabs.Root value={null}>
           <Tabs.List>
             <Tabs.Indicator data-testid="bubble" />
@@ -93,8 +89,8 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualBottom, relativeBottom);
     }
 
-    it('should set CSS variables corresponding to the active tab', () => {
-      const { getByTestId, getByRole, getAllByRole } = render(
+    it('should set CSS variables corresponding to the active tab', async () => {
+      const { getByTestId, getByRole, getAllByRole } = await render(
         <Tabs.Root value={2}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
@@ -113,8 +109,8 @@ describe('<Tabs.Indicator />', () => {
       assertBubblePositionVariables(bubble, tabList, activeTab);
     });
 
-    it('should update the position and movement variables when the active tab changes', () => {
-      const { getByTestId, getByRole, getAllByRole, setProps } = render(
+    it('should update the position and movement variables when the active tab changes', async () => {
+      const { getByTestId, getByRole, getAllByRole, setProps } = await render(
         <Tabs.Root value={2}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
@@ -140,7 +136,7 @@ describe('<Tabs.Indicator />', () => {
     });
 
     it('should update the position variables when the tab list is resized', async () => {
-      const { getByTestId, getByRole, getAllByRole, setProps } = render(
+      const { getByTestId, getByRole, getAllByRole, setProps } = await render(
         <Tabs.Root value={1} style={{ width: '400px' }}>
           <Tabs.List style={{ display: 'flex' }}>
             <Tabs.Tab value={1} style={{ flex: '1 1 auto' }}>

@@ -32,6 +32,7 @@ const InnerMenuCheckboxItem = React.memo(
       propGetter,
       render,
       treatMouseupAsClick,
+      typingRef,
       ...other
     } = props;
 
@@ -46,6 +47,7 @@ const InnerMenuCheckboxItem = React.memo(
       checked: checkedProp,
       defaultChecked,
       onCheckedChange,
+      typingRef,
     });
 
     const ownerState: MenuCheckboxItem.OwnerState = { disabled, highlighted, checked };
@@ -63,17 +65,6 @@ const InnerMenuCheckboxItem = React.memo(
   }),
 );
 
-/**
- * An unstyled menu item to be used within a Menu.
- *
- * Demos:
- *
- * - [Menu](https://mui.com/base-ui/react-menu/)
- *
- * API:
- *
- * - [MenuItem API](https://mui.com/base-ui/react-menu/components-api/#menu-item)
- */
 const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
@@ -84,7 +75,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled } = useMenuRootContext();
+  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -103,6 +94,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       menuEvents={menuEvents}
       propGetter={getItemProps}
       treatMouseupAsClick={clickAndDragEnabled}
+      typingRef={typingRef}
     />
   );
 });
@@ -112,6 +104,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
   treatMouseupAsClick: boolean;
+  typingRef: React.RefObject<boolean>;
 }
 
 namespace MenuCheckboxItem {

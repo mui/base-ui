@@ -1,9 +1,0 @@
-{
-  "hookDescription": "",
-  "parametersDescriptions": {
-    "subitems": {
-      "description": "A map containing all the Thumb components registered to the slider"
-    }
-  },
-  "returnValueDescriptions": {}
-}

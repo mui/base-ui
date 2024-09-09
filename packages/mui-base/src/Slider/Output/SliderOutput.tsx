@@ -7,6 +7,16 @@ import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderOutputProps } from './SliderOutput.types';
 import { useSliderOutput } from './useSliderOutput';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderOutput API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderOutput)
+ */
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutputProps,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,

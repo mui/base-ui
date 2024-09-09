@@ -6,12 +6,6 @@ import type {
   UseTooltipPopupReturnValue,
 } from './useTooltipPopup.types';
 
-/**
- *
- * API:
- *
- * - [useTooltipPopup API](https://mui.com/base-ui/api/use-tooltip-popup/)
- */
 export function useTooltipPopup(params: UseTooltipPopupParameters): UseTooltipPopupReturnValue {
   const { getProps } = params;
 

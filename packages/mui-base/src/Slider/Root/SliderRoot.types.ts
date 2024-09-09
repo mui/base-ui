@@ -1,5 +1,6 @@
 import type { BaseUIComponentProps } from '../../utils/types';
-import { CompoundComponentContextValue } from '../../useCompound';
+import type { CompoundComponentContextValue } from '../../useCompound';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 export interface SliderThumbMetadata {
   inputId: string;
@@ -22,7 +23,7 @@ export type SliderDirection = 'ltr' | 'rtl';
 
 export type SliderOrientation = 'horizontal' | 'vertical';
 
-export interface SliderRootOwnerState {
+export interface SliderRootOwnerState extends FieldRootOwnerState {
   /**
    * The index of the active thumb.
    */
@@ -70,7 +71,6 @@ export interface SliderRootProps
    */
   defaultValue?: number | ReadonlyArray<number>;
   /**
-  /**
    * If `true`, the component is disabled.
    * @default false
    */
@@ -83,6 +83,10 @@ export interface SliderRootProps
 }
 
 export interface UseSliderParameters {
+  /**
+   * The id of the slider element.
+   */
+  id?: string;
   /**
    * The id of the element containing a label for the slider.
    */

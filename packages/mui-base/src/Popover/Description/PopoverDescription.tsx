@@ -11,11 +11,11 @@ import { usePopoverDescription } from './usePopoverDescription';
  *
  * Demos:
  *
- * - [Popover](https://mui.com/base-ui/react-popover/)
+ * - [Popover](https://base-ui.netlify.app/components/react-popover/)
  *
  * API:
  *
- * - [PopoverDescription API](https://mui.com/base-ui/react-popover/components-api/#popover-description)
+ * - [PopoverDescription API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverDescription)
  */
 const PopoverDescription = React.forwardRef(function PopoverDescription(
   props: PopoverDescriptionProps,

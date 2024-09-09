@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "usePreviewCardRoot",
-  "filename": "/packages/mui-base/src/PreviewCard/Root/usePreviewCardRoot.ts",
-  "imports": ["import { usePreviewCardRoot } from '@base_ui/react/PreviewCard';"],
-  "demos": "<ul></ul>"
-}

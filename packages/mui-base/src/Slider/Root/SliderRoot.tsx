@@ -6,7 +6,18 @@ import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderProvider } from './SliderProvider';
 import { SliderRootProps, SliderRootOwnerState } from './SliderRoot.types';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderRoot API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderRoot)
+ */
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRootProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -16,7 +27,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     className,
     defaultValue,
     direction = 'ltr',
-    disabled = false,
+    disabled: disabledProp = false,
     largeStep,
     render,
     minStepsBetweenValues,
@@ -27,8 +38,11 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps
   } = props;
 
+  const { labelId, ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const disabled = fieldDisabled || disabledProp;
+
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': ariaLabelledby,
+    'aria-labelledby': ariaLabelledby ?? labelId,
     defaultValue,
     disabled,
     direction,
@@ -44,6 +58,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
 
   const ownerState: SliderRootOwnerState = React.useMemo(
     () => ({
+      ...fieldOwnerState,
       activeThumbIndex: slider.active,
       direction,
       disabled,
@@ -56,6 +71,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       values: slider.values,
     }),
     [
+      fieldOwnerState,
       direction,
       disabled,
       orientation,
@@ -116,11 +132,14 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
-   * /**
    * If `true`, the component is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The id of the slider element.
+   */
+  id: PropTypes.string,
   /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10

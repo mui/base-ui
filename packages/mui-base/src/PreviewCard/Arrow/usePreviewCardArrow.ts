@@ -6,12 +6,6 @@ import type {
   UsePreviewCardArrowReturnValue,
 } from './usePreviewCardArrow.types';
 
-/**
- *
- * API:
- *
- * - [usePreviewCardArrow API](https://mui.com/base-ui/api/use-preview-card-arrow/)
- */
 export function usePreviewCardArrow(
   params: UsePreviewCardArrowParameters,
 ): UsePreviewCardArrowReturnValue {
