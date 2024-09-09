@@ -185,7 +185,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   });
 
   const innerOffsetInteractionProps = useInnerOffset(floatingRootContext, {
-    enabled: alignMethod && !innerFallback,
+    enabled: alignMethod === 'item' && !innerFallback,
     onChange: setInnerOffset,
     scrollRef: popupRef,
     overflowRef,
