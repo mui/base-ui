@@ -6,11 +6,11 @@ import { css, styled } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 
-export default function SelectSimple() {
+export default function SelectEmpty() {
   return (
-    <Select.Root defaultValue="system">
+    <Select.Root>
       <SelectTrigger aria-label="Select font">
-        <Select.Value placeholder="System font" />
+        <Select.Value placeholder="Select font..." />
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Backdrop />
@@ -21,6 +21,10 @@ export default function SelectSimple() {
           </div>
         </SelectScrollUpArrow>
         <SelectPopup>
+          <SelectOption value="">
+            <SelectOptionIndicator render={<Check />} />
+            <Select.OptionText>Select font...</Select.OptionText>
+          </SelectOption>
           <SelectOption value="system">
             <SelectOptionIndicator render={<Check />} />
             <Select.OptionText>System font</Select.OptionText>

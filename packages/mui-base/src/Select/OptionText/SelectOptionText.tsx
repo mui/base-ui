@@ -24,22 +24,18 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, triggerElement, valueRef, popupRef, touchModality, innerFallback } =
-    useSelectRootContext();
+  const { open, triggerElement, valueRef, popupRef, innerFallback } = useSelectRootContext();
   const { isPositioned, setOptionTextOffset } = useSelectPositionerContext();
   const { selected } = useSelectOptionContext();
 
-  const inert = touchModality || innerFallback;
-
   const textRef = React.useRef<HTMLDivElement>(null);
-
   const mergedRef = useForkRef(forwardedRef, textRef);
 
   const ownerState: SelectOptionText.OwnerState = React.useMemo(() => ({}), []);
 
   useEnhancedEffect(() => {
     if (
-      inert ||
+      innerFallback ||
       !open ||
       !isPositioned ||
       !selected ||
@@ -61,7 +57,7 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 
     setOptionTextOffset(triggerDiff - popupDiff);
   }, [
-    inert,
+    innerFallback,
     open,
     isPositioned,
     popupRef,

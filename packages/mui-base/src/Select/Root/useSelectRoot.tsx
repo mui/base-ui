@@ -60,7 +60,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const typingRef = React.useRef(false);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
-  const valuesRef = React.useRef<Array<string | null>>([]);
+  const valuesRef = React.useRef<Array<unknown>>([]);
   const selectionRef = React.useRef({ allowMouseUp: false, allowSelect: false });
   const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
   const valueRef = React.useRef<HTMLSpanElement>(null);
@@ -304,16 +304,16 @@ export namespace useSelectRoot {
     /**
      * The value of the Select. Use when controlled.
      */
-    value?: string;
+    value?: unknown;
     /**
      * Callback fired when the value of the Select changes. Use when controlled.
      */
-    onValueChange?: (value: string, event?: Event) => void;
+    onValueChange?: (value: unknown, event?: Event) => void;
     /**
      * The default value of the Select.
      * @default ''
      */
-    defaultValue?: string;
+    defaultValue?: unknown;
     /**
      * Determines if the select should align to the selected item inside the popup or the trigger
      * element.
@@ -323,8 +323,8 @@ export namespace useSelectRoot {
   }
 
   export interface ReturnValue extends useFieldControlValidation.ReturnValue {
-    value: string;
-    setValue: (value: string, event?: Event) => void;
+    value: unknown;
+    setValue: (value: unknown, event?: Event) => void;
     label: string;
     setLabel: React.Dispatch<React.SetStateAction<string>>;
     activeIndex: number | null;
@@ -336,8 +336,8 @@ export namespace useSelectRoot {
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     elementsRef: React.MutableRefObject<(HTMLElement | null)[]>;
-    labelsRef: React.MutableRefObject<(string | null)[]>;
-    valuesRef: React.MutableRefObject<(string | null)[]>;
+    labelsRef: React.MutableRefObject<Array<string | null>>;
+    valuesRef: React.MutableRefObject<Array<unknown>>;
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;

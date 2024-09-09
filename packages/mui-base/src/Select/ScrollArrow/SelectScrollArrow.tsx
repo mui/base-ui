@@ -22,12 +22,12 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     useSelectRootContext();
   const { isPositioned, side } = useSelectPositionerContext();
 
-  const [rendered, setRendered] = React.useState(false);
+  const [visible, setVisible] = React.useState(false);
 
   const inert = alignMethod === 'trigger' || touchModality;
 
-  if (rendered && inert) {
-    setRendered(false);
+  if (visible && inert) {
+    setVisible(false);
   }
 
   const frameRef = React.useRef(-1);
@@ -35,10 +35,10 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const ownerState: SelectScrollArrow.OwnerState = React.useMemo(
     () => ({
       direction,
-      rendered,
+      visible,
       side,
     }),
-    [direction, rendered, side],
+    [direction, visible, side],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -58,7 +58,8 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           let prevNow = Date.now();
 
           function handleFrame() {
-            if (!popupRef.current) {
+            const popupElement = popupRef.current;
+            if (!popupElement) {
               return;
             }
 
@@ -66,23 +67,22 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             const msElapsed = currentNow - prevNow;
             prevNow = currentNow;
 
-            const pixelsToScroll = Math.floor(
-              Math.min(
-                msElapsed / 2,
-                popupRef.current.scrollHeight - popupRef.current.clientHeight,
-              ) || 1,
-            );
+            const pixelsLeftToScroll =
+              direction === 'up'
+                ? popupElement.scrollTop
+                : popupElement.scrollHeight - popupElement.clientHeight - popupElement.scrollTop;
+            const pixelsToScroll = Math.min(pixelsLeftToScroll, msElapsed / 2);
 
-            const isScrolledToTop = popupRef.current.scrollTop === 0;
+            const isScrolledToTop = popupElement.scrollTop === 0;
             const isScrolledToBottom =
-              Math.ceil(popupRef.current.scrollTop + popupRef.current.clientHeight) >=
-              popupRef.current.scrollHeight;
+              Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
+              popupElement.scrollHeight;
 
             if (msElapsed > 0) {
               if (direction === 'up') {
-                setRendered(!isScrolledToTop);
+                setVisible(!isScrolledToTop);
               } else if (direction === 'down') {
-                setRendered(!isScrolledToBottom);
+                setVisible(!isScrolledToBottom);
               }
 
               if (
@@ -114,19 +114,19 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     [direction, innerFallback, popupRef, setInnerOffset, inert],
   );
 
-  const handleScrollArrowRendered = useEventCallback(() => {
+  const handleScrollArrowVisible = useEventCallback(() => {
     const popupElement = popupRef.current;
     if (!popupElement) {
       return;
     }
 
     if (direction === 'up') {
-      setRendered(popupElement.scrollTop > 1);
+      setVisible(popupElement.scrollTop > 1);
     } else if (direction === 'down') {
       const isScrolledToBottom =
         Math.ceil(popupElement.scrollTop + popupElement.clientHeight) >=
         popupElement.scrollHeight - 1;
-      setRendered(!isScrolledToBottom);
+      setVisible(!isScrolledToBottom);
     }
   });
 
@@ -138,24 +138,24 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
     const win = ownerWindow(popupElement);
 
-    popupElement.addEventListener('wheel', handleScrollArrowRendered);
-    popupElement.addEventListener('scroll', handleScrollArrowRendered);
-    win.addEventListener('resize', handleScrollArrowRendered);
+    popupElement.addEventListener('wheel', handleScrollArrowVisible);
+    popupElement.addEventListener('scroll', handleScrollArrowVisible);
+    win.addEventListener('resize', handleScrollArrowVisible);
 
     return () => {
-      popupElement.removeEventListener('wheel', handleScrollArrowRendered);
-      popupElement.removeEventListener('scroll', handleScrollArrowRendered);
-      win.removeEventListener('resize', handleScrollArrowRendered);
+      popupElement.removeEventListener('wheel', handleScrollArrowVisible);
+      popupElement.removeEventListener('scroll', handleScrollArrowVisible);
+      win.removeEventListener('resize', handleScrollArrowVisible);
     };
-  }, [inert, popupRef, direction, handleScrollArrowRendered]);
+  }, [inert, popupRef, direction, handleScrollArrowVisible]);
 
   useEnhancedEffect(() => {
     if (!isPositioned || inert) {
       return;
     }
 
-    handleScrollArrowRendered();
-  }, [isPositioned, innerOffset, inert, handleScrollArrowRendered]);
+    handleScrollArrowVisible();
+  }, [isPositioned, side, innerOffset, inert, handleScrollArrowVisible]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,
@@ -166,7 +166,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     extraProps: otherProps,
   });
 
-  const shouldRender = rendered || keepMounted;
+  const shouldRender = visible || keepMounted;
   if (!shouldRender) {
     return null;
   }
@@ -178,7 +178,7 @@ namespace SelectScrollArrow {
   export interface OwnerState {
     direction: 'up' | 'down';
     side: 'top' | 'right' | 'bottom' | 'left' | 'none';
-    rendered: boolean;
+    visible: boolean;
   }
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     direction: 'up' | 'down';

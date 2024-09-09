@@ -34,6 +34,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
+        children: '✔️',
       }),
     [],
   );

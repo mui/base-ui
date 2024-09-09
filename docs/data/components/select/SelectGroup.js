@@ -6,11 +6,32 @@ import { css, styled } from '@mui/system';
 import Check from '@mui/icons-material/Check';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 
-export default function SelectSimple() {
+function createOptions(items) {
+  return items.map((item) => ({
+    value: item,
+    label: item[0].toUpperCase() + item.slice(1),
+  }));
+}
+
+const data = {
+  Fruits: createOptions(['apple', 'banana', 'orange', 'pear', 'grape', 'pineapple']),
+  Vegetables: createOptions([
+    'carrot',
+    'lettuce',
+    'broccoli',
+    'cauliflower',
+    'asparagus',
+    'zucchini',
+  ]),
+};
+
+const entries = Object.entries(data);
+
+export default function SelectGroup() {
   return (
-    <Select.Root defaultValue="system">
-      <SelectTrigger aria-label="Select font">
-        <Select.Value placeholder="System font" />
+    <Select.Root>
+      <SelectTrigger aria-label="Select food">
+        <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Backdrop />
@@ -21,18 +42,28 @@ export default function SelectSimple() {
           </div>
         </SelectScrollUpArrow>
         <SelectPopup>
-          <SelectOption value="system">
+          <SelectOption value="">
             <SelectOptionIndicator render={<Check />} />
-            <Select.OptionText>System font</Select.OptionText>
+            <Select.OptionText>Select food...</Select.OptionText>
           </SelectOption>
-          <SelectOption value="arial">
-            <SelectOptionIndicator render={<Check />} />
-            <Select.OptionText>Arial</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="roboto">
-            <SelectOptionIndicator render={<Check />} />
-            <Select.OptionText>Roboto</Select.OptionText>
-          </SelectOption>
+          {entries.map(([group, items]) => (
+            <React.Fragment key={group}>
+              <SelectSeparator />
+              <Select.OptionGroup key={group}>
+                <SelectOptionGroupLabel>{group}</SelectOptionGroupLabel>
+                {items.map((item) => (
+                  <SelectOption
+                    key={item.value}
+                    value={item.value}
+                    disabled={item.value === 'banana'}
+                  >
+                    <SelectOptionIndicator render={<Check />} />
+                    <Select.OptionText>{item.label}</Select.OptionText>
+                  </SelectOption>
+                ))}
+              </Select.OptionGroup>
+            </React.Fragment>
+          ))}
         </SelectPopup>
         <SelectScrollDownArrow>
           <div>
@@ -43,6 +74,10 @@ export default function SelectSimple() {
     </Select.Root>
   );
 }
+
+const gray = {
+  300: '#e5e7eb',
+};
 
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;
@@ -117,6 +152,14 @@ const SelectOptionIndicator = styled(Select.OptionIndicator)`
   }
 `;
 
+const SelectOptionGroupLabel = styled(Select.OptionGroupLabel)`
+  font-weight: bold;
+  padding: 4px 24px;
+  cursor: default;
+  user-select: none;
+  height: 30px;
+`;
+
 const scrollArrowStyles = css`
   width: 100%;
   height: 15px;
@@ -155,4 +198,10 @@ const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
   &[data-side='none'] {
     bottom: -10px;
   }
+`;
+
+const SelectSeparator = styled(Select.Separator)`
+  height: 1px;
+  background-color: ${gray[300]};
+  margin: 5px 0;
 `;

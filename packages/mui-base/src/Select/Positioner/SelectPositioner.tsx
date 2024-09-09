@@ -1,13 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FloatingFocusManager,
-  FloatingList,
-  FloatingPortal,
-  inner,
-  type Side,
-} from '@floating-ui/react';
+import { FloatingFocusManager, FloatingPortal, inner, type Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { useSelectRootContext } from '../Root/SelectRootContext';
@@ -22,6 +16,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { CompositeList } from '../../Composite/List/CompositeList';
 
 /**
  * Renders the element that positions the Select popup.
@@ -97,7 +92,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const [optionTextOffset, setOptionTextOffset] = React.useState<number | null>(null);
   const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState(selectedIndex);
 
-  if (optionTextOffset !== null && (!mounted || innerFallback || touchModality)) {
+  if (optionTextOffset !== null && (!mounted || innerFallback)) {
     setOptionTextOffset(null);
   }
 
@@ -213,6 +208,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positionerElement = renderElement();
 
+  const stringValue = React.useMemo(
+    () => (typeof value === 'string' ? value : JSON.stringify(value)),
+    [value],
+  );
+
   const mountedItemsElement = keepMounted ? null : <div hidden>{positionerElement}</div>;
   const nativeSelectElement = (
     <select
@@ -243,7 +243,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
         },
       })}
     >
-      <option value={value}>{value}</option>
+      <option value={stringValue}>{stringValue}</option>
     </select>
   );
 
@@ -251,17 +251,17 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   if (!shouldRender) {
     return (
       <SelectPositionerContext.Provider value={contextValue}>
-        <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
+        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
           {nativeSelectElement}
           {mountedItemsElement}
-        </FloatingList>
+        </CompositeList>
       </SelectPositionerContext.Provider>
     );
   }
 
   return (
     <SelectPositionerContext.Provider value={contextValue}>
-      <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
+      <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
         {nativeSelectElement}
         <FloatingPortal root={props.container}>
           <FloatingFocusManager
@@ -272,7 +272,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
             {positionerElement}
           </FloatingFocusManager>
         </FloatingPortal>
-      </FloatingList>
+      </CompositeList>
     </SelectPositionerContext.Provider>
   );
 });

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { UseInteractionsReturn, useListItem } from '@floating-ui/react';
+import type { UseInteractionsReturn } from '@floating-ui/react';
 import { useSelectOption } from './useSelectOption';
 import { SelectRootContext, useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -12,6 +12,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectOptionContext } from './SelectOptionContext';
 import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
 const InnerSelectOption = React.memo(
   React.forwardRef(function InnerSelectOption(
@@ -101,10 +102,8 @@ const SelectOption = React.forwardRef(function SelectOption(
     valuesRef,
   } = useSelectRootContext();
 
-  const [item, setItem] = React.useState<Element | null>(null);
-  const itemLabel = label ?? item?.textContent ?? null;
-  const listItem = useListItem({ label: itemLabel });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, setItem);
+  const listItem = useCompositeListItem({ label });
+  const mergedRef = useForkRef(forwardedRef, listItem.ref);
 
   useEnhancedEffect(() => {
     if (listItem.index === -1) {

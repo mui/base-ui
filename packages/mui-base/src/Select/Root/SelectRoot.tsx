@@ -98,15 +98,15 @@ namespace SelectRoot {
     /**
      * The value of the select.
      */
-    value?: string;
+    value?: unknown;
     /**
      * Callback fired when the value of the select changes. Use when controlled.
      */
-    onValueChange?: (value: string, event?: Event) => void;
+    onValueChange?: (value: unknown, event?: Event) => void;
     /**
      * The default value of the select.
      */
-    defaultValue?: string;
+    defaultValue?: unknown;
     /**
      * If `true`, the Select is initially open.
      *
@@ -167,7 +167,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   /**
    * The default value of the select.
    */
-  defaultValue: PropTypes.string,
+  defaultValue: PropTypes.any,
   /**
    * If `true`, the Select is disabled.
    *
@@ -213,7 +213,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   /**
    * The value of the select.
    */
-  value: PropTypes.string,
+  value: PropTypes.any,
 } as any;
 
 export { SelectRoot };

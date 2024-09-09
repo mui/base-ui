@@ -6,7 +6,7 @@
     },
     "animated": { "type": { "name": "bool" }, "default": "true" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
-    "defaultValue": { "type": { "name": "string" } },
+    "defaultValue": { "type": { "name": "any" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "id": { "type": { "name": "string" } },
     "loop": { "type": { "name": "bool" }, "default": "true" },
@@ -16,7 +16,7 @@
     "open": { "type": { "name": "bool" } },
     "readOnly": { "type": { "name": "bool" }, "default": "false" },
     "required": { "type": { "name": "bool" }, "default": "false" },
-    "value": { "type": { "name": "string" } }
+    "value": { "type": { "name": "any" } }
   },
   "name": "SelectRoot",
   "imports": ["import * as Select from '@base_ui/react/Select';\nconst SelectRoot = Select.Root;"],
