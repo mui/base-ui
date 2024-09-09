@@ -233,8 +233,8 @@ describe('<Field.Root />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('supports RadioGroup', () => {
-        render(
+      it('supports RadioGroup', async () => {
+        await render(
           <Field.Root validate={() => 'error'}>
             <RadioGroup.Root data-testid="group">
               <Radio.Root value="1">One</Radio.Root>
@@ -630,8 +630,8 @@ describe('<Field.Root />', () => {
         expect(root).to.have.attribute('data-dirty', 'true');
       });
 
-      it('supports RadioGroup', () => {
-        render(
+      it('supports RadioGroup', async () => {
+        await render(
           <Field.Root>
             <RadioGroup.Root data-testid="group">
               <Radio.Root value="1">One</Radio.Root>
