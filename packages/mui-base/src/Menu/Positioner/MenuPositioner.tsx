@@ -141,6 +141,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
               modal={false}
               initialFocus={nested ? -1 : 0}
               returnFocus
+              disabled={!mounted}
             >
               {renderElement()}
             </FloatingFocusManager>
