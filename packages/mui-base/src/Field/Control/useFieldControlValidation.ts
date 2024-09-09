@@ -4,9 +4,17 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
+/**
+ *
+ * API:
+ *
+ * - [useFieldControlValidation API](https://mui.com/base-ui/api/use-field-control-validation/)
+ */
 export function useFieldControlValidation() {
   const {
     setValidityData,
@@ -16,10 +24,12 @@ export function useFieldControlValidation() {
     validateOnChange,
     validateDebounceTime,
     invalid,
-    markedDirty,
+    markedDirtyRef,
+    controlId,
+    ownerState,
   } = useFieldRootContext();
 
-  const valid = !invalid && validityData.state.valid;
+  const { formRef } = useFormRootContext();
 
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -37,11 +47,11 @@ export function useFieldControlValidation() {
     }
 
     function getState(el: HTMLInputElement) {
-      const val = validityKeys.reduce(
+      return validityKeys.reduce(
         (acc, key) => {
           acc[key] = el.validity[key];
 
-          if (!el.validity.customError && !markedDirty) {
+          if (!el.validity.customError && !markedDirtyRef.current) {
             acc[key] = key === 'valid';
           }
 
@@ -49,12 +59,6 @@ export function useFieldControlValidation() {
         },
         {} as Record<keyof ValidityState, boolean>,
       );
-
-      if (invalid) {
-        val.valid = false;
-      }
-
-      return val;
     }
 
     window.clearTimeout(timeoutRef.current);
@@ -79,31 +83,43 @@ export function useFieldControlValidation() {
 
     const nextState = getState(element);
 
-    let errors: string[] = [];
+    let validationErrors: string[] = [];
     if (Array.isArray(result)) {
-      errors = result;
+      validationErrors = result;
     } else if (result) {
-      errors = [result];
+      validationErrors = [result];
     } else if (element.validationMessage) {
-      errors = [element.validationMessage];
+      validationErrors = [element.validationMessage];
     }
 
-    setValidityData({
+    const nextValidityData = {
       value,
       state: nextState,
       error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
-      errors,
+      errors: validationErrors,
       initialValue: validityData.initialValue,
-    });
+    };
+
+    if (controlId) {
+      const currentFieldData = formRef.current.fields.get(controlId);
+      if (currentFieldData) {
+        formRef.current.fields.set(controlId, {
+          ...currentFieldData,
+          ...getCombinedFieldValidityData(nextValidityData, invalid),
+        });
+      }
+    }
+
+    setValidityData(nextValidityData);
   });
 
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-        ...(valid === false && { 'aria-invalid': true }),
+        ...(ownerState.valid === false && { 'aria-invalid': true }),
       }),
-    [messageIds, valid],
+    [messageIds, ownerState.valid],
   );
 
   const getInputValidationProps = React.useCallback(

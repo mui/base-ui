@@ -8,10 +8,17 @@ import { useFieldRootContext } from '../Root/FieldRootContext';
 interface UseFieldErrorParameters {
   id: string | undefined;
   rendered: boolean;
+  formError: string | string[] | null;
 }
 
+/**
+ *
+ * API:
+ *
+ * - [useFieldError API](https://mui.com/base-ui/api/use-field-error/)
+ */
 export function useFieldError(params: UseFieldErrorParameters) {
-  const { id: idProp, rendered } = params;
+  const { id: idProp, rendered, formError } = params;
 
   const { setMessageIds, validityData } = useFieldRootContext();
 
@@ -34,7 +41,8 @@ export function useFieldError(params: UseFieldErrorParameters) {
       mergeReactProps<'span'>(externalProps, {
         id,
         children:
-          validityData.errors.length > 1
+          formError ||
+          (validityData.errors.length > 1
             ? React.createElement(
                 'ul',
                 {},
@@ -42,9 +50,9 @@ export function useFieldError(params: UseFieldErrorParameters) {
                   React.createElement('li', { key: message }, message),
                 ),
               )
-            : validityData.error,
+            : validityData.error),
       }),
-    [id, validityData],
+    [id, formError, validityData],
   );
 
   return React.useMemo(

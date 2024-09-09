@@ -16,6 +16,7 @@ import { useFieldControlValidation } from '../../Field/Control/useFieldControlVa
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
+import { useField } from '../../Field/useField';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -108,6 +109,16 @@ export function trackFinger(
   };
 }
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
+ *
+ * API:
+ *
+ * - [useSliderRoot API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-root)
+ */
 function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
@@ -129,12 +140,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     value: valueProp,
   } = parameters;
 
-  const { setDisabled, setControlId, setTouched, setDirty, validityData, setValidityData } =
-    useFieldRootContext();
-
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const { setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -142,14 +148,26 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     commitValidation,
   } = useFieldControlValidation();
 
+  const [valueState, setValueState] = useControlled({
+    controlled: valueProp,
+    default: defaultValue ?? min,
+    name: 'Slider',
+  });
+
+  const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
+
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
   }, [id, setControlId]);
+
+  useField({
+    id,
+    commitValidation,
+    value: valueState,
+    controlRef,
+  });
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -157,8 +175,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   const [active, setActive] = React.useState(-1);
 
   const [dragging, setDragging] = React.useState(false);
-
-  const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
   const registerSliderControl = React.useCallback(
     (element: HTMLElement | null) => {
@@ -169,18 +185,6 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
     },
     [inputValidationRef],
   );
-
-  const [valueState, setValueState] = useControlled({
-    controlled: valueProp,
-    default: defaultValue ?? min,
-    name: 'Slider',
-  });
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && valueState !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: valueState }));
-    }
-  }, [setValidityData, validityData.initialValue, valueState]);
 
   const { contextValue: compoundComponentContextValue, subitems } = useCompoundParent<
     string,
