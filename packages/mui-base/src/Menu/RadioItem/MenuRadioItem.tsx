@@ -10,6 +10,7 @@ import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
+import { MenuRadioItemContext } from './MenuRadioItemContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuRadioItem.OwnerState> = {
   checked: (value: boolean) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
@@ -79,7 +80,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, value, label, ...other } = props;
+  const { id: idProp, value, label, disabled = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
@@ -97,6 +98,8 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   // MenuRadioItem reads the context and re-renders the actual MenuRadioItem
   // only when it needs to.
 
+  const checked = selectedValue === value;
+
   const setChecked = React.useCallback(
     (event: Event) => {
       setSelectedValue(value, event);
@@ -104,19 +107,26 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     [setSelectedValue, value],
   );
 
+  const contextValue = React.useMemo(
+    () => ({ checked, highlighted, disabled }),
+    [checked, highlighted, disabled],
+  );
+
   return (
-    <InnerMenuRadioItem
-      {...other}
-      id={id}
-      ref={mergedRef}
-      highlighted={highlighted}
-      menuEvents={menuEvents}
-      propGetter={getItemProps}
-      treatMouseupAsClick={clickAndDragEnabled}
-      checked={selectedValue === value}
-      setChecked={setChecked}
-      typingRef={typingRef}
-    />
+    <MenuRadioItemContext.Provider value={contextValue}>
+      <InnerMenuRadioItem
+        {...other}
+        id={id}
+        ref={mergedRef}
+        highlighted={highlighted}
+        menuEvents={menuEvents}
+        propGetter={getItemProps}
+        treatMouseupAsClick={clickAndDragEnabled}
+        checked={selectedValue === value}
+        setChecked={setChecked}
+        typingRef={typingRef}
+      />
+    </MenuRadioItemContext.Provider>
   );
 });
 

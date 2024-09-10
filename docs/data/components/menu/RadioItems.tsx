@@ -10,15 +10,42 @@ export default function RadioItems() {
       <MenuPositioner alignment="start" keepMounted>
         <MenuPopup>
           <Menu.RadioGroup defaultValue={'jetbrains-mono'}>
-            <RadioItem value="cascadia-code">Cascadia Code</RadioItem>
-            <RadioItem value="consolas">Consolas</RadioItem>
-            <RadioItem value="dejavu-sans-mono">DejaVu Sans Mono</RadioItem>
-            <RadioItem value="fira-code">Fira Code</RadioItem>
-            <RadioItem value="jetbrains-mono">JetBrains Mono</RadioItem>
-            <RadioItem value="menlo">Menlo</RadioItem>
-            <RadioItem value="monaco">Monaco</RadioItem>
-            <RadioItem value="monolisa">Monolisa</RadioItem>
-            <RadioItem value="source-code-pro">Source Code Pro</RadioItem>
+            <RadioItem value="cascadia-code">
+              <Indicator />
+              Cascadia Code
+            </RadioItem>
+            <RadioItem value="consolas">
+              <Indicator />
+              Consolas
+            </RadioItem>
+            <RadioItem value="dejavu-sans-mono">
+              <Indicator />
+              DejaVu Sans Mono
+            </RadioItem>
+            <RadioItem value="fira-code">
+              <Indicator />
+              Fira Code
+            </RadioItem>
+            <RadioItem value="jetbrains-mono">
+              <Indicator />
+              JetBrains Mono
+            </RadioItem>
+            <RadioItem value="menlo">
+              <Indicator />
+              Menlo
+            </RadioItem>
+            <RadioItem value="monaco">
+              <Indicator />
+              Monaco
+            </RadioItem>
+            <RadioItem value="monolisa">
+              <Indicator />
+              Monolisa
+            </RadioItem>
+            <RadioItem value="source-code-pro">
+              <Indicator />
+              Source Code Pro
+            </RadioItem>
           </Menu.RadioGroup>
         </MenuPopup>
       </MenuPositioner>
@@ -101,15 +128,24 @@ const RadioItem = styled(Menu.RadioItem)(
   &[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
+  `,
+);
 
-  &::before {
-    content: '○';
-    display: inline-block;
-    margin-right: 8px;
-  }
+const Indicator = styled(Menu.RadioItemIndicator)(
+  ({ theme }) => `
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid;
+  vertical-align: baseline;
+  margin-right: 8px;
+  border-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[700]};
+  box-sizing: border-box;
+  border-radius: 50%;
 
-  &[data-state=checked]::before {
-    content: '◉';
+  &[data-radioitem=checked] {
+    background: ${theme.palette.mode === 'dark' ? grey[800] : grey[700]};
+    box-shadow: 0 0 0 2px ${theme.palette.mode === 'dark' ? grey[900] : '#fff'} inset;
   }
   `,
 );
