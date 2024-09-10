@@ -9,7 +9,7 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
 
 /**
  * The field's control element. This is not necessary to use when using a native Base UI input
- * component (Checkbox, Switch, NumberField, Slider).
+ * component (Checkbox, Switch, NumberField, Slider, Radio Group etc).
  *
  * Demos:
  *

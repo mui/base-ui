@@ -5,9 +5,6 @@ import { useFormRootContext } from '../Form/Root/FormRootContext';
 import { useFieldRootContext } from './Root/FieldRootContext';
 import { useLatestRef } from '../utils/useLatestRef';
 
-/**
- * @ignore - internal hook.
- */
 export function useField(params: useField.Parameters) {
   const { formRef } = useFormRootContext();
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
