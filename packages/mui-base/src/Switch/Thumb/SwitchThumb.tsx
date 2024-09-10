@@ -2,16 +2,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { SwitchRoot } from '../Root/SwitchRoot';
 import { useSwitchRootContext } from '../Root/SwitchRootContext';
-import { useSwitchStyleHooks } from '../Root/useSwitchStyleHooks';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
-}
+import { styleHookMapping } from '../styleHooks';
 
 /**
  *
@@ -27,26 +21,23 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render: renderProp, className: classNameProp, ...other } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...other } = props;
 
   const { ownerState: fieldOwnerState } = useFieldRootContext();
 
   const ownerState = useSwitchRootContext();
   const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
 
-  const className = resolveClassName(classNameProp, extendedOwnerState);
-  const styleHooks = useSwitchStyleHooks(extendedOwnerState);
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
-  const elementProps = {
+  const { renderElement } = useComponentRenderer({
+    render: render || 'span',
     className,
-    ref: mergedRef,
-    ...styleHooks,
-    ...other,
-  };
+    ownerState: extendedOwnerState,
+    extraProps: other,
+    customStyleHookMapping: styleHookMapping,
+    ref: forwardedRef,
+  });
 
-  return evaluateRenderProp(render, elementProps, ownerState);
+  return renderElement();
 });
 
 namespace SwitchThumb {
