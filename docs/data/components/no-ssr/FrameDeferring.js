@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { styled } from '@mui/system';
 import { NoSsr } from '@base_ui/react/NoSsr';
-import { Box } from '@mui/system';
 
 function LargeTree() {
   return Array.from(new Array(5000)).map((_, index) => <span key={index}>.</span>);
@@ -41,7 +41,7 @@ export default function FrameDeferring() {
       </button>
       <br />
       <br />
-      <Box sx={{ width: 300, display: 'flex', flexWrap: 'wrap' }}>
+      <Panel sx={{ width: 300, display: 'flex', flexWrap: 'wrap' }}>
         {state.open ? (
           <React.Fragment>
             <div>Outside NoSsr</div>
@@ -51,7 +51,11 @@ export default function FrameDeferring() {
             </NoSsr>
           </React.Fragment>
         ) : null}
-      </Box>
+      </Panel>
     </div>
   );
 }
+
+const Panel = styled('div')`
+  padding: 16px;
+`;

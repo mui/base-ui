@@ -1,22 +1,20 @@
 'use client';
 
 import * as React from 'react';
+import { styled } from '@mui/system';
 import { NoSsr } from '@base_ui/react/NoSsr';
-import { Box } from '@mui/system';
 
 export default function SimpleNoSsr() {
   return (
     <div>
-      <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-        Server and Client
-      </Box>
+      <Panel>Server and Client</Panel>
       <NoSsr>
-        <Box
-          sx={{ p: 2, bgcolor: 'secondary.main', color: 'secondary.contrastText' }}
-        >
-          Client only
-        </Box>
+        <Panel>Client only</Panel>
       </NoSsr>
     </div>
   );
 }
+
+const Panel = styled('div')`
+  padding: 16px;
+`;
