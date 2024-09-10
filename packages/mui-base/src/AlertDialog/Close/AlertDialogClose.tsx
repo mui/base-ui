@@ -1,9 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { AlertDialogCloseOwnerState, AlertDialogCloseProps } from './AlertDialogClose.types';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useDialogClose } from '../../Dialog/Close/useDialogClose';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -16,14 +16,14 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [AlertDialogClose API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogClose)
  */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
-  props: AlertDialogCloseProps,
+  props: AlertDialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
   const { open, onOpenChange } = useAlertDialogRootContext();
   const { getRootProps } = useDialogClose({ open, onOpenChange });
 
-  const ownerState: AlertDialogCloseOwnerState = {
+  const ownerState: AlertDialogClose.OwnerState = {
     open,
   };
 
@@ -38,6 +38,14 @@ const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 
   return renderElement();
 });
+
+namespace AlertDialogClose {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+  }
+}
 
 AlertDialogClose.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

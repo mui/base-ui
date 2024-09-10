@@ -1,13 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import type {
-  AlertDialogBackdropOwnerState,
-  AlertDialogBackdropProps,
-} from './AlertDialogBackdrop.types';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -20,7 +18,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [AlertDialogBackdrop API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogBackdrop)
  */
 const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
-  props: AlertDialogBackdropProps,
+  props: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, ...other } = props;
@@ -37,7 +35,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     onUnmount: handleUnmount,
   });
 
-  const ownerState: AlertDialogBackdropOwnerState = { open, transitionStatus };
+  const ownerState: AlertDialogBackdrop.OwnerState = { open, transitionStatus };
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -70,6 +68,22 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
 
   return <FloatingPortal>{renderElement()}</FloatingPortal>;
 });
+
+namespace AlertDialogBackdrop {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, the backdrop element is kept in the DOM when closed.
+     *
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+
+  export interface OwnerState {
+    open: boolean;
+    transitionStatus: TransitionStatus;
+  }
+}
 
 AlertDialogBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

@@ -20,7 +20,7 @@ export default function UnstyledDialogIntroduction() {
   );
 }
 
-function TriggerButton(props: AlertDialog.TriggerProps) {
+function TriggerButton(props: AlertDialog.Trigger.Props) {
   const className = `
     bg-slate-900 dark:bg-slate-50 text-slate-50 dark:text-slate-900
     py-2 px-4 rounded min-w-[80px] border-none font-sans
@@ -29,7 +29,7 @@ function TriggerButton(props: AlertDialog.TriggerProps) {
   return <AlertDialog.Trigger {...props} className={className} />;
 }
 
-function Popup(props: AlertDialog.PopupProps) {
+function Popup(props: AlertDialog.Popup.Props) {
   const className = `
     bg-slate-50 dark:bg-slate-900 border-[1px] border-solid border-slate-100 dark:border-slate-700
     min-w-[400px] rounded shadow-xl fixed top-2/4 left-2/4 z-[2100]
@@ -47,7 +47,7 @@ function Controls(props: React.ComponentPropsWithoutRef<'div'>) {
   );
 }
 
-function CloseButton(props: AlertDialog.CloseProps) {
+function CloseButton(props: AlertDialog.Close.Props) {
   const className = `
     bg-transparent border-[1px] border-solid border-slate-500 dark:border-slate-300
     text-slate-900 dark:text-slate-50 py-2 px-4 rounded font-sans min-w-[80px]
@@ -56,15 +56,15 @@ function CloseButton(props: AlertDialog.CloseProps) {
   return <AlertDialog.Close {...props} className={className} />;
 }
 
-function Title(props: AlertDialog.TitleProps) {
+function Title(props: AlertDialog.Title.Props) {
   return <AlertDialog.Title {...props} className="text-lg" />;
 }
 
-function Description(props: AlertDialog.DescriptionProps) {
+function Description(props: AlertDialog.Description.Props) {
   return <AlertDialog.Description {...props} />;
 }
 
-function Backdrop(props: AlertDialog.BackdropProps) {
+function Backdrop(props: AlertDialog.Backdrop.Props) {
   return (
     <AlertDialog.Backdrop
       {...props}
