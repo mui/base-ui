@@ -1,12 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { SwitchThumbProps } from './SwitchThumb.types';
-import { SwitchContext } from '../Root/SwitchContext';
+import type { SwitchRoot } from '../Root/SwitchRoot';
+import { useSwitchRootContext } from '../Root/SwitchRootContext';
 import { useSwitchStyleHooks } from '../Root/useSwitchStyleHooks';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
 import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
   return <span {...props} />;
@@ -23,7 +24,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [SwitchThumb API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchThumb)
  */
 const SwitchThumb = React.forwardRef(function SwitchThumb(
-  props: SwitchThumbProps,
+  props: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render: renderProp, className: classNameProp, ...other } = props;
@@ -31,11 +32,7 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
 
   const { ownerState: fieldOwnerState } = useFieldRootContext();
 
-  const ownerState = React.useContext(SwitchContext);
-  if (ownerState === null) {
-    throw new Error('Base UI: Switch.Thumb is not placed inside the Switch component.');
-  }
-
+  const ownerState = useSwitchRootContext();
   const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
 
   const className = resolveClassName(classNameProp, extendedOwnerState);
@@ -51,6 +48,10 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
 
   return evaluateRenderProp(render, elementProps, ownerState);
 });
+
+namespace SwitchThumb {
+  export interface Props extends BaseUIComponentProps<'span', SwitchRoot.OwnerState> {}
+}
 
 SwitchThumb.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
