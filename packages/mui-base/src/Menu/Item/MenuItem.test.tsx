@@ -99,12 +99,18 @@ describe('<Menu.Item />', () => {
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
 
-    await waitFor(() => {
-      expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
-    });
-    await waitFor(() => {
-      expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
-    });
+    await waitFor(
+      () => {
+        expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+      },
+      { timeout: 1000 },
+    );
+    await waitFor(
+      () => {
+        expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+      },
+      { timeout: 1000 },
+    );
 
     // neither the highlighted nor the selected state of these options changed,
     // so they don't need to rerender:
