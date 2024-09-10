@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import * as BaseNumberField from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
@@ -82,6 +83,13 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(props, ref) 
   );
 });
 
+NumberFieldGroup.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const NumberFieldScrubArea = React.forwardRef(
   function NumberFieldScrubArea(props, ref) {
     return (
@@ -101,6 +109,13 @@ const NumberFieldScrubArea = React.forwardRef(
   },
 );
 
+NumberFieldScrubArea.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const NumberFieldVirtualCursor = React.forwardRef(
   function NumberFieldVirtualCursor(props, ref) {
     return (
@@ -119,6 +134,13 @@ const NumberFieldVirtualCursor = React.forwardRef(
     );
   },
 );
+
+NumberFieldVirtualCursor.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
 
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(props, ref) {
   return (
@@ -144,6 +166,13 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(props, ref) 
     />
   );
 });
+
+NumberFieldInput.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
 
 const buttonStyles = classNames(
   'font-[math]',
@@ -181,6 +210,13 @@ const NumberFieldDecrement = React.forwardRef(
   },
 );
 
+NumberFieldDecrement.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const NumberFieldIncrement = React.forwardRef(
   function NumberFieldIncrement(props, ref) {
     return (
@@ -201,3 +237,10 @@ const NumberFieldIncrement = React.forwardRef(
     );
   },
 );
+
+NumberFieldIncrement.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
