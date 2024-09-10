@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Slider from '@base_ui/react/Slider';
 import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const NOOP = () => {};
 
@@ -45,6 +44,9 @@ describe('<Slider.Output />', () => {
       orientation: 'horizontal',
       step: 1,
       values: [0],
+      valid: null,
+      dirty: false,
+      touched: false,
     },
     percentageValues: [0],
     registerSliderControl: NOOP,
@@ -57,19 +59,14 @@ describe('<Slider.Output />', () => {
   };
 
   describeConformance(<Slider.Output />, () => ({
-    inheritComponent: 'output',
     render: (node) => {
-      const { container, ...other } = render(
-        <SliderProvider value={testProviderValue}>{node}</SliderProvider>,
-      );
-
-      return { container, ...other };
+      return render(<SliderProvider value={testProviderValue}>{node}</SliderProvider>);
     },
     refInstanceof: window.HTMLOutputElement,
   }));
 
-  it('renders a single value', () => {
-    const { getByTestId } = render(
+  it('renders a single value', async () => {
+    const { getByTestId } = await render(
       <Slider.Root defaultValue={40}>
         <Slider.Output data-testid="output" />
       </Slider.Root>,
@@ -79,8 +76,8 @@ describe('<Slider.Output />', () => {
     expect(sliderOutput).to.have.text('40');
   });
 
-  it('renders a range', () => {
-    const { getByTestId } = render(
+  it('renders a range', async () => {
+    const { getByTestId } = await render(
       <Slider.Root defaultValue={[40, 65]}>
         <Slider.Output data-testid="output" />
       </Slider.Root>,
@@ -90,8 +87,8 @@ describe('<Slider.Output />', () => {
     expect(sliderOutput).to.have.text('40 – 65');
   });
 
-  it('renders all thumb values', () => {
-    const { getByTestId } = render(
+  it('renders all thumb values', async () => {
+    const { getByTestId } = await render(
       <Slider.Root defaultValue={[40, 60, 80, 95]}>
         <Slider.Output data-testid="output" />
       </Slider.Root>,

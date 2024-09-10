@@ -22,8 +22,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './template.html'),
     }),
-    // Avoid bundling the whole @mui/icons-material package. x2 the bundling speed.
-    new webpack.IgnorePlugin({ resourceRegExp: /material-icons\/SearchIcons\.js/ }),
     new webpack.ProvidePlugin({
       // required by code accessing `process.env` in the browser
       process: 'process/browser.js',
@@ -49,6 +47,41 @@ module.exports = {
       {
         test: /\.(jpg|gif|png)$/,
         type: 'asset/inline',
+      },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                auto: true,
+                namedExport: false,
+              },
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                config: false,
+                plugins: {
+                  tailwindcss: {
+                    content: ['docs/data/**/*.{js,tsx}'],
+                    darkMode: ['class', '[data-color-scheme="dark"]'],
+                    corePlugins: {
+                      // Remove the Tailwind CSS preflight styles as they would apply to the whole site.
+                      preflight: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
       },
     ],
   },

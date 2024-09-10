@@ -23,11 +23,11 @@ import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Menu](https://mui.com/base-ui/react-Menu/)
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
  *
  * API:
  *
- * - [MenuPositioner API](https://mui.com/base-ui/react-Menu/components-api/#Menu-positioner)
+ * - [MenuPositioner API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuPositioner)
  */
 const MenuPositioner = React.forwardRef(function MenuPositioner(
   props: MenuPositioner.Props,
@@ -43,7 +43,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     alignment = 'center',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clippingAncestors',
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,
@@ -141,7 +141,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
               modal={false}
               initialFocus={nested ? -1 : 0}
               returnFocus
-              key={mounted.toString()}
+              disabled={!mounted}
             >
               {renderElement()}
             </FloatingFocusManager>

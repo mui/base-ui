@@ -6,6 +6,16 @@ import { useSliderContext } from '../Root/SliderProvider';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderTrackProps } from './SliderTrack.types';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderTrack API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderTrack)
+ */
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrackProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

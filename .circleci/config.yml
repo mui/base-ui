@@ -227,12 +227,6 @@ jobs:
           name: '`pnpm docs:api` changes committed?'
           command: git add -A && git diff --exit-code --staged
       - run:
-          name: Update the navigation translations
-          command: pnpm docs:i18n
-      - run:
-          name: '`pnpm docs:i18n` changes committed?'
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
             pnpm extract-error-codes
@@ -319,7 +313,7 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.45.3-focal
+      - image: mcr.microsoft.com/playwright:v1.46.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -350,7 +344,7 @@ jobs:
   test_profile:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.45.3-focal
+      - image: mcr.microsoft.com/playwright:v1.46.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -378,7 +372,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.45.3-focal
+      - image: mcr.microsoft.com/playwright:v1.46.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
@@ -395,7 +389,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.45.3-focal
+      - image: mcr.microsoft.com/playwright:v1.46.1-focal
         environment:
           NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:

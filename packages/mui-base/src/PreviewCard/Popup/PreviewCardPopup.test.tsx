@@ -2,14 +2,12 @@ import * as React from 'react';
 import * as PreviewCard from '@base_ui/react/PreviewCard';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
-import { createRenderer } from '../../../test';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
   const { render } = createRenderer();
 
   describeConformance(<PreviewCard.Popup />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(

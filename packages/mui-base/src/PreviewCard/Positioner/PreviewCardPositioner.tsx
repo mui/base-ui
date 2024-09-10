@@ -14,6 +14,16 @@ import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ *
+ * API:
+ *
+ * - [PreviewCardPositioner API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardPositioner)
+ */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositionerProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -27,7 +37,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     alignment = 'center',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clippingAncestors',
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,

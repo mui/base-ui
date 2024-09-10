@@ -1,9 +1,0 @@
-{
-  "hookDescription": "",
-  "parametersDescriptions": {
-    "axis": { "description": "The orientation of the slider." },
-    "orientation": { "description": "The component orientation." },
-    "percentageValues": { "description": "The value(s) of the slider as percentages" }
-  },
-  "returnValueDescriptions": {}
-}

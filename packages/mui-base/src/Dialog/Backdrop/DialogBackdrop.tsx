@@ -6,6 +6,16 @@ import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ *
+ * API:
+ *
+ * - [DialogBackdrop API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogBackdrop)
+ */
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

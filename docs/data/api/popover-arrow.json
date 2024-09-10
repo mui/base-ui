@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "hideWhenUncentered": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "PopoverArrow",
+  "imports": [
+    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverArrow = Popover.Arrow;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "PopoverArrow",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Popover/Arrow/PopoverArrow.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
+  "cssComponent": false
+}

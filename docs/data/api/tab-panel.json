@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "any" } }
+  },
+  "name": "TabPanel",
+  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst TabPanel = Tabs.Panel;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TabPanel",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Tabs/TabPanel/TabPanel.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
+  "cssComponent": false
+}

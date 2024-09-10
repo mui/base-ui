@@ -8,6 +8,16 @@ import type {
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ *
+ * API:
+ *
+ * - [AlertDialogTrigger API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogTrigger)
+ */
 const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   props: AlertDialogTriggerProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,

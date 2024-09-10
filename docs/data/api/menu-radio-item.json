@@ -1,0 +1,22 @@
+{
+  "props": {
+    "closeOnClick": { "type": { "name": "bool" }, "default": "true" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "id": { "type": { "name": "string" } },
+    "label": { "type": { "name": "string" } },
+    "onClick": { "type": { "name": "func" } }
+  },
+  "name": "MenuRadioItem",
+  "imports": [
+    "import * as Menu from '@base_ui/react/Menu';\nconst MenuRadioItem = Menu.RadioItem;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MenuRadioItem",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Menu/RadioItem/MenuRadioItem.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

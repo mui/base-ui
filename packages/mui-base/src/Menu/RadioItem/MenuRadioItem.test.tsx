@@ -6,7 +6,7 @@ import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
 import { MenuRootContext } from '@base_ui/react/Menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer } from '#test-utils';
 import { MenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
 
 const testRootContext: MenuRootContext = {
@@ -30,6 +30,7 @@ const testRootContext: MenuRootContext = {
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
+  typingRef: { current: false },
 };
 
 const testRadioGroupContext = {
@@ -56,7 +57,11 @@ describe('<Menu.RadioItem />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async () => {
+  it('perf: does not rerender menu items unnecessarily', async function test() {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      this.skip();
+    }
+
     const renderItem1Spy = spy();
     const renderItem2Spy = spy();
     const renderItem3Spy = spy();
@@ -127,10 +132,19 @@ describe('<Menu.RadioItem />', () => {
     // React renders twice in strict mode, so we expect twice the number of spy calls
     // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
-    await waitFor(() => {
-      expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
-      expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
-    });
+    await waitFor(
+      () => {
+        expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+      },
+      { timeout: 1000 },
+    );
+
+    await waitFor(
+      () => {
+        expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+      },
+      { timeout: 1000 },
+    );
 
     // neither the highlighted nor the selected state of these options changed,
     // so they don't need to rerender:

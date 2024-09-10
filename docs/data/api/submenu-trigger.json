@@ -1,0 +1,17 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "disableFocusOnHover": { "type": { "name": "bool" }, "default": "false" },
+    "label": { "type": { "name": "string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "SubmenuTrigger",
+  "imports": ["import { SubmenuTrigger } from '@base_ui/react/Menu';"],
+  "classes": [],
+  "muiName": "SubmenuTrigger",
+  "filename": "/packages/mui-base/src/Menu/SubmenuTrigger/SubmenuTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

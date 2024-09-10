@@ -1,21 +1,26 @@
 import type * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
-export type CheckboxOwnerState = {
+export interface CheckboxRootOwnerState extends FieldRootOwnerState {
   checked: boolean;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
   indeterminate: boolean;
-};
+}
 
 export interface CheckboxRootProps
-  extends UseCheckboxRootParameters,
-    Omit<BaseUIComponentProps<'button', CheckboxOwnerState>, 'onChange'> {}
+  extends Omit<UseCheckboxRootParameters, 'setControlId' | 'descriptionId'>,
+    Omit<BaseUIComponentProps<'button', CheckboxRootOwnerState>, 'onChange'> {}
 
-export type CheckboxContextValue = CheckboxOwnerState;
+export type CheckboxContextValue = CheckboxRootOwnerState;
 
 export interface UseCheckboxRootParameters {
+  /**
+   * The id of the input element.
+   */
+  id?: string;
   /**
    * Name of the underlying input element.
    *
@@ -44,9 +49,9 @@ export interface UseCheckboxRootParameters {
    * Callback fired when the checked state is changed.
    *
    * @param {boolean} checked The new checked state.
-   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
+   * @param {Event} event The event source of the callback.
    */
-  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
+  onCheckedChange?: (checked: boolean, event: Event) => void;
   /**
    * If `true`, the component is read only.
    *
@@ -75,6 +80,11 @@ export interface UseCheckboxRootParameters {
    * The ref to the input element.
    */
   inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * @default false
+   */
+  parent?: boolean;
 }
 
 export interface UseCheckboxRootReturnValue {

@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
 import * as Slider from '@base_ui/react/Slider';
 import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const NOOP = () => {};
 
@@ -44,6 +43,9 @@ describe('<Slider.Indicator />', () => {
       orientation: 'horizontal',
       step: 1,
       values: [0],
+      valid: null,
+      dirty: false,
+      touched: false,
     },
     percentageValues: [0],
     registerSliderControl: NOOP,
@@ -56,13 +58,8 @@ describe('<Slider.Indicator />', () => {
   };
 
   describeConformance(<Slider.Indicator />, () => ({
-    inheritComponent: 'span',
     render: (node) => {
-      const { container, ...other } = render(
-        <SliderProvider value={testProviderValue}>{node}</SliderProvider>,
-      );
-
-      return { container, ...other };
+      return render(<SliderProvider value={testProviderValue}>{node}</SliderProvider>);
     },
     refInstanceof: window.HTMLSpanElement,
   }));

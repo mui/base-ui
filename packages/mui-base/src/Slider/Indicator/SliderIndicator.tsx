@@ -7,6 +7,16 @@ import { sliderStyleHookMapping } from '../Root/styleHooks';
 import { SliderIndicatorProps } from './SliderIndicator.types';
 import { useSliderIndicator } from './useSliderIndicator';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ *
+ * API:
+ *
+ * - [SliderIndicator API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderIndicator)
+ */
 const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: SliderIndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,

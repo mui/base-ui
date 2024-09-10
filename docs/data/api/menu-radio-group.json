@@ -1,0 +1,20 @@
+{
+  "props": {
+    "children": { "type": { "name": "node" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "MenuRadioGroup",
+  "imports": [
+    "import * as Menu from '@base_ui/react/Menu';\nconst MenuRadioGroup = Menu.RadioGroup;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MenuRadioGroup",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Menu/RadioGroup/MenuRadioGroup.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

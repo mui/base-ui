@@ -11,6 +11,16 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ *
+ * API:
+ *
+ * - [PreviewCardBackdrop API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardBackdrop)
+ */
 const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   props: PreviewCardBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

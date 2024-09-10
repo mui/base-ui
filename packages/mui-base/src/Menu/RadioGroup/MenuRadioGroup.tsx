@@ -81,10 +81,31 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  defaultValue: PropTypes.any,
+  /**
+   * @ignore
+   */
+  onValueChange: PropTypes.func,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  value: PropTypes.any,
 } as any;
 
-const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);
+const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuRadioGroup API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRadioGroup)
+ */
 export { MemoizedMenuRadioGroup as MenuRadioGroup };

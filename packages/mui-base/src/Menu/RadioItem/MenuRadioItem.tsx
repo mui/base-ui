@@ -32,6 +32,7 @@ const InnerMenuRadioItem = React.memo(
       propGetter,
       render,
       treatMouseupAsClick,
+      typingRef,
       ...other
     } = props;
 
@@ -45,6 +46,7 @@ const InnerMenuRadioItem = React.memo(
       menuEvents,
       ref: forwardedRef,
       treatMouseupAsClick,
+      typingRef,
     });
 
     const ownerState: MenuRadioItem.OwnerState = { disabled, highlighted, checked };
@@ -67,11 +69,11 @@ const InnerMenuRadioItem = React.memo(
  *
  * Demos:
  *
- * - [Menu](https://mui.com/base-ui/react-menu/)
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
  *
  * API:
  *
- * - [MenuItem API](https://mui.com/base-ui/react-menu/components-api/#menu-item)
+ * - [MenuRadioItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRadioItem)
  */
 const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
@@ -83,7 +85,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled } = useMenuRootContext();
+  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -113,6 +115,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
       treatMouseupAsClick={clickAndDragEnabled}
       checked={selectedValue === value}
       setChecked={setChecked}
+      typingRef={typingRef}
     />
   );
 });
@@ -124,6 +127,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   treatMouseupAsClick: boolean;
   checked: boolean;
   setChecked: (event: Event) => void;
+  typingRef: React.RefObject<boolean>;
 }
 
 namespace MenuRadioItem {
@@ -171,10 +175,6 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  checked: PropTypes.bool,
-  /**
-   * @ignore
-   */
   children: PropTypes.node,
   /**
    * If `true`, the menu will close when the menu item is clicked.
@@ -182,10 +182,6 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    * @default true
    */
   closeOnClick: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  defaultChecked: PropTypes.bool,
   /**
    * If `true`, the menu item will be disabled.
    * @default false
@@ -201,13 +197,13 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * @ignore
-   */
-  onCheckedChange: PropTypes.func,
-  /**
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
+  /**
+   * @ignore
+   */
+  value: PropTypes.any.isRequired,
 } as any;
 
 export { MenuRadioItem };

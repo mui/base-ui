@@ -9,6 +9,16 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ *
+ * API:
+ *
+ * - [AlertDialogDescription API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogDescription)
+ */
 const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   props: AlertDialogDescriptionProps,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,

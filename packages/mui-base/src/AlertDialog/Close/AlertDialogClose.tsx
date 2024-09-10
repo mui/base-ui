@@ -5,6 +5,16 @@ import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useDialogClose } from '../../Dialog/Close/useDialogClose';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+/**
+ *
+ * Demos:
+ *
+ * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ *
+ * API:
+ *
+ * - [AlertDialogClose API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogClose)
+ */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogCloseProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,

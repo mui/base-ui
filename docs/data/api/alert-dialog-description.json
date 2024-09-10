@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "AlertDialogDescription",
+  "imports": [
+    "import * as AlertDialog from '@base_ui/react/AlertDialog';\nconst AlertDialogDescription = AlertDialog.Description;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "AlertDialogDescription",
+  "forwardsRefTo": "HTMLParagraphElement",
+  "filename": "/packages/mui-base/src/AlertDialog/Description/AlertDialogDescription.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
+  "cssComponent": false
+}

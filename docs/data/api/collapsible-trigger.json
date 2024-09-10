@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "CollapsibleTrigger",
+  "imports": [
+    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleTrigger = Collapsible.Trigger;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "CollapsibleTrigger",
+  "forwardsRefTo": "HTMLButtonElement",
+  "filename": "/packages/mui-base/src/Collapsible/Trigger/CollapsibleTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
+  "cssComponent": false
+}
