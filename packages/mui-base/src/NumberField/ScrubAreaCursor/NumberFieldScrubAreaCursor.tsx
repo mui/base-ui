@@ -1,16 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import type { NumberFieldScrubAreaCursorProps } from './NumberFieldScrubAreaCursor.types';
 import { useNumberFieldContext } from '../Root/NumberFieldContext';
 import { isWebKit } from '../../utils/detectBrowser';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
-}
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
 
 /**
  * The scrub area cursor element.
@@ -24,32 +20,36 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [NumberFieldScrubAreaCursor API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldScrubAreaCursor)
  */
 const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
-  props: NumberFieldScrubAreaCursorProps,
+  props: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render: renderProp, className, ...otherProps } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...otherProps } = props;
 
   const { isScrubbing, scrubAreaCursorRef, ownerState, getScrubAreaCursorProps } =
     useNumberFieldContext('ScrubAreaCursor');
 
-  const mergedRef = useRenderPropForkRef(render, forwardedRef, scrubAreaCursorRef);
+  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef);
+
+  const { renderElement } = useComponentRenderer({
+    propGetter: getScrubAreaCursorProps,
+    ref: mergedRef,
+    render: render ?? 'span',
+    ownerState,
+    className,
+    extraProps: otherProps,
+  });
 
   if (!isScrubbing || isWebKit()) {
     return null;
   }
 
-  const virtualCursorProps = getScrubAreaCursorProps({
-    ...otherProps,
-    ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-  });
-
-  return ReactDOM.createPortal(
-    evaluateRenderProp(render, virtualCursorProps, ownerState),
-    document.body,
-  );
+  return ReactDOM.createPortal(renderElement(), document.body);
 });
+
+namespace NumberFieldScrubAreaCursor {
+  export interface OwnerState extends NumberFieldRoot.OwnerState {}
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+}
 
 NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
