@@ -4,10 +4,10 @@ import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
-describe('<Select.OptionGroup />', () => {
+describe('<Select.Group />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.OptionGroup />, () => ({
+  describeConformance(<Select.Group />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
@@ -22,11 +22,11 @@ describe('<Select.OptionGroup />', () => {
     await render(
       <Select.Root open animated={false}>
         <Select.Positioner>
-          <Select.OptionGroup>
-            <Select.OptionGroupLabel>Fruits</Select.OptionGroupLabel>
+          <Select.Group>
+            <Select.GroupLabel>Fruits</Select.GroupLabel>
             <Select.Option value="apple">Apple</Select.Option>
             <Select.Option value="banana">Banana</Select.Option>
-          </Select.OptionGroup>
+          </Select.Group>
         </Select.Positioner>
       </Select.Root>,
     );
@@ -39,17 +39,17 @@ describe('<Select.OptionGroup />', () => {
     await render(
       <Select.Root open animated={false}>
         <Select.Positioner>
-          <Select.OptionGroup>
-            <Select.OptionGroupLabel>Vegetables</Select.OptionGroupLabel>
+          <Select.Group>
+            <Select.GroupLabel>Vegetables</Select.GroupLabel>
             <Select.Option value="carrot">Carrot</Select.Option>
             <Select.Option value="lettuce">Lettuce</Select.Option>
-          </Select.OptionGroup>
+          </Select.Group>
         </Select.Positioner>
       </Select.Root>,
     );
 
-    const optionGroup = screen.getByRole('group');
+    const Group = screen.getByRole('group');
     const label = screen.getByText('Vegetables');
-    expect(optionGroup).to.have.attribute('aria-labelledby', label.id);
+    expect(Group).to.have.attribute('aria-labelledby', label.id);
   });
 });

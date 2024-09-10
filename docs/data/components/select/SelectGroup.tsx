@@ -49,8 +49,8 @@ export default function SelectGroup() {
           {entries.map(([group, items]) => (
             <React.Fragment key={group}>
               <SelectSeparator />
-              <Select.OptionGroup key={group}>
-                <SelectOptionGroupLabel>{group}</SelectOptionGroupLabel>
+              <Select.Group key={group}>
+                <SelectGroupLabel>{group}</SelectGroupLabel>
                 {items.map((item) => (
                   <SelectOption
                     key={item.value}
@@ -61,7 +61,7 @@ export default function SelectGroup() {
                     <Select.OptionText>{item.label}</Select.OptionText>
                   </SelectOption>
                 ))}
-              </Select.OptionGroup>
+              </Select.Group>
             </React.Fragment>
           ))}
         </SelectPopup>
@@ -152,7 +152,7 @@ const SelectOptionIndicator = styled(Select.OptionIndicator)`
   }
 `;
 
-const SelectOptionGroupLabel = styled(Select.OptionGroupLabel)`
+const SelectGroupLabel = styled(Select.GroupLabel)`
   font-weight: bold;
   padding: 4px 24px;
   cursor: default;

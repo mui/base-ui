@@ -179,7 +179,7 @@ namespace SelectOption {
     /**
      * The value of the select option.
      */
-    value: string;
+    value?: unknown;
     /**
      * The click handler for the select option.
      */
@@ -227,7 +227,7 @@ SelectOption.propTypes /* remove-proptypes */ = {
   /**
    * The value of the select option.
    */
-  value: PropTypes.string.isRequired,
+  value: PropTypes.any,
 } as any;
 
 export { SelectOption };

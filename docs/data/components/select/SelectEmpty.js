@@ -21,7 +21,7 @@ export default function SelectEmpty() {
           </div>
         </SelectScrollUpArrow>
         <SelectPopup>
-          <SelectOption value="">
+          <SelectOption>
             <SelectOptionIndicator render={<Check />} />
             <Select.OptionText>Select font...</Select.OptionText>
           </SelectOption>

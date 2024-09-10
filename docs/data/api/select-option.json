@@ -1,9 +1,9 @@
 {
   "props": {
-    "value": { "type": { "name": "string" }, "required": true },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "label": { "type": { "name": "string" } },
-    "onClick": { "type": { "name": "func" } }
+    "onClick": { "type": { "name": "func" } },
+    "value": { "type": { "name": "any" } }
   },
   "name": "SelectOption",
   "imports": [

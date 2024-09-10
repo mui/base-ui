@@ -20,6 +20,7 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
     return value ? { 'data-select-exiting': '' } : null;
   },
 };
+
 /**
  *
  * Demos:

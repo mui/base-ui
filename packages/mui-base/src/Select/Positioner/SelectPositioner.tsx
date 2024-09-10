@@ -208,10 +208,15 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positionerElement = renderElement();
 
-  const stringValue = React.useMemo(
-    () => (typeof value === 'string' ? value : JSON.stringify(value)),
-    [value],
-  );
+  const serializedValue = React.useMemo(() => {
+    if (value == null) {
+      return ''; // avoid uncontrolled -> controlled error
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    return JSON.stringify(value);
+  }, [value]);
 
   const mountedItemsElement = keepMounted ? null : <div hidden>{positionerElement}</div>;
   const nativeSelectElement = (
@@ -243,7 +248,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
         },
       })}
     >
-      <option value={stringValue}>{stringValue}</option>
+      <option value={serializedValue}>{serializedValue}</option>
     </select>
   );
 
