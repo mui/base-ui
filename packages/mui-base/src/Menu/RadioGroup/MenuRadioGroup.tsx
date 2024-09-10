@@ -98,7 +98,7 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
   value: PropTypes.any,
 } as any;
 
-const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);/**
+const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup); /**
  *
  * Demos:
  *
