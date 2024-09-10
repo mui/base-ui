@@ -33,6 +33,9 @@ export function useFieldControl(params: UseFieldControlParameters) {
 
   useEnhancedEffect(() => {
     setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
   }, [id, setControlId]);
 
   const [value, setValueUnwrapped] = useControlled({

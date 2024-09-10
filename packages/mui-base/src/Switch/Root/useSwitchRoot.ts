@@ -51,6 +51,9 @@ export function useSwitchRoot(params: UseSwitchRootParameters): UseSwitchRootRet
 
   useEnhancedEffect(() => {
     setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
   }, [id, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);

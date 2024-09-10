@@ -160,6 +160,9 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   useEnhancedEffect(() => {
     setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
   }, [id, setControlId]);
 
   useField({
