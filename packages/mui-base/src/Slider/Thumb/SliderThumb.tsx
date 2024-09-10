@@ -7,7 +7,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import type { SliderRoot } from '../Root/SliderRoot';
-import { useSliderContext } from '../Root/SliderProvider';
+import { useSliderContext } from '../Root/SliderContext';
 import { useSliderThumb } from './useSliderThumb';
 
 function defaultRender(
@@ -65,6 +65,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     orientation,
     ownerState,
     percentageValues,
+    registerInputId,
     step,
     tabIndex,
     values,
@@ -91,6 +92,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     name,
     orientation,
     percentageValues,
+    registerInputId,
     rootRef: mergedRef,
     step,
     tabIndex,

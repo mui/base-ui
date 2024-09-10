@@ -2,18 +2,15 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useCompoundItem } from '../../useCompound';
-import type { useSliderRoot } from '../Root/useSliderRoot';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
-
-function idGenerator(existingKeys: Set<string>) {
-  return `thumb-${existingKeys.size}`;
-}
+import type { useSliderRoot } from '../Root/useSliderRoot';
 
 function getNewValue(
   thumbValue: number,
@@ -60,10 +57,11 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     minStepsBetweenValues,
     name,
     orientation,
+    percentageValues,
+    registerInputId,
     rootRef: externalRef,
     step,
     tabIndex,
-    percentageValues,
     values: sliderValues,
   } = parameters;
 
@@ -79,17 +77,20 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const mergedInputRef = useForkRef(inputRef, inputValidationRef);
-  const handleRef = useForkRef(externalRef, thumbRef);
 
-  const thumbMetadata: useSliderThumb.Metadata = React.useMemo(
-    () => ({ inputId: thumbId ? `${thumbId}-input` : '', ref: thumbRef, inputRef }),
-    [thumbId],
-  );
+  const { ref: listItemRef, index } = useCompositeListItem();
 
-  const { id: compoundItemId, index } = useCompoundItem(
-    (thumbId ? `${thumbId}-input` : thumbId) ?? idGenerator,
-    thumbMetadata,
-  );
+  const mergedThumbRef = useForkRef(externalRef, listItemRef, thumbRef);
+
+  const inputId = useId();
+
+  useEnhancedEffect(() => {
+    const { deregister } = registerInputId(index, inputId);
+
+    return () => {
+      deregister(index);
+    };
+  }, [index, inputId, registerInputId]);
 
   const thumbValue = sliderValues[index];
 
@@ -124,7 +125,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
         'data-index': index,
-        id: idParam,
+        id: thumbId,
         onBlur() {
           if (!thumbRef.current) {
             return;
@@ -202,7 +203,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
             event.preventDefault();
           }
         },
-        ref: handleRef,
+        ref: mergedThumbRef,
         style: {
           ...getThumbStyle(),
         },
@@ -210,23 +211,23 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       });
     },
     [
-      index,
-      idParam,
-      handleRef,
-      getThumbStyle,
-      tabIndex,
-      disabled,
-      setTouched,
-      commitValidation,
-      thumbValue,
-      sliderValues,
-      largeStep,
-      step,
-      min,
-      max,
-      isRtl,
-      minStepsBetweenValues,
       changeValue,
+      commitValidation,
+      disabled,
+      getThumbStyle,
+      index,
+      isRtl,
+      largeStep,
+      max,
+      mergedThumbRef,
+      min,
+      minStepsBetweenValues,
+      setTouched,
+      sliderValues,
+      step,
+      tabIndex,
+      thumbId,
+      thumbValue,
     ],
   );
 
@@ -244,7 +245,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           : ariaValuetext ?? getDefaultAriaValueText(sliderValues, index),
         'data-index': index,
         disabled,
-        id: compoundItemId,
+        id: inputId,
         max,
         min,
         name,
@@ -271,21 +272,21 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       ariaLabelledby,
       ariaValuetext,
       changeValue,
-      compoundItemId,
       disabled,
       getAriaLabel,
       getAriaValueText,
+      getInputValidationProps,
       index,
       isRtl,
       max,
+      mergedInputRef,
       min,
       name,
       orientation,
       sliderValues,
       step,
+      inputId,
       thumbValue,
-      getInputValidationProps,
-      mergedInputRef,
     ],
   );
 
@@ -293,10 +294,10 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     () => ({
       getRootProps,
       getThumbInputProps,
-      index,
       disabled,
+      index,
     }),
-    [getRootProps, getThumbInputProps, index, disabled],
+    [getRootProps, getThumbInputProps, disabled, index],
   );
 }
 
@@ -322,6 +323,7 @@ export namespace useSliderThumb {
       | 'name'
       | 'orientation'
       | 'percentageValues'
+      | 'registerInputId'
       | 'step'
       | 'tabIndex'
       | 'values'

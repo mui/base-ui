@@ -2,24 +2,24 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { useSliderRoot } from '../Root/useSliderRoot';
-/**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderOutput API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-output)
- */
+
 export function useSliderOutput(
   parameters: useSliderOutput.Parameters,
 ): useSliderOutput.ReturnValue {
-  const { 'aria-live': ariaLive = 'off', subitems } = parameters;
+  const { 'aria-live': ariaLive = 'off', inputIdMap } = parameters;
 
-  const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
-    return `${acc} ${item.inputId}`;
-  }, '');
+  const outputFor = React.useMemo(() => {
+    const size = inputIdMap.size;
+    let htmlFor = '';
+    for (let i = 0; i < size; i += 1) {
+      const inputId = inputIdMap.get(i);
+      if (!inputId) {
+        break;
+      }
+      htmlFor += `${inputId} `;
+    }
+    return htmlFor.trim() === '' ? undefined : htmlFor.trim();
+  }, [inputIdMap]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -27,7 +27,7 @@ export function useSliderOutput(
         // off by default because it will keep announcing when the slider is being dragged
         // and also when the value is changing (but not yet committed)
         'aria-live': ariaLive,
-        htmlFor: outputFor.trim(),
+        htmlFor: outputFor,
       });
     },
     [ariaLive, outputFor],
@@ -42,7 +42,7 @@ export function useSliderOutput(
 }
 
 export namespace useSliderOutput {
-  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'subitems'> {
+  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'inputIdMap'> {
     'aria-live'?: React.AriaAttributes['aria-live'];
   }
 

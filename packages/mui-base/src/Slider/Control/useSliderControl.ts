@@ -33,7 +33,7 @@ export function useSliderControl(
     setDragging,
     setValueState,
     step,
-    subitems,
+    thumbRefs,
   } = parameters;
 
   const { commitValidation } = useFieldControlValidation();
@@ -51,13 +51,6 @@ export function useSliderControl(
   // 1. pointerDown coordinates and
   // 2. the exact intersection of the center of the thumb and the track
   const offsetRef = React.useRef(0);
-
-  const thumbRefs = React.useMemo(() => {
-    return Array.from(subitems).map((subitem) => {
-      const { ref } = subitem[1];
-      return ref.current;
-    });
-  }, [subitems]);
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const finger = trackFinger(nativeEvent, touchIdRef);
@@ -243,7 +236,7 @@ export function useSliderControl(
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
             // and the coordinates of the value on the track area
-            if (thumbRefs.includes(event.target as HTMLElement)) {
+            if (thumbRefs.current.includes(event.target as HTMLElement)) {
               const targetThumbIndex = (event.target as HTMLElement).getAttribute('data-index');
 
               const offset = percentageValues[Number(targetThumbIndex)] / 100 - newPercentageValue;
@@ -306,7 +299,7 @@ export namespace useSliderControl {
       | 'setDragging'
       | 'setValueState'
       | 'step'
-      | 'subitems'
+      | 'thumbRefs'
     > {
     /**
      * The ref attached to the control area of the Slider.

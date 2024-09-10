@@ -45,7 +45,7 @@ const Slider = React.forwardRef(function Slider(
       ref={ref}
       className={(state) =>
         classNames(
-          'relative w-full items-center grid grid-cols-2 gap-4',
+          'font-sans relative w-full items-center grid grid-cols-2 gap-4',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -160,13 +160,9 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 
 function Label(props: React.HTMLAttributes<HTMLLabelElement>) {
   const { id, ...otherProps } = props;
-  const { subitems, disabled } = BaseSlider.useSliderContext();
+  const { inputIdMap, disabled } = BaseSlider.useSliderContext();
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
+  const htmlFor = inputIdMap.get(0);
 
   return (
     <label

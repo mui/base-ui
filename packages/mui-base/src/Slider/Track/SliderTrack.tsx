@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderProvider';
+import { useSliderContext } from '../Root/SliderContext';
 import type { SliderRoot } from '../Root/SliderRoot';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 /**

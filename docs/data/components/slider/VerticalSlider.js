@@ -138,13 +138,9 @@ function Styles() {
 
 function Label(props) {
   const { id, ...otherProps } = props;
-  const { subitems, disabled } = Slider.useSliderContext();
+  const { inputIdMap, disabled } = Slider.useSliderContext();
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
+  const htmlFor = inputIdMap.get(0);
 
   return (
     <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />

@@ -24,13 +24,9 @@ export default function RtlSlider() {
 
 function BaseLabel(props: React.HTMLAttributes<HTMLLabelElement>) {
   const { id, ...otherProps } = props;
-  const { subitems, disabled } = BaseSlider.useSliderContext();
+  const { inputIdMap, disabled } = BaseSlider.useSliderContext();
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
+  const htmlFor = inputIdMap.get(0);
 
   return (
     <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />

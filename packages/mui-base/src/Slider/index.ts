@@ -1,6 +1,6 @@
 export { SliderRoot as Root } from './Root/SliderRoot';
 export { useSliderRoot } from './Root/useSliderRoot';
-export { SliderContext, SliderProvider, useSliderContext } from './Root/SliderProvider';
+export { SliderContext, useSliderContext } from './Root/SliderContext';
 
 export { SliderOutput as Output } from './Output/SliderOutput';
 export { useSliderOutput } from './Output/useSliderOutput';

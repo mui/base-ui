@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import { CompositeList } from '../../Composite/List/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
-import { SliderProvider } from './SliderProvider';
+import { SliderContext } from './SliderContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 /**
  *
@@ -102,7 +103,11 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return <SliderProvider value={contextValue}>{renderElement()}</SliderProvider>;
+  return (
+    <SliderContext.Provider value={contextValue}>
+      <CompositeList elementsRef={slider.thumbRefs}>{renderElement()}</CompositeList>
+    </SliderContext.Provider>
+  );
 });
 
 SliderRoot.propTypes /* remove-proptypes */ = {

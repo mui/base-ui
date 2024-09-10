@@ -233,15 +233,11 @@ function Label(props: any) {
   const defaultId = React.useId();
   const labelId = idProp ?? defaultId;
 
-  const { subitems } = useSliderContext();
+  const { inputIdMap } = useSliderContext();
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
+  const inputId = inputIdMap.get(0);
 
-  return <label id={labelId} htmlFor={htmlFor} {...otherProps} />;
+  return <label id={labelId} htmlFor={inputId} {...otherProps} />;
 }
 
 function LabelRange(props: any) {

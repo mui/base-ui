@@ -34,13 +34,9 @@ export default function UnstyledSliderIntroduction() {
 
 function Label(props: React.HTMLAttributes<HTMLLabelElement>) {
   const { id, ...otherProps } = props;
-  const { subitems, disabled } = Slider.useSliderContext();
+  const { inputIdMap, disabled } = Slider.useSliderContext();
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
+  const htmlFor = inputIdMap.get(0);
 
   return (
     <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
@@ -69,7 +65,7 @@ function Styles() {
   return (
     <style suppressHydrationWarning>{`
     .Slider {
-      font-family: 'IBM Plex Sans', sans-serif;
+      font-family: IBM Plex Sans, sans-serif;
       font-size: 1rem;
       width: 100%;
       align-items: center;
