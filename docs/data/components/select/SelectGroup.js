@@ -42,7 +42,7 @@ export default function SelectGroup() {
           )}
         />
         <SelectPopup>
-          <SelectOption value="">
+          <SelectOption>
             <SelectOptionIndicator render={<CheckIcon />} />
             <Select.OptionText>Select food...</Select.OptionText>
           </SelectOption>

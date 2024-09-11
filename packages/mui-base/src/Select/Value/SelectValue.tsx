@@ -72,7 +72,7 @@ SelectValue.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     PropTypes.number,
     PropTypes.shape({
-      '__@iterator@70': PropTypes.func.isRequired,
+      '__@iterator@74': PropTypes.func.isRequired,
     }),
     PropTypes.shape({
       children: PropTypes.node,

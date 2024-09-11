@@ -88,7 +88,7 @@ const SelectOption = React.forwardRef(function SelectOption(
   props: SelectOption.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, value: valueProp, label, ...otherProps } = props;
+  const { id: idProp, value: valueProp = null, label, ...otherProps } = props;
 
   const {
     setValue,
@@ -114,7 +114,7 @@ const SelectOption = React.forwardRef(function SelectOption(
     values[listItem.index] = valueProp;
 
     return () => {
-      values[listItem.index] = null;
+      delete values[listItem.index];
     };
   }, [listItem.index, valueProp, valuesRef]);
 
@@ -178,8 +178,9 @@ namespace SelectOption {
     children?: React.ReactNode;
     /**
      * The value of the select option.
+     * @default null
      */
-    value?: unknown;
+    value?: any;
     /**
      * The click handler for the select option.
      */
@@ -226,6 +227,7 @@ SelectOption.propTypes /* remove-proptypes */ = {
   onClick: PropTypes.func,
   /**
    * The value of the select option.
+   * @default null
    */
   value: PropTypes.any,
 } as any;

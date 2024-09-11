@@ -39,7 +39,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     loop,
     value: valueProp,
     onValueChange,
-    defaultValue = '',
+    defaultValue = null,
     alignMethod,
   } = params;
 
@@ -60,7 +60,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const typingRef = React.useRef(false);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
-  const valuesRef = React.useRef<Array<unknown>>([]);
+  const valuesRef = React.useRef<Array<any>>([]);
   const selectionRef = React.useRef({ allowMouseUp: false, allowSelect: false });
   const overflowRef = React.useRef<SideObject>({ top: 0, bottom: 0, left: 0, right: 0 });
   const valueRef = React.useRef<HTMLSpanElement>(null);
@@ -89,14 +89,9 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       fieldControlValidation.commitValidation(nextValue);
     }
 
-    if (nextValue !== null) {
-      const index = valuesRef.current.indexOf(nextValue);
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
-    } else {
-      setSelectedIndex(null);
-      setLabel('');
-    }
+    const index = valuesRef.current.indexOf(nextValue);
+    setSelectedIndex(index);
+    setLabel(labelsRef.current[index] ?? '');
   });
 
   useEnhancedEffect(() => {
@@ -304,16 +299,16 @@ export namespace useSelectRoot {
     /**
      * The value of the Select. Use when controlled.
      */
-    value?: unknown;
+    value?: any;
     /**
      * Callback fired when the value of the Select changes. Use when controlled.
      */
-    onValueChange?: (value: unknown, event?: Event) => void;
+    onValueChange?: (value: any, event?: Event) => void;
     /**
      * The default value of the Select.
      * @default ''
      */
-    defaultValue?: unknown;
+    defaultValue?: any;
     /**
      * Determines if the select should align to the selected item inside the popup or the trigger
      * element.
@@ -337,7 +332,7 @@ export namespace useSelectRoot {
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     elementsRef: React.MutableRefObject<(HTMLElement | null)[]>;
     labelsRef: React.MutableRefObject<Array<string | null>>;
-    valuesRef: React.MutableRefObject<Array<unknown>>;
+    valuesRef: React.MutableRefObject<Array<any>>;
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;

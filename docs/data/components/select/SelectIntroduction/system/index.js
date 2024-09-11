@@ -6,7 +6,7 @@ import { css, styled } from '@mui/system';
 
 export default function SelectSimple() {
   return (
-    <Select.Root defaultValue="system-2">
+    <Select.Root defaultValue="system">
       <SelectTrigger aria-label="Select font">
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />

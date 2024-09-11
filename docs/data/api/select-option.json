@@ -3,7 +3,7 @@
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "label": { "type": { "name": "string" } },
     "onClick": { "type": { "name": "func" } },
-    "value": { "type": { "name": "any" } }
+    "value": { "type": { "name": "any" }, "default": "null" }
   },
   "name": "SelectOption",
   "imports": [

@@ -122,7 +122,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState<unknown>('');
+        const [value, setValue] = React.useState('');
 
         return (
           <Select.Root

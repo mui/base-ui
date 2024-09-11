@@ -98,15 +98,15 @@ namespace SelectRoot {
     /**
      * The value of the select.
      */
-    value?: unknown;
+    value?: any;
     /**
      * Callback fired when the value of the select changes. Use when controlled.
      */
-    onValueChange?: (value: unknown, event?: Event) => void;
+    onValueChange?: (value: any, event?: Event) => void;
     /**
      * The default value of the select.
      */
-    defaultValue?: unknown;
+    defaultValue?: any;
     /**
      * If `true`, the Select is initially open.
      *

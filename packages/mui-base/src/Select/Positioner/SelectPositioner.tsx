@@ -226,7 +226,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
         name,
         disabled,
         required,
-        value,
+        value: serializedValue,
         ref: inputRef,
         style: visuallyHidden,
         tabIndex: -1,
