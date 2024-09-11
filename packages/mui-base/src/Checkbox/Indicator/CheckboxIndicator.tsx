@@ -3,9 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useCheckboxRootContext } from '../Root/CheckboxRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../Root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 
 /**
  * The indicator part of the Checkbox.
@@ -22,7 +22,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = true, ...otherProps } = props;
 
   const ownerState = useCheckboxRootContext();
 
@@ -49,7 +49,7 @@ namespace CheckboxIndicator {
   export interface Props extends BaseUIComponentProps<'span', OwnerState> {
     /**
      * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
-     * @default false
+     * @default true
      */
     keepMounted?: boolean;
   }
@@ -70,7 +70,7 @@ CheckboxIndicator.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
-   * @default false
+   * @default true
    */
   keepMounted: PropTypes.bool,
   /**

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import * as Checkbox from '@base_ui/react/Checkbox';
-import { CheckboxContext } from '@base_ui/react/Checkbox';
 import { createRenderer, describeConformance } from '#test-utils';
+import { CheckboxRootContext } from '../Root/CheckboxRootContext';
 
 const testContext = {
   checked: true,
@@ -22,7 +22,7 @@ describe('<Checkbox.Indicator />', () => {
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
-        <CheckboxContext.Provider value={testContext}>{node}</CheckboxContext.Provider>,
+        <CheckboxRootContext.Provider value={testContext}>{node}</CheckboxRootContext.Provider>,
       );
     },
   }));

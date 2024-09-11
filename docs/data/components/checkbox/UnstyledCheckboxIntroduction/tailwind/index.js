@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 
@@ -62,6 +63,13 @@ const Checkbox = React.forwardRef(function Checkbox(props, ref) {
   );
 });
 
+Checkbox.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
+
 const Indicator = React.forwardRef(function Indicator(props, ref) {
   return (
     <BaseCheckbox.Indicator
@@ -80,6 +88,13 @@ const Indicator = React.forwardRef(function Indicator(props, ref) {
     </BaseCheckbox.Indicator>
   );
 });
+
+Indicator.propTypes = {
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+};
 
 function CheckIcon(props) {
   return (
