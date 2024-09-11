@@ -24,10 +24,10 @@ describe('<Field.Root />', () => {
   }));
 
   describe('prop: disabled', () => {
-    it('should add data-disabled style hook to all components', () => {
-      render(
+    it('should add data-disabled style hook to all components', async () => {
+      await render(
         <Field.Root data-testid="field" disabled>
-          <Field.Control disabled data-testid="control" />
+          <Field.Control data-testid="control" />
           <Field.Label data-testid="label" />
           <Field.Description data-testid="message" />
         </Field.Root>,
