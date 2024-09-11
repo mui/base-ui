@@ -34,4 +34,7 @@ export const defaultRenderFunctions = {
   fieldset: (props: React.ComponentPropsWithRef<'fieldset'>) => {
     return <fieldset {...props} />;
   },
+  form: (props: React.ComponentPropsWithRef<'form'>) => {
+    return <form {...props} />;
+  },
 };

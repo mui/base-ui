@@ -29,7 +29,8 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
-import { ScrubHandle } from './useScrub.types';
+import { useField } from '../../Field/useField';
+import type { ScrubHandle } from './useScrub.types';
 
 export function useNumberFieldRoot(
   params: UseNumberFieldRoot.Parameters,
@@ -56,7 +57,6 @@ export function useNumberFieldRoot(
 
   const {
     labelId,
-    setDisabled,
     setControlId,
     validateOnChange,
     setTouched,
@@ -64,10 +64,6 @@ export function useNumberFieldRoot(
     validityData,
     setValidityData,
   } = useFieldRootContext();
-
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
 
   const {
     getInputValidationProps,
@@ -81,6 +77,9 @@ export function useNumberFieldRoot(
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedRef = useForkRef(inputRef, inputValidationRef);
+
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
@@ -90,13 +89,27 @@ export function useNumberFieldRoot(
     };
   }, [id, setControlId]);
 
+  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+    controlled: externalValue,
+    default: defaultValue,
+    name: 'NumberField',
+    state: 'value',
+  });
+
+  const value = valueUnwrapped ?? null;
+  const valueRef = useLatestRef(value);
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef: inputRef,
+  });
+
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
   const onValueChange = useEventCallback(onValueChangeProp);
-
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
@@ -110,16 +123,6 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
-
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
-    controlled: externalValue,
-    default: defaultValue,
-    name: 'NumberField',
-    state: 'value',
-  });
-
-  const value = valueUnwrapped ?? null;
-  const valueRef = useLatestRef(value);
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
