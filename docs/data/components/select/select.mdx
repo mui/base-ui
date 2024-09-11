@@ -35,8 +35,8 @@ Selects are implemented using a collection of related components:
 - `<Select.Option />` renders an option, placed inside the popup.
 - `<Select.OptionText />` renders the text of an option.
 - `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
-- `<Select.OptionGroup />` renders an option group, wrapping `<Select.Option>` components.
-- `<Select.OptionGroupLabel />` renders a label for an option group.
+- `<Select.Group />` renders an group for a set of options, wrapping `<Select.Option>` components.
+- `<Select.GroupLabel />` renders a label for a group of options.
 - `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
 - `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
 - `<Select.Separator />` renders a separator between option groups.
@@ -55,19 +55,19 @@ Selects are implemented using a collection of related components:
     <Select.ScrollUpArrow />
 
     <Select.Popup>
-      <Select.OptionGroup>
-        <Select.OptionGroupLabel />
+      <Select.Group>
+        <Select.GroupLabel />
         <Select.Option>
           <Select.OptionText />
           <Select.OptionIndicator />
         </Select.Option>
-      </Select.OptionGroup>
+      </Select.Group>
       <Select.Separator />
     </Select.Popup>
 
-    <Select.Arrow />
-
     <Select.ScrollDownArrow />
+
+    <Select.Arrow />
   </Select.Positioner>
 </Select.Root>
 ```

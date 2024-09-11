@@ -11,7 +11,6 @@ export default function SelectEmpty() {
         <Select.Value placeholder="Select font..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <Select.Backdrop />
       <Select.Positioner sideOffset={5}>
         <SelectScrollUpArrow
           render={(props) => (

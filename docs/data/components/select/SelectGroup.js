@@ -32,7 +32,6 @@ export default function SelectGroup() {
         <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <Select.Backdrop />
       <Select.Positioner sideOffset={5}>
         <SelectScrollUpArrow
           render={(props) => (

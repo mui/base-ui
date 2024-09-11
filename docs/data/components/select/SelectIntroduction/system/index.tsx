@@ -11,7 +11,6 @@ export default function SelectSimple() {
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <Select.Backdrop />
       <Select.Positioner sideOffset={5}>
         <SelectScrollUpArrow
           render={(props) => (
