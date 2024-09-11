@@ -7,7 +7,7 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+
 /**
  *
  * Demos:

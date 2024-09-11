@@ -3,8 +3,6 @@
 import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { css, styled } from '@mui/system';
-import Check from '@mui/icons-material/Check';
-import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 
 function createOptions(items: string[]) {
   return items.map((item) => ({
@@ -36,14 +34,16 @@ export default function SelectGroup() {
       </SelectTrigger>
       <Select.Backdrop />
       <Select.Positioner sideOffset={5}>
-        <SelectScrollUpArrow>
-          <div>
-            <ArrowDropDown />
-          </div>
-        </SelectScrollUpArrow>
+        <SelectScrollUpArrow
+          render={(props) => (
+            <div {...props}>
+              <div>{props.children}</div>
+            </div>
+          )}
+        />
         <SelectPopup>
           <SelectOption value="">
-            <SelectOptionIndicator render={<Check />} />
+            <SelectOptionIndicator render={<CheckIcon />} />
             <Select.OptionText>Select food...</Select.OptionText>
           </SelectOption>
           {entries.map(([group, items]) => (
@@ -57,7 +57,7 @@ export default function SelectGroup() {
                     value={item.value}
                     disabled={item.value === 'banana'}
                   >
-                    <SelectOptionIndicator render={<Check />} />
+                    <SelectOptionIndicator render={<CheckIcon />} />
                     <Select.OptionText>{item.label}</Select.OptionText>
                   </SelectOption>
                 ))}
@@ -65,15 +65,38 @@ export default function SelectGroup() {
             </React.Fragment>
           ))}
         </SelectPopup>
-        <SelectScrollDownArrow>
-          <div>
-            <ArrowDropDown />
-          </div>
-        </SelectScrollDownArrow>
+        <SelectScrollDownArrow
+          render={(props) => (
+            <div {...props}>
+              <div>{props.children}</div>
+            </div>
+          )}
+        />
       </Select.Positioner>
     </Select.Root>
   );
 }
+
+const CheckIcon = styled(function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+})`
+  width: 100%;
+  height: 100%;
+`;
 
 const gray = {
   300: '#e5e7eb',
@@ -163,6 +186,8 @@ const SelectGroupLabel = styled(Select.GroupLabel)`
 const scrollArrowStyles = css`
   width: 100%;
   height: 15px;
+  font-size: 10px;
+  cursor: default;
 
   &[data-side='none'] {
     height: 25px;
@@ -177,26 +202,31 @@ const scrollArrowStyles = css`
     align-items: center;
     justify-content: center;
     border-radius: 5px;
-    top: 0;
   }
 `;
 
 const SelectScrollUpArrow = styled(Select.ScrollUpArrow)`
-  transform: rotate(180deg);
-  top: 0;
   ${scrollArrowStyles}
 
   &[data-side='none'] {
     top: -10px;
+
+    > div {
+      top: 10px;
+    }
   }
 `;
 
 const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
-  bottom: 0;
   ${scrollArrowStyles}
+  bottom: 0;
 
   &[data-side='none'] {
     bottom: -10px;
+
+    > div {
+      bottom: 10px;
+    }
   }
 `;
 
