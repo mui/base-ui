@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { CheckboxRootContext } from './CheckboxRootContext';
-import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
+import { CheckboxRootContext } from './CheckboxRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -36,12 +35,11 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     required = false,
     disabled: disabledProp = false,
     checked: checkedProp,
-    render: renderProp,
+    render,
     className,
     inputRef,
     ...otherProps
   } = props;
-  const render = renderProp ?? defaultRenderFunctions.button;
 
   const groupContext = useCheckboxGroupRootContext();
   const isGrouped = groupContext?.parent && groupContext.allValues;

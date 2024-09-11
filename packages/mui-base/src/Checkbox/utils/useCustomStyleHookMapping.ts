@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { CheckboxRoot } from '../Root/CheckboxRoot';
 
 export function useCustomStyleHookMapping(ownerState: CheckboxRoot.OwnerState) {
