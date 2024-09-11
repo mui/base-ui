@@ -42,6 +42,7 @@ export function useAccordionRoot(
     animated = true,
     disabled = false,
     direction = 'ltr',
+    loop = true,
     onOpenChange = NOOP,
     orientation = 'vertical',
     openMultiple = true,
@@ -102,11 +103,19 @@ export function useAccordionRoot(
           const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
 
           function toNext() {
-            nextIndex = Math.min(thisIndex + 1, lastIndex);
+            if (loop) {
+              nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
+            } else {
+              nextIndex = Math.min(thisIndex + 1, lastIndex);
+            }
           }
 
           function toPrev() {
-            nextIndex = thisIndex - 1;
+            if (loop) {
+              nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
+            } else {
+              nextIndex = thisIndex - 1;
+            }
           }
 
           switch (event.key) {
@@ -154,7 +163,7 @@ export function useAccordionRoot(
         },
       });
     },
-    [direction, orientation],
+    [direction, loop, orientation],
   );
 
   return React.useMemo(
@@ -214,6 +223,12 @@ export namespace useAccordionRoot {
      * @default 'ltr'
      */
     direction?: Direction;
+    /**
+     * If `true`, focus will loop when moving focus between `Trigger`s using
+     * the arrow keys.
+     * @default true
+     */
+    loop?: boolean;
     /**
      * Callback fired when an Accordion section is opened or closed.
      * The value representing the involved section is provided as an argument.

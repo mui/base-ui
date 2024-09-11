@@ -11,6 +11,9 @@
       "description": "The default value representing the currently open <code>Accordion.Item</code> This is the uncontrolled counterpart of <code>value</code>."
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "loop": {
+      "description": "If <code>true</code>, focus will loop when moving focus between <code>Trigger</code>s using the arrow keys."
+    },
     "onOpenChange": {
       "description": "Callback fired when an Accordion section is opened or closed. The value representing the involved section is provided as an argument."
     },

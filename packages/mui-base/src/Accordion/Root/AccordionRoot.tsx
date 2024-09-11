@@ -28,6 +28,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     direction,
     disabled = false,
     htmlHidden,
+    loop,
     onOpenChange,
     openMultiple = true,
     orientation,
@@ -52,6 +53,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     direction,
     disabled,
     defaultValue,
+    loop,
     orientation,
     onOpenChange,
     openMultiple,
@@ -158,6 +160,12 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   htmlHidden: PropTypes.oneOf(['hidden', 'until-found']),
+  /**
+   * If `true`, focus will loop when moving focus between `Trigger`s using
+   * the arrow keys.
+   * @default true
+   */
+  loop: PropTypes.bool,
   /**
    * Callback fired when an Accordion section is opened or closed.
    * The value representing the involved section is provided as an argument.
