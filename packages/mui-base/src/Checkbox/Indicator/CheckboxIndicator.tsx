@@ -37,7 +37,8 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     extraProps: otherProps,
   });
 
-  if (!keepMounted && !ownerState.checked && !ownerState.indeterminate) {
+  const shouldRender = keepMounted || ownerState.checked || ownerState.indeterminate;
+  if (!shouldRender) {
     return null;
   }
 
