@@ -32,8 +32,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     state: 'checked',
   });
 
-  const { labelId, setControlId, setTouched, setDirty, validityData, setValidityData } =
-    useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -69,12 +68,6 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       inputRef.current.indeterminate = indeterminate;
     }
   }, [indeterminate]);
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && checked !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: checked }));
-    }
-  }, [checked, setValidityData, validityData.initialValue]);
 
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
