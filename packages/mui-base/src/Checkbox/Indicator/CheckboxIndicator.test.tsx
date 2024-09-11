@@ -27,14 +27,14 @@ describe('<Checkbox.Indicator />', () => {
     },
   }));
 
-  it('should not render indicator by default', async () => {
+  it('should render indicator by default', async () => {
     const { container } = await render(
       <Checkbox.Root>
         <Checkbox.Indicator />
       </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
-    expect(indicator).to.equal(null);
+    expect(indicator).not.to.equal(null);
   });
 
   it('should render indicator when checked', async () => {
