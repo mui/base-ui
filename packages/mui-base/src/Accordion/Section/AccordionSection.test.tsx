@@ -1,9 +1,8 @@
 import * as React from 'react';
 // import { expect } from 'chai';
 // import { spy } from 'sinon';
-import { createRenderer /* , act */ } from '@mui/internal-test-utils';
 import * as Accordion from '@base_ui/react/Accordion';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance, createRenderer } from '#test-utils';
 
 const { AccordionRootContext } = Accordion;
 
@@ -27,15 +26,12 @@ describe('<Accordion.Section />', () => {
 
   describeConformance(<Accordion.Section />, () => ({
     inheritComponent: 'div',
-    render: (node) => {
-      const { container, ...other } = render(
+    render: (node) =>
+      render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>
           {node}
         </AccordionRootContext.Provider>,
-      );
-
-      return { container, ...other };
-    },
+      ),
     refInstanceof: window.HTMLDivElement,
   }));
 });

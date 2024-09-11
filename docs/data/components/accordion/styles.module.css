@@ -1,0 +1,81 @@
+.demo {
+  width: 40rem;
+  margin: 1rem;
+}
+
+.root {
+  --Paper-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+  font-family: system-ui, sans-serif;
+  box-shadow: var(--Paper-shadow);
+  background-color: rgba(0, 0, 0, 0.12);
+  border-radius: 0.3rem;
+}
+
+.section {
+  position: relative;
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.section:not(:first-of-type) {
+  margin-top: 1px;
+}
+
+.section:first-of-type {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.section:last-of-type {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.heading {
+  margin: 0;
+  border-radius: inherit;
+}
+
+.heading:hover {
+  cursor: pointer;
+}
+
+.trigger {
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  border-radius: inherit;
+  color: inherit;
+  padding: 0 1rem;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.trigger:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid black;
+  z-index: 1;
+}
+
+.trigger .triggerText {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 12px auto 12px 0;
+}
+
+.trigger[data-collapsible='open'] svg {
+  transform: rotate(180deg);
+}
+
+.panel {
+  padding: 1rem;
+}

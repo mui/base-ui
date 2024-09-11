@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { AccordionSection } from '../Section/AccordionSection';
 import { useAccordionSectionContext } from '../Section/AccordionSectionContext';
 import { accordionStyleHookMapping } from '../Section/styleHooks';
+
 /**
  *
  * Demos:
@@ -36,6 +37,12 @@ const AccordionHeading = React.forwardRef(function AccordionHeading(
   return renderElement();
 });
 
+export { AccordionHeading };
+
+export namespace AccordionHeading {
+  export interface Props extends BaseUIComponentProps<'h3', AccordionSection.OwnerState> {}
+}
+
 AccordionHeading.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -54,9 +61,3 @@ AccordionHeading.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { AccordionHeading };
-
-export namespace AccordionHeading {
-  export interface Props extends BaseUIComponentProps<'h3', AccordionSection.OwnerState> {}
-}

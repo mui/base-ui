@@ -34,16 +34,7 @@ function isDisabled(element: HTMLElement | null) {
     element.getAttribute('data-disabled') === 'true'
   );
 }
-/**
- *
- * Demos:
- *
- * - [Accordion](https://mui.com/base-ui/react-accordion/#hook)
- *
- * API:
- *
- * - [useAccordionRoot API](https://mui.com/base-ui/react-accordion/hooks-api/#use-accordion-root)
- */
+
 export function useAccordionRoot(
   parameters: useAccordionRoot.Parameters,
 ): useAccordionRoot.ReturnValue {

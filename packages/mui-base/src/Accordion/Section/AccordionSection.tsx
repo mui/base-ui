@@ -15,6 +15,7 @@ import type { AccordionRoot } from '../Root/AccordionRoot';
 import { useAccordionRootContext } from '../Root/AccordionRootContext';
 import { AccordionSectionContext } from './AccordionSectionContext';
 import { accordionStyleHookMapping } from './styleHooks';
+
 /**
  *
  * Demos:
@@ -139,6 +140,30 @@ const AccordionSection = React.forwardRef(function AccordionSection(
   );
 });
 
+export { AccordionSection };
+
+export namespace AccordionSection {
+  export type Value = number | string;
+
+  export interface Context {
+    open: boolean;
+    triggerId?: string;
+    ownerState: OwnerState;
+  }
+
+  export interface OwnerState extends AccordionRoot.OwnerState {
+    index: number;
+    open: boolean;
+    transitionStatus: TransitionStatus;
+  }
+
+  export interface Props
+    extends BaseUIComponentProps<any, OwnerState>,
+      Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
+    value?: Value;
+  }
+}
+
 AccordionSection.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -166,27 +191,3 @@ AccordionSection.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
-
-export { AccordionSection };
-
-export namespace AccordionSection {
-  export type Value = number | string;
-
-  export interface Context {
-    open: boolean;
-    triggerId?: string;
-    ownerState: OwnerState;
-  }
-
-  export interface OwnerState extends AccordionRoot.OwnerState {
-    index: number;
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
-
-  export interface Props
-    extends BaseUIComponentProps<any, OwnerState>,
-      Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
-    value?: Value;
-  }
-}

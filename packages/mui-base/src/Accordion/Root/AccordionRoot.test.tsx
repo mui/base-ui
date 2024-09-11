@@ -1,9 +1,8 @@
 import * as React from 'react';
 // import { expect } from 'chai';
 // import { spy } from 'sinon';
-import { createRenderer /* , act */ } from '@mui/internal-test-utils';
 import * as Accordion from '@base_ui/react/Accordion';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Accordion.Root />', () => {
   const { render } = createRenderer();

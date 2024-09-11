@@ -9,6 +9,7 @@ import { useAccordionRootContext } from '../Root/AccordionRootContext';
 import type { AccordionSection } from '../Section/AccordionSection';
 import { useAccordionSectionContext } from '../Section/AccordionSectionContext';
 import { accordionStyleHookMapping } from '../Section/styleHooks';
+
 /**
  *
  * Demos:
@@ -64,6 +65,14 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   return renderElement();
 });
 
+export { AccordionPanel };
+
+export namespace AccordionPanel {
+  export interface Props
+    extends BaseUIComponentProps<'div', AccordionSection.OwnerState>,
+      Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
+}
+
 AccordionPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -87,11 +96,3 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { AccordionPanel };
-
-export namespace AccordionPanel {
-  export interface Props
-    extends BaseUIComponentProps<'div', AccordionSection.OwnerState>,
-      Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
-}

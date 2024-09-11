@@ -20,29 +20,7 @@ packageName: '@base_ui/react'
 
 ## Installation
 
-Base UI components are all available as a single package.
-
-<codeblock storageKey="package-manager">
-
-```bash npm
-npm install @base_ui/react
-```
-
-```bash yarn
-yarn add @base_ui/react
-```
-
-```bash pnpm
-pnpm add @base_ui/react
-```
-
-</codeblock>
-
-Once you have the package installed, import the components.
-
-```ts
-import * as Accordion from '@base_ui/react/Accordion';
-```
+<InstallationInstructions componentName="Accordion" />
 
 ## Anatomy
 
@@ -209,10 +187,11 @@ When a horizontal accordion is set to `direction="rtl"`, keyboard actions are re
 
 ## Improving searchability of hidden content
 
-:::warning
-This is [not yet supported](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) in Safari and Firefox as of August 2024 and will fall back to the default `hidden` behavior.
-
-:::
+<Callout type="warning">
+  This is [not yet
+  supported](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) in Safari and
+  Firefox as of August 2024 and will fall back to the default `hidden` behavior.
+</Callout>
 
 Content hidden by `Accordion.Panel` components can be made accessible only to a browser's find-in-page functionality with the `htmlHidden` prop to improve searchability:
 

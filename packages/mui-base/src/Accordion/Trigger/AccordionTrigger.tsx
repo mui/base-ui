@@ -8,6 +8,7 @@ import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleT
 import type { AccordionSection } from '../Section/AccordionSection';
 import { useAccordionSectionContext } from '../Section/AccordionSectionContext';
 import { accordionStyleHookMapping } from '../Section/styleHooks';
+
 /**
  *
  * Demos:
@@ -48,6 +49,12 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return renderElement();
 });
 
+export { AccordionTrigger };
+
+namespace AccordionTrigger {
+  export interface Props extends BaseUIComponentProps<'button', AccordionSection.OwnerState> {}
+}
+
 AccordionTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -70,9 +77,3 @@ AccordionTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { AccordionTrigger };
-
-namespace AccordionTrigger {
-  export interface Props extends BaseUIComponentProps<'button', AccordionSection.OwnerState> {}
-}

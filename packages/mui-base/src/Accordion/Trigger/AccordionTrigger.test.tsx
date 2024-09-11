@@ -1,10 +1,9 @@
 import * as React from 'react';
 // import { expect } from 'chai';
 // import { spy } from 'sinon';
-import { createRenderer /* , act */ } from '@mui/internal-test-utils';
 import * as Accordion from '@base_ui/react/Accordion';
 import * as Collapsible from '@base_ui/react/Collapsible';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance, createRenderer } from '#test-utils';
 
 const { AccordionRootContext, AccordionSectionContext } = Accordion;
 
@@ -59,8 +58,8 @@ describe('<Accordion.Trigger />', () => {
 
   describeConformance(<Accordion.Trigger />, () => ({
     inheritComponent: 'button',
-    render: (node) => {
-      const { container, ...other } = render(
+    render: (node) =>
+      render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>
           <CollapsibleContext.Provider value={collapsibleContextValue}>
             <AccordionSectionContext.Provider value={accordionSectionContextValue}>
@@ -68,10 +67,7 @@ describe('<Accordion.Trigger />', () => {
             </AccordionSectionContext.Provider>
           </CollapsibleContext.Provider>
         </AccordionRootContext.Provider>,
-      );
-
-      return { container, ...other };
-    },
+      ),
     refInstanceof: window.HTMLButtonElement,
   }));
 });

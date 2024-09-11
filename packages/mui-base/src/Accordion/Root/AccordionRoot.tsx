@@ -7,6 +7,7 @@ import type { useCollapsibleContent } from '../../Collapsible/Content/useCollaps
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { useAccordionRoot } from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
+
 /**
  *
  * Demos:
@@ -101,6 +102,27 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   );
 });
 
+export { AccordionRoot };
+
+export namespace AccordionRoot {
+  export interface Context extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
+    ownerState: OwnerState;
+    htmlHidden?: useCollapsibleContent.HtmlHiddenType;
+  }
+
+  export interface OwnerState {
+    value: useAccordionRoot.Value;
+    disabled: boolean;
+    orientation: useAccordionRoot.Orientation;
+  }
+
+  export interface Props
+    extends useAccordionRoot.Parameters,
+      BaseUIComponentProps<any, OwnerState> {
+    htmlHidden?: useCollapsibleContent.HtmlHiddenType;
+  }
+}
+
 AccordionRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -160,24 +182,3 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired),
 } as any;
-
-export { AccordionRoot };
-
-export namespace AccordionRoot {
-  export interface Context extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
-    ownerState: OwnerState;
-    htmlHidden?: useCollapsibleContent.HtmlHiddenType;
-  }
-
-  export interface OwnerState {
-    value: useAccordionRoot.Value;
-    disabled: boolean;
-    orientation: useAccordionRoot.Orientation;
-  }
-
-  export interface Props
-    extends useAccordionRoot.Parameters,
-      BaseUIComponentProps<any, OwnerState> {
-    htmlHidden?: useCollapsibleContent.HtmlHiddenType;
-  }
-}

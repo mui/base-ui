@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as Accordion from '@base_ui/react/Accordion';
+import { ExpandMoreIcon } from './accordion';
 
 const DURATION = '300ms';
 

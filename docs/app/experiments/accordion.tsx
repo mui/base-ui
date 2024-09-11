@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import Check from '@mui/icons-material/Check';
-// import { useTheme } from '@mui/system';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import * as Accordion from '@base_ui/react/Accordion';
 
@@ -19,7 +17,7 @@ export default function App() {
         onCheckedChange={setOpenMultiple}
       >
         <Checkbox.Indicator className="Checkbox-indicator">
-          <Check className="Checkbox-icon" />
+          <CheckIcon className="Checkbox-icon" />
         </Checkbox.Indicator>
       </Checkbox.Root>
 
@@ -164,6 +162,36 @@ export default function App() {
       </Accordion.Root>
       <Styles />
     </div>
+  );
+}
+
+function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function ExpandMoreIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" fill="currentColor" />
+    </svg>
   );
 }
 
