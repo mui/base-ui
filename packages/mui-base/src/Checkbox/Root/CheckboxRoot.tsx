@@ -37,6 +37,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     checked: checkedProp,
     render: renderProp,
     className,
+    inputRef,
     ...otherProps
   } = props;
   const render = renderProp ?? defaultRenderFunctions.button;
@@ -62,6 +63,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
     ...props,
+    inputRef,
     checked: groupChecked,
     indeterminate: groupIndeterminate,
     onCheckedChange: groupOnChange,
@@ -159,6 +161,15 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   indeterminate: PropTypes.bool,
+  /**
+   * The ref to the input element.
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
   /**
    * Name of the underlying input element.
    *

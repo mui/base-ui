@@ -10,6 +10,7 @@
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
     "indeterminate": { "description": "If <code>true</code>, the checkbox will be indeterminate." },
+    "inputRef": { "description": "The ref to the input element." },
     "name": { "description": "Name of the underlying input element." },
     "onCheckedChange": {
       "description": "Callback fired when the checked state is changed.",

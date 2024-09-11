@@ -5,6 +5,9 @@
     "defaultChecked": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "indeterminate": { "type": { "name": "bool" }, "default": "false" },
+    "inputRef": {
+      "type": { "name": "union", "description": "func<br>&#124;&nbsp;{ current?: object }" }
+    },
     "name": { "type": { "name": "string" }, "default": "undefined" },
     "onCheckedChange": {
       "type": { "name": "func" },
