@@ -6,11 +6,10 @@ import type { FieldControlElement, FieldControlProps } from './FieldControl.type
 import { useFieldControl } from './useFieldControl';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The field's control element. This is not necessary to use when using a native Base UI input
- * component (Checkbox, Switch, NumberField, Slider).
+ * component (Checkbox, Switch, NumberField, Slider, Radio Group etc).
  *
  * Demos:
  *
@@ -28,20 +27,36 @@ const FieldControl = React.forwardRef(function FieldControl(
     render,
     className,
     id,
-    disabled = false,
-    name,
+    name: nameProp,
     value,
+    disabled: disabledProp = false,
+    onValueChange,
     defaultValue,
     ...otherProps
   } = props;
 
-  const { setDisabled, ownerState } = useFieldRootContext(false);
+  const {
+    ownerState: fieldOwnerState,
+    name: fieldName,
+    disabled: fieldDisabled,
+  } = useFieldRootContext(false);
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
-  const { getControlProps } = useFieldControl({ id, name, value: value ?? defaultValue ?? '' });
+  const ownerState = React.useMemo(
+    () => ({ ...fieldOwnerState, disabled }),
+    [fieldOwnerState, disabled],
+  );
+
+  const { getControlProps } = useFieldControl({
+    id,
+    name,
+    disabled,
+    value,
+    defaultValue,
+    onValueChange,
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getControlProps,
@@ -89,6 +104,10 @@ FieldControl.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   name: PropTypes.string,
+  /**
+   * Callback fired when the `value` changes. Use when controlled.
+   */
+  onValueChange: PropTypes.func,
   /**
    * A function to customize rendering of the component.
    */

@@ -5,27 +5,29 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useField } from '../useField';
+import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 interface UseFieldControlParameters {
   id?: string;
   name?: string;
-  value: string | number | readonly string[];
+  value?: string | number | readonly string[];
+  defaultValue?: string | number | readonly string[];
+  onValueChange?: (value: string | number | readonly string[], event: Event) => void;
+  disabled?: boolean;
 }
 
 export function useFieldControl(params: UseFieldControlParameters) {
-  const { id: idProp, name, value } = params;
+  const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
-  const { setControlId, labelId, disabled, setTouched, setDirty, validityData, setValidityData } =
-    useFieldRootContext();
+  const { setControlId, labelId, setTouched, setDirty, validityData } = useFieldRootContext();
+
+  const { errors, onClearErrors } = useFormRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && value !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: value }));
-    }
-  }, [setValidityData, validityData.initialValue, value]);
 
   const id = useId(idProp);
 
@@ -36,6 +38,28 @@ export function useFieldControl(params: UseFieldControlParameters) {
     };
   }, [id, setControlId]);
 
+  const [value, setValueUnwrapped] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'FieldControl',
+    state: 'value',
+  });
+
+  const setValue = useEventCallback(
+    (nextValue: string | number | readonly string[], event: Event) => {
+      setValueUnwrapped(nextValue);
+      onValueChange?.(nextValue, event);
+    },
+  );
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    getValue: () => inputRef.current?.value,
+    controlRef: inputRef,
+  });
+
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getValidationProps(getInputValidationProps(externalProps)), {
@@ -44,8 +68,17 @@ export function useFieldControl(params: UseFieldControlParameters) {
         name,
         ref: inputRef,
         'aria-labelledby': labelId,
+        value,
         onChange(event) {
+          if (value != null) {
+            setValue(event.currentTarget.value, event.nativeEvent);
+          }
           setDirty(event.currentTarget.value !== validityData.initialValue);
+          if (name && {}.hasOwnProperty.call(errors, name)) {
+            const nextErrors = { ...errors };
+            delete nextErrors[name];
+            onClearErrors(nextErrors);
+          }
         },
         onBlur(event) {
           setTouched(true);
@@ -66,8 +99,12 @@ export function useFieldControl(params: UseFieldControlParameters) {
       name,
       inputRef,
       labelId,
+      value,
+      setValue,
       setDirty,
       validityData.initialValue,
+      errors,
+      onClearErrors,
       setTouched,
       commitValidation,
     ],

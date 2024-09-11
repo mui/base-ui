@@ -6,6 +6,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useField } from '../../Field/useField';
 
 /**
  *
@@ -16,14 +17,7 @@ import { useFieldControlValidation } from '../../Field/Control/useFieldControlVa
 export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const {
-    labelId,
-    setDisabled,
-    setControlId,
-    setTouched: setFieldTouched,
-    validityData,
-    setValidityData,
-  } = useFieldRootContext();
+  const { labelId, setControlId, setTouched: setFieldTouched } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -31,10 +25,6 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
-
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
 
   const id = useId();
 
@@ -52,11 +42,12 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
     state: 'value',
   });
 
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && checkedValue !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: checkedValue }));
-    }
-  }, [checkedValue, setValidityData, validityData.initialValue]);
+  useField({
+    id,
+    commitValidation,
+    value: checkedValue,
+    controlRef: inputValidationRef,
+  });
 
   const [touched, setTouched] = React.useState(false);
 

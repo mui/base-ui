@@ -1,7 +1,9 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
     "invalid": { "type": { "name": "bool" } },
+    "name": { "type": { "name": "string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "validate": { "type": { "name": "func" } },
     "validateDebounceTime": { "type": { "name": "number" }, "default": "0" },
