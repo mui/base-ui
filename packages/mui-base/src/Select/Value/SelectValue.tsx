@@ -51,7 +51,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 namespace SelectValue {
   export interface OwnerState {}
   export interface Props extends Omit<BaseUIComponentProps<'span', OwnerState>, 'children'> {
-    children?: React.ReactNode | ((value: string) => React.ReactNode);
+    children?: null | ((value: string) => React.ReactNode);
     /**
      * The placeholder value to display when the value is empty (such as during SSR).
      */
@@ -67,22 +67,7 @@ SelectValue.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.oneOfType([
-    PropTypes.element,
-    PropTypes.func,
-    PropTypes.number,
-    PropTypes.shape({
-      '__@iterator@74': PropTypes.func.isRequired,
-    }),
-    PropTypes.shape({
-      children: PropTypes.node,
-      key: PropTypes.string,
-      props: PropTypes.any.isRequired,
-      type: PropTypes.oneOfType([PropTypes.func, PropTypes.string]).isRequired,
-    }),
-    PropTypes.string,
-    PropTypes.bool,
-  ]),
+  children: PropTypes.func,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
