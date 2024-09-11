@@ -1,16 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { CheckboxIndicatorProps } from './CheckboxIndicator.types';
-import { CheckboxContext } from '../Root/CheckboxContext';
-import { useCheckboxStyleHooks } from '../utils';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
-}
+import { useCheckboxRootContext } from '../Root/CheckboxRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { CheckboxRoot } from '../Root/CheckboxRoot';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 
 /**
  * The indicator part of the Checkbox.
@@ -24,37 +18,41 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [CheckboxIndicator API](https://base-ui.netlify.app/components/react-checkbox/#api-reference-CheckboxIndicator)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
-  props: CheckboxIndicatorProps,
+  props: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render: renderProp, className, keepMounted = false, ...otherProps } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
-  const { ownerState: fieldOwnerState } = useFieldRootContext();
+  const ownerState = useCheckboxRootContext();
 
-  const ownerState = React.useContext(CheckboxContext);
-  if (ownerState === null) {
-    throw new Error('Base UI: Checkbox.Indicator is not placed inside the Checkbox component.');
-  }
+  const customStyleHookMapping = useCustomStyleHookMapping(ownerState);
 
-  const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
-
-  const styleHooks = useCheckboxStyleHooks(extendedOwnerState);
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'span',
+    ref: forwardedRef,
+    ownerState,
+    className,
+    customStyleHookMapping,
+    extraProps: otherProps,
+  });
 
   if (!keepMounted && !ownerState.checked && !ownerState.indeterminate) {
     return null;
   }
 
-  const elementProps = {
-    className: resolveClassName(className, extendedOwnerState),
-    ref: mergedRef,
-    ...styleHooks,
-    ...otherProps,
-  };
-
-  return evaluateRenderProp(render, elementProps, ownerState);
+  return renderElement();
 });
+
+namespace CheckboxIndicator {
+  export interface OwnerState extends CheckboxRoot.OwnerState {}
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+    /**
+     * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+}
 
 CheckboxIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
