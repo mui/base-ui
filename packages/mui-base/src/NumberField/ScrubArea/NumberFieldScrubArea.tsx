@@ -1,14 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { NumberFieldScrubAreaProps } from './NumberFieldScrubArea.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useNumberFieldContext } from '../Root/NumberFieldContext';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
-}
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
 
 /**
  * The scrub area element.
@@ -22,18 +18,17 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [NumberFieldScrubArea API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldScrubArea)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: NumberFieldScrubAreaProps,
+  props: NumberFieldScrubArea.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
+    render,
+    className,
     direction = 'vertical',
     pixelSensitivity = 2,
     teleportDistance,
-    render: renderProp,
-    className,
     ...otherProps
   } = props;
-  const render = renderProp ?? defaultRender;
 
   const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, ownerState } =
     useNumberFieldContext('ScrubArea');
@@ -44,16 +39,41 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
     teleportDistance,
   }));
 
-  const mergedRef = useRenderPropForkRef(render, scrubAreaRef, forwardedRef);
+  const mergedRef = useForkRef(scrubAreaRef, forwardedRef);
 
-  const scrubAreaProps = getScrubAreaProps({
+  const { renderElement } = useComponentRenderer({
+    propGetter: getScrubAreaProps,
     ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...otherProps,
+    render: render ?? 'span',
+    ownerState,
+    className,
+    extraProps: otherProps,
   });
 
-  return evaluateRenderProp(render, scrubAreaProps, ownerState);
+  return renderElement();
 });
+
+namespace NumberFieldScrubArea {
+  export interface OwnerState extends NumberFieldRoot.OwnerState {}
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+    /**
+     * The direction that the scrub area should change the value.
+     * @default 'vertical'
+     */
+    direction?: 'vertical' | 'horizontal';
+    /**
+     * Determines the number of pixels the cursor must move before the value changes. A higher value
+     * will make the scrubbing less sensitive.
+     * @default 2
+     */
+    pixelSensitivity?: number;
+    /**
+     * If specified, how much the cursor can move around the center of the scrub area element before
+     * it will loop back around.
+     */
+    teleportDistance?: number | undefined;
+  }
+}
 
 NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
