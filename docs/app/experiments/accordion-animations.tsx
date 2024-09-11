@@ -15,13 +15,13 @@ export default function App() {
         htmlHidden="until-found"
       >
         {[0, 1, 2].map((index) => (
-          <Accordion.Section className="MyAccordion-section" key={index}>
-            <Accordion.Heading className="MyAccordion-heading">
+          <Accordion.Item className="MyAccordion-item" key={index}>
+            <Accordion.Header className="MyAccordion-header">
               <Accordion.Trigger className="MyAccordion-trigger">
                 <span className="trigger-text">Trigger {index + 1}</span>
                 <ExpandMoreIcon />
               </Accordion.Trigger>
-            </Accordion.Heading>
+            </Accordion.Header>
             <Accordion.Panel className="MyAccordion-panel cssanimation">
               <p>
                 This is the contents of Accordion.Panel {index + 1}
@@ -30,24 +30,24 @@ export default function App() {
                 in-page search
               </p>
             </Accordion.Panel>
-          </Accordion.Section>
+          </Accordion.Item>
         ))}
       </Accordion.Root>
 
       <h3>CSS transitions</h3>
       <Accordion.Root className="MyAccordion-root" aria-label="Uncontrolled Material UI Accordion">
         {[0, 1, 2].map((index) => (
-          <Accordion.Section className="MyAccordion-section" key={index}>
-            <Accordion.Heading className="MyAccordion-heading">
+          <Accordion.Item className="MyAccordion-item" key={index}>
+            <Accordion.Header className="MyAccordion-header">
               <Accordion.Trigger className="MyAccordion-trigger">
                 <span className="trigger-text">Trigger {index + 1}</span>
                 <ExpandMoreIcon />
               </Accordion.Trigger>
-            </Accordion.Heading>
+            </Accordion.Header>
             <Accordion.Panel className="MyAccordion-panel csstransition">
               <p>This is the contents of Accordion.Panel {index + 1}</p>
             </Accordion.Panel>
-          </Accordion.Section>
+          </Accordion.Item>
         ))}
       </Accordion.Root>
       <MaterialStyles />
@@ -79,27 +79,27 @@ function MaterialStyles() {
           border-radius: .3rem;
         }
 
-        .MyAccordion-section {
+        .MyAccordion-item {
           position: relative;
           background-color: #fff;
           color: rgba(0, 0, 0, .87);
         }
 
-        .MyAccordion-section:not(:first-of-type) {
+        .MyAccordion-item:not(:first-of-type) {
           margin-top: 1px;
         }
 
-        .MyAccordion-section:first-of-type {
+        .MyAccordion-item:first-of-type {
           border-top-left-radius: .25rem;
           border-top-right-radius: .25rem;
         }
 
-        .MyAccordion-section:last-of-type {
+        .MyAccordion-item:last-of-type {
           border-bottom-left-radius: .25rem;
           border-bottom-right-radius: .25rem;
         }
 
-        .MyAccordion-heading {
+        .MyAccordion-header {
           margin: 0;
         }
 

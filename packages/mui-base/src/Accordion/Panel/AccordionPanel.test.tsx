@@ -5,12 +5,12 @@ import * as Accordion from '@base_ui/react/Accordion';
 import * as Collapsible from '@base_ui/react/Collapsible';
 import { describeConformance, createRenderer } from '#test-utils';
 
-const { AccordionRootContext, AccordionSectionContext } = Accordion;
+const { AccordionRootContext, AccordionItemContext } = Accordion;
 
 const { CollapsibleContext } = Collapsible;
 
 const accordionRootContextValue: Accordion.Root.Context = {
-  accordionSectionRefs: { current: [] },
+  accordionItemRefs: { current: [] },
   animated: false,
   direction: 'ltr',
   disabled: false,
@@ -24,7 +24,7 @@ const accordionRootContextValue: Accordion.Root.Context = {
   value: [0],
 };
 
-const accordionSectionContextValue: Accordion.Section.Context = {
+const accordionItemContextValue: Accordion.Item.Context = {
   open: true,
   ownerState: {
     value: [0],
@@ -62,9 +62,9 @@ describe('<Accordion.Panel />', () => {
       render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>
           <CollapsibleContext.Provider value={collapsibleContextValue}>
-            <AccordionSectionContext.Provider value={accordionSectionContextValue}>
+            <AccordionItemContext.Provider value={accordionItemContextValue}>
               {node}
-            </AccordionSectionContext.Provider>
+            </AccordionItemContext.Provider>
           </CollapsibleContext.Provider>
         </AccordionRootContext.Provider>,
       ),

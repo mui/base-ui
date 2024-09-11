@@ -7,39 +7,39 @@ export default function UnstyledAccordionIntroduction() {
   return (
     <div className={classes.demo}>
       <Accordion.Root className={classes.root} aria-label="Base UI Accordion">
-        <Accordion.Section className={classes.section}>
-          <Accordion.Heading className={classes.heading}>
+        <Accordion.Item className={classes.item}>
+          <Accordion.Header className={classes.header}>
             <Accordion.Trigger className={classes.trigger}>
               <span className={classes.triggerText}>Trigger 1</span>
               <ExpandMoreIcon />
             </Accordion.Trigger>
-          </Accordion.Heading>
+          </Accordion.Header>
           <Accordion.Panel className={classes.panel}>
             This is the contents of Accordion.Panel 1
           </Accordion.Panel>
-        </Accordion.Section>
-        <Accordion.Section className={classes.section}>
-          <Accordion.Heading className={classes.heading}>
+        </Accordion.Item>
+        <Accordion.Item className={classes.item}>
+          <Accordion.Header className={classes.header}>
             <Accordion.Trigger className={classes.trigger}>
               <span className={classes.triggerText}>Trigger 2</span>
               <ExpandMoreIcon />
             </Accordion.Trigger>
-          </Accordion.Heading>
+          </Accordion.Header>
           <Accordion.Panel className={classes.panel}>
             This is the contents of Accordion.Panel 2
           </Accordion.Panel>
-        </Accordion.Section>
-        <Accordion.Section className={classes.section}>
-          <Accordion.Heading className={classes.heading}>
+        </Accordion.Item>
+        <Accordion.Item className={classes.item}>
+          <Accordion.Header className={classes.header}>
             <Accordion.Trigger className={classes.trigger}>
               <span className={classes.triggerText}>Trigger 3</span>
               <ExpandMoreIcon />
             </Accordion.Trigger>
-          </Accordion.Heading>
+          </Accordion.Header>
           <Accordion.Panel className={classes.panel}>
             This is the contents of Accordion.Panel 3
           </Accordion.Panel>
-        </Accordion.Section>
+        </Accordion.Item>
       </Accordion.Root>
     </div>
   );

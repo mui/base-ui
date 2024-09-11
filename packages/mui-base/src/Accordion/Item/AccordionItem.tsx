@@ -13,7 +13,7 @@ import { CollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 import type { AccordionRoot } from '../Root/AccordionRoot';
 import { useAccordionRootContext } from '../Root/AccordionRootContext';
-import { AccordionSectionContext } from './AccordionSectionContext';
+import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
 
 /**
@@ -24,10 +24,10 @@ import { accordionStyleHookMapping } from './styleHooks';
  *
  * API:
  *
- * - [AccordionSection API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionSection)
+ * - [AccordionItem API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionItem)
  */
-const AccordionSection = React.forwardRef(function AccordionSection(
-  props: AccordionSection.Props,
+const AccordionItem = React.forwardRef(function AccordionItem(
+  props: AccordionItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -100,7 +100,7 @@ const AccordionSection = React.forwardRef(function AccordionSection(
     [collapsible, collapsibleOwnerState],
   );
 
-  const ownerState: AccordionSection.OwnerState = React.useMemo(
+  const ownerState: AccordionItem.OwnerState = React.useMemo(
     () => ({
       ...rootOwnerState,
       index,
@@ -113,7 +113,7 @@ const AccordionSection = React.forwardRef(function AccordionSection(
 
   const triggerId = useId();
 
-  const accordionSectionContext: AccordionSection.Context = React.useMemo(
+  const accordionItemContext: AccordionItem.Context = React.useMemo(
     () => ({
       open: isOpen,
       triggerId,
@@ -133,16 +133,16 @@ const AccordionSection = React.forwardRef(function AccordionSection(
 
   return (
     <CollapsibleContext.Provider value={collapsibleContext}>
-      <AccordionSectionContext.Provider value={accordionSectionContext}>
+      <AccordionItemContext.Provider value={accordionItemContext}>
         {renderElement()}
-      </AccordionSectionContext.Provider>
+      </AccordionItemContext.Provider>
     </CollapsibleContext.Provider>
   );
 });
 
-export { AccordionSection };
+export { AccordionItem };
 
-export namespace AccordionSection {
+export namespace AccordionItem {
   export type Value = number | string;
 
   export interface Context {
@@ -164,7 +164,7 @@ export namespace AccordionSection {
   }
 }
 
-AccordionSection.propTypes /* remove-proptypes */ = {
+AccordionItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

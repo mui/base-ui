@@ -7,15 +7,15 @@ import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../Composite/c
 
 const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, 'Home', 'End'];
 
-function getActiveTriggers(accordionSectionRefs: {
+function getActiveTriggers(accordionItemRefs: {
   current: (HTMLElement | null)[];
 }): HTMLButtonElement[] {
-  const { current: accordionSectionElements } = accordionSectionRefs;
+  const { current: accordionItemElements } = accordionItemRefs;
 
   const output: HTMLButtonElement[] = [];
 
-  for (let i = 0; i < accordionSectionElements.length; i += 1) {
-    const section = accordionSectionElements[i];
+  for (let i = 0; i < accordionItemElements.length; i += 1) {
+    const section = accordionItemElements[i];
     if (!isDisabled(section)) {
       const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
       if (!isDisabled(trigger)) {
@@ -49,7 +49,7 @@ export function useAccordionRoot(
     defaultValue,
   } = parameters;
 
-  const accordionSectionRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
     controlled: valueParam,
@@ -92,7 +92,7 @@ export function useAccordionRoot(
 
           event.preventDefault();
 
-          const triggers = getActiveTriggers(accordionSectionRefs);
+          const triggers = getActiveTriggers(accordionItemRefs);
 
           const numOfEnabledTriggers = triggers.length;
           const lastIndex = numOfEnabledTriggers - 1;
@@ -160,7 +160,7 @@ export function useAccordionRoot(
   return React.useMemo(
     () => ({
       getRootProps,
-      accordionSectionRefs,
+      accordionItemRefs,
       animated,
       direction,
       disabled,
@@ -170,7 +170,7 @@ export function useAccordionRoot(
     }),
     [
       getRootProps,
-      accordionSectionRefs,
+      accordionItemRefs,
       animated,
       direction,
       disabled,
@@ -190,12 +190,12 @@ export namespace useAccordionRoot {
 
   export interface Parameters {
     /**
-     * The value of the currently open `Accordion.Section`
+     * The value of the currently open `Accordion.Item`
      * This is the controlled counterpart of `defaultValue`.
      */
     value?: Value;
     /**
-     * The default value representing the currently open `Accordion.Section`
+     * The default value representing the currently open `Accordion.Item`
      * This is the uncontrolled counterpart of `value`.
      * @default 0
      */
@@ -234,7 +234,7 @@ export namespace useAccordionRoot {
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
-    accordionSectionRefs: React.MutableRefObject<(HTMLElement | null)[]>;
+    accordionItemRefs: React.MutableRefObject<(HTMLElement | null)[]>;
     animated: boolean;
     direction: Direction;
     /**
@@ -245,7 +245,7 @@ export namespace useAccordionRoot {
     orientation: Orientation;
     /**
      * The open state of the Accordion represented by an array of the values
-     * of all open `<Accordion.Section/>`s
+     * of all open `<Accordion.Item/>`s
      */
     value: Value;
   }

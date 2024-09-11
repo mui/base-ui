@@ -3,9 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { AccordionSection } from '../Section/AccordionSection';
-import { useAccordionSectionContext } from '../Section/AccordionSectionContext';
-import { accordionStyleHookMapping } from '../Section/styleHooks';
+import type { AccordionItem } from '../Item/AccordionItem';
+import { useAccordionItemContext } from '../Item/AccordionItemContext';
+import { accordionStyleHookMapping } from '../Item/styleHooks';
 
 /**
  *
@@ -15,15 +15,15 @@ import { accordionStyleHookMapping } from '../Section/styleHooks';
  *
  * API:
  *
- * - [AccordionHeading API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionHeading)
+ * - [AccordionHeader API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionHeader)
  */
-const AccordionHeading = React.forwardRef(function AccordionHeading(
-  props: AccordionHeading.Props,
+const AccordionHeader = React.forwardRef(function AccordionHeader(
+  props: AccordionHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { ownerState } = useAccordionSectionContext();
+  const { ownerState } = useAccordionItemContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'h3',
@@ -37,13 +37,13 @@ const AccordionHeading = React.forwardRef(function AccordionHeading(
   return renderElement();
 });
 
-export { AccordionHeading };
+export { AccordionHeader };
 
-export namespace AccordionHeading {
-  export interface Props extends BaseUIComponentProps<'h3', AccordionSection.OwnerState> {}
+export namespace AccordionHeader {
+  export interface Props extends BaseUIComponentProps<'h3', AccordionItem.OwnerState> {}
 }
 
-AccordionHeading.propTypes /* remove-proptypes */ = {
+AccordionHeader.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

@@ -5,9 +5,9 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
 import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
-import type { AccordionSection } from '../Section/AccordionSection';
-import { useAccordionSectionContext } from '../Section/AccordionSectionContext';
-import { accordionStyleHookMapping } from '../Section/styleHooks';
+import type { AccordionItem } from '../Item/AccordionItem';
+import { useAccordionItemContext } from '../Item/AccordionItemContext';
+import { accordionStyleHookMapping } from '../Item/styleHooks';
 
 /**
  *
@@ -35,7 +35,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     setOpen,
   });
 
-  const { ownerState, triggerId } = useAccordionSectionContext();
+  const { ownerState, triggerId } = useAccordionItemContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -52,7 +52,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 export { AccordionTrigger };
 
 namespace AccordionTrigger {
-  export interface Props extends BaseUIComponentProps<'button', AccordionSection.OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'button', AccordionItem.OwnerState> {}
 }
 
 AccordionTrigger.propTypes /* remove-proptypes */ = {

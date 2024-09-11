@@ -97,7 +97,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   return (
     <AccordionRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={accordion.accordionSectionRefs}>{renderElement()}</CompositeList>
+      <CompositeList elementsRef={accordion.accordionItemRefs}>{renderElement()}</CompositeList>
     </AccordionRootContext.Provider>
   );
 });
@@ -138,7 +138,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value representing the currently open `Accordion.Section`
+   * The default value representing the currently open `Accordion.Item`
    * This is the uncontrolled counterpart of `value`.
    * @default 0
    */
@@ -177,7 +177,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The value of the currently open `Accordion.Section`
+   * The value of the currently open `Accordion.Item`
    * This is the controlled counterpart of `defaultValue`.
    */
   value: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired),

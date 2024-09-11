@@ -1,7 +1,7 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { AccordionSection } from './AccordionSection';
+import type { AccordionItem } from './AccordionItem';
 
-export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionSection.OwnerState> = {
+export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.OwnerState> = {
   disabled: (value) => {
     if (value) {
       return { 'data-disabled': '' };

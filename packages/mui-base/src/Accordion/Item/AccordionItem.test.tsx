@@ -7,7 +7,7 @@ import { describeConformance, createRenderer } from '#test-utils';
 const { AccordionRootContext } = Accordion;
 
 const accordionRootContextValue: Accordion.Root.Context = {
-  accordionSectionRefs: { current: [] },
+  accordionItemRefs: { current: [] },
   animated: false,
   direction: 'ltr',
   disabled: false,
@@ -21,10 +21,10 @@ const accordionRootContextValue: Accordion.Root.Context = {
   value: [0],
 };
 
-describe('<Accordion.Section />', () => {
+describe('<Accordion.Item />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Accordion.Section />, () => ({
+  describeConformance(<Accordion.Item />, () => ({
     inheritComponent: 'div',
     render: (node) =>
       render(

@@ -6,9 +6,9 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
 import { useCollapsibleContent } from '../../Collapsible/Content/useCollapsibleContent';
 import { useAccordionRootContext } from '../Root/AccordionRootContext';
-import type { AccordionSection } from '../Section/AccordionSection';
-import { useAccordionSectionContext } from '../Section/AccordionSectionContext';
-import { accordionStyleHookMapping } from '../Section/styleHooks';
+import type { AccordionItem } from '../Item/AccordionItem';
+import { useAccordionItemContext } from '../Item/AccordionItemContext';
+import { accordionStyleHookMapping } from '../Item/styleHooks';
 
 /**
  *
@@ -43,7 +43,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setOpen,
   });
 
-  const { ownerState, triggerId } = useAccordionSectionContext();
+  const { ownerState, triggerId } = useAccordionItemContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -69,7 +69,7 @@ export { AccordionPanel };
 
 export namespace AccordionPanel {
   export interface Props
-    extends BaseUIComponentProps<'div', AccordionSection.OwnerState>,
+    extends BaseUIComponentProps<'div', AccordionItem.OwnerState>,
       Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
 }
 

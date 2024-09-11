@@ -1,8 +1,7 @@
 ---
 productId: base-ui
 title: React Accordion components
-components: AccordionRoot, AccordionSection, AccordionHeading, AccordionTrigger, AccordionPanel
-hooks: useAccordionRoot
+components: AccordionRoot, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel
 githubLabel: 'component: accordion'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
 packageName: '@base_ui/react'
@@ -27,51 +26,51 @@ packageName: '@base_ui/react'
 Accordions are implemented using a collection of related components:
 
 - `<Accordion.Root />` is a top-level component that wraps the other components.
-- `<Accordion.Section />` is a component that wraps each section of content
-- `<Accordion.Trigger />` is a button that toggles the open state of it's section
-- `<Accordion.Heading />` is an element that wraps the `Trigger`
-- `<Accordion.Panel />` is the element that contains content in a `Section`
+- `<Accordion.Item />` is a component that wraps each section of content
+- `<Accordion.Trigger />` is a button that toggles the open state of it's associated `Item`
+- `<Accordion.Header />` is an element that wraps the `Trigger`
+- `<Accordion.Panel />` is the element that contains content in a `Item`
 
 ```tsx
 <Accordion.Root>
-  <Accordion.Section>
-    <Accordion.Heading>
+  <Accordion.Item>
+    <Accordion.Header>
       <Accordion.Trigger>Toggle one</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section one content</Accordion.Panel>
-  </Accordion.Section>
-  <Accordion.Section>
-    <Accordion.Heading>
+    </Accordion.Header>
+    <Accordion.Panel>Panel one content</Accordion.Panel>
+  </Accordion.Item>
+  <Accordion.Item>
+    <Accordion.Header>
       <Accordion.Trigger>Toggle two</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section two content</Accordion.Panel>
-  </Accordion.Section>
+    </Accordion.Header>
+    <Accordion.Panel>Panel two content</Accordion.Panel>
+  </Accordion.Item>
 </Accordion.Root>
 ```
 
 ## Value
 
-Each `Accordion.Section` is represented by a value, which by default is its zero-based index by DOM position.
-The first section has an implicit `value` of `0`, the second section has a `value` of `1`, and so on.
+Each `Accordion.Item` is represented by a value, which by default is its zero-based index by DOM position.
+The first one has an implicit `value` of `0`, the second one has a `value` of `1`, and so on.
 
-The open state of the accordion is represented an array holding the `value`s of all open `Section`s.
+The open state of the accordion is represented an array holding the `value`s of all open `Item`s.
 
-You can optionally specify a custom `value` prop on `Section`:
+You can optionally specify a custom `value` prop on `Item`:
 
 ```tsx
 <Accordion.Root>
-  <Accordion.Section value="one">
-    <Accordion.Heading>
+  <Accordion.Item value="one">
+    <Accordion.Header>
       <Accordion.Trigger>Toggle one</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section one content</Accordion.Panel>
-  </Accordion.Section>
-  <Accordion.Section value="two">
-    <Accordion.Heading>
+    </Accordion.Header>
+    <Accordion.Panel>Panel one content</Accordion.Panel>
+  </Accordion.Item>
+  <Accordion.Item value="two">
+    <Accordion.Header>
       <Accordion.Trigger>Toggle two</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section two content</Accordion.Panel>
-  </Accordion.Section>
+    </Accordion.Header>
+    <Accordion.Panel>Panel two content</Accordion.Panel>
+  </Accordion.Item>
 </Accordion.Root>
 ```
 
@@ -81,34 +80,34 @@ When uncontrolled, use the `defaultValue` prop to set the initial state of the a
 
 ```tsx
 <Accordion.Root defaultValue={[0]}>
-  <Accordion.Section {/* `value={0}` by default */}>
-    <Accordion.Heading>
+  <Accordion.Item {/* `value={0}` by default */}>
+    <Accordion.Header>
       <Accordion.Trigger>Toggle one</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section one content</Accordion.Panel>
-  </Accordion.Section>
-  <Accordion.Section {/* `value={1}` by default */}>
-    <Accordion.Heading>
+    </Accordion.Header>
+    <Accordion.Panel>Panel one content</Accordion.Panel>
+  </Accordion.Item>
+  <Accordion.Item {/* `value={1}` by default */}>
+    <Accordion.Header>
       <Accordion.Trigger>Toggle two</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section two content</Accordion.Panel>
-  </Accordion.Section>
+    </Accordion.Header>
+    <Accordion.Panel>Panel two content</Accordion.Panel>
+  </Accordion.Item>
 </Accordion.Root>;
 
 // with custom `value`s
 <Accordion.Root defaultValue={['a']}>
-  <Accordion.Section value="a">
-    <Accordion.Heading>
+  <Accordion.Item value="a">
+    <Accordion.Header>
       <Accordion.Trigger>Toggle one</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section one content</Accordion.Panel>
-  </Accordion.Section>
-  <Accordion.Section value="b">
-    <Accordion.Heading>
+    </Accordion.Header>
+    <Accordion.Panel>Panel one content</Accordion.Panel>
+  </Accordion.Item>
+  <Accordion.Item value="b">
+    <Accordion.Header>
       <Accordion.Trigger>Toggle two</Accordion.Trigger>
-    </Accordion.Heading>
-    <Accordion.Panel>Section two content</Accordion.Panel>
-  </Accordion.Section>
+    </Accordion.Header>
+    <Accordion.Panel>Panel two content</Accordion.Panel>
+  </Accordion.Item>
 </Accordion.Root>;
 ```
 
@@ -121,35 +120,35 @@ const [value, setValue] = React.useState(['a']);
 
 return (
   <Accordion.Root value={value} onOpenChange={setValue}>
-    <Accordion.Section value="a">
-      <Accordion.Heading>
+    <Accordion.Item value="a">
+      <Accordion.Header>
         <Accordion.Trigger>Toggle one</Accordion.Trigger>
-      </Accordion.Heading>
-      <Accordion.Panel>Section one content</Accordion.Panel>
-    </Accordion.Section>
-    <Accordion.Section value="b">
-      <Accordion.Heading>
+      </Accordion.Header>
+      <Accordion.Panel>Panel one content</Accordion.Panel>
+    </Accordion.Item>
+    <Accordion.Item value="b">
+      <Accordion.Header>
         <Accordion.Trigger>Toggle two</Accordion.Trigger>
-      </Accordion.Heading>
-      <Accordion.Panel>Section two content</Accordion.Panel>
-    </Accordion.Section>
+      </Accordion.Header>
+      <Accordion.Panel>Panel two content</Accordion.Panel>
+    </Accordion.Item>
   </Accordion.Root>
 );
 ```
 
 ## Customization
 
-### Only one section open at a time
+### Only one `Item` open at a time
 
-By default, all accordion sections can be opened at the same time. Use the `openMultiple` prop to only allow one open section at a time:
+By default, all accordion items can be opened at the same time. Use the `openMultiple` prop to only allow one open item at a time:
 
 ```tsx
 <Accordion.Root openMultiple={false}>{/* subcomponents */}</Accordion.Root>
 ```
 
-### At least one section remains open
+### At least one `Item` remains open
 
-Use controlled mode to always keep one section open:
+Use controlled mode to always keep one `Item` open:
 
 ```tsx
 const [value, setValue] = React.useState([0]);
@@ -199,7 +198,7 @@ Content hidden by `Accordion.Panel` components can be made accessible only to a 
 <Accordion.Root htmlHidden="until-found">{/* subcomponents */}</Accordion.Root>
 ```
 
-Alternatively `htmlHidden` can be passed to `Accordion.Panel` directly to enable this for only one section instead of the whole accordion.
+Alternatively `htmlHidden` can be passed to `Accordion.Panel` directly to enable this for only one `Item` instead of the whole accordion.
 
 We recommend using [CSS animations](#css-animations) for animated accordions that use this feature. Currently there is browser bug that does not highlight the found text inside elements that have a [CSS transition](#css-transitions) applied.
 
@@ -290,17 +289,17 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 
 ### JavaScript Animations
 
-When using external libraries for animation, for example `framer-motion`, be aware that `Accordion.Section`s hides content using the html `hidden` attribute in the closed state, and does not unmount from the DOM.
+When using external libraries for animation, for example `framer-motion`, be aware that `Accordion.Item`s hides content using the html `hidden` attribute in the closed state, and does not unmount from the DOM.
 
 ```js
 function App() {
   const [value, setValue] = useState([0]);
   return (
     <Accordion.Root value={value} onOpenChange={setValue}>
-      <Accordion.Section>
-        <Accordion.Heading>
+      <Accordion.Item>
+        <Accordion.Header>
           <Accordion.Trigger>Toggle</Accordion.Trigger>
-        </Accordion.Heading>
+        </Accordion.Header>
         <Accordion.Panel
           render={
             <motion.div
@@ -324,8 +323,8 @@ function App() {
         >
           This is the content
         </Accordion.Panel>
-      </Accordion.Section>
-      {/* more accordion sections */}
+      </Accordion.Item>
+      {/* more accordion items */}
     </Accordion.Root>
   );
 }

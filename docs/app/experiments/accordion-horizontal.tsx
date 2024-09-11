@@ -18,17 +18,17 @@ export default function App() {
         orientation="horizontal"
       >
         {['one', 'two', 'three'].map((value, index) => (
-          <Accordion.Section className="MyHorizontalAccordion-section" key={value}>
-            <Accordion.Heading className="MyHorizontalAccordion-heading">
+          <Accordion.Item className="MyHorizontalAccordion-section" key={value}>
+            <Accordion.Header className="MyHorizontalAccordion-heading">
               <Accordion.Trigger className={classNames('MyHorizontalAccordion-trigger', value)}>
                 <span className="trigger-text">{index + 1}</span>
                 <span className="trigger-label">{value}</span>
               </Accordion.Trigger>
-            </Accordion.Heading>
+            </Accordion.Header>
             <Accordion.Panel className="MyHorizontalAccordion-panel">
               This is the contents of Accordion.Panel {index + 1}
             </Accordion.Panel>
-          </Accordion.Section>
+          </Accordion.Item>
         ))}
       </Accordion.Root>
 
@@ -50,17 +50,17 @@ export default function App() {
         }}
       >
         {['one', 'two', 'three'].map((value, index) => (
-          <Accordion.Section className="MyHorizontalAccordion-section" key={value} value={value}>
-            <Accordion.Heading className="MyHorizontalAccordion-heading">
+          <Accordion.Item className="MyHorizontalAccordion-section" key={value} value={value}>
+            <Accordion.Header className="MyHorizontalAccordion-heading">
               <Accordion.Trigger className={classNames('MyHorizontalAccordion-trigger', value)}>
                 <span className="trigger-text">{index + 1}</span>
                 <span className="trigger-label">{value}</span>
               </Accordion.Trigger>
-            </Accordion.Heading>
+            </Accordion.Header>
             <Accordion.Panel className="MyHorizontalAccordion-panel">
               This is the contents of Accordion.Panel {index + 1}
             </Accordion.Panel>
-          </Accordion.Section>
+          </Accordion.Item>
         ))}
       </Accordion.Root>
       <HorizontalStyles />

@@ -1,5 +1,5 @@
 export * from './Root/AccordionRoot';
-export * from './Section/AccordionSection';
-export * from './Heading/AccordionHeading';
+export * from './Item/AccordionItem';
+export * from './Header/AccordionHeader';
 export * from './Trigger/AccordionTrigger';
 export * from './Panel/AccordionPanel';

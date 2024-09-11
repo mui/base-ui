@@ -13,32 +13,32 @@
   border-radius: 0.3rem;
 }
 
-.section {
+.item {
   position: relative;
   background-color: #fff;
   color: rgba(0, 0, 0, 0.87);
 }
 
-.section:not(:first-of-type) {
+.item:not(:first-of-type) {
   margin-top: 1px;
 }
 
-.section:first-of-type {
+.item:first-of-type {
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
 }
 
-.section:last-of-type {
+.item:last-of-type {
   border-bottom-left-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
 }
 
-.heading {
+.header {
   margin: 0;
   border-radius: inherit;
 }
 
-.heading:hover {
+.header:hover {
   cursor: pointer;
 }
 
