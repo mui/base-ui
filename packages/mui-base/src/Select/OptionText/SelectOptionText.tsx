@@ -24,7 +24,8 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, triggerElement, valueRef, popupRef, innerFallback } = useSelectRootContext();
+  const { open, triggerElement, valueRef, popupRef, innerFallback, alignMethod } =
+    useSelectRootContext();
   const { isPositioned, setOptionTextOffset } = useSelectPositionerContext();
   const { selected } = useSelectOptionContext();
 
@@ -35,6 +36,7 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 
   useEnhancedEffect(() => {
     if (
+      alignMethod !== 'item' ||
       innerFallback ||
       !open ||
       !isPositioned ||
@@ -57,6 +59,7 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 
     setOptionTextOffset(triggerDiff - popupDiff);
   }, [
+    alignMethod,
     innerFallback,
     open,
     isPositioned,

@@ -31,7 +31,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         style: {
           overflowY: 'auto',
           ...(pointerEvents === 'none' && { pointerEvents }),
-          ...(alignMethod &&
+          ...(alignMethod === 'item' &&
             hasSelectedIndex &&
             !touchModality && {
               // Note: not supported in Safari. Needs to be manually specified in CSS.

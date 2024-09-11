@@ -82,7 +82,7 @@ To set an initial value when uncontrolled, use `defaultValue`:
 
 ## Empty value
 
-The select's value is empty (`""`) by default, which enables an empty state:
+The select's value is empty (`null`) by default, which enables an empty `Option` to be initially selected when it has no `value` prop:
 
 <Demo demo="SelectEmpty" defaultCodeOpen="false" />
 
@@ -147,8 +147,24 @@ Two different methods to align the popup are available:
 <Select.Root alignMethod="trigger">
 ```
 
-- **`item`**: aligns the popup such that the selected item inside of it appears centered over the trigger. If there's not enough space, it falls back to `trigger` anchoring. This method is useful as it allows the user to select the an item in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS. The scroll arrow components must be used to ensure this is the case.
+- **`item`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to `trigger` anchoring. This method is useful as it allows the user to select the an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS. The scroll arrow components must be used to ensure this is the case.
 - **`trigger`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+
+### Scrollable popup
+
+When using `alignMethod="trigger"`, the select's height needs to be manually limited by its available space using CSS.
+
+This can be achieved by using the `--available-height` CSS variable:
+
+```jsx
+<Select.Popup className="SelectPopup">
+```
+
+```css
+.SelectPopup {
+  max-height: var(--available-height);
+}
+```
 
 ## Value component
 
@@ -166,4 +182,168 @@ A function can be specified as a child to customize the rendering of the value:
 
 ```jsx
 <Select.Value>{(value) => value.toLowerCase()}</Select.Value>
+```
+
+## Arrow
+
+To add an arrow (caret or triangle) inside the select popup that points toward the center of the anchor element, use the `Select.Arrow` component:
+
+Note: this is only supported when using `alignMethod="trigger"`.
+
+```jsx
+<Select.Positioner>
+  <Select.Popup />
+  <Select.Arrow />
+</Select.Positioner>
+```
+
+It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
+
+## Animations
+
+The select can animate when opening or closing with either:
+
+- CSS transitions
+- CSS animations
+- JavaScript animations
+
+### CSS transitions
+
+Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
+
+```jsx
+<Select.Popup className="SelectPopup">
+  <Select.Option>Option 1</Select.Option>
+</Select.Popup>
+```
+
+```css
+.SelectPopup {
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: 0.2s;
+  /* Represents the final styles once exited */
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Represents the final styles once entered */
+.SelectPopup[data-select='open'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Represents the initial styles when entering */
+.SelectPopup[data-entering] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+```
+
+Styles need to be applied in three states:
+
+- The exiting styles, placed on the base element class
+- The open styles, placed on the base element class with `[data-state="open"]`
+- The entering styles, placed on the base element class with `[data-entering]`
+
+In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
+
+```css
+/* Base UI API - Polyfill */
+.SelectPopup[data-entering] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Official Browser API - no Firefox support as of May 2024 */
+@starting-style {
+  .SelectPopup[data-select='open'] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+```
+
+### CSS animations
+
+CSS animations can also be used, requiring only two separate declarations:
+
+```css
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes scale-out {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.SelectPopup {
+  animation: scale-in 0.2s forwards;
+}
+
+.SelectPopup[data-exiting] {
+  animation: scale-out 0.2s forwards;
+}
+```
+
+### JavaScript animations
+
+The `keepMounted` prop lets an external library control the mounting, for example `framer-motion`'s `AnimatePresence` component.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Select.Root open={open} onOpenChange={setOpen}>
+      <Select.Trigger>Trigger</Select.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Select.Positioner keepMounted>
+            <Select.Popup
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              <Select.Option>Option 1</Select.Option>
+              <Select.Option>Option 2</Select.Option>
+            </Select.Popup>
+          </Select.Positioner>
+        )}
+      </AnimatePresence>
+    </Select.Root>
+  );
+}
+```
+
+### Animation states
+
+Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
+
+- `[data-select="open"]` - `open` state is `true`.
+- `[data-select="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
+- `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
+
+## Overriding default components
+
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+// Element shorthand
+<Select.Popup render={<MySelectPopup />} />
+```
+
+```jsx
+// Function
+<Select.Popup render={(props) => <MySelectPopup {...props} />} />
 ```

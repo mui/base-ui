@@ -22,6 +22,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { warn } from '../../utils/warn';
 
 /**
  *
@@ -101,6 +102,10 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       if (index !== -1) {
         setSelectedIndex(index);
         setLabel(labelsRef.current[index] ?? '');
+      } else if (value) {
+        warn(
+          `The value \`${typeof value === 'string' ? value : JSON.stringify(value)}\` is not present in the Select options.`,
+        );
       }
     });
   }, [value]);
