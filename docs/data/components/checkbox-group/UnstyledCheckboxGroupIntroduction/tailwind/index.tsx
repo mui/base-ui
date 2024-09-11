@@ -67,7 +67,7 @@ export default function UnstyledCheckboxIntroduction() {
   );
 }
 
-const Checkbox = React.forwardRef<HTMLButtonElement, BaseCheckbox.RootProps>(
+const Checkbox = React.forwardRef<HTMLButtonElement, BaseCheckbox.Root.Props>(
   function Checkbox(props, ref) {
     return (
       <BaseCheckbox.Root
@@ -92,7 +92,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, BaseCheckbox.RootProps>(
   },
 );
 
-const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.IndicatorProps>(
+const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.Indicator.Props>(
   function Indicator(props, ref) {
     return (
       <BaseCheckbox.Indicator
