@@ -46,7 +46,10 @@ export function useScrollLock(enabled: boolean = true) {
           overflowX: '',
           overflowY: '',
         });
-        window.scrollTo?.(scrollX, scrollY);
+
+        if ('scrollTo' in window) {
+          window.scrollTo(scrollX, scrollY);
+        }
       }
     };
   }, [lockId, enabled]);
