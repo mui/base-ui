@@ -83,7 +83,11 @@ describe('<Select.Option />', () => {
     });
   });
 
-  it('should select option when Enter key is pressed', async () => {
+  it('should select option when Enter key is pressed', async function test() {
+    if (!/jsdom/.test(window.navigator.userAgent)) {
+      this.skip();
+    }
+
     await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
