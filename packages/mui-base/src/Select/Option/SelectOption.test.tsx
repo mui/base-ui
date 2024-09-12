@@ -87,7 +87,7 @@ describe('<Select.Option />', () => {
     await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
+          <Select.Value placeholder="null" data-testid="value" />
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
