@@ -141,11 +141,13 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     popupElement.addEventListener('wheel', handleScrollArrowVisible);
     popupElement.addEventListener('scroll', handleScrollArrowVisible);
     win.addEventListener('resize', handleScrollArrowVisible);
+    win.addEventListener('scroll', handleScrollArrowVisible);
 
     return () => {
       popupElement.removeEventListener('wheel', handleScrollArrowVisible);
       popupElement.removeEventListener('scroll', handleScrollArrowVisible);
       win.removeEventListener('resize', handleScrollArrowVisible);
+      win.removeEventListener('scroll', handleScrollArrowVisible);
     };
   }, [inert, popupRef, direction, handleScrollArrowVisible]);
 
@@ -155,7 +157,18 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     }
 
     handleScrollArrowVisible();
-  }, [isPositioned, side, innerOffset, inert, handleScrollArrowVisible]);
+  }, [isPositioned, side, inert, handleScrollArrowVisible]);
+
+  useEnhancedEffect(() => {
+    if (!isPositioned || inert) {
+      return;
+    }
+
+    // Wait for the `innerOffset` to be applied in the DOM. While navigating with arrow keys, the
+    // scroll arrow might render even though it doesn't need to be visible because the select's
+    // height hasn't yet expanded.
+    requestAnimationFrame(handleScrollArrowVisible);
+  }, [isPositioned, inert, innerOffset, handleScrollArrowVisible]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,
