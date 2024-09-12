@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
 import { css, styled } from '@mui/system';
 
-export default function SelectSimple() {
+export default function SelectIntroduction() {
   return (
     <Select.Root defaultValue="system">
       <SelectTrigger aria-label="Select font">
