@@ -18,7 +18,9 @@ export function useScrollLock(enabled: boolean = true) {
     }
 
     const html = document.documentElement;
-    const rootStyle = html.style;
+    const body = document.body;
+    const rootStyle = body.style;
+
     const scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
     const scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
     const offsetLeft = window.visualViewport?.offsetLeft || 0;
