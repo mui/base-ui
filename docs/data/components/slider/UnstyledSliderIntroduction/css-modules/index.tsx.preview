@@ -1,0 +1,16 @@
+<Slider.Root
+  className={classes.slider}
+  defaultValue={50}
+  aria-labelledby="VolumeSliderLabel"
+>
+  <Label id="VolumeSliderLabel" className={classes.label}>
+    Volume
+  </Label>
+  <Slider.Output className={classes.output} />
+  <Slider.Control className={classes.control}>
+    <Slider.Track className={classes.track}>
+      <Slider.Indicator className={classes.indicator} />
+      <Slider.Thumb className={classes.thumb} />
+    </Slider.Track>
+  </Slider.Control>
+</Slider.Root>
