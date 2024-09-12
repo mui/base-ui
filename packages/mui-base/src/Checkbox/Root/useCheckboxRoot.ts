@@ -9,6 +9,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useField } from '../../Field/useField';
 
 export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
   const {
@@ -32,19 +33,10 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     state: 'checked',
   });
 
-  const {
-    labelId,
-    setDisabled,
-    setControlId,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-  } = useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData, setValidityData } =
+    useFieldRootContext();
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const {
     getValidationProps,
@@ -62,6 +54,13 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
       setControlId(undefined);
     };
   }, [id, setControlId]);
+
+  useField({
+    id,
+    commitValidation,
+    value: checked,
+    controlRef: buttonRef,
+  });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
@@ -81,6 +80,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
   const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
+        ref: buttonRef,
         value: 'off',
         type: 'button',
         role: 'checkbox',

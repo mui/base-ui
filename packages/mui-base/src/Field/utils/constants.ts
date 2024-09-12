@@ -8,7 +8,7 @@ export const DEFAULT_VALIDITY_STATE = {
   tooLong: false,
   tooShort: false,
   typeMismatch: false,
-  valid: true,
+  valid: null,
   valueMissing: false,
 };
 

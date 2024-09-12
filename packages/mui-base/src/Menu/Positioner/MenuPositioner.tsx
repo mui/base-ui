@@ -43,7 +43,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     alignment = 'center',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clippingAncestors',
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,

@@ -7,6 +7,7 @@ import { FieldRootContext, type FieldRootContextValue } from './FieldRootContext
 import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
 
 /**
  * The foundation for building custom-styled fields.
@@ -29,16 +30,19 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     validate: validateProp,
     validateDebounceTime = 0,
     validateOnChange = false,
-    invalid,
+    name,
+    disabled: disabledProp = false,
+    invalid: invalidProp,
     ...otherProps
   } = props;
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
 
+  const { errors } = useFormRootContext();
+
   const validate = useEventCallback(validateProp || (() => null));
 
-  const [internalDisabled, setDisabled] = React.useState(false);
-  const disabled = disabledFieldset || internalDisabled;
+  const disabled = disabledFieldset || disabledProp;
 
   const [controlId, setControlId] = React.useState<string | undefined>(undefined);
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
@@ -46,27 +50,27 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
-  const [markedDirty, setMarkedDirty] = React.useState(false);
+
+  const markedDirtyRef = React.useRef(false);
 
   const setDirty: typeof setDirtyUnwrapped = React.useCallback((value) => {
     if (value) {
-      setMarkedDirty(true);
+      markedDirtyRef.current = true;
     }
     setDirtyUnwrapped(value);
   }, []);
 
-  const [validityData, setValidityData] = React.useState<FieldValidityData>(() => ({
-    state: {
-      ...DEFAULT_VALIDITY_STATE,
-      valid: invalid ? false : null,
-    },
+  const invalid = Boolean(invalidProp || (name && {}.hasOwnProperty.call(errors, name)));
+
+  const [validityData, setValidityData] = React.useState<FieldValidityData>({
+    state: DEFAULT_VALIDITY_STATE,
     error: '',
     errors: [],
-    value: '',
+    value: null,
     initialValue: null,
-  }));
+  });
 
-  const valid = typeof invalid === 'boolean' ? !invalid : validityData.state.valid;
+  const valid = !invalid && validityData.state.valid;
 
   const ownerState: FieldRootOwnerState = React.useMemo(
     () => ({
@@ -87,10 +91,10 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setLabelId,
       messageIds,
       setMessageIds,
+      name,
       validityData,
       setValidityData,
       disabled,
-      setDisabled,
       touched,
       setTouched,
       dirty,
@@ -99,13 +103,14 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validateOnChange,
       validateDebounceTime,
       ownerState,
-      markedDirty,
+      markedDirtyRef,
     }),
     [
       invalid,
       controlId,
       labelId,
       messageIds,
+      name,
       validityData,
       disabled,
       touched,
@@ -115,7 +120,6 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validateOnChange,
       validateDebounceTime,
       ownerState,
-      markedDirty,
     ],
   );
 
@@ -147,9 +151,19 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
+   * component.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
    * Determines if the field is forcefully marked as invalid.
    */
   invalid: PropTypes.bool,
+  /**
+   * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+   */
+  name: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */
