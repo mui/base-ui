@@ -27,7 +27,9 @@ export function useSelectPositioner(
 
   const { touchModality, alignMethod, innerFallback, mounted } = useSelectRootContext();
 
-  useScrollLock(alignMethod === 'item' && !innerFallback && mounted);
+  const itemAligned = alignMethod === 'item' && !innerFallback && !touchModality;
+
+  useScrollLock(itemAligned && mounted);
 
   const {
     positionerStyles,
@@ -41,11 +43,12 @@ export function useSelectPositioner(
     isPositioned,
   } = useAnchorPositioning({
     ...params,
+    positionStrategy: itemAligned ? 'fixed' : params.positionStrategy,
     innerOptions: {
       fallback: params.innerFallback,
       touchModality,
     },
-    trackAnchor: !(params.inner && !params.innerFallback),
+    trackAnchor: !itemAligned,
     collisionPadding:
       touchModality && params.collisionPadding == null ? 20 : params.collisionPadding,
   });
