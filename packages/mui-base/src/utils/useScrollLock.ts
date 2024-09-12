@@ -1,6 +1,5 @@
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useId } from './useId';
-import { isIOS } from './detectBrowser';
 
 const activeLocks = new Set<string>();
 
@@ -10,9 +9,8 @@ const activeLocks = new Set<string>();
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true) {
-  // Based on Floating UI's FloatingOverlay
-
   const lockId = useId();
+
   useEnhancedEffect(() => {
     if (!enabled) {
       return undefined;
@@ -20,55 +18,35 @@ export function useScrollLock(enabled: boolean = true) {
 
     activeLocks.add(lockId!);
 
-    const rootStyle = document.documentElement.style;
-    // RTL <body> scrollbar
-    const scrollbarX =
-      Math.round(document.documentElement.getBoundingClientRect().left) +
-      document.documentElement.scrollLeft;
-    const paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const html = document.documentElement;
+    const rootStyle = html.style;
     const scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
     const scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
+    const offsetLeft = window.visualViewport?.offsetLeft || 0;
+    const offsetTop = window.visualViewport?.offsetTop || 0;
 
-    rootStyle.overflow = 'hidden';
-
-    if (scrollbarWidth) {
-      rootStyle[paddingProp] = `${scrollbarWidth}px`;
-    }
-
-    // Only iOS doesn't respect `overflow: hidden` on document.body, and this
-    // technique has fewer side effects.
-    if (isIOS()) {
-      // iOS 12 does not support `visualViewport`.
-      const offsetLeft = window.visualViewport?.offsetLeft || 0;
-      const offsetTop = window.visualViewport?.offsetTop || 0;
-
-      Object.assign(rootStyle, {
-        position: 'fixed',
-        top: `${-(scrollY - Math.floor(offsetTop))}px`,
-        left: `${-(scrollX - Math.floor(offsetLeft))}px`,
-        right: '0',
-      });
-    }
+    Object.assign(rootStyle, {
+      position: 'fixed',
+      top: `${-(scrollY - Math.floor(offsetTop))}px`,
+      left: `${-(scrollX - Math.floor(offsetLeft))}px`,
+      right: '0',
+      overflowY: html.scrollHeight > html.clientHeight ? 'scroll' : 'hidden',
+      overflowX: html.scrollWidth > html.clientWidth ? 'scroll' : 'hidden',
+    });
 
     return () => {
       activeLocks.delete(lockId!);
 
       if (activeLocks.size === 0) {
         Object.assign(rootStyle, {
-          overflow: '',
-          [paddingProp]: '',
+          position: '',
+          top: '',
+          left: '',
+          right: '',
+          overflowX: '',
+          overflowY: '',
         });
-
-        if (isIOS()) {
-          Object.assign(rootStyle, {
-            position: '',
-            top: '',
-            left: '',
-            right: '',
-          });
-          window.scrollTo(scrollX, scrollY);
-        }
+        window.scrollTo(scrollX, scrollY);
       }
     };
   }, [lockId, enabled]);
