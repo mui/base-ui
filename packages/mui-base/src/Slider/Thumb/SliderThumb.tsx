@@ -70,7 +70,12 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     values,
   } = useSliderContext();
 
-  const mergedRef = useForkRef(typeof render === 'function' ? null : render.ref, forwardedRef);
+  let renderPropRef = null;
+  if (typeof render !== 'function') {
+    renderPropRef = 'use' in React ? (render.props as any).ref : render.ref;
+  }
+
+  const mergedRef = useForkRef(renderPropRef, forwardedRef);
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     active: activeIndex,
@@ -114,13 +119,13 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     return render(thumbProps, inputProps, ownerState);
   }
 
-  const { children: renderPropsChildren, ...otherRenderProps } = render.props;
+  const { children: renderPropsChildren, ...otherRenderProps } =
+    render.props as React.PropsWithChildren<unknown>;
 
   const children = thumbProps.children ?? renderPropsChildren;
 
-  return React.cloneElement(
-    render,
-    mergeReactProps(otherRenderProps, {
+  return React.cloneElement(render, {
+    ...mergeReactProps(otherRenderProps, {
       ...thumbProps,
       children: (
         <React.Fragment>
@@ -129,7 +134,9 @@ const SliderThumb = React.forwardRef(function SliderThumb(
         </React.Fragment>
       ),
     }),
-  );
+    // @ts-ignore
+    ref: thumbProps.ref,
+  });
 });
 
 SliderThumb.propTypes /* remove-proptypes */ = {

@@ -133,7 +133,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
         type: 'checkbox',
         'aria-hidden': true,
         // @ts-ignore
-        inert: 'true',
+        inert: 'use' in React ? true : 'true',
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
           if (event.nativeEvent.defaultPrevented) {

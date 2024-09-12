@@ -23,7 +23,7 @@ describe('<Field.Validity />', () => {
     fireEvent.change(input, { target: { value: 'test' } });
     fireEvent.blur(input);
 
-    const [data] = handleValidity.args[8];
+    const [data] = handleValidity.lastCall.args;
 
     expect(data.value).to.equal('test');
     expect(data.validity.valueMissing).to.equal(false);
@@ -44,8 +44,8 @@ describe('<Field.Validity />', () => {
     fireEvent.focus(input);
     fireEvent.blur(input);
 
-    expect(handleValidity.args[6][0].error).to.equal('error');
-    expect(handleValidity.args[6][0].errors).to.deep.equal(['error']);
+    expect(handleValidity.lastCall.args[0].error).to.equal('error');
+    expect(handleValidity.lastCall.args[0].errors).to.deep.equal(['error']);
   });
 
   it('should correctly pass errors when validate function returns an array of strings', () => {
@@ -63,7 +63,7 @@ describe('<Field.Validity />', () => {
     fireEvent.focus(input);
     fireEvent.blur(input);
 
-    expect(handleValidity.args[6][0].error).to.equal('1');
-    expect(handleValidity.args[6][0].errors).to.deep.equal(['1', '2']);
+    expect(handleValidity.lastCall.args[0].error).to.equal('1');
+    expect(handleValidity.lastCall.args[0].errors).to.deep.equal(['1', '2']);
   });
 });
