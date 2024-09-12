@@ -35,7 +35,7 @@ export function useScrollLock(enabled: boolean = true) {
     };
 
     Object.assign(rootStyle, {
-      position: 'fixed',
+      position: html.scrollHeight > html.clientHeight ? 'fixed' : '',
       top: `${-(scrollY - Math.floor(offsetTop))}px`,
       left: `${-(scrollX - Math.floor(offsetLeft))}px`,
       right: '0',
