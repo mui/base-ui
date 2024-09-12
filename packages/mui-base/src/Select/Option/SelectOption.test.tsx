@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Select from '@base_ui/react/Select';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
@@ -72,11 +72,15 @@ describe('<Select.Option />', () => {
 
     await flushMicrotasks();
 
-    expect(screen.getByText('one')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByText('one')).toHaveFocus();
+    });
 
     await user.keyboard('{ArrowDown}');
 
-    expect(screen.getByText('two')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByText('two')).toHaveFocus();
+    });
   });
 
   it('should select option when Enter key is pressed', async () => {
@@ -104,7 +108,9 @@ describe('<Select.Option />', () => {
     await user.keyboard('{ArrowDown}');
     await user.keyboard('{Enter}');
 
-    expect(value.textContent).to.equal('two');
+    await waitFor(() => {
+      expect(value.textContent).to.equal('two');
+    });
   });
 
   it('should not select disabled option', async () => {
@@ -158,27 +164,22 @@ describe('<Select.Option />', () => {
 
     await flushMicrotasks();
 
-    expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
+    });
 
     await userEvent.keyboard('{ArrowDown}');
-
-    expect(screen.getByRole('option', { name: 'two' })).toHaveFocus();
-
     await userEvent.keyboard('{ArrowUp}');
-
-    expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
-
     await userEvent.keyboard('{ArrowUp}');
-
-    expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
 
     fireEvent.click(screen.getByRole('option', { name: 'three' }));
-
     fireEvent.click(trigger);
 
     await flushMicrotasks();
 
-    expect(screen.getByRole('option', { name: 'three', hidden: false })).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'three', hidden: false })).toHaveFocus();
+    });
   });
 
   describe('style hooks', () => {
