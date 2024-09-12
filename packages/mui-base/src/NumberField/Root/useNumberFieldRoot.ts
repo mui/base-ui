@@ -1,8 +1,4 @@
 import * as React from 'react';
-import type {
-  UseNumberFieldRootParameters,
-  UseNumberFieldRootReturnValue,
-} from './NumberFieldRoot.types';
 import { useScrub } from './useScrub';
 import { formatNumber } from '../utils/format';
 import { toValidatedNumber } from '../utils/validate';
@@ -33,10 +29,12 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
+import { useField } from '../../Field/useField';
+import type { ScrubHandle } from './useScrub.types';
 
 export function useNumberFieldRoot(
-  params: UseNumberFieldRootParameters,
-): UseNumberFieldRootReturnValue {
+  params: UseNumberFieldRoot.Parameters,
+): UseNumberFieldRoot.ReturnValue {
   const {
     id: idProp,
     name,
@@ -59,7 +57,6 @@ export function useNumberFieldRoot(
 
   const {
     labelId,
-    setDisabled,
     setControlId,
     validateOnChange,
     setTouched,
@@ -67,10 +64,6 @@ export function useNumberFieldRoot(
     validityData,
     setValidityData,
   } = useFieldRootContext();
-
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
 
   const {
     getInputValidationProps,
@@ -84,6 +77,9 @@ export function useNumberFieldRoot(
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const mergedRef = useForkRef(inputRef, inputValidationRef);
+
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
@@ -93,13 +89,27 @@ export function useNumberFieldRoot(
     };
   }, [id, setControlId]);
 
+  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+    controlled: externalValue,
+    default: defaultValue,
+    name: 'NumberField',
+    state: 'value',
+  });
+
+  const value = valueUnwrapped ?? null;
+  const valueRef = useLatestRef(value);
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef: inputRef,
+  });
+
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
   const onValueChange = useEventCallback(onValueChangeProp);
-
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const startTickTimeoutRef = React.useRef(-1);
   const tickIntervalRef = React.useRef(-1);
@@ -113,16 +123,6 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
-
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
-    controlled: externalValue,
-    default: defaultValue,
-    name: 'NumberField',
-    state: 'value',
-  });
-
-  const value = valueUnwrapped ?? null;
-  const valueRef = useLatestRef(value);
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -377,7 +377,7 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const getGroupProps: UseNumberFieldRootReturnValue['getGroupProps'] = React.useCallback(
+  const getGroupProps: UseNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         role: 'group',
@@ -510,19 +510,19 @@ export function useNumberFieldRoot(
     ],
   );
 
-  const getIncrementButtonProps: UseNumberFieldRootReturnValue['getIncrementButtonProps'] =
+  const getIncrementButtonProps: UseNumberFieldRoot.ReturnValue['getIncrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(true, externalProps),
       [getCommonButtonProps],
     );
 
-  const getDecrementButtonProps: UseNumberFieldRootReturnValue['getDecrementButtonProps'] =
+  const getDecrementButtonProps: UseNumberFieldRoot.ReturnValue['getDecrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(false, externalProps),
       [getCommonButtonProps],
     );
 
-  const getInputProps: UseNumberFieldRootReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: UseNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
         id,
@@ -769,4 +769,120 @@ export function useNumberFieldRoot(
       scrub,
     ],
   );
+}
+
+export namespace UseNumberFieldRoot {
+  export interface Parameters {
+    /**
+     * The id of the input element.
+     */
+    id?: string;
+    /**
+     * The minimum value of the input element.
+     */
+    min?: number;
+    /**
+     * The maximum value of the input element.
+     */
+    max?: number;
+    /**
+     * The small step value of the input element when incrementing while the meta key is held. Snaps
+     * to multiples of this value.
+     * @default 0.1
+     */
+    smallStep?: number;
+    /**
+     * The step value of the input element when incrementing, decrementing, or scrubbing. It will snap
+     * to multiples of this value. When unspecified, decimal values are allowed, but the stepper
+     * buttons will increment or decrement by `1`.
+     */
+    step?: number;
+    /**
+     * The large step value of the input element when incrementing while the shift key is held. Snaps
+     * to multiples of this value.
+     * @default 10
+     */
+    largeStep?: number;
+    /**
+     * If `true`, the input element is required.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * If `true`, the input element is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * If `true`, the input element is invalid.
+     * @default false
+     */
+    invalid?: boolean;
+    /**
+     * If `true`, the input element is focused on mount.
+     * @default false
+     */
+    autoFocus?: boolean;
+    /**
+     * If `true`, the input element is read only.
+     * @default false
+     */
+    readOnly?: boolean;
+    /**
+     * The name of the input element.
+     */
+    name?: string;
+    /**
+     * The raw number value of the input element.
+     */
+    value?: number | null;
+    /**
+     * The default value of the input element. Use when the component is not controlled.
+     */
+    defaultValue?: number;
+    /**
+     * Whether to allow the user to scrub the input value with the mouse wheel while focused and
+     * hovering over the input.
+     * @default false
+     */
+    allowWheelScrub?: boolean;
+    /**
+     * Options to format the input value.
+     */
+    format?: Intl.NumberFormatOptions;
+    /**
+     * Callback fired when the number value changes.
+     * @param {number | null} value The new value.
+     * @param {Event} event The event that triggered the change.
+     */
+    onValueChange?: (value: number | null, event?: Event) => void;
+  }
+
+  export interface ReturnValue {
+    getGroupProps: (
+      externalProps?: React.ComponentPropsWithRef<'div'>,
+    ) => React.ComponentPropsWithRef<'div'>;
+    getInputProps: (
+      externalProps?: React.ComponentPropsWithRef<'input'>,
+    ) => React.ComponentPropsWithRef<'input'>;
+    getIncrementButtonProps: (
+      externalProps?: React.ComponentPropsWithRef<'button'>,
+    ) => React.ComponentPropsWithRef<'button'>;
+    getDecrementButtonProps: (
+      externalProps?: React.ComponentPropsWithRef<'button'>,
+    ) => React.ComponentPropsWithRef<'button'>;
+    getScrubAreaProps: (
+      externalProps?: React.ComponentPropsWithRef<'span'>,
+    ) => React.ComponentPropsWithRef<'span'>;
+    getScrubAreaCursorProps: (
+      externalProps?: React.ComponentPropsWithRef<'span'>,
+    ) => React.ComponentPropsWithRef<'span'>;
+    inputValue: string;
+    value: number | null;
+    isScrubbing: boolean;
+    inputRef: ((instance: HTMLInputElement | null) => void) | null;
+    scrubHandleRef: React.RefObject<ScrubHandle | null>;
+    scrubAreaRef: React.RefObject<HTMLSpanElement>;
+    scrubAreaCursorRef: React.RefObject<HTMLSpanElement>;
+  }
 }

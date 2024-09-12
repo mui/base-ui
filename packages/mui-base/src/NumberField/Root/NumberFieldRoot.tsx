@@ -1,16 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldContext } from './NumberFieldContext';
-import type { NumberFieldRootOwnerState, NumberFieldRootProps } from './NumberFieldRoot.types';
-import { useNumberFieldRoot } from './useNumberFieldRoot';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-
-function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
-  return <div {...props} />;
-}
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 /**
  * The foundation for building custom-styled number fields.
@@ -24,7 +19,7 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  * - [NumberFieldRoot API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldRoot)
  */
 const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
-  props: NumberFieldRootProps,
+  props: NumberFieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -45,18 +40,17 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     onValueChange,
     allowWheelScrub,
     format,
-    render: renderProp,
+    render,
     className,
     ...otherProps
   } = props;
-  const render = renderProp ?? defaultRender;
 
   const numberField = useNumberFieldRoot(props);
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
-  const ownerState: NumberFieldRootOwnerState = React.useMemo(
+  const ownerState: NumberFieldRoot.OwnerState = React.useMemo(
     () => ({
       ...fieldOwnerState,
       disabled,
@@ -87,20 +81,57 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [numberField, ownerState],
   );
 
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
-  const rootProps = {
-    ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...otherProps,
-  };
+  const { renderElement } = useComponentRenderer({
+    ref: forwardedRef,
+    render: render ?? 'div',
+    ownerState,
+    className,
+    extraProps: otherProps,
+  });
 
   return (
     <NumberFieldContext.Provider value={contextValue}>
-      {evaluateRenderProp(render, rootProps, ownerState)}
+      {renderElement()}
     </NumberFieldContext.Provider>
   );
 });
+
+export namespace NumberFieldRoot {
+  export interface Props
+    extends UseNumberFieldRoot.Parameters,
+      Omit<BaseUIComponentProps<'div', OwnerState>, 'onChange' | 'defaultValue'> {}
+
+  export interface OwnerState extends FieldRootOwnerState {
+    /**
+     * The raw number value of the input element.
+     */
+    value: number | null;
+    /**
+     * The string value of the input element.
+     */
+    inputValue: string;
+    /**
+     * If `true`, the input element is required.
+     */
+    required: boolean;
+    /**
+     * If `true`, the input element is disabled.
+     */
+    disabled: boolean;
+    /**
+     * If `true`, the input element is invalid.
+     */
+    invalid: boolean;
+    /**
+     * If `true`, the input element is read only.
+     */
+    readOnly: boolean;
+    /**
+     * If `true`, the value is being scrubbed.
+     */
+    scrubbing: boolean;
+  }
+}
 
 NumberFieldRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

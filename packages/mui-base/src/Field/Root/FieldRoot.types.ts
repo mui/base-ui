@@ -29,6 +29,16 @@ export interface FieldRootOwnerState {
 
 export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootOwnerState> {
   /**
+   * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
+   * component.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+   */
+  name?: string;
+  /**
    * Function to custom-validate the field's value. Return a string or array of strings with error
    * messages if the value is invalid, or `null` if the value is valid. The function can also return
    * a promise that resolves to a string, array of strings, or `null`.
