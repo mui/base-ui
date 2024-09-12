@@ -12,11 +12,11 @@ export function useScrollLock(enabled: boolean = true) {
   const lockId = useId();
 
   useEnhancedEffect(() => {
-    if (!enabled) {
+    if (!enabled || !lockId || activeLocks.size > 0) {
       return undefined;
     }
 
-    activeLocks.add(lockId!);
+    activeLocks.add(lockId);
 
     const html = document.documentElement;
     const rootStyle = html.style;
@@ -24,6 +24,15 @@ export function useScrollLock(enabled: boolean = true) {
     const scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
     const offsetLeft = window.visualViewport?.offsetLeft || 0;
     const offsetTop = window.visualViewport?.offsetTop || 0;
+
+    const originalStyles = {
+      position: rootStyle.position,
+      top: rootStyle.top,
+      left: rootStyle.left,
+      right: rootStyle.right,
+      overflowX: rootStyle.overflowX,
+      overflowY: rootStyle.overflowY,
+    };
 
     Object.assign(rootStyle, {
       position: 'fixed',
@@ -35,17 +44,10 @@ export function useScrollLock(enabled: boolean = true) {
     });
 
     return () => {
-      activeLocks.delete(lockId!);
+      activeLocks.delete(lockId);
 
       if (activeLocks.size === 0) {
-        Object.assign(rootStyle, {
-          position: '',
-          top: '',
-          left: '',
-          right: '',
-          overflowX: '',
-          overflowY: '',
-        });
+        Object.assign(rootStyle, originalStyles);
 
         if (window.scrollTo.toString().includes('[native code]')) {
           window.scrollTo(scrollX, scrollY);
