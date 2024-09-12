@@ -47,7 +47,7 @@ export function useScrollLock(enabled: boolean = true) {
           overflowY: '',
         });
 
-        if ('scrollTo' in window) {
+        if (window.scrollTo.toString().includes('[native code]')) {
           window.scrollTo(scrollX, scrollY);
         }
       }
