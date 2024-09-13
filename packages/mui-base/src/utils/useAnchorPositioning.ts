@@ -204,21 +204,13 @@ export function useAnchorPositioning(
     nodeId,
   });
 
-  // We can assume that element anchors are stable across renders, and thus can be reactive.
-  const [reactiveAnchorDep, setReactiveAnchorDep] =
-    React.useState(anchor == null) || ('current' in anchor! && isElement(anchor.current));
-
-  React.useEffect(() => {
-    setReactiveAnchorDep(anchor == null || ('current' in anchor! && isElement(anchor.current)));
-  }, [anchor, setReactiveAnchorDep]);
-
   useEnhancedEffect(() => {
     const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
 
     if (resolvedAnchor) {
       refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
     }
-  }, [refs, anchor, reactiveAnchorDep]);
+  }, [refs, anchor]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
