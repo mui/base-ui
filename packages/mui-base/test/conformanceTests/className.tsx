@@ -4,7 +4,7 @@ import { type BaseUiConformanceTestsOptions } from '../describeConformance';
 import { throwMissingPropError } from './utils';
 
 export function testClassName(
-  element: React.ReactElement,
+  element: React.ReactElement<any>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
   describe('prop: className', () => {

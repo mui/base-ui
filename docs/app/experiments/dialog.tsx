@@ -180,6 +180,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
   }, [api, open, mounted, setMounted]);
 
   return mounted ? (
+    /* @ts-ignore */
     <springAnimated.div style={springs} className={classes.springWrapper}>
       {children}
     </springAnimated.div>

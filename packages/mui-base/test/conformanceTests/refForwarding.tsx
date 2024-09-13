@@ -4,7 +4,7 @@ import { type BaseUiConformanceTestsOptions } from '../describeConformance';
 import { throwMissingPropError } from './utils';
 
 async function verifyRef(
-  element: React.ReactElement,
+  element: React.ReactElement<any>,
   render: BaseUiConformanceTestsOptions['render'],
   onRef: (instance: unknown, element: HTMLElement | null) => void,
 ) {

@@ -17,7 +17,7 @@ export interface BaseUiConformanceTestsOptions
     options?: RenderOptions | undefined,
   ) => Promise<MuiRenderResult> | MuiRenderResult;
   skip?: (keyof typeof fullSuite)[];
-  testRenderPropWith?: keyof JSX.IntrinsicElements;
+  testRenderPropWith?: keyof React.JSX.IntrinsicElements;
 }
 
 const fullSuite = {

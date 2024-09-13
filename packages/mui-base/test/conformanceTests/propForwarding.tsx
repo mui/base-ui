@@ -5,7 +5,7 @@ import { throwMissingPropError } from './utils';
 import { type BaseUiConformanceTestsOptions } from '../describeConformance';
 
 export function testPropForwarding(
-  element: React.ReactElement,
+  element: React.ReactElement<any>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
   const { render, testRenderPropWith: Element = 'div' } = getOptions();
