@@ -19,9 +19,8 @@ import {
   type FloatingContext,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
-import { isElement } from '@floating-ui/utils/dom';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { useLatestRef } from './useLatestRef';
+import { ownerWindow } from './owner';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
@@ -206,19 +205,20 @@ export function useAnchorPositioning(
   });
 
   // We can assume that element anchors are stable across renders, and thus can be reactive.
-  const reactiveAnchorDep = anchor == null || isElement(anchor);
-  const anchorRef = useLatestRef(anchor);
+  const [reactiveAnchorDep, setReactiveAnchorDep] =
+    React.useState(anchor == null) || ('current' in anchor! && isElement(anchor.current));
+
+  React.useEffect(() => {
+    setReactiveAnchorDep(anchor == null || ('current' in anchor! && isElement(anchor.current)));
+  }, [anchor, setReactiveAnchorDep]);
 
   useEnhancedEffect(() => {
-    function isRef(param: unknown): param is React.MutableRefObject<any> {
-      return {}.hasOwnProperty.call(param, 'current');
-    }
-    const resolvedAnchor =
-      typeof anchorRef.current === 'function' ? anchorRef.current() : anchorRef.current;
-    if (resolvedAnchor && !isElement(resolvedAnchor)) {
+    const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
+
+    if (resolvedAnchor) {
       refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
     }
-  }, [refs, anchorRef, reactiveAnchorDep]);
+  }, [refs, anchor, reactiveAnchorDep]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
@@ -273,5 +273,21 @@ export function useAnchorPositioning(
       refs,
       positionerContext,
     ],
+  );
+}
+
+function isRef(param: unknown): param is React.RefObject<any> {
+  return {}.hasOwnProperty.call(param, 'current');
+}
+
+function isElement(value: unknown): value is Element {
+  if (value == null) {
+    return false;
+  }
+
+  return (
+    (typeof Element !== 'undefined' && value instanceof Element) ||
+    (typeof window !== 'undefined' && value instanceof (ownerWindow(undefined) as any).Element) ||
+    'innerHTML' in (value as {})
   );
 }
