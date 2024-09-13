@@ -30,6 +30,7 @@ export function useScrollLock(enabled: boolean = true) {
       const scrollbarWidth = window.innerWidth - html.clientWidth;
       const offsetLeft = window.visualViewport?.offsetLeft || 0;
       const offsetTop = window.visualViewport?.offsetTop || 0;
+
       scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
       scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
 
@@ -57,10 +58,13 @@ export function useScrollLock(enabled: boolean = true) {
       bodyStyle.overflow = 'hidden';
 
       Object.assign(rootStyle, {
+        // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
         position: html.scrollHeight > html.clientHeight ? 'fixed' : '',
         top: `${-(scrollY - Math.floor(offsetTop))}px`,
         left: `${-(scrollX - Math.floor(offsetLeft))}px`,
         right: '0',
+        // On iOS, the html can't be scrollable at it allows "pull-to-refresh" to still work. This
+        // is only necessary when scrollbars are present.
         ...(scrollbarWidth && {
           overflowY: html.scrollHeight > html.clientHeight ? 'scroll' : 'hidden',
           overflowX: html.scrollWidth > html.clientWidth ? 'scroll' : 'hidden',
@@ -87,11 +91,11 @@ export function useScrollLock(enabled: boolean = true) {
       }
     }
 
-    const handleResize = () => {
+    function handleResize() {
       cleanup();
       cancelAnimationFrame(resizeRaf);
       resizeRaf = requestAnimationFrame(lockScroll);
-    };
+    }
 
     lockScroll();
     window.addEventListener('resize', handleResize);
