@@ -6,23 +6,21 @@
     },
     "closeDelay": { "description": "The delay in milliseconds until the tooltip popup is closed." },
     "defaultOpen": {
-      "description": "Specifies whether the tooltip is open initially when uncontrolled."
+      "description": "Whether the tooltip popup is open by default. Use when uncontrolled."
     },
     "delay": { "description": "The delay in milliseconds until the tooltip popup is opened." },
     "delayType": {
       "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
     },
-    "followCursorAxis": {
-      "description": "Determines which axis the tooltip should follow the cursor on."
-    },
     "hoverable": {
-      "description": "Whether the user can move their cursor from the trigger to the tooltip popup without it closing."
+      "description": "Whether the can move their cursor from the trigger element toward the tooltip popup element without it closing using a &quot;safe polygon&quot; technique."
     },
     "onOpenChange": {
       "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."
     },
-    "open": {
-      "description": "If <code>true</code>, the tooltip popup is open. Use when controlled."
+    "open": { "description": "Whether the tooltip popup is open. Use when controlled." },
+    "trackCursorAxis": {
+      "description": "Determines which axis the tooltip should track the cursor on."
     }
   },
   "classDescriptions": {}

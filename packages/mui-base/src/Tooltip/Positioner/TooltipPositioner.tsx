@@ -5,14 +5,11 @@ import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
-import type {
-  TooltipPositionerContextValue,
-  TooltipPositionerOwnerState,
-  TooltipPositionerProps,
-} from './TooltipPositioner.types';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
-import { useTooltipPositioner } from './useTooltipPositioner';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
+import { useTooltipPositioner } from './useTooltipPositioner';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 
 /**
  * The tooltip positioner element.
@@ -26,7 +23,7 @@ import { TooltipPositionerContext } from './TooltipPositionerContext';
  * - [TooltipPositioner API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipPositioner)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
-  props: TooltipPositionerProps,
+  props: TooltipPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -54,7 +51,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     setPositionerElement,
     mounted,
     floatingRootContext,
-    followCursorAxis,
+    trackCursorAxis,
   } = useTooltipRootContext();
 
   const positioner = useTooltipPositioner({
@@ -71,13 +68,13 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding,
     hideWhenDetached,
     sticky,
-    followCursorAxis,
+    trackCursorAxis,
     arrowPadding,
   });
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
-  const ownerState: TooltipPositionerOwnerState = React.useMemo(
+  const ownerState: TooltipPositioner.OwnerState = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -86,7 +83,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [open, positioner.side, positioner.alignment],
   );
 
-  const contextValue: TooltipPositionerContextValue = React.useMemo(
+  const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
       ...ownerState,
       arrowRef: positioner.arrowRef,
@@ -116,6 +113,22 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     </TooltipPositionerContext.Provider>
   );
 });
+
+namespace TooltipPositioner {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+  }
+  export interface Props
+    extends BaseUIComponentProps<'div', OwnerState>,
+      Omit<useTooltipPositioner.Parameters, 'floatingRootContext'> {
+    /**
+     * The container element the tooltip positioner is appended to.
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  }
+}
 
 TooltipPositioner.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -184,7 +197,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the tooltip positioner is appended to.
+   * The container element the tooltip positioner is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,

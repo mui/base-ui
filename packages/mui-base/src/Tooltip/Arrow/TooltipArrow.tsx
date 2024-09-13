@@ -1,11 +1,21 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { TooltipArrowOwnerState, TooltipArrowProps } from './TooltipArrow.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
 import { useTooltipArrow } from './useTooltipArrow';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+
+const customStyleHookMapping: CustomStyleHookMapping<TooltipArrow.OwnerState> = {
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -19,7 +29,7 @@ import { useTooltipArrow } from './useTooltipArrow';
  * - [TooltipArrow API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipArrow)
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
-  props: TooltipArrowProps,
+  props: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
@@ -32,7 +42,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     hidden: hideWhenUncentered && arrowUncentered,
   });
 
-  const ownerState: TooltipArrowOwnerState = React.useMemo(
+  const ownerState: TooltipArrow.OwnerState = React.useMemo(
     () => ({
       open,
       side,
@@ -50,17 +60,26 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     className,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
 });
+
+namespace TooltipArrow {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, the arrow will be hidden when it can't point to the center of the anchor element.
+     * @default false
+     */
+    hideWhenUncentered?: boolean;
+  }
+}
 
 TooltipArrow.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
