@@ -3,8 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import type { PopoverDescriptionProps } from './PopoverDescription.types';
 import { usePopoverDescription } from './usePopoverDescription';
+import type { BaseUIComponentProps } from '../../utils/types';
+
+const ownerState = {};
 
 /**
  * Renders a description element that describes the popover.
@@ -18,7 +20,7 @@ import { usePopoverDescription } from './usePopoverDescription';
  * - [PopoverDescription API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverDescription)
  */
 const PopoverDescription = React.forwardRef(function PopoverDescription(
-  props: PopoverDescriptionProps,
+  props: PopoverDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, ...otherProps } = props;
@@ -34,13 +36,18 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
     propGetter: getDescriptionProps,
     render: render ?? 'p',
     className,
-    ownerState: {},
+    ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
   });
 
   return renderElement();
 });
+
+namespace PopoverDescription {
+  export interface OwnerState {}
+  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+}
 
 PopoverDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

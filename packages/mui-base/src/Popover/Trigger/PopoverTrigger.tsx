@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { PopoverTriggerOwnerState, PopoverTriggerProps } from './PopoverTrigger.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Renders a trigger element that opens the popover.
@@ -18,14 +18,14 @@ import { useForkRef } from '../../utils/useForkRef';
  * - [PopoverTrigger API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverTrigger)
  */
 const PopoverTrigger = React.forwardRef(function PopoverTrigger(
-  props: PopoverTriggerProps,
+  props: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
   const { render, className, ...otherProps } = props;
 
   const { open, setTriggerElement, getRootTriggerProps } = usePopoverRootContext();
 
-  const ownerState: PopoverTriggerOwnerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: PopoverTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
@@ -47,6 +47,13 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   return renderElement();
 });
+
+namespace PopoverTrigger {
+  export interface OwnerState {
+    open: boolean;
+  }
+  export interface Props extends BaseUIComponentProps<any, OwnerState> {}
+}
 
 PopoverTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

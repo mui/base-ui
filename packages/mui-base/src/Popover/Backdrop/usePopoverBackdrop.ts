@@ -1,9 +1,8 @@
-'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UsePopoverBackdropReturnValue } from './usePopoverBackdrop.types';
+import type { GenericHTMLProps } from '../../utils/types';
 
-export function usePopoverBackdrop(): UsePopoverBackdropReturnValue {
+export function usePopoverBackdrop(): usePopoverBackdrop.ReturnValue {
   const getBackdropProps = React.useCallback((externalProps = {}) => {
     return mergeReactProps<'div'>(externalProps, {
       role: 'presentation',
@@ -22,4 +21,11 @@ export function usePopoverBackdrop(): UsePopoverBackdropReturnValue {
     }),
     [getBackdropProps],
   );
+}
+
+namespace usePopoverBackdrop {
+  export interface Parameters {}
+  export interface ReturnValue {
+    getBackdropProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

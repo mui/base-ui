@@ -20,9 +20,7 @@
     "collisionPadding": {
       "description": "The padding between the popover popup element and the edges of the collision boundary to add whitespace between them to prevent them from touching."
     },
-    "container": {
-      "description": "The container element to which the popover positioner is appended to."
-    },
+    "container": { "description": "The element the popover popup element is appended to." },
     "hideWhenDetached": {
       "description": "Whether the popover popup element is hidden if it appears detached from its anchor element due to the anchor element being clipped (or hidden) from view."
     },

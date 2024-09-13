@@ -2,11 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { PopoverPopupOwnerState, PopoverPopupProps } from './PopoverPopup.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
 import { usePopoverPopup } from './usePopoverPopup';
 import { useForkRef } from '../../utils/useForkRef';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Renders the popover popup element.
@@ -20,7 +21,7 @@ import { useForkRef } from '../../utils/useForkRef';
  * - [PopoverPopup API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverPopup)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
-  props: PopoverPopupProps,
+  props: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...otherProps } = props;
@@ -42,7 +43,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     descriptionId,
   });
 
-  const ownerState: PopoverPopupOwnerState = React.useMemo(
+  const ownerState: PopoverPopup.OwnerState = React.useMemo(
     () => ({
       open,
       side,
@@ -80,6 +81,17 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return renderElement();
 });
+
+namespace PopoverPopup {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+    entering: boolean;
+    exiting: boolean;
+  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
 
 PopoverPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

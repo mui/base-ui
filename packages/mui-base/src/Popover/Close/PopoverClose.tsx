@@ -2,9 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { PopoverCloseProps } from './PopoverClose.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverClose } from './usePopoverClose';
+
+const ownerState = {};
 
 /**
  * Renders a button that closes the popover when clicked.
@@ -18,7 +20,7 @@ import { usePopoverClose } from './usePopoverClose';
  * - [PopoverClose API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverClose)
  */
 const PopoverClose = React.forwardRef(function PopoverClose(
-  props: PopoverCloseProps,
+  props: PopoverClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...otherProps } = props;
@@ -35,13 +37,18 @@ const PopoverClose = React.forwardRef(function PopoverClose(
     propGetter: getCloseProps,
     render: render ?? 'button',
     className,
-    ownerState: {},
+    ownerState,
     extraProps: otherProps,
     ref: forwardedRef,
   });
 
   return renderElement();
 });
+
+namespace PopoverClose {
+  export interface OwnerState {}
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+}
 
 PopoverClose.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

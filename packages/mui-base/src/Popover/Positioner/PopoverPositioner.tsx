@@ -2,17 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
-import type {
-  PopoverPositionerContextValue,
-  PopoverPositionerOwnerState,
-  PopoverPositionerProps,
-} from './PopoverPositioner.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 
 /**
  * The popover positioner element.
@@ -26,7 +23,7 @@ import { HTMLElementType } from '../../utils/proptypes';
  * - [PopoverPositioner API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverPositioner)
  */
 const PopoverPositioner = React.forwardRef(function PopoverPositioner(
-  props: PopoverPositionerProps,
+  props: PopoverPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -68,7 +65,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
   });
 
-  const ownerState: PopoverPositionerOwnerState = React.useMemo(
+  const ownerState: PopoverPositioner.OwnerState = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -77,7 +74,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [open, positioner.side, positioner.alignment],
   );
 
-  const contextValue: PopoverPositionerContextValue = React.useMemo(
+  const contextValue: PopoverPositionerContext = React.useMemo(
     () => ({
       ...ownerState,
       arrowRef: positioner.arrowRef,
@@ -107,9 +104,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     <PopoverPositionerContext.Provider value={contextValue}>
       <FloatingPortal root={container}>
         <FloatingFocusManager
-          key={mounted.toString()}
           context={positioner.positionerContext}
           modal={false}
+          disabled={!mounted}
         >
           {renderElement()}
         </FloatingFocusManager>
@@ -117,6 +114,22 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     </PopoverPositionerContext.Provider>
   );
 });
+
+namespace PopoverPositioner {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+  }
+  export interface Props
+    extends usePopoverPositioner.Parameters,
+      BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The element the popover popup element is appended to.
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  }
+}
 
 PopoverPositioner.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -185,7 +198,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the popover positioner is appended to.
+   * The element the popover popup element is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,

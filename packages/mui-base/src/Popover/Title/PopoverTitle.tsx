@@ -2,9 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { PopoverTitleProps } from './PopoverTitle.types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverTitle } from './usePopoverTitle';
+
+const ownerState = {};
 
 /**
  * Renders a title element that labels the popover.
@@ -18,7 +20,7 @@ import { usePopoverTitle } from './usePopoverTitle';
  * - [PopoverTitle API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverTitle)
  */
 const PopoverTitle = React.forwardRef(function PopoverTitle(
-  props: PopoverTitleProps,
+  props: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
   const { render, className, ...otherProps } = props;
@@ -34,13 +36,19 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
     propGetter: getTitleProps,
     render: render ?? 'h2',
     className,
-    ownerState: {},
+    ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
   });
 
   return renderElement();
 });
+
+namespace PopoverTitle {
+  export interface OwnerState {}
+  export interface Props
+    extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', OwnerState> {}
+}
 
 PopoverTitle.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
