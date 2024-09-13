@@ -63,7 +63,7 @@ export function useScrollLock(enabled: boolean = true) {
         top: `${-(scrollY - Math.floor(offsetTop))}px`,
         left: `${-(scrollX - Math.floor(offsetLeft))}px`,
         right: '0',
-        // On iOS, the html can't be scrollable at it allows "pull-to-refresh" to still work. This
+        // On iOS, the html can't be scrollable as it allows "pull-to-refresh" to still work. This
         // is only necessary when scrollbars are present.
         ...(scrollbarWidth && {
           overflowY: html.scrollHeight > html.clientHeight ? 'scroll' : 'hidden',
