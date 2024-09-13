@@ -62,7 +62,7 @@ export function useTooltipPositioner(
 export namespace useTooltipPositioner {
   export interface Parameters {
     /**
-     * The element to which the tooltip popup element is anchored to.
+     * The element to which the tooltip element is anchored to.
      */
     anchor?:
       | Element
@@ -71,48 +71,48 @@ export namespace useTooltipPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * Whether the tooltip popup is open.
+     * Whether the tooltip is open.
      * @default false
      */
     open?: boolean;
     /**
-     * The CSS position strategy for positioning the tooltip popup element.
+     * The CSS position strategy for positioning the tooltip element.
      * @default 'absolute'
      */
     positionStrategy?: 'absolute' | 'fixed';
     /**
-     * The side of the anchor element that the tooltip popup element should be placed at.
+     * The side of the anchor element that the tooltip element should be placed at.
      * @default 'top'
      */
     side?: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The gap between the anchor element and the tooltip popup element.
+     * The gap between the anchor element and the tooltip element.
      * @default 0
      */
     sideOffset?: number;
     /**
-     * The alignment of the tooltip popup element to the anchor element along its cross axis.
+     * The alignment of the tooltip element to the anchor element along its cross axis.
      * @default 'center'
      */
     alignment?: 'start' | 'end' | 'center';
     /**
-     * The offset of the tooltip popup element along its alignment axis.
+     * The offset of the tooltip element along its alignment axis.
      * @default 0
      */
     alignmentOffset?: number;
     /**
-     * The boundary that the tooltip popup element should be constrained to.
+     * The boundary that the tooltip element should be constrained to.
      * @default 'clippingAncestors'
      */
     collisionBoundary?: Boundary;
     /**
-     * The padding between the tooltip popup element and the edges of the collision boundary to add
+     * The padding between the tooltip element and the edges of the collision boundary to add
      * whitespace between them to prevent them from touching.
      * @default 5
      */
     collisionPadding?: Padding;
     /**
-     * Whether the tooltip popup element is hidden if it appears detached from its anchor element due
+     * Whether the tooltip element is hidden if it appears detached from its anchor element due
      * to the anchor element being clipped (or hidden) from view.
      * @default false
      */
@@ -124,18 +124,18 @@ export namespace useTooltipPositioner {
      */
     sticky?: boolean;
     /**
-     * Determines the padding between the arrow and the tooltip popup edges. Useful when the tooltip
-     * popup element has rounded corners via `border-radius`.
+     * Determines the padding between the arrow and the tooltip edges. Useful when the tooltip
+     * element has rounded corners via `border-radius`.
      * @default 5
      */
     arrowPadding?: number;
     /**
-     * Whether the tooltip popup remains mounted in the DOM while closed.
+     * Whether the tooltip remains mounted in the DOM while closed.
      * @default false
      */
     keepMounted?: boolean;
     /**
-     * Whether the tooltip popup continuously tracks its anchor after the initial positioning upon
+     * Whether the tooltip continuously tracks its anchor after the initial positioning upon
      * mount.
      * @default true
      */
@@ -165,15 +165,15 @@ export namespace useTooltipPositioner {
      */
     arrowUncentered: boolean;
     /**
-     * Styles to apply to the popup arrow element.
+     * Styles to apply to the arrow element.
      */
     arrowStyles: React.CSSProperties;
     /**
-     * The rendered side of the tooltip popup element.
+     * The rendered side of the tooltip element.
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the tooltip popup element.
+     * The rendered alignment of the tooltip element.
      */
     alignment: 'start' | 'end' | 'center';
   }
