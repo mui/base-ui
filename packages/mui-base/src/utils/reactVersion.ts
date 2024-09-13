@@ -2,12 +2,12 @@ import * as React from 'react';
 
 let version = 17;
 
-if ('use' in React) {
-  version = 19;
-}
-
 if ('useId' in React) {
   version = 18;
+}
+
+if ('use' in React) {
+  version = 19;
 }
 
 export const reactVersion = version;
