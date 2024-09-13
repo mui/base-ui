@@ -69,5 +69,5 @@ export interface UsePreviewCardRootReturnValue {
   setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
   positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  popupRef: React.RefObject<HTMLDivElement>;
+  popupRef: React.RefObject<HTMLDivElement | null>;
 }

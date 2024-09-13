@@ -79,7 +79,7 @@ export function useComponentRenderer<
 
   let resolvedRenderProp:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
-    | React.ReactElement;
+    | React.ReactElement<any>;
 
   if (typeof renderProp === 'string') {
     resolvedRenderProp = defaultRenderFunctions[renderProp];

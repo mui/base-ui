@@ -294,7 +294,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const isRtl = direction === 'rtl';
 
-  const previousIndexRef = React.useRef<number>();
+  const previousIndexRef = React.useRef<number>(null);
   let axis = orientation;
   if (isRtl && orientation === 'horizontal') {
     axis += '-reverse';

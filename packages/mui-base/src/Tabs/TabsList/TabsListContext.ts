@@ -3,7 +3,7 @@ import * as React from 'react';
 export type TabsListContextValue = {
   activateOnFocus: boolean;
   getTabElement: (value: any) => HTMLElement | null;
-  tabsListRef: React.RefObject<HTMLElement>;
+  tabsListRef: React.RefObject<HTMLElement | null>;
 };
 
 export const TabsListContext = React.createContext<TabsListContextValue | undefined>(undefined);

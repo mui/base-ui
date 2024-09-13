@@ -882,7 +882,7 @@ export namespace UseNumberFieldRoot {
     isScrubbing: boolean;
     inputRef: ((instance: HTMLInputElement | null) => void) | null;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
-    scrubAreaRef: React.RefObject<HTMLSpanElement>;
-    scrubAreaCursorRef: React.RefObject<HTMLSpanElement>;
+    scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
+    scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
   }
 }

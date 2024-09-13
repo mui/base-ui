@@ -19,7 +19,7 @@ export interface PreviewCardRootContextValue {
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   floatingRootContext: FloatingRootContext;
   transitionStatus: TransitionStatus;
-  popupRef: React.RefObject<HTMLElement>;
+  popupRef: React.RefObject<HTMLElement | null>;
 }
 
 export type PreviewCardRootOwnerState = {};
