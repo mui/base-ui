@@ -19,9 +19,9 @@ import {
   type FloatingContext,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
-import { isElement } from '@floating-ui/utils/dom';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useLatestRef } from './useLatestRef';
+import { ownerWindow } from './owner';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
@@ -210,9 +210,6 @@ export function useAnchorPositioning(
   const anchorRef = useLatestRef(anchor);
 
   useEnhancedEffect(() => {
-    function isRef(param: unknown): param is React.MutableRefObject<any> {
-      return {}.hasOwnProperty.call(param, 'current');
-    }
     const resolvedAnchor =
       typeof anchorRef.current === 'function' ? anchorRef.current() : anchorRef.current;
     if (resolvedAnchor && !isElement(resolvedAnchor)) {
@@ -273,5 +270,21 @@ export function useAnchorPositioning(
       refs,
       positionerContext,
     ],
+  );
+}
+
+function isRef(param: unknown): param is React.RefObject<any> {
+  return {}.hasOwnProperty.call(param, 'current');
+}
+
+function isElement(value: unknown): value is Element {
+  if (value == null) {
+    return false;
+  }
+
+  return (
+    (typeof Element !== 'undefined' && value instanceof Element) ||
+    (typeof window !== 'undefined' && value instanceof (ownerWindow(undefined) as any).Element) ||
+    'innerHTML' in (value as {})
   );
 }
