@@ -8,6 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useSliderContext } from '../Root/SliderProvider';
 import { SliderThumbProps } from './SliderThumb.types';
 import { useSliderThumb } from './useSliderThumb';
+import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
 function defaultRender(
   props: React.ComponentPropsWithRef<'span'>,
@@ -72,7 +73,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   let renderPropRef = null;
   if (typeof render !== 'function') {
-    renderPropRef = 'use' in React ? (render.props as any).ref : render.ref;
+    renderPropRef = isReactVersionAtLeast(19) ? (render.props as any).ref : render.ref;
   }
 
   const mergedRef = useForkRef(renderPropRef, forwardedRef);
