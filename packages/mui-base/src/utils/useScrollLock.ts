@@ -21,13 +21,13 @@ export function useScrollLock(enabled: boolean = true) {
     const html = document.documentElement;
     const rootStyle = html.style;
     const bodyStyle = document.body.style;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
     let resizeRaf: number;
     let scrollX: number;
     let scrollY: number;
 
     function lockScroll() {
+      const scrollbarWidth = window.innerWidth - html.clientWidth;
       const offsetLeft = window.visualViewport?.offsetLeft || 0;
       const offsetTop = window.visualViewport?.offsetTop || 0;
       scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
