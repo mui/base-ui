@@ -122,10 +122,10 @@ namespace PopoverPositioner {
     alignment: Alignment;
   }
   export interface Props
-    extends usePopoverPositioner.Parameters,
+    extends Omit<usePopoverPositioner.Parameters, 'floatingRootContext'>,
       BaseUIComponentProps<'div', OwnerState> {
     /**
-     * The element the popover popup element is appended to.
+     * The element the popover positioner element is appended to.
      */
     container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
@@ -137,17 +137,17 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the popover popup element to the anchor element along its cross axis.
+   * The alignment of the popover element to the anchor element along its cross axis.
    * @default 'center'
    */
   alignment: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the popover popup element along its alignment axis.
+   * The offset of the popover element along its alignment axis.
    * @default 0
    */
   alignmentOffset: PropTypes.number,
   /**
-   * The element to which the popover popup element is anchored to.
+   * The element to which the popover element is anchored to.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -155,8 +155,8 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the popover popup edges. Useful when the popover
-   * popup element has rounded corners via `border-radius`.
+   * Determines the padding between the arrow and the popover edges. Useful when the popover
+   * element has rounded corners via `border-radius`.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -169,7 +169,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the popover popup element should be constrained to.
+   * The boundary that the popover element should be constrained to.
    * @default 'clippingAncestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -184,7 +184,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding between the popover popup element and the edges of the collision boundary to add
+   * The padding between the popover element and the edges of the collision boundary to add
    * whitespace between them to prevent them from touching.
    * @default 5
    */
@@ -198,25 +198,25 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The element the popover popup element is appended to.
+   * The element the popover positioner element is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
     PropTypes.func,
   ]),
   /**
-   * Whether the popover popup element is hidden if it appears detached from its anchor element due
+   * Whether the popover element is hidden if it appears detached from its anchor element due
    * to the anchor element being clipped (or hidden) from view.
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * Whether the popover popup remains mounted in the DOM while closed.
+   * Whether the popover remains mounted in the DOM while closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the popover popup element.
+   * The CSS position strategy for positioning the popover element.
    * @default 'absolute'
    */
   positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
@@ -225,12 +225,12 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the popover popup element should be placed at.
+   * The side of the anchor element that the popover element should be placed at.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the popover popup element.
+   * The gap between the anchor element and the popover element.
    * @default 0
    */
   sideOffset: PropTypes.number,
