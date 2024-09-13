@@ -16,7 +16,6 @@ import { isIOS } from './detectBrowser';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useId } from './useId';
 
-const activeLocks = new Set<string>();
 let originalStyles = {};
 let originalBodyOverflow = '';
 
@@ -278,7 +277,7 @@ function willOpenKeyboard(target: Element) {
   );
 }
 
-function preventScrollStandard(lockId: string) {
+function preventScrollStandard() {
   const html = document.documentElement;
   const rootStyle = html.style;
   const bodyStyle = document.body.style;
@@ -295,12 +294,10 @@ function preventScrollStandard(lockId: string) {
     scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
     scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
 
-    activeLocks.add(lockId!);
-
     // We don't need to lock the scroll if there's already an active lock. However, it's possible
     // that the one that originally locked it doesn't get cleaned up last. In that case, one of the
     // newer locks needs to perform the style and scroll restoration.
-    if (activeLocks.size > 1) {
+    if (preventScrollCount > 1) {
       return cleanup;
     }
 
@@ -336,19 +333,11 @@ function preventScrollStandard(lockId: string) {
   }
 
   function cleanup() {
-    if (!lockId) {
-      return;
-    }
+    Object.assign(rootStyle, originalStyles);
+    bodyStyle.overflow = originalBodyOverflow;
 
-    activeLocks.delete(lockId);
-
-    if (activeLocks.size === 0) {
-      Object.assign(rootStyle, originalStyles);
-      bodyStyle.overflow = originalBodyOverflow;
-
-      if (window.scrollTo.toString().includes('[native code]')) {
-        window.scrollTo(scrollX, scrollY);
-      }
+    if (window.scrollTo.toString().includes('[native code]')) {
+      window.scrollTo(scrollX, scrollY);
     }
   }
 
@@ -382,7 +371,7 @@ export function useScrollLock(enabled: boolean = true) {
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = isIOS() ? preventScrollIOS() : preventScrollStandard(id);
+      restore = isIOS() ? preventScrollIOS() : preventScrollStandard();
     }
 
     return () => {
