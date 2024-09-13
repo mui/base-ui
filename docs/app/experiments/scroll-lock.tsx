@@ -16,8 +16,18 @@ export default function ScrollLock() {
 
   return (
     <div>
-      <h2>Enable Show scroll bar: Always</h2>
-      <div style={{ display: 'flex', gap: 10 }}>
+      <h1>useScrollLock</h1>
+      <p>On macOS, enable `Show scroll bars: Always` in `Appearance` Settings.</p>
+      <div
+        style={{
+          position: 'fixed',
+          top: 15,
+          display: 'flex',
+          gap: 10,
+          background: 'white',
+          padding: 20,
+        }}
+      >
         <div>
           <label>
             <input
