@@ -37,6 +37,8 @@ export function usePopoverPositioner(
 
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
+          // @ts-ignore
+          inert: open ? undefined : 'true',
           style: {
             ...positionerStyles,
             ...hiddenStyles,
