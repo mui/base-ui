@@ -6,7 +6,7 @@ import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
 import { Description } from 'docs-base/src/components/content/Description';
 import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
-import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithhubLink';
+import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithubLink';
 import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'guides';

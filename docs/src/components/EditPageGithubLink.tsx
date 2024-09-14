@@ -6,7 +6,7 @@ export interface EditPageGithubLinkProps {
   slug: string;
 }
 
-const REPO_ROOT = 'https://github.com/mui/base-ui/';
+const REPO_ROOT = 'https://github.com/mui/base-ui';
 // #default-branch-switch
 const DEFAULT_BRANCH = 'master';
 
