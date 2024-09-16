@@ -41,7 +41,8 @@ function preventScrollStandard() {
       overflowY: htmlStyle.overflowY,
     };
     originalBodyStyles = {
-      overflow: bodyStyle.overflow,
+      overflowX: bodyStyle.overflowX,
+      overflowY: bodyStyle.overflowY,
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
@@ -64,7 +65,12 @@ function preventScrollStandard() {
 
     // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
     // `<body>` may have one too.
-    bodyStyle.overflow = 'hidden';
+    if (isScrollableY || hasConstantOverflowY) {
+      bodyStyle.overflowY = 'hidden';
+    }
+    if (isScrollableX || hasConstantOverflowX) {
+      bodyStyle.overflowX = 'hidden';
+    }
   }
 
   function cleanup() {
