@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Menu from '@base_ui/react/Menu';
+import * as Separator from '@base_ui/react/Separator';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Menu.Separator />', () => {
+describe('<Separator.Root />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Menu.Separator />, () => ({
+  describeConformance(<Separator.Root />, () => ({
     render,
     refInstanceof: window.HTMLDivElement,
   }));
 
   it('renders a div with the `separator` role', async () => {
-    const { getByRole } = await render(<Menu.Separator />);
+    const { getByRole } = await render(<Separator.Root />);
     expect(getByRole('separator')).toBeVisible();
   });
 });

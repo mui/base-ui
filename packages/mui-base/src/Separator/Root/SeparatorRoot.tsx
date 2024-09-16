@@ -1,46 +1,45 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-
-const EMPTY_OBJECT = {};
 
 /**
  *
  * Demos:
  *
- * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ * - [Separator](https://base-ui.netlify.app/components/react-separator/)
  *
  * API:
  *
- * - [MenuSeparator API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuSeparator)
+ * - [SeparatorRoot API](https://base-ui.netlify.app/components/react-separator/#api-reference-SeparatorRoot)
  */
-const MenuSeparator = React.forwardRef(function MenuSeparator(
-  props: MenuSeparator.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+const SeparatorRoot = React.forwardRef(function SeparatorRootComponent(
+  props: SeparatorRoot.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { className, render, ...other } = props;
+
+  const ownerState = {};
+
   const { renderElement } = useComponentRenderer({
-    render: render || 'div',
+    render: render ?? 'div',
     className,
-    ownerState: EMPTY_OBJECT,
-    extraProps: {
-      role: 'separator',
-      ...other,
-    },
+    ownerState,
+    extraProps: { role: 'separator', ...other },
     ref: forwardedRef,
   });
 
   return renderElement();
 });
 
-MenuSeparator.propTypes /* remove-proptypes */ = {
+SeparatorRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The content of the component.
+   * @ignore
    */
   children: PropTypes.node,
   /**
@@ -53,15 +52,10 @@ MenuSeparator.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-namespace MenuSeparator {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * The content of the component.
-     */
-    children?: React.ReactNode;
-  }
+namespace SeparatorRoot {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 
-  export type OwnerState = {};
+  export interface OwnerState {}
 }
 
-export { MenuSeparator };
+export { SeparatorRoot };

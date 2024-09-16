@@ -23,7 +23,7 @@ export { MenuRootContext, useMenuRootContext } from './Root/MenuRootContext';
 export { MenuTrigger as Trigger } from './Trigger/MenuTrigger';
 export { useMenuTrigger } from './Trigger/useMenuTrigger';
 
-export { MenuSeparator as Separator } from './Separator/MenuSeparator';
+export { SeparatorRoot as Separator } from '../Separator/Root/SeparatorRoot';
 
 export { SubmenuTrigger } from './SubmenuTrigger/SubmenuTrigger';
 export { useSubmenuTrigger } from './SubmenuTrigger/useSubmenuTrigger';

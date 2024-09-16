@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuGroup, MenuSeparator
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuGroup
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -195,6 +195,21 @@ To add an arrow (caret or triangle) inside the menu popup that points toward the
 ```
 
 It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
+
+## Separator
+
+To visually separate items, use the `Menu.Separator` component:
+
+```jsx
+<Menu.Popup>
+  <Menu.Item>Item 1</Menu.Item>
+  <Menu.Separator />
+  <Menu.Item>Item 2</Menu.Item>
+</Menu.Popup>
+```
+
+The Menu.Separator is a re-exported Separator component.
+See the [Separator docs](/components/separator/) to learn about its API.
 
 ## Animations
 
