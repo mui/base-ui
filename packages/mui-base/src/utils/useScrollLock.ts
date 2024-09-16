@@ -24,8 +24,8 @@ function preventScrollStandard() {
   function lockScroll() {
     const offsetLeft = window.visualViewport?.offsetLeft || 0;
     const offsetTop = window.visualViewport?.offsetTop || 0;
-    const hasConstantOverflowY = rootStyle.overflowY === 'scroll';
-    const hasConstantOverflowX = rootStyle.overflowX === 'scroll';
+    const hasConstantOverflowY = getComputedStyle(html).overflowY === 'scroll';
+    const hasConstantOverflowX = getComputedStyle(html).overflowX === 'scroll';
 
     scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
     scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
