@@ -11,7 +11,7 @@ export default function ScrollLock() {
   useScrollLock(enabled);
 
   React.useEffect(() => {
-    document.body.style.overflowY = bodyScrollY ? 'auto' : '';
+    document.body.style.overflowY = bodyScrollY ? 'scroll' : '';
   }, [bodyScrollY]);
 
   return (
@@ -59,8 +59,8 @@ export default function ScrollLock() {
           </label>
         </div>
       </div>
-      {[...Array(longContent ? 100 : 10)].map(() => (
-        <p>Scroll locking text content</p>
+      {[...Array(longContent ? 100 : 10)].map((_, i) => (
+        <p key={i}>Scroll locking text content</p>
       ))}
     </div>
   );

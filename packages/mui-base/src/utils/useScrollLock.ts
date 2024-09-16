@@ -1,8 +1,8 @@
 import { isIOS } from './detectBrowser';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-let originalStyles = {};
-
+let originalRootStyles = {};
+let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
@@ -13,7 +13,9 @@ function preventScrollIOS() {
 
 function preventScrollStandard() {
   const html = document.documentElement;
+  const body = document.body;
   const rootStyle = html.style;
+  const bodyStyle = body.style;
 
   let resizeRaf: number;
   let scrollX: number;
@@ -28,13 +30,16 @@ function preventScrollStandard() {
     scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
     scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
 
-    originalStyles = {
+    originalRootStyles = {
       position: rootStyle.position,
       top: rootStyle.top,
       left: rootStyle.left,
       right: rootStyle.right,
       overflowX: rootStyle.overflowX,
       overflowY: rootStyle.overflowY,
+    };
+    originalBodyStyles = {
+      overflow: bodyStyle.overflow,
     };
 
     Object.assign(rootStyle, {
@@ -48,11 +53,16 @@ function preventScrollStandard() {
       overflowX: html.scrollWidth > html.clientWidth || hasConstantOverflowX ? 'scroll' : 'hidden',
     });
 
+    // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
+    // `<body>` may have one too.
+    bodyStyle.overflow = 'hidden';
+
     return undefined;
   }
 
   function cleanup() {
-    Object.assign(rootStyle, originalStyles);
+    Object.assign(rootStyle, originalRootStyles);
+    Object.assign(bodyStyle, originalBodyStyles);
 
     if (window.scrollTo.toString().includes('[native code]')) {
       window.scrollTo(scrollX, scrollY);
