@@ -22,6 +22,8 @@ function preventScrollStandard() {
   function lockScroll() {
     const offsetLeft = window.visualViewport?.offsetLeft || 0;
     const offsetTop = window.visualViewport?.offsetTop || 0;
+    const hasConstantOverflowY = rootStyle.overflowY === 'scroll';
+    const hasConstantOverflowX = rootStyle.overflowX === 'scroll';
 
     scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
     scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
@@ -41,8 +43,9 @@ function preventScrollStandard() {
       top: `${-(scrollY - Math.floor(offsetTop))}px`,
       left: `${-(scrollX - Math.floor(offsetLeft))}px`,
       right: '0',
-      overflowY: html.scrollHeight > html.clientHeight ? 'scroll' : 'hidden',
-      overflowX: html.scrollWidth > html.clientWidth ? 'scroll' : 'hidden',
+      overflowY:
+        html.scrollHeight > html.clientHeight || hasConstantOverflowY ? 'scroll' : 'hidden',
+      overflowX: html.scrollWidth > html.clientWidth || hasConstantOverflowX ? 'scroll' : 'hidden',
     });
 
     return undefined;
