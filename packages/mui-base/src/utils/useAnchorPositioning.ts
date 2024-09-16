@@ -20,7 +20,7 @@ import {
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { ownerWindow } from './owner';
+import { useForcedRerendering } from './useForcedRerendering';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
@@ -204,13 +204,29 @@ export function useAnchorPositioning(
     nodeId,
   });
 
+  const rerender = useForcedRerendering();
+
+  const registeredPositionReference = React.useRef<Element | VirtualElement | null>(null);
+
   useEnhancedEffect(() => {
     const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
 
     if (resolvedAnchor) {
-      refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
+      const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
+      refs.setPositionReference(unwrappedElement);
+      registeredPositionReference.current = unwrappedElement;
     }
   }, [refs, anchor]);
+
+  React.useEffect(() => {
+    // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
+    // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
+    const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
+    if (isRef(resolvedAnchor) && resolvedAnchor.current !== registeredPositionReference.current) {
+      refs.setPositionReference(resolvedAnchor.current);
+      registeredPositionReference.current = resolvedAnchor.current;
+    }
+  }, [refs, anchor, rerender]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
@@ -269,17 +285,5 @@ export function useAnchorPositioning(
 }
 
 function isRef(param: unknown): param is React.RefObject<any> {
-  return {}.hasOwnProperty.call(param, 'current');
-}
-
-function isElement(value: unknown): value is Element {
-  if (value == null) {
-    return false;
-  }
-
-  return (
-    (typeof Element !== 'undefined' && value instanceof Element) ||
-    (typeof window !== 'undefined' && value instanceof (ownerWindow(undefined) as any).Element) ||
-    'innerHTML' in (value as {})
-  );
+  return param != null && {}.hasOwnProperty.call(param, 'current');
 }
