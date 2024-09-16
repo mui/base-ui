@@ -85,7 +85,7 @@ const MenuPositioner = React.forwardRef<HTMLDivElement, Menu.Positioner.Props>(
   },
 );
 
-const MenuSeparator = React.forwardRef<HTMLLIElement, Menu.Separator.Props>(
+const MenuSeparator = React.forwardRef<HTMLDivElement, Menu.Separator.Props>(
   (props, ref) => {
     return (
       <Menu.Separator
