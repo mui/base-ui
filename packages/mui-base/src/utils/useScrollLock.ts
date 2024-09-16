@@ -57,8 +57,6 @@ function preventScrollStandard() {
     // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
     // `<body>` may have one too.
     bodyStyle.overflow = 'hidden';
-
-    return undefined;
   }
 
   function cleanup() {
