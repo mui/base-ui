@@ -3,7 +3,6 @@ import { useEnhancedEffect } from './useEnhancedEffect';
 import { useId } from './useId';
 
 let originalStyles = {};
-let originalBodyOverflow = '';
 
 let preventScrollCount = 0;
 let restore: () => void = () => {};
@@ -16,7 +15,6 @@ function preventScrollIOS() {
 function preventScrollStandard() {
   const html = document.documentElement;
   const rootStyle = html.style;
-  const bodyStyle = document.body.style;
 
   let resizeRaf: number;
   let scrollX: number;
@@ -37,9 +35,6 @@ function preventScrollStandard() {
       overflowX: rootStyle.overflowX,
       overflowY: rootStyle.overflowY,
     };
-    originalBodyOverflow = bodyStyle.overflow;
-
-    bodyStyle.overflow = 'hidden';
 
     Object.assign(rootStyle, {
       // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
@@ -56,7 +51,6 @@ function preventScrollStandard() {
 
   function cleanup() {
     Object.assign(rootStyle, originalStyles);
-    bodyStyle.overflow = originalBodyOverflow;
 
     if (window.scrollTo.toString().includes('[native code]')) {
       window.scrollTo(scrollX, scrollY);
