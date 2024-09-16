@@ -22,8 +22,6 @@ function preventScrollStandard() {
   let scrollY: number;
 
   function lockScroll() {
-    const offsetLeft = window.visualViewport?.offsetLeft || 0;
-    const offsetTop = window.visualViewport?.offsetTop || 0;
     const htmlComputedStyles = getComputedStyle(html);
     const hasConstantOverflowY = htmlComputedStyles.overflowY === 'scroll';
     const hasConstantOverflowX = htmlComputedStyles.overflowX === 'scroll';
@@ -43,12 +41,19 @@ function preventScrollStandard() {
       overflow: bodyStyle.overflow,
     };
 
+    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
+    const isFixed = html.scrollHeight > html.clientHeight;
+
+    if (isFixed) {
+      Object.assign(rootStyle, {
+        position: 'fixed',
+        top: `${-scrollY}px`,
+        left: `${-scrollX}px`,
+        right: '0',
+      });
+    }
+
     Object.assign(rootStyle, {
-      // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-      position: html.scrollHeight > html.clientHeight ? 'fixed' : '',
-      top: `${-(scrollY - Math.floor(offsetTop))}px`,
-      left: `${-(scrollX - Math.floor(offsetLeft))}px`,
-      right: '0',
       overflowY:
         html.scrollHeight > html.clientHeight || hasConstantOverflowY ? 'scroll' : 'hidden',
       overflowX: html.scrollWidth > html.clientWidth || hasConstantOverflowX ? 'scroll' : 'hidden',
