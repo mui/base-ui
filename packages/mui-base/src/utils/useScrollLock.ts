@@ -1,6 +1,5 @@
 import { isIOS } from './detectBrowser';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { useId } from './useId';
 
 let originalStyles = {};
 
@@ -78,10 +77,8 @@ function preventScrollStandard() {
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true) {
-  const id = useId();
-
   useEnhancedEffect(() => {
-    if (!enabled || !id) {
+    if (!enabled) {
       return undefined;
     }
 
@@ -96,5 +93,5 @@ export function useScrollLock(enabled: boolean = true) {
         restore();
       }
     };
-  }, [enabled, id]);
+  }, [enabled]);
 }
