@@ -45,7 +45,7 @@ function preventScrollStandard() {
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
 
-    if (isScrollableY) {
+    if (isScrollableY || isScrollableX) {
       Object.assign(rootStyle, {
         position: 'fixed',
         top: `${-scrollY}px`,
