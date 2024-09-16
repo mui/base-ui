@@ -7,7 +7,7 @@ import { Description } from 'docs-base/src/components/content/Description';
 import { TableOfContents } from 'docs-base/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs-base/data/pages';
 import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
-import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithhubLink';
+import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithubLink';
 import {
   ApiReference,
   getApiReferenceTableOfContents,
