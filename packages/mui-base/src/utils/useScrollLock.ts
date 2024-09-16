@@ -1,7 +1,7 @@
 import { isIOS } from './detectBrowser';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-let originalRootStyles = {};
+let originalHtmlStyles = {};
 let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
@@ -14,7 +14,7 @@ function preventScrollIOS() {
 function preventScrollStandard() {
   const html = document.documentElement;
   const body = document.body;
-  const rootStyle = html.style;
+  const htmlStyle = html.style;
   const bodyStyle = body.style;
 
   let resizeRaf: number;
@@ -23,19 +23,22 @@ function preventScrollStandard() {
 
   function lockScroll() {
     const htmlComputedStyles = getComputedStyle(html);
-    const hasConstantOverflowY = htmlComputedStyles.overflowY === 'scroll';
-    const hasConstantOverflowX = htmlComputedStyles.overflowX === 'scroll';
+    const bodyComputedStyles = getComputedStyle(body);
+    const hasConstantOverflowY =
+      htmlComputedStyles.overflowY === 'scroll' || bodyComputedStyles.overflowY === 'scroll';
+    const hasConstantOverflowX =
+      htmlComputedStyles.overflowX === 'scroll' || bodyComputedStyles.overflowX === 'scroll';
 
-    scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
-    scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
+    scrollX = htmlStyle.left ? parseFloat(htmlStyle.left) : window.scrollX;
+    scrollY = htmlStyle.top ? parseFloat(htmlStyle.top) : window.scrollY;
 
-    originalRootStyles = {
-      position: rootStyle.position,
-      top: rootStyle.top,
-      left: rootStyle.left,
-      right: rootStyle.right,
-      overflowX: rootStyle.overflowX,
-      overflowY: rootStyle.overflowY,
+    originalHtmlStyles = {
+      position: htmlStyle.position,
+      top: htmlStyle.top,
+      left: htmlStyle.left,
+      right: htmlStyle.right,
+      overflowX: htmlStyle.overflowX,
+      overflowY: htmlStyle.overflowY,
     };
     originalBodyStyles = {
       overflow: bodyStyle.overflow,
@@ -46,7 +49,7 @@ function preventScrollStandard() {
     const isScrollableX = html.scrollWidth > html.clientWidth;
 
     if (isScrollableY || isScrollableX) {
-      Object.assign(rootStyle, {
+      Object.assign(htmlStyle, {
         position: 'fixed',
         top: `${-scrollY}px`,
         left: `${-scrollX}px`,
@@ -54,7 +57,7 @@ function preventScrollStandard() {
       });
     }
 
-    Object.assign(rootStyle, {
+    Object.assign(htmlStyle, {
       overflowY: isScrollableY || hasConstantOverflowY ? 'scroll' : 'hidden',
       overflowX: isScrollableX || hasConstantOverflowX ? 'scroll' : 'hidden',
     });
@@ -65,7 +68,7 @@ function preventScrollStandard() {
   }
 
   function cleanup() {
-    Object.assign(rootStyle, originalRootStyles);
+    Object.assign(htmlStyle, originalHtmlStyles);
     Object.assign(bodyStyle, originalBodyStyles);
 
     if (window.scrollTo.toString().includes('[native code]')) {
