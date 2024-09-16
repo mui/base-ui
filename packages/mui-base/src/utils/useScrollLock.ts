@@ -42,9 +42,10 @@ function preventScrollStandard() {
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const isFixed = html.scrollHeight > html.clientHeight;
+    const isScrollableY = html.scrollHeight > html.clientHeight;
+    const isScrollableX = html.scrollWidth > html.clientWidth;
 
-    if (isFixed) {
+    if (isScrollableY) {
       Object.assign(rootStyle, {
         position: 'fixed',
         top: `${-scrollY}px`,
@@ -54,9 +55,8 @@ function preventScrollStandard() {
     }
 
     Object.assign(rootStyle, {
-      overflowY:
-        html.scrollHeight > html.clientHeight || hasConstantOverflowY ? 'scroll' : 'hidden',
-      overflowX: html.scrollWidth > html.clientWidth || hasConstantOverflowX ? 'scroll' : 'hidden',
+      overflowY: isScrollableY || hasConstantOverflowY ? 'scroll' : 'hidden',
+      overflowX: isScrollableX || hasConstantOverflowX ? 'scroll' : 'hidden',
     });
 
     // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
