@@ -15,7 +15,7 @@ export function EditPageGithubLink(props: EditPageGithubLinkProps) {
 
   const url = `${REPO_ROOT}/edit/${DEFAULT_BRANCH}/docs/data/${category}/${slug}/${slug}.mdx`;
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className={classes.root}>
+    <a href={url} target="_blank" rel="noopener nofollow" className={classes.root}>
       Edit this page on GitHub
     </a>
   );
