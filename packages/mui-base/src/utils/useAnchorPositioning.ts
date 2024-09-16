@@ -221,10 +221,13 @@ export function useAnchorPositioning(
   React.useEffect(() => {
     // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
     // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
-    const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
-    if (isRef(resolvedAnchor) && resolvedAnchor.current !== registeredPositionReference.current) {
-      refs.setPositionReference(resolvedAnchor.current);
-      registeredPositionReference.current = resolvedAnchor.current;
+    if (typeof anchor === 'function') {
+      return;
+    }
+
+    if (isRef(anchor) && anchor.current !== registeredPositionReference.current) {
+      refs.setPositionReference(anchor.current);
+      registeredPositionReference.current = anchor.current;
     }
   }, [refs, anchor, rerender]);
 
@@ -284,6 +287,8 @@ export function useAnchorPositioning(
   );
 }
 
-function isRef(param: unknown): param is React.RefObject<any> {
-  return param != null && {}.hasOwnProperty.call(param, 'current');
+function isRef(
+  param: Element | VirtualElement | React.RefObject<any> | null | undefined,
+): param is React.RefObject<any> {
+  return param != null && 'current' in param;
 }
