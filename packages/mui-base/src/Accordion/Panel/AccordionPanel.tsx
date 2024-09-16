@@ -24,7 +24,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   props: AccordionPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, htmlHidden: htmlHiddenProp, render, ...otherProps } = props;
+  const { className, htmlHidden: htmlHiddenProp, id: idProp, render, ...otherProps } = props;
 
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen } =
     useCollapsibleContext();
@@ -34,7 +34,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   const { getRootProps, height, width } = useCollapsibleContent({
     animated,
     htmlHidden: htmlHiddenProp || htmlHidden,
-    id: contentId,
+    id: idProp ?? contentId,
     mounted,
     open,
     ref: forwardedRef,
@@ -91,6 +91,10 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    * @default 'hidden'
    */
   htmlHidden: PropTypes.oneOf(['hidden', 'until-found']),
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

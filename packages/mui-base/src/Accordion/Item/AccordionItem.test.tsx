@@ -3,6 +3,7 @@ import * as React from 'react';
 // import { spy } from 'sinon';
 import * as Accordion from '@base_ui/react/Accordion';
 import { describeConformance, createRenderer } from '#test-utils';
+import { NOOP } from '../../utils/noop';
 
 const { AccordionRootContext } = Accordion;
 
@@ -11,7 +12,7 @@ const accordionRootContextValue: Accordion.Root.Context = {
   animated: false,
   direction: 'ltr',
   disabled: false,
-  handleOpenChange() {},
+  handleOpenChange: NOOP,
   orientation: 'vertical',
   ownerState: {
     value: [0],

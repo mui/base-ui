@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
 import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
@@ -23,19 +24,27 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   props: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { disabled: disabledProp, className, render, ...otherProps } = props;
+  const { disabled: disabledProp, className, id, render, ...otherProps } = props;
 
   const { contentId, disabled: contextDisabled, open, setOpen } = useCollapsibleContext();
 
   const { getRootProps } = useCollapsibleTrigger({
     contentId,
     disabled: disabledProp || contextDisabled,
+    id,
     open,
     rootRef: forwardedRef,
     setOpen,
   });
 
-  const { ownerState, triggerId } = useAccordionItemContext();
+  const { ownerState, setTriggerId, triggerId } = useAccordionItemContext();
+
+  useEnhancedEffect(() => {
+    setTriggerId(id);
+    return () => {
+      setTriggerId(undefined);
+    };
+  }, [id, setTriggerId]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -72,6 +81,10 @@ AccordionTrigger.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

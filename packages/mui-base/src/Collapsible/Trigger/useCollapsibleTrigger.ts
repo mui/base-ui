@@ -17,7 +17,7 @@ import { useButton } from '../../useButton';
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,
 ): useCollapsibleTrigger.ReturnValue {
-  const { contentId, disabled, open, rootRef: externalRef, setOpen } = parameters;
+  const { contentId, disabled, id, open, rootRef: externalRef, setOpen } = parameters;
 
   const { getRootProps: getButtonProps, rootRef: buttonRef } = useButton({
     disabled,
@@ -37,6 +37,7 @@ export function useCollapsibleTrigger(
             'aria-controls': contentId,
             'aria-expanded': open,
             disabled,
+            id,
             onClick() {
               setOpen(!open);
             },
@@ -45,7 +46,7 @@ export function useCollapsibleTrigger(
           getButtonProps(),
         ),
       ),
-    [contentId, disabled, getButtonProps, handleRef, open, setOpen],
+    [contentId, disabled, getButtonProps, handleRef, id, open, setOpen],
   );
 
   return {
@@ -60,6 +61,7 @@ export namespace useCollapsibleTrigger {
      */
     contentId: React.HTMLAttributes<Element>['id'];
     disabled?: boolean;
+    id?: React.HTMLAttributes<Element>['id'];
     /**
      * The open state of the Collapsible
      */

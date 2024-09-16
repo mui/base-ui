@@ -4,6 +4,7 @@ import * as React from 'react';
 import * as Accordion from '@base_ui/react/Accordion';
 import * as Collapsible from '@base_ui/react/Collapsible';
 import { describeConformance, createRenderer } from '#test-utils';
+import { NOOP } from '../../utils/noop';
 
 const { AccordionRootContext, AccordionItemContext } = Accordion;
 
@@ -34,6 +35,8 @@ const accordionItemContextValue: Accordion.Item.Context = {
     orientation: 'vertical',
     transitionStatus: undefined,
   },
+  setTriggerId: NOOP,
+  triggerId: ':trigger:',
 };
 
 const collapsibleContextValue: Collapsible.Root.Context = {
@@ -42,9 +45,9 @@ const collapsibleContextValue: Collapsible.Root.Context = {
   disabled: false,
   mounted: true,
   open: true,
-  setContentId() {},
-  setMounted() {},
-  setOpen() {},
+  setContentId: NOOP,
+  setMounted: NOOP,
+  setOpen: NOOP,
   transitionStatus: undefined,
   ownerState: {
     open: true,

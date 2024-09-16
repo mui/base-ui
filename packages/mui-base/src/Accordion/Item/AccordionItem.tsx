@@ -111,15 +111,16 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.transitionStatus, disabled, index, isOpen, rootOwnerState],
   );
 
-  const triggerId = useId();
+  const [triggerId, setTriggerId] = React.useState<string | undefined>(useId());
 
   const accordionItemContext: AccordionItem.Context = React.useMemo(
     () => ({
       open: isOpen,
-      triggerId,
       ownerState,
+      setTriggerId,
+      triggerId,
     }),
-    [isOpen, ownerState, triggerId],
+    [isOpen, ownerState, setTriggerId, triggerId],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -147,8 +148,9 @@ export namespace AccordionItem {
 
   export interface Context {
     open: boolean;
-    triggerId?: string;
     ownerState: OwnerState;
+    setTriggerId: (id: string | undefined) => void;
+    triggerId?: string;
   }
 
   export interface OwnerState extends AccordionRoot.OwnerState {
