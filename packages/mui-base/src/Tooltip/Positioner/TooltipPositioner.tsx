@@ -120,6 +120,7 @@ namespace TooltipPositioner {
     side: Side;
     alignment: Alignment;
   }
+
   export interface Props
     extends BaseUIComponentProps<'div', OwnerState>,
       useTooltipPositioner.SharedParameters {

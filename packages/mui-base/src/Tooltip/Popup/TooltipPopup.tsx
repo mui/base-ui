@@ -82,6 +82,7 @@ namespace TooltipPopup {
     entering: boolean;
     exiting: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 

@@ -106,6 +106,7 @@ function TooltipRoot(props: TooltipRoot.Props) {
 
 namespace TooltipRoot {
   export interface OwnerState {}
+
   export interface Props extends useTooltipRoot.Parameters {
     children?: React.ReactNode;
   }
