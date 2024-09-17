@@ -13,7 +13,7 @@
       "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
     },
     "hoverable": {
-      "description": "Whether the can move their cursor from the trigger element toward the tooltip popup element without it closing using a &quot;safe polygon&quot; technique."
+      "description": "Whether the user can move their cursor from the trigger element toward the tooltip popup element without it closing using a &quot;safe polygon&quot; technique."
     },
     "onOpenChange": {
       "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."
