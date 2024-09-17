@@ -12,7 +12,7 @@ export default function App() {
       <Accordion.Root
         className="MyAccordion-root"
         aria-label="Uncontrolled Material UI Accordion"
-        htmlHidden="until-found"
+        hiddenUntilFound
       >
         {[0, 1, 2].map((index) => (
           <Accordion.Item className="MyAccordion-item" key={index}>

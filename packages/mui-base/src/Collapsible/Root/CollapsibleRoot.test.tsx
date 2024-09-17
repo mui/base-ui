@@ -126,8 +126,8 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describe('prop: htmlHidden', () => {
-    it('supports "hidden until found" state', async function test() {
+  describe('prop: hiddenUntilFound', () => {
+    it('uses `hidden="until-found" to hide content when true', async function test() {
       // we test firefox in browserstack which does not support this yet
       if (!('onbeforematch' in window)) {
         this.skip();
@@ -138,7 +138,7 @@ describe('<Collapsible.Root />', () => {
       const { getByTestId } = await render(
         <Collapsible.Root defaultOpen={false} animated={false} onOpenChange={handleOpenChange}>
           <Collapsible.Trigger />
-          <Collapsible.Content data-testid="content" htmlHidden="until-found" />
+          <Collapsible.Content data-testid="content" hiddenUntilFound />
         </Collapsible.Root>,
       );
 

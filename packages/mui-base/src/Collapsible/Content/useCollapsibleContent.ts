@@ -37,7 +37,7 @@ export function useCollapsibleContent(
 ): useCollapsibleContent.ReturnValue {
   const {
     animated = false,
-    htmlHidden = 'hidden',
+    hiddenUntilFound = false,
     id: idParam,
     open,
     mounted: contextMounted,
@@ -245,21 +245,23 @@ export function useCollapsibleContent(
       supportsHiddenUntilFound(element) &&
       element?.hidden &&
       !isOpen &&
-      htmlHidden === 'until-found'
+      hiddenUntilFound === true
     ) {
       // @ts-ignore
       element.hidden = 'until-found';
     }
-  }, [htmlHidden, isOpen]);
+  }, [hiddenUntilFound, isOpen]);
+
+  const hidden = hiddenUntilFound ? 'until-found' : 'hidden';
 
   const getRootProps: useCollapsibleContent.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
-        hidden: isOpen ? undefined : htmlHidden,
+        hidden: isOpen ? undefined : hidden,
         ref: mergedRef,
       }),
-    [htmlHidden, id, isOpen, mergedRef],
+    [hidden, id, isOpen, mergedRef],
   );
 
   return React.useMemo(
@@ -273,8 +275,6 @@ export function useCollapsibleContent(
 }
 
 export namespace useCollapsibleContent {
-  export type HtmlHiddenType = 'hidden' | 'until-found';
-
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
@@ -282,10 +282,11 @@ export namespace useCollapsibleContent {
      */
     animated?: boolean;
     /**
-     * The hidden state when closed
-     * @default 'hidden'
+     * If `true`, sets `hidden="until-found"` when closed.
+     * If `false`, sets `hidden` when closed.
+     * @default false
      */
-    htmlHidden?: HtmlHiddenType;
+    hiddenUntilFound?: boolean;
     id?: React.HTMLAttributes<Element>['id'];
     mounted: boolean;
     /**

@@ -24,16 +24,22 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   props: AccordionPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, htmlHidden: htmlHiddenProp, id: idProp, render, ...otherProps } = props;
+  const {
+    className,
+    hiddenUntilFound: hiddenUntilFoundProp,
+    id: idProp,
+    render,
+    ...otherProps
+  } = props;
 
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen } =
     useCollapsibleContext();
 
-  const { htmlHidden } = useAccordionRootContext();
+  const { hiddenUntilFound } = useAccordionRootContext();
 
   const { getRootProps, height, width } = useCollapsibleContent({
     animated,
-    htmlHidden: htmlHiddenProp || htmlHidden,
+    hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
     id: idProp ?? contentId,
     mounted,
     open,
@@ -70,7 +76,7 @@ export { AccordionPanel };
 export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.OwnerState>,
-      Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
+      Pick<useCollapsibleContent.Parameters, 'hiddenUntilFound'> {}
 }
 
 AccordionPanel.propTypes /* remove-proptypes */ = {
@@ -87,10 +93,11 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The hidden state when closed
-   * @default 'hidden'
+   * If `true`, sets `hidden="until-found"` when closed.
+   * If `false`, sets `hidden` when closed.
+   * @default false
    */
-  htmlHidden: PropTypes.oneOf(['hidden', 'until-found']),
+  hiddenUntilFound: PropTypes.bool,
   /**
    * @ignore
    */

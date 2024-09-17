@@ -41,12 +41,12 @@ packageName: '@base_ui/react'
   Firefox as of August 2024 and will fall back to the default `hidden` behavior.
 </Callout>
 
-Content hidden in the `Collapsible.Content` component can be made accessible only to a browser's find-in-page functionality with the `htmlHidden` prop to improve searchability:
+Content hidden in the `Collapsible.Content` component can be made accessible only to a browser's find-in-page functionality with the `hiddenUntilFound` prop to improve searchability:
 
 ```js
 <Collapsible.Root defaultOpen={false}>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-  <Collapsible.Content htmlHidden="until-found">
+  <Collapsible.Content hiddenUntilFound>
     When this component is closed, this sentence will only be accessible to the browser's native
     find-in-page functionality
   </Collapsible.Content>

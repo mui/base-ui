@@ -13,6 +13,7 @@ const accordionRootContextValue: Accordion.Root.Context = {
   direction: 'ltr',
   disabled: false,
   handleOpenChange: NOOP,
+  hiddenUntilFound: false,
   orientation: 'vertical',
   ownerState: {
     value: [0],

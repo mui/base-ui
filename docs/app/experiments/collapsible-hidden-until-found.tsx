@@ -52,7 +52,7 @@ export default function CollapsibleHiddenUntilFound() {
             </span>
             Toggle 2
           </Collapsible.Trigger>
-          <Collapsible.Content className="MyCollapsible-content animation" htmlHidden="until-found">
+          <Collapsible.Content className="MyCollapsible-content animation" hiddenUntilFound>
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
           </Collapsible.Content>
@@ -68,10 +68,7 @@ export default function CollapsibleHiddenUntilFound() {
             </span>
             Toggle 3
           </Collapsible.Trigger>
-          <Collapsible.Content
-            className="MyCollapsible-content csstransition"
-            htmlHidden="until-found"
-          >
+          <Collapsible.Content className="MyCollapsible-content csstransition" hiddenUntilFound>
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
           </Collapsible.Content>

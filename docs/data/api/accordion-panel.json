@@ -1,10 +1,7 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "htmlHidden": {
-      "type": { "name": "enum", "description": "'hidden'<br>&#124;&nbsp;'until-found'" },
-      "default": "'hidden'"
-    },
+    "hiddenUntilFound": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "AccordionPanel",

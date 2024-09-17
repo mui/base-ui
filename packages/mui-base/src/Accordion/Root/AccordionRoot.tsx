@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { useCollapsibleContent } from '../../Collapsible/Content/useCollapsibleContent';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { useAccordionRoot } from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
@@ -27,7 +26,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     className,
     direction,
     disabled = false,
-    htmlHidden,
+    hiddenUntilFound = false,
     loop,
     onOpenChange,
     openMultiple = true,
@@ -65,7 +64,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
       value: accordion.value,
       disabled: accordion.disabled,
       orientation: accordion.orientation,
-      // transitionStatus: accordion.transitionStatus,
     }),
     [accordion.value, accordion.disabled, accordion.orientation],
   );
@@ -73,10 +71,10 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   const contextValue: AccordionRoot.Context = React.useMemo(
     () => ({
       ...accordion,
-      htmlHidden,
+      hiddenUntilFound,
       ownerState,
     }),
-    [accordion, htmlHidden, ownerState],
+    [accordion, hiddenUntilFound, ownerState],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -109,7 +107,7 @@ export { AccordionRoot };
 export namespace AccordionRoot {
   export interface Context extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
     ownerState: OwnerState;
-    htmlHidden?: useCollapsibleContent.HtmlHiddenType;
+    hiddenUntilFound: boolean;
   }
 
   export interface OwnerState {
@@ -121,7 +119,7 @@ export namespace AccordionRoot {
   export interface Props
     extends useAccordionRoot.Parameters,
       BaseUIComponentProps<any, OwnerState> {
-    htmlHidden?: useCollapsibleContent.HtmlHiddenType;
+    hiddenUntilFound?: boolean;
   }
 }
 
@@ -159,7 +157,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  htmlHidden: PropTypes.oneOf(['hidden', 'until-found']),
+  hiddenUntilFound: PropTypes.bool,
   /**
    * If `true`, focus will loop when moving focus between `Trigger`s using
    * the arrow keys.

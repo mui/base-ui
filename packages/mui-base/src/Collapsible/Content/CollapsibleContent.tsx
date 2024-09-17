@@ -22,14 +22,14 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   props: CollapsibleContent.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, htmlHidden, render, ...otherProps } = props;
+  const { className, hiddenUntilFound, render, ...otherProps } = props;
 
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
     useCollapsibleContext();
 
   const { getRootProps, height, width } = useCollapsibleContent({
     animated,
-    htmlHidden,
+    hiddenUntilFound,
     id: contentId,
     mounted,
     open,
@@ -57,10 +57,12 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   return renderElement();
 });
 
+export { CollapsibleContent };
+
 namespace CollapsibleContent {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
-      Pick<useCollapsibleContent.Parameters, 'htmlHidden'> {}
+      Pick<useCollapsibleContent.Parameters, 'hiddenUntilFound'> {}
 }
 
 CollapsibleContent.propTypes /* remove-proptypes */ = {
@@ -77,14 +79,13 @@ CollapsibleContent.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The hidden state when closed
-   * @default 'hidden'
+   * If `true`, sets `hidden="until-found"` when closed.
+   * If `false`, sets `hidden` when closed.
+   * @default false
    */
-  htmlHidden: PropTypes.oneOf(['hidden', 'until-found']),
+  hiddenUntilFound: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { CollapsibleContent };
