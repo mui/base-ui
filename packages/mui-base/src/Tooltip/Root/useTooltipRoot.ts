@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
@@ -11,15 +10,17 @@ import {
   useHover,
   useInteractions,
   type OpenChangeReason,
+  type FloatingRootContext,
 } from '@floating-ui/react';
-import type { UseTooltipRootParameters, UseTooltipRootReturnValue } from './useTooltipRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { GenericHTMLProps } from '../../utils/types';
 
-export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRootReturnValue {
+export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
@@ -27,7 +28,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
     keepMounted = false,
     hoverable = true,
     animated = true,
-    followCursorAxis = 'none',
+    trackCursorAxis = 'none',
     delayType = 'rest',
     delay,
     closeDelay,
@@ -134,7 +135,7 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
   const hover = useHover(context, {
     mouseOnly: true,
     move: false,
-    handleClose: hoverable && followCursorAxis !== 'both' ? safePolygon() : null,
+    handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
     restMs: computedRestMs,
     delay: {
       open: computedOpenDelay,
@@ -144,8 +145,8 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
   const focus = useFocus(context);
   const dismiss = useDismiss(context, { referencePress: true });
   const clientPoint = useClientPoint(context, {
-    enabled: followCursorAxis !== 'none',
-    axis: followCursorAxis === 'none' ? undefined : followCursorAxis,
+    enabled: trackCursorAxis !== 'none',
+    axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
   const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
@@ -182,4 +183,79 @@ export function useTooltipRoot(params: UseTooltipRootParameters): UseTooltipRoot
       transitionStatus,
     ],
   );
+}
+
+export namespace useTooltipRoot {
+  export interface Parameters {
+    /**
+     * Whether the tooltip popup is open by default. Use when uncontrolled.
+     * @default false
+     */
+    defaultOpen?: boolean;
+    /**
+     * Whether the tooltip popup is open. Use when controlled.
+     * @default false
+     */
+    open?: boolean;
+    /**
+     * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
+     */
+    onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Whether the user can move their cursor from the trigger element toward the tooltip popup element
+     * without it closing using a "safe polygon" technique.
+     * @default true
+     */
+    hoverable?: boolean;
+    /**
+     * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
+     * animations to play. Useful to disable in tests to remove async behavior.
+     * @default true
+     */
+    animated?: boolean;
+    /**
+     * Determines which axis the tooltip should track the cursor on.
+     * @default 'none'
+     */
+    trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
+    /**
+     * The delay in milliseconds until the tooltip popup is opened.
+     * @default 600
+     */
+    delay?: number;
+    /**
+     * The delay in milliseconds until the tooltip popup is closed.
+     * @default 0
+     */
+    closeDelay?: number;
+    /**
+     * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
+     * rest on the trigger before the tooltip popup is opened. `hover` means the `delay` represents
+     * how long to wait as soon as the user's cursor has entered the trigger.
+     * @default 'rest'
+     */
+    delayType?: 'rest' | 'hover';
+    /**
+     * Whether the tooltip popup element stays mounted in the DOM when closed.
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+
+  export interface ReturnValue {
+    open: boolean;
+    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    mounted: boolean;
+    setMounted: React.Dispatch<React.SetStateAction<boolean>>;
+    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    floatingRootContext: FloatingRootContext;
+    instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+    transitionStatus: TransitionStatus;
+    triggerElement: Element | null;
+    positionerElement: HTMLElement | null;
+    setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+    setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+    popupRef: React.RefObject<HTMLElement>;
+  }
 }
