@@ -122,7 +122,7 @@ namespace TooltipPositioner {
   }
   export interface Props
     extends BaseUIComponentProps<'div', OwnerState>,
-      Omit<useTooltipPositioner.Parameters, 'floatingRootContext'> {
+      useTooltipPositioner.SharedParameters {
     /**
      * The container element the tooltip positioner is appended to.
      */

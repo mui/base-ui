@@ -60,7 +60,7 @@ export function useTooltipPositioner(
 }
 
 export namespace useTooltipPositioner {
-  export interface Parameters {
+  export interface SharedParameters {
     /**
      * The element to which the tooltip element is anchored to.
      */
@@ -149,6 +149,18 @@ export namespace useTooltipPositioner {
      * @default 'none'
      */
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
+  }
+
+  export interface Parameters extends SharedParameters {
+    /**
+     * Whether the tooltip is open.
+     * @default false
+     */
+    open?: boolean;
+    /**
+     * The tooltip root context.
+     */
+    floatingRootContext?: FloatingRootContext;
   }
 
   export interface ReturnValue {
