@@ -7,8 +7,36 @@ let preventScrollCount = 0;
 let restore: () => void = () => {};
 
 function preventScrollIOS() {
-  // To implement
-  return () => {};
+  const body = document.body;
+  const bodyStyle = body.style;
+
+  // iOS 12 does not support `visualViewport`.
+  const offsetLeft = window.visualViewport?.offsetLeft || 0;
+  const offsetTop = window.visualViewport?.offsetTop || 0;
+  const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
+  const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
+
+  originalBodyStyles = {
+    position: bodyStyle.position,
+    top: bodyStyle.top,
+    left: bodyStyle.left,
+    right: bodyStyle.right,
+    overflowX: bodyStyle.overflowX,
+    overflowY: bodyStyle.overflowY,
+  };
+
+  Object.assign(bodyStyle, {
+    position: 'fixed',
+    top: `${-(scrollY - Math.floor(offsetTop))}px`,
+    left: `${-(scrollX - Math.floor(offsetLeft))}px`,
+    right: '0',
+    overflow: 'hidden',
+  });
+
+  return () => {
+    Object.assign(bodyStyle, originalBodyStyles);
+    window.scrollTo(scrollX, scrollY);
+  };
 }
 
 function preventScrollStandard() {
