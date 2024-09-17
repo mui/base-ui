@@ -30,6 +30,7 @@ namespace useTooltipArrow {
     arrowStyles: React.CSSProperties;
     hidden?: boolean;
   }
+
   export interface ReturnValue {
     getArrowProps: (props?: GenericHTMLProps) => GenericHTMLProps;
   }
