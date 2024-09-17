@@ -12,10 +12,10 @@ export function useRenderPropForkRef<ElementType extends React.ElementType, Owne
   ...refs: Array<React.Ref<any>>
 ): React.RefCallback<any> | null {
   let childRef;
-  if (isReactVersionAtLeast(19)) {
-    childRef = typeof render !== 'function' ? render.props.ref : null;
+  if (typeof render !== 'function') {
+    childRef = isReactVersionAtLeast(19) ? render.props.ref : render.ref;
   } else {
-    childRef = typeof render !== 'function' ? render.ref : null;
+    childRef = null;
   }
 
   return useForkRef(childRef, ...refs);
