@@ -121,6 +121,7 @@ namespace PopoverPositioner {
     side: Side;
     alignment: Alignment;
   }
+
   export interface Props
     extends usePopoverPositioner.SharedParameters,
       BaseUIComponentProps<'div', OwnerState> {

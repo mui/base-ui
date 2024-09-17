@@ -55,6 +55,7 @@ namespace PopoverTrigger {
   export interface OwnerState {
     open: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<any, OwnerState> {}
 }
 

@@ -52,6 +52,7 @@ namespace PopoverBackdrop {
   export interface OwnerState {
     open: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     /**
      * If `true`, the backdrop remains mounted when the popover content is closed.

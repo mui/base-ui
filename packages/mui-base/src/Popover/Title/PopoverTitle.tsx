@@ -46,6 +46,7 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
 
 namespace PopoverTitle {
   export interface OwnerState {}
+
   export interface Props
     extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', OwnerState> {}
 }
