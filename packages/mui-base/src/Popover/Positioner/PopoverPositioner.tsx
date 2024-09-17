@@ -122,7 +122,7 @@ namespace PopoverPositioner {
     alignment: Alignment;
   }
   export interface Props
-    extends Omit<usePopoverPositioner.Parameters, 'floatingRootContext'>,
+    extends usePopoverPositioner.SharedParameters,
       BaseUIComponentProps<'div', OwnerState> {
     /**
      * The element the popover positioner element is appended to.

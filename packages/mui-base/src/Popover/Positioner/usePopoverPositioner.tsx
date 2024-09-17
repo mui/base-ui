@@ -72,7 +72,7 @@ export function usePopoverPositioner(
 }
 
 export namespace usePopoverPositioner {
-  export interface Parameters {
+  export interface SharedParameters {
     /**
      * The element to which the popover element is anchored to.
      */
@@ -82,11 +82,6 @@ export namespace usePopoverPositioner {
       | VirtualElement
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
-    /**
-     * Whether the popover is open.
-     * @default false
-     */
-    open?: boolean;
     /**
      * The CSS position strategy for positioning the popover element.
      * @default 'absolute'
@@ -151,6 +146,14 @@ export namespace usePopoverPositioner {
      * @default true
      */
     trackAnchor?: boolean;
+  }
+
+  export interface Parameters extends SharedParameters {
+    /**
+     * Whether the popover is open.
+     * @default false
+     */
+    open?: boolean;
     /**
      * The floating root context.
      */
