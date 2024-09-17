@@ -3,7 +3,7 @@ import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export const collapsibleStyleHookMapping: CustomStyleHookMapping<CollapsibleRoot.OwnerState> = {
   open: (value) => {
-    return value ? { 'data-state': 'open' } : { 'data-state': 'closed' };
+    return value ? { 'data-collapsible': 'open' } : { 'data-collapsible': 'closed' };
   },
   transitionStatus: (value) => {
     if (value === 'entering') {

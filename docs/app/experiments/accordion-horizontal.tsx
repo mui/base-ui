@@ -166,7 +166,7 @@ function HorizontalStyles() {
           transform: rotate(-90deg);
         }
 
-        .MyHorizontalAccordion-trigger[data-state="open"] svg {
+        .MyHorizontalAccordion-trigger[data-accordion="open"] svg {
           transform: rotate(180deg);
         }
 

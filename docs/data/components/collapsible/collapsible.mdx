@@ -63,8 +63,8 @@ This relies on the HTML `hidden="until-found"` attribute which only has [partial
 
 Four states are available as data attributes to animate the Collapsible:
 
-- `[data-state="open"]` - `open` state is `true`.
-- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-collapsible="open"]` - `open` state is `true`.
+- `[data-collapsible="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
 - `[data-entering]` - the `hidden` attribute was just removed from the DOM and the content element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
 - `[data-exiting]` - the content element is in the process of being hidden from the DOM, but is still mounted.
 
@@ -85,11 +85,11 @@ CSS animations can be used with two declarations:
   overflow: hidden;
 }
 
-.Collapsible-content[data-state='open'] {
+.Collapsible-content[data-collapsible='open'] {
   animation: slideDown 300ms ease-out;
 }
 
-.Collapsible-content[data-state='closed'] {
+.Collapsible-content[data-collapsible='closed'] {
   animation: slideUp 300ms ease-in;
 }
 
@@ -118,8 +118,8 @@ CSS animations can be used with two declarations:
 
 When using CSS transitions, styles for the `Content` subcomponent must be applied to three states:
 
-- The closed styles with `[data-state="closed"]`
-- The open styles with `[data-state="open"]`
+- The closed styles with `[data-collapsible="closed"]`
+- The open styles with `[data-collapsible="open"]`
 - The entering styles with `[data-entering]`
 
 ```css
@@ -127,7 +127,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
   overflow: hidden;
 }
 
-.Collapsible-content[data-state='open'] {
+.Collapsible-content[data-collapsible='open'] {
   height: var(--collapsible-content-height);
   transition: height 300ms ease-out;
 }
@@ -136,7 +136,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
   height: 0;
 }
 
-.Collapsible-content[data-state='closed'] {
+.Collapsible-content[data-collapsible='closed'] {
   height: 0;
   transition: height 300ms ease-in;
 }

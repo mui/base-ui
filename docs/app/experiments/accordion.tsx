@@ -125,7 +125,6 @@ export default function App() {
         className="MyAccordion-root"
         value={val2}
         onOpenChange={(newValue: Accordion.Root.Props['Value']) => {
-          // console.log(newValue);
           if (newValue.length > 0) {
             setVal2(newValue);
           }
@@ -160,7 +159,6 @@ export default function App() {
           </Accordion.Panel>
         </Accordion.Item>
       </Accordion.Root>
-      <Styles />
     </div>
   );
 }
@@ -192,74 +190,5 @@ export function ExpandMoreIcon(props: React.SVGProps<SVGSVGElement>) {
     >
       <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" fill="currentColor" />
     </svg>
-  );
-}
-
-const grey = {
-  100: '#E5EAF2',
-  300: '#C7D0DD',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-// function useIsDarkMode() {
-//   const theme = useTheme();
-//   return theme.palette.mode === 'dark';
-// }
-
-function Styles() {
-  // Replace this with your app logic for determining dark mode
-  // const isDarkMode = useIsDarkMode();
-  return (
-    <style>
-      {`
-        .Checkbox {
-          all: unset;
-          box-sizing: border-box;
-          text-align: center;
-          width: 20px;
-          height: 20px;
-          padding: 0;
-          border-radius: 4px;
-          border: 2px solid ${grey[600]};
-          background: none;
-          transition-property: background, border-color;
-          transition-duration: 0.15s;
-        }
-
-        .Checkbox[data-disabled] {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
-
-        .Checkbox:focus-visible {
-          outline: 2px solid ${/* isDarkMode ? grey[600] : */ grey[500]};
-          outline-offset: 2px;
-        }
-
-        .Checkbox[data-state="checked"] {
-          border-color: ${grey[800]};
-          background: ${grey[800]};
-        }
-
-        .Checkbox-indicator {
-          height: 100%;
-          display: inline-block;
-          visibility: hidden;
-          color: ${/* isDarkMode ? grey[900] : */ grey[300]};
-        }
-
-        .Checkbox-indicator[data-state="checked"] {
-          visibility: visible;
-        }
-
-        .Checkbox-icon {
-          width: 100%;
-          height: 100%;
-        }
-      `}
-    </style>
   );
 }
