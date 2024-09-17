@@ -20,7 +20,6 @@ import {
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { ownerWindow } from './owner';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
@@ -204,21 +203,30 @@ export function useAnchorPositioning(
     nodeId,
   });
 
-  // We can assume that element anchors are stable across renders, and thus can be reactive.
-  const [reactiveAnchorDep, setReactiveAnchorDep] =
-    React.useState(anchor == null) || ('current' in anchor! && isElement(anchor.current));
-
-  React.useEffect(() => {
-    setReactiveAnchorDep(anchor == null || ('current' in anchor! && isElement(anchor.current)));
-  }, [anchor, setReactiveAnchorDep]);
+  const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
   useEnhancedEffect(() => {
     const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
 
     if (resolvedAnchor) {
-      refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
+      const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
+      refs.setPositionReference(unwrappedElement);
+      registeredPositionReferenceRef.current = unwrappedElement;
     }
-  }, [refs, anchor, reactiveAnchorDep]);
+  }, [refs, anchor]);
+
+  React.useEffect(() => {
+    // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
+    // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
+    if (typeof anchor === 'function') {
+      return;
+    }
+
+    if (isRef(anchor) && anchor.current !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(anchor.current);
+      registeredPositionReferenceRef.current = anchor.current;
+    }
+  }, [refs, anchor]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
@@ -276,18 +284,8 @@ export function useAnchorPositioning(
   );
 }
 
-function isRef(param: unknown): param is React.RefObject<any> {
-  return {}.hasOwnProperty.call(param, 'current');
-}
-
-function isElement(value: unknown): value is Element {
-  if (value == null) {
-    return false;
-  }
-
-  return (
-    (typeof Element !== 'undefined' && value instanceof Element) ||
-    (typeof window !== 'undefined' && value instanceof (ownerWindow(undefined) as any).Element) ||
-    'innerHTML' in (value as {})
-  );
+function isRef(
+  param: Element | VirtualElement | React.RefObject<any> | null | undefined,
+): param is React.RefObject<any> {
+  return param != null && 'current' in param;
 }
