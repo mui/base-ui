@@ -44,6 +44,6 @@ export namespace DemoSourceCopy {
   export interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     onCopied?: () => void;
     onError?: (error: unknown) => void;
-    render?: React.ReactElement<any>;
+    render?: React.ReactElement<React.ComponentPropsWithRef<'button'>>;
   }
 }

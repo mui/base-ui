@@ -17,7 +17,7 @@ export interface ComponentRendererSettings<OwnerState, RenderedElementType exten
    */
   render:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
-    | React.ReactElement
+    | React.ReactElement<unknown>
     | keyof typeof defaultRenderFunctions;
   /**
    * The owner state of the component.

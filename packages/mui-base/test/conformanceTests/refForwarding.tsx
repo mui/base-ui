@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { type BaseUiConformanceTestsOptions } from '../describeConformance';
+import type {
+  ConformantComponentProps,
+  BaseUiConformanceTestsOptions,
+} from '../describeConformance';
 import { throwMissingPropError } from './utils';
 
 async function verifyRef(
-  element: React.ReactElement<any>,
+  element: React.ReactElement<ConformantComponentProps>,
   render: BaseUiConformanceTestsOptions['render'],
   onRef: (instance: unknown, element: HTMLElement | null) => void,
 ) {
@@ -22,7 +25,7 @@ async function verifyRef(
 }
 
 export function testRefForwarding(
-  element: React.ReactElement,
+  element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
   describe('ref', () => {

@@ -29,7 +29,10 @@ export type WithBaseUIEvent<T> = {
  * @template Props Props to be spread on the rendered element.
  * @template State Component's internal state.
  */
-export type ComponentRenderFn<Props, State> = (props: Props, state: State) => React.ReactElement;
+export type ComponentRenderFn<Props, State> = (
+  props: Props,
+  state: State,
+) => React.ReactElement<unknown>;
 
 /**
  * Props shared by all Base UI components.

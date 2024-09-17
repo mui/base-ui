@@ -10,10 +10,20 @@ import { testRefForwarding } from './conformanceTests/refForwarding';
 import { testRenderProp } from './conformanceTests/renderProp';
 import { testClassName } from './conformanceTests/className';
 
+export type ConformantComponentProps = {
+  render?: React.ReactElement<unknown> | ((props: Record<string, unknown>) => React.ReactNode);
+  ref?: React.Ref<unknown>;
+  'data-testid'?: string;
+  className?: string;
+};
+
 export interface BaseUiConformanceTestsOptions
   extends Omit<Partial<ConformanceOptions>, 'render' | 'mount' | 'skip' | 'classes'> {
   render: (
-    element: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
+    element: React.ReactElement<
+      ConformantComponentProps,
+      string | React.JSXElementConstructor<any>
+    >,
     options?: RenderOptions | undefined,
   ) => Promise<MuiRenderResult> | MuiRenderResult;
   skip?: (keyof typeof fullSuite)[];
@@ -28,7 +38,7 @@ const fullSuite = {
 };
 
 function describeConformanceFn(
-  minimalElement: React.ReactElement,
+  minimalElement: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
   const { after: runAfterHook = () => {}, only = Object.keys(fullSuite), skip = [] } = getOptions();

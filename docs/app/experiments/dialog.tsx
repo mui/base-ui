@@ -151,7 +151,7 @@ function ReactSpringDialogDemo({ animated, keepMounted, modal, dismissible }: De
   );
 }
 
-function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement }) {
+function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement<unknown> }) {
   const { open, children } = props;
 
   const api = useSpringRef();
