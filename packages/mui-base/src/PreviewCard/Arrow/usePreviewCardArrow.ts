@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type {
@@ -9,15 +8,18 @@ import type {
 export function usePreviewCardArrow(
   params: UsePreviewCardArrowParameters,
 ): UsePreviewCardArrowReturnValue {
-  const { arrowStyles } = params;
+  const { arrowStyles, hidden } = params;
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
+        style: {
+          ...arrowStyles,
+          ...(hidden && { visibility: 'hidden' }),
+        },
       });
     },
-    [arrowStyles],
+    [arrowStyles, hidden],
   );
 
   return React.useMemo(

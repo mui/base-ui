@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { PreviewCardRootProps } from './PreviewCardRoot.types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
@@ -16,7 +15,7 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  *
  * - [PreviewCardRoot API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardRoot)
  */
-function PreviewCardRoot(props: PreviewCardRootProps) {
+function PreviewCardRoot(props: PreviewCardRoot.Props) {
   const { delayType = 'rest', delay, closeDelay, animated = true } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -95,6 +94,13 @@ function PreviewCardRoot(props: PreviewCardRootProps) {
   );
 }
 
+namespace PreviewCardRoot {
+  export interface OwnerState {}
+  export interface Props extends usePreviewCardRoot.Parameters {
+    children?: React.ReactNode;
+  }
+}
+
 PreviewCardRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -111,7 +117,7 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the preview card popup is closed.
+   * The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`.
    * @default 300
    */
   closeDelay: PropTypes.number,
@@ -121,7 +127,7 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the preview card popup is opened.
+   * The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`.
    * @default 600
    */
   delay: PropTypes.number,

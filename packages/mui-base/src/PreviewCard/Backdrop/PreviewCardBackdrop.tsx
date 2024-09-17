@@ -3,13 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import {
-  PreviewCardBackdropOwnerState,
-  PreviewCardBackdropProps,
-} from './PreviewCardBackdrop.types';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -22,7 +19,7 @@ import { HTMLElementType } from '../../utils/proptypes';
  * - [PreviewCardBackdrop API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardBackdrop)
  */
 const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
-  props: PreviewCardBackdropProps,
+  props: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, container, ...otherProps } = props;
@@ -30,7 +27,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   const { open, mounted } = usePreviewCardRootContext();
   const { getBackdropProps } = usePreviewCardBackdrop();
 
-  const ownerState: PreviewCardBackdropOwnerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getBackdropProps,
@@ -48,6 +45,23 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
 
   return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
+
+namespace PreviewCardBackdrop {
+  export interface OwnerState {
+    open: boolean;
+  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
+     * @default false
+     */
+    keepMounted?: boolean;
+    /**
+     * The element the `Backdrop` is appended to.
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  }
+}
 
 PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
