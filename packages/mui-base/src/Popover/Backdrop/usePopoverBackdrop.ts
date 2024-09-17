@@ -24,7 +24,6 @@ export function usePopoverBackdrop(): usePopoverBackdrop.ReturnValue {
 }
 
 namespace usePopoverBackdrop {
-  export interface Parameters {}
   export interface ReturnValue {
     getBackdropProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }

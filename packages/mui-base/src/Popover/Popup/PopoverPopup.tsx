@@ -8,6 +8,21 @@ import { usePopoverPopup } from './usePopoverPopup';
 import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
+  entering(value) {
+    return value ? { 'data-entering': '' } : null;
+  },
+  exiting(value) {
+    return value ? { 'data-exiting': '' } : null;
+  },
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * Renders the popover popup element.
@@ -64,19 +79,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      entering(value) {
-        return value ? { 'data-entering': '' } : null;
-      },
-      exiting(value) {
-        return value ? { 'data-exiting': '' } : null;
-      },
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
