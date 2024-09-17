@@ -44,6 +44,7 @@ namespace PreviewCardTrigger {
   export interface OwnerState {
     open: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'a', OwnerState> {}
 }
 

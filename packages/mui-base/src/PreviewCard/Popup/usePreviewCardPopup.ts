@@ -1,13 +1,10 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type {
-  UsePreviewCardPopupParameters,
-  UsePreviewCardPopupReturnValue,
-} from './usePreviewCardPopup.types';
+import type { GenericHTMLProps } from '../../utils/types';
 
 export function usePreviewCardPopup(
-  params: UsePreviewCardPopupParameters,
-): UsePreviewCardPopupReturnValue {
+  params: usePreviewCardPopup.Parameters,
+): usePreviewCardPopup.ReturnValue {
   const { getProps } = params;
 
   const getPopupProps = React.useCallback(
@@ -28,4 +25,14 @@ export function usePreviewCardPopup(
     }),
     [getPopupProps],
   );
+}
+
+namespace usePreviewCardPopup {
+  export interface Parameters {
+    getProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
+
+  export interface ReturnValue {
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

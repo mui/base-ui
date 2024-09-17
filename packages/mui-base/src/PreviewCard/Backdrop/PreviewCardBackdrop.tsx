@@ -50,6 +50,7 @@ namespace PreviewCardBackdrop {
   export interface OwnerState {
     open: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     /**
      * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.

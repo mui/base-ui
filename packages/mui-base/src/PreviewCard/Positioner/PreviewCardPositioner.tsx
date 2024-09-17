@@ -121,6 +121,7 @@ namespace PreviewCardPositioner {
     side: Side;
     alignment: Alignment;
   }
+
   export interface Props
     extends usePreviewCardPositioner.SharedParameters,
       BaseUIComponentProps<'div', OwnerState> {}

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UsePreviewCardBackdropReturnValue } from './usePreviewCardBackdrop.types';
+import type { GenericHTMLProps } from '../../utils/types';
 
-export function usePreviewCardBackdrop(): UsePreviewCardBackdropReturnValue {
+export function usePreviewCardBackdrop(): usePreviewCardBackdrop.ReturnValue {
   const getBackdropProps = React.useCallback((externalProps = {}) => {
     return mergeReactProps<'div'>(externalProps, {
       style: {
@@ -21,4 +21,10 @@ export function usePreviewCardBackdrop(): UsePreviewCardBackdropReturnValue {
     }),
     [getBackdropProps],
   );
+}
+
+namespace usePreviewCardBackdrop {
+  export interface ReturnValue {
+    getBackdropProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }
