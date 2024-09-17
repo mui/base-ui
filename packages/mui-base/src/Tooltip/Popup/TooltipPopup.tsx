@@ -7,6 +7,21 @@ import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerCont
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.OwnerState> = {
+  entering(value) {
+    return value ? { 'data-entering': '' } : null;
+  },
+  exiting(value) {
+    return value ? { 'data-exiting': '' } : null;
+  },
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * The tooltip popup element.
@@ -52,19 +67,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      entering(value) {
-        return value ? { 'data-entering': '' } : null;
-      },
-      exiting(value) {
-        return value ? { 'data-exiting': '' } : null;
-      },
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
