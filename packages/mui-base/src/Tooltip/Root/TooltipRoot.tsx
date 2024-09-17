@@ -149,7 +149,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
   /**
-   * Whether the can move their cursor from the trigger element toward the tooltip popup element
+   * Whether the user can move their cursor from the trigger element toward the tooltip popup element
    * without it closing using a "safe polygon" technique.
    * @default true
    */
