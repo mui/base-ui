@@ -46,7 +46,7 @@ describe('<Menu.Positioner />', () => {
   }));
 
   describe('prop: anchor', () => {
-    it('should be placed near the specified element', async function test() {
+    it('should be placed near the specified element when a ref is passed', async function test() {
       if (/jsdom/.test(window.navigator.userAgent)) {
         this.skip();
       }
@@ -65,6 +65,88 @@ describe('<Menu.Positioner />', () => {
               </Menu.Positioner>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={anchor} />
+          </div>
+        );
+      }
+
+      const { getByRole, getByTestId } = await render(<TestComponent />);
+
+      const popup = getByRole('menu');
+      const anchor = getByTestId('anchor');
+
+      const anchorPosition = anchor.getBoundingClientRect();
+
+      await flushMicrotasks();
+
+      expect(popup.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
+      );
+    });
+
+    it('should be placed near the specified element when an element is passed', async function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+
+      function TestComponent() {
+        const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
+        const handleRef = React.useCallback((element: HTMLDivElement | null) => {
+          setAnchor(element);
+        }, []);
+
+        return (
+          <div>
+            <Menu.Root open animated={false}>
+              <Menu.Positioner side="bottom" alignment="start" anchor={anchor} arrowPadding={0}>
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                  <Menu.Item>2</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Root>
+            <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
+          </div>
+        );
+      }
+
+      const { getByRole, getByTestId } = await render(<TestComponent />);
+
+      const popup = getByRole('menu');
+      const anchor = getByTestId('anchor');
+
+      const anchorPosition = anchor.getBoundingClientRect();
+
+      await flushMicrotasks();
+
+      expect(popup.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
+      );
+    });
+
+    it('should be placed near the specified element when a function returingn an element is passed', async function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+
+      function TestComponent() {
+        const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
+        const handleRef = React.useCallback((element: HTMLDivElement | null) => {
+          setAnchor(element);
+        }, []);
+
+        const getAnchor = React.useCallback(() => anchor, [anchor]);
+
+        return (
+          <div>
+            <Menu.Root open animated={false}>
+              <Menu.Positioner side="bottom" alignment="start" anchor={getAnchor} arrowPadding={0}>
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                  <Menu.Item>2</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Root>
+            <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
         );
       }
