@@ -17,6 +17,8 @@ import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { CompositeList } from '../../Composite/List/CompositeList';
+import { useField } from '../../Field/useField';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 
 /**
  * Renders the element that positions the Select popup.
@@ -78,7 +80,10 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     touchModality,
   } = useSelectRootContext();
 
-  const { setControlId, validityData, setValidityData, setDirty } = useFieldRootContext();
+  const { setControlId, validityData, setDirty } = useFieldRootContext();
+  const { commitValidation } = useFieldControlValidation();
+
+  const triggerRef = useLatestRef(triggerElement);
 
   const id = useId(idProp);
 
@@ -88,6 +93,13 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       setControlId(undefined);
     };
   }, [id, setControlId]);
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef: triggerRef,
+  });
 
   const [optionTextOffset, setOptionTextOffset] = React.useState<number | null>(null);
   const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState(selectedIndex);
@@ -103,12 +115,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       setSelectedIndexOnMount(selectedIndexRef.current);
     }
   }, [open, selectedIndexRef]);
-
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && value !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: value }));
-    }
-  }, [value, setValidityData, validityData.initialValue]);
 
   const positioner = useSelectPositioner({
     anchor: anchor || triggerElement,

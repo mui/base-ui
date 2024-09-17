@@ -104,10 +104,6 @@ export function useSelectPositioner(
 export namespace useSelectPositioner {
   export interface SharedParameters {
     /**
-     * If `true`, the Select is open.
-     */
-    open?: boolean;
-    /**
      * The anchor element to which the Select popup will be placed at.
      */
     anchor?:
@@ -181,6 +177,10 @@ export namespace useSelectPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * If `true`, the Select is open.
+     */
+    open?: boolean;
     /**
      * If `true`, the Select is mounted.
      * @default true
