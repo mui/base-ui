@@ -27,7 +27,7 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
     }
   }, []);
 
-  const timeout = React.useRef<NodeJS.Timeout>(null);
+  const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     // Wait for the title to be updated.

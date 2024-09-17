@@ -37,7 +37,7 @@ export function useSliderControl(
   const handleRootRef = useForkRef(externalRef, registerSliderControl, controlRef);
 
   // A number that uniquely identifies the current finger in the touch session.
-  const touchIdRef = React.useRef<number>(null);
+  const touchIdRef = React.useRef<number | null>(null);
 
   const moveCountRef = React.useRef(0);
 
