@@ -20,7 +20,6 @@ import {
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { useForcedRerendering } from './useForcedRerendering';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
@@ -204,9 +203,7 @@ export function useAnchorPositioning(
     nodeId,
   });
 
-  const rerender = useForcedRerendering();
-
-  const registeredPositionReference = React.useRef<Element | VirtualElement | null>(null);
+  const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
   useEnhancedEffect(() => {
     const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
@@ -214,7 +211,7 @@ export function useAnchorPositioning(
     if (resolvedAnchor) {
       const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
       refs.setPositionReference(unwrappedElement);
-      registeredPositionReference.current = unwrappedElement;
+      registeredPositionReferenceRef.current = unwrappedElement;
     }
   }, [refs, anchor]);
 
@@ -225,11 +222,11 @@ export function useAnchorPositioning(
       return;
     }
 
-    if (isRef(anchor) && anchor.current !== registeredPositionReference.current) {
+    if (isRef(anchor) && anchor.current !== registeredPositionReferenceRef.current) {
       refs.setPositionReference(anchor.current);
-      registeredPositionReference.current = anchor.current;
+      registeredPositionReferenceRef.current = anchor.current;
     }
-  }, [refs, anchor, rerender]);
+  }, [refs, anchor]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
