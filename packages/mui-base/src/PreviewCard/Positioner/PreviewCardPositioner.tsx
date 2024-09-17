@@ -122,7 +122,7 @@ namespace PreviewCardPositioner {
     alignment: Alignment;
   }
   export interface Props
-    extends Omit<usePreviewCardPositioner.Parameters, 'mounted' | 'floatingRootContext'>,
+    extends usePreviewCardPositioner.SharedParameters,
       BaseUIComponentProps<'div', OwnerState> {}
 }
 

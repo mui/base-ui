@@ -69,11 +69,7 @@ export function usePreviewCardPositioner(
 }
 
 export namespace usePreviewCardPositioner {
-  export interface Parameters {
-    /**
-     * If `true`, the preview card is open.
-     */
-    open?: boolean;
+  export interface SharedParameters {
     /**
      * The anchor element to which the preview card popup will be placed at.
      */
@@ -151,6 +147,13 @@ export namespace usePreviewCardPositioner {
      * @default true
      */
     trackAnchor?: boolean;
+  }
+
+  export interface Parameters extends SharedParameters {
+    /**
+     * If `true`, the preview card is open.
+     */
+    open?: boolean;
     /**
      * The floating root context.
      */
