@@ -50,5 +50,7 @@ export type BaseUIComponentProps<
   /**
    * A function to customize rendering of the component.
    */
-  render?: ComponentRenderFn<RenderFunctionProps, OwnerState> | React.ReactElement<ElementType>;
+  render?:
+    | ComponentRenderFn<RenderFunctionProps, OwnerState>
+    | React.ReactElement<Record<string, unknown>>;
 };
