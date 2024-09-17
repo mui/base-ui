@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { NoSsr } from '@base_ui/react/NoSsr';
 import { useDemoVariantSelectorContext } from './demo/DemoVariantSelectorProvider';
 import { usePackageManagerSnippetContext } from '../blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 import { GoogleAnalytics as BaseGoogleAnalytics } from '../blocks/GoogleAnalytics';
@@ -20,17 +19,15 @@ export function GoogleAnalytics() {
   return (
     <React.Fragment>
       <GoogleTagManager id={GOOGLE_ANALYTICS_ID_V4} />
-      <NoSsr>
-        <BaseGoogleAnalytics
-          productId="base-ui"
-          productCategoryId="core"
-          currentRoute={currentRoute}
-          codeLanguage={demoVariantSelectorContext.selectedLanguage}
-          codeStylingVariant={demoVariantSelectorContext.selectedVariant}
-          packageManager={packageManagerSnippetContext.packageManager}
-          userLanguage="en"
-        />
-      </NoSsr>
+      <BaseGoogleAnalytics
+        productId="base-ui"
+        productCategoryId="core"
+        currentRoute={currentRoute}
+        codeLanguage={demoVariantSelectorContext.selectedLanguage}
+        codeStylingVariant={demoVariantSelectorContext.selectedVariant}
+        packageManager={packageManagerSnippetContext.packageManager}
+        userLanguage="en"
+      />
     </React.Fragment>
   );
 }
