@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type {
-  AlertDialogDescriptionOwnerState,
-  AlertDialogDescriptionProps,
-} from './AlertDialogDescription.types';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -21,13 +18,13 @@ import { useId } from '../../utils/useId';
  * - [AlertDialogDescription API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogDescription)
  */
 const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
-  props: AlertDialogDescriptionProps,
+  props: AlertDialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
   const { setDescriptionElementId, open } = useAlertDialogRootContext();
 
-  const ownerState: AlertDialogDescriptionOwnerState = {
+  const ownerState: AlertDialogDescription.OwnerState = {
     open,
   };
 
@@ -50,6 +47,14 @@ const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
 
   return renderElement();
 });
+
+namespace AlertDialogDescription {
+  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+  }
+}
 
 AlertDialogDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { AlertDialogRootProps } from './AlertDialogRoot.types';
+import type { DialogRootProps } from '../../Dialog/Root/DialogRoot.types';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
 
@@ -15,7 +15,7 @@ import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
  *
  * - [AlertDialogRoot API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogRoot)
  */
-function AlertDialogRoot(props: AlertDialogRootProps) {
+function AlertDialogRoot(props: AlertDialogRoot.Props) {
   const { children, defaultOpen, onOpenChange, open: openProp, animated = true } = props;
 
   const dialogRootContext = React.useContext(AlertDialogRootContext);
@@ -41,6 +41,10 @@ function AlertDialogRoot(props: AlertDialogRootProps) {
       {children}
     </AlertDialogRootContext.Provider>
   );
+}
+
+namespace AlertDialogRoot {
+  export type Props = Omit<DialogRootProps, 'modal' | 'dismissible'>;
 }
 
 AlertDialogRoot.propTypes /* remove-proptypes */ = {

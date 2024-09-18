@@ -2,11 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
-import { AlertDialogPopupOwnerState, AlertDialogPopupProps } from './AlertDialogPopup.types';
 import { useDialogPopup } from '../../Dialog/Popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  *
@@ -19,7 +20,7 @@ import { refType, HTMLElementType } from '../../utils/proptypes';
  * - [AlertDialogPopup API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogPopup)
  */
 const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
-  props: AlertDialogPopupProps,
+  props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, container, id, keepMounted = false, render, ...other } = props;
@@ -35,7 +36,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     ...rootContext,
   });
 
-  const ownerState: AlertDialogPopupOwnerState = {
+  const ownerState: AlertDialogPopup.OwnerState = {
     open,
     nestedOpenDialogCount,
     transitionStatus,
@@ -78,6 +79,27 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     </FloatingPortal>
   );
 });
+
+namespace AlertDialogPopup {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The container element to which the popup is appended to.
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+    /**
+     * If `true`, the dialog element is kept in the DOM when closed.
+     *
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+
+  export interface OwnerState {
+    open: boolean;
+    nestedOpenDialogCount: number;
+    transitionStatus: TransitionStatus;
+  }
+}
 
 AlertDialogPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
