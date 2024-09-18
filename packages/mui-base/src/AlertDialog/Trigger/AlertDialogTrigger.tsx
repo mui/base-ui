@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogTrigger } from '../../Dialog/Trigger/useDialogTrigger';

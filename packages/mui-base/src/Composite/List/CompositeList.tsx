@@ -1,6 +1,5 @@
 /* eslint-disable no-bitwise */
 'use client';
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';

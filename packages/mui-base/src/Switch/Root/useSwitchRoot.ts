@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import type { UseSwitchRootParameters, UseSwitchRootReturnValue } from './SwitchRoot.types';
 import { useControlled } from '../../utils/useControlled';

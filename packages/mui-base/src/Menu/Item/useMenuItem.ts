@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../useButton';

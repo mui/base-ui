@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import type { DialogRootContextValue } from './DialogRoot.types';
 

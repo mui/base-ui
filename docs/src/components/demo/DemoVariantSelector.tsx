@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { type DemoVariant } from 'docs-base/src/blocks/Demo';
 import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
