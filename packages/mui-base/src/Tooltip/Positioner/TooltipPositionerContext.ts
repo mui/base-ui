@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 

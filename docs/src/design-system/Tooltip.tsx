@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as BaseTooltip from '@base_ui/react/Tooltip';
 import classes from './Tooltip.module.css';

@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import { useDemoContext } from './DemoContext';

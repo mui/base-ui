@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import clsx from 'clsx';
 import { DemoContext } from 'docs-base/src/blocks/Demo';

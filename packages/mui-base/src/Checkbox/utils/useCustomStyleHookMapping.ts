@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { CheckboxRoot } from '../Root/CheckboxRoot';

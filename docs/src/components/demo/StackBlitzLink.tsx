@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
 import { createStackBlitzProject } from 'docs-base/src/blocks/sandbox/createStackBlitzProject';

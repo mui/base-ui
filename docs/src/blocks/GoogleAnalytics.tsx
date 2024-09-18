@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { useMediaQuery } from '@base_ui/react/useMediaQuery';
 
