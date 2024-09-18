@@ -4,20 +4,31 @@ import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 const EMPTY_OBJECT = {};
+const NOOP = () => {};
 
 const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
   props: MenuRadioGroup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, value: valueProp, defaultValue, onValueChange, ...other } = props;
+  const {
+    render,
+    className,
+    value: valueProp,
+    defaultValue,
+    onValueChange: onValueChangeProp = NOOP,
+    ...other
+  } = props;
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'MenuRadioGroup',
   });
+
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const setValue = React.useCallback(
     (newValue: any, event: Event) => {
@@ -59,8 +70,20 @@ namespace MenuRadioGroup {
      * The content of the component.
      */
     children?: React.ReactNode;
+    /**
+     * The value of the selected radio button.
+     */
     value?: any;
+    /**
+     * The default value of the selected radio button.
+     * This is the uncontrolled equivalent of `value`.
+     */
     defaultValue?: any;
+    /**
+     * Function called when the selected value changes.
+     *
+     * @default () => {}
+     */
     onValueChange?: (newValue: any, event: Event) => void;
   }
 
@@ -81,11 +104,14 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * The default value of the selected radio button.
+   * This is the uncontrolled equivalent of `value`.
    */
   defaultValue: PropTypes.any,
   /**
-   * @ignore
+   * Function called when the selected value changes.
+   *
+   * @default () => {}
    */
   onValueChange: PropTypes.func,
   /**
@@ -93,12 +119,14 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * @ignore
+   * The value of the selected radio button.
    */
   value: PropTypes.any,
 } as any;
 
-const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup); /**
+const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);
+
+/**
  *
  * Demos:
  *

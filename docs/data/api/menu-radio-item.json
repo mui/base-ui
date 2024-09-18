@@ -1,5 +1,6 @@
 {
   "props": {
+    "value": { "type": { "name": "any" }, "required": true },
     "closeOnClick": { "type": { "name": "bool" }, "default": "true" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "id": { "type": { "name": "string" } },

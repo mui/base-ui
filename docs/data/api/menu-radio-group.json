@@ -2,7 +2,10 @@
   "props": {
     "children": { "type": { "name": "node" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "defaultValue": { "type": { "name": "any" } },
+    "onValueChange": { "type": { "name": "func" }, "default": "() => {}" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "any" } }
   },
   "name": "MenuRadioGroup",
   "imports": [

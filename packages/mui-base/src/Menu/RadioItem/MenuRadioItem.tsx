@@ -148,6 +148,10 @@ namespace MenuRadioItem {
   };
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Value of the radio item.
+     * This is the value that will be set in the MenuRadioGroup when the item is selected.
+     */
     value: any;
     children?: React.ReactNode;
     /**
@@ -211,7 +215,8 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   onClick: PropTypes.func,
   /**
-   * @ignore
+   * Value of the radio item.
+   * This is the value that will be set in the MenuRadioGroup when the item is selected.
    */
   value: PropTypes.any.isRequired,
 } as any;
