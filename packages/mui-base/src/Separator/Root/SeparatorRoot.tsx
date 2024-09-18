@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
+const EMPTY_OBJECT = {};
+
 /**
  *
  * Demos:
@@ -20,12 +22,10 @@ const SeparatorRoot = React.forwardRef(function SeparatorRootComponent(
 ) {
   const { className, render, ...other } = props;
 
-  const ownerState = {};
-
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    ownerState: EMPTY_OBJECT,
     extraProps: { role: 'separator', ...other },
     ref: forwardedRef,
   });
