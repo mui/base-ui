@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as Checkbox from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
-import Check from '@mui/icons-material/Check';
 
 export default function UnstyledCheckboxIntroduction() {
   return (
@@ -13,7 +12,7 @@ export default function UnstyledCheckboxIntroduction() {
         defaultChecked
       >
         <Checkbox.Indicator className="Checkbox-indicator">
-          <Check className="Checkbox-icon" />
+          <CheckIcon className="Checkbox-icon" />
         </Checkbox.Indicator>
       </Checkbox.Root>
       <Checkbox.Root
@@ -21,7 +20,7 @@ export default function UnstyledCheckboxIntroduction() {
         aria-label="Basic checkbox, off by default"
       >
         <Checkbox.Indicator className="Checkbox-indicator">
-          <Check className="Checkbox-icon" />
+          <CheckIcon className="Checkbox-icon" />
         </Checkbox.Indicator>
       </Checkbox.Root>
       <Checkbox.Root
@@ -31,7 +30,7 @@ export default function UnstyledCheckboxIntroduction() {
         disabled
       >
         <Checkbox.Indicator className="Checkbox-indicator">
-          <Check className="Checkbox-icon" />
+          <CheckIcon className="Checkbox-icon" />
         </Checkbox.Indicator>
       </Checkbox.Root>
       <Checkbox.Root
@@ -40,7 +39,7 @@ export default function UnstyledCheckboxIntroduction() {
         disabled
       >
         <Checkbox.Indicator className="Checkbox-indicator">
-          <Check className="Checkbox-icon" />
+          <CheckIcon className="Checkbox-icon" />
         </Checkbox.Indicator>
       </Checkbox.Root>
       <Styles />
@@ -134,5 +133,23 @@ function Styles() {
       }
     `}
     </style>
+  );
+}
+
+function CheckIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }

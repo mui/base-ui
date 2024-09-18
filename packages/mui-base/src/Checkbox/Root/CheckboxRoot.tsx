@@ -1,16 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { CheckboxContext } from './CheckboxContext';
-import { useCheckboxRoot } from './useCheckboxRoot';
-import type { CheckboxRootOwnerState, CheckboxRootProps } from './CheckboxRoot.types';
-import { useCheckboxStyleHooks } from '../utils';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-import { defaultRenderFunctions } from '../../utils/defaultRenderFunctions';
 import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
+import { CheckboxRootContext } from './CheckboxRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -24,7 +22,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
  * - [CheckboxRoot API](https://base-ui.netlify.app/components/react-checkbox/#api-reference-CheckboxRoot)
  */
 const CheckboxRoot = React.forwardRef(function CheckboxRoot(
-  props: CheckboxRootProps,
+  props: CheckboxRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -37,16 +35,16 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     required = false,
     disabled: disabledProp = false,
     checked: checkedProp,
-    render: renderProp,
+    render,
     className,
+    inputRef,
     ...otherProps
   } = props;
-  const render = renderProp ?? defaultRenderFunctions.button;
 
   const groupContext = useCheckboxGroupRootContext();
   const isGrouped = groupContext?.parent && groupContext.allValues;
 
-  let groupProps: Partial<Omit<CheckboxRootProps, 'className'>> = {};
+  let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGrouped) {
     if (parent) {
       groupProps = groupContext.parent.getParentProps();
@@ -64,6 +62,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
     ...props,
+    inputRef,
     checked: groupChecked,
     indeterminate: groupIndeterminate,
     onCheckedChange: groupOnChange,
@@ -75,7 +74,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
-  const ownerState: CheckboxRootOwnerState = React.useMemo(
+  const ownerState: CheckboxRoot.OwnerState = React.useMemo(
     () => ({
       ...fieldOwnerState,
       checked: computedChecked,
@@ -87,37 +86,48 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldOwnerState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const styleHooks = useCheckboxStyleHooks(ownerState);
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
+  const customStyleHookMapping = useCustomStyleHookMapping(ownerState);
 
-  const buttonProps = getButtonProps({
-    className: resolveClassName(className, ownerState),
-    ref: mergedRef,
-    ...styleHooks,
-    ...otherProps,
-    ...otherGroupProps,
+  const { renderElement } = useComponentRenderer({
+    propGetter: getButtonProps,
+    render: render ?? 'button',
+    ref: forwardedRef,
+    ownerState,
+    className,
+    customStyleHookMapping,
+    extraProps: {
+      ...otherProps,
+      ...otherGroupProps,
+    },
   });
 
   return (
-    <CheckboxContext.Provider value={ownerState}>
-      {evaluateRenderProp(render, buttonProps, ownerState)}
+    <CheckboxRootContext.Provider value={ownerState}>
+      {renderElement()}
       {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
-    </CheckboxContext.Provider>
+    </CheckboxRootContext.Provider>
   );
 });
+
+namespace CheckboxRoot {
+  export interface OwnerState extends FieldRootOwnerState {
+    checked: boolean;
+    disabled: boolean;
+    readOnly: boolean;
+    required: boolean;
+    indeterminate: boolean;
+  }
+  export interface Props
+    extends UseCheckboxRoot.Parameters,
+      Omit<BaseUIComponentProps<'button', OwnerState>, 'onChange'> {}
+}
 
 CheckboxRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the checkbox is focused on mount.
-   *
-   * @default false
-   */
-  autoFocus: PropTypes.bool,
   /**
    * If `true`, the component is checked.
    *
@@ -144,10 +154,6 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * The id of the input element.
-   */
-  id: PropTypes.string,
   /**
    * If `true`, the checkbox will be indeterminate.
    *

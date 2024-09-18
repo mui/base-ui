@@ -6,11 +6,11 @@ import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
-function Root(props: PreviewCard.RootProps) {
+function Root(props: PreviewCard.Root.Props) {
   return <PreviewCard.Root animated={false} {...props} />;
 }
 
-function Trigger(props: PreviewCard.TriggerProps) {
+function Trigger(props: PreviewCard.Trigger.Props) {
   return (
     <PreviewCard.Trigger href="#" {...props}>
       Link

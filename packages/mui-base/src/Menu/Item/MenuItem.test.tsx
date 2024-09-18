@@ -47,7 +47,11 @@ describe('<Menu.Item />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async () => {
+  it('perf: does not rerender menu items unnecessarily', async function test() {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      this.skip();
+    }
+
     const renderItem1Spy = spy();
     const renderItem2Spy = spy();
     const renderItem3Spy = spy();
@@ -98,14 +102,19 @@ describe('<Menu.Item />', () => {
     await user.keyboard('{ArrowDown}'); // highlights '2'
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
-    // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
-    await waitFor(() => {
-      expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
-    });
-    await waitFor(() => {
-      expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
-    });
+    await waitFor(
+      () => {
+        expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+      },
+      { timeout: 1000 },
+    );
+    await waitFor(
+      () => {
+        expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+      },
+      { timeout: 1000 },
+    );
 
     // neither the highlighted nor the selected state of these options changed,
     // so they don't need to rerender:

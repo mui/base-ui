@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as BaseCheckbox from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
-import Check from '@mui/icons-material/Check';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -84,7 +83,7 @@ const Indicator = React.forwardRef(function Indicator(props, ref) {
         )
       }
     >
-      <Check className="w-full h-full" />
+      <CheckIcon className="w-full h-full" />
     </BaseCheckbox.Indicator>
   );
 });
@@ -95,3 +94,21 @@ Indicator.propTypes = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
+
+function CheckIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

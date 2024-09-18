@@ -58,14 +58,14 @@ export default function NumberFieldIntroduction() {
 }
 
 const NumberField = React.forwardRef(function NumberField(
-  props: BaseNumberField.RootProps,
+  props: BaseNumberField.Root.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return <BaseNumberField.Root {...props} ref={ref} />;
 });
 
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
-  props: BaseNumberField.GroupProps,
+  props: BaseNumberField.Group.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -88,7 +88,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 });
 
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: BaseNumberField.ScrubAreaProps,
+  props: BaseNumberField.ScrubArea.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -108,7 +108,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
 });
 
 const NumberFieldVirtualCursor = React.forwardRef(function NumberFieldVirtualCursor(
-  props: BaseNumberField.ScrubAreaCursorProps,
+  props: BaseNumberField.ScrubAreaCursor.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -128,7 +128,7 @@ const NumberFieldVirtualCursor = React.forwardRef(function NumberFieldVirtualCur
 });
 
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
-  props: BaseNumberField.InputProps,
+  props: BaseNumberField.Input.Props,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   return (
@@ -171,7 +171,7 @@ const buttonStyles = classNames(
 );
 
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
-  props: BaseNumberField.DecrementProps,
+  props: BaseNumberField.Decrement.Props,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
@@ -193,7 +193,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
 });
 
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: BaseNumberField.IncrementProps,
+  props: BaseNumberField.Increment.Props,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (

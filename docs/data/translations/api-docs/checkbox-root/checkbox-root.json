@@ -1,7 +1,6 @@
 {
   "componentDescription": "The foundation for building custom-styled checkboxes.",
   "propDescriptions": {
-    "autoFocus": { "description": "If <code>true</code>, the checkbox is focused on mount." },
     "checked": { "description": "If <code>true</code>, the component is checked." },
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
@@ -10,7 +9,6 @@
       "description": "The default checked state. Use when the component is not controlled."
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
-    "id": { "description": "The id of the input element." },
     "indeterminate": { "description": "If <code>true</code>, the checkbox will be indeterminate." },
     "inputRef": { "description": "The ref to the input element." },
     "name": { "description": "Name of the underlying input element." },

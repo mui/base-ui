@@ -1,15 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { NumberFieldIncrementProps } from './NumberFieldIncrement.types';
 import { useNumberFieldContext } from '../Root/NumberFieldContext';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-
-function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
-  return <button type="button" {...props} />;
-}
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The increment stepper button.
@@ -23,24 +18,29 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  * - [NumberFieldIncrement API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldIncrement)
  */
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: NumberFieldIncrementProps,
+  props: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render: renderProp, className, ...otherProps } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...otherProps } = props;
 
   const { getIncrementButtonProps, ownerState } = useNumberFieldContext('Increment');
 
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
-  const buttonProps = getIncrementButtonProps({
-    ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...otherProps,
+  const { renderElement } = useComponentRenderer({
+    propGetter: getIncrementButtonProps,
+    ref: forwardedRef,
+    render: render ?? 'button',
+    ownerState,
+    className,
+    extraProps: otherProps,
   });
 
-  return evaluateRenderProp(render, buttonProps, ownerState);
+  return renderElement();
 });
+
+namespace NumberFieldIncrement {
+  export interface OwnerState extends NumberFieldRoot.OwnerState {}
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+}
 
 NumberFieldIncrement.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

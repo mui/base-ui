@@ -49,7 +49,7 @@ export default function UnstyledFieldAsync() {
       <FieldRoot
         validate={handleValidate}
         validateOnChange
-        validateDebounceTime={500}
+        validateDebounceTime={300}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Field.Label>@</Field.Label>
@@ -67,7 +67,7 @@ export default function UnstyledFieldAsync() {
               return <FieldDescription>Checking availability...</FieldDescription>;
             }
 
-            if (state.value === '') {
+            if (!state.value) {
               return <FieldDescription>Enter a name</FieldDescription>;
             }
 

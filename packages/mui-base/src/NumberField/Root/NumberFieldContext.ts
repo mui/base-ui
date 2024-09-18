@@ -1,8 +1,13 @@
 'use client';
 import * as React from 'react';
-import { NumberFieldContextValue } from './NumberFieldRoot.types';
+import type { UseNumberFieldRoot } from './useNumberFieldRoot';
+import type { NumberFieldRoot } from './NumberFieldRoot';
 
-export const NumberFieldContext = React.createContext<NumberFieldContextValue | null>(null);
+export interface NumberFieldContext extends UseNumberFieldRoot.ReturnValue {
+  ownerState: NumberFieldRoot.OwnerState;
+}
+
+export const NumberFieldContext = React.createContext<NumberFieldContext | null>(null);
 
 if (process.env.NODE_ENV !== 'production') {
   NumberFieldContext.displayName = 'NumberFieldContext';

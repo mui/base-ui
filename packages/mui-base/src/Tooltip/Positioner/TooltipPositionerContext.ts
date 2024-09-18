@@ -1,10 +1,17 @@
 'use client';
 import * as React from 'react';
-import type { TooltipPositionerContextValue } from './TooltipPositioner.types';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 
-export const TooltipPositionerContext = React.createContext<TooltipPositionerContextValue | null>(
-  null,
-);
+export interface TooltipPositionerContext {
+  open: boolean;
+  side: Side;
+  alignment: Alignment;
+  arrowRef: React.MutableRefObject<Element | null>;
+  arrowUncentered: boolean;
+  arrowStyles: React.CSSProperties;
+}
+
+export const TooltipPositionerContext = React.createContext<TooltipPositionerContext | null>(null);
 
 export function useTooltipPositionerContext() {
   const context = React.useContext(TooltipPositionerContext);

@@ -1,15 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { NumberFieldGroupProps } from './NumberFieldGroup.types';
 import { useNumberFieldContext } from '../Root/NumberFieldContext';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
-
-function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
-  return <div {...props} />;
-}
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Groups interactive `NumberField` components together.
@@ -23,24 +18,29 @@ function defaultRender(props: React.ComponentPropsWithRef<'div'>) {
  * - [NumberFieldGroup API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldGroup)
  */
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
-  props: NumberFieldGroupProps,
+  props: NumberFieldGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render: renderProp, className, ...otherProps } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...otherProps } = props;
 
   const { getGroupProps, ownerState } = useNumberFieldContext('Group');
 
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
-  const groupProps = getGroupProps({
-    ref: mergedRef,
-    className: resolveClassName(className, ownerState),
-    ...otherProps,
+  const { renderElement } = useComponentRenderer({
+    propGetter: getGroupProps,
+    ref: forwardedRef,
+    render: render ?? 'div',
+    ownerState,
+    className,
+    extraProps: otherProps,
   });
 
-  return evaluateRenderProp(render, groupProps, ownerState);
+  return renderElement();
 });
+
+namespace NumberFieldGroup {
+  export interface OwnerState extends NumberFieldRoot.OwnerState {}
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
 
 NumberFieldGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

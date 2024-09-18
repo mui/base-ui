@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { UseCheckboxRootParameters, UseCheckboxRootReturnValue } from './CheckboxRoot.types';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
@@ -10,8 +9,9 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useField } from '../../Field/useField';
 
-export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxRootReturnValue {
+export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
   const {
     id: idProp,
     checked: externalChecked,
@@ -33,19 +33,9 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     state: 'checked',
   });
 
-  const {
-    labelId,
-    setDisabled,
-    setControlId,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-  } = useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const {
     getValidationProps,
@@ -64,6 +54,13 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     };
   }, [id, setControlId]);
 
+  useField({
+    id,
+    commitValidation,
+    value: checked,
+    controlRef: buttonRef,
+  });
+
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
@@ -73,15 +70,10 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     }
   }, [indeterminate]);
 
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && checked !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: checked }));
-    }
-  }, [checked, setValidityData, validityData.initialValue]);
-
-  const getButtonProps: UseCheckboxRootReturnValue['getButtonProps'] = React.useCallback(
+  const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
+        ref: buttonRef,
         value: 'off',
         type: 'button',
         role: 'checkbox',
@@ -119,7 +111,7 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     ],
   );
 
-  const getInputProps: UseCheckboxRootReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(externalProps), {
         id,
@@ -172,4 +164,100 @@ export function useCheckboxRoot(params: UseCheckboxRootParameters): UseCheckboxR
     }),
     [checked, getButtonProps, getInputProps],
   );
+}
+
+export namespace UseCheckboxRoot {
+  export interface Parameters {
+    /**
+     * The id of the input element.
+     */
+    id?: string;
+    /**
+     * Name of the underlying input element.
+     *
+     * @default undefined
+     */
+    name?: string;
+    /**
+     * If `true`, the component is checked.
+     *
+     * @default undefined
+     */
+    checked?: boolean;
+    /**
+     * The default checked state. Use when the component is not controlled.
+     *
+     * @default false
+     */
+    defaultChecked?: boolean;
+    /**
+     * If `true`, the component is disabled.
+     *
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * Callback fired when the checked state is changed.
+     *
+     * @param {boolean} checked The new checked state.
+     * @param {Event} event The event source of the callback.
+     */
+    onCheckedChange?: (checked: boolean, event: Event) => void;
+    /**
+     * If `true`, the component is read only.
+     *
+     * @default false
+     */
+    readOnly?: boolean;
+    /**
+     * If `true`, the `input` element is required.
+     *
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * If `true`, the checkbox is focused on mount.
+     *
+     * @default false
+     */
+    autoFocus?: boolean;
+    /**
+     * If `true`, the checkbox will be indeterminate.
+     *
+     * @default false
+     */
+    indeterminate?: boolean;
+    /**
+     * The ref to the input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+     * @default false
+     */
+    parent?: boolean;
+  }
+
+  export interface ReturnValue {
+    /**
+     * If `true`, the checkbox is checked.
+     */
+    checked: boolean;
+    /**
+     * Resolver for the input element's props.
+     * @param externalProps custom props for the input element
+     * @returns props that should be spread on the input element
+     */
+    getInputProps: (
+      externalProps?: React.ComponentPropsWithRef<'input'>,
+    ) => React.ComponentPropsWithRef<'input'>;
+    /**
+     * Resolver for the button element's props.
+     * @param externalProps custom props for the button element
+     * @returns props that should be spread on the button element
+     */
+    getButtonProps: (
+      externalProps?: React.ComponentPropsWithRef<'button'>,
+    ) => React.ComponentPropsWithRef<'button'>;
+  }
 }
