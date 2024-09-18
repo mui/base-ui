@@ -13,7 +13,7 @@ import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuRadioItem.OwnerState> = {
-  checked: (value: boolean) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
+  checked: (value: boolean) => ({ 'data-radioitem': value ? 'checked' : 'unchecked' }),
 };
 
 const InnerMenuRadioItem = React.memo(
