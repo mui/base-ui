@@ -30,12 +30,22 @@ Base UI is an unstyled UI component library for building accessible user interf
 
 ---
 
+## Versions
+
+There are currently two Base UI libraries available on npm: [@base_ui/react](https://www.npmjs.com/package/@base_ui/react) (published from this repository)
+and [@mui/base](https://www.npmjs.com/package/@mui/base) (published from https://github.com/mui/material-ui/tree/master/packages/mui-base).
+
+@mui/base is considered legacy at this point and we do not intend to add any features to it.
+
+@base_ui/react is a rewrite of @mui/base with a different API (component per DOM node and render props instead of `slots` and `slotProps` props).
+Learn more about the roadmap in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
+
 ## Documentation
 
-Visit [mui.com/base-ui/getting-started](https://mui.com/base-ui/getting-started/) to view the full documentation.
+We are working on the @base_ui/react documentation and have not published it yet.
+There is a preview available built from the latest `master` branch at https://master--base-ui.netlify.app/.
 
-> **Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
-> Learn more about the roadmap in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
+Visit [mui.com/base-ui/getting-started](https://mui.com/base-ui/getting-started/) to view the full documentation of the legacy @mui/base package.
 
 ## Sponsors
 
@@ -83,7 +93,7 @@ The [changelog](https://github.com/mui/base-ui/releases) reflects what has chang
 
 ## Roadmap
 
-Learn more about future plans and high-priority features and enhancements on the [Base UI roadmap](https://mui.com/base-ui/getting-started/roadmap/).
+Learn more about future plans and high-priority features and enhancements on the [Base UI roadmap](https://github.com/orgs/mui/projects/1/views/13).
 
 ## License
 
