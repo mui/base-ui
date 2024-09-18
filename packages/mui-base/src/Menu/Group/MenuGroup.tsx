@@ -61,7 +61,7 @@ namespace MenuGroup {
     children?: React.ReactNode;
   }
 
-  export type OwnerState = {};
+  export interface OwnerState {}
 }
 
 export { MenuGroup };
