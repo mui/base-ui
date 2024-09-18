@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';

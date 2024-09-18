@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { UseNumberFieldRoot } from './useNumberFieldRoot';
 import type { NumberFieldRoot } from './NumberFieldRoot';

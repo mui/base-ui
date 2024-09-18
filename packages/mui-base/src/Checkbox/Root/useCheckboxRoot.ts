@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';

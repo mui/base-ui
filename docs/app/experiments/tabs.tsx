@@ -1,5 +1,4 @@
 'use client';
-
 /* eslint-disable react/no-danger */
 import * as React from 'react';
 import { css, styled } from '@mui/system';
