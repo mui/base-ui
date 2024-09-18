@@ -16,12 +16,13 @@ export default function MenuIntroduction() {
       <MenuButton>My account</MenuButton>
       <MenuPositioner alignment="start" sideOffset={8}>
         <MenuPopup>
-          <Menu.Group>
+          <Menu.Group.Root>
+            <Menu.Group.Label>Settings</Menu.Group.Label>
             <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
             <MenuItem onClick={createHandleMenuClick('Language settings')}>
               Language settings
             </MenuItem>
-          </Menu.Group>
+          </Menu.Group.Root>
           <MenuSeparator />
           <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
           <MenuArrow />

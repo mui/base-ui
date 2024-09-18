@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Menu from '@base_ui/react/Menu';
+import * as Group from '@base_ui/react/Group';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Menu.Group />', () => {
+describe('<Group.Root />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Menu.Group />, () => ({
+  describeConformance(<Group.Root />, () => ({
     render,
     refInstanceof: window.HTMLDivElement,
   }));
 
   it('renders a div with the `group` role', async () => {
-    const { getByRole } = await render(<Menu.Group />);
+    const { getByRole } = await render(<Group.Root />);
     expect(getByRole('group')).toBeVisible();
   });
 });

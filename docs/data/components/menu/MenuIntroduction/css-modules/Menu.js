@@ -7,7 +7,7 @@ import classes from './Menu.module.css';
 
 export const Menu = BaseMenu.Root;
 
-export const MenuGroup = BaseMenu.Group;
+export const MenuGroup = BaseMenu.Group.Root;
 
 const MenuItems = React.forwardRef(function MenuItems(props, ref) {
   return (
@@ -33,4 +33,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(props, ref) {
 
 export const MenuSeparator = React.forwardRef(function MenuSeparator(props, ref) {
   return <BaseMenu.Separator {...props} ref={ref} className={classes.separator} />;
+});
+
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(props, ref) {
+  return (
+    <BaseMenu.Group.Label {...props} ref={ref} className={classes.groupLabel} />
+  );
 });

@@ -1,7 +1,7 @@
 export { MenuArrow as Arrow } from './Arrow/MenuArrow';
 export { useMenuArrow } from './Arrow/useMenuArrow';
 
-export { MenuGroup as Group } from './Group/MenuGroup';
+export * as Group from '../Group';
 
 export { MenuItem as Item } from './Item/MenuItem';
 export { useMenuItem } from './Item/useMenuItem';
