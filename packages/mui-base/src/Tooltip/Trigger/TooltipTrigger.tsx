@@ -2,9 +2,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
-import type { TooltipTriggerProps } from './TooltipTrigger.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<TooltipTrigger.OwnerState> = {
+  open(value: boolean) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * Renders a trigger element that opens the tooltip.
@@ -18,14 +27,14 @@ import { useForkRef } from '../../utils/useForkRef';
  * - [TooltipTrigger API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipTrigger)
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
-  props: TooltipTriggerProps,
+  props: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
   const { className, render, ...otherProps } = props;
 
   const { open, setTriggerElement, getRootTriggerProps } = useTooltipRootContext();
 
-  const ownerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: TooltipTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
@@ -36,17 +45,19 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
 });
+
+namespace TooltipTrigger {
+  export interface OwnerState {
+    open: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<any, OwnerState> {}
+}
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

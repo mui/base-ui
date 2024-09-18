@@ -2,14 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { PreviewCardPopupOwnerState, PreviewCardPopupProps } from './PreviewCardPopup.types';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
 import { usePreviewCardPopup } from './usePreviewCardPopup';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopupOwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState> = {
   entering(value) {
     return value ? { 'data-entering': '' } : null;
   },
@@ -34,7 +35,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopupOwnerState>
  * - [PreviewCardPopup API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardPopup)
  */
 const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
-  props: PreviewCardPopupProps,
+  props: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...otherProps } = props;
@@ -46,7 +47,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     getProps: getRootPopupProps,
   });
 
-  const ownerState: PreviewCardPopupOwnerState = React.useMemo(
+  const ownerState: PreviewCardPopup.OwnerState = React.useMemo(
     () => ({
       open,
       side,
@@ -71,6 +72,18 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 
   return renderElement();
 });
+
+namespace PreviewCardPopup {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+    entering: boolean;
+    exiting: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
 
 PreviewCardPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

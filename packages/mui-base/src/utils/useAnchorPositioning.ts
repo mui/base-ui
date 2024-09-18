@@ -19,9 +19,7 @@ import {
   type FloatingContext,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
-import { isElement } from '@floating-ui/utils/dom';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { useLatestRef } from './useLatestRef';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
@@ -205,20 +203,30 @@ export function useAnchorPositioning(
     nodeId,
   });
 
-  // We can assume that element anchors are stable across renders, and thus can be reactive.
-  const reactiveAnchorDep = anchor == null || isElement(anchor);
-  const anchorRef = useLatestRef(anchor);
+  const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
   useEnhancedEffect(() => {
-    function isRef(param: unknown): param is React.MutableRefObject<any> {
-      return {}.hasOwnProperty.call(param, 'current');
+    const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
+
+    if (resolvedAnchor) {
+      const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
+      refs.setPositionReference(unwrappedElement);
+      registeredPositionReferenceRef.current = unwrappedElement;
     }
-    const resolvedAnchor =
-      typeof anchorRef.current === 'function' ? anchorRef.current() : anchorRef.current;
-    if (resolvedAnchor && !isElement(resolvedAnchor)) {
-      refs.setPositionReference(isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor);
+  }, [refs, anchor]);
+
+  React.useEffect(() => {
+    // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
+    // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
+    if (typeof anchor === 'function') {
+      return;
     }
-  }, [refs, anchorRef, reactiveAnchorDep]);
+
+    if (isRef(anchor) && anchor.current !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(anchor.current);
+      registeredPositionReferenceRef.current = anchor.current;
+    }
+  }, [refs, anchor]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
@@ -274,4 +282,10 @@ export function useAnchorPositioning(
       positionerContext,
     ],
   );
+}
+
+function isRef(
+  param: Element | VirtualElement | React.RefObject<any> | null | undefined,
+): param is React.RefObject<any> {
+  return param != null && 'current' in param;
 }

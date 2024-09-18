@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as Collapsible from '@base_ui/react/Collapsible';
 

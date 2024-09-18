@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useScrub } from './useScrub';
 import { formatNumber } from '../utils/format';

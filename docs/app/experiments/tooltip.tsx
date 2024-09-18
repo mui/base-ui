@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as Tooltip from '@base_ui/react/Tooltip';
 import { styled, keyframes } from '@mui/system';

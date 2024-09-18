@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { UseDialogRootParameters, UseDialogRootReturnValue } from './DialogRoot.types';
 import { useControlled } from '../../utils/useControlled';
