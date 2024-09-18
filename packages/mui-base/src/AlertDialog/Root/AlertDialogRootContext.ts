@@ -1,5 +1,6 @@
-import { UseDialogRootReturnValue } from '@base_ui/react/Dialog';
+'use client';
 import * as React from 'react';
+import { UseDialogRootReturnValue } from '@base_ui/react/Dialog';
 
 export interface AlertDialogRootContext extends UseDialogRootReturnValue {
   /**

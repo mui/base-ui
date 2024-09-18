@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingDelayGroup } from '@floating-ui/react';
-import type { TooltipProviderProps } from './TooltipProvider.types';
 
 /**
  * Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in
@@ -16,13 +15,33 @@ import type { TooltipProviderProps } from './TooltipProvider.types';
  *
  * - [TooltipProvider API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipProvider)
  */
-function TooltipProvider(props: TooltipProviderProps) {
+function TooltipProvider(props: TooltipProvider.Props) {
   const { delay, closeDelay, timeout = 400 } = props;
   return (
     <FloatingDelayGroup delay={{ open: delay ?? 0, close: closeDelay ?? 0 }} timeoutMs={timeout}>
       {props.children}
     </FloatingDelayGroup>
   );
+}
+
+namespace TooltipProvider {
+  export interface Props {
+    children?: React.ReactNode;
+    /**
+     * The delay in milliseconds until tooltips within the group are open.
+     */
+    delay?: number;
+    /**
+     * The delay in milliseconds until tooltips within the group are closed.
+     */
+    closeDelay?: number;
+    /**
+     * The timeout in milliseconds until the grouping logic is no longer active after the last tooltip
+     * in the group has closed.
+     * @default 400
+     */
+    timeout?: number;
+  }
 }
 
 TooltipProvider.propTypes /* remove-proptypes */ = {
