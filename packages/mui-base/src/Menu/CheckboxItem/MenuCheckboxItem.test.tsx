@@ -179,36 +179,65 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
     });
 
-    ['Space', 'Enter'].forEach((key) => {
-      it(`toggles the checked state when ${key} is pressed`, async () => {
-        const { getByRole } = await render(
-          <Menu.Root animated={false}>
-            <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Root>,
-        );
+    it(`toggles the checked state when Space is pressed`, async () => {
+      const { getByRole } = await render(
+        <Menu.Root animated={false}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
 
-        const trigger = getByRole('button', { name: 'Open' });
-        await act(() => {
-          trigger.focus();
-        });
-        await user.keyboard('[ArrowDown]');
-        const item = getByRole('menuitemcheckbox');
-
-        await waitFor(() => {
-          expect(item).toHaveFocus();
-        });
-
-        await user.keyboard(`[${key}]`);
-        expect(item).to.have.attribute('data-checkboxitem', 'checked');
-
-        await user.keyboard(`[${key}]`);
-        expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
+      const trigger = getByRole('button', { name: 'Open' });
+      await act(() => {
+        trigger.focus();
       });
+      await user.keyboard('[ArrowDown]');
+      const item = getByRole('menuitemcheckbox');
+
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+
+      await user.keyboard(`[Space]`);
+      expect(item).to.have.attribute('data-checkboxitem', 'checked');
+
+      await user.keyboard(`[Space]`);
+      expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
+    });
+
+    it(`toggles the checked state and closes the menu when Enter is pressed`, async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root animated={false}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Positioner keepMounted>
+            <Menu.Popup>
+              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+      await act(() => {
+        trigger.focus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      const item = getByRole('menuitemcheckbox');
+
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+
+      await user.keyboard(`[Enter]`);
+
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+      await user.click(trigger);
+      expect(item).to.have.attribute('data-checkboxitem', 'checked');
     });
 
     it('calls `onCheckedChange` when the item is clicked', async () => {
