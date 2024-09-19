@@ -9,7 +9,7 @@ import { OPEN_DELAY } from '../utils/constants';
 
 const user = userEvent.setup();
 
-function Root(props: Popover.RootProps) {
+function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} animated={false} />;
 }
 

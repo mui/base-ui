@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { PopoverRootProps, PopoverRootContextValue } from './PopoverRoot.types';
-import { PopoverContext } from './PopoverRootContext';
+import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -17,7 +16,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * - [PopoverRoot API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverRoot)
  */
-function PopoverRoot(props: PopoverRootProps) {
+function PopoverRoot(props: PopoverRoot.Props) {
   const { openOnHover = false, delayType = 'rest', delay, closeDelay = 0, animated = true } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -52,7 +51,7 @@ function PopoverRoot(props: PopoverRootProps) {
     defaultOpen: props.defaultOpen,
   });
 
-  const contextValue: PopoverRootContextValue = React.useMemo(
+  const contextValue: PopoverRootContext = React.useMemo(
     () => ({
       openOnHover,
       delay: delayWithDefault,
@@ -103,7 +102,17 @@ function PopoverRoot(props: PopoverRootProps) {
     ],
   );
 
-  return <PopoverContext.Provider value={contextValue}>{props.children}</PopoverContext.Provider>;
+  return (
+    <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
+  );
+}
+
+namespace PopoverRoot {
+  export interface OwnerState {}
+
+  export interface Props extends Omit<usePopoverRoot.Parameters, 'floatingRootContext'> {
+    children?: React.ReactNode;
+  }
 }
 
 PopoverRoot.propTypes /* remove-proptypes */ = {
@@ -112,7 +121,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
+   * Whether the popover can animate, adding animation-related attributes and allowing for exit
    * animations to play. Useful to disable in tests to remove async behavior.
    * @default true
    */
@@ -127,7 +136,8 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Specifies whether the popover is open initially when uncontrolled.
+   * Whether the popover popup is open by default. Use when uncontrolled.
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
@@ -144,21 +154,17 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
   /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis: PropTypes.oneOf(['none', 'x', 'y']),
-  /**
    * Callback fired when the popover popup is requested to be opened or closed. Use when
    * controlled.
    */
   onOpenChange: PropTypes.func,
   /**
-   * If `true`, the popover popup is open. Use when controlled.
+   * Whether the popover popup is open. Use when controlled.
+   * @default false
    */
   open: PropTypes.bool,
   /**
-   * If `true`, the popover popup opens when the trigger is hovered.
+   * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
    * @default false
    */
   openOnHover: PropTypes.bool,

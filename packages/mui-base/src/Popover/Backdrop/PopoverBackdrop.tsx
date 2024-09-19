@@ -2,11 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import type { PopoverBackdropOwnerState, PopoverBackdropProps } from './PopoverBackdrop.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { usePopoverBackdrop } from './usePopoverBackdrop';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdropOwnerState> = {
@@ -29,7 +29,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdropOwnerState> 
  * - [PopoverBackdrop API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverBackdrop)
  */
 const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
-  props: PopoverBackdropProps,
+  props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, keepMounted = false, container, ...otherProps } = props;
@@ -57,6 +57,25 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
+
+namespace PopoverBackdrop {
+  export interface OwnerState {
+    open: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, the backdrop remains mounted when the popover content is closed.
+     * @default false
+     */
+    keepMounted?: boolean;
+    /**
+     * The container element to which the backdrop is appended to.
+     * @default false
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  }
+}
 
 PopoverBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
