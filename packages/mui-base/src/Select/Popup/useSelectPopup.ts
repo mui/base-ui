@@ -29,7 +29,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     (externalProps = {}) => {
       return mergeReactProps<'div'>(getRootPopupProps(externalProps), {
         style: {
-          overflowY: 'auto',
           ...(pointerEvents === 'none' && { pointerEvents }),
           ...(alignMethod === 'item' &&
             hasSelectedIndex &&

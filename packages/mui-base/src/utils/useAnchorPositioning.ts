@@ -154,7 +154,7 @@ export function useAnchorPositioning(
 
   middleware.push(
     ...(!standardMode
-      ? [innerMiddleware]
+      ? [innerMiddleware, shiftMiddleware]
       : [
           innerOptions.touchModality
             ? shift({ crossAxis: true, ...commonCollisionProps })

@@ -66,12 +66,15 @@ const CheckIcon = styled(function CheckIcon(props) {
   height: 100%;
 `;
 
+const triggerPaddingX = 6;
+const popupPadding = 4;
+
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
+  padding: ${triggerPaddingX}px 12px;
   border-radius: 5px;
   background-color: black;
   color: white;
@@ -95,15 +98,19 @@ const SelectDropdownArrow = styled(Select.Icon)`
 `;
 
 const SelectPopup = styled(Select.Popup)`
+  overflow-y: auto;
   background-color: white;
-  padding: 4px;
+  padding: ${popupPadding}px;
   border-radius: 5px;
   box-shadow:
     0 2px 4px rgb(0 0 0 / 0.1),
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
   outline: 0;
-  min-width: calc(var(--anchor-width) + 20px);
+  min-width: min(
+    calc(var(--available-width) - ${popupPadding * 2}px),
+    calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
+  );
 `;
 
 const SelectOption = styled(Select.Option)`
