@@ -57,7 +57,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
       direction,
       max,
       min,
-      state: progress.state,
+      progress: progress.state,
     }),
     [direction, max, min, progress.state],
   );

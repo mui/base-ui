@@ -6,7 +6,7 @@ import type { CheckboxRoot } from '../Root/CheckboxRoot';
 export function useCustomStyleHookMapping(ownerState: CheckboxRoot.OwnerState) {
   return React.useMemo<CustomStyleHookMapping<typeof ownerState>>(
     () => ({
-      // `data-state="mixed"` is used to style the checkbox when it's indeterminate
+      // `data-checkbox="mixed"` is used to style the checkbox when it's indeterminate
       indeterminate: () => null,
       checked(value) {
         let state = value ? 'checked' : 'unchecked';
@@ -15,7 +15,7 @@ export function useCustomStyleHookMapping(ownerState: CheckboxRoot.OwnerState) {
         }
 
         return {
-          'data-state': state,
+          'data-checkbox': state,
         };
       },
     }),

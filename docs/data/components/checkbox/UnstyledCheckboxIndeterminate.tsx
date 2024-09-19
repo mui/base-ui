@@ -52,8 +52,8 @@ const Checkbox = styled(BaseCheckbox.Root)(
       outline-offset: 2px;
     }
 
-    &[data-state='checked'],
-    &[data-state='mixed'] {
+    &[data-checkbox='checked'],
+    &[data-checkbox='mixed'] {
       border-color: transparent;
       background: ${blue[600]};
     }
@@ -86,8 +86,8 @@ const Indicator = styled(BaseCheckbox.Indicator)`
   display: inline-block;
   visibility: hidden;
 
-  &[data-state='checked'],
-  &[data-state='mixed'] {
+  &[data-checkbox='checked'],
+  &[data-checkbox='mixed'] {
     visibility: visible;
   }
 `;

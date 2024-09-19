@@ -10,7 +10,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 const customStyleHookMapping: CustomStyleHookMapping<TooltipTrigger.OwnerState> = {
   open(value: boolean) {
     return {
-      'data-state': value ? 'open' : 'closed',
+      'data-tooltip': value ? 'open' : 'closed',
     };
   },
 };

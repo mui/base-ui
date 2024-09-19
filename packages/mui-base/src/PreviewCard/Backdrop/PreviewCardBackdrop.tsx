@@ -7,6 +7,15 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerState> = {
+  open(value) {
+    return {
+      'data-previewcard': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  *
@@ -36,6 +45,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;

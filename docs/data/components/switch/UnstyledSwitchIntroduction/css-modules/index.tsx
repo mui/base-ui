@@ -109,12 +109,12 @@ function Styles() {
         box-shadow: 0 0 0 3px ${isDarkMode ? cyan[700] : cyan[200]};
       }
     
-      .CustomSwitchIntroduction[data-state="checked"] {
+      .CustomSwitchIntroduction[data-switch="checked"] {
         border: none;
         background: ${cyan[500]};
       }
     
-      .CustomSwitchIntroduction[data-state="checked"]:not([data-disabled]):hover {
+      .CustomSwitchIntroduction[data-switch="checked"]:not([data-disabled]):hover {
         background: ${cyan[700]};
       }
 
@@ -137,7 +137,7 @@ function Styles() {
         };
       }
 
-      .CustomSwitchIntroduction-thumb[data-state="checked"] {
+      .CustomSwitchIntroduction-thumb[data-switch="checked"] {
         left: 18px;
         background-color: #fff;
         box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);

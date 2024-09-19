@@ -126,7 +126,7 @@ export function Styles() {
       fill: #00f;
     }
 
-    .MyCollapsible2-trigger[data-state='open'] svg {
+    .MyCollapsible2-trigger[data-collapsible='open'] svg {
       transform: rotate(90deg);
     }
 
@@ -137,7 +137,7 @@ export function Styles() {
       height: 0;
     }
 
-    .MyCollapsible2-content[data-state='open'] {
+    .MyCollapsible2-content[data-collapsible='open'] {
       height: var(--collapsible-content-height);
       transition: height ${TRANSITION_DURATION};
     }

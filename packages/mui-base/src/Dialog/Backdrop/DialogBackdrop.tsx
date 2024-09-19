@@ -6,6 +6,20 @@ import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBack
 import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<DialogBackdropOwnerState> = {
+  open: (value) => ({ 'data-dialog': value ? 'open' : 'closed' }),
+  transitionStatus: (value) => {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  *
@@ -46,18 +60,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     ownerState,
     propGetter: getRootProps,
     extraProps: other,
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      transitionStatus: (value) => {
-        if (value === 'entering') {
-          return { 'data-entering': '' } as Record<string, string>;
-        }
-        if (value === 'exiting') {
-          return { 'data-exiting': '' };
-        }
-        return null;
-      },
-    },
+    customStyleHookMapping,
   });
 
   if (!mounted && !keepMounted) {

@@ -54,7 +54,7 @@ export const PreviewCardPopup = styled(PreviewCard.Popup)`
   opacity: 0;
   transform-origin: var(--transform-origin);
 
-  &[data-state='open'] {
+  &[data-previewcard='open'] {
     opacity: 1;
     transform: scale(1);
   }

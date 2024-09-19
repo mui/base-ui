@@ -18,7 +18,7 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.OwnerState> = 
   },
   open(value) {
     return {
-      'data-state': value ? 'open' : 'closed',
+      'data-tooltip': value ? 'open' : 'closed',
     };
   },
 };

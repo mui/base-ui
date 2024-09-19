@@ -7,6 +7,20 @@ import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.OwnerState> = {
+  open: (value) => ({ 'data-alertdialog': value ? 'open' : 'closed' }),
+  transitionStatus: (value) => {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  *
@@ -44,18 +58,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     ownerState,
     propGetter: getRootProps,
     extraProps: other,
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      transitionStatus: (value) => {
-        if (value === 'entering') {
-          return { 'data-entering': '' } as Record<string, string>;
-        }
-        if (value === 'exiting') {
-          return { 'data-exiting': '' };
-        }
-        return null;
-      },
-    },
+    customStyleHookMapping,
   });
 
   if (!mounted && !keepMounted) {

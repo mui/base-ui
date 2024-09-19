@@ -13,6 +13,15 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverPositionerOwnerState> = {
+  open(value) {
+    return {
+      'data-popover': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * The popover positioner element.
@@ -96,6 +105,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;

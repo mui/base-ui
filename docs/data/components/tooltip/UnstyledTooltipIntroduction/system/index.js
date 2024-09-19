@@ -70,7 +70,7 @@ export const AnchorButton = styled(Tooltip.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-tooltip='open'] {
     background: ${blue[800]};
   }
 

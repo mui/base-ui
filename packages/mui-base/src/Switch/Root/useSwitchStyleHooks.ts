@@ -8,7 +8,7 @@ import { getStyleHookProps } from '../../utils/getStyleHookProps';
 export function useSwitchStyleHooks(ownerState: SwitchOwnerState) {
   return React.useMemo(() => {
     return getStyleHookProps(ownerState, {
-      checked: (value) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
+      checked: (value) => ({ 'data-switch': value ? 'checked' : 'unchecked' }),
     });
   }, [ownerState]);
 }

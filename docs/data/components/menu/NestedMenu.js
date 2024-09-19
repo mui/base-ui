@@ -158,7 +158,7 @@ const MenuPositioner = styled(Menu.Positioner)`
     outline: 0;
   }
 
-  &[data-state='closed'] {
+  &[data-menu='closed'] {
     pointer-events: none;
   }
 `;
@@ -208,7 +208,7 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
     float: right;
   }
 
-  &[data-state='open'] {
+  &[data-menu='open'] {
     background-color: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }

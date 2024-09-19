@@ -7,6 +7,21 @@ import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<DialogPopupOwnerState> = {
+  open: (value) => ({ 'data-dialog': value ? 'open' : 'closed' }),
+  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
+  transitionStatus: (value) => {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  *
@@ -49,19 +64,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       ...other,
       style: { '--nested-dialogs': nestedOpenDialogCount },
     },
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
-      transitionStatus: (value) => {
-        if (value === 'entering') {
-          return { 'data-entering': '' } as Record<string, string>;
-        }
-        if (value === 'exiting') {
-          return { 'data-exiting': '' };
-        }
-        return null;
-      },
-    },
+    customStyleHookMapping,
   });
 
   if (!keepMounted && !mounted) {

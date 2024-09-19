@@ -2,11 +2,20 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import type { PopoverBackdropProps } from './PopoverBackdrop.types';
+import type { PopoverBackdropOwnerState, PopoverBackdropProps } from './PopoverBackdrop.types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { usePopoverBackdrop } from './usePopoverBackdrop';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdropOwnerState> = {
+  open(value) {
+    return {
+      'data-popover': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * Renders a backdrop for the popover.
@@ -38,6 +47,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;

@@ -10,6 +10,15 @@ import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPositioner.OwnerState> = {
+  open(value) {
+    return {
+      'data-previewcard': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  *
@@ -101,6 +110,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;

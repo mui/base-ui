@@ -149,7 +149,7 @@ const MenuPositioner = styled(Menu.Positioner)`
     outline: 0;
   }
 
-  &[data-state='closed'] {
+  &[data-menu='closed'] {
     pointer-events: none;
   }
 `;

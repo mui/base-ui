@@ -5,7 +5,7 @@
     outline: 0;
   }
 
-  &[data-state='closed'] {
+  &[data-menu='closed'] {
     pointer-events: none;
   }
 }
@@ -33,7 +33,7 @@
     box-shadow: 0px 4px 30px var(--gray-900);
   }
 
-  &[data-state='closed'] {
+  &[data-menu='closed'] {
     opacity: 0;
     transform: scale(0.95, 0.8);
     transition:
@@ -41,7 +41,7 @@
       transform 200ms ease-in;
   }
 
-  &[data-state='open'] {
+  &[data-menu='open'] {
     opacity: 1;
     transform: scale(1, 1);
     transition:

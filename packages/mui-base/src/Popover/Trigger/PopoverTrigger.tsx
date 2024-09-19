@@ -5,6 +5,11 @@ import type { PopoverTriggerOwnerState, PopoverTriggerProps } from './PopoverTri
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverTriggerOwnerState> = {
+  open: (value) => ({ 'data-popover': value ? 'open' : 'closed' }),
+};
 
 /**
  * Renders a trigger element that opens the popover.
@@ -36,13 +41,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();

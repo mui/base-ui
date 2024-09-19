@@ -10,6 +10,15 @@ import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<TooltipPositioner.OwnerState> = {
+  open(value) {
+    return {
+      'data-tooltip': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * The tooltip positioner element.
@@ -100,6 +109,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;

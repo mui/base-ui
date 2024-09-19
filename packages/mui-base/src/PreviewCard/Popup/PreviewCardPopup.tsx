@@ -19,7 +19,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState
   },
   open(value) {
     return {
-      'data-state': value ? 'open' : 'closed',
+      'data-previewcard': value ? 'open' : 'closed',
     };
   },
 };

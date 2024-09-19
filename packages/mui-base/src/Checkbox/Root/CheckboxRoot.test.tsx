@@ -17,7 +17,7 @@ describe('<Checkbox.Root />', () => {
 
   describe('extra props', () => {
     it('can override the built-in attributes', async () => {
-      const { container } = await render(<Checkbox.Root data-state="checked" role="switch" />);
+      const { container } = await render(<Checkbox.Root data-checkbox="checked" role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -194,12 +194,12 @@ describe('<Checkbox.Root />', () => {
     const [checkbox] = getAllByRole('checkbox');
     const indicator = checkbox.querySelector('span');
 
-    expect(checkbox).to.have.attribute('data-state', 'checked');
+    expect(checkbox).to.have.attribute('data-checkbox', 'checked');
     expect(checkbox).to.have.attribute('data-disabled', 'true');
     expect(checkbox).to.have.attribute('data-readonly', 'true');
     expect(checkbox).to.have.attribute('data-required', 'true');
 
-    expect(indicator).to.have.attribute('data-state', 'checked');
+    expect(indicator).to.have.attribute('data-checkbox', 'checked');
     expect(indicator).to.have.attribute('data-disabled', 'true');
     expect(indicator).to.have.attribute('data-readonly', 'true');
     expect(indicator).to.have.attribute('data-required', 'true');

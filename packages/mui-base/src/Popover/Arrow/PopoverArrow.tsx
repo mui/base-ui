@@ -7,6 +7,15 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverArrow } from './usePopoverArrow';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverArrowOwnerState> = {
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -52,13 +61,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();

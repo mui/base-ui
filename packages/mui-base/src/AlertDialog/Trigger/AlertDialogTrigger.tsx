@@ -5,6 +5,11 @@ import { useDialogTrigger } from '../../Dialog/Trigger/useDialogTrigger';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<AlertDialogTrigger.OwnerState> = {
+  open: (value) => ({ 'data-alertdialog': value ? 'open' : 'closed' }),
+};
 
 /**
  *
@@ -37,9 +42,7 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     ownerState,
     propGetter: getRootProps,
     extraProps: other,
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-    },
+    customStyleHookMapping,
     ref: forwardedRef,
   });
 

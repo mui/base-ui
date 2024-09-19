@@ -166,13 +166,13 @@ export function Styles() {
         border-radius: inherit;
       }
 
-      .MyProgress-indicator[data-state='indeterminate'] {
+      .MyProgress-indicator[data-progress='indeterminate'] {
         width: 25%;
         animation: indeterminateLoading 1.5s infinite ease-in-out;
         will-change: transform;
       }
 
-      [dir='rtl'] .MyProgress-indicator[data-state='indeterminate'] {
+      [dir='rtl'] .MyProgress-indicator[data-progress='indeterminate'] {
         animation-name: rtlIndeterminateLoading;
       }
 

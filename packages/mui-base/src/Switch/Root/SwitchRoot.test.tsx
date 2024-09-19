@@ -72,9 +72,9 @@ describe('<Switch.Root />', () => {
 
   describe('extra props', () => {
     it('should override the built-in attributes', async () => {
-      await render(<Switch.Root data-state="checked" role="checkbox" data-testid="switch" />);
+      await render(<Switch.Root data-switch="checked" role="checkbox" data-testid="switch" />);
       expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
-      expect(screen.getByTestId('switch')).to.have.attribute('data-state', 'checked');
+      expect(screen.getByTestId('switch')).to.have.attribute('data-switch', 'checked');
     });
   });
 
@@ -256,12 +256,12 @@ describe('<Switch.Root />', () => {
     const switchElement = screen.getByRole('switch');
     const thumb = screen.getByTestId('thumb');
 
-    expect(switchElement).to.have.attribute('data-state', 'checked');
+    expect(switchElement).to.have.attribute('data-switch', 'checked');
     expect(switchElement).to.have.attribute('data-disabled', 'true');
     expect(switchElement).to.have.attribute('data-readonly', 'true');
     expect(switchElement).to.have.attribute('data-required', 'true');
 
-    expect(thumb).to.have.attribute('data-state', 'checked');
+    expect(thumb).to.have.attribute('data-switch', 'checked');
     expect(thumb).to.have.attribute('data-disabled', 'true');
     expect(thumb).to.have.attribute('data-readonly', 'true');
     expect(thumb).to.have.attribute('data-required', 'true');

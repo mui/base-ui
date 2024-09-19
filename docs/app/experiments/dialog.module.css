@@ -88,7 +88,7 @@
       opacity var(--transition-duration) ease-in,
       visibility var(--transition-duration) step-end;
 
-    &[data-state='open'] {
+    &[data-dialog='open'] {
       @starting-style {
         & {
           transform: translate(-50%, -35%) scale(0.8) translateY(0);
@@ -112,7 +112,7 @@
     visibility: hidden;
     opacity: 0;
 
-    &[data-state='open'] {
+    &[data-dialog='open'] {
       animation:
         dialog-opening-transform var(--transition-duration) ease-out,
         dialog-opening-opacity var(--transition-duration) ease-out forwards;
@@ -149,7 +149,7 @@
       opacity 300ms ease-in,
       visibility 300ms step-end;
 
-    &[data-state='open'] {
+    &[data-dialog='open'] {
       @starting-style {
         & {
           opacity: 0;
@@ -167,7 +167,7 @@
   }
 
   &.withAnimations {
-    &[data-state='open'] {
+    &[data-dialog='open'] {
       animation: backdrop-opening 500ms ease-out forwards;
     }
 

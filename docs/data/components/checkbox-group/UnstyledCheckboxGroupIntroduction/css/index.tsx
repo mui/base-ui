@@ -100,7 +100,7 @@ function Styles() {
         outline-offset: 2px;
       }
 
-      .Checkbox[data-state="checked"] {
+      .Checkbox[data-checkbox="checked"] {
         border-color: ${grey[800]};
         background: ${grey[800]};
       }
@@ -112,7 +112,7 @@ function Styles() {
         color: ${grey[100]};
       }
 
-      .Checkbox-indicator[data-state="checked"] {
+      .Checkbox-indicator[data-checkbox="checked"] {
         visibility: visible;
       }
 
@@ -131,7 +131,7 @@ function Styles() {
           outline-offset: 2px;
         }
 
-        .Checkbox[data-state="checked"] {
+        .Checkbox[data-checkbox="checked"] {
           border-color: ${grey[300]};
           background: ${grey[300]};
         }

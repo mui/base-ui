@@ -58,7 +58,7 @@ export const AnchorButton = styled(Popover.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-popover='open'] {
     background: ${blue[800]};
   }
 `;

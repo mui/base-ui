@@ -8,6 +8,21 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.OwnerState> = {
+  open: (value) => ({ 'data-alertdialog': value ? 'open' : 'closed' }),
+  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
+  transitionStatus: (value) => {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  *
@@ -52,19 +67,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
       style: { '--nested-dialogs': nestedOpenDialogCount },
       role: 'alertdialog',
     },
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
-      transitionStatus: (value) => {
-        if (value === 'entering') {
-          return { 'data-entering': '' } as Record<string, string>;
-        }
-        if (value === 'exiting') {
-          return { 'data-exiting': '' };
-        }
-        return null;
-      },
-    },
+    customStyleHookMapping,
   });
 
   if (!keepMounted && !mounted) {

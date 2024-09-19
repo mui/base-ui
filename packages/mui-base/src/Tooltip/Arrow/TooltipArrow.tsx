@@ -12,7 +12,7 @@ import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 const customStyleHookMapping: CustomStyleHookMapping<TooltipArrow.OwnerState> = {
   open(value) {
     return {
-      'data-state': value ? 'open' : 'closed',
+      'data-tooltip': value ? 'open' : 'closed',
     };
   },
 };
