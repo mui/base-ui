@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { MenuGroupRootContext } from './MenuGroupContext';
+import { MenuGroupContext } from './MenuGroupContext';
 
 const EMPTY_OBJECT = {};
 
@@ -37,9 +37,7 @@ const MenuGroup = React.forwardRef(function MenuGroup(
     ref: forwardedRef,
   });
 
-  return (
-    <MenuGroupRootContext.Provider value={context}>{renderElement()}</MenuGroupRootContext.Provider>
-  );
+  return <MenuGroupContext.Provider value={context}>{renderElement()}</MenuGroupContext.Provider>;
 });
 
 MenuGroup.propTypes /* remove-proptypes */ = {
