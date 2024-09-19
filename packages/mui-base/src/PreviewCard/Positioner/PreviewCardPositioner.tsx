@@ -3,16 +3,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import {
-  PreviewCardPositionerOwnerState,
-  PreviewCardPositionerProps,
-  PreviewCardPositionerContextValue,
-} from './PreviewCardPositioner.types';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -25,7 +22,7 @@ import { HTMLElementType } from '../../utils/proptypes';
  * - [PreviewCardPositioner API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardPositioner)
  */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
-  props: PreviewCardPositionerProps,
+  props: PreviewCardPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -69,7 +66,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     sticky,
   });
 
-  const ownerState: PreviewCardPositionerOwnerState = React.useMemo(
+  const ownerState: PreviewCardPositioner.OwnerState = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -78,7 +75,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     [open, positioner.side, positioner.alignment],
   );
 
-  const contextValue: PreviewCardPositionerContextValue = React.useMemo(
+  const contextValue: PreviewCardPositionerContext = React.useMemo(
     () => ({
       side: positioner.side,
       alignment: positioner.alignment,
@@ -117,6 +114,18 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     </PreviewCardPositionerContext.Provider>
   );
 });
+
+namespace PreviewCardPositioner {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+  }
+
+  export interface Props
+    extends usePreviewCardPositioner.SharedParameters,
+      BaseUIComponentProps<'div', OwnerState> {}
+}
 
 PreviewCardPositioner.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

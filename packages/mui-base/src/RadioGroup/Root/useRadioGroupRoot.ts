@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { mergeReactProps } from '../../utils/mergeReactProps';

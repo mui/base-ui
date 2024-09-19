@@ -2,11 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { PreviewCardArrowOwnerState, PreviewCardArrowProps } from './PreviewCardArrow.types';
 import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
 import { usePreviewCardArrow } from './usePreviewCardArrow';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning';
 
 /**
  *
@@ -19,7 +20,7 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
  * - [PreviewCardArrow API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardArrow)
  */
 const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
-  props: PreviewCardArrowProps,
+  props: PreviewCardArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, hideWhenUncentered, ...otherProps } = props;
@@ -33,7 +34,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     hidden: hideWhenUncentered && arrowUncentered,
   });
 
-  const ownerState: PreviewCardArrowOwnerState = React.useMemo(
+  const ownerState: PreviewCardArrow.OwnerState = React.useMemo(
     () => ({
       open,
       side,
@@ -55,6 +56,22 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
   return renderElement();
 });
+
+namespace PreviewCardArrow {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Whether the `Arrow` is hidden when it can't point to the center of the anchor element.
+     * @default false
+     */
+    hideWhenUncentered?: boolean;
+  }
+}
 
 PreviewCardArrow.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

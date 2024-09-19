@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as BasePackageManagerSnippet from '../../blocks/PackageManagerSnippet';
 import classes from './PackageManagerSnippet.module.css';

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import * as Checkbox from '@base_ui/react/Checkbox';
-import { CheckboxContext } from '@base_ui/react/Checkbox';
 import { createRenderer, describeConformance } from '#test-utils';
+import { CheckboxRootContext } from '../Root/CheckboxRootContext';
 
 const testContext = {
   checked: true,
@@ -22,19 +22,19 @@ describe('<Checkbox.Indicator />', () => {
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
-        <CheckboxContext.Provider value={testContext}>{node}</CheckboxContext.Provider>,
+        <CheckboxRootContext.Provider value={testContext}>{node}</CheckboxRootContext.Provider>,
       );
     },
   }));
 
-  it('should not render indicator by default', async () => {
+  it('should render indicator by default', async () => {
     const { container } = await render(
       <Checkbox.Root>
         <Checkbox.Indicator />
       </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
-    expect(indicator).to.equal(null);
+    expect(indicator).not.to.equal(null);
   });
 
   it('should render indicator when checked', async () => {

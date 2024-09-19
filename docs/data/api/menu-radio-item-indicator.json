@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "keepMounted": { "type": { "name": "bool" }, "default": "true" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "MenuRadioItemIndicator",
+  "imports": [
+    "import * as Menu from '@base_ui/react/Menu';\nconst MenuRadioItemIndicator = Menu.RadioItemIndicator;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MenuRadioItemIndicator",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/mui-base/src/Menu/RadioItemIndicator/MenuRadioItemIndicator.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

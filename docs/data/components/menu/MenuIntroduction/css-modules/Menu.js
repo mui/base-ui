@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as BaseMenu from '@base_ui/react/Menu';

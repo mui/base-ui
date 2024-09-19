@@ -43,7 +43,7 @@ export function useMenuPositioner(
           zIndex: 2147483647, // max z-index
         },
         'aria-hidden': !open || undefined,
-        inert: !open || undefined ? '' : undefined,
+        inert: !open ? '' : undefined,
       });
     },
     [positionerStyles, open, keepMounted, hidden],
