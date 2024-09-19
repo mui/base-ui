@@ -14,10 +14,10 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
   ...commonStyleHooks,
   entering(value) {
-    return value ? { 'data-menu-entering': '' } : null;
+    return value ? { 'data-entering': '' } : null;
   },
   exiting(value) {
-    return value ? { 'data-menu-exiting': '' } : null;
+    return value ? { 'data-exiting': '' } : null;
   },
 };
 
