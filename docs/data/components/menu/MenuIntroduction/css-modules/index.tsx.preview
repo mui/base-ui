@@ -3,6 +3,7 @@
 
   <MenuItems>
     <MenuGroup>
+      <MenuGroupLabel>Settings</MenuGroupLabel>
       <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
       <MenuItem onClick={createHandleMenuClick('Language settings')}>
         Language settings

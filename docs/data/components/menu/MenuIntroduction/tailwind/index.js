@@ -25,6 +25,7 @@ export default function MenuIntroduction() {
         <MenuPositioner>
           <MenuPopup>
             <Menu.Group>
+              <MenuGroupLabel>Settings</MenuGroupLabel>
               <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
               <MenuItem onClick={createHandleMenuClick('Language settings')}>
                 Language settings
@@ -83,6 +84,16 @@ const MenuSeparator = React.forwardRef((props, ref) => {
     <Menu.Separator
       ref={ref}
       className="border-t border-solid border-slate-200 dark:border-slate-700 my-2"
+      {...props}
+    />
+  );
+});
+
+const MenuGroupLabel = React.forwardRef((props, ref) => {
+  return (
+    <Menu.GroupLabel
+      ref={ref}
+      className="text-xs font-sans font-semibold text-slate-700 dark:text-slate-200 uppercase p-2 select-none"
       {...props}
     />
   );

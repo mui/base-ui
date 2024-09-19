@@ -33,3 +33,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(props, ref) {
 export const MenuSeparator = React.forwardRef(function MenuSeparator(props, ref) {
   return <BaseMenu.Separator {...props} ref={ref} className={classes.separator} />;
 });
+
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(props, ref) {
+  return <BaseMenu.GroupLabel {...props} ref={ref} className={classes.groupLabel} />;
+});

@@ -7,6 +7,7 @@ import {
   MenuTrigger,
   MenuSeparator,
   MenuGroup,
+  MenuGroupLabel,
 } from './Menu';
 
 export default function MenuIntroduction() {
@@ -22,6 +23,7 @@ export default function MenuIntroduction() {
 
       <MenuItems>
         <MenuGroup>
+          <MenuGroupLabel>Settings</MenuGroupLabel>
           <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
           <MenuItem onClick={createHandleMenuClick('Language settings')}>
             Language settings

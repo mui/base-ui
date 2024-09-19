@@ -135,3 +135,16 @@
     border-color: var(--gray-700);
   }
 }
+
+.groupLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--gray-700);
+  padding: 8px;
+  user-select: none;
+
+  :global(.dark) & {
+    color: var(--gray-200);
+  }
+}

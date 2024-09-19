@@ -16,6 +16,7 @@ export default function MenuIntroduction() {
       <MenuPositioner alignment="start" sideOffset={8}>
         <MenuPopup>
           <Menu.Group>
+            <MenuGroupLabel>Settings</MenuGroupLabel>
             <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
             <MenuItem onClick={createHandleMenuClick('Language settings')}>
               Language settings
@@ -192,5 +193,16 @@ const MenuSeparator = styled(Menu.Separator)(
   ({ theme }) => `
   border-top: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   margin: 8px 0;
+`,
+);
+
+const MenuGroupLabel = styled(Menu.GroupLabel)(
+  ({ theme }) => `
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: ${theme.palette.mode === 'dark' ? grey[200] : grey[700]};
+  padding: 8px;
+  user-select: none;
 `,
 );

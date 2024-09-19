@@ -38,3 +38,10 @@ export const MenuSeparator = React.forwardRef(function MenuSeparator(
 ) {
   return <BaseMenu.Separator {...props} ref={ref} className={classes.separator} />;
 });
+
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
+  props: BaseMenu.GroupLabel.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
+  return <BaseMenu.GroupLabel {...props} ref={ref} className={classes.groupLabel} />;
+});
