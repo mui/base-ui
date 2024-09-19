@@ -1,12 +1,8 @@
-'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type {
-  UsePopoverPopupParameters,
-  UsePopoverPopupReturnValue,
-} from './usePopoverPopup.types';
+import type { GenericHTMLProps } from '../../utils/types';
 
-export function usePopoverPopup(params: UsePopoverPopupParameters): UsePopoverPopupReturnValue {
+export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverPopup.ReturnValue {
   const { getProps, titleId, descriptionId } = params;
 
   const getPopupProps = React.useCallback(
@@ -14,10 +10,6 @@ export function usePopoverPopup(params: UsePopoverPopupParameters): UsePopoverPo
       return mergeReactProps<'div'>(getProps(externalProps), {
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
-        style: {
-          // <Popover.Arrow> must be relative to the <Popover.Popup> element.
-          position: 'relative',
-        },
       });
     },
     [getProps, titleId, descriptionId],
@@ -29,4 +21,15 @@ export function usePopoverPopup(params: UsePopoverPopupParameters): UsePopoverPo
     }),
     [getPopupProps],
   );
+}
+
+namespace usePopoverPopup {
+  export interface Parameters {
+    getProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    titleId: string | undefined;
+    descriptionId: string | undefined;
+  }
+  export interface ReturnValue {
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

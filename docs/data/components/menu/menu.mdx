@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuGroup, MenuGroupLabel
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -32,6 +32,11 @@ Menus are implemented using a collection of related components:
 - `<Menu.SubmenuTrigger />` is a menu item that opens a submenu. See [Nested menu](#nested-menu) for more details.
 - `<Menu.Group>` groups related items making assistive technologies announce them distinctively.
 - `<Menu.Separator>` visually separates items.
+- `<Menu.RadioItem />` is a menu item that acts as a radio button. See [Radio items](#radio-items) for more details.
+- `<Menu.RadioGroup />` groups RadioItems together. Only one RadioItem in a group can be selected at a time.
+- `<Menu.MenuRadioItemIndicator />` is a visual indicator for the selected RadioItem.
+- `<Menu.CheckboxItem />` is a menu item that acts as a checkbox. See [Checkbox items](#checkbox-items) for more details.
+- `<Menu.CheckboxItemIndicator />` is a visual for the selected CheckboxItem.
 
 ```tsx
 <Menu.Root>
@@ -146,6 +151,67 @@ To change how long the menu waits until it opens or closes when `openOnHover` is
 ```jsx
 <Menu.Root openOnHover delay={200}>
 ```
+
+## Radio items
+
+Menu items can be used as radio buttons. To group them together, use the `Menu.RadioGroup` component:
+
+<Demo demo="RadioItems" />
+
+<Callout type="warning">
+  If you rely on the RadioItem to manage its state (e.g., you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
+  Unmounting the component resets its state.
+
+To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox item is in (and all parent positioners, in the case of a nested menu):
+
+```jsx
+<Menu.Root>
+  <Menu.Positioner keepMounted>
+    <Menu.Popup>
+      <Menu.RadioGroup>
+        <Menu.RadioItem defaultChecked>
+          <Menu.RadioItemIndicator /> Light
+        </Menu.RadioItem>
+        <Menu.RadioItem>
+          <Menu.RadioItemIndicator /> Dark
+        </Menu.RadioItem>
+      </Menu.RadioGroup>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+If you keep the state externally (and use the `checked` prop), this isn't required.
+
+</Callout>
+
+## Checkbox items
+
+Menu items can act as checkboxes.
+
+<Demo demo="CheckboxItems" />
+
+<Callout type="warning">
+  If you rely on the CheckboxItem to manage its state (e.g., you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
+  Unmounting the component resets its state.
+
+To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox item is in (and all parent positioners, in the case of a nested menu):
+
+```jsx
+<Menu.Root>
+  <Menu.Positioner keepMounted>
+    <Menu.Popup>
+      <Menu.CheckboxItem defaultChecked>
+        <Menu.CheckboxItemIndicator /> Item 1
+      </Menu.CheckboxItem>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+If you keep the state externally (and use the `checked` prop), this isn't required.
+
+</Callout>
 
 ## Nested menu
 

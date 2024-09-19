@@ -1,0 +1,22 @@
+{
+  "props": {
+    "closeOnClick": { "type": { "name": "bool" }, "default": "true" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "id": { "type": { "name": "string" } },
+    "label": { "type": { "name": "string" } },
+    "onClick": { "type": { "name": "func" } }
+  },
+  "name": "MenuCheckboxItem",
+  "imports": [
+    "import * as Menu from '@base_ui/react/Menu';\nconst MenuCheckboxItem = Menu.CheckboxItem;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MenuCheckboxItem",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Menu/CheckboxItem/MenuCheckboxItem.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

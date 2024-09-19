@@ -5,6 +5,11 @@ export { MenuGroup as Group } from './Group/MenuGroup';
 
 export { MenuGroupLabel as GroupLabel } from './GroupLabel/MenuGroupLabel';
 
+export { MenuCheckboxItem as CheckboxItem } from './CheckboxItem/MenuCheckboxItem';
+export { useMenuCheckboxItem } from './CheckboxItem/useMenuCheckboxItem';
+
+export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './CheckboxItemIndicator/MenuCheckboxItemIndicator';
+
 export { MenuItem as Item } from './Item/MenuItem';
 export { useMenuItem } from './Item/useMenuItem';
 
@@ -17,6 +22,13 @@ export {
   MenuPositionerContext,
   useMenuPositionerContext,
 } from './Positioner/MenuPositionerContext';
+
+export { MenuRadioGroup as RadioGroup } from './RadioGroup/MenuRadioGroup';
+
+export { MenuRadioItem as RadioItem } from './RadioItem/MenuRadioItem';
+export { useMenuRadioItem } from './RadioItem/useMenuRadioItem';
+
+export { MenuRadioItemIndicator as RadioItemIndicator } from './RadioItemIndicator/MenuRadioItemIndicator';
 
 export { MenuRoot as Root } from './Root/MenuRoot';
 export { useMenuRoot } from './Root/useMenuRoot';

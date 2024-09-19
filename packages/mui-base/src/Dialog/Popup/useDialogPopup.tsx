@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useFloating, useInteractions, useDismiss } from '@floating-ui/react';
 import { UseDialogPopupParameters, UseDialogPopupReturnValue } from './DialogPopup.types';

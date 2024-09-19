@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as Field from '@base_ui/react/Field';
 import { styled } from '@mui/system';
@@ -41,11 +40,10 @@ export default function UnstyledFieldServerError() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <FieldRoot invalid={error}>
+      <FieldRoot invalid={error} name="email">
         <Field.Label>Email address</Field.Label>
         <FieldControl
           ref={controlRef}
-          name="email"
           type="email"
           required
           onChange={() => {
