@@ -2,13 +2,10 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import type {
-  UsePopoverTitleParameters,
-  UsePopoverTitleReturnValue,
-} from './usePopoverTitle.types';
 import { useId } from '../../utils/useId';
+import type { GenericHTMLProps } from '../../utils/types';
 
-export function usePopoverTitle(params: UsePopoverTitleParameters): UsePopoverTitleReturnValue {
+export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverTitle.ReturnValue {
   const { titleId, setTitleId } = params;
 
   const id = useId(titleId);
@@ -35,4 +32,14 @@ export function usePopoverTitle(params: UsePopoverTitleParameters): UsePopoverTi
     }),
     [getTitleProps],
   );
+}
+
+namespace usePopoverTitle {
+  export interface Parameters {
+    titleId: string | undefined;
+    setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  }
+  export interface ReturnValue {
+    getTitleProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

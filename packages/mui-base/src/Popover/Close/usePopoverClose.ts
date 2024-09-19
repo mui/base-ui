@@ -1,24 +1,21 @@
-'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type {
-  UsePopoverCloseParameters,
-  UsePopoverCloseReturnValue,
-} from './usePopoverClose.types';
 import { useEventCallback } from '../../utils/useEventCallback';
 
-export function usePopoverClose(params: UsePopoverCloseParameters): UsePopoverCloseReturnValue {
-  const { onClose } = params;
+export function usePopoverClose(
+  params: usePopoverDescription.Parameters,
+): usePopoverDescription.ReturnValue {
+  const { onClose: onCloseProp } = params;
 
-  const onCloseMemo = useEventCallback(onClose);
+  const onClose = useEventCallback(onCloseProp);
 
   const getCloseProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'button'>(externalProps, {
-        onClick: onCloseMemo,
+        onClick: onClose,
       });
     },
-    [onCloseMemo],
+    [onClose],
   );
 
   return React.useMemo(
@@ -27,4 +24,15 @@ export function usePopoverClose(params: UsePopoverCloseParameters): UsePopoverCl
     }),
     [getCloseProps],
   );
+}
+
+namespace usePopoverDescription {
+  export interface Parameters {
+    onClose: () => void;
+  }
+  export interface ReturnValue {
+    getCloseProps: (
+      externalProps?: React.ComponentPropsWithoutRef<'button'>,
+    ) => React.ComponentPropsWithoutRef<'button'>;
+  }
 }
