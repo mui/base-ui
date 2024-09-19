@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -33,6 +33,8 @@ Menus are implemented using a collection of related components:
 - `<Menu.RadioItem />` is a menu item that acts as a radio button. See [Radio items](#radio-items) for more details.
 - `<Menu.RadioGroup />` groups RadioItems together. Only one RadioItem in a group can be selected at a time.
 - `<Menu.MenuRadioItemIndicator />` is a visual indicator for the selected RadioItem.
+- `<Menu.CheckboxItem />` is a menu item that acts as a checkbox. See [Checkbox items](#checkbox-items) for more details.
+- `<Menu.CheckboxItemIndicator />` is a visual for the selected CheckboxItem.
 
 ```tsx
 <Menu.Root>
@@ -168,6 +170,34 @@ To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox ite
           <Menu.RadioItemIndicator /> Dark
         </Menu.RadioItem>
       </Menu.RadioGroup>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>
+```
+
+If you keep the state externally (and use the `checked` prop), this isn't required.
+
+</Callout>
+
+## Checkbox items
+
+Menu items can act as checkboxes.
+
+<Demo demo="CheckboxItems" />
+
+<Callout type="warning">
+  If you rely on the CheckboxItem to manage its state (e.g., you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
+  Unmounting the component resets its state.
+
+To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox item is in (and all parent positioners, in the case of a nested menu):
+
+```jsx
+<Menu.Root>
+  <Menu.Positioner keepMounted>
+    <Menu.Popup>
+      <Menu.CheckboxItem defaultChecked>
+        <Menu.CheckboxItemIndicator /> Item 1
+      </Menu.CheckboxItem>
     </Menu.Popup>
   </Menu.Positioner>
 </Menu.Root>

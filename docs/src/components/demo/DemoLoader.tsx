@@ -24,6 +24,7 @@ export async function DemoLoader(props: DemoLoaderProps) {
     return <Demo componentName={componentName} demoName={demo} variants={demoVariants} />;
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
+      console.error(error);
       return (
         <div role="alert" className={classes.error}>
           Unable to render the {demo} demo.

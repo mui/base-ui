@@ -1,6 +1,11 @@
 export { MenuArrow as Arrow } from './Arrow/MenuArrow';
 export { useMenuArrow } from './Arrow/useMenuArrow';
 
+export { MenuCheckboxItem as CheckboxItem } from './CheckboxItem/MenuCheckboxItem';
+export { useMenuCheckboxItem } from './CheckboxItem/useMenuCheckboxItem';
+
+export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './CheckboxItemIndicator/MenuCheckboxItemIndicator';
+
 export { MenuItem as Item } from './Item/MenuItem';
 export { useMenuItem } from './Item/useMenuItem';
 
