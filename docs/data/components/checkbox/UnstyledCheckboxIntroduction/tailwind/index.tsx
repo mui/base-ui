@@ -71,7 +71,7 @@ const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.Indicator.Props
         ref={ref}
         className={(state) =>
           classNames(
-            'h-full inline-block invisible data-[state=checked]:visible text-gray-100',
+            'h-full inline-block invisible data-[checkbox=checked]:visible text-gray-100',
             typeof props.className === 'function'
               ? props.className(state)
               : props.className,
