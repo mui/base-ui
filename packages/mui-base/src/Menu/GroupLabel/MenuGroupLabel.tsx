@@ -1,54 +1,50 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { MenuGroupRootContext } from './MenuGroupContext';
+import { useId } from '../../utils/useId';
+import { useMenuGroupRootContext } from '../Group/MenuGroupContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const EMPTY_OBJECT = {};
 
-/**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.netlify.app/components/react-menu/)
- *
- * API:
- *
- * - [MenuGroup API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuGroup)
- */
-const MenuGroup = React.forwardRef(function MenuGroup(
-  props: MenuGroup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
+  props: MenuGroupLabel.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { className, render, id: idProp, ...other } = props;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
+  const id = useId(idProp);
+
+  const { setLabelId } = useMenuGroupRootContext();
+
+  useEnhancedEffect(() => {
+    setLabelId(id);
+
+    return () => {
+      setLabelId(undefined);
+    };
+  }, [setLabelId, id]);
 
   const { renderElement } = useComponentRenderer({
-    render: render || 'div',
+    render: render ?? 'div',
     className,
     ownerState: EMPTY_OBJECT,
-    extraProps: {
-      role: 'group',
-      'aria-labelledby': labelId,
-      ...other,
-    },
+    extraProps: { role: 'group', id, ...other },
     ref: forwardedRef,
   });
 
-  return (
-    <MenuGroupRootContext.Provider value={context}>{renderElement()}</MenuGroupRootContext.Provider>
-  );
+  return renderElement();
 });
 
-MenuGroup.propTypes /* remove-proptypes */ = {
+MenuGroupLabel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The content of the component.
+   * @ignore
    */
   children: PropTypes.node,
   /**
@@ -61,15 +57,10 @@ MenuGroup.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-namespace MenuGroup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * The content of the component.
-     */
-    children?: React.ReactNode;
-  }
+namespace MenuGroupLabel {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 
   export interface OwnerState {}
 }
 
-export { MenuGroup };
+export { MenuGroupLabel };

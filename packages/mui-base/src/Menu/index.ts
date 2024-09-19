@@ -3,6 +3,8 @@ export { useMenuArrow } from './Arrow/useMenuArrow';
 
 export { MenuGroup as Group } from './Group/MenuGroup';
 
+export { MenuGroupLabel as GroupLabel } from './GroupLabel/MenuGroupLabel';
+
 export { MenuItem as Item } from './Item/MenuItem';
 export { useMenuItem } from './Item/useMenuItem';
 
