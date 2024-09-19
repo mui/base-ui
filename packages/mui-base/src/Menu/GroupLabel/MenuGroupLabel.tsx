@@ -8,7 +8,16 @@ import { useMenuGroupRootContext } from '../Group/MenuGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const EMPTY_OBJECT = {};
-
+/**
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuGroupLabel API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuGroupLabel)
+ */
 const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   props: MenuGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -51,6 +60,10 @@ MenuGroupLabel.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */
