@@ -8,6 +8,7 @@ import { useMenuGroupRootContext } from '../Group/MenuGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const EMPTY_OBJECT = {};
+
 /**
  *
  * Demos:
