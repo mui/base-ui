@@ -9,7 +9,7 @@ import { usePopoverBackdrop } from './usePopoverBackdrop';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdropOwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.OwnerState> = {
   open(value) {
     return {
       'data-popover': value ? 'open' : 'closed',

@@ -12,7 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverPositionerOwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PopoverPositioner.OwnerState> = {
   open(value) {
     return {
       'data-popover': value ? 'open' : 'closed',
