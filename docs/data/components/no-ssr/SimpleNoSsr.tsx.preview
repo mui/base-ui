@@ -1,4 +1,6 @@
-<Panel>Server and Client</Panel>
-<NoSsr>
-  <Panel>Client only</Panel>
-</NoSsr>
+<Demo>
+  <Panel>Server and Client</Panel>
+  <NoSsr>
+    <Panel>Client only</Panel>
+  </NoSsr>
+</Demo>

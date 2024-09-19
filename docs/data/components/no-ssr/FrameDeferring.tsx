@@ -14,8 +14,8 @@ export default function FrameDeferring() {
   });
 
   return (
-    <div>
-      <button
+    <Demo>
+      <Button
         type="button"
         onClick={() =>
           setState({
@@ -24,10 +24,10 @@ export default function FrameDeferring() {
           })
         }
       >
-        {'Render NoSsr defer="false"'}
-      </button>
+        {'Render <NoSsr defer={false} />'}
+      </Button>
       <br />
-      <button
+      <Button
         type="button"
         onClick={() =>
           setState({
@@ -36,8 +36,8 @@ export default function FrameDeferring() {
           })
         }
       >
-        {'Render NoSsr defer="true"'}
-      </button>
+        {'Render <NoSsr defer={true} />'}
+      </Button>
       <br />
       <br />
       <Panel sx={{ width: 300, display: 'flex', flexWrap: 'wrap' }}>
@@ -51,10 +51,37 @@ export default function FrameDeferring() {
           </React.Fragment>
         ) : null}
       </Panel>
-    </div>
+    </Demo>
   );
 }
 
 const Panel = styled('div')`
   padding: 16px;
 `;
+
+const Demo = styled('div')`
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+  padding: 8px;
+`;
+
+const Button = styled('button')(
+  ({ theme }) => `
+  background-color: ${theme.palette.mode === 'dark' ? 'var(--gray-50)' : 'var(--gray-900)'};
+  color: ${theme.palette.mode === 'dark' ? 'var(--gray-900)' : 'var(--gray-50)'};
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  font-family:
+    "IBM Plex Sans",
+    sans-serif;
+
+  &:hover {
+    background-color: ${theme.palette.mode === 'dark' ? 'var(--gray-200)' : 'var(--gray-700)'};
+  }
+`,
+);
