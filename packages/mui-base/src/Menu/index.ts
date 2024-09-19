@@ -14,6 +14,13 @@ export {
   useMenuPositionerContext,
 } from './Positioner/MenuPositionerContext';
 
+export { MenuRadioGroup as RadioGroup } from './RadioGroup/MenuRadioGroup';
+
+export { MenuRadioItem as RadioItem } from './RadioItem/MenuRadioItem';
+export { useMenuRadioItem } from './RadioItem/useMenuRadioItem';
+
+export { MenuRadioItemIndicator as RadioItemIndicator } from './RadioItemIndicator/MenuRadioItemIndicator';
+
 export { MenuRoot as Root } from './Root/MenuRoot';
 export { useMenuRoot } from './Root/useMenuRoot';
 export { MenuRootContext, useMenuRootContext } from './Root/MenuRootContext';
