@@ -1,7 +1,7 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ScrubHandle, ScrubParams } from './useScrub.types';
-import type { UseNumberFieldRootReturnValue } from './NumberFieldRoot.types';
 import { DEFAULT_STEP } from '../utils/constants';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
@@ -9,6 +9,7 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import type { UseNumberFieldRoot } from './useNumberFieldRoot';
 
 /**
  * @ignore - internal hook.
@@ -108,7 +109,7 @@ export function useScrub(params: ScrubParams) {
     [],
   );
 
-  const getScrubAreaProps: UseNumberFieldRootReturnValue['getScrubAreaProps'] = React.useCallback(
+  const getScrubAreaProps: UseNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'span'>(externalProps, {
         role: 'presentation',
@@ -154,7 +155,7 @@ export function useScrub(params: ScrubParams) {
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
-  const getScrubAreaCursorProps: UseNumberFieldRootReturnValue['getScrubAreaCursorProps'] =
+  const getScrubAreaCursorProps: UseNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
       (externalProps = {}) =>
         mergeReactProps<'span'>(

@@ -6,6 +6,7 @@ import type { FieldErrorProps } from './FieldError.types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldError } from './useFieldError';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useFormRootContext } from '../../Form/Root/FormRootContext';
 
 /**
  * Displays error messages for the field's control.
@@ -24,10 +25,14 @@ const FieldError = React.forwardRef(function FieldError(
 ) {
   const { render, id, className, show, forceShow, ...otherProps } = props;
 
-  const { validityData, ownerState } = useFieldRootContext(false);
+  const { validityData, ownerState, name } = useFieldRootContext(false);
+
+  const { errors } = useFormRootContext();
+
+  const formError = name ? errors[name] : null;
 
   let rendered = false;
-  if (forceShow) {
+  if (formError || forceShow) {
     rendered = true;
   } else if (show) {
     rendered = Boolean(validityData.state[show]);
@@ -35,7 +40,7 @@ const FieldError = React.forwardRef(function FieldError(
     rendered = validityData.state.valid === false;
   }
 
-  const { getErrorProps } = useFieldError({ id, rendered });
+  const { getErrorProps } = useFieldError({ id, rendered, formError });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getErrorProps,

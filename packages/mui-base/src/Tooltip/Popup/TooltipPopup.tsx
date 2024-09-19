@@ -1,12 +1,27 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { TooltipPopupOwnerState, TooltipPopupProps } from './TooltipPopup.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
-import { useTooltipPopup } from './useTooltipPopup';
 import { useForkRef } from '../../utils/useForkRef';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.OwnerState> = {
+  entering(value) {
+    return value ? { 'data-entering': '' } : null;
+  },
+  exiting(value) {
+    return value ? { 'data-exiting': '' } : null;
+  },
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * The tooltip popup element.
@@ -20,7 +35,7 @@ import { useForkRef } from '../../utils/useForkRef';
  * - [TooltipPopup API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipPopup)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
-  props: TooltipPopupProps,
+  props: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...otherProps } = props;
@@ -29,11 +44,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     useTooltipRootContext();
   const { side, alignment } = useTooltipPositionerContext();
 
-  const { getPopupProps } = useTooltipPopup({
-    getProps: getRootPopupProps,
-  });
-
-  const ownerState: TooltipPopupOwnerState = React.useMemo(
+  const ownerState: TooltipPopup.OwnerState = React.useMemo(
     () => ({
       open,
       side,
@@ -50,29 +61,30 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   // The content element needs to be a child of a wrapper floating element in order to avoid
   // conflicts with CSS transitions and the positioning transform.
   const { renderElement } = useComponentRenderer({
-    propGetter: getPopupProps,
+    propGetter: getRootPopupProps,
     render: render ?? 'div',
     className,
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      entering(value) {
-        return value ? { 'data-entering': '' } : null;
-      },
-      exiting(value) {
-        return value ? { 'data-exiting': '' } : null;
-      },
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
 });
+
+namespace TooltipPopup {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+    instant: 'delay' | 'focus' | 'dismiss' | undefined;
+    entering: boolean;
+    exiting: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
 
 TooltipPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

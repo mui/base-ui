@@ -1,12 +1,22 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { PopoverArrowOwnerState, PopoverArrowProps } from './PopoverArrow.types';
 import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverArrow } from './usePopoverArrow';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverArrow.OwnerState> = {
+  open(value) {
+    return {
+      'data-state': value ? 'open' : 'closed',
+    };
+  },
+};
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -20,7 +30,7 @@ import { usePopoverArrow } from './usePopoverArrow';
  * - [PopoverArrow API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverArrow)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
-  props: PopoverArrowProps,
+  props: PopoverArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
@@ -33,7 +43,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     hidden: hideWhenUncentered && arrowUncentered,
   });
 
-  const ownerState: PopoverArrowOwnerState = React.useMemo(
+  const ownerState: PopoverArrow.OwnerState = React.useMemo(
     () => ({
       open,
       side,
@@ -52,17 +62,28 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      open(value) {
-        return {
-          'data-state': value ? 'open' : 'closed',
-        };
-      },
-    },
+    customStyleHookMapping,
   });
 
   return renderElement();
 });
+
+namespace PopoverArrow {
+  export interface OwnerState {
+    open: boolean;
+    side: Side;
+    alignment: Alignment;
+    arrowUncentered: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
+     * @default false
+     */
+    hideWhenUncentered?: boolean;
+  }
+}
 
 PopoverArrow.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

@@ -2,12 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type {
-  PreviewCardTriggerOwnerState,
-  PreviewCardTriggerProps,
-} from './PreviewCardTrigger.types';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { useForkRef } from '../../utils/useForkRef';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -20,14 +17,14 @@ import { useForkRef } from '../../utils/useForkRef';
  * - [PreviewCardTrigger API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardTrigger)
  */
 const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
-  props: PreviewCardTriggerProps,
+  props: PreviewCardTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
   const { open, getRootTriggerProps, setTriggerElement } = usePreviewCardRootContext();
 
-  const ownerState: PreviewCardTriggerOwnerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: PreviewCardTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(setTriggerElement, forwardedRef);
 
@@ -42,6 +39,14 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
   return renderElement();
 });
+
+namespace PreviewCardTrigger {
+  export interface OwnerState {
+    open: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'a', OwnerState> {}
+}
 
 PreviewCardTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

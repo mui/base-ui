@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { UseDialogBackdropParams, UseDialogBackdropReturnValue } from './DialogBackdrop.types';
 import { mergeReactProps } from '../../utils/mergeReactProps';

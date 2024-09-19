@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as BaseProgress from '@base_ui/react/Progress';
 import { Box, styled } from '@mui/system';

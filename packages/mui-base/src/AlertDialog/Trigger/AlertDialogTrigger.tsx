@@ -1,12 +1,10 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogTrigger } from '../../Dialog/Trigger/useDialogTrigger';
-import type {
-  AlertDialogTriggerOwnerState,
-  AlertDialogTriggerProps,
-} from './AlertDialogTrigger.types';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -19,7 +17,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [AlertDialogTrigger API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogTrigger)
  */
 const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
-  props: AlertDialogTriggerProps,
+  props: AlertDialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
@@ -31,7 +29,7 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     popupElementId,
   });
 
-  const ownerState: AlertDialogTriggerOwnerState = { open };
+  const ownerState: AlertDialogTrigger.OwnerState = { open };
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -47,6 +45,14 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 
   return renderElement();
 });
+
+namespace AlertDialogTrigger {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+  }
+}
 
 AlertDialogTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

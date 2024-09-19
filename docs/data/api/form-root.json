@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "errors": { "type": { "name": "object" } },
+    "onClearErrors": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "FormRoot",
+  "imports": ["import * as Form from '@base_ui/react/Form';\nconst FormRoot = Form.Root;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "FormRoot",
+  "forwardsRefTo": "HTMLFormElement",
+  "filename": "/packages/mui-base/src/Form/Root/FormRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-form/\">Form</a></li></ul>",
+  "cssComponent": false
+}

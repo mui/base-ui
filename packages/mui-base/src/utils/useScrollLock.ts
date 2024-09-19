@@ -1,8 +1,133 @@
-import { useEnhancedEffect } from './useEnhancedEffect';
-import { useId } from './useId';
 import { isIOS } from './detectBrowser';
+import { useEnhancedEffect } from './useEnhancedEffect';
 
-const activeLocks = new Set<string>();
+let originalHtmlStyles = {};
+let originalBodyStyles = {};
+let preventScrollCount = 0;
+let restore: () => void = () => {};
+
+function preventScrollIOS() {
+  const body = document.body;
+  const bodyStyle = body.style;
+
+  // iOS 12 does not support `visualViewport`.
+  const offsetLeft = window.visualViewport?.offsetLeft || 0;
+  const offsetTop = window.visualViewport?.offsetTop || 0;
+  const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
+  const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
+
+  originalBodyStyles = {
+    position: bodyStyle.position,
+    top: bodyStyle.top,
+    left: bodyStyle.left,
+    right: bodyStyle.right,
+    overflowX: bodyStyle.overflowX,
+    overflowY: bodyStyle.overflowY,
+  };
+
+  Object.assign(bodyStyle, {
+    position: 'fixed',
+    top: `${-(scrollY - Math.floor(offsetTop))}px`,
+    left: `${-(scrollX - Math.floor(offsetLeft))}px`,
+    right: '0',
+    overflow: 'hidden',
+  });
+
+  return () => {
+    Object.assign(bodyStyle, originalBodyStyles);
+    window.scrollTo(scrollX, scrollY);
+  };
+}
+
+function preventScrollStandard() {
+  const html = document.documentElement;
+  const body = document.body;
+  const htmlStyle = html.style;
+  const bodyStyle = body.style;
+
+  let resizeRaf: number;
+  let scrollX: number;
+  let scrollY: number;
+
+  function lockScroll() {
+    const htmlComputedStyles = getComputedStyle(html);
+    const bodyComputedStyles = getComputedStyle(body);
+    const hasConstantOverflowY =
+      htmlComputedStyles.overflowY === 'scroll' || bodyComputedStyles.overflowY === 'scroll';
+    const hasConstantOverflowX =
+      htmlComputedStyles.overflowX === 'scroll' || bodyComputedStyles.overflowX === 'scroll';
+
+    scrollX = htmlStyle.left ? parseFloat(htmlStyle.left) : window.scrollX;
+    scrollY = htmlStyle.top ? parseFloat(htmlStyle.top) : window.scrollY;
+
+    originalHtmlStyles = {
+      position: htmlStyle.position,
+      top: htmlStyle.top,
+      left: htmlStyle.left,
+      right: htmlStyle.right,
+      overflowX: htmlStyle.overflowX,
+      overflowY: htmlStyle.overflowY,
+    };
+    originalBodyStyles = {
+      overflowX: bodyStyle.overflowX,
+      overflowY: bodyStyle.overflowY,
+    };
+
+    const isScrollableY = html.scrollHeight > html.clientHeight;
+    const isScrollableX = html.scrollWidth > html.clientWidth;
+
+    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
+    const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
+
+    if (!hasScrollbarGutterStable) {
+      Object.assign(htmlStyle, {
+        position: 'fixed',
+        top: `${-scrollY}px`,
+        left: `${-scrollX}px`,
+        right: '0',
+      });
+    }
+
+    Object.assign(htmlStyle, {
+      overflowY:
+        !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
+      overflowX:
+        !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
+    });
+
+    // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
+    // `<body>` may have one too.
+    if (isScrollableY || hasConstantOverflowY) {
+      bodyStyle.overflowY = 'hidden';
+    }
+    if (isScrollableX || hasConstantOverflowX) {
+      bodyStyle.overflowX = 'hidden';
+    }
+  }
+
+  function cleanup() {
+    Object.assign(htmlStyle, originalHtmlStyles);
+    Object.assign(bodyStyle, originalBodyStyles);
+
+    if (window.scrollTo.toString().includes('[native code]')) {
+      window.scrollTo(scrollX, scrollY);
+    }
+  }
+
+  function handleResize() {
+    cleanup();
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(lockScroll);
+  }
+
+  lockScroll();
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    cleanup();
+    window.removeEventListener('resize', handleResize);
+  };
+}
 
 /**
  * Locks the scroll of the document when enabled.
@@ -10,66 +135,21 @@ const activeLocks = new Set<string>();
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true) {
-  // Based on Floating UI's FloatingOverlay
-
-  const lockId = useId();
   useEnhancedEffect(() => {
     if (!enabled) {
       return undefined;
     }
 
-    activeLocks.add(lockId!);
-
-    const rootStyle = document.documentElement.style;
-    // RTL <body> scrollbar
-    const scrollbarX =
-      Math.round(document.documentElement.getBoundingClientRect().left) +
-      document.documentElement.scrollLeft;
-    const paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const scrollX = rootStyle.left ? parseFloat(rootStyle.left) : window.scrollX;
-    const scrollY = rootStyle.top ? parseFloat(rootStyle.top) : window.scrollY;
-
-    rootStyle.overflow = 'hidden';
-
-    if (scrollbarWidth) {
-      rootStyle[paddingProp] = `${scrollbarWidth}px`;
-    }
-
-    // Only iOS doesn't respect `overflow: hidden` on document.body, and this
-    // technique has fewer side effects.
-    if (isIOS()) {
-      // iOS 12 does not support `visualViewport`.
-      const offsetLeft = window.visualViewport?.offsetLeft || 0;
-      const offsetTop = window.visualViewport?.offsetTop || 0;
-
-      Object.assign(rootStyle, {
-        position: 'fixed',
-        top: `${-(scrollY - Math.floor(offsetTop))}px`,
-        left: `${-(scrollX - Math.floor(offsetLeft))}px`,
-        right: '0',
-      });
+    preventScrollCount += 1;
+    if (preventScrollCount === 1) {
+      restore = isIOS() ? preventScrollIOS() : preventScrollStandard();
     }
 
     return () => {
-      activeLocks.delete(lockId!);
-
-      if (activeLocks.size === 0) {
-        Object.assign(rootStyle, {
-          overflow: '',
-          [paddingProp]: '',
-        });
-
-        if (isIOS()) {
-          Object.assign(rootStyle, {
-            position: '',
-            top: '',
-            left: '',
-            right: '',
-          });
-          window.scrollTo(scrollX, scrollY);
-        }
+      preventScrollCount -= 1;
+      if (preventScrollCount === 0) {
+        restore();
       }
     };
-  }, [lockId, enabled]);
+  }, [enabled]);
 }
