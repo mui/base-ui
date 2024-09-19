@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { NoSsr } from '@base_ui/react/NoSsr';
 import { Box } from '@mui/system';

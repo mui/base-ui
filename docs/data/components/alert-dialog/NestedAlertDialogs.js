@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import * as BaseAlertDialog from '@base_ui/react/AlertDialog';
 import { styled } from '@mui/system';

@@ -42,17 +42,17 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.25.6",
-    "@floating-ui/react": "^0.26.23",
-    "@floating-ui/react-dom": "^2.1.1",
-    "@floating-ui/utils": "^0.2.7",
+    "@floating-ui/react": "^0.26.24",
+    "@floating-ui/react-dom": "^2.1.2",
+    "@floating-ui/utils": "^0.2.8",
     "@mui/types": "^7.2.16",
-    "@mui/utils": "^6.0.2",
+    "@mui/utils": "^6.1.0",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1",
     "use-sync-external-store": "^1.2.2"
   },
   "devDependencies": {
-    "@mui/internal-test-utils": "1.0.12",
+    "@mui/internal-test-utils": "1.0.13",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.5.2",
     "@types/chai": "^4.3.19",

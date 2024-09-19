@@ -1,10 +1,11 @@
+'use client';
 import * as React from 'react';
-import type { CheckboxRootOwnerState } from './Root/CheckboxRoot.types';
-import { getStyleHookProps } from '../utils/getStyleHookProps';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { CheckboxRoot } from '../Root/CheckboxRoot';
 
-export function useCheckboxStyleHooks(ownerState: CheckboxRootOwnerState) {
-  return React.useMemo(() => {
-    return getStyleHookProps(ownerState, {
+export function useCustomStyleHookMapping(ownerState: CheckboxRoot.OwnerState) {
+  return React.useMemo<CustomStyleHookMapping<typeof ownerState>>(
+    () => ({
       // `data-state="mixed"` is used to style the checkbox when it's indeterminate
       indeterminate: () => null,
       checked(value) {
@@ -17,6 +18,7 @@ export function useCheckboxStyleHooks(ownerState: CheckboxRootOwnerState) {
           'data-state': state,
         };
       },
-    });
-  }, [ownerState]);
+    }),
+    [ownerState.indeterminate],
+  );
 }

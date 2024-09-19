@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { css, styled } from '@mui/system';
 import * as BaseTabs from '@base_ui/react/Tabs';
