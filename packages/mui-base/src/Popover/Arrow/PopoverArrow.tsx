@@ -12,7 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 const customStyleHookMapping: CustomStyleHookMapping<PopoverArrowOwnerState> = {
   open(value) {
     return {
-      'data-state': value ? 'open' : 'closed',
+      'data-popover': value ? 'open' : 'closed',
     };
   },
 };
