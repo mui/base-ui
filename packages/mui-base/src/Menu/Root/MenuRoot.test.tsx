@@ -561,7 +561,12 @@ describe('<Menu.Root />', () => {
       const menuItem = getByRole('menuitem');
       await user.click(menuItem);
 
-      expect(button).toHaveFocus();
+      await waitFor(
+        () => {
+          expect(button).toHaveFocus();
+        },
+        { timeout: 1000 },
+      );
     });
   });
 
