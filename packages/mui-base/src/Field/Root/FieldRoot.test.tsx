@@ -10,8 +10,7 @@ import * as Select from '@base_ui/react/Select';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
-import { createRenderer } from '../../../test/createRenderer';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const user = userEvent.setup();
 
