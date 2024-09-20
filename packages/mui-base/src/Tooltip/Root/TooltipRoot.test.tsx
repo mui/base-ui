@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
-function Root(props: Tooltip.RootProps) {
+function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root animated={false} {...props} />;
 }
 

@@ -1,7 +1,9 @@
+import * as React from 'react';
+import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { type Dirent } from 'node:fs';
+import { basename, extname } from 'node:path';
 import { readdir } from 'node:fs/promises';
-import * as React from 'react';
 
 interface Props {
   params: {
@@ -31,5 +33,13 @@ export async function generateStaticParams() {
         entry.name !== 'layout.tsx' &&
         entry.isFile(),
     )
-    .map((entry: Dirent) => ({ slug: entry.name }));
+    .map((entry: Dirent) => ({ slug: basename(entry.name, extname(entry.name)) }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = params;
+
+  return {
+    title: `${slug} - Experiments`,
+  };
 }

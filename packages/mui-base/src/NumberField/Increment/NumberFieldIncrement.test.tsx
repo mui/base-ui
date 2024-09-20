@@ -2,9 +2,9 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
-import { NumberFieldContext, type NumberFieldContextValue } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
+import { NumberFieldContext } from '../Root/NumberFieldContext';
 
 const testContext = {
   getIncrementButtonProps: (externalProps) => externalProps,
@@ -15,7 +15,7 @@ const testContext = {
     invalid: false,
     readOnly: false,
   },
-} as NumberFieldContextValue;
+} as NumberFieldContext;
 
 describe('<NumberField.Increment />', () => {
   const { render, clock } = createRenderer();

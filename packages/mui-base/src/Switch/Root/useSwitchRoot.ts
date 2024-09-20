@@ -9,6 +9,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useField } from '../../Field/useField';
 
 export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.ReturnValue {
   const {
@@ -23,19 +24,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const {
-    labelId,
-    setDisabled,
-    setControlId,
-    setTouched,
-    setDirty,
-    validityData,
-    setValidityData,
-  } = useFieldRootContext();
-
-  useEnhancedEffect(() => {
-    setDisabled(disabled);
-  }, [disabled, setDisabled]);
+  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -45,6 +34,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   } = useFieldControlValidation();
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
+
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
@@ -57,6 +47,8 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
 
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
     default: Boolean(defaultChecked),
@@ -64,15 +56,17 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     state: 'checked',
   });
 
-  useEnhancedEffect(() => {
-    if (validityData.initialValue === null && checked !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: checked }));
-    }
-  }, [checked, setValidityData, validityData.initialValue]);
+  useField({
+    id,
+    commitValidation,
+    value: checked,
+    controlRef: buttonRef,
+  });
 
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
+        ref: buttonRef,
         type: 'button',
         role: 'switch',
         'aria-checked': checked,

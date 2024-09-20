@@ -1,21 +1,20 @@
-'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type {
-  UsePopoverArrowParameters,
-  UsePopoverArrowReturnValue,
-} from './usePopoverArrow.types';
+import type { GenericHTMLProps } from '../../utils/types';
 
-export function usePopoverArrow(params: UsePopoverArrowParameters): UsePopoverArrowReturnValue {
-  const { arrowStyles } = params;
+export function usePopoverArrow(params: usePopoverArrow.Parameters): usePopoverArrow.ReturnValue {
+  const { arrowStyles, hidden } = params;
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
+        style: {
+          ...arrowStyles,
+          ...(hidden && { visibility: 'hidden' }),
+        },
       });
     },
-    [arrowStyles],
+    [arrowStyles, hidden],
   );
 
   return React.useMemo(
@@ -24,4 +23,14 @@ export function usePopoverArrow(params: UsePopoverArrowParameters): UsePopoverAr
     }),
     [getArrowProps],
   );
+}
+
+namespace usePopoverArrow {
+  export interface Parameters {
+    arrowStyles: React.CSSProperties;
+    hidden?: boolean;
+  }
+  export interface ReturnValue {
+    getArrowProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
 }

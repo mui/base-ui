@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { TooltipRootProps } from './TooltipRoot.types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
@@ -17,14 +16,14 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * - [TooltipRoot API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipRoot)
  */
-function TooltipRoot(props: TooltipRootProps) {
+function TooltipRoot(props: TooltipRoot.Props) {
   const {
     delayType = 'rest',
     delay,
     closeDelay,
     hoverable = true,
     animated = true,
-    followCursorAxis = 'none',
+    trackCursorAxis = 'none',
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -48,7 +47,7 @@ function TooltipRoot(props: TooltipRootProps) {
   } = useTooltipRoot({
     hoverable,
     animated,
-    followCursorAxis,
+    trackCursorAxis,
     delay,
     delayType,
     closeDelay,
@@ -75,7 +74,7 @@ function TooltipRoot(props: TooltipRootProps) {
       getRootTriggerProps,
       getRootPopupProps,
       floatingRootContext,
-      followCursorAxis,
+      trackCursorAxis,
       transitionStatus,
     }),
     [
@@ -95,7 +94,7 @@ function TooltipRoot(props: TooltipRootProps) {
       getRootTriggerProps,
       getRootPopupProps,
       floatingRootContext,
-      followCursorAxis,
+      trackCursorAxis,
       transitionStatus,
     ],
   );
@@ -103,6 +102,14 @@ function TooltipRoot(props: TooltipRootProps) {
   return (
     <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
   );
+}
+
+namespace TooltipRoot {
+  export interface OwnerState {}
+
+  export interface Props extends useTooltipRoot.Parameters {
+    children?: React.ReactNode;
+  }
 }
 
 TooltipRoot.propTypes /* remove-proptypes */ = {
@@ -126,7 +133,8 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Specifies whether the tooltip is open initially when uncontrolled.
+   * Whether the tooltip popup is open by default. Use when uncontrolled.
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
@@ -142,25 +150,25 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   delayType: PropTypes.oneOf(['hover', 'rest']),
   /**
-   * Determines which axis the tooltip should follow the cursor on.
-   * @default 'none'
-   */
-  followCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
-  /**
-   * Whether the user can move their cursor from the trigger to the tooltip popup without it
-   * closing.
+   * Whether the user can move their cursor from the trigger element toward the tooltip popup element
+   * without it closing using a "safe polygon" technique.
    * @default true
    */
   hoverable: PropTypes.bool,
   /**
-   * Callback fired when the tooltip popup is requested to be opened or closed. Use when
-   * controlled.
+   * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
    */
   onOpenChange: PropTypes.func,
   /**
-   * If `true`, the tooltip popup is open. Use when controlled.
+   * Whether the tooltip popup is open. Use when controlled.
+   * @default false
    */
   open: PropTypes.bool,
+  /**
+   * Determines which axis the tooltip should track the cursor on.
+   * @default 'none'
+   */
+  trackCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
 } as any;
 
 export { TooltipRoot };

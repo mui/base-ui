@@ -37,7 +37,14 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               event.defaultMuiPrevented = true;
             }
           },
-          onClick: (event: React.MouseEvent) => {
+          onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
+            if (event.type === 'keydown') {
+              if ((event as React.KeyboardEvent).key === 'Enter') {
+                menuEvents.emit('close', event);
+                return;
+              }
+            }
+
             if (closeOnClick) {
               menuEvents.emit('close', event);
             }

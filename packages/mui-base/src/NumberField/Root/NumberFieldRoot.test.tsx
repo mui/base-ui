@@ -13,7 +13,7 @@ describe('<NumberField />', () => {
     render,
   }));
 
-  function NumberField(props: NumberFieldBase.RootProps) {
+  function NumberField(props: NumberFieldBase.Root.Props) {
     return (
       <NumberFieldBase.Root {...props}>
         <NumberFieldBase.Group>

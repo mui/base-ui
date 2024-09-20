@@ -1,9 +1,11 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { NumberFieldInputProps } from './NumberFieldInput.types';
 import { useNumberFieldContext } from '../Root/NumberFieldContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The input element for the number field.
@@ -17,7 +19,7 @@ import { useForkRef } from '../../utils/useForkRef';
  * - [NumberFieldInput API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldInput)
  */
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
-  props: NumberFieldInputProps,
+  props: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { render, className, ...otherProps } = props;
@@ -37,6 +39,11 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   return renderElement();
 });
+
+namespace NumberFieldInput {
+  export interface OwnerState extends NumberFieldRoot.OwnerState {}
+  export interface Props extends BaseUIComponentProps<'input', OwnerState> {}
+}
 
 NumberFieldInput.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
