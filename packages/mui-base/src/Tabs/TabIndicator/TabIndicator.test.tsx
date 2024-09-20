@@ -1,15 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import * as Tabs from '@base_ui/react/Tabs';
+import { waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
-
-async function wait(timeout: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, timeout);
-  });
-}
 
 describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
@@ -106,7 +99,9 @@ describe('<Tabs.Indicator />', () => {
       const activeTab = tabs[1];
       const tabList = getByRole('tablist');
 
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
     });
 
     it('should update the position and movement variables when the active tab changes', async () => {
@@ -132,7 +127,9 @@ describe('<Tabs.Indicator />', () => {
 
       setProps({ value: 1 });
       activeTab = tabs[0];
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
     });
 
     it('should update the position variables when the tab list is resized', async () => {
@@ -161,11 +158,9 @@ describe('<Tabs.Indicator />', () => {
         style: { width: '800px' },
       });
 
-      // Wait for the resize observer to trigger.
-      // Safari on BrowserStack needs a bit more time to update the layout.
-      await wait(50);
-
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
     });
   });
 });
