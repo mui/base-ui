@@ -114,10 +114,6 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the switch element.
-   */
-  id: PropTypes.string,
-  /**
    * Ref to the underlying input element.
    */
   inputRef: refType,
