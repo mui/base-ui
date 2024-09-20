@@ -72,12 +72,12 @@ const Switch = styled(BaseSwitch.Root)(
     box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[700] : blue[200]};
   }
 
-  &[data-switch="checked"] {
+  &[data-state="checked"] {
     border: none;
     background: ${blue[500]};
   }
 
-  &[data-switch="checked"]:not([data-disabled]):hover {
+  &[data-state="checked"]:not([data-disabled]):hover {
     background: ${blue[700]};
   }
   `,
@@ -101,7 +101,7 @@ const Thumb = styled(BaseSwitch.Thumb)(
       theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.1)'
     };
 
-    &[data-switch="checked"] {
+    &[data-state="checked"] {
       left: 18px;
       background-color: #fff;
       box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
