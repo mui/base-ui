@@ -10,7 +10,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useField } from '../../Field/useField';
-import { isReactVersionAtLeast } from '../../utils/reactVersion';
+import { getInertValue } from '../../utils/getInertValue';
 
 export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
   const {
@@ -127,7 +127,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         type: 'checkbox',
         'aria-hidden': true,
         // @ts-ignore
-        inert: isReactVersionAtLeast(19) ? true : 'true',
+        inert: getInertValue(true),
         onChange(event) {
           // Workaround for https://github.com/facebook/react/issues/9023
           if (event.nativeEvent.defaultPrevented) {
