@@ -43,7 +43,7 @@ const SelectIcon = React.forwardRef(function SelectIcon(
 
 namespace SelectIcon {
   export interface OwnerState {}
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
 }
 
 SelectIcon.propTypes /* remove-proptypes */ = {
