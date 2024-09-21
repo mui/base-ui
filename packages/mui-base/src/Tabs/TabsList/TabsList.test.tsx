@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
-import { TabsContext } from '@base_ui/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
+import { TabsRootContext } from '../Root/TabsRootContext';
 
 describe('<Tabs.List />', () => {
   const { render } = createRenderer();
@@ -11,7 +11,7 @@ describe('<Tabs.List />', () => {
   describeConformance(<Tabs.List />, () => ({
     render: (node) => {
       return render(
-        <TabsContext.Provider
+        <TabsRootContext.Provider
           value={{
             value: '1',
             onSelected: () => {},
@@ -24,7 +24,7 @@ describe('<Tabs.List />', () => {
           }}
         >
           {node}
-        </TabsContext.Provider>,
+        </TabsRootContext.Provider>,
       );
     },
     refInstanceof: window.HTMLDivElement,

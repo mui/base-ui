@@ -1,12 +1,8 @@
 import * as React from 'react';
 import * as Tabs from '@base_ui/react/Tabs';
-import {
-  TabsListProvider,
-  TabsListProviderValue,
-  TabsContext,
-  TabsContextValue,
-} from '@base_ui/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
+import { TabsListProviderValue, TabsListProvider } from '../TabsList/TabsListProvider';
+import { TabsRootContext } from '../Root/TabsRootContext';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
@@ -26,7 +22,7 @@ describe('<Tabs.Tab />', () => {
     },
   };
 
-  const testTabsContext: TabsContextValue = {
+  const testTabsContext: TabsRootContext = {
     value: 0,
     onSelected() {},
     registerTabIdLookup() {},
@@ -40,9 +36,9 @@ describe('<Tabs.Tab />', () => {
   describeConformance(<Tabs.Tab value="1" />, () => ({
     render: (node) => {
       return render(
-        <TabsContext.Provider value={testTabsContext}>
+        <TabsRootContext.Provider value={testTabsContext}>
           <TabsListProvider value={testTabsListContext}>{node}</TabsListProvider>
-        </TabsContext.Provider>,
+        </TabsRootContext.Provider>,
       );
     },
     refInstanceof: window.HTMLButtonElement,

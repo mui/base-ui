@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TabProps, TabOwnerState } from './Tab.types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { TabsOrientation } from '../Root/TabsRoot';
 
 /**
  *
@@ -16,7 +17,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [Tab API](https://base-ui.netlify.app/components/react-tabs/#api-reference-Tab)
  */
 const Tab = React.forwardRef(function Tab(
-  props: TabProps,
+  props: Tab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { className, disabled = false, render, value, ...other } = props;
@@ -26,7 +27,7 @@ const Tab = React.forwardRef(function Tab(
     rootRef: forwardedRef,
   });
 
-  const ownerState: TabOwnerState = {
+  const ownerState: Tab.OwnerState = {
     disabled,
     selected,
     orientation,
@@ -42,6 +43,21 @@ const Tab = React.forwardRef(function Tab(
 
   return renderElement();
 });
+
+namespace Tab {
+  export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
+    /**
+     * You can provide your own value. Otherwise, it falls back to the child position index.
+     */
+    value?: any;
+  }
+
+  export interface OwnerState {
+    disabled: boolean;
+    selected: boolean;
+    orientation: TabsOrientation;
+  }
+}
 
 Tab.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
