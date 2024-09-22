@@ -29,7 +29,7 @@ export default function UnstyledTabsIntroduction() {
   );
 }
 
-const TabsList = React.forwardRef<HTMLDivElement, Tabs.ListProps>((props, ref) => {
+const TabsList = React.forwardRef<HTMLDivElement, Tabs.List.Props>((props, ref) => {
   const { className, ...other } = props;
   return (
     <Tabs.List
@@ -43,7 +43,7 @@ const TabsList = React.forwardRef<HTMLDivElement, Tabs.ListProps>((props, ref) =
   );
 });
 
-const Tab = React.forwardRef<HTMLButtonElement, Tabs.TabProps>((props, ref) => {
+const Tab = React.forwardRef<HTMLButtonElement, Tabs.Tab.Props>((props, ref) => {
   const { className, ...other } = props;
   return (
     <Tabs.Tab
@@ -65,7 +65,7 @@ const Tab = React.forwardRef<HTMLButtonElement, Tabs.TabProps>((props, ref) => {
   );
 });
 
-const TabPanel = React.forwardRef<HTMLDivElement, Tabs.PanelProps>((props, ref) => {
+const TabPanel = React.forwardRef<HTMLDivElement, Tabs.Panel.Props>((props, ref) => {
   const { className, ...other } = props;
   return (
     <Tabs.Panel
