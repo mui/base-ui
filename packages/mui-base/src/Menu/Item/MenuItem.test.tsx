@@ -105,13 +105,13 @@ describe('<Menu.Item />', () => {
 
     await waitFor(
       () => {
-        expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+        expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
       },
       { timeout: 1000 },
     );
     await waitFor(
       () => {
-        expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+        expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
       },
       { timeout: 1000 },
     );

@@ -130,18 +130,17 @@ describe('<Menu.RadioItem />', () => {
     fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' }); // highlights '2'
 
     // React renders twice in strict mode, so we expect twice the number of spy calls
-    // Also, useButton's focusVisible polyfill causes an extra render when focus is gained/lost.
 
     await waitFor(
       () => {
-        expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+        expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
       },
       { timeout: 1000 },
     );
 
     await waitFor(
       () => {
-        expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+        expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
       },
       { timeout: 1000 },
     );
