@@ -49,7 +49,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      style: { '--nested-dialogs': nestedOpenDialogCount },
+      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
       role: 'alertdialog',
     },
     customStyleHookMapping: {

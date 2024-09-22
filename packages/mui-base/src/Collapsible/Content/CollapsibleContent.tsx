@@ -47,6 +47,7 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
     extraProps: {
       ...otherProps,
       style: {
+        ...otherProps.style,
         '--collapsible-content-height': height ? `${height}px` : undefined,
       },
     },
