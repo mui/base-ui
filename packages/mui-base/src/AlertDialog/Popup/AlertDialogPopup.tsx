@@ -132,6 +132,10 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
 
 export { AlertDialogPopup };
