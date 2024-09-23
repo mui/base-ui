@@ -8,7 +8,6 @@ describe('<Accordion.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Accordion.Root />, () => ({
-    inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
   }));

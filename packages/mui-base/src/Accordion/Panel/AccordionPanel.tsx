@@ -71,13 +71,13 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   return renderElement();
 });
 
-export { AccordionPanel };
-
 export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.OwnerState>,
       Pick<useCollapsibleContent.Parameters, 'hiddenUntilFound'> {}
 }
+
+export { AccordionPanel };
 
 AccordionPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

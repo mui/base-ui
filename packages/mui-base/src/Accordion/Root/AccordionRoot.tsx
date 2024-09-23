@@ -102,8 +102,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   );
 });
 
-export { AccordionRoot };
-
 export namespace AccordionRoot {
   export interface Context extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
     ownerState: OwnerState;
@@ -122,6 +120,8 @@ export namespace AccordionRoot {
     hiddenUntilFound?: boolean;
   }
 }
+
+export { AccordionRoot };
 
 AccordionRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

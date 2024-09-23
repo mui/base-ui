@@ -21,7 +21,7 @@ const AccordionHeader = React.forwardRef(function AccordionHeader(
   props: AccordionHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...other } = props;
 
   const { ownerState } = useAccordionItemContext();
 
@@ -30,18 +30,18 @@ const AccordionHeader = React.forwardRef(function AccordionHeader(
     ownerState,
     className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: other,
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
   return renderElement();
 });
 
-export { AccordionHeader };
-
 export namespace AccordionHeader {
   export interface Props extends BaseUIComponentProps<'h3', AccordionItem.OwnerState> {}
 }
+
+export { AccordionHeader };
 
 AccordionHeader.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

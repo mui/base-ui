@@ -1,12 +1,10 @@
 import * as React from 'react';
-// import { expect } from 'chai';
-// import { spy } from 'sinon';
 import * as Accordion from '@base_ui/react/Accordion';
 import * as Collapsible from '@base_ui/react/Collapsible';
 import { describeConformance, createRenderer } from '#test-utils';
 import { NOOP } from '../../utils/noop';
-
-const { AccordionRootContext, AccordionItemContext } = Accordion;
+import { AccordionRootContext } from '../Root/AccordionRootContext';
+import { AccordionItemContext } from '../Item/AccordionItemContext';
 
 const { CollapsibleContext } = Collapsible;
 
@@ -61,7 +59,6 @@ describe('<Accordion.Header />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Accordion.Header />, () => ({
-    inheritComponent: 'h3',
     render: (node) =>
       render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>

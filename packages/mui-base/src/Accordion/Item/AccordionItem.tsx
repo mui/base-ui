@@ -36,12 +36,11 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
-    ...otherProps
+    ...other
   } = props;
 
-  const sectionRef = React.useRef<HTMLElement>(null);
   const { ref: listItemRef, index } = useCompositeListItem();
-  const mergedRef = useForkRef(forwardedRef, listItemRef, sectionRef);
+  const mergedRef = useForkRef(forwardedRef, listItemRef);
 
   const {
     animated,
@@ -71,9 +70,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 
   const onOpenChange = useEventCallback((nextOpen: boolean) => {
     handleOpenChange(value, nextOpen);
-    if (onOpenChangeProp) {
-      onOpenChangeProp(nextOpen);
-    }
+    onOpenChangeProp?.(nextOpen);
   });
 
   const collapsible = useCollapsibleRoot({
@@ -128,7 +125,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     className,
     ownerState,
     ref: mergedRef,
-    extraProps: otherProps,
+    extraProps: other,
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
@@ -140,8 +137,6 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     </CollapsibleContext.Provider>
   );
 });
-
-export { AccordionItem };
 
 export namespace AccordionItem {
   export type Value = number | string;
@@ -165,6 +160,8 @@ export namespace AccordionItem {
     value?: Value;
   }
 }
+
+export { AccordionItem };
 
 AccordionItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

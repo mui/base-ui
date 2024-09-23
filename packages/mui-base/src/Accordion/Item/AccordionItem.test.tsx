@@ -1,11 +1,8 @@
 import * as React from 'react';
-// import { expect } from 'chai';
-// import { spy } from 'sinon';
 import * as Accordion from '@base_ui/react/Accordion';
 import { describeConformance, createRenderer } from '#test-utils';
 import { NOOP } from '../../utils/noop';
-
-const { AccordionRootContext } = Accordion;
+import { AccordionRootContext } from '../Root/AccordionRootContext';
 
 const accordionRootContextValue: Accordion.Root.Context = {
   accordionItemRefs: { current: [] },
@@ -27,7 +24,6 @@ describe('<Accordion.Item />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Accordion.Item />, () => ({
-    inheritComponent: 'div',
     render: (node) =>
       render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>

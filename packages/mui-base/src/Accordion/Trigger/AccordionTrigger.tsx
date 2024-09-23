@@ -58,11 +58,11 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return renderElement();
 });
 
-export { AccordionTrigger };
-
 namespace AccordionTrigger {
   export interface Props extends BaseUIComponentProps<'button', AccordionItem.OwnerState> {}
 }
+
+export { AccordionTrigger };
 
 AccordionTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
