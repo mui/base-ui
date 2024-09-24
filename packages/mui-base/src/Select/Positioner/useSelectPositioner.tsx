@@ -13,6 +13,7 @@ import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { MAX_Z_INDEX } from '../../utils/floating';
 
 /**
  *
@@ -68,7 +69,7 @@ export function useSelectPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            zIndex: 2147483647, // max z-index
+            zIndex: MAX_Z_INDEX, // max z-index
           },
         });
       },

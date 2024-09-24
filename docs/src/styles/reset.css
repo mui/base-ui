@@ -2,7 +2,7 @@ body {
   margin: 0;
   /* background-color: var(--gray-surface-2); */
   padding-top: 49px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--inter);
 }
 
 *,

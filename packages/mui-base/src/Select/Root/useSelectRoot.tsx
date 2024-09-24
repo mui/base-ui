@@ -23,6 +23,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { warn } from '../../utils/warn';
+import { TYPEAHEAD_RESET_MS } from '../../utils/floating';
 
 /**
  *
@@ -173,7 +174,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   const typeahead = useTypeahead(floatingRootContext, {
     listRef: labelsRef,
     activeIndex,
-    resetMs: 500,
+    resetMs: TYPEAHEAD_RESET_MS,
     onMatch: open
       ? setActiveIndex
       : (index) => {

@@ -7,7 +7,8 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
 import { useSelectGroupContext } from '../Group/SelectGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useSelectRootContext } from '../Root/SelectRootContext';
+
+const ownerState = {};
 
 /**
  *
@@ -25,15 +26,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 ) {
   const { className, render, id: idProp, ...otherProps } = props;
 
-  const { open } = useSelectRootContext();
   const { setLabelId } = useSelectGroupContext();
-
-  const ownerState: SelectGroupLabel.OwnerState = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
 
   const id = useId(idProp);
 
@@ -85,9 +78,8 @@ SelectGroupLabel.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace SelectGroupLabel {
-  export interface OwnerState {
-    open: boolean;
-  }
+  export interface OwnerState {}
+
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 

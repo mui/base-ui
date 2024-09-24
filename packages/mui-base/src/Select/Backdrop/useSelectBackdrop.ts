@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { MAX_Z_INDEX } from '../../utils/floating';
+
 /**
  *
  * API:
@@ -12,7 +14,7 @@ export function useSelectBackdrop() {
     return mergeReactProps<'div'>(externalProps, {
       role: 'presentation',
       style: {
-        zIndex: 2147483647, // max z-index
+        zIndex: MAX_Z_INDEX, // max z-index
         overflow: 'auto',
         position: 'fixed',
         inset: 0,

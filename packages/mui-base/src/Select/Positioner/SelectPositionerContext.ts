@@ -14,7 +14,14 @@ export interface SelectPositionerContext {
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
+  /**
+   * Determines if the popup has been positioned.
+   */
   isPositioned: boolean;
+  /**
+   * Determines the align offset of the popup such that the trigger value and option value are
+   * aligned on the x-axis.
+   */
   optionTextOffset: number | null;
   setOptionTextOffset: React.Dispatch<React.SetStateAction<number | null>>;
 }
@@ -28,9 +35,7 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
   if (context === null) {
-    throw new Error(
-      'Base UI: <Select.Popup> must be used within the <Select.Positioner> component',
-    );
+    throw new Error('Base UI: SelectPositionerContext is undefined.');
   }
   return context;
 }

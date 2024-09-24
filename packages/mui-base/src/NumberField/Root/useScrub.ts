@@ -10,6 +10,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { UseNumberFieldRoot } from './useNumberFieldRoot';
+import { MAX_Z_INDEX } from '../../utils/floating';
 
 /**
  * @ignore - internal hook.
@@ -173,7 +174,7 @@ export function useScrub(params: ScrubParams) {
               top: 0,
               left: 0,
               pointerEvents: 'none',
-              zIndex: 2147483647, // max z-index
+              zIndex: MAX_Z_INDEX, // max z-index
             },
           },
         ),

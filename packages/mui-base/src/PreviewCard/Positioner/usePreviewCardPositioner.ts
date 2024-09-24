@@ -9,6 +9,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { MAX_Z_INDEX } from '../../utils/floating';
 
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,
@@ -39,7 +40,7 @@ export function usePreviewCardPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            zIndex: 2147483647, // max z-index
+            zIndex: MAX_Z_INDEX, // max z-index
           },
         });
       },

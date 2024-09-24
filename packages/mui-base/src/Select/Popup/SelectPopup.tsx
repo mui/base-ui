@@ -14,10 +14,10 @@ import { useSelectPopup } from './useSelectPopup';
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
   ...commonStyleHooks,
   entering(value) {
-    return value ? { 'data-select-entering': '' } : null;
+    return value ? { 'data-entering': '' } : null;
   },
   exiting(value) {
-    return value ? { 'data-select-exiting': '' } : null;
+    return value ? { 'data-exiting': '' } : null;
   },
 };
 
