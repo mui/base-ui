@@ -233,6 +233,10 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const getThumbInputProps: useSliderThumb.ReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
+      let cssWritingMode;
+      if (orientation === 'vertical') {
+        cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
+      }
       return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
@@ -261,6 +265,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           // So that VoiceOver's focus indicator matches the thumb's dimensions
           width: '100%',
           height: '100%',
+          writingMode: cssWritingMode,
         },
         tabIndex: -1,
         type: 'range',
