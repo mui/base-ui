@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import * as Slider from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SliderContext } from '@base_ui/react/Slider';
+import { SliderContext } from '../Root/SliderContext';
 import { NOOP } from '../../utils/noop';
 import type { SliderRoot } from '../Root/SliderRoot';
 
