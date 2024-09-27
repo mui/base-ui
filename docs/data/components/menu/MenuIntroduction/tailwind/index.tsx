@@ -24,10 +24,14 @@ export default function MenuIntroduction() {
         <MenuButton>My account</MenuButton>
         <MenuPositioner>
           <MenuPopup>
-            <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-            <MenuItem onClick={createHandleMenuClick('Language settings')}>
-              Language settings
-            </MenuItem>
+            <Menu.Group>
+              <MenuGroupLabel>Settings</MenuGroupLabel>
+              <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+              <MenuItem onClick={createHandleMenuClick('Language settings')}>
+                Language settings
+              </MenuItem>
+            </Menu.Group>
+            <MenuSeparator />
             <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
           </MenuPopup>
         </MenuPositioner>
@@ -75,6 +79,30 @@ const MenuPositioner = React.forwardRef<HTMLDivElement, Menu.Positioner.Props>(
       <Menu.Positioner
         ref={ref}
         className="focus-visible:outline-0 closed:pointer-events-none"
+        {...props}
+      />
+    );
+  },
+);
+
+const MenuSeparator = React.forwardRef<HTMLDivElement, Menu.Separator.Props>(
+  (props, ref) => {
+    return (
+      <Menu.Separator
+        ref={ref}
+        className="border-t border-solid border-slate-200 dark:border-slate-700 my-2"
+        {...props}
+      />
+    );
+  },
+);
+
+const MenuGroupLabel = React.forwardRef<HTMLDivElement, Menu.GroupLabel.Props>(
+  (props, ref) => {
+    return (
+      <Menu.GroupLabel
+        ref={ref}
+        className="text-xs font-sans font-semibold text-slate-700 dark:text-slate-200 uppercase p-2 select-none"
         {...props}
       />
     );
