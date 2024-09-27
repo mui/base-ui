@@ -15,13 +15,20 @@ export default function VerticalSlider() {
         aria-labelledby="VolumeSliderLabel"
         className={classes.slider}
       >
-        <Label id="VolumeSliderLabel" className={classes.label}>
+        <Label
+          id="VolumeSliderLabel"
+          htmlFor=":slider-thumb-input-vertical:"
+          className={classes.label}
+        >
           Volume
         </Label>
         <Slider.Control className={classes.control}>
           <Slider.Track className={classes.track}>
             <Slider.Indicator className={classes.indicator} />
-            <Slider.Thumb className={classes.thumb} />
+            <Slider.Thumb
+              className={classes.thumb}
+              inputId=":slider-thumb-input-vertical:"
+            />
           </Slider.Track>
         </Slider.Control>
         <Slider.Output className={classes.output} />
@@ -30,15 +37,10 @@ export default function VerticalSlider() {
   );
 }
 
-function Label(props: React.HTMLAttributes<HTMLLabelElement>) {
-  const { id, ...otherProps } = props;
-  const { inputIdMap, disabled } = Slider.useSliderContext();
+function Label(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
+  const { id, htmlFor, ...otherProps } = props;
 
-  const htmlFor = inputIdMap.get(0);
-
-  return (
-    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
-  );
+  return <label id={id} htmlFor={htmlFor} {...otherProps} />;
 }
 
 function useIsDarkMode() {

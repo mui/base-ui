@@ -22,7 +22,9 @@ export default function UnstyledSliderIntroduction() {
       style={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
     >
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
-        <Label id="VolumeSliderLabel">Volume</Label>
+        <Label id="VolumeSliderLabel" htmlFor=":slider-thumb-input:">
+          Volume
+        </Label>
         <SliderOutput />
         <SliderControl>
           <SliderTrack>
@@ -158,18 +160,8 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   );
 });
 
-function Label(props: React.HTMLAttributes<HTMLLabelElement>) {
-  const { id, ...otherProps } = props;
-  const { inputIdMap, disabled } = BaseSlider.useSliderContext();
+function Label(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
+  const { id, htmlFor, ...otherProps } = props;
 
-  const htmlFor = inputIdMap.get(0);
-
-  return (
-    <label
-      id={id}
-      htmlFor={htmlFor}
-      className={classNames('font-bold', disabled && 'text-gray-500')}
-      {...otherProps}
-    />
-  );
+  return <label id={id} htmlFor={htmlFor} className="font-bold" {...otherProps} />;
 }

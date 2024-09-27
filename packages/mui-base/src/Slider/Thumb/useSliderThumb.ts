@@ -51,6 +51,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     getAriaLabel,
     getAriaValueText,
     id: idParam,
+    inputId: inputIdParam,
     largeStep,
     max,
     min,
@@ -82,7 +83,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const mergedThumbRef = useForkRef(externalRef, listItemRef, thumbRef);
 
-  const inputId = useId();
+  const inputId = useId(inputIdParam);
 
   useEnhancedEffect(() => {
     const { deregister } = registerInputId(index, inputId);
@@ -307,12 +308,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 }
 
 export namespace useSliderThumb {
-  export interface Metadata {
-    inputId: string;
-    ref: React.RefObject<HTMLElement>;
-    inputRef: React.RefObject<HTMLInputElement>;
-  }
-
   export interface Parameters
     extends Pick<
       useSliderRoot.ReturnValue,
@@ -355,7 +350,8 @@ export namespace useSliderThumb {
      * @returns {string}
      */
     getAriaValueText?: (value: number, index: number) => string;
-    id?: string;
+    id?: React.HTMLAttributes<Element>['id'];
+    inputId?: React.HTMLAttributes<Element>['id'];
     disabled: boolean;
     onBlur?: React.FocusEventHandler;
     onFocus?: React.FocusEventHandler;
