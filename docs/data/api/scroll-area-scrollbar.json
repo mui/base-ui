@@ -1,0 +1,16 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "ScrollAreaScrollbar",
+  "imports": [
+    "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaScrollbar = ScrollArea.Scrollbar;"
+  ],
+  "classes": [],
+  "muiName": "ScrollAreaScrollbar",
+  "filename": "/packages/mui-base/src/ScrollArea/Scrollbar/ScrollAreaScrollbar.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",
+  "cssComponent": false
+}

@@ -1,0 +1,62 @@
+---
+productId: base-ui
+title: React Scroll Area component
+description: Scroll Area creates a scrollable region with custom scrollbars.
+components: ScrollAreaRoot, ScrollAreaViewport, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaCorner
+githubLabel: 'component: scrollarea'
+waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
+---
+
+# Scroll Area
+
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+## Introduction
+
+<Demo demo="ScrollAreaIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+<InstallationInstructions componentName={['ScrollArea']} />
+
+## Anatomy
+
+```jsx
+<ScrollArea.Root>
+  <ScrollArea.Viewport />
+  <ScrollArea.Scrollbar orientation="vertical">
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Scrollbar orientation="horizontal">
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Corner />
+</ScrollArea.Root>
+```
+
+## Styling
+
+The thumb element can be styled using `--scroll-area-thumb-height` and `--scroll-area-thumb-width` CSS variables.
+
+These are available depending on the `orientation` prop supplied to the `Scrollbar` subcomponent:
+
+- `height` is available for `vertical` orientation (default)
+- `width` is available for `horizontal` orientation
+
+```css
+.ScrollAreaThumb {
+  height: var(--scroll-area-thumb-height, 6px);
+  width: var(--scroll-area-thumb-width, 6px);
+}
+```
+
+The Scrollbar element can be shown conditionally based on the user's interaction with the Scroll Area. The `[data-scrolling]` and `[data-hovering]` attributes are added to the scrollbar element while the user is scrolling or hovering over the Scroll Area.
+
+```css
+.ScrollAreaScrollbar[data-scrolling],
+.ScrollAreaScrollbar[data-hovering] {
+  opacity: 1;
+}
+```
