@@ -26,12 +26,13 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...otherProps } = props;
+
   const { viewportRef, scrollbarYRef, scrollbarXRef, thumbYRef, thumbXRef, setScrolling } =
     useScrollAreaRootContext();
 
-  const mergedRef = useForkRef(forwardedRef, viewportRef);
-
   const timeoutRef = React.useRef(-1);
+
+  const mergedRef = useForkRef(forwardedRef, viewportRef);
 
   const computeThumb = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -40,58 +41,60 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const thumbYEl = thumbYRef.current;
     const thumbXEl = thumbXRef.current;
 
-    if (viewportEl) {
-      const scrollableContentHeight = viewportEl.scrollHeight;
-      const scrollableContentWidth = viewportEl.scrollWidth;
-      const viewportHeight = viewportEl.clientHeight;
-      const viewportWidth = viewportEl.clientWidth;
-      const scrollTop = viewportEl.scrollTop;
-      const scrollLeft = viewportEl.scrollLeft;
+    if (!viewportEl) {
+      return;
+    }
 
-      // Handle Y (vertical) scroll
-      if (scrollbarYEl && thumbYEl) {
-        const thumbHeight = thumbYEl.offsetHeight;
-        const scrollbarStylesY = getComputedStyle(scrollbarYEl);
-        const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
-        const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
+    const scrollableContentHeight = viewportEl.scrollHeight;
+    const scrollableContentWidth = viewportEl.scrollWidth;
+    const viewportHeight = viewportEl.clientHeight;
+    const viewportWidth = viewportEl.clientWidth;
+    const scrollTop = viewportEl.scrollTop;
+    const scrollLeft = viewportEl.scrollLeft;
 
-        const maxThumbOffsetY =
-          scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
-        const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
-        const thumbOffsetY = scrollRatioY * maxThumbOffsetY;
+    // Handle Y (vertical) scroll
+    if (scrollbarYEl && thumbYEl) {
+      const thumbHeight = thumbYEl.offsetHeight;
+      const scrollbarStylesY = getComputedStyle(scrollbarYEl);
+      const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
+      const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
 
-        thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
+      const maxThumbOffsetY =
+        scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
+      const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
+      const thumbOffsetY = scrollRatioY * maxThumbOffsetY;
 
-        scrollbarYEl.style.setProperty(
-          '--scroll-area-thumb-height',
-          `${(viewportHeight / scrollableContentHeight) * viewportHeight}px`,
-        );
-      }
+      thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
 
-      // Handle X (horizontal) scroll
-      if (scrollbarXEl && thumbXEl) {
-        const thumbWidth = thumbXEl.offsetWidth;
-        const scrollbarStylesX = getComputedStyle(scrollbarXEl);
-        const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
-        const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
+      scrollbarYEl.style.setProperty(
+        '--scroll-area-thumb-height',
+        `${(viewportHeight / scrollableContentHeight) * viewportHeight}px`,
+      );
+    }
 
-        const maxThumbOffsetX =
-          scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
-        const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
-        const thumbOffsetX = scrollRatioX * maxThumbOffsetX;
+    // Handle X (horizontal) scroll
+    if (scrollbarXEl && thumbXEl) {
+      const thumbWidth = thumbXEl.offsetWidth;
+      const scrollbarStylesX = getComputedStyle(scrollbarXEl);
+      const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
+      const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
 
-        thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
+      const maxThumbOffsetX = scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
+      const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
+      const thumbOffsetX = scrollRatioX * maxThumbOffsetX;
 
-        scrollbarXEl.style.setProperty(
-          '--scroll-area-thumb-width',
-          `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
-        );
-      }
+      thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
+
+      scrollbarXEl.style.setProperty(
+        '--scroll-area-thumb-width',
+        `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
+      );
     }
   });
 
   useEnhancedEffect(() => {
-    computeThumb();
+    // Wait for the scrollbar-related refs to be set.
+    queueMicrotask(computeThumb);
   }, [computeThumb]);
 
   const { renderElement } = useComponentRenderer({
