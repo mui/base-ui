@@ -3,9 +3,9 @@ import * as React from 'react';
 import * as BaseMenu from '@base_ui/react/Menu';
 import classes from './Menu.module.css';
 
-export const Menu = function Menu(props: BaseMenu.Root.Props) {
-  return <BaseMenu.Root {...props} />;
-};
+export const Menu = BaseMenu.Root;
+
+export const MenuGroup = BaseMenu.Group;
 
 export const MenuItems = React.forwardRef(function MenuItems(
   props: React.PropsWithChildren<{}>,
@@ -30,4 +30,18 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return <BaseMenu.Trigger {...props} ref={ref} className={classes.trigger} />;
+});
+
+export const MenuSeparator = React.forwardRef(function MenuSeparator(
+  props: BaseMenu.Separator.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
+  return <BaseMenu.Separator {...props} ref={ref} className={classes.separator} />;
+});
+
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
+  props: BaseMenu.GroupLabel.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
+  return <BaseMenu.GroupLabel {...props} ref={ref} className={classes.groupLabel} />;
 });

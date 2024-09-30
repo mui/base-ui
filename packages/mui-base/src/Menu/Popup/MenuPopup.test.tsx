@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuRootContext } from '@base_ui/react/Menu';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuPositionerContext } from '../Positioner/MenuPositionerContext';
+import { MenuRootContext } from '../Root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,

@@ -47,7 +47,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      style: { '--nested-dialogs': nestedOpenDialogCount },
+      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
     },
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
@@ -113,6 +113,10 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
 
 export { DialogPopup };
