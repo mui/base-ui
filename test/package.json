@@ -10,7 +10,7 @@
     "@base_ui/react": "workspace:*",
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.13.3",
-    "@mui/internal-test-utils": "1.0.13",
+    "@mui/internal-test-utils": "1.0.14",
     "@playwright/test": "1.46.1",
     "@testing-library/dom": "^10.4.0",
     "@types/chai": "^4.3.19",
