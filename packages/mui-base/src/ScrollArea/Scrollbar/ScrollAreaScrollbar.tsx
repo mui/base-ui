@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -150,6 +151,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
       onPointerUp: handlePointerUp,
       style: {
         position: 'absolute',
+        touchAction: 'none',
         ...(orientation === 'vertical' && {
           top: 0,
           bottom: 0,
@@ -181,6 +183,10 @@ namespace ScrollAreaScrollbar {
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The orientation of the scrollbar.
+     * @default 'vertical'
+     */
     orientation?: 'vertical' | 'horizontal';
   }
 }
@@ -199,7 +205,8 @@ ScrollAreaScrollbar.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * The orientation of the scrollbar.
+   * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**

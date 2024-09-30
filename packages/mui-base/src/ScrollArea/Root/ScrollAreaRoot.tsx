@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -41,7 +42,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const startXRef = React.useRef(0);
   const startScrollTopRef = React.useRef(0);
   const startScrollLeftRef = React.useRef(0);
-  const currentOrientation = React.useRef<'vertical' | 'horizontal'>('vertical');
+  const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
 
   const [dir, setDir] = useControlled({
     controlled: dirProp,
@@ -59,7 +60,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     thumbDraggingRef.current = true;
     startYRef.current = event.clientY;
     startXRef.current = event.clientX;
-    currentOrientation.current = event.currentTarget.getAttribute('data-orientation') as
+    currentOrientationRef.current = event.currentTarget.getAttribute('data-orientation') as
       | 'vertical'
       | 'horizontal';
 
@@ -67,10 +68,10 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       startScrollTopRef.current = viewportRef.current.scrollTop;
       startScrollLeftRef.current = viewportRef.current.scrollLeft;
     }
-    if (thumbYRef.current && currentOrientation.current === 'vertical') {
+    if (thumbYRef.current && currentOrientationRef.current === 'vertical') {
       thumbYRef.current.setPointerCapture(event.pointerId);
     }
-    if (thumbXRef.current && currentOrientation.current === 'horizontal') {
+    if (thumbXRef.current && currentOrientationRef.current === 'horizontal') {
       thumbXRef.current.setPointerCapture(event.pointerId);
     }
   });
@@ -89,7 +90,11 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       const scrollableContentWidth = viewportRef.current.scrollWidth;
       const viewportWidth = viewportRef.current.clientWidth;
 
-      if (thumbYRef.current && scrollbarYRef.current && currentOrientation.current === 'vertical') {
+      if (
+        thumbYRef.current &&
+        scrollbarYRef.current &&
+        currentOrientationRef.current === 'vertical'
+      ) {
         const thumbHeight = thumbYRef.current.offsetHeight;
         const maxThumbOffsetY = scrollbarYRef.current.offsetHeight - thumbHeight;
         const scrollRatioY = deltaY / maxThumbOffsetY;
@@ -101,7 +106,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       if (
         thumbXRef.current &&
         scrollbarXRef.current &&
-        currentOrientation.current === 'horizontal'
+        currentOrientationRef.current === 'horizontal'
       ) {
         const thumbWidth = thumbXRef.current.offsetWidth;
         const maxThumbOffsetX = scrollbarXRef.current.offsetWidth - thumbWidth;
@@ -116,10 +121,10 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const handlePointerUp = useEventCallback((event: React.PointerEvent) => {
     thumbDraggingRef.current = false;
 
-    if (thumbYRef.current && currentOrientation.current === 'vertical') {
+    if (thumbYRef.current && currentOrientationRef.current === 'vertical') {
       thumbYRef.current.releasePointerCapture(event.pointerId);
     }
-    if (thumbXRef.current && currentOrientation.current === 'horizontal') {
+    if (thumbXRef.current && currentOrientationRef.current === 'horizontal') {
       thumbXRef.current.releasePointerCapture(event.pointerId);
     }
   });
