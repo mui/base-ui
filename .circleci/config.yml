@@ -36,13 +36,12 @@ default-job: &default-job
       type: string
       default: << pipeline.parameters.e2e-base-url >>
   environment:
-    # Keep in sync with "Save playwright cache"
-    PLAYWRIGHT_BROWSERS_PATH: /tmp/pw-browsers
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     REACT_VERSION: << parameters.react-version >>
     TEST_GATE: << parameters.test-gate >>
     AWS_REGION_ARTIFACTS: eu-central-1
+    COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
   docker:
     - image: cimg/node:18.20
@@ -73,6 +72,21 @@ commands:
         default: stable
 
     steps:
+      - when:
+          condition: << parameters.browsers >>
+          steps:
+            - run:
+                name: Install pnpm package manager
+                command: corepack enable
+      - when:
+          condition:
+            not: << parameters.browsers >>
+          steps:
+            - run:
+                name: Install pnpm package manager
+                # See https://stackoverflow.com/a/73411601
+                command: corepack enable --install-directory ~/bin
+
       - run:
           name: Resolve React version
           command: |
@@ -80,29 +94,6 @@ commands:
             node scripts/useReactVersion.mjs
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
-      - when:
-          condition: << parameters.browsers >>
-          steps:
-            - run:
-                name: Install pnpm package manager
-                command: |
-                  corepack enable
-            - run:
-                name: Prepare playwright hash
-                command: pnpm list --recursive --json --filter @mui-internal/tests playwright > /tmp/playwright_info.json
-            - store_artifacts:
-                name: Debug playwright hash
-                path: /tmp/playwright_info.json
-            - restore_cache:
-                name: Restore playwright cache
-                keys:
-                  - v6-playwright-{{ arch }}-{{ checksum "/tmp/playwright_info.json" }}
-      - when:
-          condition:
-            not: << parameters.browsers >>
-          steps:
-            # See https://stackoverflow.com/a/73411601
-            - run: corepack enable --install-directory ~/bin
 
       - run:
           name: View install environment
@@ -126,19 +117,6 @@ commands:
             - run:
                 name: Restore clean working copy
                 command: git restore .
-      - when:
-          condition: << parameters.browsers >>
-          steps:
-            - run:
-                name: Install playwright browsers
-                command: pnpm playwright install --with-deps
-            - save_cache:
-                name: Save playwright cache
-                key: v6-playwright-{{ arch }}-{{ checksum "/tmp/playwright_info.json" }}
-                paths:
-                  # Keep path in sync with "PLAYWRIGHT_BROWSERS_PATH"
-                  # Can't use environment variables for `save_cache` paths (tested in https://app.circleci.com/pipelines/github/mui/material-ui/37813/workflows/5b1e207f-ac8b-44e7-9ba4-d0f9a01f5c55/jobs/223370)
-                  - /tmp/pw-browsers
 
 jobs:
   checkout:
@@ -314,8 +292,6 @@ jobs:
     resource_class: 'medium+'
     docker:
       - image: mcr.microsoft.com/playwright:v1.46.1-focal
-        environment:
-          NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
@@ -345,8 +321,6 @@ jobs:
     <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.46.1-focal
-        environment:
-          NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
@@ -373,8 +347,6 @@ jobs:
     <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.46.1-focal
-        environment:
-          NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
@@ -390,15 +362,10 @@ jobs:
     <<: *default-job
     docker:
       - image: mcr.microsoft.com/playwright:v1.46.1-focal
-        environment:
-          NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - install_js:
           browsers: true
-      - run:
-          name: install Playwright browsers
-          command: pnpm exec playwright install
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
