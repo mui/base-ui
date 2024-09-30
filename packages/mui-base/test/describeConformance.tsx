@@ -15,6 +15,7 @@ export type ConformantComponentProps = {
   ref?: React.Ref<unknown>;
   'data-testid'?: string;
   className?: string;
+  style?: React.CSSProperties;
 };
 
 export interface BaseUiConformanceTestsOptions
