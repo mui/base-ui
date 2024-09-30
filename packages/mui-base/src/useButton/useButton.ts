@@ -10,7 +10,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const {
     disabled = false,
     focusableWhenDisabled,
-    rootRef: externalRef,
+    buttonRef: externalRef,
     tabIndex,
     type,
     rootElementName: rootElementNameProp,
@@ -136,7 +136,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   return {
     getRootProps,
-    rootRef: handleRef,
+    buttonRef: handleRef,
   };
 }
 
@@ -152,7 +152,7 @@ export namespace useButton {
      * @default false
      */
     focusableWhenDisabled?: boolean;
-    rootRef?: React.Ref<Element>;
+    buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
      * Type attribute applied when the `component` is `button`.
@@ -178,6 +178,6 @@ export namespace useButton {
     /**
      * A ref to the component's root DOM element.
      */
-    rootRef: React.RefCallback<Element> | null;
+    buttonRef: React.RefCallback<Element> | null;
   }
 }

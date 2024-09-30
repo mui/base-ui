@@ -21,10 +21,10 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
-  const { getRootProps: getButtonRootProps, rootRef: buttonRootRef } = useButton({
+  const { getRootProps: getButtonRootProps, buttonRef: buttonRootRef } = useButton({
     disabled,
     focusableWhenDisabled: false,
-    rootRef: mergedRef,
+    buttonRef: mergedRef,
   });
 
   const handleRef = useForkRef(buttonRootRef, setTriggerElement);

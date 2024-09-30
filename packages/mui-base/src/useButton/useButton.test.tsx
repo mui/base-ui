@@ -9,8 +9,8 @@ describe('useButton', () => {
   describe('tabIndex', () => {
     it('does not return tabIndex in getRootProps when host component is BUTTON', () => {
       function TestComponent() {
-        const ref = React.useRef(null);
-        const { getRootProps } = useButton({ rootRef: ref });
+        const buttonRef = React.useRef(null);
+        const { getRootProps } = useButton({ buttonRef });
 
         expect(getRootProps().tabIndex).to.equal(undefined);
 
@@ -23,10 +23,10 @@ describe('useButton', () => {
 
     it('returns tabIndex in getRootProps when host component is not BUTTON', () => {
       function TestComponent() {
-        const ref = React.useRef(null);
-        const { getRootProps } = useButton({ rootRef: ref });
+        const buttonRef = React.useRef(null);
+        const { getRootProps } = useButton({ buttonRef });
 
-        expect(getRootProps().tabIndex).to.equal(ref.current ? 0 : undefined);
+        expect(getRootProps().tabIndex).to.equal(buttonRef.current ? 0 : undefined);
 
         return <span {...getRootProps()} />;
       }
@@ -38,8 +38,8 @@ describe('useButton', () => {
     it('returns tabIndex in getRootProps if it is explicitly provided', () => {
       const customTabIndex = 3;
       function TestComponent() {
-        const ref = React.useRef(null);
-        const { getRootProps } = useButton({ rootRef: ref, tabIndex: customTabIndex });
+        const buttonRef = React.useRef(null);
+        const { getRootProps } = useButton({ buttonRef, tabIndex: customTabIndex });
         return <button {...getRootProps()} />;
       }
 
