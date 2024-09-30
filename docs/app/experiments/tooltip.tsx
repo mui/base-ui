@@ -282,17 +282,14 @@ function FramerMotion() {
       <AnimatePresence>
         {isOpen && (
           <Tooltip.Positioner keepMounted sideOffset={7}>
-            <TooltipPopup
-              data-type="framer-motion"
-              render={
-                <motion.div
-                  animate={{ opacity: 1, scale: 1 }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  exit={{ opacity: 0, scale: 0 }}
-                />
-              }
-            >
-              Tooltip
+            <TooltipPopup data-type="framer-motion" render="asChild">
+              <motion.div
+                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                exit={{ opacity: 0, scale: 0 }}
+              >
+                Tooltip
+              </motion.div>
             </TooltipPopup>
           </Tooltip.Positioner>
         )}
