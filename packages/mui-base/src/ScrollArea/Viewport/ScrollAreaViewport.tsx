@@ -25,7 +25,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, children, ...otherProps } = props;
 
   const { viewportRef, scrollbarYRef, scrollbarXRef, thumbYRef, thumbXRef, setScrolling } =
     useScrollAreaRootContext();
@@ -33,6 +33,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const timeoutRef = React.useRef(-1);
 
   const mergedRef = useForkRef(forwardedRef, viewportRef);
+  const tableWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const computeThumb = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -66,9 +67,17 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
 
+      const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
+
+      if (scrollbarYHidden) {
+        scrollbarYEl.setAttribute('hidden', '');
+      }
+
       scrollbarYEl.style.setProperty(
         '--scroll-area-thumb-height',
-        `${(viewportHeight / scrollableContentHeight) * viewportHeight}px`,
+        scrollbarYHidden
+          ? '0px'
+          : `${(viewportHeight / scrollableContentHeight) * viewportHeight}px`,
       );
     }
 
@@ -85,9 +94,15 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
 
+      const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
+
+      if (scrollbarXHidden) {
+        scrollbarXEl.setAttribute('hidden', '');
+      }
+
       scrollbarXEl.style.setProperty(
         '--scroll-area-thumb-width',
-        `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
+        scrollbarXHidden ? '0px' : `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
       );
     }
   });
@@ -95,6 +110,19 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   useEnhancedEffect(() => {
     // Wait for the scrollbar-related refs to be set.
     queueMicrotask(computeThumb);
+  }, [computeThumb]);
+
+  React.useEffect(() => {
+    if (!tableWrapperRef.current) {
+      return undefined;
+    }
+
+    const ro = new ResizeObserver(computeThumb);
+    ro.observe(tableWrapperRef.current);
+
+    return () => {
+      ro.disconnect();
+    };
   }, [computeThumb]);
 
   const { renderElement } = useComponentRenderer({
@@ -117,6 +145,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       },
       children: (
         <div
+          ref={tableWrapperRef}
           style={{
             minWidth: '100%',
             display: 'table',
