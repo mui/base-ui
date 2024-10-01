@@ -707,14 +707,14 @@ importers:
         specifier: ^6.1.12
         version: 6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       stylis:
-        specifier: 4.3.2
-        version: 4.3.2
+        specifier: 4.3.4
+        version: 4.3.4
       stylis-plugin-rtl:
         specifier: ^2.1.1
-        version: 2.1.1(stylis@4.3.2)
+        version: 2.1.1(stylis@4.3.4)
       stylis-plugin-rtl-sc:
         specifier: npm:stylis-plugin-rtl@^2.1.1
-        version: stylis-plugin-rtl@2.1.1(stylis@4.3.2)
+        version: stylis-plugin-rtl@2.1.1(stylis@4.3.4)
       util:
         specifier: ^0.12.5
         version: 0.12.5
@@ -7879,6 +7879,9 @@ packages:
 
   stylis@4.3.2:
     resolution: {integrity: sha512-bhtUjWd/z6ltJiQwg0dUfxEJ+W+jdqQd8TbWLWyeIJHlnsqmGLRFFd8e5mA0AZi/zx90smXRlN66YMTcaSFifg==}
+
+  stylis@4.3.4:
+    resolution: {integrity: sha512-osIBl6BGUmSfDkyH2mB7EFvCJntXDrLhKjHTRj/rK6xLH0yuPrHULDRQzKokSOD4VoorhtKpfcfW1GAntu8now==}
 
   sucrase@3.35.0:
     resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
@@ -17632,14 +17635,16 @@ snapshots:
       - supports-color
       - typescript
 
-  stylis-plugin-rtl@2.1.1(stylis@4.3.2):
+  stylis-plugin-rtl@2.1.1(stylis@4.3.4):
     dependencies:
       cssjanus: 2.1.0
-      stylis: 4.3.2
+      stylis: 4.3.4
 
   stylis@4.2.0: {}
 
   stylis@4.3.2: {}
+
+  stylis@4.3.4: {}
 
   sucrase@3.35.0:
     dependencies:
