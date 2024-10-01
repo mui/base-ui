@@ -21,7 +21,7 @@
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.13.3",
     "@emotion/server": "^11.11.0",
-    "@emotion/styled": "^11.11.5",
+    "@emotion/styled": "^11.13.0",
     "@mdx-js/mdx": "^3.0.1",
     "@mui/system": "6.1.1",
     "@mui/utils": "6.1.1",
