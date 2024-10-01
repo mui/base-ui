@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogCloseProps } from './DialogClose.types';
 import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -17,14 +17,14 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [DialogClose API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogClose)
  */
 const DialogClose = React.forwardRef(function DialogClose(
-  props: DialogCloseProps,
+  props: DialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
   const { open, onOpenChange, modal } = useDialogRootContext();
   const { getRootProps } = useDialogClose({ open, onOpenChange });
 
-  const ownerState = {
+  const ownerState: DialogClose.OwnerState = {
     open,
     modal,
   };
@@ -40,6 +40,15 @@ const DialogClose = React.forwardRef(function DialogClose(
 
   return renderElement();
 });
+
+namespace DialogClose {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+    modal: boolean;
+  }
+}
 
 DialogClose.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

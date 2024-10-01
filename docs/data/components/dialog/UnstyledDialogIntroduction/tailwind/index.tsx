@@ -26,7 +26,7 @@ export default function UnstyledDialogIntroduction() {
   );
 }
 
-function TriggerButton(props: Dialog.TriggerProps) {
+function TriggerButton(props: Dialog.Trigger.Props) {
   const className = `
     bg-slate-900 dark:bg-slate-50 text-slate-50 dark:text-slate-900
     py-2 px-4 rounded min-w-[80px] border-none font-sans
@@ -35,7 +35,7 @@ function TriggerButton(props: Dialog.TriggerProps) {
   return <Dialog.Trigger {...props} className={className} />;
 }
 
-function Popup(props: Dialog.PopupProps) {
+function Popup(props: Dialog.Popup.Props) {
   const className = `
     bg-slate-50 dark:bg-slate-900 border-[1px] border-solid border-slate-100 dark:border-slate-700
     min-w-[400px] rounded shadow-xl fixed top-2/4 left-2/4 z-[2100]
@@ -53,7 +53,7 @@ function Controls(props: React.ComponentPropsWithoutRef<'div'>) {
   );
 }
 
-function CloseButton(props: Dialog.CloseProps) {
+function CloseButton(props: Dialog.Close.Props) {
   const className = `
     bg-transparent border-[1px] border-solid border-slate-500 dark:border-slate-300
     text-slate-900 dark:text-slate-50 py-2 px-4 rounded font-sans min-w-[80px]
@@ -62,15 +62,15 @@ function CloseButton(props: Dialog.CloseProps) {
   return <Dialog.Close {...props} className={className} />;
 }
 
-function Title(props: Dialog.TitleProps) {
+function Title(props: Dialog.Title.Props) {
   return <Dialog.Title {...props} className="text-lg" />;
 }
 
-function Description(props: Dialog.DescriptionProps) {
+function Description(props: Dialog.Description.Props) {
   return <Dialog.Description {...props} />;
 }
 
-function Backdrop(props: Dialog.BackdropProps) {
+function Backdrop(props: Dialog.Backdrop.Props) {
   return (
     <Dialog.Backdrop
       {...props}
