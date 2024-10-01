@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { SelectRootContext } from './SelectRootContext';
 import { useSelectRoot } from './useSelectRoot';
+
 /**
  *
  * Demos:
@@ -13,7 +14,7 @@ import { useSelectRoot } from './useSelectRoot';
  *
  * - [SelectRoot API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectRoot)
  */
-function SelectRoot(props: SelectRoot.Props) {
+function SelectRoot<Value>(props: SelectRoot.Props<Value>) {
   const {
     animated = true,
     id,
@@ -62,7 +63,7 @@ function SelectRoot(props: SelectRoot.Props) {
 }
 
 namespace SelectRoot {
-  export interface Props {
+  export interface Props<Value = any> {
     /**
      * If `true`, the Select supports CSS-based animations and transitions.
      * It is kept in the DOM until the animation completes.
@@ -98,15 +99,15 @@ namespace SelectRoot {
     /**
      * The value of the select.
      */
-    value?: any;
+    value?: Value;
     /**
      * Callback fired when the value of the select changes. Use when controlled.
      */
-    onValueChange?: (value: any, event?: Event) => void;
+    onValueChange?: (value: Value, event?: Event) => void;
     /**
      * The default value of the select.
      */
-    defaultValue?: any;
+    defaultValue?: Value;
     /**
      * If `true`, the Select is initially open.
      *
