@@ -146,8 +146,8 @@ importers:
         specifier: ^7.1.2
         version: 7.1.2(webpack@5.91.0(webpack-cli@5.1.4))
       danger:
-        specifier: ^12.1.0
-        version: 12.1.0(encoding@0.1.13)
+        specifier: ^12.3.3
+        version: 12.3.3(encoding@0.1.13)
       docs:
         specifier: workspace:^
         version: link:docs
@@ -3800,8 +3800,8 @@ packages:
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
 
-  danger@12.1.0:
-    resolution: {integrity: sha512-pD3PxXSPuEhlLpiR3pUupt/kkwNKhWbmPCPTq/KuKEE9E0WimDsNsozboZLiBLit6bbBJBlttpDtFXGpVMqM1A==}
+  danger@12.3.3:
+    resolution: {integrity: sha512-nZKzpgXN21rr4dwa6bFhM7G2JEa79dZRJiT3RVRSyi4yk1/hgZ2f8HDGoa7tMladTmu8WjJFyE3LpBIihh+aDw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -12406,7 +12406,7 @@ snapshots:
 
   damerau-levenshtein@1.0.8: {}
 
-  danger@12.1.0(encoding@0.1.13):
+  danger@12.3.3(encoding@0.1.13):
     dependencies:
       '@gitbeaker/rest': 38.12.1
       '@octokit/rest': 18.12.0(encoding@0.1.13)
