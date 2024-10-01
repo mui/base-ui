@@ -1,16 +1,14 @@
 <!-- markdownlint-disable-next-line -->
 <p align="center">
-  <a href="https://mui.com/base-ui/" target="_blank">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
-      <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
-    </picture>
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
+    <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
+  </picture>
 </p>
 
 <p align="center">
-Base UI is an unstyled UI component library for building accessible user interfaces while maintaining complete control over styling.
+Base UI is an unstyled React UI component library for building accessible user interfaces while maintaining complete control over styling.
 </p>
 
 <div align="center">
@@ -30,22 +28,10 @@ Base UI is an unstyled UI component library for building accessible user interf
 
 ---
 
-## Versions
-
-There are currently two Base UI libraries available on npm: [@base_ui/react](https://www.npmjs.com/package/@base_ui/react) (published from this repository)
-and [@mui/base](https://www.npmjs.com/package/@mui/base) (published from https://github.com/mui/material-ui/tree/master/packages/mui-base).
-
-@mui/base is considered legacy at this point and we do not intend to add any features to it.
-
-@base_ui/react is a rewrite of @mui/base with a different API (component per DOM node and render props instead of `slots` and `slotProps` props).
-Learn more about the roadmap in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
-
 ## Documentation
 
-We are working on the @base_ui/react documentation and have not published it yet.
+We are working on the Base UI documentation and have not published it yet.
 There is a preview available built from the latest `master` branch at https://master--base-ui.netlify.app/.
-
-Visit [mui.com/base-ui/getting-started](https://mui.com/base-ui/getting-started/) to view the full documentation of the legacy @mui/base package.
 
 ## Sponsors
 
@@ -97,8 +83,7 @@ Learn more about future plans and high-priority features and enhancements on the
 
 ## License
 
-This project is licensed under the terms of the
-[MIT license](/LICENSE).
+This project is licensed under the terms of the [MIT license](/LICENSE).
 
 ## Security
 
