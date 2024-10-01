@@ -56,7 +56,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
 
     function handleWheel(event: WheelEvent) {
-      if (!viewportEl || !scrollbarEl) {
+      if (!viewportEl || !scrollbarEl || event.ctrlKey) {
         return;
       }
 
