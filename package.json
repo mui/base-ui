@@ -88,7 +88,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.9",
     "@types/mocha": "^10.0.8",
-    "@types/node": "^18.19.48",
+    "@types/node": "^18.19.54",
     "@types/react": "^18.3.10",
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
@@ -184,7 +184,7 @@
     "@definitelytyped/header-parser": "^0.2.12",
     "@definitelytyped/typescript-versions": "^0.1.4",
     "@definitelytyped/utils": "^0.1.7",
-    "@types/node": "^18.19.48",
+    "@types/node": "^18.19.54",
     "@types/react": "^18.3.10",
     "@types/react-dom": "18.3.0"
   },
