@@ -24,7 +24,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     isTopmost,
   } = parameters;
 
-  const { refs, context } = useFloating({
+  const { refs, context, elements } = useFloating({
     open,
     onOpenChange,
   });
@@ -47,7 +47,7 @@ export function useDialogPopup(parameters: UseDialogPopupParameters): UseDialogP
     enabled: animated,
   });
 
-  useScrollLock(modal && mounted);
+  useScrollLock(modal && mounted, elements.floating);
 
   useEnhancedEffect(() => {
     setPopupElementId(id);
