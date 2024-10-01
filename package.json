@@ -141,7 +141,7 @@
     "mocha": "^10.7.3",
     "nx": "^18.3.5",
     "nyc": "^15.1.0",
-    "piscina": "^4.4.0",
+    "piscina": "^4.7.0",
     "postcss": "^8.4.40",
     "postcss-loader": "^8.1.1",
     "postcss-styled-syntax": "^0.6.4",
