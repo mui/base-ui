@@ -21,13 +21,13 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
-  const { getRootProps: getButtonRootProps, buttonRef: buttonRootRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: false,
     buttonRef: mergedRef,
   });
 
-  const handleRef = useForkRef(buttonRootRef, setTriggerElement);
+  const handleRef = useForkRef(buttonRef, setTriggerElement);
   const ignoreNextClick = React.useRef(false);
 
   const getRootProps = React.useCallback(
@@ -73,10 +73,10 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             }
           },
         },
-        getButtonRootProps(),
+        getButtonProps(),
       );
     },
-    [getButtonRootProps, handleRef, open, setOpen, setClickAndDragEnabled],
+    [getButtonProps, handleRef, open, setOpen, setClickAndDragEnabled],
   );
 
   return React.useMemo(

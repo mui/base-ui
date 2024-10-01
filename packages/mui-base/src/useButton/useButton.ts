@@ -13,12 +13,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonRef: externalRef,
     tabIndex,
     type,
-    rootElementName: rootElementNameProp,
+    elementName: elementNameProp,
   } = parameters;
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
-  const [rootElementName, updateRootElementName] = useRootElementName({
-    rootElementName: rootElementNameProp,
+  const [elementName, updateElementName] = useRootElementName({
+    rootElementName: elementNameProp,
     componentName: 'Button',
   });
 
@@ -26,8 +26,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     const button = buttonRef.current;
 
     return (
-      rootElementName === 'BUTTON' ||
-      (rootElementName === 'INPUT' &&
+      elementName === 'BUTTON' ||
+      (elementName === 'INPUT' &&
         ['button', 'submit', 'reset'].includes((button as HTMLInputElement)?.type))
     );
   };
@@ -81,7 +81,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       }
     };
 
-  const handleRef = useForkRef(updateRootElementName, externalRef, buttonRef);
+  const handleRef = useForkRef(updateElementName, externalRef, buttonRef);
 
   interface AdditionalButtonProps {
     type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
@@ -97,13 +97,13 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonProps.tabIndex = tabIndex;
   }
 
-  if (rootElementName === 'BUTTON' || rootElementName === 'INPUT') {
+  if (elementName === 'BUTTON' || elementName === 'INPUT') {
     if (focusableWhenDisabled) {
       buttonProps['aria-disabled'] = disabled;
     } else {
       buttonProps.disabled = disabled;
     }
-  } else if (rootElementName !== '') {
+  } else if (elementName !== '') {
     buttonProps.role = 'button';
     buttonProps.tabIndex = tabIndex ?? 0;
     if (disabled) {
@@ -112,7 +112,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     }
   }
 
-  const getRootProps = (
+  const getButtonProps = (
     externalProps: React.ComponentPropsWithRef<any>,
   ): React.ComponentPropsWithRef<any> => {
     const externalEventHandlers = {
@@ -135,7 +135,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   };
 
   return {
-    getRootProps,
+    getButtonProps,
     buttonRef: handleRef,
   };
 }
@@ -163,20 +163,20 @@ export namespace useButton {
      * The HTML element, e.g.'button', 'span' etc.
      * @default ''
      */
-    rootElementName?: keyof HTMLElementTagNameMap;
+    elementName?: keyof HTMLElementTagNameMap;
   }
 
   export interface ReturnValue {
     /**
-     * Resolver for the root slot's props.
-     * @param externalProps additional props for the root slot
-     * @returns props that should be spread on the root slot
+     * Resolver for the button props.
+     * @param externalProps additional props for the button
+     * @returns props that should be spread on the button
      */
-    getRootProps: (
+    getButtonProps: (
       externalProps?: React.ComponentPropsWithRef<any>,
     ) => React.ComponentPropsWithRef<any>;
     /**
-     * A ref to the component's root DOM element.
+     * A ref to the button DOM element.
      */
     buttonRef: React.RefCallback<Element> | null;
   }
