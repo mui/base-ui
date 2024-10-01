@@ -54,9 +54,9 @@ export default function UnstyledFieldServerError() {
             <FieldSubmit
               type="submit"
               aria-disabled={status === 'loading'}
-              aria-description={
-                !state.validity.valid ? 'Field has errors' : undefined
-              }
+              // The aria-description attribute is not a standard ARIA attribute (it's defined in ARIA 1.3 Editor's Draft).
+              // eslint-disable-next-line jsx-a11y/aria-props
+              aria-description={!state.validity.valid ? 'Field has errors' : ''}
               onClick={(event) => {
                 if (status === 'loading') {
                   event.preventDefault();

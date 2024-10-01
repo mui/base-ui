@@ -71,7 +71,6 @@ export function ApiReference(props: ApiReferenceProps) {
                         <code>{prop.type.name}</code>
                       </td>
                       <td>{prop.defaultValue != null ? <code>{prop.defaultValue}</code> : null}</td>
-                      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <td dangerouslySetInnerHTML={{ __html: prop.description }} />
                     </tr>
                   ))}
