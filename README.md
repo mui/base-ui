@@ -30,7 +30,7 @@ Base UI is an unstyled React UI component library for building accessible user 
 
 ## Documentation
 
-We are working on the Base UI documentation and have not published it yet.
+The Base UI documentation is under construction and have not been published yet.
 There is a preview available built from the latest `master` branch at https://master--base-ui.netlify.app/.
 
 ## Sponsors
