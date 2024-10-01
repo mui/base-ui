@@ -135,6 +135,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     className,
     ownerState,
     extraProps: mergeReactProps(otherProps, {
+      dir,
       onMouseEnter() {
         setHovering(true);
       },
