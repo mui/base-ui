@@ -130,7 +130,6 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
           viewportRef.current.scrollTop = newScrollTop;
         }
 
-        // Handle X-axis (horizontal) scroll
         if (thumbXRef.current && scrollbarXRef.current && orientation === 'horizontal') {
           const thumbWidth = thumbXRef.current.offsetWidth;
           const trackRectX = scrollbarXRef.current.getBoundingClientRect();
@@ -141,7 +140,19 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
 
           const maxThumbOffsetX = scrollbarXRef.current.offsetWidth - thumbWidth;
           const scrollRatioX = clickX / maxThumbOffsetX;
-          const newScrollLeft = scrollRatioX * (scrollableContentWidth - viewportWidth);
+
+          let newScrollLeft: number;
+          if (dir === 'rtl') {
+            // In RTL, we need to invert the scroll direction
+            newScrollLeft = (1 - scrollRatioX) * (scrollableContentWidth - viewportWidth);
+
+            // Adjust for browsers that use negative scrollLeft in RTL
+            if (viewportRef.current.scrollLeft <= 0) {
+              newScrollLeft = -newScrollLeft;
+            }
+          } else {
+            newScrollLeft = scrollRatioX * (scrollableContentWidth - viewportWidth);
+          }
 
           viewportRef.current.scrollLeft = newScrollLeft;
         }
