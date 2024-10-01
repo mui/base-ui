@@ -74,7 +74,6 @@ export default function UnstyledFieldServerError() {
             Email changed successfully
           </FieldSuccess>
         )}
-
         <FieldDescription>
           On the client, standard email validation is performed. On the server, we
           check a blocklist of email domains: the blocked domain is @example.com.
