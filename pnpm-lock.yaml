@@ -704,8 +704,8 @@ importers:
         specifier: ^17.0.1
         version: 17.0.1
       styled-components:
-        specifier: ^6.1.12
-        version: 6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^6.1.13
+        version: 6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       stylis:
         specifier: 4.3.4
         version: 4.3.4
@@ -7909,8 +7909,8 @@ packages:
   style-to-object@1.0.6:
     resolution: {integrity: sha512-khxq+Qm3xEyZfKd/y9L3oIWQimxuc4STrQKtQn8aSDRHb8mFgpukgX1hdzfrMEW6JCjyJ8p89x+IUMVnCBI1PA==}
 
-  styled-components@6.1.12:
-    resolution: {integrity: sha512-n/O4PzRPhbYI0k1vKKayfti3C/IGcPf+DqcrOB7O/ab9x4u/zjqraneT5N45+sIe87cxrCApXM8Bna7NYxwoTA==}
+  styled-components@6.1.13:
+    resolution: {integrity: sha512-M0+N2xSnAtwcVAQeFEsGWFFxXDftHUD7XrKla06QbpUMmbmtFBMMTcKWvFXtWxuD5qQkB8iU5gk6QASlx2ZRMw==}
     engines: {node: '>= 16'}
     peerDependencies:
       react: '>= 16.8.0'
@@ -17673,7 +17673,7 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.3
 
-  styled-components@6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@emotion/is-prop-valid': 1.2.2
       '@emotion/unitless': 0.8.1
