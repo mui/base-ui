@@ -17,35 +17,32 @@ export default function CollapsibleFramer() {
           </span>
           Trigger
         </Collapsible.Trigger>
-        <Collapsible.Content
-          className="FramerCollapsible-content"
-          render={
-            <motion.div
-              key="CollapsibleContent"
-              initial={false}
-              animate={open ? 'open' : 'closed'}
-              exit={!open ? 'open' : 'closed'}
-              variants={{
-                open: {
-                  height: 'auto',
-                  transition: { duration: 0.6, ease: 'easeOut' },
-                },
-                closed: {
-                  height: 0,
-                  transition: { duration: 0.6, ease: 'easeIn' },
-                  transitionEnd: { display: 'revert-layer' },
-                },
-              }}
-            />
-          }
-        >
-          <p>This is the collapsed content</p>
-          <p>
-            Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded cabbage & carrot
-            with mustard mayonnaise And Potato Wedges
-          </p>
-          <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
-          <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+        <Collapsible.Content className="FramerCollapsible-content" render="asChild">
+          <motion.div
+            key="CollapsibleContent"
+            initial={false}
+            animate={open ? 'open' : 'closed'}
+            exit={!open ? 'open' : 'closed'}
+            variants={{
+              open: {
+                height: 'auto',
+                transition: { duration: 0.6, ease: 'easeOut' },
+              },
+              closed: {
+                height: 0,
+                transition: { duration: 0.6, ease: 'easeIn' },
+                transitionEnd: { display: 'revert-layer' },
+              },
+            }}
+          >
+            <p>This is the collapsed content</p>
+            <p>
+              Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded cabbage & carrot
+              with mustard mayonnaise And Potato Wedges
+            </p>
+            <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
+            <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+          </motion.div>
         </Collapsible.Content>
       </Collapsible.Root>
       <Styles />

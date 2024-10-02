@@ -18,7 +18,8 @@ export interface ComponentRendererSettings<OwnerState, RenderedElementType exten
   render:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
     | React.ReactElement
-    | keyof typeof defaultRenderFunctions;
+    | keyof typeof defaultRenderFunctions
+    | 'asChild';
   /**
    * The owner state of the component.
    */
@@ -42,6 +43,7 @@ export interface ComponentRendererSettings<OwnerState, RenderedElementType exten
    * A mapping of owner state to style hooks.
    */
   customStyleHookMapping?: CustomStyleHookMapping<OwnerState>;
+  children?: React.ReactNode;
 }
 
 /**
@@ -63,6 +65,8 @@ export function useComponentRenderer<
     customStyleHookMapping,
   } = settings;
 
+  const children = extraProps?.children;
+
   const className = resolveClassName(classNameProp, ownerState);
   const styleHooks = React.useMemo(() => {
     return getStyleHookProps(ownerState, customStyleHookMapping);
@@ -81,7 +85,9 @@ export function useComponentRenderer<
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
     | React.ReactElement;
 
-  if (typeof renderProp === 'string') {
+  if (renderProp === 'asChild') {
+    resolvedRenderProp = children as React.ReactElement;
+  } else if (typeof renderProp === 'string') {
     resolvedRenderProp = defaultRenderFunctions[renderProp];
   } else {
     resolvedRenderProp = renderProp;
