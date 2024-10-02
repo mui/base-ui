@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { styled } from '@mui/system';
 import { NoSsr } from '@base_ui/react/NoSsr';
-import { Box } from '@mui/system';
 
 function LargeTree() {
   return Array.from(new Array(5000)).map((_, index) => <span key={index}>.</span>);
@@ -14,8 +14,8 @@ export default function FrameDeferring() {
   });
 
   return (
-    <div>
-      <button
+    <Demo>
+      <Button
         type="button"
         onClick={() =>
           setState({
@@ -24,10 +24,10 @@ export default function FrameDeferring() {
           })
         }
       >
-        {'Render NoSsr defer="false"'}
-      </button>
+        {'Render <NoSsr defer={false} />'}
+      </Button>
       <br />
-      <button
+      <Button
         type="button"
         onClick={() =>
           setState({
@@ -36,11 +36,11 @@ export default function FrameDeferring() {
           })
         }
       >
-        {'Render NoSsr defer="true"'}
-      </button>
+        {'Render <NoSsr defer={true} />'}
+      </Button>
       <br />
       <br />
-      <Box sx={{ width: 300, display: 'flex', flexWrap: 'wrap' }}>
+      <Panel sx={{ width: 300, display: 'flex', flexWrap: 'wrap' }}>
         {state.open ? (
           <React.Fragment>
             <div>Outside NoSsr</div>
@@ -50,7 +50,38 @@ export default function FrameDeferring() {
             </NoSsr>
           </React.Fragment>
         ) : null}
-      </Box>
-    </div>
+      </Panel>
+    </Demo>
   );
 }
+
+const Panel = styled('div')`
+  padding: 16px;
+`;
+
+const Demo = styled('div')`
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+  padding: 8px;
+`;
+
+const Button = styled('button')(
+  ({ theme }) => `
+  background-color: ${theme.palette.mode === 'dark' ? 'var(--gray-50)' : 'var(--gray-900)'};
+  color: ${theme.palette.mode === 'dark' ? 'var(--gray-900)' : 'var(--gray-50)'};
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  font-family:
+    "IBM Plex Sans",
+    sans-serif;
+
+  &:hover {
+    background-color: ${theme.palette.mode === 'dark' ? 'var(--gray-200)' : 'var(--gray-700)'};
+  }
+`,
+);

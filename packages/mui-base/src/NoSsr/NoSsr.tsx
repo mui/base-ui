@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { exactProp, unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/utils';
-import { NoSsrProps } from './NoSsr.types';
 
 /**
  * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
@@ -22,7 +21,7 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * - [NoSsr API](https://base-ui.netlify.app/components/react-no-ssr/#api-reference-NoSsr)
  */
-function NoSsr(props: NoSsrProps): JSX.Element {
+function NoSsr(props: NoSsr.Props): JSX.Element {
   const { children, defer = false, fallback = null } = props;
   const [mountedState, setMountedState] = React.useState(false);
 
@@ -42,13 +41,33 @@ function NoSsr(props: NoSsrProps): JSX.Element {
   return <React.Fragment>{mountedState ? children : fallback}</React.Fragment>;
 }
 
+namespace NoSsr {
+  export interface Props {
+    /**
+     * React node to render on client only.
+     */
+    children?: React.ReactNode;
+    /**
+     * If `true`, the component will not only prevent server-side rendering.
+     * It will also defer the rendering of the children into a different screen frame.
+     * @default false
+     */
+    defer?: boolean;
+    /**
+     * The fallback content to display.
+     * @default null
+     */
+    fallback?: React.ReactNode;
+  }
+}
+
 NoSsr.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * You can wrap a node.
+   * React node to render on client only.
    */
   children: PropTypes.node,
   /**

@@ -4,6 +4,7 @@ export * from './CheckboxGroup/index.barrel';
 export * from './Dialog/index.barrel';
 export * from './Menu/index.barrel';
 export * from './NumberField/index.barrel';
+export * from './NoSsr/index';
 export * from './Popover/index.barrel';
 export * from './Progress/index.barrel';
 export * from './Separator/index.barrel';
