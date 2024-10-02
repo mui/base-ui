@@ -3,6 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
+import { useForkRef } from '../../utils/useForkRef';
 
 const ownerState = {};
 
@@ -22,12 +25,22 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 ) {
   const { render, className, ...otherProps } = props;
 
+  const { dir, cornerRef } = useScrollAreaRootContext();
+
+  const mergedRef = useForkRef(cornerRef, forwardedRef);
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
-    ref: forwardedRef,
+    ref: mergedRef,
     className,
     ownerState,
-    extraProps: otherProps,
+    extraProps: mergeReactProps(otherProps, {
+      style: {
+        position: 'absolute',
+        bottom: 0,
+        [dir === 'rtl' ? 'left' : 'right']: 0,
+      },
+    }),
   });
 
   return renderElement();

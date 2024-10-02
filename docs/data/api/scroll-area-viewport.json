@@ -1,14 +1,7 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "scrollbarGutter": {
-      "type": {
-        "name": "enum",
-        "description": "'both-edges'<br>&#124;&nbsp;'none'<br>&#124;&nbsp;'stable'"
-      },
-      "default": "'stable'"
-    }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "ScrollAreaViewport",
   "imports": [

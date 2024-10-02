@@ -25,16 +25,28 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir: dirProp, type = 'overlay', ...otherProps } = props;
+  const {
+    render,
+    className,
+    dir: dirProp,
+    type = 'overlay',
+    gutter = 'stable',
+    ...otherProps
+  } = props;
 
   const [hovering, setHovering] = React.useState(false);
   const [scrolling, setScrolling] = React.useState(false);
+  const [cornerSize, setCornerSize] = React.useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
   const scrollbarYRef = React.useRef<HTMLDivElement | null>(null);
   const scrollbarXRef = React.useRef<HTMLDivElement | null>(null);
   const thumbYRef = React.useRef<HTMLDivElement | null>(null);
   const thumbXRef = React.useRef<HTMLDivElement | null>(null);
+  const cornerRef = React.useRef<HTMLDivElement | null>(null);
 
   const thumbDraggingRef = React.useRef(false);
   const startYRef = React.useRef(0);
@@ -42,6 +54,12 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const startScrollTopRef = React.useRef(0);
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
+
+  useEnhancedEffect(() => {
+    const width = scrollbarYRef.current?.offsetWidth || 0;
+    const height = scrollbarXRef.current?.offsetHeight || 0;
+    setCornerSize({ width, height });
+  }, []);
 
   const [dir, setDir] = useControlled({
     controlled: dirProp,
@@ -143,6 +161,12 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       },
       style: {
         position: 'relative',
+        ...(cornerSize.width > 0 && {
+          '--scroll-area-corner-width': `${cornerSize.width}px`,
+        }),
+        ...(cornerSize.height > 0 && {
+          '--scroll-area-corner-height': `${cornerSize.height}px`,
+        }),
       },
     }),
   });
@@ -151,6 +175,9 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     () => ({
       dir,
       type,
+      gutter,
+      cornerSize,
+      setCornerSize,
       hovering,
       setHovering,
       scrolling,
@@ -160,11 +187,22 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       thumbYRef,
       scrollbarXRef,
       thumbXRef,
+      cornerRef,
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
     }),
-    [dir, type, hovering, scrolling, handlePointerDown, handlePointerMove, handlePointerUp],
+    [
+      dir,
+      type,
+      gutter,
+      cornerSize,
+      hovering,
+      scrolling,
+      handlePointerDown,
+      handlePointerMove,
+      handlePointerUp,
+    ],
   );
 
   return (
@@ -181,6 +219,12 @@ namespace ScrollAreaRoot {
      * @default 'overlay'
      */
     type?: 'overlay' | 'inlay';
+    /**
+     * Determines the permanent scrollbar gutter when using the `inlay` type to prevent layout
+     * shifts when the scrollbar is hidden/shown.
+     * @default 'stable'
+     */
+    gutter?: 'none' | 'stable' | 'both-edges';
   }
 
   export interface OwnerState {}
@@ -203,6 +247,12 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   dir: PropTypes.string,
+  /**
+   * Determines the permanent scrollbar gutter when using the `inlay` type to prevent layout
+   * shifts when the scrollbar is hidden/shown.
+   * @default 'stable'
+   */
+  gutter: PropTypes.oneOf(['both-edges', 'none', 'stable']),
   /**
    * A function to customize rendering of the component.
    */

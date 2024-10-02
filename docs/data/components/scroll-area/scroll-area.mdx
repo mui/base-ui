@@ -36,6 +36,30 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
 </ScrollArea.Root>
 ```
 
+## Type
+
+The scrollbars can be either `overlay` (default) or `inlay`. The `overlay` type will overlay the scrollbar on top of the content, while the `inlay` type will push the content to make space for the scrollbar.
+
+```jsx
+<ScrollArea.Root type="inlay">
+```
+
+<Demo demo="ScrollAreaInlay" defaultCodeOpen="false" />
+
+### Gutter stability
+
+When using `inlay` scrollbars, the `gutter` prop can be used to keep a gutter present when the scrollbar is hidden. This is useful to prevent layout shift when the scrollbar is shown or hidden based on the content.
+
+Possible values match the CSS `scrollbar-gutter` property:
+
+- `stable` (default; padding added to account for vertical scrollbar)
+- `both-edges` (symmetrical padding added for vertical scrollbar)
+- `none` (layout shift allowed)
+
+```jsx
+<ScrollArea.Root gutter="both-edges">
+```
+
 ## Styling
 
 The thumb element can be styled using `--scroll-area-thumb-height` and `--scroll-area-thumb-width` CSS variables.
@@ -58,5 +82,25 @@ The Scrollbar element can be shown conditionally based on the user's interaction
 .ScrollAreaScrollbar[data-scrolling],
 .ScrollAreaScrollbar[data-hovering] {
   opacity: 1;
+}
+```
+
+### Corner
+
+When using `inlay` scrollbars, the scrollbar elements can adjust their size to account for a corner using the `--scroll-area-corner-width` and `--scroll-area-corner-height` CSS variables:
+
+```jsx
+<ScrollArea.Scrollbar orientation="vertical" />
+<ScrollArea.Scrollbar orientation="horizontal" />
+<ScrollArea.Corner />
+```
+
+```css
+.ScrollAreaScrollbar[data-orientation='vertical'] {
+  height: calc(100% - var(--scroll-area-corner-height));
+}
+
+.ScrollAreaScrollbar[data-orientation='horizontal'] {
+  width: calc(100% - var(--scroll-area-corner-width));
 }
 ```
