@@ -30,7 +30,7 @@ function SelectRoot<Value>(props: SelectRoot.Props<Value>) {
     loop = true,
     onOpenChange,
     open,
-    alignMethod = 'item',
+    alignOptionToTrigger = true,
   } = props;
 
   const selectRoot = useSelectRoot({
@@ -40,23 +40,23 @@ function SelectRoot<Value>(props: SelectRoot.Props<Value>) {
     loop,
     defaultOpen,
     open,
-    alignMethod,
     defaultValue,
     value,
     onValueChange,
+    alignOptionToTrigger,
   });
 
   const context: SelectRootContext = React.useMemo(
     () => ({
       ...selectRoot,
       disabled,
-      alignMethod,
       id,
       name,
       required,
       readOnly,
+      alignOptionToTrigger,
     }),
-    [selectRoot, disabled, alignMethod, id, name, required, readOnly],
+    [selectRoot, disabled, id, name, required, readOnly, alignOptionToTrigger],
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
@@ -129,11 +129,10 @@ namespace SelectRoot {
      */
     open?: boolean;
     /**
-     * Determines if the select should align to the selected item inside the popup or the trigger
-     * element.
-     * @default 'item'
+     * Determines if the selected option inside the popup should align to the trigger element.
+     * @default true
      */
-    alignMethod?: 'item' | 'trigger';
+    alignOptionToTrigger?: boolean;
   }
 }
 
@@ -143,11 +142,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Determines if the select should align to the selected item inside the popup or the trigger
-   * element.
-   * @default 'item'
+   * Determines if the selected option inside the popup should align to the trigger element.
+   * @default true
    */
-  alignMethod: PropTypes.oneOf(['item', 'trigger']),
+  alignOptionToTrigger: PropTypes.bool,
   /**
    * If `true`, the Select supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.

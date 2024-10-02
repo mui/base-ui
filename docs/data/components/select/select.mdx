@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Select component
 description: Select provides users with a floating element containing a list of options to choose from.
-components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionText, SelectOptionIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectSeparator, SelectArrow
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionText, SelectOptionIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -37,10 +37,10 @@ Selects are implemented using a collection of related components:
 - `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
 - `<Select.Group />` renders an group for a set of options, wrapping `<Select.Option>` components.
 - `<Select.GroupLabel />` renders a label for a group of options.
-- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
-- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignMethod="item"` anchoring mode.
+- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
+- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
 - `<Select.Separator />` renders a separator between option groups.
-- `<Select.Arrow />` renders the select popup's arrow when using `alignMethod="trigger"`.
+- `<Select.Arrow />` renders the select popup's arrow when disabling `alignOptionToTrigger`.
 
 ```jsx
 <Select.Root>
@@ -138,21 +138,18 @@ The `[data-selected]` attribute is added to the subcomponent when its owning opt
 
 ## Align method
 
-Two different methods to align the popup are available:
-
-- `alignMethod="item"` (default)
-- `alignMethod="trigger"`
+By default, the selected option inside the popup is aligned to the trigger element. This can be disabled with the `alignOptionToTrigger` prop:
 
 ```jsx
-<Select.Root alignMethod="trigger">
+<Select.Root alignOptionToTrigger={false}>
 ```
 
-- **`item`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to `trigger` anchoring. This method is useful as it allows the user to select the an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS. The scroll arrow components must be used to ensure this is the case.
-- **`trigger`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+- **`alignOptionToTrigger`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select the an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used.
+- **`alignOptionToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
 
 ### Scrollable popup
 
-When using `alignMethod="trigger"`, the select's height needs to be manually limited by its available space using CSS.
+When disabling `alignOptionToTrigger`, the select's height needs to be manually limited by its available space using CSS.
 
 This can be achieved by using the `--available-height` CSS variable:
 
@@ -188,7 +185,7 @@ A function can be specified as a child to customize the rendering of the value:
 
 To add an arrow (caret or triangle) inside the select popup that points toward the center of the anchor element, use the `Select.Arrow` component:
 
-Note: this is only supported when using `alignMethod="trigger"`.
+Note: this is only supported when disabling `alignOptionToTrigger`.
 
 ```jsx
 <Select.Positioner>

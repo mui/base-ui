@@ -1,9 +1,0 @@
-{
-  "componentDescription": "",
-  "propDescriptions": {
-    "keepMounted": {
-      "description": "Whether the component should be kept mounted when it is not rendered."
-    }
-  },
-  "classDescriptions": {}
-}

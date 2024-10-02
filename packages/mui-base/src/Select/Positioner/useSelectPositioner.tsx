@@ -26,9 +26,9 @@ export function useSelectPositioner(
 ): useSelectPositioner.ReturnValue {
   const { open = false, keepMounted } = params;
 
-  const { touchModality, alignMethod, innerFallback, mounted } = useSelectRootContext();
+  const { touchModality, alignOptionToTrigger, innerFallback, mounted } = useSelectRootContext();
 
-  const itemAligned = alignMethod === 'item' && !innerFallback && !touchModality;
+  const itemAligned = alignOptionToTrigger && !innerFallback && !touchModality;
 
   useScrollLock(itemAligned && mounted);
 
@@ -82,7 +82,7 @@ export function useSelectPositioner(
       arrowRef,
       arrowUncentered,
       arrowStyles,
-      side: alignMethod === 'item' && !innerFallback ? 'none' : renderedSide,
+      side: alignOptionToTrigger && !innerFallback ? 'none' : renderedSide,
       alignment: renderedAlignment,
       floatingContext,
       isPositioned,
@@ -92,7 +92,7 @@ export function useSelectPositioner(
       arrowRef,
       arrowUncentered,
       arrowStyles,
-      alignMethod,
+      alignOptionToTrigger,
       innerFallback,
       renderedSide,
       renderedAlignment,
@@ -196,7 +196,7 @@ export namespace useSelectPositioner {
      */
     nodeId?: string;
     /**
-     * If specified, positions the popup relative to the selected item inside it.
+     * If specified, positions the popup relative to the selected option inside it.
      */
     inner?: Middleware;
     /**

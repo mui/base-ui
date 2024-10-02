@@ -65,7 +65,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     popupRef,
     overflowRef,
     innerOffset,
-    alignMethod,
     innerFallback,
     setInnerFallback,
     selectedIndex,
@@ -78,6 +77,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     inputRef,
     getInputValidationProps,
     touchModality,
+    alignOptionToTrigger,
   } = useSelectRootContext();
 
   const { setControlId, validityData, setDirty } = useFieldRootContext();
@@ -135,7 +135,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     allowAxisFlip: false,
     innerFallback,
     inner:
-      alignMethod === 'item' && selectedIndexOnMount !== null
+      alignOptionToTrigger && selectedIndexOnMount !== null
         ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
           // use or need this.
           inner({
@@ -151,7 +151,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
                 popupRef.current.style.maxHeight = '';
               }
             },
-            minItemsVisible: touchModality ? 8 : 4,
+            minItemsVisible: touchModality ? 8 : 2.5,
             referenceOverflowThreshold: 20,
             overflowRef,
           })

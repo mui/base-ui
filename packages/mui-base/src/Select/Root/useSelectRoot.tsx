@@ -42,7 +42,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     value: valueProp,
     onValueChange,
     defaultValue = null,
-    alignMethod,
+    alignOptionToTrigger,
   } = params;
 
   const { setDirty, validityData, validateOnChange } = useFieldRootContext();
@@ -186,7 +186,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   });
 
   const innerOffsetInteractionProps = useInnerOffset(floatingRootContext, {
-    enabled: alignMethod === 'item' && !innerFallback,
+    enabled: alignOptionToTrigger && !innerFallback,
     onChange: setInnerOffset,
     scrollRef: popupRef,
     overflowRef,
@@ -316,11 +316,9 @@ export namespace useSelectRoot {
      */
     defaultValue?: any;
     /**
-     * Determines if the select should align to the selected item inside the popup or the trigger
-     * element.
-     * @default 'item'
+     * Determines if the selected option inside the popup should align to the trigger element.
      */
-    alignMethod?: 'item' | 'trigger';
+    alignOptionToTrigger: boolean;
   }
 
   export interface ReturnValue extends useFieldControlValidation.ReturnValue {

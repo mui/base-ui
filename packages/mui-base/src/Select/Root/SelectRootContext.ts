@@ -7,7 +7,7 @@ export interface SelectRootContext
   extends useSelectRoot.ReturnValue,
     useFieldControlValidation.ReturnValue {
   typingRef: React.MutableRefObject<boolean>;
-  alignMethod: 'item' | 'trigger';
+  alignOptionToTrigger: boolean;
   id: string | undefined;
   name: string | undefined;
   disabled: boolean;

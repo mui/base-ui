@@ -14,7 +14,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
     getPopupProps: getRootPopupProps,
-    alignMethod,
+    alignOptionToTrigger,
     selectedIndex,
     touchModality,
   } = useSelectRootContext();
@@ -30,7 +30,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       return mergeReactProps<'div'>(getRootPopupProps(externalProps), {
         style: {
           ...(pointerEvents === 'none' && { pointerEvents }),
-          ...(alignMethod === 'item' &&
+          ...(alignOptionToTrigger &&
             hasSelectedIndex &&
             !touchModality && {
               // Note: not supported in Safari. Needs to be manually specified in CSS.
@@ -39,7 +39,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         },
       });
     },
-    [getRootPopupProps, pointerEvents, alignMethod, hasSelectedIndex, touchModality],
+    [getRootPopupProps, pointerEvents, alignOptionToTrigger, hasSelectedIndex, touchModality],
   );
 
   useEnhancedEffect(() => {

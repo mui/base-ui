@@ -19,13 +19,19 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
-  const { alignMethod, innerOffset, setInnerOffset, innerFallback, popupRef, touchModality } =
-    useSelectRootContext();
+  const {
+    alignOptionToTrigger,
+    innerOffset,
+    setInnerOffset,
+    innerFallback,
+    popupRef,
+    touchModality,
+  } = useSelectRootContext();
   const { isPositioned, side } = useSelectPositionerContext();
 
   const [visible, setVisible] = React.useState(false);
 
-  const inert = alignMethod === 'trigger' || touchModality;
+  const inert = !alignOptionToTrigger || touchModality;
 
   if (visible && inert) {
     setVisible(false);
