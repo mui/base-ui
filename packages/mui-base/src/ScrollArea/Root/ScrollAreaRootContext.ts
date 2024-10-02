@@ -2,6 +2,7 @@ import * as React from 'react';
 
 export interface ScrollAreaRootContext {
   dir: string | undefined;
+  type: 'overlay' | 'inlay';
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   scrolling: boolean;

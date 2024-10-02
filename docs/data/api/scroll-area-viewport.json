@@ -1,14 +1,24 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "scrollbarGutter": {
+      "type": {
+        "name": "enum",
+        "description": "'both-edges'<br>&#124;&nbsp;'none'<br>&#124;&nbsp;'stable'"
+      },
+      "default": "'stable'"
+    }
   },
   "name": "ScrollAreaViewport",
   "imports": [
     "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaViewport = ScrollArea.Viewport;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "ScrollAreaViewport",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/ScrollArea/Viewport/ScrollAreaViewport.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",

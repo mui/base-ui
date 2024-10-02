@@ -4,7 +4,8 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "render": { "description": "A function to customize rendering of the component." }
+    "render": { "description": "A function to customize rendering of the component." },
+    "type": { "description": "The type of scrollbars." }
   },
   "classDescriptions": {}
 }

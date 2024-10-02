@@ -1,14 +1,21 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "type": {
+      "type": { "name": "enum", "description": "'inlay'<br>&#124;&nbsp;'overlay'" },
+      "default": "'overlay'"
+    }
   },
   "name": "ScrollAreaRoot",
   "imports": [
     "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaRoot = ScrollArea.Root;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "ScrollAreaRoot",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/ScrollArea/Root/ScrollAreaRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",

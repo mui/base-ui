@@ -25,15 +25,31 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...otherProps } = props;
+  const { render, className, children, scrollbarGutter = 'stable', ...otherProps } = props;
 
-  const { viewportRef, scrollbarYRef, scrollbarXRef, thumbYRef, thumbXRef, setScrolling } =
-    useScrollAreaRootContext();
+  const {
+    type,
+    viewportRef,
+    scrollbarYRef,
+    scrollbarXRef,
+    thumbYRef,
+    thumbXRef,
+    setScrolling,
+    dir,
+  } = useScrollAreaRootContext();
 
   const timeoutRef = React.useRef(-1);
 
   const mergedRef = useForkRef(forwardedRef, viewportRef);
   const tableWrapperRef = React.useRef<HTMLDivElement | null>(null);
+
+  const [paddingX, setPaddingX] = React.useState(0);
+
+  useEnhancedEffect(() => {
+    if (scrollbarYRef.current) {
+      setPaddingX(parseFloat(getComputedStyle(scrollbarYRef.current).width));
+    }
+  }, [scrollbarYRef, scrollbarXRef]);
 
   const computeThumb = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -149,9 +165,16 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
           style={{
             minWidth: '100%',
             display: 'table',
+            ...(type === 'inlay' &&
+              scrollbarGutter !== 'none' && {
+                [dir === 'rtl' ? 'paddingLeft' : 'paddingRight']: paddingX,
+                ...(scrollbarGutter === 'both-edges' && {
+                  [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: paddingX,
+                }),
+              }),
           }}
         >
-          {props.children}
+          {children}
         </div>
       ),
     }),
@@ -161,9 +184,15 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 });
 
 namespace ScrollAreaViewport {
-  export interface OwnerState {}
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Determines whether to add a scrollbar gutter when using the `inlay` type.
+     * @default 'stable'
+     */
+    scrollbarGutter?: 'none' | 'stable' | 'both-edges';
+  }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface OwnerState {}
 }
 
 ScrollAreaViewport.propTypes /* remove-proptypes */ = {
@@ -183,6 +212,11 @@ ScrollAreaViewport.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * Determines whether to add a scrollbar gutter when using the `inlay` type.
+   * @default 'stable'
+   */
+  scrollbarGutter: PropTypes.oneOf(['both-edges', 'none', 'stable']),
 } as any;
 
 export { ScrollAreaViewport };

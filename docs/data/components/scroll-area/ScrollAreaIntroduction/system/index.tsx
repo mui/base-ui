@@ -20,7 +20,7 @@ export default function ScrollAreaIntroduction() {
           }}
         >
           {data.map((value) => (
-            <li key={value} style={{ padding: 5, width: 500 }}>
+            <li key={value} style={{ padding: 5, width: 'auto' }}>
               List item {value}
             </li>
           ))}
