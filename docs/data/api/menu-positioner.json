@@ -50,7 +50,7 @@
   },
   "name": "MenuPositioner",
   "imports": [
-    "import * as Menu from '@base_ui/react/Menu';\nconst MenuPositioner = Menu.Positioner;"
+    "import { Menu } from '@base_ui/react/Menu';\nconst MenuPositioner = Menu.Positioner;"
   ],
   "classes": [],
   "spread": true,

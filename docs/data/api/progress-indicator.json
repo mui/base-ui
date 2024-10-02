@@ -5,7 +5,7 @@
   },
   "name": "ProgressIndicator",
   "imports": [
-    "import * as Progress from '@base_ui/react/Progress';\nconst ProgressIndicator = Progress.Indicator;"
+    "import { Progress } from '@base_ui/react/Progress';\nconst ProgressIndicator = Progress.Indicator;"
   ],
   "classes": [],
   "spread": true,

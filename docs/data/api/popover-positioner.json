@@ -50,7 +50,7 @@
   },
   "name": "PopoverPositioner",
   "imports": [
-    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverPositioner = Popover.Positioner;"
+    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverPositioner = Popover.Positioner;"
   ],
   "classes": [],
   "spread": true,

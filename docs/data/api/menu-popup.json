@@ -5,7 +5,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuPopup",
-  "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuPopup = Menu.Popup;"],
+  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuPopup = Menu.Popup;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
