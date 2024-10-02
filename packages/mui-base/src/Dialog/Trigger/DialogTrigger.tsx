@@ -2,9 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogTrigger } from './useDialogTrigger';
-import type { DialogTriggerOwnerState, DialogTriggerProps } from './DialogTrigger.types';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -17,7 +17,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [DialogTrigger API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogTrigger)
  */
 const DialogTrigger = React.forwardRef(function DialogTrigger(
-  props: DialogTriggerProps,
+  props: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
@@ -29,7 +29,10 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
     popupElementId,
   });
 
-  const ownerState: DialogTriggerOwnerState = React.useMemo(() => ({ open, modal }), [open, modal]);
+  const ownerState: DialogTrigger.OwnerState = React.useMemo(
+    () => ({ open, modal }),
+    [open, modal],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -45,6 +48,15 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   return renderElement();
 });
+
+namespace DialogTrigger {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+    modal: boolean;
+  }
+}
 
 DialogTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

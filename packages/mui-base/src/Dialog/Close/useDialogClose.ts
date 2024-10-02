@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UseDialogCloseParameters, UseDialogCloseReturnValue } from './DialogClose.types';
 
-export function useDialogClose(params: UseDialogCloseParameters): UseDialogCloseReturnValue {
+export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
   const { open, onOpenChange } = params;
   const handleClick = React.useCallback(() => {
     if (open) {
@@ -17,4 +16,24 @@ export function useDialogClose(params: UseDialogCloseParameters): UseDialogClose
   return {
     getRootProps,
   };
+}
+
+export namespace useDialogClose {
+  export interface Parameters {
+    /**
+     * Determines whether the dialog is open.
+     */
+    open: boolean;
+    /**
+     * Callback invoked when the dialog is being opened or closed.
+     */
+    onOpenChange: (open: boolean) => void;
+  }
+
+  export interface ReturnValue {
+    /**
+     * Resolver for the root element props.
+     */
+    getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
+  }
 }
