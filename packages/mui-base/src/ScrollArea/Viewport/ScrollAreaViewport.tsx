@@ -25,7 +25,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, scrollbarGutter = 'stable', ...otherProps } = props;
+  const { render, className, children, ...otherProps } = props;
 
   const {
     type,
@@ -34,8 +34,11 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     scrollbarXRef,
     thumbYRef,
     thumbXRef,
+    cornerRef,
     setScrolling,
     dir,
+    gutter,
+    setCornerSize,
   } = useScrollAreaRootContext();
 
   const timeoutRef = React.useRef(-1);
@@ -44,6 +47,8 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const tableWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const [paddingX, setPaddingX] = React.useState(0);
+  const [hiddenX, setHiddenX] = React.useState(false);
+  const [hiddenY, setHiddenY] = React.useState(false);
 
   useEnhancedEffect(() => {
     if (scrollbarYRef.current) {
@@ -57,6 +62,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const scrollbarXEl = scrollbarXRef.current;
     const thumbYEl = thumbYRef.current;
     const thumbXEl = thumbXRef.current;
+    const cornerEl = cornerRef.current;
 
     if (!viewportEl) {
       return;
@@ -68,6 +74,9 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const viewportWidth = viewportEl.clientWidth;
     const scrollTop = viewportEl.scrollTop;
     const scrollLeft = viewportEl.scrollLeft;
+
+    const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
+    const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
 
     // Handle Y (vertical) scroll
     if (scrollbarYEl && thumbYEl) {
@@ -83,11 +92,13 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
 
-      const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
-
       if (scrollbarYHidden) {
         scrollbarYEl.setAttribute('hidden', '');
+      } else {
+        scrollbarYEl.removeAttribute('hidden');
       }
+
+      setHiddenY(scrollbarYHidden);
 
       scrollbarYEl.style.setProperty(
         '--scroll-area-thumb-height',
@@ -110,16 +121,28 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
 
-      const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
-
       if (scrollbarXHidden) {
         scrollbarXEl.setAttribute('hidden', '');
+      } else {
+        scrollbarXEl.removeAttribute('hidden');
       }
+
+      setHiddenX(scrollbarXHidden);
 
       scrollbarXEl.style.setProperty(
         '--scroll-area-thumb-width',
         scrollbarXHidden ? '0px' : `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
       );
+    }
+
+    if (cornerEl) {
+      if (scrollbarXHidden || scrollbarYHidden) {
+        cornerEl.setAttribute('hidden', '');
+        setCornerSize({ width: 0, height: 0 });
+      } else if (!scrollbarXHidden && !scrollbarYHidden) {
+        cornerEl.removeAttribute('hidden');
+        setCornerSize({ width: cornerEl.offsetWidth, height: cornerEl.offsetHeight });
+      }
     }
   });
 
@@ -140,6 +163,26 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       ro.disconnect();
     };
   }, [computeThumb]);
+
+  const wrapperStyles: React.CSSProperties = {};
+
+  if (type === 'inlay') {
+    if (!hiddenY) {
+      wrapperStyles.paddingRight = paddingX;
+    }
+    if (!hiddenX) {
+      wrapperStyles.paddingBottom = paddingX;
+    }
+
+    if (hiddenY) {
+      if (gutter === 'stable') {
+        wrapperStyles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
+      } else if (gutter === 'both-edges') {
+        wrapperStyles.paddingLeft = paddingX;
+        wrapperStyles.paddingRight = paddingX;
+      }
+    }
+  }
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -163,15 +206,9 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         <div
           ref={tableWrapperRef}
           style={{
-            minWidth: '100%',
             display: 'table',
-            ...(type === 'inlay' &&
-              scrollbarGutter !== 'none' && {
-                [dir === 'rtl' ? 'paddingLeft' : 'paddingRight']: paddingX,
-                ...(scrollbarGutter === 'both-edges' && {
-                  [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: paddingX,
-                }),
-              }),
+            minWidth: '100%',
+            ...wrapperStyles,
           }}
         >
           {children}
@@ -184,13 +221,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 });
 
 namespace ScrollAreaViewport {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * Determines whether to add a scrollbar gutter when using the `inlay` type.
-     * @default 'stable'
-     */
-    scrollbarGutter?: 'none' | 'stable' | 'both-edges';
-  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 
   export interface OwnerState {}
 }
@@ -212,11 +243,6 @@ ScrollAreaViewport.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Determines whether to add a scrollbar gutter when using the `inlay` type.
-   * @default 'stable'
-   */
-  scrollbarGutter: PropTypes.oneOf(['both-edges', 'none', 'stable']),
 } as any;
 
 export { ScrollAreaViewport };

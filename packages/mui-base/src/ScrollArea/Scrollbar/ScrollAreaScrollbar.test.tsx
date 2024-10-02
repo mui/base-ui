@@ -8,6 +8,8 @@ describe('<ScrollArea.Scrollbar />', () => {
 
   describeConformance(<ScrollArea.Scrollbar />, () => ({
     refInstanceof: window.HTMLDivElement,
-    render,
+    render(node) {
+      return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
+    },
   }));
 });
