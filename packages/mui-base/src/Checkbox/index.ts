@@ -1,1 +1,1 @@
-export * from './index.parts';
+export * as Checkbox from './index.parts';
