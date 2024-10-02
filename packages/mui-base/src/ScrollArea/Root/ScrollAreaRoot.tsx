@@ -25,17 +25,16 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir: dirProp, ...otherProps } = props;
+  const { render, className, dir: dirProp, type = 'overlay', ...otherProps } = props;
 
   const [hovering, setHovering] = React.useState(false);
   const [scrolling, setScrolling] = React.useState(false);
 
-  const viewportRef = React.useRef<HTMLDivElement>(null);
-
-  const scrollbarYRef = React.useRef<HTMLDivElement>(null);
-  const scrollbarXRef = React.useRef<HTMLDivElement>(null);
-  const thumbYRef = React.useRef<HTMLDivElement>(null);
-  const thumbXRef = React.useRef<HTMLDivElement>(null);
+  const viewportRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollbarYRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollbarXRef = React.useRef<HTMLDivElement | null>(null);
+  const thumbYRef = React.useRef<HTMLDivElement | null>(null);
+  const thumbXRef = React.useRef<HTMLDivElement | null>(null);
 
   const thumbDraggingRef = React.useRef(false);
   const startYRef = React.useRef(0);
@@ -151,6 +150,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const contextValue = React.useMemo(
     () => ({
       dir,
+      type,
       hovering,
       setHovering,
       scrolling,
@@ -164,7 +164,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handlePointerMove,
       handlePointerUp,
     }),
-    [dir, hovering, scrolling, handlePointerDown, handlePointerMove, handlePointerUp],
+    [dir, type, hovering, scrolling, handlePointerDown, handlePointerMove, handlePointerUp],
   );
 
   return (
@@ -175,9 +175,15 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 });
 
 namespace ScrollAreaRoot {
-  export interface OwnerState {}
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The type of scrollbars.
+     * @default 'overlay'
+     */
+    type?: 'overlay' | 'inlay';
+  }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface OwnerState {}
 }
 
 ScrollAreaRoot.propTypes /* remove-proptypes */ = {
@@ -201,6 +207,11 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * The type of scrollbars.
+   * @default 'overlay'
+   */
+  type: PropTypes.oneOf(['inlay', 'overlay']),
 } as any;
 
 export { ScrollAreaRoot };

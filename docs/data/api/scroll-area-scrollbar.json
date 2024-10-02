@@ -12,7 +12,10 @@
     "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaScrollbar = ScrollArea.Scrollbar;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "ScrollAreaScrollbar",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/ScrollArea/Scrollbar/ScrollAreaScrollbar.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",

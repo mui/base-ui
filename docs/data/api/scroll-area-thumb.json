@@ -8,7 +8,10 @@
     "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaThumb = ScrollArea.Thumb;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
   "muiName": "ScrollAreaThumb",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/ScrollArea/Thumb/ScrollAreaThumb.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",
