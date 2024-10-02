@@ -25,10 +25,10 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
     selectionRef,
   } = params;
 
-  const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    rootRef: externalRef,
+    buttonRef: externalRef,
   });
 
   const commitSelection = useEventCallback((event: Event) => {
@@ -98,9 +98,9 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   return React.useMemo(
     () => ({
       getItemProps,
-      rootRef: mergedRef,
+      rootRef: buttonRef,
     }),
-    [getItemProps, mergedRef],
+    [getItemProps, buttonRef],
   );
 }
 

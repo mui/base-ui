@@ -39,13 +39,13 @@ export function useSelectTrigger(
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
-  const { getRootProps: getButtonProps, rootRef: buttonRootRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: false,
-    rootRef: mergedRef,
+    buttonRef: mergedRef,
   });
 
-  const handleRef = useForkRef(buttonRootRef, setTriggerElement);
+  const handleRef = useForkRef(buttonRef, setTriggerElement);
 
   React.useEffect(() => {
     if (open) {
