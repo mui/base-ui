@@ -124,14 +124,14 @@ The `[data-selected]` attribute is added to the subcomponent when its owning opt
 
 ## Grouped options
 
-`Select.OptionGroup` can be used to group options together with a label. The `Select.OptionGroupLabel` subcomponent renders the label:
+`Select.Group` can be used to group options together with a label. The `Select.GroupLabel` subcomponent renders the label:
 
 ```jsx
-<Select.OptionGroup>
-  <Select.OptionGroupLabel>Label</Select.OptionGroupLabel>
+<Select.Group>
+  <Select.GroupLabel>Label</Select.GroupLabel>
   <Select.Option value="option1">Option 1</Select.Option>
   <Select.Option value="option2">Option 2</Select.Option>
-</Select.OptionGroup>
+</Select.Group>
 ```
 
 <Demo demo="SelectGroup" defaultCodeOpen="false" />
@@ -146,6 +146,8 @@ By default, the selected option inside the popup is aligned to the trigger eleme
 
 - **`alignOptionToTrigger`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select the an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used.
 - **`alignOptionToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+
+<Demo demo="SelectAlign" defaultCodeOpen="false" />
 
 ### Scrollable popup
 

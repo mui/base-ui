@@ -26,11 +26,12 @@ export function useSelectPositioner(
 ): useSelectPositioner.ReturnValue {
   const { open = false, keepMounted } = params;
 
-  const { touchModality, alignOptionToTrigger, innerFallback, mounted } = useSelectRootContext();
+  const { touchModality, alignOptionToTrigger, innerFallback, mounted, triggerElement } =
+    useSelectRootContext();
 
   const itemAligned = alignOptionToTrigger && !innerFallback && !touchModality;
 
-  useScrollLock(itemAligned && mounted);
+  useScrollLock(itemAligned && mounted, triggerElement);
 
   const {
     positionerStyles,
