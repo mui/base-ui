@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { UseDialogRootParameters, UseDialogRootReturnValue } from './DialogRoot.types';
 import { useControlled } from '../../utils/useControlled';
 
-export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRootReturnValue {
+export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
     open: openParam,
     defaultOpen = false,
@@ -107,4 +106,105 @@ export function useDialogRoot(parameters: UseDialogRootParameters): UseDialogRoo
     ownNestedOpenDialogs,
     setBackdropPresent,
   ]);
+}
+
+export interface CommonParameters {
+  /**
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default true
+   */
+  animated?: boolean;
+  /**
+   * Determines whether the dialog is open.
+   */
+  open?: boolean;
+  /**
+   * Determines whether the dialog is initally open.
+   * This is an uncontrolled equivalent of the `open` prop.
+   */
+  defaultOpen?: boolean;
+  /**
+   * Determines whether the dialog is modal.
+   * @default true
+   */
+  modal?: boolean;
+  /**
+   * Callback invoked when the dialog is being opened or closed.
+   */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * Determines whether the dialog should close when clicking outside of it.
+   * @default true
+   */
+  dismissible?: boolean;
+}
+
+export namespace useDialogRoot {
+  export interface Parameters extends CommonParameters {
+    /**
+     * Callback to invoke when a nested dialog is opened.
+     */
+    onNestedDialogOpen?: (ownChildrenCount: number) => void;
+    /**
+     * Callback to invoke when a nested dialog is closed.
+     */
+    onNestedDialogClose?: () => void;
+  }
+
+  export interface ReturnValue {
+    /**
+     * The id of the description element associated with the dialog.
+     */
+    descriptionElementId: string | undefined;
+    /**
+     * Determines if the dialog is modal.
+     */
+    modal: boolean;
+    /**
+     * Number of nested dialogs that are currently open.
+     */
+    nestedOpenDialogCount: number;
+    /**
+     * Callback to invoke when a nested dialog is closed.
+     */
+    onNestedDialogClose?: () => void;
+    /**
+     * Callback to invoke when a nested dialog is opened.
+     */
+    onNestedDialogOpen?: (ownChildrenCount: number) => void;
+    /**
+     * Callback to fire when the dialog is requested to be opened or closed.
+     */
+    onOpenChange: (open: boolean) => void;
+    /**
+     * Determines if the dialog is open.
+     */
+    open: boolean;
+    /**
+     * The id of the popup element.
+     */
+    popupElementId: string | undefined;
+    /**
+     * Callback to notify the dialog that the backdrop is present.
+     */
+    setBackdropPresent: (present: boolean) => void;
+    /**
+     * Callback to set the id of the description element associated with the dialog.
+     */
+    setDescriptionElementId: (elementId: string | undefined) => void;
+    /**
+     * Callback to set the id of the popup element.
+     */
+    setPopupElementId: (elementId: string | undefined) => void;
+    /**
+     * Callback to set the id of the title element.
+     */
+    setTitleElementId: (elementId: string | undefined) => void;
+    /**
+     * The id of the title element associated with the dialog.
+     */
+    titleElementId: string | undefined;
+  }
 }

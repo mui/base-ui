@@ -1,85 +1,34 @@
 'use client';
 import * as React from 'react';
-import {
-  unstable_useForkRef as useForkRef,
-  unstable_isFocusVisible as isFocusVisible,
-} from '@mui/utils';
-import {
-  UseButtonParameters,
-  UseButtonReturnValue,
-  UseButtonRootSlotProps,
-} from './useButton.types';
+import { useForkRef } from '../utils/useForkRef';
 import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { useRootElementName } from '../utils/useRootElementName';
 import { EventHandlers } from '../utils/types';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-/**
- * @ignore - internal hook.
- */
-export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
+
+export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
     disabled = false,
     focusableWhenDisabled,
-    href,
-    rootRef: externalRef,
+    buttonRef: externalRef,
     tabIndex,
-    to,
     type,
-    rootElementName: rootElementNameProp,
+    elementName: elementNameProp,
   } = parameters;
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
-  const [active, setActive] = React.useState<boolean>(false);
-
-  const [focusVisible, setFocusVisible] = React.useState(false);
-  if (disabled && !focusableWhenDisabled && focusVisible) {
-    setFocusVisible(false);
-  }
-
-  const [rootElementName, updateRootElementName] = useRootElementName({
-    rootElementName: rootElementNameProp ?? (href || to ? 'a' : undefined),
+  const [elementName, updateElementName] = useRootElementName({
+    rootElementName: elementNameProp,
     componentName: 'Button',
   });
-
-  const createHandleMouseLeave = (otherHandlers: EventHandlers) => (event: React.MouseEvent) => {
-    if (focusVisible) {
-      event.preventDefault();
-    }
-
-    otherHandlers.onMouseLeave?.(event);
-  };
-
-  const createHandleBlur = (otherHandlers: EventHandlers) => (event: React.FocusEvent) => {
-    if (!isFocusVisible(event.target)) {
-      setFocusVisible(false);
-    }
-
-    otherHandlers.onBlur?.(event);
-  };
-
-  const createHandleFocus =
-    (otherHandlers: EventHandlers) => (event: React.FocusEvent<HTMLButtonElement>) => {
-      // Fix for https://github.com/facebook/react/issues/7769
-      if (!buttonRef.current) {
-        buttonRef.current = event.currentTarget;
-      }
-
-      if (isFocusVisible(event.target)) {
-        setFocusVisible(true);
-        otherHandlers.onFocusVisible?.(event);
-      }
-
-      otherHandlers.onFocus?.(event);
-    };
 
   const isNativeButton = () => {
     const button = buttonRef.current;
 
     return (
-      rootElementName === 'BUTTON' ||
-      (rootElementName === 'INPUT' &&
-        ['button', 'submit', 'reset'].includes((button as HTMLInputElement)?.type)) ||
-      (rootElementName === 'A' && (button as HTMLAnchorElement)?.href)
+      elementName === 'BUTTON' ||
+      (elementName === 'INPUT' &&
+        ['button', 'submit', 'reset'].includes((button as HTMLInputElement)?.type))
     );
   };
 
@@ -87,21 +36,6 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     if (!disabled) {
       otherHandlers.onClick?.(event);
     }
-  };
-
-  const createHandleMouseDown = (otherHandlers: EventHandlers) => (event: React.MouseEvent) => {
-    if (!disabled) {
-      setActive(true);
-      document.addEventListener(
-        'mouseup',
-        () => {
-          setActive(false);
-        },
-        { once: true },
-      );
-    }
-
-    otherHandlers.onMouseDown?.(event);
   };
 
   const createHandleKeyDown =
@@ -114,10 +48,6 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
       if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
         event.preventDefault();
-      }
-
-      if (event.target === event.currentTarget && event.key === ' ' && !disabled) {
-        setActive(true);
       }
 
       // Keyboard accessibility for non interactive elements
@@ -137,10 +67,6 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
       // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
       // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
 
-      if (event.target === event.currentTarget) {
-        setActive(false);
-      }
-
       otherHandlers.onKeyUp?.(event);
 
       // Keyboard accessibility for non interactive elements
@@ -155,7 +81,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
       }
     };
 
-  const handleRef = useForkRef(updateRootElementName, externalRef, buttonRef);
+  const handleRef = useForkRef(updateElementName, externalRef, buttonRef);
 
   interface AdditionalButtonProps {
     type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
@@ -171,35 +97,24 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     buttonProps.tabIndex = tabIndex;
   }
 
-  if (rootElementName === 'BUTTON') {
-    buttonProps.type = type ?? 'button';
+  if (elementName === 'BUTTON' || elementName === 'INPUT') {
     if (focusableWhenDisabled) {
       buttonProps['aria-disabled'] = disabled;
     } else {
       buttonProps.disabled = disabled;
     }
-  } else if (rootElementName === 'INPUT') {
-    if (type && ['button', 'submit', 'reset'].includes(type)) {
-      if (focusableWhenDisabled) {
-        buttonProps['aria-disabled'] = disabled;
-      } else {
-        buttonProps.disabled = disabled;
-      }
-    }
-  } else if (rootElementName !== '') {
-    if (!href && !to) {
-      buttonProps.role = 'button';
-      buttonProps.tabIndex = tabIndex ?? 0;
-    }
+  } else if (elementName !== '') {
+    buttonProps.role = 'button';
+    buttonProps.tabIndex = tabIndex ?? 0;
     if (disabled) {
       buttonProps['aria-disabled'] = disabled as boolean;
       buttonProps.tabIndex = focusableWhenDisabled ? tabIndex ?? 0 : -1;
     }
   }
 
-  const getRootProps = <ExternalProps extends Record<string, any> = {}>(
-    externalProps: ExternalProps = {} as ExternalProps,
-  ): UseButtonRootSlotProps<ExternalProps> => {
+  const getButtonProps = (
+    externalProps: React.ComponentPropsWithRef<any>,
+  ): React.ComponentPropsWithRef<any> => {
     const externalEventHandlers = {
       ...extractEventHandlers(parameters),
       ...extractEventHandlers(externalProps),
@@ -210,29 +125,59 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
       ...externalEventHandlers,
       ...buttonProps,
       ...externalProps,
-      onBlur: createHandleBlur(externalEventHandlers),
       onClick: createHandleClick(externalEventHandlers),
-      onFocus: createHandleFocus(externalEventHandlers),
       onKeyDown: createHandleKeyDown(externalEventHandlers),
       onKeyUp: createHandleKeyUp(externalEventHandlers),
-      onMouseDown: createHandleMouseDown(externalEventHandlers),
-      onMouseLeave: createHandleMouseLeave(externalEventHandlers),
       ref: handleRef,
     };
-
-    // onFocusVisible can be present on the props or parameters,
-    // but it's not a valid React event handler so it must not be forwarded to the inner component.
-    // If present, it will be handled by the focus handler.
-    delete props.onFocusVisible;
 
     return props;
   };
 
   return {
-    getRootProps,
-    focusVisible,
-    setFocusVisible,
-    active,
-    rootRef: handleRef,
+    getButtonProps,
+    buttonRef: handleRef,
   };
+}
+
+export namespace useButton {
+  export interface Parameters {
+    /**
+     * If `true`, the component is disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * If `true`, allows a disabled button to receive focus.
+     * @default false
+     */
+    focusableWhenDisabled?: boolean;
+    buttonRef?: React.Ref<Element>;
+    tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
+    /**
+     * Type attribute applied when the `component` is `button`.
+     * @default 'button'
+     */
+    type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
+    /**
+     * The HTML element, e.g.'button', 'span' etc.
+     * @default ''
+     */
+    elementName?: keyof HTMLElementTagNameMap;
+  }
+
+  export interface ReturnValue {
+    /**
+     * Resolver for the button props.
+     * @param externalProps additional props for the button
+     * @returns props that should be spread on the button
+     */
+    getButtonProps: (
+      externalProps?: React.ComponentPropsWithRef<any>,
+    ) => React.ComponentPropsWithRef<any>;
+    /**
+     * A ref to the button DOM element.
+     */
+    buttonRef: React.RefCallback<Element> | null;
+  }
 }
