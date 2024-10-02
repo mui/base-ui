@@ -93,22 +93,19 @@ export async function typescriptCopy({ from, to }) {
 
 export async function createPackageFile() {
   const packageData = await fse.readFile(path.resolve(packagePath, './package.json'), 'utf8');
-  const { nyc, scripts, devDependencies, workspaces, ...packageDataOther } =
+  const { imports, exports, nyc, scripts, devDependencies, workspaces, ...packageDataOther } =
     JSON.parse(packageData);
 
   const newPackageData = {
     ...packageDataOther,
     private: false,
-    ...(packageDataOther.main
-      ? {
-          main: fse.existsSync(path.resolve(buildPath, './node/index.js'))
-            ? './node/index.js'
-            : './index.js',
-          module: fse.existsSync(path.resolve(buildPath, './esm/index.js'))
-            ? './esm/index.js'
-            : './index.js',
-        }
-      : {}),
+    exports: {
+      './*': {
+        types: './types/*/index.d.ts',
+        import: './esm/*/index.js',
+        require: './cjs/*/index.js',
+      },
+    },
   };
 
   const typeDefinitionsFilePath = path.resolve(buildPath, './index.d.ts');

@@ -1,5 +1,4 @@
 import childProcess from 'child_process';
-import glob from 'fast-glob';
 import path from 'path';
 import { promisify } from 'util';
 import yargs from 'yargs';
@@ -40,26 +39,11 @@ async function run(argv) {
     '**/*.d.ts',
   ];
 
-  const topLevelNonIndexFiles = glob
-    .sync(`*{${extensions.join(',')}}`, { cwd: srcDir, ignore })
-    .filter((file) => {
-      return path.basename(file, path.extname(file)) !== 'index';
-    });
-  const topLevelPathImportsCanBePackages = topLevelNonIndexFiles.length === 0;
-
   const outDir = path.resolve(
     relativeOutDir,
-    // We generally support top level path imports e.g.
-    // 1. `import ArrowDownIcon from '@mui/icons-material/ArrowDown'`.
-    // 2. `import Typography from '@mui/material/Typography'`.
-    // The first case resolves to a file while the second case resolves to a package first i.e. a package.json
-    // This means that only in the second case the bundler can decide whether it uses ES modules or CommonJS modules.
-    // Different extensions are not viable yet since they require additional bundler config for users and additional transpilation steps in our repo.
-    //
-    // TODO v6: Switch to `exports` field.
     {
-      node: topLevelPathImportsCanBePackages ? './node' : './',
-      stable: topLevelPathImportsCanBePackages ? './' : './esm',
+      node: './cjs',
+      stable: './esm',
     }[bundle],
   );
 
@@ -89,6 +73,10 @@ async function run(argv) {
   const { stderr, stdout } = await exec(command, { env: { ...process.env, ...env } });
   if (stderr) {
     throw new Error(`'${command}' failed with \n${stderr}`);
+  }
+
+  if (bundle === 'stable') {
+    await exec(`echo { "type": "module" } > ${path.join(outDir, 'package.json')}`);
   }
 
   if (verbose) {
