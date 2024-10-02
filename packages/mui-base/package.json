@@ -4,7 +4,6 @@
   "private": false,
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
-  "main": "./src/index.ts",
   "keywords": [
     "react",
     "react-component",
@@ -26,15 +25,25 @@
     "type": "opencollective",
     "url": "https://opencollective.com/mui-org"
   },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./*": {
+      "import": "./src/*/index.ts"
+    }
+  },
   "imports": {
     "#test-utils": "./test/index.ts"
   },
+  "type": "commonjs",
   "scripts": {
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
-    "build:types": "tsc -b tsconfig.build.json",
+    "build:types": "tsc -b tsconfig.build.json && tsc -b tsconfig.build.cjs.json",
+    "test:package-types": "attw --pack ./build --include-entrypoints ./Accordion ./Menu ./Tooltip",
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/mui-base/**/*.test.{js,ts,tsx}'",
@@ -52,6 +61,7 @@
     "use-sync-external-store": "^1.2.2"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.16.4",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
