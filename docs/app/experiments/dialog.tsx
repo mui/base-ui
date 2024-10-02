@@ -179,7 +179,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
   }, [api, open, mounted, setMounted]);
 
   return mounted ? (
-    /* @ts-ignore */
+    /* @ts-expect-error springAnimated.div props type does not include children */
     <springAnimated.div style={springs} className={classes.springWrapper}>
       {children}
     </springAnimated.div>
