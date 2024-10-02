@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import * as Form from '@base_ui/react/Form';
+import { Form } from '@base_ui/react/Form';
 import * as Fieldset from '@base_ui/react/Fieldset';
 import * as Field from '@base_ui/react/Field';
 import { styled } from '@mui/system';

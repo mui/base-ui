@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Form from '@base_ui/react/Form';
+import { Form } from '@base_ui/react/Form';
 import * as Field from '@base_ui/react/Field';
 import { expect } from 'chai';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
