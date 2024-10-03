@@ -15,7 +15,6 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { useField } from '../../Field/useField';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
@@ -78,6 +77,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     getInputValidationProps,
     touchModality,
     alignOptionToTrigger,
+    valuesRef,
   } = useSelectRootContext();
 
   const { setControlId, validityData, setDirty } = useFieldRootContext();
@@ -225,22 +225,15 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   }, [value]);
 
   const mountedItemsElement = keepMounted ? null : <div hidden>{positionerElement}</div>;
+
   const nativeSelectElement = (
-    <select
-      {...mergeReactProps(getInputValidationProps(), {
-        id,
-        name,
-        disabled,
-        required,
-        value: serializedValue,
-        ref: inputRef,
-        style: visuallyHidden,
-        tabIndex: -1,
-        'aria-hidden': true,
+    <input
+      {...getInputValidationProps({
         onFocus() {
           // Move focus from the hidden <select> to the trigger element.
           triggerElement?.focus();
         },
+        // Handle browser autofill.
         onChange(event: React.ChangeEvent<HTMLSelectElement>) {
           // Workaround for https://github.com/facebook/react/issues/9023
           if (event.nativeEvent.defaultPrevented) {
@@ -249,13 +242,29 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
           const nextValue = event.target.value;
 
-          setDirty(nextValue !== validityData.initialValue);
-          setValue?.(nextValue, event.nativeEvent);
+          const exactValue = valuesRef.current.find(
+            (v) =>
+              v === nextValue ||
+              (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+          );
+
+          if (exactValue != null) {
+            setDirty(exactValue !== validityData.initialValue);
+            setValue?.(exactValue, event.nativeEvent);
+          }
         },
+        id,
+        // @ts-ignore - GenericHTMLProps
+        name,
+        disabled,
+        required,
+        value: serializedValue,
+        ref: inputRef,
+        style: visuallyHidden,
+        tabIndex: -1,
+        'aria-hidden': true,
       })}
-    >
-      <option value={serializedValue}>{serializedValue}</option>
-    </select>
+    />
   );
 
   const shouldRender = keepMounted || mounted;

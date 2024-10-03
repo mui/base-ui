@@ -224,4 +224,35 @@ describe('<Select.Root />', () => {
       expect(handleOpenChange.args[1][0]).to.equal(false);
     });
   });
+
+  it('should handle browser autofill', async () => {
+    const { container } = await render(
+      <Select.Root animated={false} name="select">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Positioner>
+          <Select.Popup>
+            <Select.Option value="a">a</Select.Option>
+            <Select.Option value="b">b</Select.Option>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    fireEvent.click(trigger);
+
+    await flushMicrotasks();
+
+    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
+
+    await flushMicrotasks();
+
+    expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
+      'data-selected',
+      'true',
+    );
+  });
 });
