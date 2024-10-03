@@ -4,8 +4,8 @@ import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 export interface SliderThumbMetadata {
   inputId: string;
-  ref: React.RefObject<HTMLElement>;
-  inputRef: React.RefObject<HTMLInputElement>;
+  ref: React.RefObject<HTMLElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export type SliderContextValue = Omit<

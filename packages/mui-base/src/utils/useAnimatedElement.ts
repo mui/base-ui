@@ -4,7 +4,7 @@ import { useTransitionStatus } from './useTransitionStatus';
 
 interface UseAnimatedElementParameters {
   open: boolean;
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
   enabled: boolean;
 }
 

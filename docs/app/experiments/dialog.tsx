@@ -150,7 +150,7 @@ function ReactSpringDialogDemo({ animated, keepMounted, modal, dismissible }: De
   );
 }
 
-function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement }) {
+function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement<unknown> }) {
   const { open, children } = props;
 
   const api = useSpringRef();
@@ -179,6 +179,7 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
   }, [api, open, mounted, setMounted]);
 
   return mounted ? (
+    /* @ts-ignore springAnimated.div props type does not include children and errors in React 19 */
     <springAnimated.div style={springs} className={classes.springWrapper}>
       {children}
     </springAnimated.div>

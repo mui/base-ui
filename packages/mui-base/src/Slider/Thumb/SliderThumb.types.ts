@@ -19,8 +19,8 @@ export interface SliderThumbProps
         props: React.ComponentPropsWithRef<'span'>,
         inputProps: React.ComponentPropsWithRef<'input'>,
         state: SliderThumbOwnerState,
-      ) => React.ReactElement)
-    | (React.ReactElement & { ref: React.Ref<Element> });
+      ) => React.ReactElement<Record<string, unknown>>)
+    | (React.ReactElement<Record<string, unknown>> & { ref: React.Ref<Element> });
 }
 
 export interface UseSliderThumbParameters

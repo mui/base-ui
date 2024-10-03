@@ -62,7 +62,7 @@ function useTabsList(parameters: UseTabsListParameters): UseTabsListReturnValue 
     listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
   }
 
-  const tabsListRef = React.useRef<HTMLElement | null>(null);
+  const tabsListRef = React.useRef<HTMLElement>(null);
   const detectActivationDirection = useActivationDirectionDetector(
     value,
     orientation,
@@ -194,7 +194,7 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
 function useActivationDirectionDetector(
   value: any,
   orientation: TabsOrientation,
-  tabsListRef: React.RefObject<HTMLElement>,
+  tabsListRef: React.RefObject<HTMLElement | null>,
   getTabElement: (tabValue: any) => HTMLElement | null,
 ): (newValue: any) => TabActivationDirection {
   const previousTabEdge = React.useRef<number | null>(null);

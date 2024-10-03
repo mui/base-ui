@@ -10,6 +10,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { MAX_Z_INDEX } from '../../utils/floating';
+import { getInertValue } from '../../utils/getInertValue';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
@@ -39,7 +40,7 @@ export function usePopoverPositioner(
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
           // @ts-ignore
-          inert: open ? undefined : 'true',
+          inert: getInertValue(open),
           style: {
             ...positionerStyles,
             ...hiddenStyles,

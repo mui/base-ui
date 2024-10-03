@@ -53,8 +53,8 @@ export function useCollapsibleContent(
 
   const [height, setHeight] = React.useState(0);
 
-  const latestAnimationNameRef = React.useRef<string | undefined>('none');
-  const originalTransitionDurationStyleRef = React.useRef<string | undefined>();
+  const latestAnimationNameRef = React.useRef<string>('none');
+  const originalTransitionDurationStyleRef = React.useRef<string | null>(null);
 
   const isTransitioningRef = React.useRef(false);
 

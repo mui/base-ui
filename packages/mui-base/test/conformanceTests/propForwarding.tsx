@@ -2,10 +2,13 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { flushMicrotasks, randomStringValue } from '@mui/internal-test-utils';
 import { throwMissingPropError } from './utils';
-import { type BaseUiConformanceTestsOptions } from '../describeConformance';
+import type {
+  ConformantComponentProps,
+  BaseUiConformanceTestsOptions,
+} from '../describeConformance';
 
 export function testPropForwarding(
-  element: React.ReactElement,
+  element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
   const { render, testRenderPropWith: Element = 'div' } = getOptions();

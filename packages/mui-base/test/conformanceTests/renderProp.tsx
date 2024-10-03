@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { randomStringValue } from '@mui/internal-test-utils';
-import { type BaseUiConformanceTestsOptions } from '../describeConformance';
+import type {
+  ConformantComponentProps,
+  BaseUiConformanceTestsOptions,
+} from '../describeConformance';
 import { throwMissingPropError } from './utils';
 
 export function testRenderProp(
-  element: React.ReactElement,
+  element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
   const { render, testRenderPropWith: Element = 'div' } = getOptions();
