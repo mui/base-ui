@@ -11,10 +11,16 @@ interface Props {
   };
 }
 
+const DUMMY_SLUG = '_';
+
 export default async function Page(props: Props) {
   const {
     params: { slug },
   } = props;
+
+  if (slug === DUMMY_SLUG) {
+    notFound();
+  }
 
   try {
     const Playground = (await import(`../${slug}.tsx`)).default;
@@ -25,11 +31,17 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  return (await readdir('app/playground', { withFileTypes: true }))
+  const routes = (await readdir('app/playground', { withFileTypes: true }))
     .filter(
       (entry: Dirent) => entry.name.endsWith('.tsx') && entry.name !== 'page.tsx' && entry.isFile(),
     )
     .map((entry: Dirent) => ({ slug: basename(entry.name, extname(entry.name)) }));
+
+  if (routes.length === 0) {
+    return [{ slug: DUMMY_SLUG }];
+  }
+
+  return routes;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
