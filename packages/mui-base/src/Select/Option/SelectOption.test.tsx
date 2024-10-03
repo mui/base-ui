@@ -3,9 +3,6 @@ import * as Select from '@base_ui/react/Select';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
-
-const user = userEvent.setup();
 
 describe('<Select.Option />', () => {
   const { render } = createRenderer();
@@ -51,7 +48,7 @@ describe('<Select.Option />', () => {
   });
 
   it('navigating with keyboard should highlight option', async () => {
-    await render(
+    const { user } = await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
           <Select.Value />
@@ -88,7 +85,7 @@ describe('<Select.Option />', () => {
       this.skip();
     }
 
-    await render(
+    const { user } = await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
           <Select.Value placeholder="null" data-testid="value" />
@@ -147,7 +144,7 @@ describe('<Select.Option />', () => {
   });
 
   it('should focus the selected option upon opening the popup', async () => {
-    await render(
+    const { user } = await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
@@ -172,9 +169,9 @@ describe('<Select.Option />', () => {
       expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
     });
 
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowUp}');
-    await userEvent.keyboard('{ArrowUp}');
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowUp}');
+    await user.keyboard('{ArrowUp}');
 
     fireEvent.click(screen.getByRole('option', { name: 'three' }));
     fireEvent.click(trigger);
@@ -188,7 +185,7 @@ describe('<Select.Option />', () => {
 
   describe('style hooks', () => {
     it('should apply data-highlighted attribute when option is highlighted', async () => {
-      await render(
+      const { user } = await render(
         <Select.Root animated={false}>
           <Select.Trigger data-testid="trigger" />
           <Select.Positioner>
