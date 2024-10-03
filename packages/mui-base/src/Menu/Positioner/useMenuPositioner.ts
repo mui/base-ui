@@ -11,6 +11,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { getInertValue } from '../../utils/getInertValue';
 
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
@@ -43,7 +44,7 @@ export function useMenuPositioner(
           zIndex: 2147483647, // max z-index
         },
         'aria-hidden': !open || undefined,
-        inert: !open ? '' : undefined,
+        inert: getInertValue(!open),
       });
     },
     [positionerStyles, open, keepMounted, hidden],

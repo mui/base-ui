@@ -29,7 +29,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     onOpenChange,
   });
 
-  const popupRef = React.useRef<HTMLElement | null>(null);
+  const popupRef = React.useRef<HTMLElement>(null);
 
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',

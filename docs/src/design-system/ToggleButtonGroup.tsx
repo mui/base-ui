@@ -47,4 +47,4 @@ export const ToggleButtonGroup = React.forwardRef(function ToggleButtonGroup<
   );
 }) as <Option extends { value: string; label: string }>(
   props: ToggleButtonGroupProps<Option> & { ref?: React.Ref<HTMLDivElement> },
-) => JSX.Element;
+) => React.JSX.Element;

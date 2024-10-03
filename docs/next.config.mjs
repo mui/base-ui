@@ -63,6 +63,7 @@ const nextConfig = {
     : {}),
   experimental: {
     esmExternals: true,
+    workerThreads: false,
   },
 };
 

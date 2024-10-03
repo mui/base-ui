@@ -26,12 +26,12 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
     }
   }, []);
 
-  const timeout = React.useRef<NodeJS.Timeout>();
+  const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     // Wait for the title to be updated.
     // React fires useEffect twice in dev mode
-    clearTimeout(timeout.current);
+    clearTimeout(timeout.current ?? undefined);
     timeout.current = setTimeout(() => {
       // Remove hash as it's never sent to the server
       // https://github.com/vercel/next.js/issues/25202

@@ -13,7 +13,7 @@ import { useControlled } from '../../utils/useControlled';
 export interface TabMetadata {
   disabled: boolean;
   id: string | undefined;
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
 }
 
 type IdLookupFunction = (id: any) => string | undefined;
