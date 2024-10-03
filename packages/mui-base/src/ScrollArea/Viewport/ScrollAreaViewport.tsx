@@ -152,7 +152,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   }, [computeThumb]);
 
   React.useEffect(() => {
-    if (!tableWrapperRef.current) {
+    if (!tableWrapperRef.current || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
