@@ -6,8 +6,6 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 
-const user = userEvent.setup();
-
 describe('<Select.Root />', () => {
   const { render } = createRenderer();
 
@@ -69,7 +67,7 @@ describe('<Select.Root />', () => {
     });
 
     it('should update the selected option when the value prop changes', async () => {
-      const { rerender } = await render(
+      const { setProps } = await render(
         <Select.Root value="a" animated={false}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -94,19 +92,7 @@ describe('<Select.Root />', () => {
         'true',
       );
 
-      rerender(
-        <Select.Root value="b" animated={false}>
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Root>,
-      );
+      setProps({ value: 'b' });
 
       await flushMicrotasks();
 
@@ -146,7 +132,7 @@ describe('<Select.Root />', () => {
         );
       }
 
-      await render(<App />);
+      const { user } = await render(<App />);
 
       const trigger = screen.getByTestId('trigger');
 
@@ -214,7 +200,7 @@ describe('<Select.Root />', () => {
     it('should call onOpenChange when the select is opened or closed', async () => {
       const handleOpenChange = spy();
 
-      await render(
+      const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange} animated={false}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />

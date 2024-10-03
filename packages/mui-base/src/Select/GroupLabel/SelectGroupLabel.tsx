@@ -54,6 +54,12 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   return renderElement();
 });
 
+namespace SelectGroupLabel {
+  export interface OwnerState {}
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
+
 SelectGroupLabel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -76,11 +82,5 @@ SelectGroupLabel.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace SelectGroupLabel {
-  export interface OwnerState {}
-
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
-}
 
 export { SelectGroupLabel };

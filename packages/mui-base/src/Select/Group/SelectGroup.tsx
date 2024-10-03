@@ -71,6 +71,7 @@ namespace SelectGroup {
   export interface OwnerState {
     open: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 
