@@ -1,16 +1,7 @@
-<!-- markdownlint-disable-next-line -->
-<p align="center">
-  <a href="https://mui.com/base-ui/" target="_blank">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
-      <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
-    </picture>
-  </a>
-</p>
+<h1 align="center">Base UI</h1>
 
 <p align="center">
-Base UI is an unstyled UI component library for building accessible user interfaces while maintaining complete control over styling.
+Base UI is an unstyled React UI component library for building accessible user interfaces while maintaining complete control over styling.
 </p>
 
 <div align="center">
@@ -32,10 +23,7 @@ Base UI is an unstyled UI component library for building accessible user interf
 
 ## Documentation
 
-Visit [mui.com/base-ui/getting-started](https://mui.com/base-ui/getting-started/) to view the full documentation.
-
-> **Note**: Base UI's API is currently being revised; there will be no new features or components added to the current implementation.
-> Learn more about the roadmap in [this blog post](https://mui.com/blog/base-ui-2024-plans/).
+The Base UI documentation is under construction and have not been published yet.
 
 ## Sponsors
 
@@ -60,10 +48,16 @@ Diamond sponsors are those who have pledged \$1,500/month or more to MUI.
   <a href="https://megafamous.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://mui.com/static/sponsors/megafamous.png" alt="megafamous.com" title="MegaFamous: Buy Instagram followers and likes." loading="lazy" /></a>
   <a href="https://www.dialmycalls.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/dialmycalls/f5ae9ab/avatar/288.png" alt="dialmycalls.com" title="DialMyCalls: Send text messages, calls, and emails." loading="lazy" /></a>
   <a href="https://goread.io/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/goread_io/eb6337d/logo/288.png" alt="goread.io" title="Goread.io: Instagram followers, likes, views, and comments." loading="lazy" /></a>
+  <a href="https://copycopter.ai/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/copycopterai/e167216/logo/288.png" alt="copycopter.ai" title="CopyCopter: Turn prompts into videos at ultra speed." loading="lazy" /></a>
+  <a href="https://route4me.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/route4me/71fb6fa/avatar/288.png" alt="Route4Me" title="Route4Me: Trusted last mile route planning and route optimization." loading="lazy" /></a>
+</p>
+
+<p>
+  <a href="https://buzzoid.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank" style="margin-right:8px;" ><img height="24" width="26" src="https://images.opencollective.com/buzzoidz/d23d9bb/logo/24.png" srcset="https://images.opencollective.com/buzzoidz/d23d9bb/logo/72.png 3x" alt="buzzoid.com" title="Buzzoid: Instant delivery Instagram followers." loading="lazy" style="margin-right:8px;" />Buzzoid</a>
+  <a href="https://twicsy.com/?utm_source=MUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank" style="margin-right:8px;" ><img height="24" width="27" src="https://images.opencollective.com/twicsy/7af290f/logo/24.png" alt="twicsy.com" title="Twicsy: Instant delivery Instagram followers." style="margin-right:8px;" loading="lazy" />Twicsy</a>
 </p>
 
 Gold sponsors are those who have pledged \$500/month or more to MUI.
-Via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](https://www.patreon.com/oliviertassinari).
 
 ### More backers
 
@@ -71,7 +65,7 @@ See the full list of [our backers](https://mui.com/material-ui/discover-more/bac
 
 ## Questions
 
-For how-to questions that don't involve making changes to the code base, please use [Stack Overflow](https://stackoverflow.com/questions/) instead of GitHub issues.
+For how-to questions that don't involve making changes to the code base, please use [Stack Overflow](https://stackoverflow.com/questions/tagged/base-ui) instead of GitHub issues.
 
 ## Contributing
 
@@ -83,12 +77,11 @@ The [changelog](https://github.com/mui/base-ui/releases) reflects what has chang
 
 ## Roadmap
 
-Learn more about future plans and high-priority features and enhancements on the [Base UI roadmap](https://mui.com/base-ui/getting-started/roadmap/).
+Learn more about future plans and high-priority features and enhancements on the [Base UI roadmap](https://github.com/orgs/mui/projects/1/views/13).
 
 ## License
 
-This project is licensed under the terms of the
-[MIT license](/LICENSE).
+This project is licensed under the terms of the [MIT license](/LICENSE).
 
 ## Security
 
