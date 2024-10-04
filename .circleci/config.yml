@@ -458,13 +458,8 @@ workflows:
           <<: *default-context
           react-version: next
   typescript-next:
-    triggers:
-      - schedule:
-          cron: '0 0 * * *'
-          filters:
-            branches:
-              only:
-                - master
+    when:
+      equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
       - test_types_next:
           <<: *default-context
