@@ -246,14 +246,14 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
+      - install_js:
+          react-version: << parameters.react-version >>
       - run:
           name: Resolve typescript version
           command: |
             pnpm add typescript@next -d -w
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
-      - install_js:
-          react-version: << parameters.react-version >>
       - run:
           name: Tests TypeScript definitions
           command: |
@@ -263,21 +263,18 @@ jobs:
             set +e
             pnpm typescript
             exit 0
-
       - restore_cache:
           name: Restore generated declaration files
           keys:
-            # We assume that the target branch is `next` and that declaration files are persisted in commit order.
+            # We assume that the target branch is `master` and that declaration files are persisted in commit order.
             # "If there are multiple matches, the most recently generated cache will be used."
-            - typescript-declaration-files-next
-
+            - typescript-declaration-files-master
       - run:
           name: Diff declaration files
           command: |
             git add -f packages/mui-base/build || echo '/base declarations do not exist'
             pnpm -r build:types
             git --no-pager diff
-
       - run:
           name: Log defect declaration files
           command: |
