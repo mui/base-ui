@@ -1,4 +1,4 @@
-<h1 align="center">Base UI</h1>
+<h1 align="center">Base UI</h1>
 
 <p align="center">
 Base UI is an unstyled React UI component library for building accessible user interfaces while maintaining complete control over styling.
