@@ -59,7 +59,7 @@ See the full list of [our backers](https://mui.com/material-ui/discover-more/bac
 
 ## Questions
 
-For how-to questions that don't involve making changes to the code base, please use [Stack Overflow](https://stackoverflow.com/questions/) instead of GitHub issues.
+For how-to questions that don't involve making changes to the code base, please use [Stack Overflow](https://stackoverflow.com/questions/tagged/base-ui) instead of GitHub issues.
 
 ## Contributing
 
