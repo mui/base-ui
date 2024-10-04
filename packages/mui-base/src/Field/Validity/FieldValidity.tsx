@@ -16,7 +16,9 @@ import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityD
  *
  * - [FieldValidity API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldValidity)
  */
-function FieldValidity(props: FieldValidityProps) {
+const FieldValidity: React.FC<FieldValidityProps> = function FieldValidity(
+  props: FieldValidityProps,
+) {
   const { validityData, invalid } = useFieldRootContext(false);
 
   const fieldValidityState: FieldValidityState = React.useMemo(() => {
@@ -28,7 +30,7 @@ function FieldValidity(props: FieldValidityProps) {
   }, [validityData, invalid]);
 
   return <React.Fragment>{props.children(fieldValidityState)}</React.Fragment>;
-}
+};
 
 FieldValidity.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
