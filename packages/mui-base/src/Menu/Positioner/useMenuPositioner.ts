@@ -91,7 +91,7 @@ export namespace useMenuPositioner {
      * The CSS position strategy for positioning the Menu popup element.
      * @default 'absolute'
      */
-    positionStrategy?: 'absolute' | 'fixed';
+    positionMethod?: 'absolute' | 'fixed';
     /**
      * The container element to which the Menu popup will be appended to.
      */
