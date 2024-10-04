@@ -1,11 +1,4 @@
-<!-- markdownlint-disable-next-line -->
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg">
-    <img alt="Base UI" src="https://master--material-ui.netlify.app/static/base-ui/base-ui-logo-light.svg" width="257" height="70">
-  </picture>
-</p>
+<h1 align="center">Base UI</h1>
 
 <p align="center">
 Base UI is an unstyled React UI component library for building accessible user interfaces while maintaining complete control over styling.
@@ -31,7 +24,6 @@ Base UI is an unstyled React UI component library for building accessible user 
 ## Documentation
 
 The Base UI documentation is under construction and have not been published yet.
-There is a preview available built from the latest `master` branch at https://master--base-ui.netlify.app/.
 
 ## Sponsors
 
