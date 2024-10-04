@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import * as BaseMenu from '@base_ui/react/Menu';
 import classes from './Menu.module.css';
 
-export const Menu = function Menu(props) {
-  return <BaseMenu.Root {...props} />;
-};
+export const Menu = BaseMenu.Root;
+
+export const MenuGroup = BaseMenu.Group;
 
 const MenuItems = React.forwardRef(function MenuItems(props, ref) {
   return (
@@ -28,4 +28,12 @@ export const MenuItem = React.forwardRef(function MenuItem(props, ref) {
 
 export const MenuTrigger = React.forwardRef(function MenuTrigger(props, ref) {
   return <BaseMenu.Trigger {...props} ref={ref} className={classes.trigger} />;
+});
+
+export const MenuSeparator = React.forwardRef(function MenuSeparator(props, ref) {
+  return <BaseMenu.Separator {...props} ref={ref} className={classes.separator} />;
+});
+
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(props, ref) {
+  return <BaseMenu.GroupLabel {...props} ref={ref} className={classes.groupLabel} />;
 });

@@ -9,10 +9,10 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * This component can be useful in a variety of situations:
  *
- * *   Escape hatch for broken dependencies not supporting SSR.
- * *   Improve the time-to-first paint on the client by only rendering above the fold.
- * *   Reduce the rendering time on the server.
- * *   Under too heavy server load, you can turn on service degradation.
+ * * Escape hatch for broken dependencies not supporting SSR.
+ * * Improve the time-to-first paint on the client by only rendering above the fold.
+ * * Reduce the rendering time on the server.
+ * * Under too heavy server load, you can turn on service degradation.
  *
  * Demos:
  *
@@ -22,7 +22,7 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * - [NoSsr API](https://base-ui.netlify.app/components/react-no-ssr/#api-reference-NoSsr)
  */
-function NoSsr(props: NoSsrProps): JSX.Element {
+function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;
   const [mountedState, setMountedState] = React.useState(false);
 

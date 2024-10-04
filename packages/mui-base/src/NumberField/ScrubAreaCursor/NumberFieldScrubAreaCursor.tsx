@@ -8,6 +8,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import { ownerDocument } from '../../utils/owner';
 
 /**
  * The scrub area cursor element.
@@ -29,7 +30,9 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   const { isScrubbing, scrubAreaCursorRef, ownerState, getScrubAreaCursorProps } =
     useNumberFieldContext('ScrubAreaCursor');
 
-  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef);
+  const [element, setElement] = React.useState<Element | null>(null);
+
+  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef, setElement);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrubAreaCursorProps,
@@ -44,7 +47,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
     return null;
   }
 
-  return ReactDOM.createPortal(renderElement(), document.body);
+  return ReactDOM.createPortal(renderElement(), ownerDocument(element).body);
 });
 
 namespace NumberFieldScrubAreaCursor {

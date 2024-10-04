@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { UseDialogRootReturnValue } from '@base_ui/react/Dialog';
+import { type useDialogRoot } from '../../Dialog/Root/useDialogRoot';
 
-export interface AlertDialogRootContext extends UseDialogRootReturnValue {
+export interface AlertDialogRootContext extends useDialogRoot.ReturnValue {
   /**
    * If `true`, the dialog supports CSS-based animations and transitions.
    * It is kept in the DOM until the animation completes.

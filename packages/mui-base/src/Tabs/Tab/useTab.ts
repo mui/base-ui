@@ -34,7 +34,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     item: value,
   });
 
-  const { getRootProps: getButtonProps, rootRef: buttonRefHandler } = useButton({
+  const { getButtonProps, buttonRef: buttonRefHandler } = useButton({
     disabled,
     focusableWhenDisabled: true,
     type: 'button',

@@ -1,8 +1,25 @@
 'use client';
 import * as React from 'react';
-import type { DialogRootContextValue } from './DialogRoot.types';
+import type { useDialogRoot } from './useDialogRoot';
 
-export const DialogRootContext = React.createContext<DialogRootContextValue | undefined>(undefined);
+export interface DialogRootContext extends useDialogRoot.ReturnValue {
+  /**
+   * If `true`, the dialog supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   */
+  animated: boolean;
+  /**
+   * Determines if the dialog is nested within a parent dialog.
+   */
+  hasParentDialog: boolean;
+  /**
+   * Determines whether the dialog should close when clicking outside of it.
+   * @default true
+   */
+  dismissible?: boolean;
+}
+
+export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
 
 export function useDialogRootContext() {
   const context = React.useContext(DialogRootContext);

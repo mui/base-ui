@@ -1,0 +1,41 @@
+---
+title: React Separator component
+description: The Separator is a divider that separates and distinguishes sections of content or groups of menu items.
+components: SeparatorRoot
+githubLabel: 'component: separator'
+waiAria: https://www.w3.org/TR/wai-aria-1.2/#separator
+---
+
+# Separator
+
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+<Demo demo="SeparatorIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+<InstallationInstructions componentName="Separator" />
+
+## Anatomy
+
+The Separator component is implemented using a single component: `<Separator.Root />`.
+
+```tsx
+<Separator.Root />
+```
+
+## Overriding default components
+
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+// Element shorthand
+<Separator.Root render={<hr />} />
+```
+
+```jsx
+// Function
+<Separator.Root render={(props) => <hr {...props} />} />
+```

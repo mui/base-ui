@@ -256,6 +256,6 @@ export namespace useTooltipRoot {
     positionerElement: HTMLElement | null;
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-    popupRef: React.RefObject<HTMLElement>;
+    popupRef: React.RefObject<HTMLElement | null>;
   }
 }

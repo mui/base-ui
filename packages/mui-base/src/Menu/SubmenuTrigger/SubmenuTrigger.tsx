@@ -89,12 +89,6 @@ namespace SubmenuTrigger {
      * Used for keyboard text navigation matching.
      */
     label?: string;
-    /**
-     * If `true`, the menu item won't receive focus when the mouse moves over it.
-     *
-     * @default false
-     */
-    disableFocusOnHover?: boolean;
     id?: string;
   }
 
@@ -123,12 +117,6 @@ SubmenuTrigger.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * If `true`, the menu item won't receive focus when the mouse moves over it.
-   *
-   * @default false
-   */
-  disableFocusOnHover: PropTypes.bool,
   /**
    * @ignore
    */

@@ -10,7 +10,7 @@ describe('<AlertDialog.Backdrop />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open modal={false} animated={false}>
+        <AlertDialog.Root open animated={false}>
           {node}
         </AlertDialog.Root>,
       );
