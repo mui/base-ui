@@ -29,7 +29,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     render,
     className,
     anchor,
-    positionStrategy = 'absolute',
+    positionMethod = 'absolute',
     side = 'bottom',
     alignment = 'center',
     sideOffset = 0,
@@ -50,7 +50,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   const positioner = usePreviewCardPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
-    positionStrategy,
+    positionMethod,
     container,
     open,
     mounted,
@@ -214,7 +214,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    * The CSS position strategy for positioning the preview card popup element.
    * @default 'absolute'
    */
-  positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
+  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
    * A function to customize rendering of the component.
    */

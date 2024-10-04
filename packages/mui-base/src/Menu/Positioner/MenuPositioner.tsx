@@ -35,7 +35,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 ) {
   const {
     anchor,
-    positionStrategy = 'absolute',
+    positionMethod = 'absolute',
     className,
     render,
     keepMounted = false,
@@ -69,7 +69,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const positioner = useMenuPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
-    positionStrategy,
+    positionMethod,
     container,
     open,
     mounted,
@@ -253,7 +253,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    * The CSS position strategy for positioning the Menu popup element.
    * @default 'absolute'
    */
-  positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
+  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
    * A function to customize rendering of the component.
    */
