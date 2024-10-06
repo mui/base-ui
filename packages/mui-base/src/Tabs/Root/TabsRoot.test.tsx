@@ -153,7 +153,7 @@ describe('<Tabs.Root />', () => {
             tabElements[index].id,
           );
 
-          await act(async () => {
+          await act(() => {
             tabElements[index].click();
           });
 
