@@ -153,7 +153,7 @@ describe('<Tabs.Root />', () => {
             tabElements[index].id,
           );
 
-          await act(() => {
+          await act(async () => {
             tabElements[index].click();
           });
 
@@ -207,7 +207,7 @@ describe('<Tabs.Root />', () => {
       );
       const [firstTab] = getAllByRole('tab');
 
-      await act(() => {
+      await act(async () => {
         firstTab.focus();
       });
 
@@ -230,7 +230,7 @@ describe('<Tabs.Root />', () => {
 
       const [firstTab] = getAllByRole('tab');
 
-      await act(() => {
+      await act(async () => {
         firstTab.focus();
       });
 
@@ -294,7 +294,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 firstTab.focus();
               });
 
@@ -325,7 +325,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 secondTab.focus();
               });
 
@@ -358,7 +358,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 firstTab.focus();
               });
 
@@ -390,7 +390,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, secondTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 secondTab.focus();
               });
 
@@ -421,7 +421,7 @@ describe('<Tabs.Root />', () => {
               </Tabs.Root>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
-            await act(() => {
+            await act(async () => {
               lastTab.focus();
             });
 
@@ -454,7 +454,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 lastTab.focus();
               });
 
@@ -485,7 +485,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 secondTab.focus();
               });
 
@@ -518,7 +518,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 lastTab.focus();
               });
 
@@ -550,7 +550,7 @@ describe('<Tabs.Root />', () => {
                 </Tabs.Root>,
               );
               const [, secondTab, lastTab] = getAllByRole('tab');
-              await act(() => {
+              await act(async () => {
                 secondTab.focus();
               });
 
@@ -581,7 +581,7 @@ describe('<Tabs.Root />', () => {
               </Tabs.Root>,
             );
             const [firstTab, , lastTab] = getAllByRole('tab');
-            await act(() => {
+            await act(async () => {
               firstTab.focus();
             });
 
@@ -610,7 +610,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          await act(() => {
+          await act(async () => {
             lastTab.focus();
           });
 
@@ -635,7 +635,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          await act(() => {
+          await act(async () => {
             lastTab.focus();
           });
 
@@ -660,7 +660,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [, secondTab, lastTab] = getAllByRole('tab');
-          await act(() => {
+          await act(async () => {
             lastTab.focus();
           });
 
@@ -686,7 +686,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          await act(() => {
+          await act(async () => {
             firstTab.focus();
           });
 
@@ -711,7 +711,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, , lastTab] = getAllByRole('tab');
-          await act(() => {
+          await act(async () => {
             firstTab.focus();
           });
 
@@ -736,7 +736,7 @@ describe('<Tabs.Root />', () => {
             </Tabs.Root>,
           );
           const [firstTab, secondTab] = getAllByRole('tab');
-          await act(() => {
+          await act(async () => {
             firstTab.focus();
           });
 
@@ -787,13 +787,13 @@ describe('<Tabs.Root />', () => {
       const tabs = getAllByRole('tab');
 
       expect(root).to.have.attribute('data-activation-direction', 'none');
-      await act(() => {
+      await act(async () => {
         tabs[1].click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'right');
 
-      await act(() => {
+      await act(async () => {
         tabs[0].click();
       });
 
@@ -814,13 +814,13 @@ describe('<Tabs.Root />', () => {
       const tabs = getAllByRole('tab');
 
       expect(root).to.have.attribute('data-activation-direction', 'none');
-      await act(() => {
+      await act(async () => {
         tabs[1].click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'down');
 
-      await act(() => {
+      await act(async () => {
         tabs[0].click();
       });
 

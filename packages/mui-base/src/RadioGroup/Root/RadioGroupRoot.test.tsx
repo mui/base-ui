@@ -186,7 +186,7 @@ describe('<RadioGroup.Root />', () => {
 
     expect(stringifiedFormData).to.equal('group=');
 
-    await act(() => {
+    await act(async () => {
       radioA.click();
     });
 
