@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { type TabActivationDirection } from './TabsRoot.types';
+import { type TabActivationDirection } from './TabsRoot';
 
-export interface TabsContextValue {
+export interface TabsRootContext {
   /**
    * The currently selected tab's value.
    */
@@ -46,19 +46,19 @@ export interface TabsContextValue {
 /**
  * @ignore - internal component.
  */
-const TabsContext = React.createContext<TabsContextValue | null>(null);
+const TabsRootContext = React.createContext<TabsRootContext | null>(null);
 
 if (process.env.NODE_ENV !== 'production') {
-  TabsContext.displayName = 'TabsContext';
+  TabsRootContext.displayName = 'TabsRootContext';
 }
 
-export function useTabsContext() {
-  const context = React.useContext(TabsContext);
+export function useTabsRootContext() {
+  const context = React.useContext(TabsRootContext);
   if (context == null) {
-    throw new Error('No TabsContext provided');
+    throw new Error('Base UI: No TabsRootContext provided');
   }
 
   return context;
 }
 
-export { TabsContext };
+export { TabsRootContext };
