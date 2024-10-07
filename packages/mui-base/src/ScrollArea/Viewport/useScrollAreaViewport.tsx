@@ -133,11 +133,18 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     }
 
     function handleResize() {
+      // Parse computed styles as the scrollbars may not be rendered to measure.
       if (scrollbarYRef.current) {
-        setPaddingX(scrollbarYRef.current.offsetWidth);
+        setPaddingX(
+          scrollbarYRef.current.offsetWidth ||
+            parseFloat(getComputedStyle(scrollbarYRef.current).width),
+        );
       }
       if (scrollbarXRef.current) {
-        setPaddingY(scrollbarXRef.current.offsetHeight);
+        setPaddingY(
+          scrollbarXRef.current.offsetHeight ||
+            parseFloat(getComputedStyle(scrollbarXRef.current).height),
+        );
       }
       computeThumb();
     }

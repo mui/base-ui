@@ -127,13 +127,17 @@ describe('<ScrollArea.Root />', () => {
   });
 
   describe('prop: dir', () => {
-    it('should adjust padding for rtl', async function test() {
+    it('should adjust inlay padding for rtl', async function test() {
       if (isJSDOM) {
         this.skip();
       }
 
       await render(
-        <ScrollArea.Root dir="rtl" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+        <ScrollArea.Root
+          type="inlay"
+          dir="rtl"
+          style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+        >
           <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
             <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
           </ScrollArea.Viewport>
@@ -158,7 +162,7 @@ describe('<ScrollArea.Root />', () => {
   });
 
   describe('prop: gutter', () => {
-    it('should adjust padding for gutter: both-edges', async function test() {
+    it('should adjust inlay padding for gutter: both-edges', async function test() {
       if (isJSDOM) {
         this.skip();
       }
@@ -188,7 +192,7 @@ describe('<ScrollArea.Root />', () => {
       expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
     });
 
-    it('should not add padding for gutter: none', async function test() {
+    it('should not add inlay padding for gutter: none', async function test() {
       if (isJSDOM) {
         this.skip();
       }
