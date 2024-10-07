@@ -129,10 +129,10 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     function handleResize() {
       if (scrollbarYRef.current) {
-        setPaddingX(scrollbarYRef.current.offsetHeight);
+        setPaddingX(scrollbarYRef.current.offsetWidth);
       }
       if (scrollbarXRef.current) {
-        setPaddingY(scrollbarXRef.current.offsetWidth);
+        setPaddingY(scrollbarXRef.current.offsetHeight);
       }
       computeThumb();
     }
