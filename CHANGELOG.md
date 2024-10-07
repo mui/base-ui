@@ -52,27 +52,27 @@ A big thanks to the 7 contributors who made this release possible. Here are some
 ### Core
 
 - [code-infra] Remove custom playwright installation steps (#646) @Janpot
-- [core] Rename positionStrategy to positionMethod (#704) @michaldudak
+- [core] Fix 301 link to Next.js and git diff @oliviertassinari
+- [core] Fix package.json repository rule @oliviertassinari
+- [core] MUI X repository moved to a new location @oliviertassinari
 - [core] React 19 compatibility (#605) @michaldudak
 - [core] Reference `ownerDocument` (#660) @atomiks
 - [core] Remove 'use client' from index files (#331) @michaldudak
-- [core] MUI X repository moved to a new location @oliviertassinari
-- [core] Fix 301 link to Next.js and git diff @oliviertassinari
-- [core] Fix package.json repository rule @oliviertassinari
 - [core] Remove /.yarn (#596) @oliviertassinari
 - [core] Remove Material UI dependency (#585) @michaldudak
 - [core] Remove the legacy components from the repo (#584) @michaldudak
-- [docs-infra] Strengthen CSP (#595) @oliviertassinari
+- [core] Rename positionStrategy to positionMethod (#704) @michaldudak
 - [docs-infra] Fix double // (#613) @oliviertassinari
-- [infra] Fix line break in Stack Overflow message @oliviertassinari
-- [infra] Adds reusable workflow for issue cleanup (#597) @michelengelen
+- [docs-infra] Strengthen CSP (#595) @oliviertassinari
 - [infra] Adds reusable workflow for closing message on issues (#598) @michelengelen
-- [test] Rerun CI @oliviertassinari
-- [test] Fix the test_types_next CI job (#703) @michaldudak
-- [test] Point Istanbul to correct URL (#657) @sai6855
-- [test] Use `waitFor` instead of fixed timeout in tests (#632) @michaldudak
-- [test] Run Browserstack tests on master only (#578) @michaldudak
+- [infra] Adds reusable workflow for issue cleanup (#597) @michelengelen
+- [infra] Fix line break in Stack Overflow message @oliviertassinari
 - [test] Fix tests on Safari (#546) @michaldudak
+- [test] Fix the test_types_next CI job (#703) @michaldudak
+- [test] Improve visual screenshot canva (#708)
+- [test] Point Istanbul to correct URL (#657) @sai6855
+- [test] Run Browserstack tests on master only (#578) @michaldudak
+- [test] Use `waitFor` instead of fixed timeout in tests (#632) @michaldudak
 - [website] Improve utm_source strategy @oliviertassinari
 - [website] Modernize the Base UI website (#538) @michaldudak
 
