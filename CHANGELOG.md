@@ -1,5 +1,83 @@
 # Versions
 
+## v1.0.0-alpha.3
+
+_Oct 7, 2024_
+
+A big thanks to the 7 contributors who made this release possible. Here are some highlights ✨:
+
+- ⭐ We added several new components: CheckboxGroup, RadioGroup, Form, Separator
+- ⭐ Menu has new parts: CheckboxItem, RadioItem, and Group
+
+### `@base_ui/react@1.0.0-alpha.3`
+
+- [AlertDialog] Move types to namespaces (#591) @michaldudak
+- [Checkbox] Modernize implementation (#594) @atomiks
+- [CheckboxGroup] Implement components and hooks (#458) @atomiks
+- [Collapsible] Add Collapsible components and hooks (#481) @mj12albert
+- [Dialog] Move types to namespaces (#697) @michaldudak
+- [Dialog][Collapsible] Fix style prop merging (#641) @michaldudak
+- [Form] Create new `Form` component (#589) @atomiks
+- [Menu] CheckboxItem component (#533) @michaldudak
+- [Menu] Do not select an item when space is pressed during typeahead (#542) @michaldudak
+- [Menu] Fix custom anchor positioning (#609) @michaldudak
+- [Menu] Group and Separator components (#535) @michaldudak
+- [Menu] Increase test timeout (#592) @michaldudak
+- [Menu] RadioItem component (#534) @michaldudak
+- [Menu] Remove the unused prop (#647) @michaldudak
+- [Menu] Remove wrong default value from docs (#549) @sai6855
+- [Menu][Popover][PreviewCard][Tooltip] Add default value as `clippingAncestors` to collisionBoundary prop (#580) @sai6855
+- [NumberField] Modernize implementation (#590) @atomiks
+- [Popover] Modernize implementation (#607) @atomiks
+- [PreviewCard] Modernize implementation (#626) @atomiks
+- [RadioGroup] Create new `RadioGroup` component (#487) @atomiks
+- [Slider] Fix Home / End regression (#526) @sai6855
+- [Tooltip] Modernize implementation (#606) @atomiks
+- [useButton] Modernize implementation (#643) @michaldudak
+- [useScrollLock] Avoid scrollbar layout shift issues (#604) @atomiks
+
+### Docs
+
+- [docs] Fix 301 redirections in docs @oliviertassinari
+- [docs] Make the readme specific to @base_ui/react (#633) @michaldudak
+- [docs] Copy vale-action.yml from main repo @oliviertassinari
+- [docs] Fix 301 to chromium (#636) @oliviertassinari
+- [docs] Avoid dead links in demos (#610) @oliviertassinari
+- [docs] Fix rel attribute on edit GitHub links (#614) @oliviertassinari
+- [docs] Fix pnpm docs:link-check script (#552) @oliviertassinari
+- [docs] Fix Stack Overflow issue canned response @oliviertassinari
+- [docs] Fix outdated link to support page @oliviertassinari
+- [docs] Clarify contribution guide references @oliviertassinari
+
+### Core
+
+- [code-infra] Remove custom playwright installation steps (#646) @Janpot
+- [core] Rename positionStrategy to positionMethod (#704) @michaldudak
+- [core] React 19 compatibility (#605) @michaldudak
+- [core] Reference `ownerDocument` (#660) @atomiks
+- [core] Remove 'use client' from index files (#331) @michaldudak
+- [core] MUI X repository moved to a new location @oliviertassinari
+- [core] Fix 301 link to Next.js and git diff @oliviertassinari
+- [core] Fix package.json repository rule @oliviertassinari
+- [core] Remove /.yarn (#596) @oliviertassinari
+- [core] Remove Material UI dependency (#585) @michaldudak
+- [core] Remove the legacy components from the repo (#584) @michaldudak
+- [docs-infra] Strengthen CSP (#595) @oliviertassinari
+- [docs-infra] Fix double // (#613) @oliviertassinari
+- [infra] Fix line break in Stack Overflow message @oliviertassinari
+- [infra] Adds reusable workflow for issue cleanup (#597) @michelengelen
+- [infra] Adds reusable workflow for closing message on issues (#598) @michelengelen
+- [test] Rerun CI @oliviertassinari
+- [test] Fix the test_types_next CI job (#703) @michaldudak
+- [test] Point Istanbul to correct URL (#657) @sai6855
+- [test] Use `waitFor` instead of fixed timeout in tests (#632) @michaldudak
+- [test] Run Browserstack tests on master only (#578) @michaldudak
+- [test] Fix tests on Safari (#546) @michaldudak
+- [website] Improve utm_source strategy @oliviertassinari
+- [website] Modernize the Base UI website (#538) @michaldudak
+
+All contributors of this release in alphabetical order: @atomiks, @Janpot, @michaldudak, @michelengelen, @mj12albert, @oliviertassinari, @sai6855
+
 ## v1.0.0-alpha.2
 
 _Aug 19, 2024_
