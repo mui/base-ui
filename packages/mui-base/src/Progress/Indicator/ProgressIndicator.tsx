@@ -3,9 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useProgressIndicator } from './useProgressIndicator';
-import { useProgressContext } from '../Root/ProgressContext';
+import { ProgressRoot } from '../Root/ProgressRoot';
+import { useProgressRootContext } from '../Root/ProgressRootContext';
 import { progressStyleHookMapping } from '../Root/styleHooks';
-import { ProgressIndicatorProps } from './ProgressIndicator.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -18,12 +19,12 @@ import { ProgressIndicatorProps } from './ProgressIndicator.types';
  * - [ProgressIndicator API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressIndicator)
  */
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
-  props: ProgressIndicatorProps,
+  props: ProgressIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { direction, max, min, value, ownerState } = useProgressContext();
+  const { direction, max, min, value, ownerState } = useProgressRootContext();
 
   const { getRootProps } = useProgressIndicator({
     direction,
@@ -44,6 +45,12 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 
   return renderElement();
 });
+
+namespace ProgressIndicator {
+  export interface OwnerState extends ProgressRoot.OwnerState {}
+
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+}
 
 ProgressIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
