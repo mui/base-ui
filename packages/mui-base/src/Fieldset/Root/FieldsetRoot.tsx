@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { FieldsetRootOwnerState, FieldsetRootProps } from './FieldsetRoot.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldsetRootContext, type FieldsetRootContextValue } from './FieldsetRootContext';
+import { FieldsetRootContext } from './FieldsetRootContext';
 import { useFieldsetRoot } from './useFieldsetRoot';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled fieldsets.
@@ -18,14 +18,14 @@ import { useFieldsetRoot } from './useFieldsetRoot';
  * - [FieldsetRoot API](https://base-ui.netlify.app/components/react-fieldset/#api-reference-FieldsetRoot)
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
-  props: FieldsetRootProps,
+  props: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLFieldSetElement>,
 ) {
   const { render, className, disabled = false, ...otherProps } = props;
 
   const { legendId, setLegendId, getRootProps } = useFieldsetRoot();
 
-  const ownerState: FieldsetRootOwnerState = React.useMemo(
+  const ownerState: FieldsetRoot.OwnerState = React.useMemo(
     () => ({
       disabled,
     }),
@@ -41,7 +41,7 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     extraProps: otherProps,
   });
 
-  const contextValue: FieldsetRootContextValue = React.useMemo(
+  const contextValue: FieldsetRootContext = React.useMemo(
     () => ({
       legendId,
       setLegendId,
@@ -56,6 +56,14 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     </FieldsetRootContext.Provider>
   );
 });
+
+namespace FieldsetRoot {
+  export type OwnerState = {
+    disabled: boolean;
+  };
+
+  export interface Props extends BaseUIComponentProps<'fieldset', OwnerState> {}
+}
 
 FieldsetRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
