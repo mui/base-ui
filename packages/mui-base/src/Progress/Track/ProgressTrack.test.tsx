@@ -1,10 +1,9 @@
 import * as React from 'react';
 import * as Progress from '@base_ui/react/Progress';
-import { ProgressContext } from '@base_ui/react/Progress';
 import { createRenderer, describeConformance } from '#test-utils';
-import type { ProgressContextValue } from '../Root/ProgressRoot.types';
+import { ProgressRootContext } from '../Root/ProgressRootContext';
 
-const contextValue: ProgressContextValue = {
+const contextValue: ProgressRootContext = {
   direction: 'ltr',
   max: 100,
   min: 0,
@@ -23,7 +22,7 @@ describe('<Progress.Track />', () => {
   describeConformance(<Progress.Track />, () => ({
     render: (node) => {
       return render(
-        <ProgressContext.Provider value={contextValue}>{node}</ProgressContext.Provider>,
+        <ProgressRootContext.Provider value={contextValue}>{node}</ProgressRootContext.Provider>,
       );
     },
     refInstanceof: window.HTMLSpanElement,
