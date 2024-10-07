@@ -35,12 +35,12 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
   const { orientation } = useScrollAreaScrollbarContext();
 
+  const mergedRef = useForkRef(forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef);
+
   const ownerState: ScrollAreaThumb.OwnerState = React.useMemo(
     () => ({ orientation }),
     [orientation],
   );
-
-  const mergedRef = useForkRef(forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
