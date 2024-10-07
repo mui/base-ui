@@ -1,8 +1,8 @@
 import type * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 
-export interface SwitchOwnerState extends FieldRootOwnerState {
+export interface SwitchOwnerState extends FieldRoot.OwnerState {
   checked: boolean;
   disabled: boolean;
   readOnly: boolean;
