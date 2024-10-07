@@ -15,6 +15,22 @@ const SCROLLBAR_HEIGHT = 15;
 describe('<ScrollArea.Root />', () => {
   const { render } = createRenderer();
 
+  beforeEach(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      *, 
+      *::before, 
+      *::after {
+        box-sizing: border-box;
+      }
+    `;
+    document.head.appendChild(style);
+  });
+
+  afterEach(() => {
+    document.head.innerHTML = '';
+  });
+
   describeConformance(<ScrollArea.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
@@ -25,7 +41,7 @@ describe('<ScrollArea.Root />', () => {
       this.skip();
     }
 
-    const { getByTestId } = await render(
+    await render(
       <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
         <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
           <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
@@ -39,8 +55,8 @@ describe('<ScrollArea.Root />', () => {
       </ScrollArea.Root>,
     );
 
-    const verticalThumb = getByTestId('vertical-thumb');
-    const horizontalThumb = getByTestId('horizontal-thumb');
+    const verticalThumb = screen.getByTestId('vertical-thumb');
+    const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
     expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).to.equal(
       `${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`,
@@ -151,6 +167,7 @@ describe('<ScrollArea.Root />', () => {
 
       await render(
         <ScrollArea.Root
+          type="inlay"
           gutter="both-edges"
           style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
         >
@@ -180,7 +197,11 @@ describe('<ScrollArea.Root />', () => {
       }
 
       await render(
-        <ScrollArea.Root gutter="none" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+        <ScrollArea.Root
+          type="inlay"
+          gutter="none"
+          style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+        >
           <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }} />
           <ScrollArea.Scrollbar
             orientation="vertical"

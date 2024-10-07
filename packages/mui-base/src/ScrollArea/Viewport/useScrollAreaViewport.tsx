@@ -114,7 +114,9 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         setCornerSize({ width: 0, height: 0 });
       } else if (!scrollbarXHidden && !scrollbarYHidden) {
         cornerEl.removeAttribute('hidden');
-        setCornerSize({ width: cornerEl.offsetWidth, height: cornerEl.offsetHeight });
+        const width = scrollbarYRef.current?.offsetWidth || 0;
+        const height = scrollbarXRef.current?.offsetHeight || 0;
+        setCornerSize({ width, height });
       }
     }
   });
