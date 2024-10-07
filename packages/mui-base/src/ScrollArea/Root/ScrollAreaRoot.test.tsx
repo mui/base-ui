@@ -22,6 +22,7 @@ describe('<ScrollArea.Root />', () => {
       *::before, 
       *::after {
         box-sizing: border-box;
+        scrollbar-width: none;
       }
     `;
     document.head.appendChild(style);
@@ -153,8 +154,8 @@ describe('<ScrollArea.Root />', () => {
 
       const style = getComputedStyle(tableWrapper);
 
-      expect(style.paddingLeft).not.to.equal(`${SCROLLBAR_WIDTH}px`);
-      expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
+      expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
+      expect(style.paddingRight).not.to.equal(`${SCROLLBAR_WIDTH}px`);
       expect(style.paddingBottom).to.equal(`${SCROLLBAR_HEIGHT}px`);
     });
   });

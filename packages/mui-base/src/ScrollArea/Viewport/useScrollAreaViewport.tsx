@@ -26,6 +26,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   const tableWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const [paddingX, setPaddingX] = React.useState(0);
+  const [paddingY, setPaddingY] = React.useState(0);
   const [hiddenX, setHiddenX] = React.useState(false);
   const [hiddenY, setHiddenY] = React.useState(false);
 
@@ -128,7 +129,10 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     function handleResize() {
       if (scrollbarYRef.current) {
-        setPaddingX(parseFloat(getComputedStyle(scrollbarYRef.current).width));
+        setPaddingX(scrollbarYRef.current.offsetHeight);
+      }
+      if (scrollbarXRef.current) {
+        setPaddingY(scrollbarXRef.current.offsetWidth);
       }
       computeThumb();
     }
@@ -165,7 +169,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       wrapperStyles.paddingRight = paddingX;
     }
     if (!hiddenX) {
-      wrapperStyles.paddingBottom = paddingX;
+      wrapperStyles.paddingBottom = paddingY;
     }
 
     if (hiddenY) {
