@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TabsListContext, TabsListContextValue } from './TabsListContext';
+import { TabsListContext } from './TabsListContext';
 import { TabMetadata } from '../Root/useTabsRoot';
 import { ListContext, ListContextValue } from '../../useList/ListContext';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
@@ -9,7 +9,7 @@ import { refType } from '../../utils/proptypes';
 
 export type TabsListProviderValue = CompoundComponentContextValue<any, TabMetadata> &
   ListContextValue<any> &
-  TabsListContextValue;
+  TabsListContext;
 
 export interface TabsListProviderProps {
   value: TabsListProviderValue;
@@ -55,7 +55,7 @@ const TabsListProvider: React.FC<TabsListProviderProps> = function TabsListProvi
       [registerItem, getItemIndex, totalSubitemCount],
     );
 
-  const tabsListContextValue: TabsListContextValue = React.useMemo(
+  const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({ activateOnFocus, getTabElement, tabsListRef }),
     [activateOnFocus, getTabElement, tabsListRef],
   );

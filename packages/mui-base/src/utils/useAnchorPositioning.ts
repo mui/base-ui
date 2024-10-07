@@ -31,7 +31,7 @@ interface UseAnchorPositioningParameters {
     | (() => Element | VirtualElement | null)
     | React.MutableRefObject<Element | null>
     | null;
-  positionStrategy?: 'absolute' | 'fixed';
+  positionMethod?: 'absolute' | 'fixed';
   side?: Side;
   sideOffset?: number;
   alignment?: 'start' | 'center' | 'end';
@@ -72,7 +72,7 @@ export function useAnchorPositioning(
   const {
     anchor,
     floatingRootContext,
-    positionStrategy = 'absolute',
+    positionMethod = 'absolute',
     side = 'top',
     sideOffset = 0,
     alignment = 'center',
@@ -198,7 +198,7 @@ export function useAnchorPositioning(
     rootContext: floatingRootContext,
     placement,
     middleware,
-    strategy: positionStrategy,
+    strategy: positionMethod,
     whileElementsMounted: keepMounted || !trackAnchor ? undefined : autoUpdate,
     nodeId,
   });
