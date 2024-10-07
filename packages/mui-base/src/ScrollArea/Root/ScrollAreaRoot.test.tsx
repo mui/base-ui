@@ -90,7 +90,6 @@ describe('<ScrollArea.Root />', () => {
       );
 
       const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-
       const style = getComputedStyle(tableWrapper);
 
       expect(style.paddingLeft).to.equal('0px');
@@ -120,7 +119,6 @@ describe('<ScrollArea.Root />', () => {
       );
 
       const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-
       const style = getComputedStyle(tableWrapper);
 
       expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
@@ -151,7 +149,6 @@ describe('<ScrollArea.Root />', () => {
       );
 
       const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-
       const style = getComputedStyle(tableWrapper);
 
       expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
@@ -185,7 +182,6 @@ describe('<ScrollArea.Root />', () => {
       );
 
       const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-
       const style = getComputedStyle(tableWrapper);
 
       expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
@@ -216,7 +212,6 @@ describe('<ScrollArea.Root />', () => {
       );
 
       const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-
       const style = getComputedStyle(tableWrapper);
 
       expect(style.paddingLeft).to.equal('0px');

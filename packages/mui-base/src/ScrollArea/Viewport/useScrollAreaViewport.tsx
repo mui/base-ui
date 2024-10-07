@@ -53,18 +53,20 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
 
     // Handle Y (vertical) scroll
-    if (scrollbarYEl && thumbYEl) {
-      const thumbHeight = thumbYEl.offsetHeight;
-      const scrollbarStylesY = getComputedStyle(scrollbarYEl);
-      const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
-      const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
+    if (scrollbarYEl) {
+      if (thumbYEl) {
+        const thumbHeight = thumbYEl.offsetHeight;
+        const scrollbarStylesY = getComputedStyle(scrollbarYEl);
+        const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
+        const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
 
-      const maxThumbOffsetY =
-        scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
-      const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
-      const thumbOffsetY = scrollRatioY * maxThumbOffsetY;
+        const maxThumbOffsetY =
+          scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
+        const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
+        const thumbOffsetY = scrollRatioY * maxThumbOffsetY;
 
-      thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
+        thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
+      }
 
       if (scrollbarYHidden) {
         scrollbarYEl.setAttribute('hidden', '');
@@ -83,17 +85,20 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     }
 
     // Handle X (horizontal) scroll
-    if (scrollbarXEl && thumbXEl) {
-      const thumbWidth = thumbXEl.offsetWidth;
-      const scrollbarStylesX = getComputedStyle(scrollbarXEl);
-      const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
-      const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
+    if (scrollbarXEl) {
+      if (thumbXEl) {
+        const thumbWidth = thumbXEl.offsetWidth;
+        const scrollbarStylesX = getComputedStyle(scrollbarXEl);
+        const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
+        const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
 
-      const maxThumbOffsetX = scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
-      const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
-      const thumbOffsetX = scrollRatioX * maxThumbOffsetX;
+        const maxThumbOffsetX =
+          scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
+        const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
+        const thumbOffsetX = scrollRatioX * maxThumbOffsetX;
 
-      thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
+        thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
+      }
 
       if (scrollbarXHidden) {
         scrollbarXEl.setAttribute('hidden', '');
@@ -166,7 +171,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   if (type === 'inlay') {
     if (!hiddenY) {
-      wrapperStyles.paddingRight = paddingX;
+      wrapperStyles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
     }
     if (!hiddenX) {
       wrapperStyles.paddingBottom = paddingY;
