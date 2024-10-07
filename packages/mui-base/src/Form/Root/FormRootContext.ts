@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { FieldValidityData } from '../../Field/Root/FieldRoot.types';
+import type { FieldValidityData } from '../../Field/Root/FieldRoot';
 
 type Errors = Record<string, string | string[]>;
 

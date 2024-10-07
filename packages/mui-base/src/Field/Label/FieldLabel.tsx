@@ -2,12 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldLabelProps } from './FieldLabel.types';
+import { FieldRoot } from '../Root/FieldRoot';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * A label for the field's control.
@@ -21,7 +22,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
  * - [FieldLabel API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldLabel)
  */
 const FieldLabel = React.forwardRef(function FieldLabel(
-  props: FieldLabelProps,
+  props: FieldLabel.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
   const { render, className, id: idProp, ...otherProps } = props;
@@ -51,6 +52,12 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 
   return renderElement();
 });
+
+namespace FieldLabel {
+  export type OwnerState = FieldRoot.OwnerState;
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+}
 
 FieldLabel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

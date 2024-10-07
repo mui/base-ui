@@ -6,9 +6,9 @@ import { useSwitchRoot } from './useSwitchRoot';
 import { SwitchRootContext } from './SwitchRootContext';
 import { styleHookMapping } from '../styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 /**
  * The foundation for building custom-styled switches.
@@ -78,7 +78,7 @@ namespace SwitchRoot {
     extends useSwitchRoot.Parameters,
       Omit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> {}
 
-  export interface OwnerState extends FieldRootOwnerState {
+  export interface OwnerState extends FieldRoot.OwnerState {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;

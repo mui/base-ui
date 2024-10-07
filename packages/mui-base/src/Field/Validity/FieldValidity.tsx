@@ -2,8 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFieldRootContext } from '../Root/FieldRootContext';
-import type { FieldValidityProps, FieldValidityState } from './FieldValidity.types';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
+import { FieldValidityData } from '../Root/FieldRoot';
 
 /**
  * Render prop component that provides the field's validity state and value to its children.
@@ -16,7 +16,7 @@ import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityD
  *
  * - [FieldValidity API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldValidity)
  */
-function FieldValidity(props: FieldValidityProps) {
+function FieldValidity(props: FieldValidity.Props) {
   const { validityData, invalid } = useFieldRootContext(false);
 
   const fieldValidityState: FieldValidityState = React.useMemo(() => {
@@ -28,6 +28,18 @@ function FieldValidity(props: FieldValidityProps) {
   }, [validityData, invalid]);
 
   return <React.Fragment>{props.children(fieldValidityState)}</React.Fragment>;
+}
+
+export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
+  validity: FieldValidityData['state'];
+}
+
+namespace FieldValidity {
+  export interface OwnerState {}
+
+  export interface Props {
+    children: (state: FieldValidityState) => React.ReactNode;
+  }
 }
 
 FieldValidity.propTypes /* remove-proptypes */ = {
