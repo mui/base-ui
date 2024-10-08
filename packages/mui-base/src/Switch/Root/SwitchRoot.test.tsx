@@ -72,9 +72,8 @@ describe('<Switch.Root />', () => {
 
   describe('extra props', () => {
     it('should override the built-in attributes', async () => {
-      await render(<Switch.Root data-state="checked" role="checkbox" data-testid="switch" />);
+      await render(<Switch.Root role="checkbox" data-testid="switch" />);
       expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
-      expect(screen.getByTestId('switch')).to.have.attribute('data-state', 'checked');
     });
   });
 

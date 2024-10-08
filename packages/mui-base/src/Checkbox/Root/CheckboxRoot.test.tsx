@@ -17,7 +17,7 @@ describe('<Checkbox.Root />', () => {
 
   describe('extra props', () => {
     it('can override the built-in attributes', async () => {
-      const { container } = await render(<Checkbox.Root data-state="checked" role="switch" />);
+      const { container } = await render(<Checkbox.Root role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
