@@ -26,7 +26,7 @@ export function Tooltip(props: Tooltip.Props) {
 export namespace Tooltip {
   export interface Props {
     label: string;
-    children: React.ReactElement;
+    children: React.ReactElement<unknown>;
     side?: 'top' | 'right' | 'bottom' | 'left';
   }
 }

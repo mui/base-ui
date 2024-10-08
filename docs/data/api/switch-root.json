@@ -4,7 +4,6 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultChecked": { "type": { "name": "bool" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "id": { "type": { "name": "string" } },
     "inputRef": { "type": { "name": "custom", "description": "ref" } },
     "name": { "type": { "name": "string" } },
     "onCheckedChange": {

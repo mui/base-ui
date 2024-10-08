@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TabsContext, TabsContextValue } from './TabsContext';
+import { TabsRootContext } from './TabsRootContext';
 import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound';
 
 export type TabPanelMetadata = {
@@ -10,7 +10,7 @@ export type TabPanelMetadata = {
 };
 
 export type TabsProviderValue = CompoundComponentContextValue<any, TabPanelMetadata> &
-  TabsContextValue;
+  TabsRootContext;
 
 export interface TabsProviderProps {
   value: TabsProviderValue;
@@ -48,7 +48,7 @@ function TabsProvider(props: TabsProviderProps) {
       [registerItem, getItemIndex, totalSubitemCount],
     );
 
-  const tabsContextValue: TabsContextValue = React.useMemo(
+  const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
       direction,
       getTabId,
@@ -73,7 +73,7 @@ function TabsProvider(props: TabsProviderProps) {
 
   return (
     <CompoundComponentContext.Provider value={compoundComponentContextValue}>
-      <TabsContext.Provider value={tabsContextValue}>{children}</TabsContext.Provider>
+      <TabsRootContext.Provider value={tabsContextValue}>{children}</TabsRootContext.Provider>
     </CompoundComponentContext.Provider>
   );
 }

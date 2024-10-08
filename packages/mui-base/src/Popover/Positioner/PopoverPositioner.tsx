@@ -32,7 +32,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     anchor,
     container,
     keepMounted = false,
-    positionStrategy = 'absolute',
+    positionMethod = 'absolute',
     side = 'bottom',
     alignment = 'center',
     sideOffset = 0,
@@ -51,7 +51,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const positioner = usePopoverPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
-    positionStrategy,
+    positionMethod,
     open,
     keepMounted,
     side,
@@ -220,7 +220,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    * The CSS position strategy for positioning the popover element.
    * @default 'absolute'
    */
-  positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
+  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
    * A function to customize rendering of the component.
    */

@@ -2,10 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldDescriptionProps } from './FieldDescription.types';
+import { FieldRoot } from '../Root/FieldRoot';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldDescription } from './useFieldDescription';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * A description message for the field's control.
@@ -19,7 +20,7 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  * - [FieldDescription API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldDescription)
  */
 const FieldDescription = React.forwardRef(function FieldDescription(
-  props: FieldDescriptionProps,
+  props: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, id, className, ...otherProps } = props;
@@ -40,6 +41,12 @@ const FieldDescription = React.forwardRef(function FieldDescription(
 
   return renderElement();
 });
+
+namespace FieldDescription {
+  export type OwnerState = FieldRoot.OwnerState;
+
+  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+}
 
 FieldDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

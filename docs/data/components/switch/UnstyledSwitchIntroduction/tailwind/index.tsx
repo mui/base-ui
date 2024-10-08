@@ -30,9 +30,9 @@ export default function UnstyledSwitchIntroduction() {
   );
 }
 
-const Switch = React.forwardRef<HTMLButtonElement, BaseSwitch.RootProps>(
+const Switch = React.forwardRef<HTMLButtonElement, BaseSwitch.Root.Props>(
   function Switch({ className: classNameProp = '', ...props }, ref) {
-    const className = ({ checked }: BaseSwitch.OwnerState) =>
+    const className = ({ checked }: BaseSwitch.Root.OwnerState) =>
       `group relative inline-block w-[38px] h-[24px] m-2.5 p-0 transition rounded-full
     border border-solid outline-none border-slate-300 dark:border-gray-700
     focus-visible:shadow-outline-switch
@@ -48,7 +48,7 @@ const Thumb = React.forwardRef<
   HTMLSpanElement,
   React.HTMLAttributes<HTMLSpanElement>
 >(function Thumb({ className: classNameProp = '', ...props }, ref) {
-  const className = ({ checked }: BaseSwitch.OwnerState) =>
+  const className = ({ checked }: BaseSwitch.Root.OwnerState) =>
     `block w-4 h-4 rounded-2xl border border-solid outline-none border-slate-300 dark:border-gray-700 transition
   shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:shadow-[0_1px_2px_rgb(0_0_0_/_0.25)]
   relative transition-all

@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import * as Tabs from '@base_ui/react/Tabs';
+import { useTabPanel } from './useTabPanel';
 
 describe('useTabPanel', () => {
   const { render } = createRenderer();
@@ -11,7 +12,7 @@ describe('useTabPanel', () => {
     it('returns props for root slot', () => {
       const rootRef = React.createRef<HTMLDivElement>();
       function TestTabPanel() {
-        const { getRootProps } = Tabs.useTabPanel({ rootRef, id: 'test-tabpanel', value: 0 });
+        const { getRootProps } = useTabPanel({ rootRef, id: 'test-tabpanel', value: 0 });
         return <div {...getRootProps()} />;
       }
 
@@ -34,7 +35,7 @@ describe('useTabPanel', () => {
       const rootRef = React.createRef<HTMLElement>();
 
       function TestTabPanel() {
-        const { getRootProps } = Tabs.useTabPanel({ rootRef, value: 0 });
+        const { getRootProps } = useTabPanel({ rootRef, value: 0 });
         return (
           <div
             {...getRootProps({

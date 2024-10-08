@@ -1,11 +1,11 @@
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CompoundComponentContextValue } from '../../useCompound';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 
 export interface SliderThumbMetadata {
   inputId: string;
-  ref: React.RefObject<HTMLElement>;
-  inputRef: React.RefObject<HTMLInputElement>;
+  ref: React.RefObject<HTMLElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export type SliderContextValue = Omit<
@@ -23,7 +23,7 @@ export type SliderDirection = 'ltr' | 'rtl';
 
 export type SliderOrientation = 'horizontal' | 'vertical';
 
-export interface SliderRootOwnerState extends FieldRootOwnerState {
+export interface SliderRootOwnerState extends FieldRoot.OwnerState {
   /**
    * The index of the active thumb.
    */
