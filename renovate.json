@@ -32,7 +32,7 @@
     },
     {
       "groupName": "eslint",
-      "matchPackagePatterns": ["eslint", "eslint-*"],
+      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
       "automerge": true
     },
     {
@@ -66,10 +66,6 @@
         "@types/react-dom",
         "@types/react-is"
       ]
-    },
-    {
-      "groupName": "typescript-eslint",
-      "matchPackagePatterns": "@typescript-eslint/*"
     },
     {
       "groupName": "Node.js",
