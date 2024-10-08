@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import * as Field from '@base_ui/react/Field';
+import * as Field from '@base_ui/react/Field/index.parts';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Field.Error />', () => {

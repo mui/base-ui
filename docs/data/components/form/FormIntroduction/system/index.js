@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Form } from '@base_ui/react/Form';
-import * as Fieldset from '@base_ui/react/Fieldset';
-import * as Field from '@base_ui/react/Field';
+import { Fieldset } from '@base_ui/react/Fieldset';
+import { Field } from '@base_ui/react/Field';
 import { styled } from '@mui/system';
 
 export default function FormIntroduction() {
