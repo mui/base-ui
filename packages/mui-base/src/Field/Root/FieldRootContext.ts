@@ -22,8 +22,8 @@ export interface FieldRootContext {
   dirty: boolean;
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
-  validateOnChange: boolean;
-  validateDebounceTime: number;
+  validationMode: 'onBlur' | 'onChange';
+  validationDebounceTime: number;
   ownerState: FieldRoot.OwnerState;
   markedDirtyRef: React.MutableRefObject<boolean>;
 }
@@ -51,8 +51,8 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   dirty: false,
   setDirty: NOOP,
   validate: () => null,
-  validateOnChange: false,
-  validateDebounceTime: 0,
+  validationMode: 'onBlur',
+  validationDebounceTime: 0,
   ownerState: {
     disabled: false,
     valid: null,

@@ -24,7 +24,7 @@ const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id, className, show, forceShow, ...otherProps } = props;
+  const { render, id, className, match, forceShow, ...otherProps } = props;
 
   const { validityData, ownerState, name } = useFieldRootContext(false);
 
@@ -35,8 +35,8 @@ const FieldError = React.forwardRef(function FieldError(
   let rendered = false;
   if (formError || forceShow) {
     rendered = true;
-  } else if (show) {
-    rendered = Boolean(validityData.state[show]);
+  } else if (match) {
+    rendered = Boolean(validityData.state[match]);
   } else if (forceShow == null) {
     rendered = validityData.state.valid === false;
   }
@@ -68,7 +68,7 @@ namespace FieldError {
      * Determines whether the error message should be shown when it matches a given property of the
      * field's `ValidityState`.
      */
-    show?: keyof ValidityState;
+    match?: keyof ValidityState;
     /**
      * Determines whether the error message should be shown regardless of the field's client validity.
      */
@@ -98,14 +98,10 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
    * Determines whether the error message should be shown when it matches a given property of the
    * field's `ValidityState`.
    */
-  show: PropTypes.oneOf([
+  match: PropTypes.oneOf([
     'badInput',
     'customError',
     'patternMismatch',
@@ -118,6 +114,10 @@ FieldError.propTypes /* remove-proptypes */ = {
     'valid',
     'valueMissing',
   ]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { FieldError };

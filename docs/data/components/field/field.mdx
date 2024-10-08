@@ -93,17 +93,17 @@ The `children` by default is the browser's native message, which is automaticall
 
 ### Individual constraint validation failures
 
-When there are multiple HTML validation props, you can target individual validity state failures using the `show` prop to render custom messages:
+When there are multiple HTML validation props, you can target individual validity state failures using the `match` prop to render custom messages:
 
 ```jsx
 <Field.Root>
   <Field.Control required pattern="[a-zA-Z0-9]+" />
-  <Field.Error show="valueMissing">Field is required</Field.Error>
-  <Field.Error show="patternMismatch">Only alphanumeric characters allowed</Field.Error>
+  <Field.Error match="valueMissing">Field is required</Field.Error>
+  <Field.Error match="patternMismatch">Only alphanumeric characters allowed</Field.Error>
 </Field.Root>
 ```
 
-For the list of supported `show` strings, visit [`ValidityState` on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState#instance_properties).
+For the list of supported `match` strings, visit [`ValidityState` on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState#instance_properties).
 
 ### Custom validation
 
@@ -179,8 +179,8 @@ const [serverErrors, setServerErrors] = React.useState({
 return (
   <Field.Root invalid={serverErrors.email}>
     <Field.Control type="email" required />
-    <Field.Error show="valueMissing">Client-side only error message</Field.Error>
-    <Field.Error show="typeMismatch" forceShow={serverErrors.email}>
+    <Field.Error match="valueMissing">Client-side only error message</Field.Error>
+    <Field.Error match="typeMismatch" forceShow={serverErrors.email}>
       Client + server-side error message
     </Field.Error>
     <Field.Error forceShow={serverErrors.email}>Server-side only message</Field.Error>
