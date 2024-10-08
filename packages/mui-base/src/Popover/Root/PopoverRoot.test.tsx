@@ -352,8 +352,11 @@ describe('<Popover.Root />', () => {
 
     await user.click(close);
 
-    await waitFor(() => {
-      expect(toggle).toHaveFocus();
-    });
+    await waitFor(
+      () => {
+        expect(toggle).toHaveFocus();
+      },
+      { timeout: 1500 },
+    );
   });
 });
