@@ -180,7 +180,7 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should place the style hooks on the root and the indicator', async () => {
-    const { getAllByRole } = await render(
+    const { getAllByRole, setProps } = await render(
       <Checkbox.Root defaultChecked disabled readOnly required>
         <Checkbox.Indicator />
       </Checkbox.Root>,
@@ -190,14 +190,27 @@ describe('<Checkbox.Root />', () => {
     const indicator = checkbox.querySelector('span');
 
     expect(checkbox).to.have.attribute('data-checked', '');
+    expect(checkbox).not.to.have.attribute('data-unchecked');
+
     expect(checkbox).to.have.attribute('data-disabled', 'true');
     expect(checkbox).to.have.attribute('data-readonly', 'true');
     expect(checkbox).to.have.attribute('data-required', 'true');
 
     expect(indicator).to.have.attribute('data-checked', '');
+    expect(indicator).not.to.have.attribute('data-unchecked');
+
     expect(indicator).to.have.attribute('data-disabled', 'true');
     expect(indicator).to.have.attribute('data-readonly', 'true');
     expect(indicator).to.have.attribute('data-required', 'true');
+
+    setProps({ disabled: false, readOnly: false });
+    fireEvent.click(checkbox);
+
+    expect(checkbox).to.have.attribute('data-unchecked', '');
+    expect(checkbox).not.to.have.attribute('data-checked');
+
+    expect(indicator).to.have.attribute('data-unchecked', '');
+    expect(indicator).not.to.have.attribute('data-checked');
   });
 
   it('should set the name attribute on the input', async () => {
