@@ -200,10 +200,10 @@ Errors shown initially for password validation:
 
 ### Realtime and async validation
 
-`validateOnChange` reports the validity of the control on every `change` event, such as a keypress:
+`validationMode="onChange"` reports the validity of the control on every `change` event instead of `blur`:
 
 ```jsx
-<Field.Root validateOnChange>
+<Field.Root validationMode="onChange">
 ```
 
 The `validate` function can also be async by returning a promise, enabling inline server-side validation through network requests.
@@ -212,10 +212,10 @@ In the demo below, the taken names are `admin`, `root`, and `superuser` — ever
 
 <Demo demo="UnstyledFieldAsync" defaultCodeOpen="false" />
 
-The `change` validation is debounced by 500ms to avoid firing a network request on every keystroke by specifying the `validateDebounceTime` prop:
+The `onChange` validation is debounced by 500ms to avoid firing a network request on every keystroke by specifying the `validationDebounceTime` prop:
 
 ```jsx
-<Field.Root validateOnChange validateDebounceTime={500}>
+<Field.Root validationMode="onChange" validationDebounceTime={500}>
 ```
 
 ## Styling
