@@ -31,39 +31,29 @@
       "allowedVersions": "< 2.0.0"
     },
     {
-      "groupName": "JSS",
-      "matchPackageNames": [
-        "css-jss",
-        "jss-plugin-cache",
-        "jss-plugin-camel-case",
-        "jss-plugin-compose",
-        "jss-plugin-default-unit",
-        "jss-plugin-expand",
-        "jss-plugin-extend",
-        "jss-plugin-global",
-        "jss-plugin-isolate",
-        "jss-plugin-nested",
-        "jss-plugin-props-sort",
-        "jss-plugin-rule-value-function",
-        "jss-plugin-rule-value-observable",
-        "jss-plugin-template",
-        "jss-plugin-vendor-prefixer",
-        "jss-preset-default",
-        "jss-starter-kit",
-        "jss",
-        "react-jss"
-      ]
+      "groupName": "eslint",
+      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
+      "automerge": true
+    },
+    {
+      "automerge": true,
+      "matchPackageNames": ["@types/**"]
     },
     {
       "groupName": "MUI",
-      "matchPackagePatterns": ["@mui/*"],
+      "matchPackagePatterns": [
+        "@mui/*",
+        "playwright",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
       "allowedVersions": "!/-dev/",
       "schedule": "before 6:00am on Wednesday"
     },
     {
       "groupName": "Public packages' dependencies",
       "matchFileNames": ["packages/*/package.json"],
-      "matchDepTypes": ["dependencies"],
+      "matchDepTypes": ["dependencies", "devDependencies"],
       "schedule": "before 6:00am on Wednesday"
     },
     {
@@ -78,10 +68,6 @@
       ]
     },
     {
-      "groupName": "typescript-eslint",
-      "matchPackagePatterns": "@typescript-eslint/*"
-    },
-    {
       "groupName": "Node.js",
       "matchPackageNames": ["node", "@types/node", "cimg/node"],
       "allowedVersions": "< 19.0.0"
@@ -92,18 +78,9 @@
       "enabled": false
     },
     {
-      "groupName": "bundling fixtures",
-      "matchPaths": ["test/bundling/fixtures/**/package.json"],
-      "schedule": "every 6 months on the first day of the month"
-    },
-    {
       "groupName": "examples",
       "matchPaths": ["examples/**/package.json"],
       "enabled": false
-    },
-    {
-      "groupName": "Playwright",
-      "matchPackageNames": ["playwright", "@playwright/test", "mcr.microsoft.com/playwright"]
     },
     {
       "matchDepTypes": ["action"],
