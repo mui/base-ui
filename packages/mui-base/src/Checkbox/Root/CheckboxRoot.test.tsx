@@ -156,11 +156,6 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'mixed');
     });
 
-    it('should not set the `data-indeterminate` attribute', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root indeterminate />);
-      expect(getAllByRole('checkbox')[0]).to.not.have.attribute('data-indeterminate', 'true');
-    });
-
     it('should not have the aria attribute when `indeterminate` is not set', async () => {
       const { getAllByRole } = await render(<Checkbox.Root />);
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-checked', 'mixed');
@@ -194,12 +189,12 @@ describe('<Checkbox.Root />', () => {
     const [checkbox] = getAllByRole('checkbox');
     const indicator = checkbox.querySelector('span');
 
-    expect(checkbox).to.have.attribute('data-state', 'checked');
+    expect(checkbox).to.have.attribute('data-checked', '');
     expect(checkbox).to.have.attribute('data-disabled', 'true');
     expect(checkbox).to.have.attribute('data-readonly', 'true');
     expect(checkbox).to.have.attribute('data-required', 'true');
 
-    expect(indicator).to.have.attribute('data-state', 'checked');
+    expect(indicator).to.have.attribute('data-checked', '');
     expect(indicator).to.have.attribute('data-disabled', 'true');
     expect(indicator).to.have.attribute('data-readonly', 'true');
     expect(indicator).to.have.attribute('data-required', 'true');
