@@ -46,7 +46,7 @@ export function useSelectPositioner(
     isPositioned,
   } = useAnchorPositioning({
     ...params,
-    positionStrategy: itemAligned ? 'fixed' : params.positionStrategy,
+    positionMethod: itemAligned ? 'fixed' : params.positionMethod,
     innerOptions: {
       fallback: params.innerFallback,
       touchModality,
@@ -116,10 +116,10 @@ export namespace useSelectPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * The CSS position strategy for positioning the Select popup element.
+     * The CSS position method for positioning the Select popup element.
      * @default 'absolute'
      */
-    positionStrategy?: 'absolute' | 'fixed';
+    positionMethod?: 'absolute' | 'fixed';
     /**
      * The container element to which the Select popup will be appended to.
      */

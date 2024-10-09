@@ -45,7 +45,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
     alignOptionToTrigger,
   } = params;
 
-  const { setDirty, validityData, validateOnChange } = useFieldRootContext();
+  const { setDirty, validityData, validationMode } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -87,7 +87,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
 
     setDirty(nextValue !== validityData.initialValue);
 
-    if (validateOnChange) {
+    if (validationMode === 'onChange') {
       fieldControlValidation.commitValidation(nextValue);
     }
 

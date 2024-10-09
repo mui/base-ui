@@ -27,8 +27,8 @@
     "keepMounted": {
       "description": "Whether the select popup remains mounted in the DOM while closed."
     },
-    "positionStrategy": {
-      "description": "The CSS position strategy for positioning the Select popup element."
+    "positionMethod": {
+      "description": "The CSS position method for positioning the Select popup element."
     },
     "render": { "description": "A function to customize rendering of the component." },
     "side": {

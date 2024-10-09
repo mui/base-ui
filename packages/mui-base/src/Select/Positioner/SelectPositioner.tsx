@@ -36,7 +36,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 ) {
   const {
     anchor,
-    positionStrategy = 'absolute',
+    positionMethod = 'absolute',
     className,
     render,
     keepMounted = false,
@@ -119,7 +119,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const positioner = useSelectPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
-    positionStrategy,
+    positionMethod,
     container,
     open,
     mounted,
@@ -395,10 +395,10 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the Select popup element.
+   * The CSS position method for positioning the Select popup element.
    * @default 'absolute'
    */
-  positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
+  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
    * A function to customize rendering of the component.
    */
