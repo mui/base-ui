@@ -28,7 +28,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     disabled = false,
     hiddenUntilFound = false,
     loop,
-    onOpenChange,
+    onValueChange,
     openMultiple = true,
     orientation,
     value,
@@ -54,7 +54,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     defaultValue,
     loop,
     orientation,
-    onOpenChange,
+    onValueChange,
     openMultiple,
     value,
   });
@@ -168,7 +168,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * Callback fired when an Accordion section is opened or closed.
    * The value representing the involved section is provided as an argument.
    */
-  onOpenChange: PropTypes.func,
+  onValueChange: PropTypes.func,
   /**
    * Whether multiple Accordion sections can be opened at the same time
    * @default true

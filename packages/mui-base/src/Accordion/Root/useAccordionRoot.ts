@@ -43,7 +43,7 @@ export function useAccordionRoot(
     disabled = false,
     direction = 'ltr',
     loop = true,
-    onOpenChange = NOOP,
+    onValueChange = NOOP,
     orientation = 'vertical',
     openMultiple = true,
     value: valueParam,
@@ -59,24 +59,24 @@ export function useAccordionRoot(
     state: 'value',
   });
 
-  const handleOpenChange = React.useCallback(
+  const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
         setValue(nextValue);
-        onOpenChange(nextValue);
+        onValueChange(nextValue);
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
         setValue(nextOpenValues);
-        onOpenChange(nextOpenValues);
+        onValueChange(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
         setValue(nextOpenValues);
-        onOpenChange(nextOpenValues);
+        onValueChange(nextOpenValues);
       }
     },
-    [onOpenChange, openMultiple, setValue, value],
+    [onValueChange, openMultiple, setValue, value],
   );
 
   const getRootProps = React.useCallback(
@@ -173,7 +173,7 @@ export function useAccordionRoot(
       animated,
       direction,
       disabled,
-      handleOpenChange,
+      handleValueChange,
       orientation,
       value,
     }),
@@ -183,7 +183,7 @@ export function useAccordionRoot(
       animated,
       direction,
       disabled,
-      handleOpenChange,
+      handleValueChange,
       orientation,
       value,
     ],
@@ -233,7 +233,7 @@ export namespace useAccordionRoot {
      * Callback fired when an Accordion section is opened or closed.
      * The value representing the involved section is provided as an argument.
      */
-    onOpenChange?: (value: Value) => void;
+    onValueChange?: (value: Value) => void;
     /**
      * Whether multiple Accordion sections can be opened at the same time
      * @default true
@@ -256,7 +256,7 @@ export namespace useAccordionRoot {
      * The disabled state of the Accordion
      */
     disabled: boolean;
-    handleOpenChange: (value: number | string, nextOpen: boolean) => void;
+    handleValueChange: (value: number | string, nextOpen: boolean) => void;
     orientation: Orientation;
     /**
      * The open state of the Accordion represented by an array of the values

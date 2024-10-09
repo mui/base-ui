@@ -29,6 +29,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     hiddenUntilFound: hiddenUntilFoundProp,
     id: idProp,
     render,
+    style: styleProp,
     ...otherProps
   } = props;
 
@@ -63,6 +64,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
       style: {
         '--accordion-content-height': height ? `${height}px` : undefined,
         '--accordion-content-width': width ? `${width}px` : undefined,
+        ...styleProp,
       },
     },
     customStyleHookMapping: accordionStyleHookMapping,
@@ -106,4 +108,8 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;

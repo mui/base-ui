@@ -19,7 +19,7 @@ export function useCollapsibleTrigger(
 ): useCollapsibleTrigger.ReturnValue {
   const { contentId, disabled, id, open, rootRef: externalRef, setOpen } = parameters;
 
-  const { getRootProps: getButtonProps, rootRef: buttonRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
     type: 'button',

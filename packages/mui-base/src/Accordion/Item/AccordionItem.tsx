@@ -45,7 +45,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const {
     animated,
     disabled: contextDisabled,
-    handleOpenChange,
+    handleValueChange,
     ownerState: rootOwnerState,
     value: openValues,
   } = useAccordionRootContext();
@@ -69,7 +69,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   }, [openValues, value]);
 
   const onOpenChange = useEventCallback((nextOpen: boolean) => {
-    handleOpenChange(value, nextOpen);
+    handleValueChange(value, nextOpen);
     onOpenChangeProp?.(nextOpen);
   });
 

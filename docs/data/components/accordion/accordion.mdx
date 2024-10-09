@@ -113,13 +113,13 @@ When uncontrolled, use the `defaultValue` prop to set the initial state of the a
 
 ### Controlled
 
-When controlled, pass the `value` and `onOpenChange` props to `Accordion.Root`:
+When controlled, pass the `value` and `onValueChange` props to `Accordion.Root`:
 
 ```tsx
 const [value, setValue] = React.useState(['a']);
 
 return (
-  <Accordion.Root value={value} onOpenChange={setValue}>
+  <Accordion.Root value={value} onValueChange={setValue}>
     <Accordion.Item value="a">
       <Accordion.Header>
         <Accordion.Trigger>Toggle one</Accordion.Trigger>
@@ -153,14 +153,14 @@ Use controlled mode to always keep one `Item` open:
 ```tsx
 const [value, setValue] = React.useState([0]);
 
-const handleOpenChange = (newValue) => {
+const handleValueChange = (newValue) => {
   if (newValue.length > 0) {
     setValue(newValue);
   }
 };
 
 return (
-  <Accordion.Root value={value} onOpenChange={handleOpenChange}>
+  <Accordion.Root value={value} onValueChange={handleValueChange}>
     {/* subcomponents */}
   </Accordion.Root>
 );
@@ -295,7 +295,7 @@ When using external libraries for animation, for example `framer-motion`, be awa
 function App() {
   const [value, setValue] = useState([0]);
   return (
-    <Accordion.Root value={value} onOpenChange={setValue}>
+    <Accordion.Root value={value} onValueChange={setValue}>
       <Accordion.Item>
         <Accordion.Header>
           <Accordion.Trigger>Toggle</Accordion.Trigger>

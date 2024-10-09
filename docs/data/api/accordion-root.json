@@ -8,7 +8,7 @@
     },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "loop": { "type": { "name": "bool" }, "default": "true" },
-    "onOpenChange": { "type": { "name": "func" } },
+    "onValueChange": { "type": { "name": "func" } },
     "openMultiple": { "type": { "name": "bool" }, "default": "true" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": {

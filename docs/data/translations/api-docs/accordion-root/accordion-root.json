@@ -14,7 +14,7 @@
     "loop": {
       "description": "If <code>true</code>, focus will loop when moving focus between <code>Trigger</code>s using the arrow keys."
     },
-    "onOpenChange": {
+    "onValueChange": {
       "description": "Callback fired when an Accordion section is opened or closed. The value representing the involved section is provided as an argument."
     },
     "openMultiple": {

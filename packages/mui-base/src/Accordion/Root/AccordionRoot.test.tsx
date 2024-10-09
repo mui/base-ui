@@ -710,12 +710,12 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe('prop: onOpenChange', () => {
+  describe('prop: onValueChange', () => {
     it('default item value', async () => {
-      const onOpenChange = spy();
+      const onValueChange = spy();
 
       const { getByTestId, user } = await render(
-        <Accordion.Root data-testid="root" animated={false} onOpenChange={onOpenChange}>
+        <Accordion.Root data-testid="root" animated={false} onValueChange={onValueChange}>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger data-testid="trigger1">Trigger 1</Accordion.Trigger>
@@ -734,24 +734,24 @@ describe('<Accordion.Root />', () => {
       const trigger1 = getByTestId('trigger1');
       const trigger2 = getByTestId('trigger2');
 
-      expect(onOpenChange.callCount).to.equal(0);
+      expect(onValueChange.callCount).to.equal(0);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(onOpenChange.callCount).to.equal(1);
-      expect(onOpenChange.args[0][0]).to.deep.equal([0]);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.args[0][0]).to.deep.equal([0]);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(onOpenChange.callCount).to.equal(2);
-      expect(onOpenChange.args[1][0]).to.deep.equal([0, 1]);
+      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.args[1][0]).to.deep.equal([0, 1]);
     });
 
     it('custom item value', async () => {
-      const onOpenChange = spy();
+      const onValueChange = spy();
 
       const { getByTestId, user } = await render(
-        <Accordion.Root data-testid="root" animated={false} onOpenChange={onOpenChange}>
+        <Accordion.Root data-testid="root" animated={false} onValueChange={onValueChange}>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger data-testid="trigger1">Trigger 1</Accordion.Trigger>
@@ -770,27 +770,27 @@ describe('<Accordion.Root />', () => {
       const trigger1 = getByTestId('trigger1');
       const trigger2 = getByTestId('trigger2');
 
-      expect(onOpenChange.callCount).to.equal(0);
+      expect(onValueChange.callCount).to.equal(0);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(onOpenChange.callCount).to.equal(1);
-      expect(onOpenChange.args[0][0]).to.deep.equal(['two']);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.args[0][0]).to.deep.equal(['two']);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(onOpenChange.callCount).to.equal(2);
-      expect(onOpenChange.args[1][0]).to.deep.equal(['two', 'one']);
+      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.args[1][0]).to.deep.equal(['two', 'one']);
     });
 
     it('openMultiple is false', async () => {
-      const onOpenChange = spy();
+      const onValueChange = spy();
 
       const { getByTestId, user } = await render(
         <Accordion.Root
           data-testid="root"
           animated={false}
-          onOpenChange={onOpenChange}
+          onValueChange={onValueChange}
           openMultiple={false}
         >
           <Accordion.Item value="one">
@@ -811,17 +811,17 @@ describe('<Accordion.Root />', () => {
       const trigger1 = getByTestId('trigger1');
       const trigger2 = getByTestId('trigger2');
 
-      expect(onOpenChange.callCount).to.equal(0);
+      expect(onValueChange.callCount).to.equal(0);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(onOpenChange.callCount).to.equal(1);
-      expect(onOpenChange.args[0][0]).to.deep.equal(['one']);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.args[0][0]).to.deep.equal(['one']);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(onOpenChange.callCount).to.equal(2);
-      expect(onOpenChange.args[1][0]).to.deep.equal(['two']);
+      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.args[1][0]).to.deep.equal(['two']);
     });
   });
 });
