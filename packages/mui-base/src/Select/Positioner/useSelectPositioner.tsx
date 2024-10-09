@@ -67,7 +67,7 @@ export function useSelectPositioner(
 
         return mergeReactProps(externalProps, {
           tabIndex: -1,
-          inert: getInertValue(open),
+          inert: getInertValue(!open),
           style: {
             ...positionerStyles,
             ...hiddenStyles,
