@@ -28,8 +28,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     render,
     className,
     validate: validateProp,
-    validateDebounceTime = 0,
-    validateOnChange = false,
+    validationDebounceTime = 0,
+    validationMode = 'onBlur',
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
@@ -100,8 +100,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       dirty,
       setDirty,
       validate,
-      validateOnChange,
-      validateDebounceTime,
+      validationMode,
+      validationDebounceTime,
       ownerState,
       markedDirtyRef,
     }),
@@ -117,8 +117,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       dirty,
       setDirty,
       validate,
-      validateOnChange,
-      validateDebounceTime,
+      validationMode,
+      validationDebounceTime,
       ownerState,
     ],
   );
@@ -183,16 +183,15 @@ namespace FieldRoot {
      */
     validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
     /**
-     * Determines if validation should be triggered on the `change` event, rather than only on commit
-     * (blur).
-     * @default false
+     * Determines when validation should be triggered.
+     * @default 'onBlur'
      */
-    validateOnChange?: boolean;
+    validationMode?: 'onBlur' | 'onChange';
     /**
-     * The debounce time in milliseconds for the `validate` function in the `change` phase.
+     * The debounce time in milliseconds for the `validate` function in `onChange` phase.
      * @default 0
      */
-    validateDebounceTime?: number;
+    validationDebounceTime?: number;
     /**
      * Determines if the field is forcefully marked as invalid.
      */
@@ -238,16 +237,15 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   validate: PropTypes.func,
   /**
-   * The debounce time in milliseconds for the `validate` function in the `change` phase.
+   * The debounce time in milliseconds for the `validate` function in `onChange` phase.
    * @default 0
    */
-  validateDebounceTime: PropTypes.number,
+  validationDebounceTime: PropTypes.number,
   /**
-   * Determines if validation should be triggered on the `change` event, rather than only on commit
-   * (blur).
-   * @default false
+   * Determines when validation should be triggered.
+   * @default 'onBlur'
    */
-  validateOnChange: PropTypes.bool,
+  validationMode: PropTypes.oneOf(['onBlur', 'onChange']),
 } as any;
 
 export { FieldRoot };

@@ -59,7 +59,7 @@ export function useNumberFieldRoot(
   const {
     labelId,
     setControlId,
-    validateOnChange,
+    validationMode,
     setTouched,
     setDirty,
     validityData,
@@ -182,7 +182,7 @@ export function useNumberFieldRoot(
     setValueUnwrapped(validatedValue);
     setDirty(validatedValue !== validityData.initialValue);
 
-    if (validateOnChange) {
+    if (validationMode === 'onChange') {
       commitValidation(validatedValue);
     }
 

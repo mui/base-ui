@@ -50,7 +50,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'false');
 
-      await act(() => {
+      await act(async () => {
         tab2.click();
       });
 
@@ -58,7 +58,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'true');
       expect(tab3).to.have.attribute('aria-selected', 'false');
 
-      await act(() => {
+      await act(async () => {
         tab3.click();
       });
 
@@ -66,7 +66,7 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'true');
 
-      await act(() => {
+      await act(async () => {
         tab1.click();
       });
 

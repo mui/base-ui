@@ -88,7 +88,7 @@ describe('<Menu.Item />', () => {
     );
 
     const menuItems = getAllByRole('menuitem');
-    await act(() => {
+    await act(async () => {
       menuItems[0].focus();
     });
 

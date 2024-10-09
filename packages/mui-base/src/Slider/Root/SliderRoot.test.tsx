@@ -145,7 +145,7 @@ describe('<Slider.Root />', () => {
     it('should update aria-valuenow', async () => {
       const { getByRole } = await render(<TestSlider defaultValue={50} />);
       const slider = getByRole('slider');
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -206,7 +206,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -229,7 +229,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -252,7 +252,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -275,7 +275,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -464,7 +464,7 @@ describe('<Slider.Root />', () => {
       );
       const slider = getByRole('slider');
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -484,7 +484,7 @@ describe('<Slider.Root />', () => {
       );
       const slider = getByRole('slider');
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -493,7 +493,7 @@ describe('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -523,7 +523,7 @@ describe('<Slider.Root />', () => {
       );
       const slider = getByRole('slider');
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -532,7 +532,7 @@ describe('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -556,7 +556,7 @@ describe('<Slider.Root />', () => {
       );
       const slider = getByRole('slider');
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -565,7 +565,7 @@ describe('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -603,7 +603,7 @@ describe('<Slider.Root />', () => {
       );
 
       const slider = getByRole('slider');
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -623,7 +623,7 @@ describe('<Slider.Root />', () => {
       );
 
       const slider = getByRole('slider');
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -678,7 +678,7 @@ describe('<Slider.Root />', () => {
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -690,7 +690,7 @@ describe('<Slider.Root />', () => {
         <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -715,7 +715,7 @@ describe('<Slider.Root />', () => {
       const thumbOne = getByTestId('thumb-0');
       const thumbTwo = getByTestId('thumb-1');
 
-      await act(() => {
+      await act(async () => {
         thumbOne.focus();
       });
 
@@ -725,7 +725,7 @@ describe('<Slider.Root />', () => {
       fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(1);
 
-      await act(() => {
+      await act(async () => {
         thumbTwo.focus();
       });
 
@@ -774,7 +774,7 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
 
@@ -1120,7 +1120,7 @@ describe('<Slider.Root />', () => {
       );
 
       const button = getByText('Submit');
-      await act(() => {
+      await act(async () => {
         button.click();
       });
     });
@@ -1257,7 +1257,7 @@ describe('<Slider.Root />', () => {
       );
       const slider = getByRole('slider');
 
-      await act(() => {
+      await act(async () => {
         slider.focus();
       });
       fireEvent.change(slider, {
@@ -1286,7 +1286,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1309,7 +1309,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1332,7 +1332,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1355,7 +1355,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1379,7 +1379,7 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(document.body, { key: 'TAB' });
 
-        await act(() => {
+        await act(async () => {
           (input as HTMLInputElement).focus();
         });
 
@@ -1397,7 +1397,7 @@ describe('<Slider.Root />', () => {
         const thumbOne = getByTestId('thumb-0');
         const thumbTwo = getByTestId('thumb-1');
 
-        await act(() => {
+        await act(async () => {
           thumbOne.focus();
         });
 
@@ -1407,7 +1407,7 @@ describe('<Slider.Root />', () => {
         fireEvent.keyDown(thumbOne, { key: 'End' });
         expect(handleValueChange.callCount).to.equal(1);
 
-        await act(() => {
+        await act(async () => {
           thumbTwo.focus();
         });
 
@@ -1428,7 +1428,7 @@ describe('<Slider.Root />', () => {
 
         fireEvent.keyDown(document.body, { key: 'TAB' });
 
-        await act(() => {
+        await act(async () => {
           (input as HTMLInputElement).focus();
         });
 
@@ -1446,7 +1446,7 @@ describe('<Slider.Root />', () => {
         const thumbOne = getByTestId('thumb-0');
         const thumbTwo = getByTestId('thumb-1');
 
-        await act(() => {
+        await act(async () => {
           thumbTwo.focus();
         });
 
@@ -1456,7 +1456,7 @@ describe('<Slider.Root />', () => {
         fireEvent.keyDown(thumbTwo, { key: 'Home' });
         expect(handleValueChange.callCount).to.equal(1);
 
-        await act(() => {
+        await act(async () => {
           thumbOne.focus();
         });
 
@@ -1476,7 +1476,7 @@ describe('<Slider.Root />', () => {
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
 
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1498,7 +1498,7 @@ describe('<Slider.Root />', () => {
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1520,7 +1520,7 @@ describe('<Slider.Root />', () => {
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1550,7 +1550,7 @@ describe('<Slider.Root />', () => {
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 
@@ -1574,7 +1574,7 @@ describe('<Slider.Root />', () => {
       const input = container.querySelector('input');
 
       fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(() => {
+      await act(async () => {
         (input as HTMLInputElement).focus();
       });
 

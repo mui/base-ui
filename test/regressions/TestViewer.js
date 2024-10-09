@@ -53,7 +53,7 @@ function TestViewer(props) {
     }
 
     *, *::before, *::after {
-      boxSizing: inherit;
+      box-sizing: inherit;
       /* Disable transitions to avoid flaky screenshots */
       transition: none !important;
       animation: none !important;
