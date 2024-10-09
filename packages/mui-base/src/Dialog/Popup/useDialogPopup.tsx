@@ -8,6 +8,7 @@ import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { type PointerType } from '../../utils/useEnhancedClickHandler';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -22,6 +23,8 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     dismissible,
     titleElementId,
     isTopmost,
+    initialFocus,
+    openMethod,
   } = parameters;
 
   const { refs, context, elements } = useFloating({
@@ -49,6 +52,29 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 
   useScrollLock(modal && mounted, elements.floating);
 
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = React.useCallback((pointerType: PointerType) => {
+    if (pointerType === 'touch') {
+      return popupRef;
+    }
+
+    return 0;
+  }, []);
+
+  const resolvedInitialFocus = React.useMemo(() => {
+    if (initialFocus == null) {
+      return defaultInitialFocus(openMethod ?? '');
+    }
+
+    if (typeof initialFocus === 'function') {
+      return initialFocus(openMethod ?? '');
+    }
+
+    return initialFocus;
+  }, [defaultInitialFocus, initialFocus, openMethod]);
+
   useEnhancedEffect(() => {
     setPopupElementId(id);
     return () => {
@@ -74,6 +100,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     getRootProps,
     mounted,
     transitionStatus,
+    resolvedInitialFocus,
   };
 }
 
@@ -100,10 +127,11 @@ export namespace useDialogPopup {
      * Determines if the dialog is open.
      */
     open: boolean;
+    openMethod: PointerType | null;
     /**
      * Callback fired when the dialog is requested to be opened or closed.
      */
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: (open: boolean, event?: Event) => void;
     /**
      * The id of the title element associated with the dialog.
      */
@@ -125,6 +153,14 @@ export namespace useDialogPopup {
      * Determines if the dialog is the top-most one.
      */
     isTopmost: boolean;
+    /**
+     * Determines an element to focus when the dialog is opened.
+     * It can be either a ref to the element or a function that returns such a ref.
+     * If not provided, the first focusable element is focused.
+     */
+    initialFocus?:
+      | React.RefObject<HTMLElement>
+      | ((pointerType: PointerType) => React.RefObject<HTMLElement>);
   }
 
   export interface ReturnValue {
@@ -146,5 +182,6 @@ export namespace useDialogPopup {
      * The current transition status of the dialog.
      */
     transitionStatus: TransitionStatus;
+    resolvedInitialFocus: React.RefObject<HTMLElement> | number;
   }
 }

@@ -8,6 +8,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { useForkRef } from '../../utils/useForkRef';
+import { PointerType } from '../../utils/useEnhancedClickHandler';
 
 /**
  *
@@ -23,16 +25,21 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, container, id, keepMounted = false, render, ...other } = props;
+  const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
   const rootContext = useDialogRootContext();
   const { open, modal, nestedOpenDialogCount, dismissible } = rootContext;
 
-  const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
-    id,
-    ref: forwardedRef,
-    isTopmost: nestedOpenDialogCount === 0,
-    ...rootContext,
-  });
+  const popupRef = React.useRef<HTMLElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, popupRef);
+
+  const { getRootProps, floatingContext, mounted, transitionStatus, resolvedInitialFocus } =
+    useDialogPopup({
+      id,
+      ref: mergedRef,
+      isTopmost: nestedOpenDialogCount === 0,
+      initialFocus,
+      ...rootContext,
+    });
 
   const ownerState: DialogPopup.OwnerState = {
     open,
@@ -76,6 +83,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
         modal={modal}
         disabled={!mounted}
         closeOnFocusOut={dismissible}
+        initialFocus={resolvedInitialFocus}
       >
         {renderElement()}
       </FloatingFocusManager>
@@ -95,6 +103,14 @@ namespace DialogPopup {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * Determines an element to focus when the dialog is opened.
+     * It can be either a ref to the element or a function that returns such a ref.
+     * If not provided, the first focusable element is focused.
+     */
+    initialFocus?:
+      | React.RefObject<HTMLElement>
+      | ((pointerType: PointerType) => React.RefObject<HTMLElement>);
   }
 
   export interface OwnerState {
@@ -126,6 +142,15 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
+  /**
+   * Determines an element to focus when the dialog is opened.
+   * It can be either a ref to the element or a function that returns such a ref.
+   * If not provided, the first focusable element is focused.
+   */
+  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    PropTypes.func,
+    refType,
+  ]),
   /**
    * If `true`, the dialog element is kept in the DOM when closed.
    *
