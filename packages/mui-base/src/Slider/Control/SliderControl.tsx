@@ -71,6 +71,12 @@ const SliderControl = React.forwardRef(function SliderControl(
   return renderElement();
 });
 
+export namespace SliderControl {
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+}
+
+export { SliderControl };
+
 SliderControl.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -89,9 +95,3 @@ SliderControl.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
-}
-
-export { SliderControl };

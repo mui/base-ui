@@ -143,6 +143,32 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   });
 });
 
+export namespace SliderThumb {
+  export interface OwnerState extends SliderRoot.OwnerState {}
+
+  export interface Props
+    extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
+      Omit<BaseUIComponentProps<'span', OwnerState>, 'render'> {
+    onPointerLeave?: React.PointerEventHandler;
+    onPointerOver?: React.PointerEventHandler;
+    onBlur?: React.FocusEventHandler;
+    onFocus?: React.FocusEventHandler;
+    onKeyDown?: React.KeyboardEventHandler;
+    /**
+     * A function to customize rendering of the component.
+     */
+    render?:
+      | ((
+          props: React.ComponentPropsWithRef<'span'>,
+          inputProps: React.ComponentPropsWithRef<'input'>,
+          state: OwnerState,
+        ) => React.ReactElement)
+      | (React.ReactElement & { ref: React.Ref<Element> });
+  }
+}
+
+export { SliderThumb };
+
 SliderThumb.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -214,29 +240,3 @@ SliderThumb.propTypes /* remove-proptypes */ = {
     PropTypes.node,
   ]),
 } as any;
-
-export namespace SliderThumb {
-  export interface OwnerState extends SliderRoot.OwnerState {}
-
-  export interface Props
-    extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'span', OwnerState>, 'render'> {
-    onPointerLeave?: React.PointerEventHandler;
-    onPointerOver?: React.PointerEventHandler;
-    onBlur?: React.FocusEventHandler;
-    onFocus?: React.FocusEventHandler;
-    onKeyDown?: React.KeyboardEventHandler;
-    /**
-     * A function to customize rendering of the component.
-     */
-    render?:
-      | ((
-          props: React.ComponentPropsWithRef<'span'>,
-          inputProps: React.ComponentPropsWithRef<'input'>,
-          state: OwnerState,
-        ) => React.ReactElement)
-      | (React.ReactElement & { ref: React.Ref<Element> });
-  }
-}
-
-export { SliderThumb };

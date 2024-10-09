@@ -47,6 +47,12 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   return renderElement();
 });
 
+export namespace SliderIndicator {
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+}
+
+export { SliderIndicator };
+
 SliderIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -65,9 +71,3 @@ SliderIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
-}
-
-export { SliderIndicator };

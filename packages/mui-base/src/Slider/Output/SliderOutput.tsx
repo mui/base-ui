@@ -45,6 +45,12 @@ const SliderOutput = React.forwardRef(function SliderOutput(
   return renderElement();
 });
 
+export namespace SliderOutput {
+  export interface Props extends BaseUIComponentProps<'output', SliderRoot.OwnerState> {}
+}
+
+export { SliderOutput };
+
 SliderOutput.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -63,9 +69,3 @@ SliderOutput.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace SliderOutput {
-  export interface Props extends BaseUIComponentProps<'output', SliderRoot.OwnerState> {}
-}
-
-export { SliderOutput };

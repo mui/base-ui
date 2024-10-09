@@ -36,6 +36,12 @@ const SliderTrack = React.forwardRef(function SliderTrack(
   return renderElement();
 });
 
+export namespace SliderTrack {
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+}
+
+export { SliderTrack };
+
 SliderTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -54,9 +60,3 @@ SliderTrack.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace SliderTrack {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
-}
-
-export { SliderTrack };
