@@ -14,7 +14,9 @@ import { useSelectRoot } from './useSelectRoot';
  *
  * - [SelectRoot API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectRoot)
  */
-function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Element {
+const SelectRoot: SelectRoot = function SelectRoot<Value>(
+  props: SelectRoot.Props<Value>,
+): React.JSX.Element {
   const {
     animated = true,
     id,
@@ -60,10 +62,10 @@ function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Element {
   );
 
   return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
-}
+};
 
 namespace SelectRoot {
-  export interface Props<Value = any> {
+  export interface Props<Value> {
     /**
      * If `true`, the Select supports CSS-based animations and transitions.
      * It is kept in the DOM until the animation completes.
