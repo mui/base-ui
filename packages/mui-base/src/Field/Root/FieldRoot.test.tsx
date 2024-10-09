@@ -259,11 +259,11 @@ describe('<Field.Root />', () => {
     });
   });
 
-  describe('prop: validateOnChange', () => {
+  describe('prop: validationMode', () => {
     it('should validate the field on change', async () => {
       render(
         <Field.Root
-          validateOnChange
+          validationMode="onChange"
           validate={(value) => {
             const str = value as string;
             return str.length < 3 ? 'error' : null;
@@ -294,8 +294,8 @@ describe('<Field.Root />', () => {
     it('should debounce validation', async () => {
       renderFakeTimers(
         <Field.Root
-          validateDebounceTime={100}
-          validateOnChange
+          validationDebounceTime={100}
+          validationMode="onChange"
           validate={(value) => {
             const str = value as string;
             return str.length < 3 ? 'error' : null;
