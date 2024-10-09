@@ -18,10 +18,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     typingRef,
   } = params;
 
-  const { getRootProps: getButtonProps, rootRef: mergedRef } = useButton({
+  const { getButtonProps, buttonRef: mergedRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    rootRef: externalRef,
+    buttonRef: externalRef,
   });
 
   const getRootProps = React.useCallback(

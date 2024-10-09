@@ -79,7 +79,7 @@ export namespace useTooltipPositioner {
      * The CSS position strategy for positioning the tooltip element.
      * @default 'absolute'
      */
-    positionStrategy?: 'absolute' | 'fixed';
+    positionMethod?: 'absolute' | 'fixed';
     /**
      * The side of the anchor element that the tooltip element should be placed at.
      * @default 'top'

@@ -17,7 +17,7 @@ export interface ComponentRendererSettings<OwnerState, RenderedElementType exten
    */
   render:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
-    | React.ReactElement
+    | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;
   /**
    * The owner state of the component.
@@ -79,7 +79,7 @@ export function useComponentRenderer<
 
   let resolvedRenderProp:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
-    | React.ReactElement;
+    | React.ReactElement<Record<string, unknown>>;
 
   if (typeof renderProp === 'string') {
     resolvedRenderProp = defaultRenderFunctions[renderProp];

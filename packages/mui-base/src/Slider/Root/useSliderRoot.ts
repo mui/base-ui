@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { activeElement } from '@floating-ui/react/utils';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -294,7 +295,7 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
 
   const isRtl = direction === 'rtl';
 
-  const previousIndexRef = React.useRef<number>();
+  const previousIndexRef = React.useRef<number | null>(null);
   let axis = orientation;
   if (isRtl && orientation === 'horizontal') {
     axis += '-reverse';
@@ -376,12 +377,13 @@ function useSliderRoot(parameters: UseSliderParameters): UseSliderReturnValue {
   );
 
   useEnhancedEffect(() => {
-    if (disabled && sliderRef.current!.contains(document.activeElement)) {
+    const activeEl = activeElement(ownerDocument(sliderRef.current));
+    if (disabled && sliderRef.current!.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
       // @ts-ignore
-      document.activeElement?.blur();
+      activeEl.blur();
     }
   }, [disabled]);
 

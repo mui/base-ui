@@ -6,7 +6,7 @@ import { useEventCallback } from './useEventCallback';
  * Executes a function once all animations have finished on the provided element.
  * @ignore - internal hook.
  */
-export function useAnimationsFinished(ref: React.RefObject<HTMLElement>) {
+export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) {
   const frameRef = React.useRef(-1);
 
   const cancelFrames = useEventCallback(() => {

@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogRootProps } from './DialogRoot.types';
 import { DialogRootContext } from './DialogRootContext';
-import { useDialogRoot } from './useDialogRoot';
+import { CommonParameters, useDialogRoot } from './useDialogRoot';
 
 /**
  *
@@ -15,7 +14,7 @@ import { useDialogRoot } from './useDialogRoot';
  *
  * - [DialogRoot API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogRoot)
  */
-const DialogRoot = function DialogRoot(props: DialogRootProps) {
+const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const {
     children,
     defaultOpen,
@@ -47,6 +46,12 @@ const DialogRoot = function DialogRoot(props: DialogRootProps) {
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
 };
+
+namespace DialogRoot {
+  export interface Props extends CommonParameters {
+    children?: React.ReactNode;
+  }
+}
 
 DialogRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

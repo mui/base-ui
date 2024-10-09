@@ -2,12 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRootOwnerState, FieldValidityData, FieldRootProps } from './FieldRoot.types';
-import { FieldRootContext, type FieldRootContextValue } from './FieldRootContext';
+import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled fields.
@@ -21,15 +21,15 @@ import { useFormRootContext } from '../../Form/Root/FormRootContext';
  * - [FieldRoot API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldRoot)
  */
 const FieldRoot = React.forwardRef(function FieldRoot(
-  props: FieldRootProps,
+  props: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render,
     className,
     validate: validateProp,
-    validateDebounceTime = 0,
-    validateOnChange = false,
+    validationDebounceTime = 0,
+    validationMode = 'onBlur',
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
@@ -72,7 +72,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const valid = !invalid && validityData.state.valid;
 
-  const ownerState: FieldRootOwnerState = React.useMemo(
+  const ownerState: FieldRoot.OwnerState = React.useMemo(
     () => ({
       disabled,
       touched,
@@ -82,7 +82,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     [disabled, touched, dirty, valid],
   );
 
-  const contextValue: FieldRootContextValue = React.useMemo(
+  const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
       controlId,
@@ -100,8 +100,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       dirty,
       setDirty,
       validate,
-      validateOnChange,
-      validateDebounceTime,
+      validationMode,
+      validationDebounceTime,
       ownerState,
       markedDirtyRef,
     }),
@@ -117,8 +117,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       dirty,
       setDirty,
       validate,
-      validateOnChange,
-      validateDebounceTime,
+      validationMode,
+      validationDebounceTime,
       ownerState,
     ],
   );
@@ -136,6 +136,68 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     <FieldRootContext.Provider value={contextValue}>{renderElement()}</FieldRootContext.Provider>
   );
 });
+
+export interface FieldValidityData {
+  state: {
+    badInput: boolean;
+    customError: boolean;
+    patternMismatch: boolean;
+    rangeOverflow: boolean;
+    rangeUnderflow: boolean;
+    stepMismatch: boolean;
+    tooLong: boolean;
+    tooShort: boolean;
+    typeMismatch: boolean;
+    valueMissing: boolean;
+    valid: boolean | null;
+  };
+  error: string;
+  errors: string[];
+  value: unknown;
+  initialValue: unknown;
+}
+
+namespace FieldRoot {
+  export interface OwnerState {
+    disabled: boolean;
+    touched: boolean;
+    dirty: boolean;
+    valid: boolean | null;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
+     * component.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+     */
+    name?: string;
+    /**
+     * Function to custom-validate the field's value. Return a string or array of strings with error
+     * messages if the value is invalid, or `null` if the value is valid. The function can also return
+     * a promise that resolves to a string, array of strings, or `null`.
+     */
+    validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
+    /**
+     * Determines when validation should be triggered.
+     * @default 'onBlur'
+     */
+    validationMode?: 'onBlur' | 'onChange';
+    /**
+     * The debounce time in milliseconds for the `validate` function in `onChange` phase.
+     * @default 0
+     */
+    validationDebounceTime?: number;
+    /**
+     * Determines if the field is forcefully marked as invalid.
+     */
+    invalid?: boolean;
+  }
+}
 
 FieldRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -175,16 +237,15 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   validate: PropTypes.func,
   /**
-   * The debounce time in milliseconds for the `validate` function in the `change` phase.
+   * The debounce time in milliseconds for the `validate` function in `onChange` phase.
    * @default 0
    */
-  validateDebounceTime: PropTypes.number,
+  validationDebounceTime: PropTypes.number,
   /**
-   * Determines if validation should be triggered on the `change` event, rather than only on commit
-   * (blur).
-   * @default false
+   * Determines when validation should be triggered.
+   * @default 'onBlur'
    */
-  validateOnChange: PropTypes.bool,
+  validationMode: PropTypes.oneOf(['onBlur', 'onChange']),
 } as any;
 
 export { FieldRoot };

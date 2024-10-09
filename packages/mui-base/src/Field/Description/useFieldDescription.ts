@@ -5,11 +5,7 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 
-interface UseFieldDescriptionParameters {
-  id: string | undefined;
-}
-
-export function useFieldDescription(params: UseFieldDescriptionParameters) {
+export function useFieldDescription(params: useFieldDescription.Parameters) {
   const { id: idProp } = params;
 
   const { setMessageIds } = useFieldRootContext();
@@ -42,4 +38,10 @@ export function useFieldDescription(params: UseFieldDescriptionParameters) {
     }),
     [getDescriptionProps],
   );
+}
+
+export namespace useFieldDescription {
+  export interface Parameters {
+    id: string | undefined;
+  }
 }

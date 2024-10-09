@@ -59,7 +59,7 @@ export function useNumberFieldRoot(
   const {
     labelId,
     setControlId,
-    validateOnChange,
+    validationMode,
     setTouched,
     setDirty,
     validityData,
@@ -182,7 +182,7 @@ export function useNumberFieldRoot(
     setValueUnwrapped(validatedValue);
     setDirty(validatedValue !== validityData.initialValue);
 
-    if (validateOnChange) {
+    if (validationMode === 'onChange') {
       commitValidation(validatedValue);
     }
 
@@ -883,7 +883,7 @@ export namespace UseNumberFieldRoot {
     isScrubbing: boolean;
     inputRef: ((instance: HTMLInputElement | null) => void) | null;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
-    scrubAreaRef: React.RefObject<HTMLSpanElement>;
-    scrubAreaCursorRef: React.RefObject<HTMLSpanElement>;
+    scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
+    scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
   }
 }

@@ -30,14 +30,14 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).to.have.attribute('aria-checked', 'false');
     expect(input.checked).to.equal(false);
 
-    await act(() => {
+    await act(async () => {
       checkbox.click();
     });
 
     expect(checkbox).to.have.attribute('aria-checked', 'true');
     expect(input.checked).to.equal(true);
 
-    await act(() => {
+    await act(async () => {
       checkbox.click();
     });
 
@@ -61,13 +61,13 @@ describe('<Checkbox.Root />', () => {
     const button = getByText('Toggle');
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
-    await act(() => {
+    await act(async () => {
       button.click();
     });
 
     expect(checkbox).to.have.attribute('aria-checked', 'true');
 
-    await act(() => {
+    await act(async () => {
       button.click();
     });
 
@@ -79,7 +79,7 @@ describe('<Checkbox.Root />', () => {
     const { getAllByRole } = await render(<Checkbox.Root onCheckedChange={handleChange} />);
     const [checkbox] = getAllByRole('checkbox');
 
-    await act(() => {
+    await act(async () => {
       checkbox.click();
     });
 
@@ -104,7 +104,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         checkbox.click();
       });
 
@@ -129,7 +129,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         checkbox.click();
       });
 
@@ -149,7 +149,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'mixed');
 
-      await act(() => {
+      await act(async () => {
         checkbox.click();
       });
 
@@ -177,7 +177,7 @@ describe('<Checkbox.Root />', () => {
     const [checkbox] = getAllByRole('checkbox');
     const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
 
-    await act(() => {
+    await act(async () => {
       input.click();
     });
 
@@ -231,7 +231,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         label.click();
       });
 
@@ -258,7 +258,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         label.click();
       });
 
@@ -294,7 +294,7 @@ describe('<Checkbox.Root />', () => {
 
     expect(stringifiedFormData).to.equal('test-checkbox=off');
 
-    await act(() => {
+    await act(async () => {
       checkbox.click();
     });
 

@@ -2,11 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
-import { DialogPopupOwnerState, DialogPopupProps } from './DialogPopup.types';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
+import { type BaseUIComponentProps } from '../../utils/types';
+import { type TransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  *
@@ -19,7 +20,7 @@ import { refType, HTMLElementType } from '../../utils/proptypes';
  * - [DialogPopup API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogPopup)
  */
 const DialogPopup = React.forwardRef(function DialogPopup(
-  props: DialogPopupProps,
+  props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, container, id, keepMounted = false, render, ...other } = props;
@@ -33,7 +34,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     ...rootContext,
   });
 
-  const ownerState: DialogPopupOwnerState = {
+  const ownerState: DialogPopup.OwnerState = {
     open,
     modal,
     nestedOpenDialogCount,
@@ -47,7 +48,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      style: { '--nested-dialogs': nestedOpenDialogCount },
+      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
     },
     customStyleHookMapping: {
       open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
@@ -82,6 +83,28 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   );
 });
 
+namespace DialogPopup {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The container element to which the popup is appended to.
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+    /**
+     * If `true`, the dialog element is kept in the DOM when closed.
+     *
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+
+  export interface OwnerState {
+    open: boolean;
+    modal: boolean;
+    nestedOpenDialogCount: number;
+    transitionStatus: TransitionStatus;
+  }
+}
+
 DialogPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -113,6 +136,10 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
 
 export { DialogPopup };

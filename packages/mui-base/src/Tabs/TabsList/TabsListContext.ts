@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 
-export type TabsListContextValue = {
+export interface TabsListContext {
   activateOnFocus: boolean;
   getTabElement: (value: any) => HTMLElement | null;
-  tabsListRef: React.RefObject<HTMLElement>;
-};
+  tabsListRef: React.RefObject<HTMLElement | null>;
+}
 
-export const TabsListContext = React.createContext<TabsListContextValue | undefined>(undefined);
+export const TabsListContext = React.createContext<TabsListContext | undefined>(undefined);
 
 export function useTabsListContext() {
   const context = React.useContext(TabsListContext);

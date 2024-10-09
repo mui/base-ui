@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { DialogTitleProps } from './DialogTitle.types';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
+import { type BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -18,7 +18,7 @@ import { useId } from '../../utils/useId';
  * - [DialogTitle API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogTitle)
  */
 const DialogTitle = React.forwardRef(function DialogTitle(
-  props: DialogTitleProps,
+  props: DialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
@@ -48,6 +48,15 @@ const DialogTitle = React.forwardRef(function DialogTitle(
 
   return renderElement();
 });
+
+namespace DialogTitle {
+  export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+    modal: boolean;
+  }
+}
 
 DialogTitle.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

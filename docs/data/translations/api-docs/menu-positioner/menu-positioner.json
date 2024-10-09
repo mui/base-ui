@@ -27,7 +27,7 @@
     "keepMounted": {
       "description": "Whether the menu popup remains mounted in the DOM while closed."
     },
-    "positionStrategy": {
+    "positionMethod": {
       "description": "The CSS position strategy for positioning the Menu popup element."
     },
     "render": { "description": "A function to customize rendering of the component." },

@@ -54,6 +54,8 @@ export default function UnstyledFieldServerError() {
             <FieldSubmit
               type="submit"
               aria-disabled={status === 'loading'}
+              // The aria-description attribute is not a standard ARIA attribute (it's defined in ARIA 1.3 Editor's Draft).
+              // eslint-disable-next-line jsx-a11y/aria-props
               aria-description={
                 !state.validity.valid ? 'Field has errors' : undefined
               }
@@ -74,7 +76,6 @@ export default function UnstyledFieldServerError() {
             Email changed successfully
           </FieldSuccess>
         )}
-
         <FieldDescription>
           On the client, standard email validation is performed. On the server, we
           check a blocklist of email domains: the blocked domain is @example.com.
