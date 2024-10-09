@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import * as React from 'react';
 import * as Progress from '@base_ui/react/Progress';
 import { createRenderer, describeConformance } from '#test-utils';
-import type { ProgressRootProps } from './ProgressRoot.types';
+import type { ProgressRoot } from './ProgressRoot';
 
-function TestProgress(props: ProgressRootProps) {
+function TestProgress(props: ProgressRoot.Props) {
   return (
     <Progress.Root {...props}>
       <Progress.Track>

@@ -1,4 +1,5 @@
 import { isIOS } from './detectBrowser';
+import { ownerDocument } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 let originalHtmlStyles = {};
@@ -6,8 +7,9 @@ let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
-function preventScrollIOS() {
-  const body = document.body;
+function preventScrollIOS(referenceElement?: Element | null) {
+  const doc = ownerDocument(referenceElement);
+  const body = doc.body;
   const bodyStyle = body.style;
 
   // iOS 12 does not support `visualViewport`.
@@ -39,9 +41,10 @@ function preventScrollIOS() {
   };
 }
 
-function preventScrollStandard() {
-  const html = document.documentElement;
-  const body = document.body;
+function preventScrollStandard(referenceElement?: Element | null) {
+  const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
+  const body = doc.body;
   const htmlStyle = html.style;
   const bodyStyle = body.style;
 
@@ -134,7 +137,7 @@ function preventScrollStandard() {
  *
  * @param enabled - Whether to enable the scroll lock.
  */
-export function useScrollLock(enabled: boolean = true) {
+export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
   useEnhancedEffect(() => {
     if (!enabled) {
       return undefined;
@@ -142,7 +145,9 @@ export function useScrollLock(enabled: boolean = true) {
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = isIOS() ? preventScrollIOS() : preventScrollStandard();
+      restore = isIOS()
+        ? preventScrollIOS(referenceElement)
+        : preventScrollStandard(referenceElement);
     }
 
     return () => {
@@ -151,5 +156,5 @@ export function useScrollLock(enabled: boolean = true) {
         restore();
       }
     };
-  }, [enabled]);
+  }, [enabled, referenceElement]);
 }

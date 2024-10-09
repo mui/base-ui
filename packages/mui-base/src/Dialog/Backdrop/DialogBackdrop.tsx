@@ -2,10 +2,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import type { DialogBackdropOwnerState, DialogBackdropProps } from './DialogBackdrop.types';
 import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { type BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -18,7 +19,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [DialogBackdrop API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogBackdrop)
  */
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
-  props: DialogBackdropProps,
+  props: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, ...other } = props;
@@ -35,7 +36,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     onUnmount: handleUnmount,
   });
 
-  const ownerState: DialogBackdropOwnerState = React.useMemo(
+  const ownerState: DialogBackdrop.OwnerState = React.useMemo(
     () => ({ open, modal, transitionStatus }),
     [open, modal, transitionStatus],
   );
@@ -71,6 +72,23 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 
   return <FloatingPortal>{renderElement()}</FloatingPortal>;
 });
+
+namespace DialogBackdrop {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, the backdrop element is kept in the DOM when closed.
+     *
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+
+  export interface OwnerState {
+    open: boolean;
+    modal: boolean;
+    transitionStatus: TransitionStatus;
+  }
+}
 
 DialogBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

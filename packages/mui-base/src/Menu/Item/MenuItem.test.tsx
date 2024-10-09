@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import * as Menu from '@base_ui/react/Menu';
-import { MenuRootContext } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '#test-utils';
+import { MenuRootContext } from '../Root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
@@ -105,13 +105,13 @@ describe('<Menu.Item />', () => {
 
     await waitFor(
       () => {
-        expect(renderItem1Spy.callCount).to.equal(4); // '1' rerenders as it loses highlight
+        expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
       },
       { timeout: 1000 },
     );
     await waitFor(
       () => {
-        expect(renderItem2Spy.callCount).to.equal(4); // '2' rerenders as it receives highlight
+        expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
       },
       { timeout: 1000 },
     );

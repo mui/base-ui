@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { DialogRootProps } from '../../Dialog/Root/DialogRoot.types';
+import type { DialogRoot } from '../../Dialog/Root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
 
@@ -44,7 +44,7 @@ function AlertDialogRoot(props: AlertDialogRoot.Props) {
 }
 
 namespace AlertDialogRoot {
-  export type Props = Omit<DialogRootProps, 'modal' | 'dismissible'>;
+  export type Props = Omit<DialogRoot.Props, 'modal' | 'dismissible'>;
 }
 
 AlertDialogRoot.propTypes /* remove-proptypes */ = {

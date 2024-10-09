@@ -43,7 +43,7 @@ export function useSliderControl(
   const handleRootRef = useForkRef(externalRef, registerSliderControl, controlRef);
 
   // A number that uniquely identifies the current finger in the touch session.
-  const touchIdRef = React.useRef<number>();
+  const touchIdRef = React.useRef<number | null>(null);
 
   const moveCountRef = React.useRef(0);
 
@@ -121,7 +121,7 @@ export function useSliderControl(
       onValueCommitted(newFingerValue.newValue, nativeEvent);
     }
 
-    touchIdRef.current = undefined;
+    touchIdRef.current = null;
 
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();

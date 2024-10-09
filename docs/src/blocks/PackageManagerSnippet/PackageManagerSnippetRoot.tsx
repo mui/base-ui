@@ -44,7 +44,7 @@ export namespace PackageManagerSnippetRoot {
   export type Props = {
     children: React.ReactNode;
     options: Array<{ value: string; label: string }>;
-    renderTab?: Tabs.TabProps['render'];
-    renderTabsList?: Tabs.ListProps['render'];
+    renderTab?: Tabs.Tab.Props['render'];
+    renderTabsList?: Tabs.List.Props['render'];
   };
 }

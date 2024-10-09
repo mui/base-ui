@@ -30,7 +30,7 @@ export function DocsVersionSelector(props: DocsVersionSelectorProps) {
         side="bottom"
         alignment="start"
         sideOffset={5}
-        positionStrategy="fixed"
+        positionMethod="fixed"
       >
         <Menu.Popup className={classes.popup}>
           {versions.map((version) => (

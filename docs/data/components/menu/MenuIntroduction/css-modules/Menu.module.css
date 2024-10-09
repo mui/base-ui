@@ -22,7 +22,7 @@
   outline: 0;
   background: #fff;
   border: 1px solid var(--gray-200);
-  color: var(--gray-300);
+  color: var(--gray-900);
   box-shadow: 0px 4px 30px var(--gray-200);
   transform-origin: var(--transform-origin);
 
@@ -124,5 +124,27 @@
       background-color: var(--gray-800);
       color: var(--gray-300);
     }
+  }
+}
+
+.separator {
+  border-top: 1px solid var(--gray-200);
+  margin: 8px 0;
+
+  :global(.dark) & {
+    border-color: var(--gray-700);
+  }
+}
+
+.groupLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--gray-700);
+  padding: 8px;
+  user-select: none;
+
+  :global(.dark) & {
+    color: var(--gray-200);
   }
 }

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { DialogDescriptionProps } from './DialogDescription.types';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -18,7 +18,7 @@ import { useId } from '../../utils/useId';
  * - [DialogDescription API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogDescription)
  */
 const DialogDescription = React.forwardRef(function DialogDescription(
-  props: DialogDescriptionProps,
+  props: DialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
@@ -48,6 +48,15 @@ const DialogDescription = React.forwardRef(function DialogDescription(
 
   return renderElement();
 });
+
+namespace DialogDescription {
+  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+
+  export interface OwnerState {
+    open: boolean;
+    modal: boolean;
+  }
+}
 
 DialogDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
@@ -191,7 +191,7 @@ export namespace SliderRoot {
     ownerState: OwnerState;
   }
 
-  export interface OwnerState extends FieldRootOwnerState {
+  export interface OwnerState extends FieldRoot.OwnerState {
     /**
      * The index of the active thumb.
      */
