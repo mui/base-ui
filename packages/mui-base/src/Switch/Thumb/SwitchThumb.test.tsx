@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as Switch from '@base_ui/react/Switch';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SwitchContext } from '../Root/SwitchContext';
+import { SwitchRootContext } from '../Root/SwitchRootContext';
 
-const testContext = {
+const testContext: SwitchRootContext = {
   checked: false,
   disabled: false,
   readOnly: false,
@@ -19,7 +19,9 @@ describe('<Switch.Thumb />', () => {
   describeConformance(<Switch.Thumb />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render: (node) => {
-      return render(<SwitchContext.Provider value={testContext}>{node}</SwitchContext.Provider>);
+      return render(
+        <SwitchRootContext.Provider value={testContext}>{node}</SwitchRootContext.Provider>,
+      );
     },
   }));
 });

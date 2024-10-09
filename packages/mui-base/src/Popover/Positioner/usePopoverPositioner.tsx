@@ -88,7 +88,7 @@ export namespace usePopoverPositioner {
      * The CSS position strategy for positioning the popover element.
      * @default 'absolute'
      */
-    positionStrategy?: 'absolute' | 'fixed';
+    positionMethod?: 'absolute' | 'fixed';
     /**
      * The side of the anchor element that the popover element should be placed at.
      * @default 'bottom'

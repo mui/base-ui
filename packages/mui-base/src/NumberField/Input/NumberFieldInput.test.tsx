@@ -44,7 +44,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: 'abc' } });
     expect(input).to.have.value('');
   });
@@ -56,7 +56,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'a' });
     expect(input).to.have.value('');
   });
@@ -68,7 +68,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '123' } });
     expect(input).to.have.value('123');
   });
@@ -80,7 +80,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'ArrowUp' });
     expect(input).to.have.value('1');
   });
@@ -92,7 +92,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     expect(input).to.have.value('-1');
   });
@@ -104,7 +104,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'Home' });
     expect(input).to.have.value('-10');
   });
@@ -116,7 +116,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'End' });
     expect(input).to.have.value('10');
   });
@@ -128,7 +128,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '1234' } });
     expect(input).to.have.value('1234');
     fireEvent.blur(input);
@@ -142,7 +142,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '-1' } });
     expect(input).to.have.value('-1');
     fireEvent.blur(input);
@@ -156,7 +156,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '1' } });
     expect(input).to.have.value('1');
     fireEvent.blur(input);
@@ -170,7 +170,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '1.1' } });
     expect(input).to.have.value('1.1');
     fireEvent.blur(input);
@@ -184,7 +184,7 @@ describe('<NumberField.Input />', () => {
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
-    await act(() => input.focus());
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '3' } });
     expect(input).to.have.value('3');
     fireEvent.blur(input);

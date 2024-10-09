@@ -29,7 +29,7 @@
     "keepMounted": {
       "description": "If <code>true</code>, preview card stays mounted in the DOM when closed."
     },
-    "positionStrategy": {
+    "positionMethod": {
       "description": "The CSS position strategy for positioning the preview card popup element."
     },
     "render": { "description": "A function to customize rendering of the component." },

@@ -19,7 +19,7 @@ export default function UnstyledProgressIntroduction() {
 }
 
 const Progress = React.forwardRef(function Progress(
-  props: BaseProgress.RootProps,
+  props: BaseProgress.Root.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -39,7 +39,7 @@ const Progress = React.forwardRef(function Progress(
 });
 
 const ProgressTrack = React.forwardRef(function ProgressTrack(
-  props: BaseProgress.TrackProps,
+  props: BaseProgress.Track.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -59,7 +59,7 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
 });
 
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
-  props: BaseProgress.IndicatorProps,
+  props: BaseProgress.Indicator.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (

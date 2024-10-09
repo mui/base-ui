@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import type { FieldRootOwnerState, FieldValidityData } from './FieldRoot.types';
+import type { FieldRoot, FieldValidityData } from './FieldRoot';
 
 const NOOP = () => {};
 
-export interface FieldRootContextValue {
+export interface FieldRootContext {
   invalid: boolean | undefined;
   controlId: string | undefined;
   setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -22,13 +22,13 @@ export interface FieldRootContextValue {
   dirty: boolean;
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
-  validateOnChange: boolean;
-  validateDebounceTime: number;
-  ownerState: FieldRootOwnerState;
+  validationMode: 'onBlur' | 'onChange';
+  validationDebounceTime: number;
+  ownerState: FieldRoot.OwnerState;
   markedDirtyRef: React.MutableRefObject<boolean>;
 }
 
-export const FieldRootContext = React.createContext<FieldRootContextValue>({
+export const FieldRootContext = React.createContext<FieldRootContext>({
   invalid: undefined,
   controlId: undefined,
   setControlId: NOOP,
@@ -51,8 +51,8 @@ export const FieldRootContext = React.createContext<FieldRootContextValue>({
   dirty: false,
   setDirty: NOOP,
   validate: () => null,
-  validateOnChange: false,
-  validateDebounceTime: 0,
+  validationMode: 'onBlur',
+  validationDebounceTime: 0,
   ownerState: {
     disabled: false,
     valid: null,

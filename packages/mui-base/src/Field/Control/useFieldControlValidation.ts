@@ -16,8 +16,8 @@ export function useFieldControlValidation() {
     validate,
     messageIds,
     validityData,
-    validateOnChange,
-    validateDebounceTime,
+    validationMode,
+    validationDebounceTime,
     invalid,
     markedDirtyRef,
     controlId,
@@ -126,7 +126,7 @@ export function useFieldControlValidation() {
             return;
           }
 
-          if (invalid || !validateOnChange) {
+          if (invalid || validationMode !== 'onChange') {
             return;
           }
 
@@ -140,16 +140,16 @@ export function useFieldControlValidation() {
 
           window.clearTimeout(timeoutRef.current);
 
-          if (validateDebounceTime) {
+          if (validationDebounceTime) {
             timeoutRef.current = window.setTimeout(() => {
               commitValidation(element.value);
-            }, validateDebounceTime);
+            }, validationDebounceTime);
           } else {
             commitValidation(element.value);
           }
         },
       }),
-    [getValidationProps, invalid, validateOnChange, validateDebounceTime, commitValidation],
+    [getValidationProps, invalid, validationMode, validationDebounceTime, commitValidation],
   );
 
   return React.useMemo(

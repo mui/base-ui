@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { FieldsetLegendOwnerState, FieldsetLegendProps } from './FieldsetLegend.types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldsetLegend } from './useFieldsetLegend';
 import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Renders an element that labels the fieldset.
@@ -18,7 +18,7 @@ import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
  * - [FieldsetLegend API](https://base-ui.netlify.app/components/react-fieldset/#api-reference-FieldsetLegend)
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
-  props: FieldsetLegendProps,
+  props: FieldsetLegend.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, id, ...otherProps } = props;
@@ -27,7 +27,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   const { disabled } = useFieldsetRootContext();
 
-  const ownerState: FieldsetLegendOwnerState = React.useMemo(
+  const ownerState: FieldsetLegend.OwnerState = React.useMemo(
     () => ({
       disabled: disabled ?? false,
     }),
@@ -45,6 +45,14 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   return renderElement();
 });
+
+namespace FieldsetLegend {
+  export type OwnerState = {
+    disabled: boolean;
+  };
+
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+}
 
 FieldsetLegend.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

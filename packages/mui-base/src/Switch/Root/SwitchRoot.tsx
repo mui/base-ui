@@ -3,17 +3,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import refType from '@mui/utils/refType';
 import { useSwitchRoot } from './useSwitchRoot';
-import { SwitchContext } from './SwitchContext';
-import type { SwitchRootProps, SwitchOwnerState } from './SwitchRoot.types';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { useSwitchStyleHooks } from './useSwitchStyleHooks';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import { SwitchRootContext } from './SwitchRootContext';
+import { styleHookMapping } from '../styleHooks';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-
-function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
-  return <button type="button" {...props} />;
-}
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled switches.
@@ -27,29 +22,28 @@ function defaultRender(props: React.ComponentPropsWithRef<'button'>) {
  * - [SwitchRoot API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchRoot)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
-  props: SwitchRootProps,
+  props: SwitchRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     checked: checkedProp,
-    className: classNameProp,
+    className,
     defaultChecked,
     inputRef,
     onCheckedChange,
     readOnly = false,
     required = false,
     disabled: disabledProp = false,
-    render: renderProp,
+    render,
     ...other
   } = props;
-  const render = renderProp ?? defaultRender;
 
   const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
-  const ownerState: SwitchOwnerState = React.useMemo(
+  const ownerState: SwitchRoot.OwnerState = React.useMemo(
     () => ({
       ...fieldOwnerState,
       checked,
@@ -60,25 +54,37 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
     [fieldOwnerState, checked, disabled, readOnly, required],
   );
 
-  const className = resolveClassName(classNameProp, ownerState);
-  const styleHooks = useSwitchStyleHooks(ownerState);
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
-  const buttonProps = {
+  const { renderElement } = useComponentRenderer({
+    render: render || 'button',
     className,
-    ref: mergedRef,
-    ...styleHooks,
-    ...other,
-  };
+    propGetter: getButtonProps,
+    ownerState,
+    extraProps: other,
+    customStyleHookMapping: styleHookMapping,
+    ref: forwardedRef,
+  });
 
   return (
-    <SwitchContext.Provider value={ownerState}>
-      {evaluateRenderProp(render, getButtonProps(buttonProps), ownerState)}
+    <SwitchRootContext.Provider value={ownerState}>
+      {renderElement()}
       {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
-    </SwitchContext.Provider>
+    </SwitchRootContext.Provider>
   );
 });
+
+namespace SwitchRoot {
+  export interface Props
+    extends useSwitchRoot.Parameters,
+      Omit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> {}
+
+  export interface OwnerState extends FieldRoot.OwnerState {
+    checked: boolean;
+    disabled: boolean;
+    readOnly: boolean;
+    required: boolean;
+  }
+}
 
 SwitchRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -107,10 +113,6 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * The id of the switch element.
-   */
-  id: PropTypes.string,
   /**
    * Ref to the underlying input element.
    */

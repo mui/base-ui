@@ -2,9 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useProgressContext } from '../Root/ProgressContext';
+import { useProgressRootContext } from '../Root/ProgressRootContext';
 import { progressStyleHookMapping } from '../Root/styleHooks';
-import { ProgressTrackProps } from './ProgressTrack.types';
+import { ProgressRoot } from '../Root/ProgressRoot';
+import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -17,12 +18,12 @@ import { ProgressTrackProps } from './ProgressTrack.types';
  * - [ProgressTrack API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressTrack)
  */
 const ProgressTrack = React.forwardRef(function ProgressTrack(
-  props: ProgressTrackProps,
+  props: ProgressTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { ownerState } = useProgressContext();
+  const { ownerState } = useProgressRootContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
@@ -35,6 +36,12 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
 
   return renderElement();
 });
+
+namespace ProgressTrack {
+  export interface OwnerState extends ProgressRoot.OwnerState {}
+
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+}
 
 ProgressTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
