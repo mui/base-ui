@@ -14,7 +14,7 @@ import { useSelectRoot } from './useSelectRoot';
  *
  * - [SelectRoot API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectRoot)
  */
-function SelectRoot<Value>(props: SelectRoot.Props<Value>) {
+function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Element {
   const {
     animated = true,
     id,
@@ -134,6 +134,11 @@ namespace SelectRoot {
      */
     alignOptionToTrigger?: boolean;
   }
+}
+
+interface SelectRoot {
+  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  propTypes?: any;
 }
 
 SelectRoot.propTypes /* remove-proptypes */ = {
