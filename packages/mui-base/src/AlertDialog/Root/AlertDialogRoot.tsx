@@ -15,7 +15,7 @@ import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
  *
  * - [AlertDialogRoot API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogRoot)
  */
-function AlertDialogRoot(props: AlertDialogRoot.Props) {
+const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
   const { children, defaultOpen, onOpenChange, open: openProp, animated = true } = props;
 
   const dialogRootContext = React.useContext(AlertDialogRootContext);
@@ -41,7 +41,7 @@ function AlertDialogRoot(props: AlertDialogRoot.Props) {
       {children}
     </AlertDialogRootContext.Provider>
   );
-}
+};
 
 namespace AlertDialogRoot {
   export type Props = Omit<DialogRoot.Props, 'modal' | 'dismissible'>;

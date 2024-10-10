@@ -21,7 +21,7 @@ export interface TabsListProviderProps {
  *
  * @ignore - do not document.
  */
-function TabsListProvider(props: TabsListProviderProps) {
+const TabsListProvider: React.FC<TabsListProviderProps> = function TabsListProvider(props) {
   const { value, children } = props;
   const {
     dispatch,
@@ -65,7 +65,7 @@ function TabsListProvider(props: TabsListProviderProps) {
       </ListContext.Provider>
     </CompoundComponentContext.Provider>
   );
-}
+};
 
 TabsListProvider.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
