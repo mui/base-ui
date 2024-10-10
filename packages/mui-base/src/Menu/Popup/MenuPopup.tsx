@@ -9,15 +9,19 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
   ...baseMapping,
-  entering(value) {
-    return value ? { 'data-entering': '' } : null;
-  },
-  exiting(value) {
-    return value ? { 'data-exiting': '' } : null;
+  transitionStatus(value) {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
   },
 };
 
@@ -49,8 +53,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   const ownerState: MenuPopup.OwnerState = React.useMemo(
     () => ({
-      entering: transitionStatus === 'entering',
-      exiting: transitionStatus === 'exiting',
+      transitionStatus,
       side,
       alignment,
       open,
@@ -80,8 +83,7 @@ namespace MenuPopup {
   }
 
   export type OwnerState = {
-    entering: boolean;
-    exiting: boolean;
+    transitionStatus: TransitionStatus;
     side: Side;
     alignment: 'start' | 'end' | 'center';
     open: boolean;

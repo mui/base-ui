@@ -9,15 +9,19 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
   ...baseMapping,
-  entering(value) {
-    return value ? { 'data-entering': '' } : null;
-  },
-  exiting(value) {
-    return value ? { 'data-exiting': '' } : null;
+  transitionStatus(value) {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
   },
 };
 
@@ -61,8 +65,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
       side,
       alignment,
       instant: instantType,
-      entering: transitionStatus === 'entering',
-      exiting: transitionStatus === 'exiting',
+      transitionStatus,
     }),
     [open, side, alignment, instantType, transitionStatus],
   );
@@ -87,8 +90,7 @@ namespace PopoverPopup {
     open: boolean;
     side: Side;
     alignment: Alignment;
-    entering: boolean;
-    exiting: boolean;
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
