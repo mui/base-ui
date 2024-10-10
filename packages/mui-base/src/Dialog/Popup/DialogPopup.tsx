@@ -10,6 +10,21 @@ import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
 import { PointerType } from '../../utils/useEnhancedClickHandler';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
+  open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
+  transitionStatus: (value) => {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  *
@@ -57,19 +72,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       ...other,
       style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
     },
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-      nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
-      transitionStatus: (value) => {
-        if (value === 'entering') {
-          return { 'data-entering': '' } as Record<string, string>;
-        }
-        if (value === 'exiting') {
-          return { 'data-exiting': '' };
-        }
-        return null;
-      },
-    },
+    customStyleHookMapping,
   });
 
   if (!keepMounted && !mounted) {
