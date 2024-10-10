@@ -44,6 +44,7 @@
   --br-circle: 50%;
   --br-pill: 9999px;
 
+  --inter: 'Inter', sans-serif;
   --ff-sans: graphik, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial,
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   --ff-code: Söhne mono, ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',

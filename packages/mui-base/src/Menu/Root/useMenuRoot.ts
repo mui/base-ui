@@ -18,6 +18,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useControlled } from '../../utils/useControlled';
+import { TYPEAHEAD_RESET_MS } from '../../utils/floating';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -115,7 +116,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const typeahead = useTypeahead(floatingRootContext, {
     listRef: itemLabels,
     activeIndex,
-    resetMs: 350,
+    resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {
         setActiveIndex(index);

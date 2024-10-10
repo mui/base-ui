@@ -3,6 +3,7 @@ import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@fl
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { MAX_Z_INDEX } from '../../utils/floating';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
@@ -39,7 +40,7 @@ export function useTooltipPositioner(
             ...hiddenStyles,
             maxWidth: 'var(--available-width)',
             maxHeight: 'var(--available-height)',
-            zIndex: 2147483647, // max z-index
+            zIndex: MAX_Z_INDEX, // max z-index
           },
         });
       },
