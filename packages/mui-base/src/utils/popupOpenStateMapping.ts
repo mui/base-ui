@@ -1,23 +1,23 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
 
 export const triggerOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
-  open(value: boolean): Record<string, string> {
+  open(value) {
     if (value) {
       return {
         'data-popup-open': '',
       };
     }
-    return {};
+    return null;
   },
 };
 
 export const popupOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
-  open(value: boolean): Record<string, string> {
+  open(value) {
     if (value) {
       return {
         'data-open': '',
       };
     }
-    return {};
+    return null;
   },
 };
