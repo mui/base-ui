@@ -14,7 +14,8 @@
 /coverage
 /docs/.env.local
 /docs/export
-/docs/pages/playground/
+/docs/app/playground/*
+!/docs/app/playground/\[slug\]
 /docs/public/feed/
 /examples/**/.cache
 /test/bundling/fixtures/*/yarn.lock
