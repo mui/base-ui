@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { useMenuArrow } from './useMenuArrow';
 import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -54,19 +54,19 @@ const MenuArrow = React.forwardRef(function MenuArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: commonStyleHooks,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   return renderElement();
 });
 
 namespace MenuArrow {
-  export type OwnerState = {
+  export interface OwnerState {
     open: boolean;
     side: Side;
     alignment: Alignment;
     arrowUncentered: boolean;
-  };
+  }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     /**

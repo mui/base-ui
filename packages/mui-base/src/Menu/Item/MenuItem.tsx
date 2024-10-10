@@ -39,7 +39,10 @@ const InnerMenuItem = React.memo(
       typingRef,
     });
 
-    const ownerState: MenuItem.OwnerState = { disabled, highlighted };
+    const ownerState: MenuItem.OwnerState = React.useMemo(
+      () => ({ disabled, highlighted }),
+      [disabled, highlighted],
+    );
 
     const { renderElement } = useComponentRenderer({
       render: render || 'div',

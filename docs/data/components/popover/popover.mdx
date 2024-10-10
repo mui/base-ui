@@ -309,7 +309,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 }
 
 /* Represents the final styles once entered */
-.PopoverPopup[data-state='open'] {
+.PopoverPopup[data-open] {
   opacity: 1;
   transform: scale(1);
 }
@@ -340,7 +340,7 @@ In newer browsers, there is a feature called `@starting-style` which allows tran
 
 /* Official Browser API - no Firefox support as of May 2024 */
 @starting-style {
-  .PopoverPopup[data-state='open'] {
+  .PopoverPopup[data-open] {
     opacity: 0;
     transform: scale(0.9);
   }

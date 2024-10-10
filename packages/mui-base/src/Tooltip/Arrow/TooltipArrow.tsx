@@ -5,17 +5,9 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
 import { useTooltipArrow } from './useTooltipArrow';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
-
-const customStyleHookMapping: CustomStyleHookMapping<TooltipArrow.OwnerState> = {
-  open(value) {
-    return {
-      'data-state': value ? 'open' : 'closed',
-    };
-  },
-};
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -60,7 +52,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     className,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   return renderElement();

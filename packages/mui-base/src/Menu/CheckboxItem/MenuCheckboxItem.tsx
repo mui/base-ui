@@ -6,14 +6,10 @@ import { useMenuCheckboxItem } from './useMenuCheckboxItem';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-
-const customStyleHookMapping: CustomStyleHookMapping<MenuCheckboxItem.OwnerState> = {
-  checked: (value: boolean) => ({ 'data-checkboxitem': value ? 'checked' : 'unchecked' }),
-};
+import { checkboxItemMapping } from '../utils/styleHookMapping';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -61,7 +57,7 @@ const InnerMenuCheckboxItem = React.memo(
       className,
       ownerState,
       propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
-      customStyleHookMapping,
+      customStyleHookMapping: checkboxItemMapping,
       extraProps: other,
     });
 

@@ -8,15 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverArrow } from './usePopoverArrow';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-
-const customStyleHookMapping: CustomStyleHookMapping<PopoverArrow.OwnerState> = {
-  open(value) {
-    return {
-      'data-state': value ? 'open' : 'closed',
-    };
-  },
-};
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -62,7 +54,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   return renderElement();

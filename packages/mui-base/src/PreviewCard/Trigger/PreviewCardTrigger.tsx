@@ -5,6 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -35,6 +36,7 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

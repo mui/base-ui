@@ -150,7 +150,7 @@ const Indicator = styled(Menu.CheckboxItemIndicator)(
   border-radius: 2px;
 
 
-  &[data-checkboxitem=checked] {
+  &[data-checkbox-item-checked] {
     background: ${theme.palette.mode === 'dark' ? grey[800] : grey[700]};
     box-shadow: 0 0 0 2px ${theme.palette.mode === 'dark' ? grey[900] : '#fff'} inset;
   }

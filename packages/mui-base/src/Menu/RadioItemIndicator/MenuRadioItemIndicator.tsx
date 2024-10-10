@@ -1,14 +1,10 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { MenuRadioItem } from '../RadioItem/MenuRadioItem';
 import { useMenuRadioItemContext } from '../RadioItem/MenuRadioItemContext';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-
-const customStyleHookMapping: CustomStyleHookMapping<MenuRadioItem.OwnerState> = {
-  checked: (value: boolean) => ({ 'data-radioitem': value ? 'checked' : 'unchecked' }),
-};
+import { radioItemMapping } from '../utils/styleHookMapping';
 
 /**
  *
@@ -32,7 +28,7 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicatorC
     render: render || 'span',
     className,
     ownerState,
-    customStyleHookMapping,
+    customStyleHookMapping: radioItemMapping,
     extraProps: other,
     ref: forwardedRef,
   });

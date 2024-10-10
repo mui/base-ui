@@ -5,15 +5,7 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-
-const customStyleHookMapping: CustomStyleHookMapping<PopoverTrigger.OwnerState> = {
-  open(value) {
-    return {
-      'data-state': value ? 'open' : 'closed',
-    };
-  },
-};
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders a trigger element that opens the popover.
@@ -45,7 +37,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

@@ -7,7 +7,7 @@ import { useId } from '../../utils/useId';
 import { useMenuGroupRootContext } from '../Group/MenuGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-const EMPTY_OBJECT = {};
+const ownerState = {};
 
 /**
  *
@@ -31,7 +31,6 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
 
   useEnhancedEffect(() => {
     setLabelId(id);
-
     return () => {
       setLabelId(undefined);
     };
@@ -40,7 +39,7 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState: EMPTY_OBJECT,
+    ownerState,
     extraProps: { role: 'group', id, ...other },
     ref: forwardedRef,
   });

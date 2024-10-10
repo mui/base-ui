@@ -9,18 +9,19 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState> = {
-  entering(value) {
-    return value ? { 'data-entering': '' } : null;
-  },
-  exiting(value) {
-    return value ? { 'data-exiting': '' } : null;
-  },
-  open(value) {
-    return {
-      'data-state': value ? 'open' : 'closed',
-    };
+  ...baseMapping,
+  transitionStatus(value) {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
   },
 };
 
@@ -52,8 +53,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
       open,
       side,
       alignment,
-      entering: transitionStatus === 'entering',
-      exiting: transitionStatus === 'exiting',
+      transitionStatus,
     }),
     [open, side, alignment, transitionStatus],
   );
@@ -78,8 +78,7 @@ namespace PreviewCardPopup {
     open: boolean;
     side: Side;
     alignment: Alignment;
-    entering: boolean;
-    exiting: boolean;
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}

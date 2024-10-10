@@ -7,6 +7,22 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { usePopoverBackdrop } from './usePopoverBackdrop';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.OwnerState> = {
+  ...baseMapping,
+  transitionStatus(value) {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  * Renders a backdrop for the popover.
@@ -25,11 +41,17 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 ) {
   const { className, render, keepMounted = false, container, ...otherProps } = props;
 
-  const { open, mounted } = usePopoverRootContext();
+  const { open, mounted, transitionStatus } = usePopoverRootContext();
 
   const { getBackdropProps } = usePopoverBackdrop();
 
-  const ownerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState = React.useMemo(
+    () => ({
+      open,
+      transitionStatus,
+    }),
+    [open, transitionStatus],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getBackdropProps,
@@ -38,6 +60,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -51,6 +74,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 namespace PopoverBackdrop {
   export interface OwnerState {
     open: boolean;
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {

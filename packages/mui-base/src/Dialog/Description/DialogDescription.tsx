@@ -7,6 +7,8 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
+const ownerState = {};
+
 /**
  *
  * Demos:
@@ -22,12 +24,7 @@ const DialogDescription = React.forwardRef(function DialogDescription(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
-  const { setDescriptionElementId, open, modal } = useDialogRootContext();
-
-  const ownerState = {
-    open,
-    modal,
-  };
+  const { setDescriptionElementId } = useDialogRootContext();
 
   const id = useId(idProp);
 
@@ -52,10 +49,7 @@ const DialogDescription = React.forwardRef(function DialogDescription(
 namespace DialogDescription {
   export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
 
-  export interface OwnerState {
-    open: boolean;
-    modal: boolean;
-  }
+  export interface OwnerState {}
 }
 
 DialogDescription.propTypes /* remove-proptypes */ = {
