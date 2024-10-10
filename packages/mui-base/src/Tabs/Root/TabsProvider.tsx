@@ -22,7 +22,7 @@ export interface TabsProviderProps {
  *
  * @ignore - do not document.
  */
-function TabsProvider(props: TabsProviderProps) {
+const TabsProvider: React.FC<TabsProviderProps> = function TabsProvider(props) {
   const { value: valueProp, children } = props;
   const {
     direction,
@@ -76,7 +76,7 @@ function TabsProvider(props: TabsProviderProps) {
       <TabsRootContext.Provider value={tabsContextValue}>{children}</TabsRootContext.Provider>
     </CompoundComponentContext.Provider>
   );
-}
+};
 
 TabsProvider.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
