@@ -37,7 +37,7 @@ export function useCollapsibleContent(
 ): useCollapsibleContent.ReturnValue {
   const {
     animated = false,
-    htmlHidden = 'hidden',
+    hiddenUntilFound = false,
     id: idParam,
     open,
     mounted: contextMounted,
@@ -52,6 +52,7 @@ export function useCollapsibleContent(
   const contentRef = React.useRef<HTMLElement | null>(null);
 
   const [height, setHeight] = React.useState(0);
+  const [width, setWidth] = React.useState(0);
 
   const latestAnimationNameRef = React.useRef<string>('none');
   const originalTransitionDurationStyleRef = React.useRef<string | null>(null);
@@ -114,6 +115,7 @@ export function useCollapsibleContent(
 
       if (!isTransitioning || !(open || contextMounted)) {
         setHeight(rect.height);
+        setWidth(rect.width);
       }
 
       element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
@@ -243,29 +245,32 @@ export function useCollapsibleContent(
       supportsHiddenUntilFound(element) &&
       element?.hidden &&
       !isOpen &&
-      htmlHidden === 'until-found'
+      hiddenUntilFound === true
     ) {
       // @ts-ignore
       element.hidden = 'until-found';
     }
-  }, [htmlHidden, isOpen]);
+  }, [hiddenUntilFound, isOpen]);
+
+  const hidden = hiddenUntilFound ? 'until-found' : 'hidden';
 
   const getRootProps: useCollapsibleContent.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
-        hidden: isOpen ? undefined : htmlHidden,
+        hidden: isOpen ? undefined : hidden,
         ref: mergedRef,
       }),
-    [htmlHidden, id, isOpen, mergedRef],
+    [hidden, id, isOpen, mergedRef],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
       height,
+      width,
     }),
-    [getRootProps, height],
+    [getRootProps, height, width],
   );
 }
 
@@ -277,10 +282,11 @@ export namespace useCollapsibleContent {
      */
     animated?: boolean;
     /**
-     * The hidden state when closed
-     * @default 'hidden'
+     * If `true`, sets `hidden="until-found"` when closed.
+     * If `false`, sets `hidden` when closed.
+     * @default false
      */
-    htmlHidden?: 'hidden' | 'until-found';
+    hiddenUntilFound?: boolean;
     id?: React.HTMLAttributes<Element>['id'];
     mounted: boolean;
     /**
@@ -298,5 +304,6 @@ export namespace useCollapsibleContent {
       externalProps?: React.ComponentPropsWithRef<'button'>,
     ) => React.ComponentPropsWithRef<'button'>;
     height: number;
+    width: number;
   }
 }

@@ -134,7 +134,7 @@ export function Styles() {
       fill: #00f;
     }
 
-    .FramerCollapsible-trigger[data-state='open'] svg {
+    .FramerCollapsible-trigger[data-collapsible='open'] svg {
       transform: rotate(90deg);
     }
 

@@ -30,6 +30,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     contentId,
     open,
     setOpen,
+    rootRef: forwardedRef,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -37,13 +38,14 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     render: render ?? 'button',
     ownerState,
     className,
-    ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
   return renderElement();
 });
+
+export { CollapsibleTrigger };
 
 namespace CollapsibleTrigger {
   export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.OwnerState> {}
@@ -67,5 +69,3 @@ CollapsibleTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { CollapsibleTrigger };

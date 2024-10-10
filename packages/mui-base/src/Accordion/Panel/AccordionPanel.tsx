@@ -3,34 +3,45 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleContext } from '../Root/CollapsibleContext';
-import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
-import { collapsibleStyleHookMapping } from '../Root/styleHooks';
-import { useCollapsibleContent } from './useCollapsibleContent';
+import { useCollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
+import { useCollapsibleContent } from '../../Collapsible/Content/useCollapsibleContent';
+import { useAccordionRootContext } from '../Root/AccordionRootContext';
+import type { AccordionItem } from '../Item/AccordionItem';
+import { useAccordionItemContext } from '../Item/AccordionItemContext';
+import { accordionStyleHookMapping } from '../Item/styleHooks';
 
 /**
  *
  * Demos:
  *
- * - [Collapsible](https://base-ui.netlify.app/components/react-collapsible/)
+ * - [Accordion](https://base-ui.netlify.app/components/react-accordion/)
  *
  * API:
  *
- * - [CollapsibleContent API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsibleContent)
+ * - [AccordionPanel API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionPanel)
  */
-const CollapsibleContent = React.forwardRef(function CollapsibleContent(
-  props: CollapsibleContent.Props,
+const AccordionPanel = React.forwardRef(function AccordionPanel(
+  props: AccordionPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, hiddenUntilFound, render, ...otherProps } = props;
+  const {
+    className,
+    hiddenUntilFound: hiddenUntilFoundProp,
+    id: idProp,
+    render,
+    style: styleProp,
+    ...otherProps
+  } = props;
 
-  const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
+  const { animated, mounted, open, contentId, setContentId, setMounted, setOpen } =
     useCollapsibleContext();
+
+  const { hiddenUntilFound } = useAccordionRootContext();
 
   const { getRootProps, height, width } = useCollapsibleContent({
     animated,
-    hiddenUntilFound,
-    id: contentId,
+    hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
+    id: idProp ?? contentId,
     mounted,
     open,
     ref: forwardedRef,
@@ -39,6 +50,8 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
     setOpen,
   });
 
+  const { ownerState, triggerId } = useAccordionItemContext();
+
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
@@ -46,27 +59,29 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
     className,
     extraProps: {
       ...otherProps,
+      'aria-labelledby': triggerId,
+      role: 'region',
       style: {
-        ...otherProps.style,
-        '--collapsible-content-height': height ? `${height}px` : undefined,
-        '--collapsible-content-width': width ? `${width}px` : undefined,
+        '--accordion-content-height': height ? `${height}px` : undefined,
+        '--accordion-content-width': width ? `${width}px` : undefined,
+        ...styleProp,
       },
     },
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    customStyleHookMapping: accordionStyleHookMapping,
   });
 
   return renderElement();
 });
 
-export { CollapsibleContent };
-
-namespace CollapsibleContent {
+export namespace AccordionPanel {
   export interface Props
-    extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
+    extends BaseUIComponentProps<'div', AccordionItem.OwnerState>,
       Pick<useCollapsibleContent.Parameters, 'hiddenUntilFound'> {}
 }
 
-CollapsibleContent.propTypes /* remove-proptypes */ = {
+export { AccordionPanel };
+
+AccordionPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -85,6 +100,10 @@ CollapsibleContent.propTypes /* remove-proptypes */ = {
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

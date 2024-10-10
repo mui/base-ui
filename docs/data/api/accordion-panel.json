@@ -4,17 +4,17 @@
     "hiddenUntilFound": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "CollapsibleContent",
+  "name": "AccordionPanel",
   "imports": [
-    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleContent = Collapsible.Content;"
+    "import * as Accordion from '@base_ui/react/Accordion';\nconst AccordionPanel = Accordion.Panel;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "CollapsibleContent",
+  "muiName": "AccordionPanel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Collapsible/Content/CollapsibleContent.tsx",
+  "filename": "/packages/mui-base/src/Accordion/Panel/AccordionPanel.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false
 }
