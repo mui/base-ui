@@ -104,12 +104,6 @@ To change how long the Preview Card waits until it opens or closes, use the `del
 <PreviewCard.Root delay={200} closeDelay={200}>
 ```
 
-The delay type can be changed from `"rest"` (user's cursor is static over the trigger for the given timeout in milliseconds) to `"hover"` (the user's cursor has entered the trigger):
-
-```jsx
-<PreviewCard.Root delayType="hover">
-```
-
 ## Controlled
 
 To control the Preview Card with external state, use the `open` and `onOpenChange` props:
