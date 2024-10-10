@@ -5,7 +5,7 @@
   },
   "name": "DialogTrigger",
   "imports": [
-    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogTrigger = Dialog.Trigger;"
+    "import { Dialog } from '@base_ui/react/Dialog';\nconst DialogTrigger = Dialog.Trigger;"
   ],
   "classes": [],
   "spread": true,

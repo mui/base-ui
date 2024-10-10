@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import * as BaseSlider from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base_ui/react/Slider';
 import { styled, useTheme, Box } from '@mui/system';
 
 export default function RtlSlider() {

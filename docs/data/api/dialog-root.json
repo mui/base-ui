@@ -8,7 +8,7 @@
     "open": { "type": { "name": "bool" } }
   },
   "name": "DialogRoot",
-  "imports": ["import * as Dialog from '@base_ui/react/Dialog';\nconst DialogRoot = Dialog.Root;"],
+  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogRoot = Dialog.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,

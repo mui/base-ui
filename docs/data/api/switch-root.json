@@ -18,7 +18,7 @@
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "SwitchRoot",
-  "imports": ["import * as Switch from '@base_ui/react/Switch';\nconst SwitchRoot = Switch.Root;"],
+  "imports": ["import { Switch } from '@base_ui/react/Switch';\nconst SwitchRoot = Switch.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

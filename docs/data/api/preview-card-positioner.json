@@ -50,7 +50,7 @@
   },
   "name": "PreviewCardPositioner",
   "imports": [
-    "import * as PreviewCard from '@base_ui/react/PreviewCard';\nconst PreviewCardPositioner = PreviewCard.Positioner;"
+    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardPositioner = PreviewCard.Positioner;"
   ],
   "classes": [],
   "spread": true,

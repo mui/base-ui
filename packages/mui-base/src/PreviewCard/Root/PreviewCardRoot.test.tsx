@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as PreviewCard from '@base_ui/react/PreviewCard';
+import { PreviewCard } from '@base_ui/react/PreviewCard';
 import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';

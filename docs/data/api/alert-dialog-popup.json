@@ -7,7 +7,7 @@
   },
   "name": "AlertDialogPopup",
   "imports": [
-    "import * as AlertDialog from '@base_ui/react/AlertDialog';\nconst AlertDialogPopup = AlertDialog.Popup;"
+    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogPopup = AlertDialog.Popup;"
   ],
   "classes": [],
   "spread": true,

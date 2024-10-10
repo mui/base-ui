@@ -10,7 +10,7 @@
   },
   "name": "PopoverBackdrop",
   "imports": [
-    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverBackdrop = Popover.Backdrop;"
+    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverBackdrop = Popover.Backdrop;"
   ],
   "classes": [],
   "spread": true,

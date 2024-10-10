@@ -5,7 +5,7 @@
   },
   "name": "TooltipTrigger",
   "imports": [
-    "import * as Tooltip from '@base_ui/react/Tooltip';\nconst TooltipTrigger = Tooltip.Trigger;"
+    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipTrigger = Tooltip.Trigger;"
   ],
   "classes": [],
   "spread": true,

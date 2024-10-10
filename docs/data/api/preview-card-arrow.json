@@ -6,7 +6,7 @@
   },
   "name": "PreviewCardArrow",
   "imports": [
-    "import * as PreviewCard from '@base_ui/react/PreviewCard';\nconst PreviewCardArrow = PreviewCard.Arrow;"
+    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardArrow = PreviewCard.Arrow;"
   ],
   "classes": [],
   "spread": true,

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, waitFor } from '@mui/internal-test-utils';
-import * as Dialog from '@base_ui/react/Dialog';
+import { Dialog } from '@base_ui/react/Dialog';
 import { createRenderer } from '#test-utils';
 
 describe('<Dialog.Root />', () => {

@@ -5,7 +5,7 @@
   },
   "name": "PopoverTitle",
   "imports": [
-    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverTitle = Popover.Title;"
+    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverTitle = Popover.Title;"
   ],
   "classes": [],
   "spread": true,

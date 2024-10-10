@@ -2,7 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { DemoContext } from 'docs-base/src/blocks/Demo';
-import * as Tabs from '@base_ui/react/Tabs';
+import { Tabs } from '@base_ui/react/Tabs';
 import classes from './DemoFileSelector.module.css';
 
 export interface DemoFileSelectorProps {

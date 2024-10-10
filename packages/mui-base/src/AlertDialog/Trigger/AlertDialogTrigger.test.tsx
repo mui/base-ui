@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as AlertDialog from '@base_ui/react/AlertDialog';
+import { AlertDialog } from '@base_ui/react/AlertDialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<AlertDialog.Trigger />', () => {

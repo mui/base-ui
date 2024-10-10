@@ -15,7 +15,7 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "TabsRoot",
-  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst TabsRoot = Tabs.Root;"],
+  "imports": ["import { Tabs } from '@base_ui/react/Tabs';\nconst TabsRoot = Tabs.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

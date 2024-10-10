@@ -3,7 +3,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act } from '@mui/internal-test-utils';
-import * as Collapsible from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base_ui/react/Collapsible';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Collapsible.Root />', () => {

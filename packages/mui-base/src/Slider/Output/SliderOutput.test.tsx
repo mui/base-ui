@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Slider from '@base_ui/react/Slider';
-import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider';
+import * as Slider from '@base_ui/react/Slider/index.parts';
+import { SliderProvider, type SliderProviderValue } from '@base_ui/react/Slider/index.parts';
 import { createRenderer, describeConformance } from '#test-utils';
 
 const NOOP = () => {};

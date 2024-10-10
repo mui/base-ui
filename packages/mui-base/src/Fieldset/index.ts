@@ -1,2 +1,1 @@
-export { FieldsetRoot as Root } from './Root/FieldsetRoot';
-export { FieldsetLegend as Legend } from './Legend/FieldsetLegend';
+export * as Fieldset from './index.parts';

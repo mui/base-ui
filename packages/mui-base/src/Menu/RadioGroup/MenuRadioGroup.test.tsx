@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Menu.RadioGroup />', () => {

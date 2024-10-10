@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Tooltip from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base_ui/react/Tooltip';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';

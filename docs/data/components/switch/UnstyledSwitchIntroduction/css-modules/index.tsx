@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Switch from '@base_ui/react/Switch';
+import { Switch } from '@base_ui/react/Switch';
 import classes from './styles.module.css';
 
 export default function UnstyledSwitchIntroduction() {

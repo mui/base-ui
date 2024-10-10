@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act } from '@mui/internal-test-utils';
-import * as Tabs from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs/index.parts';
 import { createRenderer, describeConformance } from '#test-utils';
 import { TabsRootContext } from '../Root/TabsRootContext';
 

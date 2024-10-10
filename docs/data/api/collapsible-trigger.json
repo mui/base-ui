@@ -5,7 +5,7 @@
   },
   "name": "CollapsibleTrigger",
   "imports": [
-    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleTrigger = Collapsible.Trigger;"
+    "import { Collapsible } from '@base_ui/react/Collapsible';\nconst CollapsibleTrigger = Collapsible.Trigger;"
   ],
   "classes": [],
   "spread": true,

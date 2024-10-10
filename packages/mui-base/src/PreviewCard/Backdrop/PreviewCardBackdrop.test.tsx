@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as PreviewCard from '@base_ui/react/PreviewCard';
+import { PreviewCard } from '@base_ui/react/PreviewCard';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<PreviewCard.Backdrop />', () => {

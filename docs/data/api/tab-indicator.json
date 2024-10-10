@@ -5,7 +5,7 @@
     "renderBeforeHydration": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "TabIndicator",
-  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst TabIndicator = Tabs.Indicator;"],
+  "imports": ["import { Tabs } from '@base_ui/react/Tabs';\nconst TabIndicator = Tabs.Indicator;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

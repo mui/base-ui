@@ -5,7 +5,7 @@
   },
   "name": "SliderOutput",
   "imports": [
-    "import * as Slider from '@base_ui/react/Slider';\nconst SliderOutput = Slider.Output;"
+    "import { Slider } from '@base_ui/react/Slider';\nconst SliderOutput = Slider.Output;"
   ],
   "classes": [],
   "spread": true,

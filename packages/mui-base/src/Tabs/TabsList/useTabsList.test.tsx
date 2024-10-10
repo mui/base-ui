@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import * as Tabs from '@base_ui/react/Tabs';
+import * as Tabs from '@base_ui/react/Tabs/index.parts';
 import { useTabsList } from './useTabsList';
 
 describe('useTabsList', () => {

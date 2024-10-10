@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import * as NumberField from '@base_ui/react/NumberField';
+import { NumberField } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NumberFieldContext } from '../Root/NumberFieldContext';
 
