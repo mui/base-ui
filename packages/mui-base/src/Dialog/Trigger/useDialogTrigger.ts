@@ -1,24 +1,34 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { PointerType, useEnhancedClickHandler } from '../../utils/useEnhancedClickHandler';
 
 export function useDialogTrigger(
   params: useDialogTrigger.Parameters,
 ): useDialogTrigger.ReturnValue {
-  const { open, onOpenChange, popupElementId } = params;
+  const { open, onOpenChange, popupElementId, fireTriggerClick } = params;
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent, pointerType: PointerType) => {
+      if (!open) {
+        fireTriggerClick?.(event, pointerType);
+        onOpenChange?.(true, event.nativeEvent);
+      }
+    },
+    [open, onOpenChange, fireTriggerClick],
+  );
+
+  const { onClick, onPointerDown } = useEnhancedClickHandler(handleClick);
 
   const getRootProps = React.useCallback(
     (externalProps: React.HTMLAttributes<any> = {}) =>
       mergeReactProps(externalProps, {
-        onClick: () => {
-          if (!open) {
-            onOpenChange?.(true);
-          }
-        },
+        onPointerDown,
+        onClick,
         'aria-haspopup': 'dialog',
         'aria-controls': popupElementId ?? undefined,
       }),
-    [open, onOpenChange, popupElementId],
+    [popupElementId, onClick, onPointerDown],
   );
 
   return React.useMemo(
@@ -38,7 +48,11 @@ namespace useDialogTrigger {
     /**
      * Callback to fire when the dialog is requested to be opened or closed.
      */
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: (open: boolean, event: Event) => void;
+    fireTriggerClick?: (
+      event: React.MouseEvent | React.PointerEvent,
+      pointerType: PointerType,
+    ) => void;
     /**
      * The id of the popup element.
      */
