@@ -28,9 +28,7 @@ export function useSliderContext() {
  *
  * @ignore - do not document.
  */
-const SliderProvider: React.FC<SliderProviderProps> = function SliderProvider(
-  props: SliderProviderProps,
-) {
+const SliderProvider: React.FC<SliderProviderProps> = function SliderProvider(props) {
   const { value: valueProp, children } = props;
 
   const { compoundComponentContextValue, ...contextValue } = valueProp;

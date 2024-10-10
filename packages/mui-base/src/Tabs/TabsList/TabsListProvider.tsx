@@ -21,9 +21,7 @@ export interface TabsListProviderProps {
  *
  * @ignore - do not document.
  */
-const TabsListProvider: React.FC<TabsListProviderProps> = function TabsListProvider(
-  props: TabsListProviderProps,
-) {
+const TabsListProvider: React.FC<TabsListProviderProps> = function TabsListProvider(props) {
   const { value, children } = props;
   const {
     dispatch,

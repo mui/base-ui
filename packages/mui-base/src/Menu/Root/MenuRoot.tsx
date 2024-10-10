@@ -15,7 +15,7 @@ import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
  *
  * - [MenuRoot API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRoot)
  */
-const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props: MenuRoot.Props) {
+const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
     animated = true,
     children,

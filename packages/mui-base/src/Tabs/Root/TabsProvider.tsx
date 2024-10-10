@@ -22,7 +22,7 @@ export interface TabsProviderProps {
  *
  * @ignore - do not document.
  */
-const TabsProvider: React.FC<TabsProviderProps> = function TabsProvider(props: TabsProviderProps) {
+const TabsProvider: React.FC<TabsProviderProps> = function TabsProvider(props) {
   const { value: valueProp, children } = props;
   const {
     direction,

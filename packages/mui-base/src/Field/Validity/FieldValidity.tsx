@@ -16,9 +16,7 @@ import { FieldValidityData } from '../Root/FieldRoot';
  *
  * - [FieldValidity API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldValidity)
  */
-const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(
-  props: FieldValidity.Props,
-) {
+const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { validityData, invalid } = useFieldRootContext(false);
 
   const fieldValidityState: FieldValidityState = React.useMemo(() => {

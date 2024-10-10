@@ -15,9 +15,7 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  *
  * - [PreviewCardRoot API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardRoot)
  */
-const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(
-  props: PreviewCardRoot.Props,
-) {
+const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
   const { delayType = 'rest', delay, closeDelay, animated = true } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
