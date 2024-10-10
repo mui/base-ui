@@ -6,6 +6,7 @@ export * from './Menu/index.barrel';
 export * from './NumberField/index.barrel';
 export * from './Popover/index.barrel';
 export * from './Progress/index.barrel';
+export * from './ScrollArea/index.barrel';
 export * from './Separator/index.barrel';
 export * from './Slider/index.barrel';
 export * from './Switch/index.barrel';
