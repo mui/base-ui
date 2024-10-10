@@ -6,7 +6,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { type BaseUIComponentProps } from '../../utils/types';
-import { customStyleHookMapping } from '../../utils/popupOpenStateMapping';
 
 const ownerState = {};
 
@@ -42,7 +41,6 @@ const DialogTitle = React.forwardRef(function DialogTitle(
     ownerState,
     ref: forwardedRef,
     extraProps: other,
-    customStyleHookMapping,
   });
 
   return renderElement();
