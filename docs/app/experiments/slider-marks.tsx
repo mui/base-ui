@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as Slider from '@base_ui/react/Slider';
-import { useSliderContext } from '@base_ui/react/Slider';
+import { useSliderContext } from '../../../packages/mui-base/src/Slider/Root/SliderContext';
 
 const STOPS = [
   {

@@ -23,7 +23,9 @@ export default function UnstyledSliderIntroduction() {
       style={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
     >
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
-        <Label id="VolumeSliderLabel">Volume</Label>
+        <Label id="VolumeSliderLabel" htmlFor=":slider-thumb-input:">
+          Volume
+        </Label>
         <SliderOutput />
         <SliderControl>
           <SliderTrack>
@@ -43,7 +45,7 @@ const Slider = React.forwardRef(function Slider(props, ref) {
       ref={ref}
       className={(state) =>
         classNames(
-          'relative w-full items-center grid grid-cols-2 gap-4',
+          'font-sans relative w-full items-center grid grid-cols-2 gap-4',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -184,25 +186,12 @@ SliderIndicator.propTypes = {
 };
 
 function Label(props) {
-  const { id, ...otherProps } = props;
-  const { subitems, disabled } = BaseSlider.useSliderContext();
+  const { id, htmlFor, ...otherProps } = props;
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
-
-  return (
-    <label
-      id={id}
-      htmlFor={htmlFor}
-      className={classNames('font-bold', disabled && 'text-gray-500')}
-      {...otherProps}
-    />
-  );
+  return <label id={id} htmlFor={htmlFor} className="font-bold" {...otherProps} />;
 }
 
 Label.propTypes = {
+  htmlFor: PropTypes.string,
   id: PropTypes.string,
 };

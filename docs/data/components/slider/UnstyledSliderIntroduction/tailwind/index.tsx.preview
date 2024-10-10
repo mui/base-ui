@@ -1,5 +1,7 @@
 <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
-  <Label id="VolumeSliderLabel">Volume</Label>
+  <Label id="VolumeSliderLabel" htmlFor=":slider-thumb-input:">
+    Volume
+  </Label>
   <SliderOutput />
   <SliderControl>
     <SliderTrack>

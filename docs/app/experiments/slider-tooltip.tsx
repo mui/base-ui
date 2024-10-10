@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useTheme } from '@mui/system';
 import * as Slider from '@base_ui/react/Slider';
 import * as Tooltip from '@base_ui/react/Tooltip';
+import { useSliderContext } from '../../../packages/mui-base/src/Slider/Root/SliderContext';
 
 function useIsDarkMode() {
   const theme = useTheme();
@@ -73,7 +74,7 @@ export default function App() {
 
 const SliderMark = React.forwardRef(function SliderMark(props: any, ref: React.ForwardedRef<any>) {
   const { index, style, ...otherProps } = props;
-  const { percentageValues } = Slider.useSliderContext();
+  const { percentageValues } = useSliderContext();
   const isFilled = percentageValues[0] >= index * 10;
   return (
     <span

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderProvider';
+import { useSliderContext } from '../Root/SliderContext';
+import type { SliderRoot } from '../Root/SliderRoot';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
-import { SliderTrackProps } from './SliderTrack.types';
-
 /**
  *
  * Demos:
@@ -17,8 +17,8 @@ import { SliderTrackProps } from './SliderTrack.types';
  * - [SliderTrack API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderTrack)
  */
 const SliderTrack = React.forwardRef(function SliderTrack(
-  props: SliderTrackProps,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  props: SliderTrack.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
@@ -35,6 +35,12 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 
   return renderElement();
 });
+
+export namespace SliderTrack {
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+}
+
+export { SliderTrack };
 
 SliderTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -54,5 +60,3 @@ SliderTrack.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SliderTrack };
