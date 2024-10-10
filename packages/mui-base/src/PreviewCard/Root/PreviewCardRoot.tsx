@@ -16,7 +16,7 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  * - [PreviewCardRoot API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardRoot)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delayType = 'rest', delay, closeDelay, animated = true } = props;
+  const { delay, closeDelay, animated = true } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -39,7 +39,6 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   } = usePreviewCardRoot({
     animated,
     delay,
-    delayType,
     closeDelay,
     open: props.open,
     onOpenChange: props.onOpenChange,
@@ -49,7 +48,6 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   const contextValue = React.useMemo(
     () => ({
       delay: delayWithDefault,
-      delayType,
       closeDelay: closeDelayWithDefault,
       open,
       setOpen,
@@ -68,7 +66,6 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
     }),
     [
       delayWithDefault,
-      delayType,
       closeDelayWithDefault,
       open,
       setOpen,
@@ -132,14 +129,6 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    * @default 600
    */
   delay: PropTypes.number,
-  /**
-   * The delay type to use when the preview card is triggered by hover. `rest` means the `delay`
-   * represents how long the user's cursor must rest on the trigger before the preview card popup is
-   * opened. `hover` means the `delay` represents how long to wait as soon as the user's cursor has
-   * entered the trigger.
-   * @default 'rest'
-   */
-  delayType: PropTypes.oneOf(['hover', 'rest']),
   /**
    * Callback fired when the preview card popup is requested to be opened or closed. Use when
    * controlled.

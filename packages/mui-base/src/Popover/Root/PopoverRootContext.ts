@@ -15,7 +15,6 @@ export interface PopoverRootContext {
   popupRef: React.RefObject<HTMLElement | null>;
   delay: number;
   closeDelay: number;
-  delayType: 'rest' | 'hover';
   instantType: 'dismiss' | 'click' | undefined;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;

@@ -263,32 +263,6 @@ describe('<Popover.Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
-
-    it('should open after delay with hover type', async () => {
-      await render(
-        <Root openOnHover delayType="hover">
-          <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
-        </Root>,
-      );
-
-      const anchor = screen.getByRole('button');
-
-      fireEvent.mouseEnter(anchor);
-      clock.tick(OPEN_DELAY / 2);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      clock.tick(OPEN_DELAY / 2);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
   });
 
   describe('prop: closeDelay', () => {

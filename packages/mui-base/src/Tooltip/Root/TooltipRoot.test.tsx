@@ -328,32 +328,6 @@ describe('<Tooltip.Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
-
-    it('should open after delay with hover type', async () => {
-      await render(
-        <Root delayType="hover">
-          <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-      clock.tick(OPEN_DELAY - 100);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      clock.tick(100);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
   });
 
   describe('prop: closeDelay', () => {

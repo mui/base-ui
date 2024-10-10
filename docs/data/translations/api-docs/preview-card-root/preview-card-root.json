@@ -13,9 +13,6 @@
     "delay": {
       "description": "The delay in milliseconds until the preview card popup is opened when <code>openOnHover</code> is <code>true</code>."
     },
-    "delayType": {
-      "description": "The delay type to use when the preview card is triggered by hover. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the preview card popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
-    },
     "onOpenChange": {
       "description": "Callback fired when the preview card popup is requested to be opened or closed. Use when controlled."
     },

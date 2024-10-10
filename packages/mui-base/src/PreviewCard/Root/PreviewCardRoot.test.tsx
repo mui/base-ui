@@ -330,32 +330,6 @@ describe('<PreviewCard.Root />', () => {
 
       expect(screen.getByText('Content')).not.to.equal(null);
     });
-
-    it('should open after delay with hover type', async () => {
-      await render(
-        <Root delayType="hover">
-          <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
-        </Root>,
-      );
-
-      const trigger = screen.getByRole('link');
-
-      fireEvent.mouseEnter(trigger);
-      clock.tick(OPEN_DELAY - 100);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      clock.tick(100);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
   });
 
   describe('prop: closeDelay', () => {
