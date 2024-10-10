@@ -6,6 +6,9 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { type BaseUIComponentProps } from '../../utils/types';
+import { customStyleHookMapping } from '../../utils/popupOpenStateMapping';
+
+const ownerState = {};
 
 /**
  *
@@ -22,12 +25,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
-  const { setTitleElementId, open, modal } = useDialogRootContext();
-
-  const ownerState = {
-    open,
-    modal,
-  };
+  const { setTitleElementId } = useDialogRootContext();
 
   const id = useId(idProp);
 
@@ -44,6 +42,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
     ownerState,
     ref: forwardedRef,
     extraProps: other,
+    customStyleHookMapping,
   });
 
   return renderElement();
@@ -52,10 +51,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
 namespace DialogTitle {
   export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
 
-  export interface OwnerState {
-    open: boolean;
-    modal: boolean;
-  }
+  export interface OwnerState {}
 }
 
 DialogTitle.propTypes /* remove-proptypes */ = {

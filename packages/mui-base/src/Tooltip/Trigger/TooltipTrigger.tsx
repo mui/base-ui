@@ -5,15 +5,7 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-
-const customStyleHookMapping: CustomStyleHookMapping<TooltipTrigger.OwnerState> = {
-  open(value: boolean) {
-    return {
-      'data-state': value ? 'open' : 'closed',
-    };
-  },
-};
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders a trigger element that opens the tooltip.
@@ -45,7 +37,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping,
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

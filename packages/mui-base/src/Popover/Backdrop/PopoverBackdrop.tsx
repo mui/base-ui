@@ -7,6 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { usePopoverBackdrop } from './usePopoverBackdrop';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders a backdrop for the popover.
@@ -38,6 +39,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;

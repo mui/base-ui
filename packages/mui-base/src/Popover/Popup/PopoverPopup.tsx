@@ -9,18 +9,15 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
+  ...baseMapping,
   entering(value) {
     return value ? { 'data-entering': '' } : null;
   },
   exiting(value) {
     return value ? { 'data-exiting': '' } : null;
-  },
-  open(value) {
-    return {
-      'data-state': value ? 'open' : 'closed',
-    };
   },
 };
 

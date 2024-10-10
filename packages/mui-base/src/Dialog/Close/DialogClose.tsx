@@ -6,6 +6,8 @@ import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 
+const ownerState = {};
+
 /**
  *
  * Demos:
@@ -21,13 +23,8 @@ const DialogClose = React.forwardRef(function DialogClose(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, onOpenChange, modal } = useDialogRootContext();
+  const { open, onOpenChange } = useDialogRootContext();
   const { getRootProps } = useDialogClose({ open, onOpenChange });
-
-  const ownerState: DialogClose.OwnerState = {
-    open,
-    modal,
-  };
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -44,10 +41,7 @@ const DialogClose = React.forwardRef(function DialogClose(
 namespace DialogClose {
   export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
 
-  export interface OwnerState {
-    open: boolean;
-    modal: boolean;
-  }
+  export interface OwnerState {}
 }
 
 DialogClose.propTypes /* remove-proptypes */ = {

@@ -5,19 +5,19 @@ import { Side, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { BaseUIComponentProps } from '../../utils/types';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
-  ...commonStyleHooks,
+  ...baseMapping,
   entering(value) {
-    return value ? { 'data-menu-entering': '' } : null;
+    return value ? { 'data-entering': '' } : null;
   },
   exiting(value) {
-    return value ? { 'data-menu-exiting': '' } : null;
+    return value ? { 'data-exiting': '' } : null;
   },
 };
 
@@ -47,13 +47,16 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const ownerState: MenuPopup.OwnerState = {
-    entering: transitionStatus === 'entering',
-    exiting: transitionStatus === 'exiting',
-    side,
-    alignment,
-    open,
-  };
+  const ownerState: MenuPopup.OwnerState = React.useMemo(
+    () => ({
+      entering: transitionStatus === 'entering',
+      exiting: transitionStatus === 'exiting',
+      side,
+      alignment,
+      open,
+    }),
+    [transitionStatus, side, alignment, open],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',

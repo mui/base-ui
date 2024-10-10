@@ -7,6 +7,7 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -36,6 +37,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;
