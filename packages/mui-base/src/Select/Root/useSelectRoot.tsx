@@ -99,14 +99,13 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
   useEnhancedEffect(() => {
     // Wait for the items to have registered their values in `valuesRef`.
     queueMicrotask(() => {
-      const index = valuesRef.current.indexOf(value);
+      const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+      const index = valuesRef.current.indexOf(stringValue);
       if (index !== -1) {
         setSelectedIndex(index);
         setLabel(labelsRef.current[index] ?? '');
       } else if (value) {
-        warn(
-          `The value \`${typeof value === 'string' ? value : JSON.stringify(value)}\` is not present in the Select options.`,
-        );
+        warn(`The value \`${stringValue}\` is not present in the Select options.`);
       }
     });
   }, [value]);
