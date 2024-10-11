@@ -422,7 +422,7 @@ describe('<NumberField />', () => {
     it('should allow the user to scrub the input value with the mouse wheel', async () => {
       await render(<NumberField defaultValue={5} allowWheelScrub />);
       const input = screen.getByRole('textbox');
-      await act(() => input.focus());
+      await act(async () => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('4');
       fireEvent.wheel(input, { deltaY: -1 });
@@ -432,7 +432,7 @@ describe('<NumberField />', () => {
     it('should not allow the user to scrub the input value with the mouse wheel if `allowWheelScrub` is `false`', async () => {
       await render(<NumberField defaultValue={5} allowWheelScrub={false} />);
       const input = screen.getByRole('textbox');
-      await act(() => input.focus());
+      await act(async () => input.focus());
       fireEvent.wheel(input, { deltaY: 1 });
       expect(input).to.have.value('5');
       fireEvent.wheel(input, { deltaY: -5 });
@@ -467,13 +467,13 @@ describe('<NumberField />', () => {
       const numberField = screen.getByRole('textbox');
       const submitButton = screen.getByTestId('submit');
 
-      await act(() => submitButton.click());
+      await act(async () => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=');
 
       fireEvent.change(numberField, { target: { value: '5' } });
 
-      await act(() => submitButton.click());
+      await act(async () => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
     });

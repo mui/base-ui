@@ -1,6 +1,6 @@
 {
   "name": "@base_ui/react",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "private": false,
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
@@ -86,6 +86,6 @@
     "directory": "build"
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=14.0.0"
   }
 }

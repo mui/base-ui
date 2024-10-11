@@ -21,7 +21,7 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -44,13 +44,13 @@ describe('<Switch.Root />', () => {
       const button = getByText('Toggle');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
-      await act(() => {
+      await act(async () => {
         button.click();
       });
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
 
-      await act(() => {
+      await act(async () => {
         button.click();
       });
 
@@ -62,7 +62,7 @@ describe('<Switch.Root />', () => {
       const switchElement = screen.getByRole('switch');
       const internalInput = screen.getByRole('checkbox', { hidden: true });
 
-      await act(() => {
+      await act(async () => {
         internalInput.click();
       });
 
@@ -84,7 +84,7 @@ describe('<Switch.Root />', () => {
       const { getByRole } = await render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = getByRole('switch');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -99,7 +99,7 @@ describe('<Switch.Root />', () => {
       const { getByRole } = await render(<Switch.Root onClick={handleClick} />);
       const switchElement = getByRole('switch');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -124,7 +124,7 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -149,7 +149,7 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -236,7 +236,7 @@ describe('<Switch.Root />', () => {
 
       expect(stringifiedFormData).to.equal('test-switch=off');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 

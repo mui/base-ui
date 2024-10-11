@@ -32,7 +32,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     anchor,
     container,
     keepMounted = false,
-    positionStrategy = 'absolute',
+    positionMethod = 'absolute',
     side = 'top',
     alignment = 'center',
     sideOffset = 0,
@@ -57,7 +57,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const positioner = useTooltipPositioner({
     anchor: anchor || triggerElement,
     floatingRootContext,
-    positionStrategy,
+    positionMethod,
     open,
     keepMounted,
     side,
@@ -219,7 +219,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    * The CSS position strategy for positioning the tooltip element.
    * @default 'absolute'
    */
-  positionStrategy: PropTypes.oneOf(['absolute', 'fixed']),
+  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
    * A function to customize rendering of the component.
    */

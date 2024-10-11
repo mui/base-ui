@@ -83,7 +83,7 @@ export namespace usePreviewCardPositioner {
      * The CSS position strategy for positioning the preview card popup element.
      * @default 'absolute'
      */
-    positionStrategy?: 'absolute' | 'fixed';
+    positionMethod?: 'absolute' | 'fixed';
     /**
      * The container element to which the preview card popup will be appended to.
      */
