@@ -9,7 +9,6 @@ import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -76,7 +75,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
-  useEnhancedEffect(() => {
+  React.useEffect(() => {
     if (parentContext && name) {
       parentContext.disabledStatesRef.current.set(name, disabled);
     }
