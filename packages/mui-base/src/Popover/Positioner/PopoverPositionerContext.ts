@@ -10,14 +10,19 @@ export interface PopoverPositionerContext {
   arrowStyles: React.CSSProperties;
 }
 
-export const PopoverPositionerContext = React.createContext<PopoverPositionerContext | null>(null);
+export const PopoverPositionerContext = React.createContext<PopoverPositionerContext | undefined>(
+  undefined,
+);
+
+if (process.env.NODE_ENV !== 'production') {
+  PopoverPositionerContext.displayName = 'PopoverPositionerContext';
+}
 
 export function usePopoverPositionerContext() {
   const context = React.useContext(PopoverPositionerContext);
-  if (context === null) {
-    throw new Error(
-      '<Popover.Popup> and <Popover.Arrow> must be used within the <Popover.Positioner> component',
-    );
+  if (context === undefined) {
+    throw new Error('Base UI: PopoverPositionerContext is not defined.');
   }
+
   return context;
 }

@@ -9,12 +9,19 @@ export interface CheckboxGroupRootContext {
   parent: UseCheckboxGroupParent.ReturnValue;
 }
 
-export const CheckboxGroupRootContext = React.createContext<CheckboxGroupRootContext | null>(null);
+export const CheckboxGroupRootContext = React.createContext<CheckboxGroupRootContext | undefined>(
+  undefined,
+);
+
+if (process.env.NODE_ENV !== 'production') {
+  CheckboxGroupRootContext.displayName = 'CheckboxGroupRootContext';
+}
 
 export function useCheckboxGroupRootContext(optional = true) {
   const context = React.useContext(CheckboxGroupRootContext);
-  if (context === null && !optional) {
+  if (context === undefined && !optional) {
     throw new Error('Base UI: CheckboxGroupRootContext is not defined.');
   }
+
   return context;
 }

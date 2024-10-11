@@ -25,12 +25,13 @@ export interface TooltipRootContext {
   transitionStatus: TransitionStatus;
 }
 
-export const TooltipRootContext = React.createContext<TooltipRootContext | null>(null);
+export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);
 
 export function useTooltipRootContext() {
   const context = React.useContext(TooltipRootContext);
-  if (context === null) {
-    throw new Error('Tooltip components must be used within the <Tooltip.Root> component');
+  if (context === undefined) {
+    throw new Error('Base UI: TooltipRootContext is not defined.');
   }
+
   return context;
 }

@@ -10,15 +10,21 @@ export interface PreviewCardPositionerContext {
   arrowStyles: React.CSSProperties;
 }
 
-export const PreviewCardPositionerContext =
-  React.createContext<PreviewCardPositionerContext | null>(null);
+export const PreviewCardPositionerContext = React.createContext<
+  PreviewCardPositionerContext | undefined
+>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  PreviewCardPositionerContext.displayName = 'PreviewCardPositionerContext';
+}
 
 export function usePreviewCardPositionerContext() {
   const context = React.useContext(PreviewCardPositionerContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error(
       'Base UI: <PreviewCard.Popup> and <PreviewCard.Arrow> must be used within the <PreviewCard.Positioner> component',
     );
   }
+
   return context;
 }

@@ -13,7 +13,7 @@ export const MenuCheckboxItemContext = React.createContext<MenuCheckboxItemConte
 export function useMenuCheckboxItemContext() {
   const context = React.useContext(MenuCheckboxItemContext);
   if (context === undefined) {
-    throw new Error('useMenuCheckboxItemContext must be used within a MenuCheckboxItemProvider');
+    throw new Error('Base UI: MenuCheckboxItemContext is not defined.');
   }
 
   return context;

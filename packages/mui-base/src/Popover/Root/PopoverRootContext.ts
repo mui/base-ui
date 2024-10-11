@@ -29,12 +29,17 @@ export interface PopoverRootContext {
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
-export const PopoverRootContext = React.createContext<PopoverRootContext | null>(null);
+export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  PopoverRootContext.displayName = 'PopoverRootContext';
+}
 
 export function usePopoverRootContext() {
   const context = React.useContext(PopoverRootContext);
-  if (context === null) {
-    throw new Error('Popover components must be used within the <Popover.Root> component');
+  if (context === undefined) {
+    throw new Error('Base UI: PopoverRootContext is not defined.');
   }
+
   return context;
 }

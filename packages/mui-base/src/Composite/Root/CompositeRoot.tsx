@@ -39,7 +39,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     extraProps: otherProps,
   });
 
-  const contextValue: CompositeRootContext.Value = React.useMemo(
+  const contextValue: CompositeRootContext = React.useMemo(
     () => ({ activeIndex, onActiveIndexChange }),
     [activeIndex, onActiveIndexChange],
   );

@@ -1,6 +1,9 @@
 export { CollapsibleRoot as Root } from './Root/CollapsibleRoot';
 export { useCollapsibleRoot } from './Root/useCollapsibleRoot';
-export { CollapsibleContext, useCollapsibleContext } from './Root/CollapsibleContext';
+export {
+  CollapsibleRootContext as CollapsibleContext,
+  useCollapsibleContext,
+} from './Root/CollapsibleRootContext';
 
 export { CollapsibleTrigger as Trigger } from './Trigger/CollapsibleTrigger';
 export { useCollapsibleTrigger } from './Trigger/useCollapsibleTrigger';

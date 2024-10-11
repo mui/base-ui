@@ -1,19 +1,24 @@
 'use client';
 import * as React from 'react';
 
-export const CompositeRootContext = React.createContext<CompositeRootContext.Value | null>(null);
+export interface CompositeRootContext {
+  activeIndex: number;
+  onActiveIndexChange: (index: number) => void;
+}
+
+export const CompositeRootContext = React.createContext<CompositeRootContext | undefined>(
+  undefined,
+);
+
+if (process.env.NODE_ENV !== 'production') {
+  CompositeRootContext.displayName = 'CompositeRootContext';
+}
 
 export function useCompositeRootContext() {
   const context = React.useContext(CompositeRootContext);
-  if (context === null) {
-    throw new Error('<Composite.Item> must be used within <Composite.Root>');
+  if (context === undefined) {
+    throw new Error('Base UI: CompositeRootContext is not defined.');
   }
-  return context;
-}
 
-export namespace CompositeRootContext {
-  export interface Value {
-    activeIndex: number;
-    onActiveIndexChange: (index: number) => void;
-  }
+  return context;
 }
