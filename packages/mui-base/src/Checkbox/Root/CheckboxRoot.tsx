@@ -9,6 +9,7 @@ import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 /**
  * The foundation for building custom-styled checkboxes.
@@ -42,7 +43,8 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
 
   const groupContext = useCheckboxGroupRootContext();
-  const isGrouped = groupContext?.parent && groupContext.allValues;
+  const parentContext = groupContext?.parent;
+  const isGrouped = parentContext && groupContext.allValues;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGrouped) {
@@ -73,6 +75,12 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
+
+  useEnhancedEffect(() => {
+    if (parentContext && name) {
+      parentContext.disabledStatesRef.current.set(name, disabled);
+    }
+  }, [parentContext, disabled]);
 
   const ownerState: CheckboxRoot.OwnerState = React.useMemo(
     () => ({

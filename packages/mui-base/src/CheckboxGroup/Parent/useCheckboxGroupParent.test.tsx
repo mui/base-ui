@@ -206,4 +206,64 @@ describe('useCheckboxGroupParent', () => {
       }
     });
   });
+
+  it('handles unchecked disabled checkboxes', () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root name="a" disabled />
+          <Checkbox.Root name="b" />
+          <Checkbox.Root name="c" />
+        </CheckboxGroup.Root>
+      );
+    }
+
+    render(<App />);
+
+    const checkboxes = screen
+      .getAllByRole('checkbox')
+      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
+    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
+    const parent = screen.getByTestId('parent');
+
+    fireEvent.click(parent);
+
+    expect(parent).to.have.attribute('aria-checked', 'mixed');
+    expect(checkboxA).to.have.attribute('aria-checked', 'false');
+  });
+
+  it('handles checked disabled checkboxes', () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>(['a']);
+      return (
+        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root name="a" disabled />
+          <Checkbox.Root name="b" />
+          <Checkbox.Root name="c" />
+        </CheckboxGroup.Root>
+      );
+    }
+
+    render(<App />);
+
+    const checkboxes = screen
+      .getAllByRole('checkbox')
+      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
+    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
+    const checkboxB = checkboxes.find((v) => v.getAttribute('name') === 'b')!;
+    const parent = screen.getByTestId('parent');
+
+    fireEvent.click(parent);
+
+    expect(checkboxA).to.have.attribute('aria-checked', 'true');
+    expect(checkboxB).to.have.attribute('aria-checked', 'true');
+
+    fireEvent.click(parent);
+
+    expect(checkboxA).to.have.attribute('aria-checked', 'true');
+    expect(checkboxB).to.have.attribute('aria-checked', 'false');
+  });
 });
