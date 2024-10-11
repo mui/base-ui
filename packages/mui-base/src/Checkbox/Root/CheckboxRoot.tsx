@@ -79,7 +79,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     if (parentContext && name) {
       parentContext.disabledStatesRef.current.set(name, disabled);
     }
-  }, [parentContext, disabled]);
+  }, [parentContext, disabled, name]);
 
   const ownerState: CheckboxRoot.OwnerState = React.useMemo(
     () => ({
