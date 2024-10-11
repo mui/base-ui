@@ -40,7 +40,9 @@ export function useCheckboxGroupParent(
         const uncontrolledState = uncontrolledStateRef.current;
 
         // None except the disabled ones that are checked, which can't be changed.
-        const none = allValues.filter((v) => disabledStatesRef.current.get(v) && value.includes(v));
+        const none = allValues.filter(
+          (v) => disabledStatesRef.current.get(v) && uncontrolledState.includes(v),
+        );
         // "All" that are valid:
         // - any that aren't disabled
         // - disabled ones that are checked
