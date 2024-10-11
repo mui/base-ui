@@ -534,8 +534,8 @@ importers:
   packages/eslint-plugin-material-ui:
     devDependencies:
       '@types/eslint':
-        specifier: ^9.6.1
-        version: 9.6.1
+        specifier: ^8.56.12
+        version: 8.56.12
       '@typescript-eslint/experimental-utils':
         specifier: ^5.62.0
         version: 5.62.0(eslint@9.8.0)(typescript@5.6.3)
@@ -583,8 +583,8 @@ importers:
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@10.4.0)
       '@types/chai':
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: ^4.3.20
+        version: 4.3.20
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
@@ -2652,9 +2652,6 @@ packages:
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
-  '@types/chai@5.0.0':
-    resolution: {integrity: sha512-+DwhEHAaFPPdJ2ral3kNHFQXnTfscEEFsUxzD+d7nlcLrFK23JtNjH71RGasTcHb88b4vVi4mTyfpf8u2L8bdA==}
-
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -2667,8 +2664,8 @@ packages:
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
-  '@types/eslint@9.6.1':
-    resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
+  '@types/eslint@8.56.12':
+    resolution: {integrity: sha512-03ruubjWyOHlmljCVoxSuNDdmfZDzsrrz0P2LeJsOXr+ZwFQ+0yQIwNCwt/GYhV7Z31fgtXJTAEs+FYlEL851g==}
 
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
@@ -11187,11 +11184,9 @@ snapshots:
 
   '@types/chai-dom@1.11.3':
     dependencies:
-      '@types/chai': 5.0.0
+      '@types/chai': 4.3.20
 
   '@types/chai@4.3.20': {}
-
-  '@types/chai@5.0.0': {}
 
   '@types/connect@3.4.38':
     dependencies:
@@ -11207,7 +11202,7 @@ snapshots:
     dependencies:
       '@types/ms': 0.7.34
 
-  '@types/eslint@9.6.1':
+  '@types/eslint@8.56.12':
     dependencies:
       '@types/estree': 1.0.6
       '@types/json-schema': 7.0.15
