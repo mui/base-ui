@@ -59,7 +59,7 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
     className,
     propGetter: getButtonProps,
     ownerState,
-    extraProps: other,
+    extraProps: {...other, disabled},
     customStyleHookMapping: styleHookMapping,
     ref: forwardedRef,
   });

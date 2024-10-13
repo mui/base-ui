@@ -98,6 +98,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     extraProps: {
       ...otherProps,
       ...otherGroupProps,
+      disabled
     },
   });
 
