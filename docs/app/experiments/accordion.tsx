@@ -36,6 +36,7 @@ export default function App() {
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 1
+            <input type="text" />
           </Accordion.Panel>
         </Accordion.Item>
 
@@ -45,6 +46,7 @@ export default function App() {
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 2
+            <button type="button">This button does nothing</button>
           </Accordion.Panel>
         </Accordion.Item>
 
@@ -55,7 +57,7 @@ export default function App() {
             </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
-            This is the contents of Accordion.Panel 3
+            This is the contents of Accordion.Panel 3<a href="https://mui.com">MUI</a>
           </Accordion.Panel>
         </Accordion.Item>
 
