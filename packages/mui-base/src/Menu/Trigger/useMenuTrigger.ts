@@ -23,6 +23,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    focusableWhenDisabled: false,
     buttonRef: mergedRef,
   });
 
