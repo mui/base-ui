@@ -17,7 +17,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useCompositeRootContext() {
   const context = React.useContext(CompositeRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: CompositeRootContext is not defined.');
+    throw new Error(
+      'Base UI: CompositeRootContext is missing. Composite parts must be placed within <Composite.Root>.',
+    );
   }
 
   return context;

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
-import { NumberFieldContext } from '../Root/NumberFieldContext';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 const testContext = {
   getGroupProps: (externalProps) => ({ role: 'group', ...externalProps }),
@@ -14,7 +14,7 @@ const testContext = {
     invalid: false,
     readOnly: false,
   },
-} as NumberFieldContext;
+} as NumberFieldRootContext;
 
 describe('<NumberField.Group />', () => {
   const { render } = createRenderer();
@@ -23,7 +23,9 @@ describe('<NumberField.Group />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
+        <NumberFieldRootContext.Provider value={testContext}>
+          {node}
+        </NumberFieldRootContext.Provider>,
       );
     },
   }));

@@ -25,7 +25,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useAlertDialogRootContext() {
   const context = React.useContext(AlertDialogRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: AlertDialogRootContext is not defined.');
+    throw new Error(
+      'Base UI: AlertDialogRootContext is missing. AlertDialog parts must be placed within <AlertDialog.Root>.',
+    );
   }
 
   return context;

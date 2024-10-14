@@ -19,7 +19,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useProgressRootContext() {
   const context = React.useContext(ProgressRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: ProgressRootContext is not defined.');
+    throw new Error(
+      'Base UI: ProgressRootContext is missing. Progress parts must be placed within <Progress.Root>.',
+    );
   }
 
   return context;

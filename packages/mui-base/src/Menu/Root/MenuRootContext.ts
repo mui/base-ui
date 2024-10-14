@@ -22,7 +22,9 @@ function useMenuRootContext(optional: true): MenuRootContext | undefined;
 function useMenuRootContext(optional?: boolean) {
   const context = React.useContext(MenuRootContext);
   if (context === undefined && !optional) {
-    throw new Error('Base UI: MenuRootContext is not defined.');
+    throw new Error(
+      'Base UI: MenuRootContext is missing. Menu parts must be placed within <Menu.Root>.',
+    );
   }
 
   return context;

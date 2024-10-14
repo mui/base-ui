@@ -17,7 +17,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useRadioRootContext() {
   const value = React.useContext(RadioRootContext);
   if (value === undefined) {
-    throw new Error('Base UI: RadioRootContext is not defined.');
+    throw new Error(
+      'Base UI: RadioRootContext is missing. Radio parts must be placed within <Radio.Root>.',
+    );
   }
 
   return value;

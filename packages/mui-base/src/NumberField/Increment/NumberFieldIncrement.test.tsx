@@ -4,7 +4,7 @@ import { screen, fireEvent } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { NumberFieldContext } from '../Root/NumberFieldContext';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 const testContext = {
   getIncrementButtonProps: (externalProps) => externalProps,
@@ -15,7 +15,7 @@ const testContext = {
     invalid: false,
     readOnly: false,
   },
-} as NumberFieldContext;
+} as NumberFieldRootContext;
 
 describe('<NumberField.Increment />', () => {
   const { render, clock } = createRenderer();
@@ -24,7 +24,9 @@ describe('<NumberField.Increment />', () => {
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
-        <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
+        <NumberFieldRootContext.Provider value={testContext}>
+          {node}
+        </NumberFieldRootContext.Provider>,
       );
     },
   }));

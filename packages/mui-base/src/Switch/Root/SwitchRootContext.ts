@@ -12,7 +12,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSwitchRootContext() {
   const context = React.useContext(SwitchRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: SwitchRootContext is not defined.');
+    throw new Error(
+      'Base UI: SwitchRootContext is missing. Switch parts must be placed within <Switch.Root>.',
+    );
   }
 
   return context;

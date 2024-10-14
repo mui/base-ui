@@ -16,7 +16,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useMenuRadioGroupContext() {
   const context = React.useContext(MenuRadioGroupContext);
   if (context === undefined) {
-    throw new Error('Base UI: MenuRadioGroupContext is not defined.');
+    throw new Error(
+      'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
+    );
   }
 
   return context;

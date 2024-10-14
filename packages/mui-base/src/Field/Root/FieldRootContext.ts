@@ -71,7 +71,7 @@ export function useFieldRootContext(optional = true) {
 
   if (context.setControlId === NOOP && !optional) {
     throw new Error(
-      'Base UI: FieldRootContext is not defined. Field components must be placed within <Field.Root>.',
+      'Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.',
     );
   }
 

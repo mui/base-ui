@@ -13,7 +13,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useCheckboxRootContext() {
   const context = React.useContext(CheckboxRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: CheckboxRootContext is not defined.');
+    throw new Error(
+      'Base UI: CheckboxRootContext is missing. Checkbox parts must be placed within <Checkbox.Root>.',
+    );
   }
 
   return context;

@@ -18,7 +18,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useCollapsibleContext() {
   const context = React.useContext(CollapsibleRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: CollapsibleRootContext is not defined.');
+    throw new Error(
+      'Base UI: CollapsibleRootContext is missing. Collapsible parts must be placed within <Collapsible.Root>.',
+    );
   }
 
   return context;

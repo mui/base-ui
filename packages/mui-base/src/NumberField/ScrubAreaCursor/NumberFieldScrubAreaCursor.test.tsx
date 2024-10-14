@@ -4,7 +4,7 @@ import { screen } from '@mui/internal-test-utils';
 import * as NumberField from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { NumberFieldContext } from '../Root/NumberFieldContext';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,
@@ -16,7 +16,7 @@ const testContext = {
     invalid: false,
     readOnly: false,
   },
-} as NumberFieldContext;
+} as NumberFieldRootContext;
 
 describe('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
@@ -30,7 +30,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
-        <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
+        <NumberFieldRootContext.Provider value={testContext}>
+          {node}
+        </NumberFieldRootContext.Provider>,
       );
     },
   }));

@@ -18,7 +18,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSliderContext() {
   const context = React.useContext(SliderContext);
   if (context === undefined) {
-    throw new Error('Base UI: SliderContext is not defined.');
+    throw new Error(
+      'Base UI: SliderContext is missing. Slider parts must be placed within <Slider.Root>.',
+    );
   }
 
   return context;

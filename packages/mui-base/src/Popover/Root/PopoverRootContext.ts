@@ -38,7 +38,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function usePopoverRootContext() {
   const context = React.useContext(PopoverRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: PopoverRootContext is not defined.');
+    throw new Error(
+      'Base UI: PopoverRootContext is missing. Popover parts must be placed within <Popover.Root>.',
+    );
   }
 
   return context;

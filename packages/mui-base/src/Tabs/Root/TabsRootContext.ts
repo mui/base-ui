@@ -55,7 +55,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useTabsRootContext() {
   const context = React.useContext(TabsRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: TabsRootContext is not defined.');
+    throw new Error(
+      'Base UI: TabsRootContext is missing. Tabs parts must be placed within <Tabs.Root>.',
+    );
   }
 
   return context;

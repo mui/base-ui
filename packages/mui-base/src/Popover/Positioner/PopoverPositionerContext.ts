@@ -21,7 +21,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function usePopoverPositionerContext() {
   const context = React.useContext(PopoverPositionerContext);
   if (context === undefined) {
-    throw new Error('Base UI: PopoverPositionerContext is not defined.');
+    throw new Error(
+      'Base UI: PopoverPositionerContext is missing. PopoverPositioner parts must be placed within <Popover.Positioner>.',
+    );
   }
 
   return context;
