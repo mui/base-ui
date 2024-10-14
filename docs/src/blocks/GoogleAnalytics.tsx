@@ -5,13 +5,6 @@ import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 
 let boundDataGaListener = false;
 
-// @ts-expect-error
-const dataLayer = window.dataLayer || [];
-
-function gtag(...args: unknown[]) {
-  dataLayer.push(...args);
-}
-
 /**
  * basically just a `useAnalytics` hook.
  * However, it needs the redux store which is created
@@ -29,7 +22,13 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
 
   useEnhancedEffect(() => {
     // @ts-expect-error
-    window.dataLayer = dataLayer;
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag(...args: unknown[]) {
+      // @ts-expect-error
+      window.dataLayer.push(...args);
+    }
+
     window.gtag = gtag;
 
     gtag('js', new Date());
