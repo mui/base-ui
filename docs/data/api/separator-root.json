@@ -5,7 +5,7 @@
   },
   "name": "SeparatorRoot",
   "imports": [
-    "import * as Separator from '@base_ui/react/Separator';\nconst SeparatorRoot = Separator.Root;"
+    "import { Separator } from '@base_ui/react/Separator';\nconst SeparatorRoot = Separator.Root;"
   ],
   "classes": [],
   "spread": true,

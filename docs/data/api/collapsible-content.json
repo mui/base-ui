@@ -6,7 +6,7 @@
   },
   "name": "CollapsibleContent",
   "imports": [
-    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleContent = Collapsible.Content;"
+    "import { Collapsible } from '@base_ui/react/Collapsible';\nconst CollapsibleContent = Collapsible.Content;"
   ],
   "classes": [],
   "spread": true,

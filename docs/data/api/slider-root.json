@@ -42,7 +42,7 @@
     }
   },
   "name": "SliderRoot",
-  "imports": ["import * as Slider from '@base_ui/react/Slider';\nconst SliderRoot = Slider.Root;"],
+  "imports": ["import { Slider } from '@base_ui/react/Slider';\nconst SliderRoot = Slider.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
