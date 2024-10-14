@@ -6,7 +6,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "TabsList",
-  "imports": ["import * as Tabs from '@base_ui/react/Tabs';\nconst TabsList = Tabs.List;"],
+  "imports": ["import { Tabs } from '@base_ui/react/Tabs';\nconst TabsList = Tabs.List;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

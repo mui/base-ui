@@ -2,14 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useProgressRoot } from './useProgressRoot';
-import { ProgressContext } from './ProgressContext';
+import { type ProgressDirection, useProgressRoot } from './useProgressRoot';
+import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
-import {
-  ProgressContextValue,
-  ProgressRootOwnerState,
-  ProgressRootProps,
-} from './ProgressRoot.types';
+import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -22,7 +18,7 @@ import {
  * - [ProgressRoot API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressRoot)
  */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
-  props: ProgressRootProps,
+  props: ProgressRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -52,7 +48,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     value,
   });
 
-  const ownerState: ProgressRootOwnerState = React.useMemo(
+  const ownerState: ProgressRoot.OwnerState = React.useMemo(
     () => ({
       direction,
       max,
@@ -62,7 +58,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     [direction, max, min, progress.state],
   );
 
-  const contextValue: ProgressContextValue = React.useMemo(
+  const contextValue: ProgressRootContext = React.useMemo(
     () => ({
       ...progress,
       ownerState,
@@ -81,9 +77,23 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   });
 
   return (
-    <ProgressContext.Provider value={contextValue}>{renderElement()}</ProgressContext.Provider>
+    <ProgressRootContext.Provider value={contextValue}>
+      {renderElement()}
+    </ProgressRootContext.Provider>
   );
 });
+
+namespace ProgressRoot {
+  export type OwnerState = {
+    direction: ProgressDirection;
+    max: number;
+    min: number;
+  };
+
+  export interface Props
+    extends useProgressRoot.Parameters,
+      BaseUIComponentProps<'div', OwnerState> {}
+}
 
 ProgressRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

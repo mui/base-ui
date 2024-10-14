@@ -5,9 +5,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuSeparator",
-  "imports": [
-    "import * as Menu from '@base_ui/react/Menu';\nconst MenuSeparator = Menu.Separator;"
-  ],
+  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuSeparator = Menu.Separator;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

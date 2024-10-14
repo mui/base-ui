@@ -5,7 +5,7 @@ import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGr
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
@@ -111,7 +111,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 });
 
 namespace CheckboxRoot {
-  export interface OwnerState extends FieldRootOwnerState {
+  export interface OwnerState extends FieldRoot.OwnerState {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;

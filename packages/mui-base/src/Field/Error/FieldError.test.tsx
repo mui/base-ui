@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import * as Field from '@base_ui/react/Field';
+import { Field } from '@base_ui/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Field.Error />', () => {
@@ -53,7 +53,7 @@ describe('<Field.Error />', () => {
       render(
         <Field.Root>
           <Field.Control required />
-          <Field.Error show="valueMissing">Message</Field.Error>
+          <Field.Error match="valueMissing">Message</Field.Error>
         </Field.Root>,
       );
 
@@ -73,7 +73,7 @@ describe('<Field.Error />', () => {
       render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
-          <Field.Error show="customError">Message</Field.Error>
+          <Field.Error match="customError">Message</Field.Error>
         </Field.Root>,
       );
 

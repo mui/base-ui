@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import * as BaseNumberField from '@base_ui/react/NumberField';
+import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes) {

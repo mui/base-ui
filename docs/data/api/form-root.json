@@ -6,7 +6,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "FormRoot",
-  "imports": ["import * as Form from '@base_ui/react/Form';\nconst FormRoot = Form.Root;"],
+  "imports": ["import { Form } from '@base_ui/react/Form';\nconst FormRoot = Form.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

@@ -2,11 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldErrorProps } from './FieldError.types';
+import { FieldRoot } from '../Root/FieldRoot';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { useFieldError } from './useFieldError';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Displays error messages for the field's control.
@@ -20,10 +21,10 @@ import { useFormRootContext } from '../../Form/Root/FormRootContext';
  * - [FieldError API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldError)
  */
 const FieldError = React.forwardRef(function FieldError(
-  props: FieldErrorProps,
+  props: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id, className, show, forceShow, ...otherProps } = props;
+  const { render, id, className, match, forceShow, ...otherProps } = props;
 
   const { validityData, ownerState, name } = useFieldRootContext(false);
 
@@ -34,8 +35,8 @@ const FieldError = React.forwardRef(function FieldError(
   let rendered = false;
   if (formError || forceShow) {
     rendered = true;
-  } else if (show) {
-    rendered = Boolean(validityData.state[show]);
+  } else if (match) {
+    rendered = Boolean(validityData.state[match]);
   } else if (forceShow == null) {
     rendered = validityData.state.valid === false;
   }
@@ -59,6 +60,22 @@ const FieldError = React.forwardRef(function FieldError(
   return renderElement();
 });
 
+namespace FieldError {
+  export type OwnerState = FieldRoot.OwnerState;
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Determines whether the error message should be shown when it matches a given property of the
+     * field's `ValidityState`.
+     */
+    match?: keyof ValidityState;
+    /**
+     * Determines whether the error message should be shown regardless of the field's client validity.
+     */
+    forceShow?: boolean;
+  }
+}
+
 FieldError.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -81,14 +98,10 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
    * Determines whether the error message should be shown when it matches a given property of the
    * field's `ValidityState`.
    */
-  show: PropTypes.oneOf([
+  match: PropTypes.oneOf([
     'badInput',
     'customError',
     'patternMismatch',
@@ -101,6 +114,10 @@ FieldError.propTypes /* remove-proptypes */ = {
     'valid',
     'valueMissing',
   ]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { FieldError };

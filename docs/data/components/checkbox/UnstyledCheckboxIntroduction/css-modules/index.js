@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Checkbox from '@base_ui/react/Checkbox';
+import { Checkbox } from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 
 export default function UnstyledCheckboxIntroduction() {
@@ -92,7 +92,7 @@ function Styles() {
         outline-offset: 2px;
       }
 
-      .Checkbox[data-state="checked"] {
+      .Checkbox[data-checked] {
         border-color: ${grey[800]};
         background: ${grey[800]};
       }
@@ -104,7 +104,7 @@ function Styles() {
         color: ${isDarkMode ? grey[900] : grey[100]};
       }
 
-      .Checkbox-indicator[data-state="checked"] {
+      .Checkbox-indicator[data-checked] {
         visibility: visible;
       }
 
@@ -118,7 +118,7 @@ function Styles() {
           border-color: ${grey[500]};
         }
 
-        .Checkbox[data-state="checked"] {
+        .Checkbox[data-checked] {
           border-color: ${grey[300]};
           background: ${grey[300]};
         }

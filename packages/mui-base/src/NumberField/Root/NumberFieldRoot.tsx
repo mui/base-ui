@@ -6,7 +6,7 @@ import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 
 /**
  * The foundation for building custom-styled number fields.
@@ -102,7 +102,7 @@ export namespace NumberFieldRoot {
     extends UseNumberFieldRoot.Parameters,
       Omit<BaseUIComponentProps<'div', OwnerState>, 'onChange' | 'defaultValue'> {}
 
-  export interface OwnerState extends FieldRootOwnerState {
+  export interface OwnerState extends FieldRoot.OwnerState {
     /**
      * The raw number value of the input element.
      */

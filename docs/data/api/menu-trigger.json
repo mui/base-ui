@@ -7,7 +7,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuTrigger",
-  "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuTrigger = Menu.Trigger;"],
+  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuTrigger = Menu.Trigger;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

@@ -5,13 +5,7 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 
-interface UseFieldErrorParameters {
-  id: string | undefined;
-  rendered: boolean;
-  formError: string | string[] | null;
-}
-
-export function useFieldError(params: UseFieldErrorParameters) {
+export function useFieldError(params: useFieldError.Parameters) {
   const { id: idProp, rendered, formError } = params;
 
   const { setMessageIds, validityData } = useFieldRootContext();
@@ -55,4 +49,12 @@ export function useFieldError(params: UseFieldErrorParameters) {
     }),
     [getErrorProps],
   );
+}
+
+export namespace useFieldError {
+  export interface Parameters {
+    id: string | undefined;
+    rendered: boolean;
+    formError: string | string[] | null;
+  }
 }

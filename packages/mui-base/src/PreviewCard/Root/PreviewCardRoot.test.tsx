@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as PreviewCard from '@base_ui/react/PreviewCard';
+import { PreviewCard } from '@base_ui/react/PreviewCard';
 import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -91,7 +91,7 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger = screen.getByRole('link');
 
-      await act(() => trigger.focus());
+      await act(async () => trigger.focus());
 
       clock.tick(OPEN_DELAY);
 

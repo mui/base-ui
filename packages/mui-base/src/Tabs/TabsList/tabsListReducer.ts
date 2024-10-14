@@ -1,4 +1,3 @@
-import { TabsListActionTypes, ValueChangeAction } from './TabsList.types';
 import {
   ListState,
   ListAction,
@@ -12,6 +11,15 @@ import { ActionWithContext } from '../../utils/useControllableReducer.types';
 export type TabsListActionContext = ListActionContext<any> & {
   activateOnFocus: boolean;
 };
+
+export const TabsListActionTypes = {
+  valueChange: 'valueChange',
+} as const;
+
+export interface ValueChangeAction {
+  type: typeof TabsListActionTypes.valueChange;
+  value: any | null;
+}
 
 export function tabsListReducer(
   state: ListState<any>,

@@ -7,7 +7,7 @@
     "onClick": { "type": { "name": "func" } }
   },
   "name": "MenuItem",
-  "imports": ["import * as Menu from '@base_ui/react/Menu';\nconst MenuItem = Menu.Item;"],
+  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuItem = Menu.Item;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

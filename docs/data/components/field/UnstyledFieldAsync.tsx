@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Field from '@base_ui/react/Field';
+import { Field } from '@base_ui/react/Field';
 import { styled } from '@mui/system';
 
 const cache = new Map<string, string | null>();
@@ -48,8 +48,8 @@ export default function UnstyledFieldAsync() {
       <h3>Handle availability checker</h3>
       <FieldRoot
         validate={handleValidate}
-        validateOnChange
-        validateDebounceTime={300}
+        validationMode="onChange"
+        validationDebounceTime={300}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Field.Label>@</Field.Label>
@@ -83,7 +83,7 @@ export default function UnstyledFieldAsync() {
               );
             }
 
-            return <FieldError show="customError" />;
+            return <FieldError match="customError" />;
           }}
         </Field.Validity>
       </FieldRoot>

@@ -3,11 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 
-interface UseFieldLabelParameters {
-  customTag: boolean;
-}
-
-export function useFieldLabel(params: UseFieldLabelParameters) {
+export function useFieldLabel(params: useFieldLabel.Parameters) {
   const { customTag } = params;
 
   const { controlId, labelId } = useFieldRootContext();
@@ -38,4 +34,10 @@ export function useFieldLabel(params: UseFieldLabelParameters) {
     }),
     [getLabelProps],
   );
+}
+
+export namespace useFieldLabel {
+  export interface Parameters {
+    customTag: boolean;
+  }
 }

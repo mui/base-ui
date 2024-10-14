@@ -5,11 +5,7 @@ import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
 
-interface UseFieldsetLegendParameters {
-  id?: string;
-}
-
-export function useFieldsetLegend(params: UseFieldsetLegendParameters) {
+export function useFieldsetLegend(params: useFieldsetLegend.Parameters) {
   const { id: idProp } = params;
 
   const { setLegendId } = useFieldsetRootContext();
@@ -37,4 +33,10 @@ export function useFieldsetLegend(params: UseFieldsetLegendParameters) {
     }),
     [getLegendProps],
   );
+}
+
+export namespace useFieldsetLegend {
+  export interface Parameters {
+    id?: string;
+  }
 }

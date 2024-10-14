@@ -6,7 +6,7 @@
   },
   "name": "MenuCheckboxItemIndicator",
   "imports": [
-    "import * as Menu from '@base_ui/react/Menu';\nconst MenuCheckboxItemIndicator = Menu.CheckboxItemIndicator;"
+    "import { Menu } from '@base_ui/react/Menu';\nconst MenuCheckboxItemIndicator = Menu.CheckboxItemIndicator;"
   ],
   "classes": [],
   "spread": true,

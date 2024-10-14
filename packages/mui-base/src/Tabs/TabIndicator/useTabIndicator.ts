@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
-import { UseTabIndicatorReturnValue } from './TabIndicator.types';
 import { useTabsListContext } from '../TabsList/TabsListContext';
-import { useTabsContext } from '../Root/TabsContext';
+import { useTabsRootContext } from '../Root/TabsRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
+import type { TabsDirection, TabsOrientation, TabActivationDirection } from '../Root/TabsRoot';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;
 }
 
-export function useTabIndicator(): UseTabIndicatorReturnValue {
+export function useTabIndicator(): useTabIndicator.ReturnValue {
   const { tabsListRef, getTabElement } = useTabsListContext();
-  const { orientation, direction, value, tabActivationDirection } = useTabsContext();
+  const { orientation, direction, value, tabActivationDirection } = useTabsRootContext();
 
   const rerender = useForcedRerendering();
   React.useEffect(() => {
@@ -113,4 +113,23 @@ export function useTabIndicator(): UseTabIndicatorReturnValue {
     direction,
     tabActivationDirection,
   };
+}
+
+export interface ActiveTabPosition {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export namespace useTabIndicator {
+  export interface ReturnValue {
+    getRootProps: (
+      otherProps?: React.ComponentPropsWithRef<'span'>,
+    ) => React.ComponentPropsWithRef<'span'>;
+    activeTabPosition: ActiveTabPosition | null;
+    direction: TabsDirection;
+    orientation: TabsOrientation;
+    tabActivationDirection: TabActivationDirection;
+  }
 }

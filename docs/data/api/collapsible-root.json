@@ -10,7 +10,7 @@
   },
   "name": "CollapsibleRoot",
   "imports": [
-    "import * as Collapsible from '@base_ui/react/Collapsible';\nconst CollapsibleRoot = Collapsible.Root;"
+    "import { Collapsible } from '@base_ui/react/Collapsible';\nconst CollapsibleRoot = Collapsible.Root;"
   ],
   "classes": [],
   "spread": true,

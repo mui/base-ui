@@ -8,9 +8,7 @@
     "onClick": { "type": { "name": "func" } }
   },
   "name": "MenuRadioItem",
-  "imports": [
-    "import * as Menu from '@base_ui/react/Menu';\nconst MenuRadioItem = Menu.RadioItem;"
-  ],
+  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuRadioItem = Menu.RadioItem;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

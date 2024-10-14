@@ -4,9 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "DialogClose",
-  "imports": [
-    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogClose = Dialog.Close;"
-  ],
+  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogClose = Dialog.Close;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

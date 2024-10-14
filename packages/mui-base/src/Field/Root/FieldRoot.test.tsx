@@ -1,11 +1,11 @@
 import * as React from 'react';
-import * as Field from '@base_ui/react/Field';
-import * as Checkbox from '@base_ui/react/Checkbox';
-import * as Switch from '@base_ui/react/Switch';
-import * as NumberField from '@base_ui/react/NumberField';
-import * as Slider from '@base_ui/react/Slider';
-import * as RadioGroup from '@base_ui/react/RadioGroup';
-import * as Radio from '@base_ui/react/Radio';
+import { Field } from '@base_ui/react/Field';
+import { Checkbox } from '@base_ui/react/Checkbox';
+import { Switch } from '@base_ui/react/Switch';
+import { NumberField } from '@base_ui/react/NumberField';
+import { Slider } from '@base_ui/react/Slider';
+import { RadioGroup } from '@base_ui/react/RadioGroup';
+import { Radio } from '@base_ui/react/Radio';
 import userEvent from '@testing-library/user-event';
 import {
   act,
@@ -259,11 +259,11 @@ describe('<Field.Root />', () => {
     });
   });
 
-  describe('prop: validateOnChange', () => {
+  describe('prop: validationMode', () => {
     it('should validate the field on change', async () => {
       render(
         <Field.Root
-          validateOnChange
+          validationMode="onChange"
           validate={(value) => {
             const str = value as string;
             return str.length < 3 ? 'error' : null;
@@ -294,8 +294,8 @@ describe('<Field.Root />', () => {
     it('should debounce validation', async () => {
       renderFakeTimers(
         <Field.Root
-          validateDebounceTime={100}
-          validateOnChange
+          validationDebounceTime={100}
+          validationMode="onChange"
           validate={(value) => {
             const str = value as string;
             return str.length < 3 ? 'error' : null;

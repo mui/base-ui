@@ -1,11 +1,7 @@
 'use client';
 import * as React from 'react';
-import type {
-  TabActivationDirection,
-  UseTabsParameters,
-  UseTabsReturnValue,
-} from './TabsRoot.types';
-import type { TabPanelMetadata } from './TabsProvider';
+import type { TabActivationDirection } from './TabsRoot';
+import type { TabsProviderValue, TabPanelMetadata } from './TabsProvider';
 import { useCompoundParent } from '../../useCompound';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
@@ -18,7 +14,7 @@ export interface TabMetadata {
 
 type IdLookupFunction = (id: any) => string | undefined;
 
-function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
+function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
   const {
     value: valueProp,
     defaultValue,
@@ -72,7 +68,7 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
     tabIdLookup.current = lookupFunction;
   }, []);
 
-  const getRootProps: UseTabsReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useTabsRoot.ReturnValue['getRootProps'] = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'div'>(otherProps, {
         dir: direction,
@@ -95,6 +91,45 @@ function useTabsRoot(parameters: UseTabsParameters): UseTabsReturnValue {
     getRootProps,
     tabActivationDirection,
   };
+}
+
+namespace useTabsRoot {
+  export interface Parameters {
+    /**
+     * The value of the currently selected `Tab`.
+     * If you don't want any selected `Tab`, you can set this prop to `false`.
+     */
+    value?: any | null;
+    /**
+     * The default value. Use when the component is not controlled.
+     */
+    defaultValue?: any | null;
+    /**
+     * The component orientation (layout flow direction).
+     * @default 'horizontal'
+     */
+    orientation?: 'horizontal' | 'vertical';
+    /**
+     * The direction of the text.
+     * @default 'ltr'
+     */
+    direction?: 'ltr' | 'rtl';
+    /**
+     * Callback invoked when new value is being set.
+     */
+    onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
+  }
+
+  export interface ReturnValue {
+    /**
+     * Returns the values to be passed to the tabs provider.
+     */
+    contextValue: TabsProviderValue;
+    getRootProps: (
+      externalProps?: React.ComponentPropsWithRef<'div'>,
+    ) => React.ComponentPropsWithRef<'div'>;
+    tabActivationDirection: TabActivationDirection;
+  }
 }
 
 export { useTabsRoot };

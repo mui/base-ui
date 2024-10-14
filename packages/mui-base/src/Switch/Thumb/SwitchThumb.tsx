@@ -1,17 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { SwitchThumbProps } from './SwitchThumb.types';
-import { SwitchContext } from '../Root/SwitchContext';
-import { useSwitchStyleHooks } from '../Root/useSwitchStyleHooks';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { evaluateRenderProp } from '../../utils/evaluateRenderProp';
-import { useRenderPropForkRef } from '../../utils/useRenderPropForkRef';
+import type { SwitchRoot } from '../Root/SwitchRoot';
+import { useSwitchRootContext } from '../Root/SwitchRootContext';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-
-function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
-  return <span {...props} />;
-}
+import type { BaseUIComponentProps } from '../../utils/types';
+import { styleHookMapping } from '../styleHooks';
 
 /**
  *
@@ -24,34 +19,33 @@ function defaultRender(props: React.ComponentPropsWithRef<'span'>) {
  * - [SwitchThumb API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchThumb)
  */
 const SwitchThumb = React.forwardRef(function SwitchThumb(
-  props: SwitchThumbProps,
+  props: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render: renderProp, className: classNameProp, ...other } = props;
-  const render = renderProp ?? defaultRender;
+  const { render, className, ...other } = props;
 
   const { ownerState: fieldOwnerState } = useFieldRootContext();
 
-  const ownerState = React.useContext(SwitchContext);
-  if (ownerState === null) {
-    throw new Error('Base UI: Switch.Thumb is not placed inside the Switch component.');
-  }
-
+  const ownerState = useSwitchRootContext();
   const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
 
-  const className = resolveClassName(classNameProp, extendedOwnerState);
-  const styleHooks = useSwitchStyleHooks(extendedOwnerState);
-  const mergedRef = useRenderPropForkRef(render, forwardedRef);
-
-  const elementProps = {
+  const { renderElement } = useComponentRenderer({
+    render: render || 'span',
     className,
-    ref: mergedRef,
-    ...styleHooks,
-    ...other,
-  };
+    ownerState: extendedOwnerState,
+    extraProps: other,
+    customStyleHookMapping: styleHookMapping,
+    ref: forwardedRef,
+  });
 
-  return evaluateRenderProp(render, elementProps, ownerState);
+  return renderElement();
 });
+
+namespace SwitchThumb {
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+
+  export interface OwnerState extends SwitchRoot.OwnerState {}
+}
 
 SwitchThumb.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

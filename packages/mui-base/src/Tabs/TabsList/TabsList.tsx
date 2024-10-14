@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TabsListOwnerState, TabsListProps } from './TabsList.types';
 import { useTabsList } from './useTabsList';
 import { TabsListProvider } from './TabsListProvider';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { TabsRoot } from '../Root/TabsRoot';
+import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
@@ -18,7 +19,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
  * - [TabsList API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabsList)
  */
 const TabsList = React.forwardRef(function TabsList(
-  props: TabsListProps,
+  props: TabsList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { activateOnFocus = true, className, loop = true, render, ...other } = props;
@@ -30,7 +31,7 @@ const TabsList = React.forwardRef(function TabsList(
       activateOnFocus,
     });
 
-  const ownerState: TabsListOwnerState = React.useMemo(
+  const ownerState: TabsList.OwnerState = React.useMemo(
     () => ({
       direction,
       orientation,
@@ -50,6 +51,26 @@ const TabsList = React.forwardRef(function TabsList(
 
   return <TabsListProvider value={contextValue}>{renderElement()}</TabsListProvider>;
 });
+
+namespace TabsList {
+  export type OwnerState = TabsRoot.OwnerState;
+
+  export interface Props extends BaseUIComponentProps<'div', TabsList.OwnerState> {
+    /**
+     * If `true`, the tab will be activated whenever it is focused.
+     * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
+     *
+     * @default true
+     */
+    activateOnFocus?: boolean;
+    /**
+     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     *
+     * @default true
+     */
+    loop?: boolean;
+  }
+}
 
 TabsList.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

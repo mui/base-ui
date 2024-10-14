@@ -28,7 +28,7 @@ export function useSliderContext() {
  *
  * @ignore - do not document.
  */
-function SliderProvider(props: SliderProviderProps) {
+const SliderProvider: React.FC<SliderProviderProps> = function SliderProvider(props) {
   const { value: valueProp, children } = props;
 
   const { compoundComponentContextValue, ...contextValue } = valueProp;
@@ -38,7 +38,7 @@ function SliderProvider(props: SliderProviderProps) {
       <SliderContext.Provider value={contextValue}>{children}</SliderContext.Provider>
     </CompoundComponentContext.Provider>
   );
-}
+};
 
 SliderProvider.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

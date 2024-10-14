@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { css, styled } from '@mui/system';
-import * as BaseCheckbox from '@base_ui/react/Checkbox';
-import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
-import * as Field from '@base_ui/react/Field';
+import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
+import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';
+import { Field } from '@base_ui/react/Field';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (
@@ -98,7 +98,7 @@ const Checkbox = styled(BaseCheckbox.Root)(
       outline-offset: 2px;
     }
 
-    &[data-state="checked"], &[data-state="mixed"] {
+    &[data-checked], &[data-indeterminate] {
       border-color: transparent;
       background: ${blue[600]};
     }
@@ -132,8 +132,8 @@ const Indicator = styled(BaseCheckbox.Indicator)`
   visibility: hidden;
   color: ${grey[100]};
 
-  &[data-state='checked'],
-  &[data-state='mixed'] {
+  &[data-checked],
+  &[data-indeterminate] {
     visibility: visible;
   }
 `;

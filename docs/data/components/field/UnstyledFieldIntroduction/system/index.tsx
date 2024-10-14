@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Field from '@base_ui/react/Field';
+import { Field } from '@base_ui/react/Field';
 import { styled } from '@mui/system';
 
 export default function UnstyledFieldIntroduction() {
@@ -27,9 +27,9 @@ export default function UnstyledFieldIntroduction() {
           );
         }}
       </Field.Validity>
-      <FieldError show="customError" />
-      <FieldError show="valueMissing" />
-      <FieldError show="patternMismatch">
+      <FieldError match="customError" />
+      <FieldError match="valueMissing" />
+      <FieldError match="patternMismatch">
         Only alphanumeric characters are allowed (a-z, A-Z, 0-9).
       </FieldError>
     </FieldRoot>

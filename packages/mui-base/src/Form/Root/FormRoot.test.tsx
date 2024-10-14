@@ -1,6 +1,6 @@
 import * as React from 'react';
-import * as Form from '@base_ui/react/Form';
-import * as Field from '@base_ui/react/Field';
+import { Form } from '@base_ui/react/Form';
+import { Field } from '@base_ui/react/Field';
 import { expect } from 'chai';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';

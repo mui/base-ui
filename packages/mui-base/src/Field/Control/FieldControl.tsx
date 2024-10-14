@@ -2,10 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldControlElement, FieldControlProps } from './FieldControl.types';
 import { useFieldControl } from './useFieldControl';
+import { FieldRoot } from '../Root/FieldRoot';
 import { useFieldRootContext } from '../Root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { BaseUIComponentProps } from '../../utils/types';
+
+export type FieldControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 /**
  * The field's control element. This is not necessary to use when using a native Base UI input
@@ -20,7 +23,7 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
  * - [FieldControl API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldControl)
  */
 const FieldControl = React.forwardRef(function FieldControl(
-  props: FieldControlProps,
+  props: FieldControl.Props,
   forwardedRef: React.ForwardedRef<FieldControlElement>,
 ) {
   const {
@@ -44,7 +47,7 @@ const FieldControl = React.forwardRef(function FieldControl(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const ownerState = React.useMemo(
+  const ownerState: FieldControl.OwnerState = React.useMemo(
     () => ({ ...fieldOwnerState, disabled }),
     [fieldOwnerState, disabled],
   );
@@ -70,6 +73,17 @@ const FieldControl = React.forwardRef(function FieldControl(
 
   return renderElement();
 });
+
+namespace FieldControl {
+  export type OwnerState = FieldRoot.OwnerState;
+
+  export interface Props extends BaseUIComponentProps<'input', OwnerState> {
+    /**
+     * Callback fired when the `value` changes. Use when controlled.
+     */
+    onValueChange?: (value: string | number | readonly string[] | undefined, event: Event) => void;
+  }
+}
 
 FieldControl.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

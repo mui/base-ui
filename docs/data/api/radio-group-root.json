@@ -12,7 +12,7 @@
   },
   "name": "RadioGroupRoot",
   "imports": [
-    "import * as RadioGroup from '@base_ui/react/RadioGroup';\nconst RadioGroupRoot = RadioGroup.Root;"
+    "import { RadioGroup } from '@base_ui/react/RadioGroup';\nconst RadioGroupRoot = RadioGroup.Root;"
   ],
   "classes": [],
   "spread": true,

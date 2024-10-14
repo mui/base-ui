@@ -6,7 +6,7 @@
   },
   "name": "DialogBackdrop",
   "imports": [
-    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogBackdrop = Dialog.Backdrop;"
+    "import { Dialog } from '@base_ui/react/Dialog';\nconst DialogBackdrop = Dialog.Backdrop;"
   ],
   "classes": [],
   "spread": true,

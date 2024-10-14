@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import * as Slider from '@base_ui/react/Slider';
-import { useSliderContext } from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/Slider';
 
 export default function App() {
   const [val1, setVal1] = React.useState(50);
@@ -233,7 +232,7 @@ function Label(props: any) {
   const defaultId = React.useId();
   const labelId = idProp ?? defaultId;
 
-  const { subitems } = useSliderContext();
+  const { subitems } = Slider.useSliderContext();
 
   const htmlFor = Array.from(subitems.values())
     .reduce((acc, item) => {

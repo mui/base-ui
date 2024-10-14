@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, waitFor } from '@mui/internal-test-utils';
-import * as Dialog from '@base_ui/react/Dialog';
+import { Dialog } from '@base_ui/react/Dialog';
 import { createRenderer } from '#test-utils';
 
 describe('<Dialog.Root />', () => {
@@ -20,7 +20,7 @@ describe('<Dialog.Root />', () => {
       const button = getByRole('button');
       expect(queryByRole('dialog')).to.equal(null);
 
-      await act(() => {
+      await act(async () => {
         button.click();
       });
 
@@ -191,7 +191,7 @@ describe('<Dialog.Root />', () => {
       );
 
       const trigger = getByText('Open');
-      await act(() => {
+      await act(async () => {
         trigger.click();
       });
 

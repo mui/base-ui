@@ -8,7 +8,7 @@
   },
   "name": "MenuCheckboxItem",
   "imports": [
-    "import * as Menu from '@base_ui/react/Menu';\nconst MenuCheckboxItem = Menu.CheckboxItem;"
+    "import { Menu } from '@base_ui/react/Menu';\nconst MenuCheckboxItem = Menu.CheckboxItem;"
   ],
   "classes": [],
   "spread": true,

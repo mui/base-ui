@@ -27,7 +27,7 @@ export function InstallationInstructions(props: InstallationInstructionsProps) {
       <p>Once you have the package installed, import the component.</p>
       <pre>
         {componentNames
-          .map((name) => `import * as ${name} from '@base_ui/react/${name}';`)
+          .map((name) => `import { ${name} } from '@base_ui/react/${name}';`)
           .join('\n')}
       </pre>
     </React.Fragment>

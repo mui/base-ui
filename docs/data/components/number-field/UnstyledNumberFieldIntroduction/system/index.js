@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import * as BaseNumberField from '@base_ui/react/NumberField';
-import * as Field from '@base_ui/react/Field';
+import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
+import { Field } from '@base_ui/react/Field';
 import { css, styled, useTheme } from '@mui/system';
 
 function useIsDarkMode() {

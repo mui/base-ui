@@ -4,9 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SwitchThumb",
-  "imports": [
-    "import * as Switch from '@base_ui/react/Switch';\nconst SwitchThumb = Switch.Thumb;"
-  ],
+  "imports": ["import { Switch } from '@base_ui/react/Switch';\nconst SwitchThumb = Switch.Thumb;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

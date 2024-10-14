@@ -4,7 +4,6 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultChecked": { "type": { "name": "bool" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "id": { "type": { "name": "string" } },
     "inputRef": { "type": { "name": "custom", "description": "ref" } },
     "name": { "type": { "name": "string" } },
     "onCheckedChange": {
@@ -19,7 +18,7 @@
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "SwitchRoot",
-  "imports": ["import * as Switch from '@base_ui/react/Switch';\nconst SwitchRoot = Switch.Root;"],
+  "imports": ["import { Switch } from '@base_ui/react/Switch';\nconst SwitchRoot = Switch.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

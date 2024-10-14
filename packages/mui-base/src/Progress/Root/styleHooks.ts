@@ -1,7 +1,7 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { ProgressRootOwnerState } from './ProgressRoot.types';
+import type { ProgressRoot } from './ProgressRoot';
 
-export const progressStyleHookMapping: CustomStyleHookMapping<ProgressRootOwnerState> = {
+export const progressStyleHookMapping: CustomStyleHookMapping<ProgressRoot.OwnerState> = {
   direction: () => null,
   max: () => null,
   min: () => null,

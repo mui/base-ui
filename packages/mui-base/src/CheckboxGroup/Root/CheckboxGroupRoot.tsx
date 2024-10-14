@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
 import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
+import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { FieldRootOwnerState } from '../../Field/Root/FieldRoot.types';
 
 /**
  * The foundation for building custom-styled checkbox groups.
@@ -82,7 +82,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
 });
 
 namespace CheckboxGroupRoot {
-  export interface OwnerState extends FieldRootOwnerState {
+  export interface OwnerState extends FieldRoot.OwnerState {
     disabled: boolean;
   }
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {

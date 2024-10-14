@@ -11,7 +11,7 @@
   },
   "name": "CheckboxGroupRoot",
   "imports": [
-    "import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';\nconst CheckboxGroupRoot = CheckboxGroup.Root;"
+    "import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';\nconst CheckboxGroupRoot = CheckboxGroup.Root;"
   ],
   "classes": [],
   "spread": true,

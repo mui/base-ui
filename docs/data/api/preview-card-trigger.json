@@ -5,7 +5,7 @@
   },
   "name": "PreviewCardTrigger",
   "imports": [
-    "import * as PreviewCard from '@base_ui/react/PreviewCard';\nconst PreviewCardTrigger = PreviewCard.Trigger;"
+    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardTrigger = PreviewCard.Trigger;"
   ],
   "classes": [],
   "spread": true,

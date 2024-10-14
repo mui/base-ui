@@ -10,16 +10,7 @@ import { useField } from '../useField';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 
-interface UseFieldControlParameters {
-  id?: string;
-  name?: string;
-  value?: string | number | readonly string[];
-  defaultValue?: string | number | readonly string[];
-  onValueChange?: (value: string | number | readonly string[], event: Event) => void;
-  disabled?: boolean;
-}
-
-export function useFieldControl(params: UseFieldControlParameters) {
+export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
   const { setControlId, labelId, setTouched, setDirty, validityData } = useFieldRootContext();
@@ -116,4 +107,15 @@ export function useFieldControl(params: UseFieldControlParameters) {
     }),
     [getControlProps],
   );
+}
+
+export namespace useFieldControl {
+  export interface Parameters {
+    id?: string;
+    name?: string;
+    value?: string | number | readonly string[];
+    defaultValue?: string | number | readonly string[];
+    onValueChange?: (value: string | number | readonly string[], event: Event) => void;
+    disabled?: boolean;
+  }
 }

@@ -53,7 +53,7 @@ function TestViewer(props) {
     }
 
     *, *::before, *::after {
-      boxSizing: inherit;
+      box-sizing: inherit;
       /* Disable transitions to avoid flaky screenshots */
       transition: none !important;
       animation: none !important;
@@ -70,11 +70,7 @@ function TestViewer(props) {
       {/* eslint-disable-next-line react/no-danger */}
       <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       <React.Suspense fallback={<div aria-busy />}>
-        <div
-          aria-busy={!ready}
-          data-testid="testcase"
-          style={{ backgroundColor: '#fff', display: 'inline-block', padding: '8px' }}
-        >
+        <div aria-busy={!ready} data-testid="testcase" style={{ display: 'block', padding: '8px' }}>
           {children}
         </div>
       </React.Suspense>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
@@ -26,7 +26,7 @@ describe('<Menu.Root />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Toggle' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -71,7 +71,7 @@ describe('<Menu.Root />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Toggle' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -110,7 +110,7 @@ describe('<Menu.Root />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Toggle' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -157,7 +157,7 @@ describe('<Menu.Root />', () => {
 
         const items = getAllByRole('menuitem');
 
-        await act(() => {
+        await act(async () => {
           items[0].focus();
         });
 
@@ -256,7 +256,7 @@ describe('<Menu.Root />', () => {
 
         const items = getAllByRole('menuitem');
 
-        await act(() => {
+        await act(async () => {
           items[0].focus();
         });
 
@@ -295,7 +295,7 @@ describe('<Menu.Root />', () => {
 
         const items = getAllByRole('menuitem');
 
-        await act(() => {
+        await act(async () => {
           items[0].focus();
         });
 
@@ -334,7 +334,7 @@ describe('<Menu.Root />', () => {
 
         const items = getAllByRole('menuitem');
 
-        await act(() => {
+        await act(async () => {
           items[0].focus();
         });
 
@@ -368,7 +368,7 @@ describe('<Menu.Root />', () => {
 
         const items = getAllByRole('menuitem');
 
-        await act(() => {
+        await act(async () => {
           items[0].focus();
         });
 
@@ -414,7 +414,7 @@ describe('<Menu.Root />', () => {
 
         const submenuTrigger = getByTestId('submenu-trigger');
 
-        await act(() => {
+        await act(async () => {
           submenuTrigger.focus();
         });
 
@@ -459,7 +459,7 @@ describe('<Menu.Root />', () => {
       const { getAllByRole, getByRole } = await render(<Test />);
 
       const trigger = getByRole('button', { name: 'Toggle' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -478,7 +478,7 @@ describe('<Menu.Root />', () => {
       const { getByRole, getAllByRole } = await render(<Test />);
 
       const trigger = getByRole('button', { name: 'Toggle' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -497,7 +497,7 @@ describe('<Menu.Root />', () => {
 
       const trigger = getByRole('button', { name: 'Toggle' });
 
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -593,7 +593,7 @@ describe('<Menu.Root />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 
@@ -640,7 +640,7 @@ describe('<Menu.Root />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 

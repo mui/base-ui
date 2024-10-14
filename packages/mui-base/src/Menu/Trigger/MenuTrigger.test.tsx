@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { act } from '@mui/internal-test-utils';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { MenuRootContext } from '../Root/MenuRootContext';
 
@@ -118,7 +118,7 @@ describe('<Menu.Trigger />', () => {
           );
 
           const button = getByRole('button', { name: 'Open' });
-          await act(() => {
+          await act(async () => {
             button.focus();
           });
 

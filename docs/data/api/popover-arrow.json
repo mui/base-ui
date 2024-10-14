@@ -6,7 +6,7 @@
   },
   "name": "PopoverArrow",
   "imports": [
-    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverArrow = Popover.Arrow;"
+    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverArrow = Popover.Arrow;"
   ],
   "classes": [],
   "spread": true,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled } from '@mui/system';
-import * as BaseSwitch from '@base_ui/react/Switch';
+import { Switch as BaseSwitch } from '@base_ui/react/Switch';
 
 export default function UnstyledSwitchIntroduction() {
   return (
@@ -72,12 +72,12 @@ const Switch = styled(BaseSwitch.Root)(
     box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[700] : blue[200]};
   }
 
-  &[data-state="checked"] {
+  &[data-checked] {
     border: none;
     background: ${blue[500]};
   }
 
-  &[data-state="checked"]:not([data-disabled]):hover {
+  &[data-checked]:not([data-disabled]):hover {
     background: ${blue[700]};
   }
   `,
@@ -101,7 +101,7 @@ const Thumb = styled(BaseSwitch.Thumb)(
       theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.1)'
     };
 
-    &[data-state="checked"] {
+    &[data-checked] {
       left: 18px;
       background-color: #fff;
       box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);

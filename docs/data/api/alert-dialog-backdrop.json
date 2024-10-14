@@ -6,7 +6,7 @@
   },
   "name": "AlertDialogBackdrop",
   "imports": [
-    "import * as AlertDialog from '@base_ui/react/AlertDialog';\nconst AlertDialogBackdrop = AlertDialog.Backdrop;"
+    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogBackdrop = AlertDialog.Backdrop;"
   ],
   "classes": [],
   "spread": true,

@@ -7,10 +7,10 @@
     "forceShow": {
       "description": "Determines whether the error message should be shown regardless of the field&#39;s client validity."
     },
-    "render": { "description": "A function to customize rendering of the component." },
-    "show": {
+    "match": {
       "description": "Determines whether the error message should be shown when it matches a given property of the field&#39;s <code>ValidityState</code>."
-    }
+    },
+    "render": { "description": "A function to customize rendering of the component." }
   },
   "classDescriptions": {}
 }

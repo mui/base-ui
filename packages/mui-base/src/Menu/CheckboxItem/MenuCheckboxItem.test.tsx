@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '../../../test';
 import { MenuRootContext } from '../Root/MenuRootContext';
 
@@ -88,7 +88,7 @@ describe('<Menu.CheckboxItem />', () => {
     );
 
     const menuItems = getAllByRole('menuitemcheckbox');
-    await act(() => {
+    await act(async () => {
       menuItems[0].focus();
     });
 
@@ -191,7 +191,7 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
       await user.keyboard('[ArrowDown]');
@@ -221,7 +221,7 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 

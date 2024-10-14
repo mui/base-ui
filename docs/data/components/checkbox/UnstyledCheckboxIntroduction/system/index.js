@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled } from '@mui/system';
-import * as BaseCheckbox from '@base_ui/react/Checkbox';
+import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
 
 export default function UnstyledSwitchIntroduction() {
   return (
@@ -66,7 +66,7 @@ const Checkbox = styled(BaseCheckbox.Root)(
       outline-offset: 2px;
     }
 
-    &[data-state="checked"], &[data-state="mixed"] {
+    &[data-checked], &[data-indeterminate] {
       border-color: transparent;
       background: ${blue[600]};
     }
@@ -100,8 +100,8 @@ const Indicator = styled(BaseCheckbox.Indicator)`
   display: inline-block;
   visibility: hidden;
 
-  &[data-state='checked'],
-  &[data-state='mixed'] {
+  &[data-checked],
+  &[data-indeterminate] {
     visibility: visible;
   }
 `;
