@@ -48,6 +48,10 @@ const ScrollAreaViewport = styled(ScrollArea.Viewport)`
   width: 100%;
   height: 100%;
   scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
@@ -55,6 +59,7 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   padding: 2px;
   visibility: hidden;
   background: transparent;
+  box-sizing: border-box;
   transition:
     opacity 0.2s,
     background 0.2s,
@@ -68,10 +73,6 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   &[data-orientation='horizontal'] {
     width: 100%;
     height: 10px;
-  }
-
-  &[data-scrolling] {
-    transition: none;
   }
 
   &[data-hovering],
