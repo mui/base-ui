@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as ScrollArea from '@base_ui/react/ScrollArea';
+import { ScrollArea } from '@base_ui/react/ScrollArea';
 import { styled } from '@mui/system';
 
 const data = Array.from({ length: 30 }, (_, i) => i + 1);
