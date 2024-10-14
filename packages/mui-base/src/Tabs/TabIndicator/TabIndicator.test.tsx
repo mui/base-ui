@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Tabs from '@base_ui/react/Tabs';
+import { Tabs } from '@base_ui/react/Tabs';
 import { waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 

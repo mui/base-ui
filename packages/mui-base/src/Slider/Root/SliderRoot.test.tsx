@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import * as Slider from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
 

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import * as Slider from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/Slider';
 import { useTheme } from '@mui/system';
 import classes from './vertical.module.css';
 

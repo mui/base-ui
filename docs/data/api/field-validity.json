@@ -2,7 +2,7 @@
   "props": {},
   "name": "FieldValidity",
   "imports": [
-    "import * as Field from '@base_ui/react/Field';\nconst FieldValidity = Field.Validity;"
+    "import { Field } from '@base_ui/react/Field';\nconst FieldValidity = Field.Validity;"
   ],
   "classes": [],
   "spread": true,

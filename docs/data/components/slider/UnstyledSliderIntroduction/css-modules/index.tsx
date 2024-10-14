@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import * as Slider from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/Slider';
 import classes from '../../styles.module.css';
 
 export default function UnstyledSliderIntroduction() {

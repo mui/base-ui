@@ -6,7 +6,7 @@
   },
   "name": "MenuRadioItemIndicator",
   "imports": [
-    "import * as Menu from '@base_ui/react/Menu';\nconst MenuRadioItemIndicator = Menu.RadioItemIndicator;"
+    "import { Menu } from '@base_ui/react/Menu';\nconst MenuRadioItemIndicator = Menu.RadioItemIndicator;"
   ],
   "classes": [],
   "spread": true,

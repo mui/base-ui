@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Slider from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
 import { SliderContext } from '../Root/SliderContext';
 import type { SliderRoot } from '../Root/SliderRoot';

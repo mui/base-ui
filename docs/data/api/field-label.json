@@ -4,7 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "FieldLabel",
-  "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldLabel = Field.Label;"],
+  "imports": ["import { Field } from '@base_ui/react/Field';\nconst FieldLabel = Field.Label;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
