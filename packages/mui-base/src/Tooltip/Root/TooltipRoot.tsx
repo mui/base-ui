@@ -16,7 +16,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * - [TooltipRoot API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipRoot)
  */
-function TooltipRoot(props: TooltipRoot.Props) {
+const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const {
     delayType = 'rest',
     delay,
@@ -102,7 +102,7 @@ function TooltipRoot(props: TooltipRoot.Props) {
   return (
     <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
   );
-}
+};
 
 namespace TooltipRoot {
   export interface OwnerState {}
