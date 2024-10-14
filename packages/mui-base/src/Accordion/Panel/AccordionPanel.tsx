@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
+import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { useCollapsibleContent } from '../../Collapsible/Content/useCollapsibleContent';
 import { useAccordionRootContext } from '../Root/AccordionRootContext';
 import type { AccordionItem } from '../Item/AccordionItem';
@@ -34,7 +34,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   } = props;
 
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen } =
-    useCollapsibleContext();
+    useCollapsibleRootContext();
 
   const { hiddenUntilFound } = useAccordionRootContext();
 

@@ -4,16 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../useButton';
-/**
- *
- * Demos:
- *
- * - [Collapsible](https://mui.com/base-ui/react-collapsible/#hooks)
- *
- * API:
- *
- * - [useCollapsibleTrigger API](https://mui.com/base-ui/react-collapsible/hooks-api/#use-collapsible-trigger)
- */
+
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,
 ): useCollapsibleTrigger.ReturnValue {

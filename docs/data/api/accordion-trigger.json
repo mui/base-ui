@@ -5,7 +5,7 @@
   },
   "name": "AccordionTrigger",
   "imports": [
-    "import * as Accordion from '@base_ui/react/Accordion';\nconst AccordionTrigger = Accordion.Trigger;"
+    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionTrigger = Accordion.Trigger;"
   ],
   "classes": [],
   "spread": true,

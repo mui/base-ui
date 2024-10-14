@@ -1,12 +1,10 @@
 import * as React from 'react';
-import * as Accordion from '@base_ui/react/Accordion';
-import * as Collapsible from '@base_ui/react/Collapsible';
+import { Accordion } from '@base_ui/react/Accordion';
 import { describeConformance, createRenderer } from '#test-utils';
 import { NOOP } from '../../utils/noop';
+import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { AccordionRootContext } from '../Root/AccordionRootContext';
 import { AccordionItemContext } from '../Item/AccordionItemContext';
-
-const { CollapsibleContext } = Collapsible;
 
 const accordionRootContextValue: Accordion.Root.Context = {
   accordionItemRefs: { current: [] },
@@ -24,7 +22,7 @@ const accordionRootContextValue: Accordion.Root.Context = {
   value: [0],
 };
 
-const accordionItemContextValue: Accordion.Item.Context = {
+const accordionItemContextValue: AccordionItemContext = {
   open: true,
   ownerState: {
     value: [0],
@@ -38,7 +36,7 @@ const accordionItemContextValue: Accordion.Item.Context = {
   triggerId: ':trigger:',
 };
 
-const collapsibleContextValue: Collapsible.Root.Context = {
+const collapsibleContextValue: CollapsibleRootContext = {
   animated: false,
   contentId: ':content:',
   disabled: false,
@@ -62,11 +60,11 @@ describe('<Accordion.Header />', () => {
     render: (node) =>
       render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>
-          <CollapsibleContext.Provider value={collapsibleContextValue}>
+          <CollapsibleRootContext.Provider value={collapsibleContextValue}>
             <AccordionItemContext.Provider value={accordionItemContextValue}>
               {node}
             </AccordionItemContext.Provider>
-          </CollapsibleContext.Provider>
+          </CollapsibleRootContext.Provider>
         </AccordionRootContext.Provider>,
       ),
     refInstanceof: window.HTMLHeadingElement,

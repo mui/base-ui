@@ -9,7 +9,7 @@ import { useId } from '../../utils/useId';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useCollapsibleRoot } from '../../Collapsible/Root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../Collapsible/Root/CollapsibleRoot';
-import { CollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
+import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 import type { AccordionRoot } from '../Root/AccordionRoot';
 import { useAccordionRootContext } from '../Root/AccordionRootContext';
@@ -89,7 +89,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
-  const collapsibleContext: CollapsibleRoot.Context = React.useMemo(
+  const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
       ownerState: collapsibleOwnerState,
@@ -110,7 +110,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useId());
 
-  const accordionItemContext: AccordionItem.Context = React.useMemo(
+  const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
       open: isOpen,
       ownerState,
@@ -130,23 +130,16 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   });
 
   return (
-    <CollapsibleContext.Provider value={collapsibleContext}>
+    <CollapsibleRootContext.Provider value={collapsibleContext}>
       <AccordionItemContext.Provider value={accordionItemContext}>
         {renderElement()}
       </AccordionItemContext.Provider>
-    </CollapsibleContext.Provider>
+    </CollapsibleRootContext.Provider>
   );
 });
 
 export namespace AccordionItem {
   export type Value = number | string;
-
-  export interface Context {
-    open: boolean;
-    ownerState: OwnerState;
-    setTriggerId: (id: string | undefined) => void;
-    triggerId?: string;
-  }
 
   export interface OwnerState extends AccordionRoot.OwnerState {
     index: number;

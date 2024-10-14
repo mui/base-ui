@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useCollapsibleContext } from '../Root/CollapsibleContext';
+import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
@@ -24,7 +24,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { contentId, open, setOpen, ownerState } = useCollapsibleContext();
+  const { contentId, open, setOpen, ownerState } = useCollapsibleRootContext();
 
   const { getRootProps } = useCollapsibleTrigger({
     contentId,

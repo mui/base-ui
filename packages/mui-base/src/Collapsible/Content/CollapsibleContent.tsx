@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleContext } from '../Root/CollapsibleContext';
+import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleContent } from './useCollapsibleContent';
@@ -25,7 +25,7 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   const { className, hiddenUntilFound, render, ...otherProps } = props;
 
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
-    useCollapsibleContext();
+    useCollapsibleRootContext();
 
   const { getRootProps, height, width } = useCollapsibleContent({
     animated,

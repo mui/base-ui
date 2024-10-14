@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import * as Checkbox from '@base_ui/react/Checkbox';
-import * as Accordion from '@base_ui/react/Accordion';
+import { Checkbox } from '@base_ui/react/Checkbox';
+import { Accordion } from '@base_ui/react/Accordion';
 
 export default function App() {
   const [openMultiple, setOpenMultiple] = React.useState(true);

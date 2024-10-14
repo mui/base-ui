@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useCollapsibleContext } from '../../Collapsible/Root/CollapsibleContext';
+import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
 import type { AccordionItem } from '../Item/AccordionItem';
 import { useAccordionItemContext } from '../Item/AccordionItemContext';
@@ -26,7 +26,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 ) {
   const { disabled: disabledProp, className, id, render, ...otherProps } = props;
 
-  const { contentId, disabled: contextDisabled, open, setOpen } = useCollapsibleContext();
+  const { contentId, disabled: contextDisabled, open, setOpen } = useCollapsibleRootContext();
 
   const { getRootProps } = useCollapsibleTrigger({
     contentId,

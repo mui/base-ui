@@ -5,7 +5,7 @@
   },
   "name": "AccordionHeader",
   "imports": [
-    "import * as Accordion from '@base_ui/react/Accordion';\nconst AccordionHeader = Accordion.Header;"
+    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionHeader = Accordion.Header;"
   ],
   "classes": [],
   "spread": true,
