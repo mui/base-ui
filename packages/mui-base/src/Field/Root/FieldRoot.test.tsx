@@ -1,9 +1,9 @@
 import * as React from 'react';
-import * as Field from '@base_ui/react/Field/index.parts';
+import { Field } from '@base_ui/react/Field';
 import { Checkbox } from '@base_ui/react/Checkbox';
-import * as Switch from '@base_ui/react/Switch/index.parts';
+import { Switch } from '@base_ui/react/Switch';
 import { NumberField } from '@base_ui/react/NumberField';
-import * as Slider from '@base_ui/react/Slider/index.parts';
+import { Slider } from '@base_ui/react/Slider';
 import { RadioGroup } from '@base_ui/react/RadioGroup';
 import { Radio } from '@base_ui/react/Radio';
 import userEvent from '@testing-library/user-event';

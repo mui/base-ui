@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Progress from '@base_ui/react/Progress/index.parts';
+import { Progress } from '@base_ui/react/Progress';
 import { createRenderer, describeConformance } from '#test-utils';
 import { ProgressRootContext } from '../Root/ProgressRootContext';
 
