@@ -16,6 +16,10 @@
   text-align: right;
 }
 
+[dir='rtl'] .output {
+  text-align: left;
+}
+
 .control {
   grid-column: 1/3;
   display: flex;
