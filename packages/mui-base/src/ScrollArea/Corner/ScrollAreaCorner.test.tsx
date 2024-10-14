@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollArea } from '@base_ui/react/ScrollArea/index.parts';
+import { ScrollArea } from '@base_ui/react/ScrollArea'';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
