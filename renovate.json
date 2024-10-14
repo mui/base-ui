@@ -96,7 +96,7 @@
     },
     {
       "groupName": "chai - incompatible versions",
-      "matchPackageNames": ["chai"],
+      "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
     },
     {
@@ -106,7 +106,7 @@
     },
     {
       "groupName": "eslint - incompatible versions",
-      "matchPackageNames": ["eslint"],
+      "matchPackageNames": ["eslint", "@types/eslint"],
       "allowedVersions": "< 9.0.0"
     }
   ],
