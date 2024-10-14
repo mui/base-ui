@@ -4,9 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SliderTrack",
-  "imports": [
-    "import * as Slider from '@base_ui/react/Slider';\nconst SliderTrack = Slider.Track;"
-  ],
+  "imports": ["import { Slider } from '@base_ui/react/Slider';\nconst SliderTrack = Slider.Track;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

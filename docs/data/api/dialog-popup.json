@@ -6,9 +6,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "DialogPopup",
-  "imports": [
-    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogPopup = Dialog.Popup;"
-  ],
+  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogPopup = Dialog.Popup;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

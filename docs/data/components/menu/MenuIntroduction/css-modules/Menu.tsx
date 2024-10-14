@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as BaseMenu from '@base_ui/react/Menu';
+import { Menu as BaseMenu } from '@base_ui/react/Menu';
 import classes from './Menu.module.css';
 
 export const Menu = BaseMenu.Root;
