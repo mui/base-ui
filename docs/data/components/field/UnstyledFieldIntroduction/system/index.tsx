@@ -27,9 +27,9 @@ export default function UnstyledFieldIntroduction() {
           );
         }}
       </Field.Validity>
-      <FieldError show="customError" />
-      <FieldError show="valueMissing" />
-      <FieldError show="patternMismatch">
+      <FieldError match="customError" />
+      <FieldError match="valueMissing" />
+      <FieldError match="patternMismatch">
         Only alphanumeric characters are allowed (a-z, A-Z, 0-9).
       </FieldError>
     </FieldRoot>

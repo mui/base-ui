@@ -116,7 +116,7 @@ describe('<Menu.RadioItem />', () => {
     );
 
     const menuItems = getAllByRole('menuitemradio');
-    await act(() => {
+    await act(async () => {
       menuItems[0].focus();
     });
 
@@ -190,7 +190,7 @@ describe('<Menu.RadioItem />', () => {
         );
 
         const trigger = getByRole('button', { name: 'Open' });
-        await act(() => {
+        await act(async () => {
           trigger.focus();
         });
         await user.keyboard('[ArrowDown]');

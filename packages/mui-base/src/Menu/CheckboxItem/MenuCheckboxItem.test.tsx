@@ -88,7 +88,7 @@ describe('<Menu.CheckboxItem />', () => {
     );
 
     const menuItems = getAllByRole('menuitemcheckbox');
-    await act(() => {
+    await act(async () => {
       menuItems[0].focus();
     });
 
@@ -191,7 +191,7 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
       await user.keyboard('[ArrowDown]');
@@ -221,7 +221,7 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await act(() => {
+      await act(async () => {
         trigger.focus();
       });
 

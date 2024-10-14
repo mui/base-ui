@@ -89,7 +89,7 @@ const Checkbox = styled(BaseCheckbox.Root)(
       outline-offset: 2px;
     }
 
-    &[data-state="checked"], &[data-state="mixed"] {
+    &[data-checked], &[data-indeterminate] {
       border-color: transparent;
       background: ${blue[600]};
     }
@@ -141,8 +141,8 @@ const Indicator = styled(BaseCheckbox.Indicator)`
   visibility: hidden;
   color: ${grey[100]};
 
-  &[data-state='checked'],
-  &[data-state='mixed'] {
+  &[data-checked],
+  &[data-indeterminate] {
     visibility: visible;
   }
 `;

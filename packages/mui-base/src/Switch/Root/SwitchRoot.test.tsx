@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, screen } from '@mui/internal-test-utils';
-import * as Switch from '@base_ui/react/Switch/index.parts';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { Switch } from '@base_ui/react/Switch';
 import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer } from '#test-utils';
 
@@ -21,7 +21,7 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -44,13 +44,13 @@ describe('<Switch.Root />', () => {
       const button = getByText('Toggle');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
-      await act(() => {
+      await act(async () => {
         button.click();
       });
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
 
-      await act(() => {
+      await act(async () => {
         button.click();
       });
 
@@ -62,7 +62,7 @@ describe('<Switch.Root />', () => {
       const switchElement = screen.getByRole('switch');
       const internalInput = screen.getByRole('checkbox', { hidden: true });
 
-      await act(() => {
+      await act(async () => {
         internalInput.click();
       });
 
@@ -72,9 +72,8 @@ describe('<Switch.Root />', () => {
 
   describe('extra props', () => {
     it('should override the built-in attributes', async () => {
-      await render(<Switch.Root data-state="checked" role="checkbox" data-testid="switch" />);
+      await render(<Switch.Root role="checkbox" data-testid="switch" />);
       expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
-      expect(screen.getByTestId('switch')).to.have.attribute('data-state', 'checked');
     });
   });
 
@@ -84,7 +83,7 @@ describe('<Switch.Root />', () => {
       const { getByRole } = await render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = getByRole('switch');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -99,7 +98,7 @@ describe('<Switch.Root />', () => {
       const { getByRole } = await render(<Switch.Root onClick={handleClick} />);
       const switchElement = getByRole('switch');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -124,7 +123,7 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -149,7 +148,7 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -236,7 +235,7 @@ describe('<Switch.Root />', () => {
 
       expect(stringifiedFormData).to.equal('test-switch=off');
 
-      await act(() => {
+      await act(async () => {
         switchElement.click();
       });
 
@@ -247,7 +246,7 @@ describe('<Switch.Root />', () => {
   });
 
   it('should place the style hooks on the root and the thumb', async () => {
-    await render(
+    const { setProps } = await render(
       <Switch.Root defaultChecked disabled readOnly required>
         <Switch.Thumb data-testid="thumb" />
       </Switch.Root>,
@@ -256,15 +255,24 @@ describe('<Switch.Root />', () => {
     const switchElement = screen.getByRole('switch');
     const thumb = screen.getByTestId('thumb');
 
-    expect(switchElement).to.have.attribute('data-state', 'checked');
+    expect(switchElement).to.have.attribute('data-checked', '');
     expect(switchElement).to.have.attribute('data-disabled', 'true');
     expect(switchElement).to.have.attribute('data-readonly', 'true');
     expect(switchElement).to.have.attribute('data-required', 'true');
 
-    expect(thumb).to.have.attribute('data-state', 'checked');
+    expect(thumb).to.have.attribute('data-checked', '');
     expect(thumb).to.have.attribute('data-disabled', 'true');
     expect(thumb).to.have.attribute('data-readonly', 'true');
     expect(thumb).to.have.attribute('data-required', 'true');
+
+    setProps({ disabled: false, readOnly: false });
+    fireEvent.click(switchElement);
+
+    expect(switchElement).to.have.attribute('data-unchecked', '');
+    expect(switchElement).not.to.have.attribute('data-checked');
+
+    expect(thumb).to.have.attribute('data-unchecked', '');
+    expect(thumb).not.to.have.attribute('data-checked');
   });
 
   it('should set the name attribute on the input', async () => {

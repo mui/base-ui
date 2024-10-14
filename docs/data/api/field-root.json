@@ -6,8 +6,11 @@
     "name": { "type": { "name": "string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "validate": { "type": { "name": "func" } },
-    "validateDebounceTime": { "type": { "name": "number" }, "default": "0" },
-    "validateOnChange": { "type": { "name": "bool" }, "default": "false" }
+    "validationDebounceTime": { "type": { "name": "number" }, "default": "0" },
+    "validationMode": {
+      "type": { "name": "enum", "description": "'onBlur'<br>&#124;&nbsp;'onChange'" },
+      "default": "'onBlur'"
+    }
   },
   "name": "FieldRoot",
   "imports": ["import { Field } from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],

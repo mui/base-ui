@@ -118,7 +118,7 @@ describe('<Menu.Trigger />', () => {
           );
 
           const button = getByRole('button', { name: 'Open' });
-          await act(() => {
+          await act(async () => {
             button.focus();
           });
 

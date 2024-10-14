@@ -81,7 +81,7 @@ describe('<Tooltip.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      await act(() => trigger.focus());
+      await act(async () => trigger.focus());
 
       await flushMicrotasks();
 
