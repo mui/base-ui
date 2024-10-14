@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import * as Collapsible from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base_ui/react/Collapsible';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as BaseDemo from 'docs-base/src/blocks/Demo';
 import { CopyIcon } from 'docs-base/src/icons/Copy';

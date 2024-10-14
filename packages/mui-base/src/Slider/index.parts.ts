@@ -1,9 +1,18 @@
-export { SliderRoot } from './Root/SliderRoot';
-export type * from './Root/SliderRoot.types';
+export { SliderRoot as Root } from './Root/SliderRoot';
+export type {
+  SliderRootOwnerState as SliderOwnerState,
+  SliderRootProps as RootProps,
+  UseSliderParameters,
+  UseSliderReturnValue,
+  SliderContextValue,
+  SliderProviderValue,
+  SliderThumbMetadata,
+  Axis,
+} from './Root/SliderRoot.types';
 export { useSliderRoot } from './Root/useSliderRoot';
 export * from './Root/SliderProvider';
 
-export { SliderOutput } from './Output/SliderOutput';
+export { SliderOutput as Output } from './Output/SliderOutput';
 export type {
   SliderOutputProps as OutputProps,
   UseSliderOutputParameters,
@@ -11,7 +20,7 @@ export type {
 } from './Output/SliderOutput.types';
 export { useSliderOutput } from './Output/useSliderOutput';
 
-export { SliderControl } from './Control/SliderControl';
+export { SliderControl as Control } from './Control/SliderControl';
 export type {
   SliderControlProps as ControlProps,
   UseSliderControlParameters,
@@ -19,19 +28,19 @@ export type {
 } from './Control/SliderControl.types';
 export { useSliderControl } from './Control/useSliderControl';
 
-export { SliderTrack } from './Track/SliderTrack';
-export type { SliderTrackProps } from './Track/SliderTrack.types';
+export { SliderTrack as Track } from './Track/SliderTrack';
+export type { SliderTrackProps as TrackProps } from './Track/SliderTrack.types';
 
-export { SliderThumb } from './Thumb/SliderThumb';
+export { SliderThumb as Thumb } from './Thumb/SliderThumb';
 export type {
-  SliderThumbOwnerState,
-  SliderThumbProps,
+  SliderThumbOwnerState as ThumbOwnerState,
+  SliderThumbProps as ThumbProps,
   UseSliderThumbParameters,
   UseSliderThumbReturnValue,
 } from './Thumb/SliderThumb.types';
 export { useSliderThumb } from './Thumb/useSliderThumb';
 
-export { SliderIndicator } from './Indicator/SliderIndicator';
+export { SliderIndicator as Indicator } from './Indicator/SliderIndicator';
 export type {
   SliderIndicatorProps as IndicatorProps,
   UseSliderIndicatorParameters,
