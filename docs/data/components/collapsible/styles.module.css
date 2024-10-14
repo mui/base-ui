@@ -1,0 +1,24 @@
+.trigger {
+  display: flex;
+  width: 320px;
+  align-items: center;
+  padding-left: 0;
+}
+
+.icon {
+  transform: rotate(-90deg);
+}
+
+.trigger[data-collapsible='open'] .icon {
+  transform: rotate(0);
+}
+
+.content {
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 320px;
+  padding: 1.5rem 1rem 1rem;
+  background-color: buttonface;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}

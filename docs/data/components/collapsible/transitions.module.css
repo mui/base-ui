@@ -1,0 +1,13 @@
+.content[data-collapsible='open'] {
+  height: var(--collapsible-content-height);
+  transition: height 200ms ease-out;
+}
+
+.content[data-collapsible='closed'] {
+  height: 0;
+  transition: height 200ms ease-in;
+}
+
+.content[data-entering] {
+  height: 0;
+}

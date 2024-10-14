@@ -2,32 +2,37 @@
 import * as React from 'react';
 import { Accordion } from '@base_ui/react/Accordion';
 import { ExpandMoreIcon } from './accordion';
+import classes from './accordion.module.css';
 
-const DURATION = '300ms';
+function classNames(...c: Array<string | undefined | null | false>) {
+  return c.filter(Boolean).join(' ');
+}
 
 export default function App() {
   return (
-    <div className="AnimatedAccordions">
+    <div className={classes.wrapper}>
       <h3>CSS @keyframe animations + `hidden=&quot;until-found&quot;`</h3>
       <Accordion.Root
-        className="MyAccordion-root"
+        className={classes.root}
         aria-label="Uncontrolled Material UI Accordion"
         hiddenUntilFound
       >
         {[0, 1, 2].map((index) => (
-          <Accordion.Item className="MyAccordion-item" key={index}>
-            <Accordion.Header className="MyAccordion-header">
-              <Accordion.Trigger className="MyAccordion-trigger">
-                <span className="trigger-text">Trigger {index + 1}</span>
+          <Accordion.Item className={classes.item} key={index}>
+            <Accordion.Header className={classes.header}>
+              <Accordion.Trigger className={classes.trigger}>
+                <span className={classes.triggerText}>Trigger {index + 1}</span>
                 <ExpandMoreIcon />
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel className="MyAccordion-panel cssanimation">
+            <Accordion.Panel className={classNames(classes.panel, classes.cssanimation)}>
               <p>
                 This is the contents of Accordion.Panel {index + 1}
                 <br />
                 It uses `hidden=&quot;until-found&quot;` and can be opened by the browser&apos;s
                 in-page search
+                <br />
+                <input type="text" />
               </p>
             </Accordion.Panel>
           </Accordion.Item>
@@ -35,156 +40,22 @@ export default function App() {
       </Accordion.Root>
 
       <h3>CSS transitions</h3>
-      <Accordion.Root className="MyAccordion-root" aria-label="Uncontrolled Material UI Accordion">
+      <Accordion.Root className={classes.root} aria-label="Uncontrolled Material UI Accordion">
         {[0, 1, 2].map((index) => (
-          <Accordion.Item className="MyAccordion-item" key={index}>
-            <Accordion.Header className="MyAccordion-header">
-              <Accordion.Trigger className="MyAccordion-trigger">
-                <span className="trigger-text">Trigger {index + 1}</span>
+          <Accordion.Item className={classes.item} key={index}>
+            <Accordion.Header className={classes.header}>
+              <Accordion.Trigger className={classes.trigger}>
+                <span className={classes.triggerText}>Trigger {index + 1}</span>
                 <ExpandMoreIcon />
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel className="MyAccordion-panel csstransition">
+            <Accordion.Panel className={classNames(classes.panel, classes.csstransition)}>
               <p>This is the contents of Accordion.Panel {index + 1}</p>
+              <a href="https://www.w3.org/TR/WCAG22/">WCAG 2.2</a>
             </Accordion.Panel>
           </Accordion.Item>
         ))}
       </Accordion.Root>
-      <MaterialStyles />
     </div>
-  );
-}
-
-function MaterialStyles() {
-  return (
-    <style suppressHydrationWarning>
-      {`
-        .AnimatedAccordions {
-          width: 40rem;
-          margin: 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        .MyAccordion-root {
-          --Paper-shadow:
-            0px 2px 1px -1px rgba(0, 0, 0, 0.2),
-            0px 1px 1px 0px rgba(0, 0, 0, 0.14),
-            0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-
-          font-family: system-ui, sans-serif;
-          box-shadow: var(--Paper-shadow);
-          background-color: rgba(0,0,0,0.12);
-          border-radius: .3rem;
-        }
-
-        .MyAccordion-item {
-          position: relative;
-          background-color: #fff;
-          color: rgba(0, 0, 0, .87);
-        }
-
-        .MyAccordion-item:not(:first-of-type) {
-          margin-top: 1px;
-        }
-
-        .MyAccordion-item:first-of-type {
-          border-top-left-radius: .25rem;
-          border-top-right-radius: .25rem;
-        }
-
-        .MyAccordion-item:last-of-type {
-          border-bottom-left-radius: .25rem;
-          border-bottom-right-radius: .25rem;
-        }
-
-        .MyAccordion-header {
-          margin: 0;
-        }
-
-        .MyAccordion-trigger {
-          appearance: none;
-          background-color: transparent;
-          border: 0;
-          color: inherit;
-          cursor: pointer;
-          padding: 0 1rem;
-          position: relative;
-          width: 100%;
-          display: flex;
-          flex-flow: row nowrap;
-          align-items: center;
-        }
-
-        .MyAccordion-trigger:focus-visible {
-          outline: 0;
-          background-color: rgba(0,0,0,0.12);
-        }
-
-        .MyAccordion-trigger .trigger-text {
-          font-size: 1rem;
-          line-height: 1.5;
-          margin: 12px auto 12px 0;
-        }
-
-        .MyAccordion-trigger svg {
-          transition: transform 300ms;
-        }
-
-        .MyAccordion-trigger[data-collapsible="open"] svg {
-          transform: rotate(180deg);
-        }
-
-        .MyAccordion-panel {
-          overflow: hidden;
-        }
-
-        .MyAccordion-panel p {
-          margin: 0;
-          padding: 1rem;
-        }
-
-        .MyAccordion-panel.cssanimation[data-collapsible="open"] {
-          animation: slideDown ${DURATION} ease-out;
-        }
-
-        .MyAccordion-panel.cssanimation[data-collapsible="closed"] {
-          animation: slideUp ${DURATION} ease-out;
-        }
-
-        @keyframes slideDown {
-          from {
-            height: 0;
-          }
-          to {
-            height: var(--accordion-content-height);
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            height: var(--accordion-content-height);
-          }
-          to {
-            height: 0;
-          }
-        }
-
-        .MyAccordion-panel.csstransition[data-collapsible="open"] {
-          height: var(--accordion-content-height);
-          transition: height ${DURATION} ease-out;
-        }
-
-        .MyAccordion-panel.csstransition[data-collapsible="closed"] {
-          height: 0;
-          transition: height ${DURATION} ease-in;
-        }
-
-        .MyAccordion-panel.csstransition[data-entering] {
-          height: 0;
-        }
-      `}
-    </style>
   );
 }

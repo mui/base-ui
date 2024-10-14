@@ -1,6 +1,9 @@
-.demo {
-  width: 40rem;
+.wrapper {
   margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
 }
 
 .root {
@@ -11,16 +14,19 @@
   box-shadow: var(--Paper-shadow);
   background-color: rgba(0, 0, 0, 0.12);
   border-radius: 0.3rem;
+  height: 40rem;
+  display: inline-flex;
 }
 
 .item {
   position: relative;
   background-color: #fff;
   color: rgba(0, 0, 0, 0.87);
+  display: flex;
 }
 
 .item:not(:first-of-type) {
-  margin-top: 1px;
+  margin-left: 1px;
 }
 
 .item:first-of-type {
@@ -35,41 +41,53 @@
 
 .header {
   margin: 0;
-  border-radius: inherit;
-}
-
-.header:hover {
-  cursor: pointer;
+  width: 4rem;
 }
 
 .trigger {
   appearance: none;
   background-color: transparent;
   border: 0;
-  border-radius: inherit;
   color: inherit;
-  padding: 0 1rem;
+  cursor: pointer;
+  padding: 1rem;
   position: relative;
+  height: 100%;
   width: 100%;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   align-items: center;
 }
 
-.trigger:hover {
-  cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.12);
+.trigger.one {
+  background-color: #ddd;
+}
+
+.trigger.two {
+  background-color: #bbb;
+}
+
+.trigger.three {
+  background-color: #999;
 }
 
 .trigger:focus-visible {
-  outline: 2px solid black;
-  z-index: 1;
+  outline: 0;
+  background-color: rgba(0, 0, 0, 0.88);
+  color: #eee;
 }
 
 .trigger .triggerText {
   font-size: 1rem;
   line-height: 1.5;
-  margin: 12px auto 12px 0;
+  margin-bottom: auto;
+}
+
+.trigger .triggerLabel {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  transform: rotate(-90deg);
 }
 
 .trigger[data-accordion='open'] svg {
@@ -78,4 +96,5 @@
 
 .panel {
   padding: 1rem;
+  width: 32rem;
 }

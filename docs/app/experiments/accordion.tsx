@@ -17,7 +17,7 @@ export default function App() {
         onCheckedChange={setOpenMultiple}
       >
         <Checkbox.Indicator className="Checkbox-indicator">
-          <CheckIcon className="Checkbox-icon" />
+          {openMultiple && <CheckIcon className="Checkbox-icon" />}
         </Checkbox.Indicator>
       </Checkbox.Root>
 
@@ -87,7 +87,7 @@ export default function App() {
       <Accordion.Root
         className="MyAccordion-root"
         value={val}
-        onOpenChange={setVal}
+        onValueChange={setVal}
         aria-label="Controlled Accordion"
         openMultiple={openMultiple}
       >
@@ -126,7 +126,7 @@ export default function App() {
       <Accordion.Root
         className="MyAccordion-root"
         value={val2}
-        onOpenChange={(newValue: Accordion.Root.Props['Value']) => {
+        onValueChange={(newValue: Accordion.Root.Props['Value']) => {
           if (newValue.length > 0) {
             setVal2(newValue);
           }

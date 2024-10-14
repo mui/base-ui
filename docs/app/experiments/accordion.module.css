@@ -1,9 +1,31 @@
-.demo {
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--accordion-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.wrapper {
   width: 40rem;
   margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .root {
+  --duration: 300ms;
   --Paper-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
 
@@ -35,19 +57,14 @@
 
 .header {
   margin: 0;
-  border-radius: inherit;
-}
-
-.header:hover {
-  cursor: pointer;
 }
 
 .trigger {
   appearance: none;
   background-color: transparent;
   border: 0;
-  border-radius: inherit;
   color: inherit;
+  cursor: pointer;
   padding: 0 1rem;
   position: relative;
   width: 100%;
@@ -56,14 +73,9 @@
   align-items: center;
 }
 
-.trigger:hover {
-  cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.12);
-}
-
 .trigger:focus-visible {
-  outline: 2px solid black;
-  z-index: 1;
+  outline: 0;
+  background-color: rgba(0, 0, 0, 0.12);
 }
 
 .trigger .triggerText {
@@ -72,10 +84,41 @@
   margin: 12px auto 12px 0;
 }
 
+.trigger svg {
+  transition: transform 300ms;
+}
+
 .trigger[data-accordion='open'] svg {
   transform: rotate(180deg);
 }
 
 .panel {
+  overflow: hidden;
+}
+
+.panel p {
+  margin: 0;
   padding: 1rem;
+}
+
+.panel.cssanimation[data-accordion='open'] {
+  animation: slideDown var(--duration) ease-out;
+}
+
+.panel.cssanimation[data-accordion='closed'] {
+  animation: slideUp var(--duration) ease-out;
+}
+
+.panel.csstransition[data-accordion='open'] {
+  height: var(--accordion-content-height);
+  transition: height var(--duration) ease-out;
+}
+
+.panel.csstransition[data-accordion='closed'] {
+  height: 0;
+  transition: height var(--duration) ease-in;
+}
+
+.panel.csstransition[data-entering] {
+  height: 0;
 }
