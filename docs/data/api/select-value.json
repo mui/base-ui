@@ -5,9 +5,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SelectValue",
-  "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"
-  ],
+  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

@@ -7,7 +7,7 @@
   },
   "name": "SelectOption",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectOption = Select.Option;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectOption = Select.Option;"
   ],
   "classes": [],
   "spread": true,

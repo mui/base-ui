@@ -10,7 +10,7 @@
   },
   "name": "SelectBackdrop",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectBackdrop = Select.Backdrop;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectBackdrop = Select.Backdrop;"
   ],
   "classes": [],
   "spread": true,

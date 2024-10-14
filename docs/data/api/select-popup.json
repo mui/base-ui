@@ -5,9 +5,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SelectPopup",
-  "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectPopup = Select.Popup;"
-  ],
+  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectPopup = Select.Popup;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

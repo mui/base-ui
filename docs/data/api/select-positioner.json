@@ -50,7 +50,7 @@
   },
   "name": "SelectPositioner",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectPositioner = Select.Positioner;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectPositioner = Select.Positioner;"
   ],
   "classes": [],
   "spread": true,

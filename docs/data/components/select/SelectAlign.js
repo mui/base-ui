@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Select from '@base_ui/react/Select';
+import { Select } from '@base_ui/react/Select';
 import { css, styled } from '@mui/system';
 
 function AlignOptionToTriggerTrue() {

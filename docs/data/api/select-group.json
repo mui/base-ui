@@ -4,9 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SelectGroup",
-  "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectGroup = Select.Group;"
-  ],
+  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectGroup = Select.Group;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

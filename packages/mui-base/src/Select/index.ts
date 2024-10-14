@@ -1,16 +1,1 @@
-export { SelectRoot as Root } from './Root/SelectRoot';
-export { SelectTrigger as Trigger } from './Trigger/SelectTrigger';
-export { SelectPositioner as Positioner } from './Positioner/SelectPositioner';
-export { SelectPopup as Popup } from './Popup/SelectPopup';
-export { SelectBackdrop as Backdrop } from './Backdrop/SelectBackdrop';
-export { SelectOption as Option } from './Option/SelectOption';
-export { SelectOptionIndicator as OptionIndicator } from './OptionIndicator/SelectOptionIndicator';
-export { SelectGroup as Group } from './Group/SelectGroup';
-export { SelectGroupLabel as GroupLabel } from './GroupLabel/SelectGroupLabel';
-export { SelectValue as Value } from './Value/SelectValue';
-export { SelectScrollUpArrow as ScrollUpArrow } from './ScrollUpArrow/SelectScrollUpArrow';
-export { SelectScrollDownArrow as ScrollDownArrow } from './ScrollDownArrow/SelectScrollDownArrow';
-export { SeparatorRoot as Separator } from '../Separator/Root/SeparatorRoot';
-export { SelectIcon as Icon } from './Icon/SelectIcon';
-export { SelectArrow as Arrow } from './Arrow/SelectArrow';
-export { SelectOptionText as OptionText } from './OptionText/SelectOptionText';
+export * as Select from './index.parts';

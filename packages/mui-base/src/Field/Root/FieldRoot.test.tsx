@@ -6,7 +6,7 @@ import { NumberField } from '@base_ui/react/NumberField';
 import { Slider } from '@base_ui/react/Slider';
 import { RadioGroup } from '@base_ui/react/RadioGroup';
 import { Radio } from '@base_ui/react/Radio';
-import * as Select from '@base_ui/react/Select';
+import { Select } from '@base_ui/react/Select';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';

@@ -8,7 +8,7 @@
   },
   "name": "SelectTrigger",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectTrigger = Select.Trigger;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectTrigger = Select.Trigger;"
   ],
   "classes": [],
   "spread": true,

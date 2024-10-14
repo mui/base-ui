@@ -16,7 +16,7 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "SelectRoot",
-  "imports": ["import * as Select from '@base_ui/react/Select';\nconst SelectRoot = Select.Root;"],
+  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectRoot = Select.Root;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,

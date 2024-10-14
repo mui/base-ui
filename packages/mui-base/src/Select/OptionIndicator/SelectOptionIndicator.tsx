@@ -11,6 +11,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectOptionIndicator.OwnerState> =
   commonStyleHooks;
+
 /**
  *
  * Demos:

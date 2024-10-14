@@ -2,7 +2,7 @@
   "props": { "keepMounted": { "type": { "name": "bool" }, "default": "false" } },
   "name": "SelectScrollDownArrow",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectScrollDownArrow = Select.ScrollDownArrow;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectScrollDownArrow = Select.ScrollDownArrow;"
   ],
   "classes": [],
   "spread": true,

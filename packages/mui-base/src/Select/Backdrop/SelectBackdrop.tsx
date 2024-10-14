@@ -12,6 +12,7 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = commonStyleHooks;
+
 /**
  *
  * Demos:

@@ -5,7 +5,7 @@
   },
   "name": "SelectOptionText",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectOptionText = Select.OptionText;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectOptionText = Select.OptionText;"
   ],
   "classes": [],
   "spread": true,

@@ -4,7 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SelectIcon",
-  "imports": ["import * as Select from '@base_ui/react/Select';\nconst SelectIcon = Select.Icon;"],
+  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectIcon = Select.Icon;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

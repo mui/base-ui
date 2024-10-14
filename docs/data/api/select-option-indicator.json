@@ -6,7 +6,7 @@
   },
   "name": "SelectOptionIndicator",
   "imports": [
-    "import * as Select from '@base_ui/react/Select';\nconst SelectOptionIndicator = Select.OptionIndicator;"
+    "import { Select } from '@base_ui/react/Select';\nconst SelectOptionIndicator = Select.OptionIndicator;"
   ],
   "classes": [],
   "spread": true,
