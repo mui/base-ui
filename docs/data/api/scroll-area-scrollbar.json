@@ -9,7 +9,7 @@
   },
   "name": "ScrollAreaScrollbar",
   "imports": [
-    "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaScrollbar = ScrollArea.Scrollbar;"
+    "import { ScrollArea } from '@base_ui/react/ScrollArea';\nconst ScrollAreaScrollbar = ScrollArea.Scrollbar;"
   ],
   "classes": [],
   "spread": true,

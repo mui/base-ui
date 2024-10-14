@@ -16,7 +16,7 @@
   },
   "name": "ScrollAreaRoot",
   "imports": [
-    "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaRoot = ScrollArea.Root;"
+    "import { ScrollArea } from '@base_ui/react/ScrollArea';\nconst ScrollAreaRoot = ScrollArea.Root;"
   ],
   "classes": [],
   "spread": true,

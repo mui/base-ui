@@ -5,7 +5,7 @@
   },
   "name": "ScrollAreaCorner",
   "imports": [
-    "import * as ScrollArea from '@base_ui/react/ScrollArea';\nconst ScrollAreaCorner = ScrollArea.Corner;"
+    "import { ScrollArea } from '@base_ui/react/ScrollArea';\nconst ScrollAreaCorner = ScrollArea.Corner;"
   ],
   "classes": [],
   "spread": true,
