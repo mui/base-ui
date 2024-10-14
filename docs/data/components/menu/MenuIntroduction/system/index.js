@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import { styled } from '@mui/system';
 
 export default function MenuIntroduction() {

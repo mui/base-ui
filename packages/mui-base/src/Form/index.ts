@@ -1,1 +1,1 @@
-export { FormRoot as Root } from './Root/FormRoot';
+export * as Form from './index.parts';

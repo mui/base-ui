@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMediaQuery } from '@base_ui/react/useMediaQuery';
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 
 let boundDataGaListener = false;
 
@@ -18,6 +19,25 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
     currentRoute,
     userLanguage,
   } = props;
+
+  useEnhancedEffect(() => {
+    // @ts-expect-error
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag(...args: unknown[]) {
+      // @ts-expect-error
+      window.dataLayer.push(...args);
+    }
+
+    window.gtag = gtag;
+
+    gtag('js', new Date());
+
+    // eslint-disable-next-line no-template-curly-in-string
+    gtag('config', '${id}', {
+      send_page_view: false,
+    });
+  }, []);
 
   React.useEffect(() => {
     if (!boundDataGaListener) {

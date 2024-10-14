@@ -1,11 +1,11 @@
 import * as React from 'react';
-import * as Field from '@base_ui/react/Field';
-import * as Checkbox from '@base_ui/react/Checkbox';
-import * as Switch from '@base_ui/react/Switch';
-import * as NumberField from '@base_ui/react/NumberField';
-import * as Slider from '@base_ui/react/Slider';
-import * as RadioGroup from '@base_ui/react/RadioGroup';
-import * as Radio from '@base_ui/react/Radio';
+import { Field } from '@base_ui/react/Field';
+import { Checkbox } from '@base_ui/react/Checkbox';
+import { Switch } from '@base_ui/react/Switch';
+import { NumberField } from '@base_ui/react/NumberField';
+import { Slider } from '@base_ui/react/Slider';
+import { RadioGroup } from '@base_ui/react/RadioGroup';
+import { Radio } from '@base_ui/react/Radio';
 import * as Select from '@base_ui/react/Select';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';

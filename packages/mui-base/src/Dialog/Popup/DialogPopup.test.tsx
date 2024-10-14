@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Dialog from '@base_ui/react/Dialog';
+import { Dialog } from '@base_ui/react/Dialog';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {

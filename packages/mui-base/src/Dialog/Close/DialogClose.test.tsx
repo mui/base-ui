@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Dialog from '@base_ui/react/Dialog';
+import { Dialog } from '@base_ui/react/Dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Close />', () => {
