@@ -36,7 +36,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     transform: scale(0.9);
     transform-origin: var(--transform-origin);
 
-    &[data-state='open'] {
+    &[data-open] {
       opacity: 1;
       transform: scale(1);
     }
@@ -62,7 +62,7 @@ export const AnchorButton = styled(Tooltip.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-popup-open] {
     background: ${blue[800]};
   }
 `;
