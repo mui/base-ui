@@ -135,7 +135,7 @@ describe('<Select.Root />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      fireEvent.click(trigger);
+      await user.click(trigger);
 
       await flushMicrotasks();
 
