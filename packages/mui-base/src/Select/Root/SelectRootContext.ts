@@ -15,7 +15,7 @@ export interface SelectRootContext
   readOnly: boolean;
 }
 
-export const SelectRootContext = React.createContext<SelectRootContext | undefined>();
+export const SelectRootContext = React.createContext<SelectRootContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   SelectRootContext.displayName = 'SelectRootContext';

@@ -4,7 +4,7 @@ interface SelectOptionContext {
   selected: boolean;
 }
 
-export const SelectOptionContext = React.createContext<SelectOptionContext | undefined>();
+export const SelectOptionContext = React.createContext<SelectOptionContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   SelectOptionContext.displayName = 'SelectOptionContext';

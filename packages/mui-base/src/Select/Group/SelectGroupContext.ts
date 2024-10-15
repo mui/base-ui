@@ -5,7 +5,7 @@ export interface SelectGroupContext {
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
-export const SelectGroupContext = React.createContext<SelectGroupContext | undefined>();
+export const SelectGroupContext = React.createContext<SelectGroupContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   SelectGroupContext.displayName = 'SelectGroupContext';
