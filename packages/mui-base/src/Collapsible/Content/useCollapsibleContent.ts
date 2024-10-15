@@ -51,8 +51,10 @@ export function useCollapsibleContent(
 
   const contentRef = React.useRef<HTMLElement | null>(null);
 
-  const [height, setHeight] = React.useState(0);
-  const [width, setWidth] = React.useState(0);
+  const [{ height, width }, setDimensions] = React.useState<{ height: number; width: number }>({
+    height: 0,
+    width: 0,
+  });
 
   const latestAnimationNameRef = React.useRef<string>('none');
   const originalTransitionDurationStyleRef = React.useRef<string | null>(null);
@@ -114,8 +116,7 @@ export function useCollapsibleContent(
       const rect = element.getBoundingClientRect();
 
       if (!isTransitioning || !(open || contextMounted)) {
-        setHeight(rect.height);
-        setWidth(rect.width);
+        setDimensions({ height: rect.height, width: rect.width });
       }
 
       element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
@@ -174,37 +175,34 @@ export function useCollapsibleContent(
     };
   }, []);
 
-  React.useEffect(
-    function registerCssTransitionListeners() {
-      const { current: element } = contentRef;
-      if (!element) {
-        return undefined;
-      }
+  React.useEffect(function registerCssTransitionListeners() {
+    const { current: element } = contentRef;
+    if (!element) {
+      return undefined;
+    }
 
-      function handleTransitionRun() {
-        isTransitioningRef.current = true;
-      }
+    function handleTransitionRun() {
+      isTransitioningRef.current = true;
+    }
 
-      function handleTransitionEnd() {
-        isTransitioningRef.current = false;
-      }
+    function handleTransitionEnd() {
+      isTransitioningRef.current = false;
+    }
 
-      function handleTransitionCancel() {
-        isTransitioningRef.current = false;
-      }
+    function handleTransitionCancel() {
+      isTransitioningRef.current = false;
+    }
 
-      element.addEventListener('transitioncancel', handleTransitionCancel);
-      element.addEventListener('transitionend', handleTransitionEnd);
-      element.addEventListener('transitionrun', handleTransitionRun);
+    element.addEventListener('transitioncancel', handleTransitionCancel);
+    element.addEventListener('transitionend', handleTransitionEnd);
+    element.addEventListener('transitionrun', handleTransitionRun);
 
-      return () => {
-        element.removeEventListener('transitioncancel', handleTransitionCancel);
-        element.removeEventListener('transitionend', handleTransitionEnd);
-        element.removeEventListener('transitionrun', handleTransitionRun);
-      };
-    },
-    [open, setHeight],
-  );
+    return () => {
+      element.removeEventListener('transitioncancel', handleTransitionCancel);
+      element.removeEventListener('transitionend', handleTransitionEnd);
+      element.removeEventListener('transitionrun', handleTransitionRun);
+    };
+  }, []);
 
   // if `hidden="until-found"` content is revealed by browser's in-page search
   // we need to manually sync the open state
