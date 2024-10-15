@@ -52,8 +52,6 @@ export function useSelectPositioner(
       touchModality,
     },
     trackAnchor: !itemAligned,
-    collisionPadding:
-      touchModality && params.collisionPadding == null ? 20 : params.collisionPadding,
   });
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =

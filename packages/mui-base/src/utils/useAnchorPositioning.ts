@@ -102,7 +102,7 @@ export function useAnchorPositioning(
     innerOptions = {},
   } = params;
 
-  const standardMode = !(!innerOptions.fallback && innerMiddleware);
+  const standardMode = innerOptions.touchModality || !(!innerOptions.fallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
@@ -153,13 +153,7 @@ export function useAnchorPositioning(
   }
 
   middleware.push(
-    ...(!standardMode
-      ? [innerMiddleware, shiftMiddleware]
-      : [
-          innerOptions.touchModality
-            ? shift({ crossAxis: true, ...commonCollisionProps })
-            : (false as const),
-        ]),
+    ...(!standardMode ? [innerMiddleware, shiftMiddleware] : []),
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {

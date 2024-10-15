@@ -144,14 +144,16 @@ By default, the selected option inside the popup is aligned to the trigger eleme
 <Select.Root alignOptionToTrigger={false}>
 ```
 
-- **`alignOptionToTrigger`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select the an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used.
+- **`alignOptionToTrigger={true}`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used.
 - **`alignOptionToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+
+<Callout type="warning">This option is always `false` on touch devices or touch input.</Callout>
 
 <Demo demo="SelectAlign" defaultCodeOpen="false" />
 
 ### Scrollable popup
 
-When disabling `alignOptionToTrigger`, the select's height needs to be manually limited by its available space using CSS.
+The select's height needs to be manually limited by its available space using CSS.
 
 This can be achieved by using the `--available-height` CSS variable:
 
