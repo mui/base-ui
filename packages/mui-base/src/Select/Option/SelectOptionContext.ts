@@ -4,11 +4,15 @@ interface SelectOptionContext {
   selected: boolean;
 }
 
-export const SelectOptionContext = React.createContext<SelectOptionContext | null>(null);
+export const SelectOptionContext = React.createContext<SelectOptionContext | undefined>();
+
+if (process.env.NODE_ENV !== 'production') {
+  SelectOptionContext.displayName = 'SelectOptionContext';
+}
 
 export function useSelectOptionContext() {
   const context = React.useContext(SelectOptionContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error('Base UI: useSelectOptionContext is not defined.');
   }
   return context;

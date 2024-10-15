@@ -26,7 +26,7 @@ export interface SelectPositionerContext {
   setOptionTextOffset: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-export const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
+export const SelectPositionerContext = React.createContext<SelectPositionerContext | undefined>();
 
 if (process.env.NODE_ENV !== 'production') {
   SelectPositionerContext.displayName = 'SelectPositionerContext';
@@ -34,7 +34,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error('Base UI: SelectPositionerContext is undefined.');
   }
   return context;

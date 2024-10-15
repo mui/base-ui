@@ -5,11 +5,15 @@ export interface SelectGroupContext {
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
-export const SelectGroupContext = React.createContext<SelectGroupContext | null>(null);
+export const SelectGroupContext = React.createContext<SelectGroupContext | undefined>();
+
+if (process.env.NODE_ENV !== 'production') {
+  SelectGroupContext.displayName = 'SelectGroupContext';
+}
 
 export function useSelectGroupContext() {
   const context = React.useContext(SelectGroupContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error('Base UI: <Select.GroupLabel> must be used within a <Select.Group>');
   }
   return context;

@@ -15,7 +15,7 @@ export interface SelectRootContext
   readOnly: boolean;
 }
 
-export const SelectRootContext = React.createContext<SelectRootContext | null>(null);
+export const SelectRootContext = React.createContext<SelectRootContext | undefined>();
 
 if (process.env.NODE_ENV !== 'production') {
   SelectRootContext.displayName = 'SelectRootContext';
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error('Base UI: SelectRootContext is not defined.');
   }
   return context;
