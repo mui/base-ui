@@ -37,7 +37,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
   if (context === undefined) {
-    throw new Error('Base UI: SelectPositionerContext is undefined.');
+    throw new Error(
+      'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',
+    );
   }
   return context;
 }

@@ -14,7 +14,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSelectGroupContext() {
   const context = React.useContext(SelectGroupContext);
   if (context === undefined) {
-    throw new Error('Base UI: <Select.GroupLabel> must be used within a <Select.Group>');
+    throw new Error(
+      'Base UI: SelectGroupContext is missing. SelectGroup parts must be placed within <Select.Group>.',
+    );
   }
   return context;
 }

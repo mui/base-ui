@@ -24,7 +24,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === undefined) {
-    throw new Error('Base UI: SelectRootContext is not defined.');
+    throw new Error(
+      'Base UI: SelectRootContext is missing. SelectRoot parts must be placed within <Select.Root>.',
+    );
   }
   return context;
 }

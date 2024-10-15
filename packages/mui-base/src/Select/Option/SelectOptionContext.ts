@@ -13,7 +13,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useSelectOptionContext() {
   const context = React.useContext(SelectOptionContext);
   if (context === undefined) {
-    throw new Error('Base UI: useSelectOptionContext is not defined.');
+    throw new Error(
+      'Base UI: SelectOptionContext is missing. SelectOption parts must be placed within <Select.Option>.',
+    );
   }
   return context;
 }
