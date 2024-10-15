@@ -9,7 +9,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { checkboxItemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/styleHookMapping';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -57,7 +57,7 @@ const InnerMenuCheckboxItem = React.memo(
       className,
       ownerState,
       propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
-      customStyleHookMapping: checkboxItemMapping,
+      customStyleHookMapping: itemMapping,
       extraProps: other,
     });
 

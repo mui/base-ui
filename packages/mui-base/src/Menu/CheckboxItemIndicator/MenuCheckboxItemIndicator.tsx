@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useMenuCheckboxItemContext } from '../CheckboxItem/MenuCheckboxItemContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { checkboxItemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/styleHookMapping';
 
 /**
  *
@@ -28,7 +28,7 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
     render: render || 'span',
     className,
     ownerState,
-    customStyleHookMapping: checkboxItemMapping,
+    customStyleHookMapping: itemMapping,
     extraProps: other,
     ref: forwardedRef,
   });

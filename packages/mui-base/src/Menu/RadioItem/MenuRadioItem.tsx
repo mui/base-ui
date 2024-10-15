@@ -10,7 +10,7 @@ import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
-import { radioItemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/styleHookMapping';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -53,7 +53,7 @@ const InnerMenuRadioItem = React.memo(
       className,
       ownerState,
       propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
-      customStyleHookMapping: radioItemMapping,
+      customStyleHookMapping: itemMapping,
       extraProps: other,
     });
 

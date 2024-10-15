@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useMenuRadioItemContext } from '../RadioItem/MenuRadioItemContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { radioItemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/styleHookMapping';
 
 /**
  *
@@ -28,7 +28,7 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicatorC
     render: render || 'span',
     className,
     ownerState,
-    customStyleHookMapping: radioItemMapping,
+    customStyleHookMapping: itemMapping,
     extraProps: other,
     ref: forwardedRef,
   });
