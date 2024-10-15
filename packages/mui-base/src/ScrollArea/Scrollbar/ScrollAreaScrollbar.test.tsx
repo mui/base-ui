@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollArea } from '@base_ui/react/ScrollArea'';
+import { ScrollArea } from '@base_ui/react/ScrollArea';
 import { createRenderer } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 
