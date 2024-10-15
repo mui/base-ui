@@ -140,7 +140,7 @@ describe('<Select.Root />', () => {
 
       await flushMicrotasks();
 
-      await waitFor(() => screen.getByRole('option', { name: 'b', hidden: false }));
+      await waitFor(() => screen.queryByRole('option', { name: 'b', hidden: false }));
 
       await user.click(screen.getByRole('option', { name: 'b', hidden: false }));
 
