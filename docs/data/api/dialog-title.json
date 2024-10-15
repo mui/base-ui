@@ -4,9 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "DialogTitle",
-  "imports": [
-    "import * as Dialog from '@base_ui/react/Dialog';\nconst DialogTitle = Dialog.Title;"
-  ],
+  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogTitle = Dialog.Title;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

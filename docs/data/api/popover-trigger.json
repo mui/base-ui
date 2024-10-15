@@ -5,7 +5,7 @@
   },
   "name": "PopoverTrigger",
   "imports": [
-    "import * as Popover from '@base_ui/react/Popover';\nconst PopoverTrigger = Popover.Trigger;"
+    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverTrigger = Popover.Trigger;"
   ],
   "classes": [],
   "spread": true,

@@ -27,7 +27,7 @@ export function getComponentImports(name: string, filename: string) {
 
   if (Object.keys(componentExportExceptions).includes(name)) {
     return [
-      `import * as ${componentDirectory} from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${componentExportExceptions[name]};`,
+      `import { ${componentDirectory} } from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${componentExportExceptions[name]};`,
     ];
   }
 
@@ -35,7 +35,7 @@ export function getComponentImports(name: string, filename: string) {
     // cases like Switch/SwitchTrack.tsx
     const childName = name.slice(componentDirectory.length);
     return [
-      `import * as ${componentDirectory} from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${childName};`,
+      `import { ${componentDirectory} } from '@base_ui/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${childName};`,
     ];
   }
 

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import * as Collapsible from '@base_ui/react/Collapsible';
-import { CollapsibleContext } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base_ui/react/Collapsible';
 import { describeConformance } from '../../../test/describeConformance';
 import { CollapsibleRootContext } from '../Root/CollapsibleRootContext';
 
@@ -29,7 +28,9 @@ describe('<Collapsible.Content />', () => {
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(
-        <CollapsibleContext.Provider value={contextValue}>{node}</CollapsibleContext.Provider>,
+        <CollapsibleRootContext.Provider value={contextValue}>
+          {node}
+        </CollapsibleRootContext.Provider>,
       );
 
       return { container, ...other };

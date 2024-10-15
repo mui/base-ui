@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import * as Checkbox from '@base_ui/react/Checkbox';
+import { Checkbox } from '@base_ui/react/Checkbox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CheckboxRootContext } from '../Root/CheckboxRootContext';
 

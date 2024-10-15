@@ -1,1 +1,1 @@
-export { RadioGroupRoot as Root } from './Root/RadioGroupRoot';
+export * as RadioGroup from './index.parts';

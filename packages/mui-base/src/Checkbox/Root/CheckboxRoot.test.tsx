@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
-import * as Checkbox from '@base_ui/react/Checkbox';
+import { Checkbox } from '@base_ui/react/Checkbox';
 import { createRenderer, describeConformance } from '#test-utils';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
@@ -17,7 +17,7 @@ describe('<Checkbox.Root />', () => {
 
   describe('extra props', () => {
     it('can override the built-in attributes', async () => {
-      const { container } = await render(<Checkbox.Root data-state="checked" role="switch" />);
+      const { container } = await render(<Checkbox.Root role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -156,11 +156,6 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'mixed');
     });
 
-    it('should not set the `data-indeterminate` attribute', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root indeterminate />);
-      expect(getAllByRole('checkbox')[0]).to.not.have.attribute('data-indeterminate', 'true');
-    });
-
     it('should not have the aria attribute when `indeterminate` is not set', async () => {
       const { getAllByRole } = await render(<Checkbox.Root />);
       expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-checked', 'mixed');
@@ -185,7 +180,7 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should place the style hooks on the root and the indicator', async () => {
-    const { getAllByRole } = await render(
+    const { getAllByRole, setProps } = await render(
       <Checkbox.Root defaultChecked disabled readOnly required>
         <Checkbox.Indicator />
       </Checkbox.Root>,
@@ -194,15 +189,28 @@ describe('<Checkbox.Root />', () => {
     const [checkbox] = getAllByRole('checkbox');
     const indicator = checkbox.querySelector('span');
 
-    expect(checkbox).to.have.attribute('data-state', 'checked');
+    expect(checkbox).to.have.attribute('data-checked', '');
+    expect(checkbox).not.to.have.attribute('data-unchecked');
+
     expect(checkbox).to.have.attribute('data-disabled', 'true');
     expect(checkbox).to.have.attribute('data-readonly', 'true');
     expect(checkbox).to.have.attribute('data-required', 'true');
 
-    expect(indicator).to.have.attribute('data-state', 'checked');
+    expect(indicator).to.have.attribute('data-checked', '');
+    expect(indicator).not.to.have.attribute('data-unchecked');
+
     expect(indicator).to.have.attribute('data-disabled', 'true');
     expect(indicator).to.have.attribute('data-readonly', 'true');
     expect(indicator).to.have.attribute('data-required', 'true');
+
+    setProps({ disabled: false, readOnly: false });
+    fireEvent.click(checkbox);
+
+    expect(checkbox).to.have.attribute('data-unchecked', '');
+    expect(checkbox).not.to.have.attribute('data-checked');
+
+    expect(indicator).to.have.attribute('data-unchecked', '');
+    expect(indicator).not.to.have.attribute('data-checked');
   });
 
   it('should set the name attribute on the input', async () => {
