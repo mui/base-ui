@@ -4,9 +4,9 @@ export interface ScrollAreaScrollbarContext {
   orientation: 'horizontal' | 'vertical';
 }
 
-export const ScrollAreaScrollbarContext = React.createContext<ScrollAreaScrollbarContext | null>(
-  null,
-);
+export const ScrollAreaScrollbarContext = React.createContext<
+  ScrollAreaScrollbarContext | undefined
+>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   ScrollAreaScrollbarContext.displayName = 'ScrollAreaScrollbarContext';
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useScrollAreaScrollbarContext() {
   const context = React.useContext(ScrollAreaScrollbarContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error('Base UI: ScrollAreaScrollbarContext is undefined.');
   }
   return context;
