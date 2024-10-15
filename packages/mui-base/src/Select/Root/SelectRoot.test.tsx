@@ -139,6 +139,11 @@ describe('<Select.Root />', () => {
 
       await flushMicrotasks();
 
+      // Avoid flaky `pointer-events` issue
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+
       await user.click(screen.getByRole('option', { name: 'b', hidden: false }));
 
       expect(handleValueChange.args[0][0]).to.equal('b');
