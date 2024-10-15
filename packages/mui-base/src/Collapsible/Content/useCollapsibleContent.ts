@@ -32,6 +32,11 @@ function supportsHiddenUntilFound(element: HTMLElement) {
   return cachedSupportsHiddenUntilFound;
 }
 
+interface Dimensions {
+  height: number;
+  width: number;
+}
+
 export function useCollapsibleContent(
   parameters: useCollapsibleContent.Parameters,
 ): useCollapsibleContent.ReturnValue {
@@ -49,9 +54,9 @@ export function useCollapsibleContent(
 
   const id = useId(idParam);
 
-  const contentRef = React.useRef<HTMLElement | null>(null);
+  const contentElementRef = React.useRef<HTMLElement | null>(null);
 
-  const [{ height, width }, setDimensions] = React.useState<{ height: number; width: number }>({
+  const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: 0,
     width: 0,
   });
@@ -73,7 +78,7 @@ export function useCollapsibleContent(
       return;
     }
 
-    contentRef.current = element;
+    contentElementRef.current = element;
 
     const computedStyles = getComputedStyles(element);
 
@@ -83,7 +88,7 @@ export function useCollapsibleContent(
 
   const mergedRef = useForkRef(ref, handleContentRef);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(contentRef);
+  const runOnceAnimationsFinish = useAnimationsFinished(contentElementRef);
 
   const isOpen = animated ? open || contextMounted : open;
 
@@ -92,14 +97,12 @@ export function useCollapsibleContent(
   const isBeforeMatchRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    const { current: element } = contentRef;
+    const { current: element } = contentElementRef;
 
     let frame1 = -1;
     let frame2 = -1;
 
     if (element) {
-      const computedStyles = getComputedStyles(element);
-      const currentAnimationName = computedStyles.animationName;
       const isBeforeMatch = isBeforeMatchRef.current;
       const isInitiallyOpen = isInitialOpenRef.current;
       const isTransitioning = isTransitioningRef.current;
@@ -113,10 +116,14 @@ export function useCollapsibleContent(
 
       element.style.animationName = 'none';
 
-      const rect = element.getBoundingClientRect();
+      const isClosed = !open && !contextMounted;
 
-      if (!isTransitioning || !(open || contextMounted)) {
-        setDimensions({ height: rect.height, width: rect.width });
+      if (!isTransitioning || isClosed) {
+        const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
+        setDimensions({
+          height: rect.height,
+          width: rect.width,
+        });
       }
 
       element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
@@ -137,10 +144,6 @@ export function useCollapsibleContent(
           }
         });
       });
-
-      if (currentAnimationName !== 'none') {
-        latestAnimationNameRef.current = currentAnimationName;
-      }
     }
 
     return () => {
@@ -150,7 +153,7 @@ export function useCollapsibleContent(
   }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
 
   React.useEffect(() => {
-    const { current: element } = contentRef;
+    const { current: element } = contentElementRef;
 
     let frame2 = -1;
     let frame3 = -1;
@@ -176,7 +179,7 @@ export function useCollapsibleContent(
   }, []);
 
   React.useEffect(function registerCssTransitionListeners() {
-    const { current: element } = contentRef;
+    const { current: element } = contentElementRef;
     if (!element) {
       return undefined;
     }
@@ -208,7 +211,7 @@ export function useCollapsibleContent(
   // we need to manually sync the open state
   React.useEffect(
     function registerBeforeMatchListener() {
-      const { current: element } = contentRef;
+      const { current: element } = contentElementRef;
 
       if (!element || !supportsHiddenUntilFound(element)) {
         return undefined;
@@ -236,7 +239,7 @@ export function useCollapsibleContent(
   // so we have to force it back to `'until-found'` in the DOM when applicable
   // https://github.com/facebook/react/issues/24740
   useEnhancedEffect(() => {
-    const { current: element } = contentRef;
+    const { current: element } = contentElementRef;
 
     if (
       element &&
