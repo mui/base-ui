@@ -1,14 +1,25 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { UseSliderOutputParameters, UseSliderOutputReturnValue } from './SliderOutput.types';
+import type { useSliderRoot } from '../Root/useSliderRoot';
 
-function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutputReturnValue {
-  const { 'aria-live': ariaLive = 'off', subitems } = parameters;
+export function useSliderOutput(
+  parameters: useSliderOutput.Parameters,
+): useSliderOutput.ReturnValue {
+  const { 'aria-live': ariaLive = 'off', inputIdMap } = parameters;
 
-  const outputFor = Array.from(subitems.values()).reduce((acc, item) => {
-    return `${acc} ${item.inputId}`;
-  }, '');
+  const outputFor = React.useMemo(() => {
+    const size = inputIdMap.size;
+    let htmlFor = '';
+    for (let i = 0; i < size; i += 1) {
+      const inputId = inputIdMap.get(i);
+      if (!inputId) {
+        break;
+      }
+      htmlFor += `${inputId} `;
+    }
+    return htmlFor.trim() === '' ? undefined : htmlFor.trim();
+  }, [inputIdMap]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -16,7 +27,7 @@ function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutput
         // off by default because it will keep announcing when the slider is being dragged
         // and also when the value is changing (but not yet committed)
         'aria-live': ariaLive,
-        htmlFor: outputFor.trim(),
+        htmlFor: outputFor,
       });
     },
     [ariaLive, outputFor],
@@ -30,4 +41,14 @@ function useSliderOutput(parameters: UseSliderOutputParameters): UseSliderOutput
   );
 }
 
-export { useSliderOutput };
+export namespace useSliderOutput {
+  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'inputIdMap'> {
+    'aria-live'?: React.AriaAttributes['aria-live'];
+  }
+
+  export interface ReturnValue {
+    getRootProps: (
+      externalProps?: React.ComponentPropsWithRef<'output'>,
+    ) => React.ComponentPropsWithRef<'output'>;
+  }
+}
