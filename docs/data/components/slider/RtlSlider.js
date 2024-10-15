@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Slider } from '@base_ui/react/Slider';
 import { useTheme } from '@mui/system';
 import classes from './styles.module.css';
@@ -43,11 +42,6 @@ function Label(props) {
 
   return <label id={id} htmlFor={htmlFor} {...otherProps} />;
 }
-
-Label.propTypes = {
-  htmlFor: PropTypes.string,
-  id: PropTypes.string,
-};
 
 function useIsDarkMode() {
   const theme = useTheme();

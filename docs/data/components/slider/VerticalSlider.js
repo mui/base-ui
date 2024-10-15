@@ -45,7 +45,6 @@ function Label(props) {
 }
 
 Label.propTypes = {
-  htmlFor: PropTypes.string,
   id: PropTypes.string,
 };
 

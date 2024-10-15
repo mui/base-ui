@@ -35,7 +35,6 @@ function BaseLabel(props) {
 }
 
 BaseLabel.propTypes = {
-  htmlFor: PropTypes.string,
   id: PropTypes.string,
 };
 
