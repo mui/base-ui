@@ -1,19 +1,16 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useCompoundItem } from '../../useCompound';
-import { SliderThumbMetadata } from '../Root/SliderRoot.types';
-import { UseSliderThumbParameters, UseSliderThumbReturnValue } from './SliderThumb.types';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
-
-function idGenerator(existingKeys: Set<string>) {
-  return `thumb-${existingKeys.size}`;
-}
+import type { useSliderRoot } from '../Root/useSliderRoot';
 
 function getNewValue(
   thumbValue: number,
@@ -41,7 +38,7 @@ function getDefaultAriaValueText(values: readonly number[], index: number): stri
   return undefined;
 }
 
-export function useSliderThumb(parameters: UseSliderThumbParameters) {
+export function useSliderThumb(parameters: useSliderThumb.Parameters): useSliderThumb.ReturnValue {
   const {
     active: activeIndex,
     'aria-label': ariaLabel,
@@ -54,16 +51,18 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     getAriaLabel,
     getAriaValueText,
     id: idParam,
+    inputId: inputIdParam,
     largeStep,
     max,
     min,
     minStepsBetweenValues,
     name,
     orientation,
+    percentageValues,
+    registerInputId,
     rootRef: externalRef,
     step,
     tabIndex,
-    percentageValues,
     values: sliderValues,
   } = parameters;
 
@@ -79,17 +78,20 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const mergedInputRef = useForkRef(inputRef, inputValidationRef);
-  const handleRef = useForkRef(externalRef, thumbRef);
 
-  const thumbMetadata: SliderThumbMetadata = React.useMemo(
-    () => ({ inputId: thumbId ? `${thumbId}-input` : '', ref: thumbRef, inputRef }),
-    [thumbId],
-  );
+  const { ref: listItemRef, index } = useCompositeListItem();
 
-  const { id: compoundItemId, index } = useCompoundItem(
-    (thumbId ? `${thumbId}-input` : thumbId) ?? idGenerator,
-    thumbMetadata,
-  );
+  const mergedThumbRef = useForkRef(externalRef, listItemRef, thumbRef);
+
+  const inputId = useId(inputIdParam);
+
+  useEnhancedEffect(() => {
+    const { deregister } = registerInputId(index, inputId);
+
+    return () => {
+      deregister(index);
+    };
+  }, [index, inputId, registerInputId]);
 
   const thumbValue = sliderValues[index];
 
@@ -120,11 +122,11 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     };
   }, [activeIndex, axis, isRtl, orientation, percent, index]);
 
-  const getRootProps: UseSliderThumbReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
         'data-index': index,
-        id: idParam,
+        id: thumbId,
         onBlur() {
           if (!thumbRef.current) {
             return;
@@ -202,7 +204,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
             event.preventDefault();
           }
         },
-        ref: handleRef,
+        ref: mergedThumbRef,
         style: {
           ...getThumbStyle(),
         },
@@ -210,28 +212,32 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       });
     },
     [
-      index,
-      idParam,
-      handleRef,
-      getThumbStyle,
-      tabIndex,
-      disabled,
-      setTouched,
-      commitValidation,
-      thumbValue,
-      sliderValues,
-      largeStep,
-      step,
-      min,
-      max,
-      isRtl,
-      minStepsBetweenValues,
       changeValue,
+      commitValidation,
+      disabled,
+      getThumbStyle,
+      index,
+      isRtl,
+      largeStep,
+      max,
+      mergedThumbRef,
+      min,
+      minStepsBetweenValues,
+      setTouched,
+      sliderValues,
+      step,
+      tabIndex,
+      thumbId,
+      thumbValue,
     ],
   );
 
-  const getThumbInputProps: UseSliderThumbReturnValue['getThumbInputProps'] = React.useCallback(
+  const getThumbInputProps: useSliderThumb.ReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
+      let cssWritingMode;
+      if (orientation === 'vertical') {
+        cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
+      }
       return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
@@ -244,7 +250,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           : ariaValuetext ?? getDefaultAriaValueText(sliderValues, index),
         'data-index': index,
         disabled,
-        id: compoundItemId,
+        id: inputId,
         max,
         min,
         name,
@@ -260,6 +266,7 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
           // So that VoiceOver's focus indicator matches the thumb's dimensions
           width: '100%',
           height: '100%',
+          writingMode: cssWritingMode,
         },
         tabIndex: -1,
         type: 'range',
@@ -271,21 +278,21 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
       ariaLabelledby,
       ariaValuetext,
       changeValue,
-      compoundItemId,
       disabled,
       getAriaLabel,
       getAriaValueText,
+      getInputValidationProps,
       index,
       isRtl,
       max,
+      mergedInputRef,
       min,
       name,
       orientation,
       sliderValues,
       step,
+      inputId,
       thumbValue,
-      getInputValidationProps,
-      mergedInputRef,
     ],
   );
 
@@ -293,9 +300,71 @@ export function useSliderThumb(parameters: UseSliderThumbParameters) {
     () => ({
       getRootProps,
       getThumbInputProps,
-      index,
       disabled,
+      index,
     }),
-    [getRootProps, getThumbInputProps, index, disabled],
+    [getRootProps, getThumbInputProps, disabled, index],
   );
+}
+
+export namespace useSliderThumb {
+  export interface Parameters
+    extends Pick<
+      useSliderRoot.ReturnValue,
+      | 'active'
+      | 'aria-labelledby'
+      | 'axis'
+      | 'changeValue'
+      | 'direction'
+      | 'largeStep'
+      | 'max'
+      | 'min'
+      | 'minStepsBetweenValues'
+      | 'name'
+      | 'orientation'
+      | 'percentageValues'
+      | 'registerInputId'
+      | 'step'
+      | 'tabIndex'
+      | 'values'
+    > {
+    /**
+     * The label for the input element.
+     */
+    'aria-label'?: string;
+    /**
+     * A string value that provides a user-friendly name for the current value of the slider.
+     */
+    'aria-valuetext'?: string;
+    /**
+     * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
+     * @param {number} index The index of the input
+     * @returns {string}
+     */
+    getAriaLabel?: (index: number) => string;
+    /**
+     * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
+     * This is important for screen reader users.
+     * @param {number} value The thumb label's value to format.
+     * @param {number} index The thumb label's index to format.
+     * @returns {string}
+     */
+    getAriaValueText?: (value: number, index: number) => string;
+    id?: React.HTMLAttributes<Element>['id'];
+    inputId?: React.HTMLAttributes<Element>['id'];
+    disabled: boolean;
+    onBlur?: React.FocusEventHandler;
+    onFocus?: React.FocusEventHandler;
+    onKeyDown?: React.KeyboardEventHandler;
+    rootRef?: React.Ref<Element>;
+  }
+
+  export interface ReturnValue {
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getThumbInputProps: (
+      externalProps?: React.ComponentPropsWithRef<'input'>,
+    ) => React.ComponentPropsWithRef<'input'>;
+    index: number;
+    disabled: boolean;
+  }
 }

@@ -171,6 +171,18 @@ To create vertical sliders, set the `orientation` prop to `"vertical"`. This wil
 
 <Demo demo="VerticalSlider" />
 
+<Callout type="warning">
+  Chrome versions below 124 does not implement `aria-orientation` correctly for vertical sliders ([Chromium issue #40736841](https://issues.chromium.org/issues/40736841)), and exposes them in the accessibility tree as `horizontal`.
+  
+  The `-webkit-appearance: slider-vertical` CSS property can be used to correct this, though it will trigger a console warning in newer Chrome versions:
+  ```css
+  .MySlider-thumb > input {
+    -webkit-appearance: slider-vertical;
+  }
+  ```
+  The `Slider.Thumb` subcomponent automatically sets the CSS [`writing-mode`](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_writing_modes/Vertical_controls#range_sliders_meters_and_progress_bars) property that fixes this bug for Chrome 124 and newer.
+</Callout>
+
 ## RTL
 
 Set the `direction` prop to `'rtl'` to change the slider's direction for right-to-left languages:
