@@ -15,7 +15,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useScrollAreaScrollbarContext() {
   const context = React.useContext(ScrollAreaScrollbarContext);
   if (context === undefined) {
-    throw new Error('Base UI: ScrollAreaScrollbarContext is undefined.');
+    throw new Error(
+      'Base UI: ScrollAreaScrollbarContext is missing. ScrollAreaScrollbar parts must be placed within <ScrollArea.Scrollbar>.',
+    );
   }
   return context;
 }
