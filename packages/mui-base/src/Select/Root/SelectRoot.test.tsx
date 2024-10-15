@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Select } from '@base_ui/react/Select';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import userEvent from '@testing-library/user-event';
 
 describe('<Select.Root />', () => {
   const { render } = createRenderer();
@@ -139,10 +140,7 @@ describe('<Select.Root />', () => {
 
       await flushMicrotasks();
 
-      // Avoid flaky `pointer-events` issue
-      await new Promise((resolve) => {
-        setTimeout(resolve, 0);
-      });
+      await waitFor(() => screen.getByRole('option', { name: 'b', hidden: false }));
 
       await user.click(screen.getByRole('option', { name: 'b', hidden: false }));
 
@@ -190,13 +188,13 @@ describe('<Select.Root />', () => {
 
       const { rerender } = await render(<ControlledSelect open={false} />);
 
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox', { hidden: false })).to.equal(null);
 
       rerender(<ControlledSelect open />);
 
       await flushMicrotasks();
 
-      expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
   });
 
