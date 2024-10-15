@@ -4,6 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
+import { SCROLL_TIMEOUT } from '../constants';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -207,7 +208,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
           window.clearTimeout(timeoutRef.current);
           timeoutRef.current = window.setTimeout(() => {
             setScrolling(false);
-          }, 500);
+          }, SCROLL_TIMEOUT);
         },
         children: (
           <div
