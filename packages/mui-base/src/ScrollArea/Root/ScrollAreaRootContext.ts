@@ -21,7 +21,9 @@ export interface ScrollAreaRootContext {
   handlePointerUp: (event: React.PointerEvent) => void;
 }
 
-export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | null>(null);
+export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | undefined>(
+  undefined,
+);
 
 if (process.env.NODE_ENV !== 'production') {
   ScrollAreaRootContext.displayName = 'ScrollAreaRootContext';
@@ -29,7 +31,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useScrollAreaRootContext() {
   const context = React.useContext(ScrollAreaRootContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error('Base UI: ScrollAreaRootContext is undefined.');
   }
   return context;
