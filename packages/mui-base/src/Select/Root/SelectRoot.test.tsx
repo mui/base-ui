@@ -4,7 +4,6 @@ import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 
 describe('<Select.Root />', () => {
   const { render } = createRenderer();
