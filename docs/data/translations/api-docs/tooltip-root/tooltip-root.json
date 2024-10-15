@@ -9,9 +9,6 @@
       "description": "Whether the tooltip popup is open by default. Use when uncontrolled."
     },
     "delay": { "description": "The delay in milliseconds until the tooltip popup is opened." },
-    "delayType": {
-      "description": "The delay type to use. <code>rest</code> means the <code>delay</code> represents how long the user&#39;s cursor must rest on the trigger before the tooltip popup is opened. <code>hover</code> means the <code>delay</code> represents how long to wait as soon as the user&#39;s cursor has entered the trigger."
-    },
     "hoverable": {
       "description": "Whether the user can move their cursor from the trigger element toward the tooltip popup element without it closing using a &quot;safe polygon&quot; technique."
     },

@@ -27,7 +27,6 @@ export function usePreviewCardRoot(
     defaultOpen = false,
     keepMounted = false,
     animated = true,
-    delayType = 'rest',
     delay,
     closeDelay,
   } = params;
@@ -98,12 +97,7 @@ export function usePreviewCardRoot(
   });
 
   const instantType = instantTypeState;
-  const computedRestMs = delayType === 'rest' ? delayWithDefault : undefined;
-  let computedOpenDelay: number | undefined = delayType === 'hover' ? delayWithDefault : undefined;
-
-  if (delayType === 'hover') {
-    computedOpenDelay = delay == null ? delayWithDefault : delay;
-  }
+  const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
     mouseOnly: true,
@@ -111,7 +105,6 @@ export function usePreviewCardRoot(
     handleClose: safePolygon(),
     restMs: computedRestMs,
     delay: {
-      open: computedOpenDelay,
       close: closeDelayWithDefault,
     },
   });
@@ -186,14 +179,6 @@ export namespace usePreviewCardRoot {
      * @default 300
      */
     closeDelay?: number;
-    /**
-     * The delay type to use when the preview card is triggered by hover. `rest` means the `delay`
-     * represents how long the user's cursor must rest on the trigger before the preview card popup is
-     * opened. `hover` means the `delay` represents how long to wait as soon as the user's cursor has
-     * entered the trigger.
-     * @default 'rest'
-     */
-    delayType?: 'rest' | 'hover';
     /**
      * Whether the preview card popup element stays mounted in the DOM when closed.
      * @default false
