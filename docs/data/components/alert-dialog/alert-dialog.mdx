@@ -144,7 +144,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 Styles need to be applied in three states:
 
 - The exiting styles, placed on the base element class
-- The open styles, placed on the base element class with `[data-state="open"]`
+- The open styles, placed on the base element class with `[data-open]`
 - The entering styles, placed on the base element class with `[data-entering]`
 
 <Demo demo="AlertDialogWithTransitions" />
@@ -226,8 +226,7 @@ function App() {
 
 Four states are available as data attributes to animate the dialog, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
 
-- `[data-state="open"]` - `open` state is `true`.
-- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-open]` - `open` state is `true`.
 - `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
 - `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
 

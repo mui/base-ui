@@ -97,7 +97,7 @@ export function Styles() {
       transform-origin: center 45%;
     }
 
-    .CssTransitionCollapsible-trigger[data-state="open"] svg {
+    .CssTransitionCollapsible-trigger[data-open] svg {
       transform: rotate(90deg);
     }
 
@@ -110,12 +110,12 @@ export function Styles() {
       padding: 0 1rem;
     }
 
-    .CssTransitionCollapsible-content[data-state='open'] {
+    .CssTransitionCollapsible-content[data-open] {
       height: var(--collapsible-content-height);
       transition: height 200ms ease-out;
     }
 
-    .CssTransitionCollapsible-content[data-state='closed'] {
+    .CssTransitionCollapsible-content[data-closed] {
       height: 0;
       transition: height 200ms ease-in;
     }
