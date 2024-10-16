@@ -37,86 +37,91 @@ describe('<Collapsible.Root />', () => {
 
   describe('open state', () => {
     it('controlled mode', async () => {
-      const { getByTestId, getByRole, setProps } = await render(
+      const { queryByText, getByRole, setProps } = await render(
         <Collapsible.Root open={false} animated={false}>
           <Collapsible.Trigger />
-          <Collapsible.Panel data-testid="panel">This is content</Collapsible.Panel>
+          <Collapsible.Panel>This is content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
       const trigger = getByRole('button');
-      const panel = getByTestId('panel');
+      const panel = queryByText('This is content');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).to.have.attribute('hidden');
+      expect(panel).not.toBeVisible();
 
       setProps({ open: true });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(panel).to.not.have.attribute('hidden');
+      expect(panel).toBeVisible();
       expect(panel).to.have.attribute('data-open');
+      expect(trigger).to.have.attribute('data-panel-open');
 
       setProps({ open: false });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).to.have.attribute('hidden');
+      expect(panel).not.toBeVisible();
     });
 
     it('uncontrolled mode', async () => {
-      const { getByTestId, getByRole, user } = await render(
+      const { queryByText, getByRole, user } = await render(
         <Collapsible.Root defaultOpen={false} animated={false}>
           <Collapsible.Trigger />
-          <Collapsible.Panel data-testid="panel" />
+          <Collapsible.Panel>This is content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
       const trigger = getByRole('button');
-      const panel = getByTestId('panel');
+      const panel = queryByText('This is content');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).to.have.attribute('hidden');
+      expect(panel).not.toBeVisible();
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(panel).to.not.have.attribute('hidden');
+      expect(panel).toBeVisible();
       expect(panel).to.have.attribute('data-open');
+      expect(trigger).to.have.attribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).to.have.attribute('hidden');
+      expect(trigger).to.not.have.attribute('data-panel-open');
+      expect(panel).not.toBeVisible();
     });
   });
 
   describe('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
-        const { getByTestId, getByRole, user } = await render(
+        const { queryByText, getByRole, user } = await render(
           <Collapsible.Root defaultOpen={false} animated={false}>
             <Collapsible.Trigger>Trigger</Collapsible.Trigger>
-            <Collapsible.Panel data-testid="panel" />
+            <Collapsible.Panel>This is content</Collapsible.Panel>
           </Collapsible.Root>,
         );
 
         const trigger = getByRole('button');
-        const panel = getByTestId('panel');
+        const panel = queryByText('This is content');
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
-        expect(panel).to.have.attribute('hidden');
+        expect(panel).not.toBeVisible();
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
         await user.keyboard(`[${key}]`);
 
         expect(trigger).to.have.attribute('aria-expanded', 'true');
-        expect(panel).to.not.have.attribute('hidden');
+        expect(trigger).to.have.attribute('data-panel-open');
+        expect(panel).toBeVisible();
         expect(panel).to.have.attribute('data-open');
 
         await user.keyboard(`[${key}]`);
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
-        expect(panel).to.have.attribute('hidden');
+        expect(trigger).not.to.have.attribute('data-panel-open');
+        expect(panel).not.toBeVisible();
       });
     });
   });
@@ -130,21 +135,21 @@ describe('<Collapsible.Root />', () => {
 
       const handleOpenChange = spy();
 
-      const { getByTestId } = await render(
+      const { queryByText } = await render(
         <Collapsible.Root defaultOpen={false} animated={false} onOpenChange={handleOpenChange}>
           <Collapsible.Trigger />
-          <Collapsible.Panel data-testid="panel" hiddenUntilFound />
+          <Collapsible.Panel hiddenUntilFound>This is content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
-      const panel = getByTestId('panel');
+      const panel = queryByText('This is content');
 
       act(() => {
         const event = new window.Event('beforematch', {
           bubbles: true,
           cancelable: false,
         });
-        panel.dispatchEvent(event);
+        panel?.dispatchEvent(event);
       });
 
       expect(handleOpenChange.callCount).to.equal(1);
