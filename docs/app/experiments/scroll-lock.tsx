@@ -32,7 +32,7 @@ export default function ScrollLock() {
             <input
               type="checkbox"
               checked={enabled}
-              onChange={(e) => setEnabled(e.target.checked)}
+              onChange={(event) => setEnabled(event.target.checked)}
             />
             Scroll lock
           </label>
@@ -42,7 +42,7 @@ export default function ScrollLock() {
             <input
               type="checkbox"
               checked={bodyScrollY}
-              onChange={(e) => setBodyScrollY(e.target.checked)}
+              onChange={(event) => setBodyScrollY(event.target.checked)}
             />
             body `overflow`
           </label>
@@ -52,7 +52,7 @@ export default function ScrollLock() {
             <input
               type="checkbox"
               checked={longContent}
-              onChange={(e) => setLongContent(e.target.checked)}
+              onChange={(event) => setLongContent(event.target.checked)}
             />
             Long content
           </label>

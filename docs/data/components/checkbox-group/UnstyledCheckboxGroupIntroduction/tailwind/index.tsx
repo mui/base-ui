@@ -19,7 +19,7 @@ function Label(props: React.ComponentPropsWithoutRef<'label'>) {
     // eslint-disable-next-line jsx-a11y/label-has-associated-control, jsx-a11y/no-noninteractive-element-interactions
     <label
       className="flex gap-2 mb-2"
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={(event) => event.preventDefault()}
       {...props}
     />
   );
