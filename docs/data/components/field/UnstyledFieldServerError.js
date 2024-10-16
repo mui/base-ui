@@ -96,7 +96,7 @@ const FieldControl = styled(Field.Control)`
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='invalid'] {
+  &[data-invalid] {
     border-color: red;
     background-color: rgb(255 0 0 / 0.1);
   }
@@ -106,7 +106,7 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='invalid'] {
+    &[data-invalid] {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }
