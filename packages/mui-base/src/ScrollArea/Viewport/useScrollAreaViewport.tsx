@@ -25,7 +25,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   } = useScrollAreaRootContext();
 
   const timeoutRef = React.useRef(-1);
-  const tableWrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const [paddingX, setPaddingX] = React.useState(0);
   const [paddingY, setPaddingY] = React.useState(0);
@@ -164,12 +164,16 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   }, [scrollbarYRef, scrollbarXRef, viewportRef, computeThumb]);
 
   React.useEffect(() => {
-    if (!tableWrapperRef.current || !viewportRef.current || typeof ResizeObserver === 'undefined') {
+    if (
+      !contentWrapperRef.current ||
+      !viewportRef.current ||
+      typeof ResizeObserver === 'undefined'
+    ) {
       return undefined;
     }
 
     const ro = new ResizeObserver(computeThumb);
-    ro.observe(tableWrapperRef.current);
+    ro.observe(contentWrapperRef.current);
     ro.observe(viewportRef.current);
 
     return () => {
@@ -215,10 +219,9 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         },
         children: (
           <div
-            ref={tableWrapperRef}
+            ref={contentWrapperRef}
             style={{
-              display: 'table',
-              minWidth: '100%',
+              minWidth: 'fit-content',
               ...wrapperStyles,
             }}
           >
