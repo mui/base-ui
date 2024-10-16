@@ -9,9 +9,25 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 
-function getComputedStyles(element: HTMLElement) {
+let cachedSupportsComputedStyleMap: boolean | undefined;
+
+function supportsComputedStyleMap(element: HTMLElement) {
+  if (cachedSupportsComputedStyleMap === undefined) {
+    cachedSupportsComputedStyleMap = 'computedStyleMap' in element;
+  }
+  return cachedSupportsComputedStyleMap;
+}
+
+function getAnimationNameFromComputedStyles(element: HTMLElement) {
+  if (supportsComputedStyleMap(element)) {
+    const styleMap = element.computedStyleMap();
+    const animationName = styleMap.get('animation-name');
+    return (animationName as CSSKeywordValue)?.value ?? undefined;
+  }
+
   const containerWindow = ownerWindow(element);
-  return containerWindow.getComputedStyle(element);
+  const computedStyles = containerWindow.getComputedStyle(element);
+  return computedStyles.animationName;
 }
 
 let cachedSupportsHiddenUntilFound: boolean | undefined;
@@ -80,9 +96,9 @@ export function useCollapsibleContent(
 
     contentElementRef.current = element;
 
-    const computedStyles = getComputedStyles(element);
+    const computedAnimationName = getAnimationNameFromComputedStyles(element);
 
-    latestAnimationNameRef.current = computedStyles.animationName ?? 'none';
+    latestAnimationNameRef.current = computedAnimationName ?? 'none';
     originalTransitionDurationStyleRef.current = element.style.transitionDuration;
   });
 
