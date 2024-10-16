@@ -1,10 +1,13 @@
 .wrapper {
+  --width: 320px;
+  --duration: 300ms;
+
   font-family: system-ui, sans-serif;
   line-height: 1.4;
   display: flex;
   flex-flow: column nowrap;
   align-items: stretch;
-  width: 400px;
+  width: var(--width);
   margin: 2rem;
 }
 
@@ -27,17 +30,21 @@
 
 .icon {
   transform: rotate(-90deg);
+  transition: transform var(--duration) ease-in;
 }
 
 .trigger[data-collapsible='open'] .icon {
   transform: rotate(0);
+  transition: transform var(--duration) ease-out;
 }
 
 .content {
-  --duration: 350ms;
-
   background-color: #eaeaea;
   overflow: hidden;
+  box-sizing: border-box;
+  width: var(--width);
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .content.animation[data-collapsible='open'] {
@@ -67,10 +74,13 @@
 }
 
 .content.framer {
-  background-color: #eaeaea;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.content p {
+  margin: 1.25rem auto;
+  overflow-wrap: break-word;
 }
 
 @keyframes slideDown {

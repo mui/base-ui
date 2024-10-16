@@ -20,7 +20,16 @@ export default function CssAnimatedCollapsible() {
         className={classNames(classes.content, animationClasses.content)}
       >
         <p>This is the collapsed content</p>
-        <p>This is the second paragraph</p>
+        <p>
+          You can find the Base UI repository{' '}
+          <a
+            href="https://github.com/mui/base-ui"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            here
+          </a>
+        </p>
         <p>This is a longer sentence and also the third paragraph</p>
       </Collapsible.Content>
     </Collapsible.Root>

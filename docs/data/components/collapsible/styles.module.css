@@ -17,8 +17,13 @@
   overflow: hidden;
   box-sizing: border-box;
   width: 320px;
-  padding: 1.5rem 1rem 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   background-color: buttonface;
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
+}
+
+.content p {
+  margin: 1.5rem auto 1rem;
 }

@@ -25,6 +25,10 @@ export default function CollapsibleFramer() {
               initial={false}
               animate={open ? 'open' : 'closed'}
               exit={!open ? 'open' : 'closed'}
+              // https://github.com/framer/motion/issues/368#issuecomment-898055607
+              // it's possible to animate padding on Collapsible.Panel with framer-motion
+              // it looks much less janky than using CSS animations or transitions, but
+              // it's still noticeably un-smooth
               variants={{
                 open: {
                   height: 'auto',
