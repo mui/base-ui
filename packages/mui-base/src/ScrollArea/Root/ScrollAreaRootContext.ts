@@ -19,6 +19,7 @@ export interface ScrollAreaRootContext {
   handlePointerDown: (event: React.PointerEvent) => void;
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
+  rootId: string | undefined;
 }
 
 export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | undefined>(

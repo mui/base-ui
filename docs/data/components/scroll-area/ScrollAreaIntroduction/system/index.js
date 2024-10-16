@@ -8,7 +8,7 @@ const data = Array.from({ length: 30 }, (_, i) => i + 1);
 export default function ScrollAreaIntroduction() {
   return (
     <ScrollAreaRoot>
-      <ScrollAreaViewport>
+      <ScrollAreaViewport style={{ overscrollBehavior: 'none' }}>
         <ul
           style={{
             listStyle: 'none',
@@ -47,11 +47,6 @@ const ScrollAreaRoot = styled(ScrollArea.Root)`
 const ScrollAreaViewport = styled(ScrollArea.Viewport)`
   width: 100%;
   height: 100%;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 `;
 
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`

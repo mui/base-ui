@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters) {
   const { orientation } = params;
@@ -14,7 +15,11 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     thumbXRef,
     handlePointerDown,
     handlePointerUp,
+    rootId,
+    type,
   } = useScrollAreaRootContext();
+
+  const [overscrollStyles, setOverscrollStyles] = React.useState<React.CSSProperties>({});
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
@@ -63,9 +68,25 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     };
   }, [orientation, scrollbarXRef, scrollbarYRef, thumbYRef, viewportRef]);
 
+  useEnhancedEffect(() => {
+    if (!viewportRef.current) {
+      return;
+    }
+
+    const computedStyle = getComputedStyle(viewportRef.current);
+
+    setOverscrollStyles({
+      ['overscrollBehaviorX' as string]: computedStyle.overscrollBehaviorX,
+      ['overscrollBehaviorY' as string]: computedStyle.overscrollBehaviorY,
+      ['overscrollBehaviorBlock' as string]: computedStyle.overscrollBehaviorBlock,
+      ['overscrollBehaviorInline' as string]: computedStyle.overscrollBehaviorInline,
+    });
+  }, [viewportRef]);
+
   const getScrollbarProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
+        ...(rootId && { id: `${rootId}-scrollbar` }),
         onPointerDown(event) {
           // Ignore clicks on thumb
           if (event.currentTarget !== event.target) {
@@ -124,7 +145,9 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         onPointerUp: handlePointerUp,
         style: {
           position: 'absolute',
-          touchAction: 'none',
+          overflow: 'scroll',
+          ...overscrollStyles,
+          ...(type === 'inlay' && { touchAction: 'none' }),
           ...(orientation === 'vertical' && {
             top: 0,
             bottom: 0,
@@ -147,6 +170,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       thumbXRef,
       thumbYRef,
       viewportRef,
+      overscrollStyles,
     ],
   );
 

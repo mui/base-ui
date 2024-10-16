@@ -21,6 +21,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     dir,
     gutter,
     setCornerSize,
+    rootId,
   } = useScrollAreaRootContext();
 
   const timeoutRef = React.useRef(-1);
@@ -163,12 +164,13 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   }, [scrollbarYRef, scrollbarXRef, viewportRef, computeThumb]);
 
   React.useEffect(() => {
-    if (!tableWrapperRef.current || typeof ResizeObserver === 'undefined') {
+    if (!tableWrapperRef.current || !viewportRef.current || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
     const ro = new ResizeObserver(computeThumb);
     ro.observe(tableWrapperRef.current);
+    ro.observe(viewportRef.current);
 
     return () => {
       ro.disconnect();
@@ -198,6 +200,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
+        ...(rootId && { id: `${rootId}-viewport` }),
         style: {
           overflow: 'scroll',
         },
@@ -223,7 +226,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
           </div>
         ),
       }),
-    [children, computeThumb, setScrolling, wrapperStyles],
+    [children, computeThumb, setScrolling, wrapperStyles, rootId],
   );
 
   return React.useMemo(
