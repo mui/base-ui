@@ -40,7 +40,7 @@ describe('<Collapsible.Root />', () => {
       const { getByTestId, getByRole, setProps } = await render(
         <Collapsible.Root open={false} animated={false}>
           <Collapsible.Trigger />
-          <Collapsible.Panel data-testid="panel" />
+          <Collapsible.Panel data-testid="panel">This is content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
@@ -49,18 +49,16 @@ describe('<Collapsible.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(panel).to.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-collapsible', 'closed');
 
       setProps({ open: true });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(panel).to.not.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-collapsible', 'open');
+      expect(panel).to.have.attribute('data-open');
 
       setProps({ open: false });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).to.have.attribute('data-collapsible', 'closed');
       expect(panel).to.have.attribute('hidden');
     });
 
@@ -77,18 +75,16 @@ describe('<Collapsible.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(panel).to.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-collapsible', 'closed');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(panel).to.not.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-collapsible', 'open');
+      expect(panel).to.have.attribute('data-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).to.have.attribute('data-collapsible', 'closed');
       expect(panel).to.have.attribute('hidden');
     });
   });
@@ -108,7 +104,6 @@ describe('<Collapsible.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
         expect(panel).to.have.attribute('hidden');
-        expect(panel).to.have.attribute('data-collapsible', 'closed');
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -116,12 +111,11 @@ describe('<Collapsible.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(panel).to.not.have.attribute('hidden');
-        expect(panel).to.have.attribute('data-collapsible', 'open');
+        expect(panel).to.have.attribute('data-open');
 
         await user.keyboard(`[${key}]`);
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
-        expect(panel).to.have.attribute('data-collapsible', 'closed');
         expect(panel).to.have.attribute('hidden');
       });
     });
@@ -145,8 +139,6 @@ describe('<Collapsible.Root />', () => {
 
       const panel = getByTestId('panel');
 
-      expect(panel).to.have.attribute('data-collapsible', 'closed');
-
       act(() => {
         const event = new window.Event('beforematch', {
           bubbles: true,
@@ -156,7 +148,7 @@ describe('<Collapsible.Root />', () => {
       });
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(panel).to.have.attribute('data-collapsible', 'open');
+      expect(panel).to.have.attribute('data-open');
     });
   });
 });

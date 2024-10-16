@@ -33,7 +33,7 @@
   transition: transform var(--duration) ease-in;
 }
 
-.trigger[data-collapsible='open'] .icon {
+.trigger[data-open] .icon {
   transform: rotate(0);
   transition: transform var(--duration) ease-out;
 }
@@ -47,30 +47,26 @@
   padding-right: 1rem;
 }
 
-.panel.animation[data-collapsible='open'] {
+.panel.animation[data-open] {
   animation: slideDown var(--duration) ease-out;
 }
 
-.panel.animation[data-collapsible='closed'] {
+.panel.animation {
   animation: slideUp var(--duration) ease-in;
 }
 
-.panel.transition[data-collapsible='open'] {
+.panel.transition[data-open] {
   height: var(--collapsible-panel-height);
   transition: height var(--duration) ease-out;
 }
 
-.panel.transition[data-collapsible='closed'] {
+.panel.transition {
   height: 0;
   transition: height var(--duration) ease-in;
 }
 
 .panel.transition[data-entering] {
   height: 0;
-}
-
-.panel.transition[hidden='until-found'] {
-  transition-duration: 0s !important;
 }
 
 .panel.framer {

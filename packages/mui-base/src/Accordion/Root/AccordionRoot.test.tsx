@@ -59,23 +59,19 @@ describe('<Accordion.Root />', () => {
       const panel = getByTestId('panel');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger).to.have.attribute('data-accordion', 'closed');
       expect(panel).to.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-accordion', 'closed');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(trigger).to.have.attribute('data-accordion', 'open');
+      expect(trigger).to.have.attribute('data-panel-open');
       expect(panel).to.not.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-accordion', 'open');
+      expect(panel).to.have.attribute('data-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger).to.have.attribute('data-accordion', 'closed');
       expect(panel).to.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-accordion', 'closed');
     });
 
     describe('prop: defaultValue', () => {
@@ -101,11 +97,10 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        const panel1 = getByTestId('panel1');
+        // const panel1 = getByTestId('panel1');
         const panel2 = getByTestId('panel2');
 
-        expect(panel1).to.have.attribute('data-accordion', 'closed');
-        expect(panel2).to.have.attribute('data-accordion', 'open');
+        expect(panel2).to.have.attribute('data-open');
       });
 
       it('custom item value', async () => {
@@ -131,10 +126,9 @@ describe('<Accordion.Root />', () => {
         );
 
         const panel1 = getByTestId('panel1');
-        const panel2 = getByTestId('panel2');
+        // const panel2 = getByTestId('panel2');
 
-        expect(panel1).to.have.attribute('data-accordion', 'open');
-        expect(panel2).to.have.attribute('data-accordion', 'closed');
+        expect(panel1).to.have.attribute('data-open');
       });
     });
   });
@@ -158,23 +152,19 @@ describe('<Accordion.Root />', () => {
       const panel = getByTestId('panel');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger).to.have.attribute('data-accordion', 'closed');
       expect(panel).to.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-accordion', 'closed');
 
       setProps({ value: [0] });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(trigger).to.have.attribute('data-accordion', 'open');
+      expect(trigger).to.have.attribute('data-panel-open');
       expect(panel).to.not.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-accordion', 'open');
+      expect(panel).to.have.attribute('data-open');
 
       setProps({ value: [] });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger).to.have.attribute('data-accordion', 'closed');
       expect(panel).to.have.attribute('hidden');
-      expect(panel).to.have.attribute('data-accordion', 'closed');
     });
 
     describe('prop: value', () => {
@@ -200,11 +190,10 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        const panel1 = getByTestId('panel1');
+        // const panel1 = getByTestId('panel1');
         const panel2 = getByTestId('panel2');
 
-        expect(panel1).to.have.attribute('data-accordion', 'closed');
-        expect(panel2).to.have.attribute('data-accordion', 'open');
+        expect(panel2).to.have.attribute('data-open');
       });
 
       it('custom item value', async () => {
@@ -230,10 +219,10 @@ describe('<Accordion.Root />', () => {
         );
 
         const panel1 = getByTestId('panel1');
-        const panel2 = getByTestId('panel2');
+        // const panel2 = getByTestId('panel2');
 
-        expect(panel1).to.have.attribute('data-accordion', 'open');
-        expect(panel2).to.have.attribute('data-accordion', 'closed');
+        expect(panel1).to.have.attribute('data-open');
+        // expect(panel2).to.have.attribute('data-accordion', 'closed');
       });
     });
   });
@@ -336,7 +325,6 @@ describe('<Accordion.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
         expect(panel).to.have.attribute('hidden');
-        expect(panel).to.have.attribute('data-accordion', 'closed');
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -344,12 +332,11 @@ describe('<Accordion.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(panel).to.not.have.attribute('hidden');
-        expect(panel).to.have.attribute('data-accordion', 'open');
+        expect(panel).to.have.attribute('data-open');
 
         await user.keyboard(`[${key}]`);
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
-        expect(panel).to.have.attribute('data-accordion', 'closed');
         expect(panel).to.have.attribute('hidden');
       });
     });
@@ -573,15 +560,16 @@ describe('<Accordion.Root />', () => {
       const panel2 = getByTestId('panel2');
 
       [trigger1, panel1, trigger2, panel2].forEach((element) => {
-        expect(element).to.have.attribute('data-accordion', 'closed');
+        expect(element).to.not.have.attribute('data-open');
       });
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      [trigger1, panel1, trigger2, panel2].forEach((element) => {
-        expect(element).to.have.attribute('data-accordion', 'open');
-      });
+      expect(panel1).to.have.attribute('data-open');
+      expect(panel2).to.have.attribute('data-open');
+      expect(trigger1).to.have.attribute('data-panel-open');
+      expect(trigger2).to.have.attribute('data-panel-open');
     });
 
     it('when false only one item can be open', async () => {
@@ -611,24 +599,22 @@ describe('<Accordion.Root />', () => {
       const trigger2 = getByTestId('trigger2');
       const panel2 = getByTestId('panel2');
 
-      [trigger1, panel1, trigger2, panel2].forEach((element) => {
-        expect(element).to.have.attribute('data-accordion', 'closed');
-      });
+      expect(panel1).to.not.have.attribute('data-open');
+      expect(panel2).to.not.have.attribute('data-open');
+      expect(trigger1).to.not.have.attribute('data-panel-open');
+      expect(trigger2).to.not.have.attribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      [trigger1, panel1].forEach((element) => {
-        expect(element).to.have.attribute('data-accordion', 'open');
-      });
+      expect(panel1).to.have.attribute('data-open');
+      expect(trigger1).to.have.attribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      [trigger2, panel2].forEach((element) => {
-        expect(element).to.have.attribute('data-accordion', 'open');
-      });
-      [trigger1, panel1].forEach((element) => {
-        expect(element).to.have.attribute('data-accordion', 'closed');
-      });
+      expect(panel2).to.have.attribute('data-open');
+      expect(trigger2).to.have.attribute('data-panel-open');
+      expect(panel1).to.not.have.attribute('data-open');
+      expect(trigger1).to.not.have.attribute('data-panel-open');
     });
   });
 

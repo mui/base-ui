@@ -96,12 +96,9 @@
 
 .collapsible {
   overflow: hidden;
+  animation: slideUp 200ms ease-in;
 
-  &[data-collapsible='open'] {
+  &[data-open] {
     animation: slideDown 200ms ease-out;
-  }
-
-  &[data-collapsible='closed'] {
-    animation: slideUp 200ms ease-in;
   }
 }

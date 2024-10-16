@@ -4,11 +4,11 @@
 }
 
 .root {
-  --Paper-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+  --shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
 
   font-family: system-ui, sans-serif;
-  box-shadow: var(--Paper-shadow);
+  box-shadow: var(--shadow);
   background-color: rgba(0, 0, 0, 0.12);
   border-radius: 0.3rem;
 }
@@ -72,7 +72,7 @@
   margin: 12px auto 12px 0;
 }
 
-.trigger[data-accordion='open'] svg {
+.trigger[data-open] svg {
   transform: rotate(180deg);
 }
 

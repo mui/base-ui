@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../Root/CollapsibleRoot';
-import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 /**
@@ -39,7 +39,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     ownerState,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

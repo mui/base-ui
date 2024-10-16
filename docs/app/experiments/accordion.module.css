@@ -26,11 +26,11 @@
 
 .root {
   --duration: 300ms;
-  --Paper-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+  --shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
 
   font-family: system-ui, sans-serif;
-  box-shadow: var(--Paper-shadow);
+  box-shadow: var(--shadow);
   background-color: rgba(0, 0, 0, 0.12);
   border-radius: 0.3rem;
 }
@@ -88,7 +88,7 @@
   transition: transform 300ms;
 }
 
-.trigger[data-accordion='open'] svg {
+.trigger[data-panel-open] svg {
   transform: rotate(180deg);
 }
 
@@ -101,20 +101,20 @@
   padding: 1rem;
 }
 
-.panel.cssanimation[data-accordion='open'] {
+.panel.cssanimation[data-open] {
   animation: slideDown var(--duration) ease-out;
 }
 
-.panel.cssanimation[data-accordion='closed'] {
+.panel.cssanimation {
   animation: slideUp var(--duration) ease-out;
 }
 
-.panel.csstransition[data-accordion='open'] {
+.panel.csstransition[data-open] {
   height: var(--accordion-panel-height);
   transition: height var(--duration) ease-out;
 }
 
-.panel.csstransition[data-accordion='closed'] {
+.panel.csstransition {
   height: 0;
   transition: height var(--duration) ease-in;
 }

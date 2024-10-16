@@ -1,9 +1,9 @@
-.panel[data-collapsible='open'] {
+.panel[data-open] {
   height: var(--collapsible-panel-height);
   transition: height 200ms ease-out;
 }
 
-.panel[data-collapsible='closed'] {
+.panel {
   height: 0;
   transition: height 200ms ease-in;
 }

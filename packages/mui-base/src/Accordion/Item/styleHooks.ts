@@ -1,7 +1,9 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { AccordionItem } from './AccordionItem';
 
 export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.OwnerState> = {
+  ...baseMapping,
   disabled: (value) => {
     if (value) {
       return { 'data-disabled': '' };
@@ -10,9 +12,6 @@ export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.Own
   },
   index: (value) => {
     return Number.isInteger(value) ? { 'data-index': String(value) } : null;
-  },
-  open: (value) => {
-    return value ? { 'data-accordion': 'open' } : { 'data-accordion': 'closed' };
   },
   transitionStatus: (value) => {
     if (value === 'entering') {

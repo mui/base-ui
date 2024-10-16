@@ -16,10 +16,10 @@
   }
 }
 
-.panel[data-collapsible='open'] {
+.panel[data-open] {
   animation: slideDown 300ms ease-out;
 }
 
-.panel[data-collapsible='closed'] {
+.panel {
   animation: slideUp 300ms ease-out;
 }

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -8,7 +9,6 @@ import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRoo
 import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
 import type { AccordionItem } from '../Item/AccordionItem';
 import { useAccordionItemContext } from '../Item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../Item/styleHooks';
 
 /**
  *
@@ -20,6 +20,7 @@ import { accordionStyleHookMapping } from '../Item/styleHooks';
  *
  * - [AccordionTrigger API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionTrigger)
  */
+
 const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   props: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
@@ -52,7 +53,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     ownerState,
     className,
     extraProps: { ...otherProps, id: triggerId },
-    customStyleHookMapping: accordionStyleHookMapping,
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

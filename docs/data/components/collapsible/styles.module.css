@@ -9,7 +9,7 @@
   transform: rotate(-90deg);
 }
 
-.trigger[data-collapsible='open'] .icon {
+.trigger[data-open] .icon {
   transform: rotate(0);
 }
 
