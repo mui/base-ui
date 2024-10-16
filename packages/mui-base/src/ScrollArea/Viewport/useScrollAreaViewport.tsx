@@ -179,7 +179,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     return () => {
       ro.disconnect();
     };
-  }, [computeThumb]);
+  }, [computeThumb, viewportRef]);
 
   const wrapperStyles: React.CSSProperties = React.useMemo(() => ({}), []);
 
