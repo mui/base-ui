@@ -4,10 +4,6 @@
     "closeDelay": { "type": { "name": "number" }, "default": "0" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "delay": { "type": { "name": "number" }, "default": "600" },
-    "delayType": {
-      "type": { "name": "enum", "description": "'hover'<br>&#124;&nbsp;'rest'" },
-      "default": "'rest'"
-    },
     "hoverable": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" }, "default": "false" },

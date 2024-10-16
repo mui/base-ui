@@ -5,6 +5,7 @@ import { useDialogTrigger } from '../../Dialog/Trigger/useDialogTrigger';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -37,9 +38,7 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     ownerState,
     propGetter: getRootProps,
     extraProps: other,
-    customStyleHookMapping: {
-      open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
-    },
+    customStyleHookMapping: triggerOpenStateMapping,
     ref: forwardedRef,
   });
 

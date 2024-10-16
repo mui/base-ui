@@ -8,6 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -52,6 +53,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   return renderElement();

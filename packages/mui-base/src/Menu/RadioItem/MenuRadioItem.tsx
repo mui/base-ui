@@ -5,16 +5,12 @@ import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react
 import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
-
-const customStyleHookMapping: CustomStyleHookMapping<MenuRadioItem.OwnerState> = {
-  checked: (value: boolean) => ({ 'data-radioitem': value ? 'checked' : 'unchecked' }),
-};
+import { itemMapping } from '../utils/styleHookMapping';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -57,7 +53,7 @@ const InnerMenuRadioItem = React.memo(
       className,
       ownerState,
       propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
-      customStyleHookMapping,
+      customStyleHookMapping: itemMapping,
       extraProps: other,
     });
 
