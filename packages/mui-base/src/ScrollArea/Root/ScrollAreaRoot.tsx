@@ -54,6 +54,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     <ScrollAreaRootContext.Provider value={contextValue}>
       {rootId && (
         <style
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `${viewportId},${scrollbarId}{scrollbar-width:none;}${viewportId}::-webkit-scrollbar,${scrollbarId}::-webkit-scrollbar{display:none}`,
           }}
