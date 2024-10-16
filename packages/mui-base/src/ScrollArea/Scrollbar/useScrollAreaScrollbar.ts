@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters) {
   const { orientation } = params;
@@ -19,8 +18,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     type,
   } = useScrollAreaRootContext();
 
-  const [overscrollStyles, setOverscrollStyles] = React.useState<React.CSSProperties>({});
-
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
@@ -29,6 +26,8 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       if (!viewportEl || !scrollbarEl || event.ctrlKey) {
         return;
       }
+
+      event.preventDefault();
 
       if (orientation === 'vertical') {
         if (viewportEl.scrollTop === 0 && event.deltaY < 0) {
@@ -52,8 +51,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         return;
       }
 
-      event.preventDefault();
-
       if (orientation === 'vertical') {
         viewportEl.scrollTop += event.deltaY;
       } else {
@@ -67,21 +64,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       scrollbarEl?.removeEventListener('wheel', handleWheel);
     };
   }, [orientation, scrollbarXRef, scrollbarYRef, thumbYRef, viewportRef]);
-
-  useEnhancedEffect(() => {
-    if (!viewportRef.current) {
-      return;
-    }
-
-    const computedStyle = getComputedStyle(viewportRef.current);
-
-    setOverscrollStyles({
-      ['overscrollBehaviorX' as string]: computedStyle.overscrollBehaviorX,
-      ['overscrollBehaviorY' as string]: computedStyle.overscrollBehaviorY,
-      ['overscrollBehaviorBlock' as string]: computedStyle.overscrollBehaviorBlock,
-      ['overscrollBehaviorInline' as string]: computedStyle.overscrollBehaviorInline,
-    });
-  }, [viewportRef]);
 
   const getScrollbarProps = React.useCallback(
     (externalProps = {}) =>
@@ -145,8 +127,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         onPointerUp: handlePointerUp,
         style: {
           position: 'absolute',
-          overflow: 'scroll',
-          ...overscrollStyles,
           ...(type === 'inlay' && { touchAction: 'none' }),
           ...(orientation === 'vertical' && {
             top: 0,
@@ -163,7 +143,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     [
       rootId,
       handlePointerUp,
-      overscrollStyles,
       type,
       orientation,
       dir,
