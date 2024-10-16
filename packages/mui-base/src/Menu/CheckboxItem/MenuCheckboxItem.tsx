@@ -150,6 +150,17 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
 
 const MemoizedInnerMenuCheckboxItem = React.memo(InnerMenuCheckboxItem);
 
+/**
+ * An unstyled checkbox menu item to be used within a Menu.
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuCheckboxItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuCheckboxItem)
+ */
 const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,

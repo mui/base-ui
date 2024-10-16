@@ -150,6 +150,17 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
 
 const MemoizedInnerMenuRadioItem = React.memo(InnerMenuRadioItem);
 
+/**
+ * An unstyled radio menu item to be used within a Menu.
+ *
+ * Demos:
+ *
+ * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ *
+ * API:
+ *
+ * - [MenuRadioItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRadioItem)
+ */
 const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
