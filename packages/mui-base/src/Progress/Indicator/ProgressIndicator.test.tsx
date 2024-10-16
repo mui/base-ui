@@ -14,6 +14,7 @@ const contextValue: ProgressRootContext = {
     direction: 'ltr',
     max: 100,
     min: 0,
+    status: 'progressing',
   },
 };
 
