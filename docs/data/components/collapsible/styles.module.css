@@ -13,7 +13,7 @@
   transform: rotate(0);
 }
 
-.content {
+.panel {
   overflow: hidden;
   box-sizing: border-box;
   width: 320px;
@@ -24,6 +24,6 @@
   border-bottom-right-radius: 2px;
 }
 
-.content p {
+.panel p {
   margin: 1.5rem auto 1rem;
 }

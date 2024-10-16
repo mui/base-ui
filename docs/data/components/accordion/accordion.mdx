@@ -221,7 +221,7 @@ The component can be animate when opening or closing using either:
 - CSS transitions
 - JavaScript animations
 
-The dimensions of the `Accordion.Panel` subcomponent are provided as the `--accordion-content-height` and `--accordion-content-width` CSS variables.
+The dimensions of the `Accordion.Panel` subcomponent are provided as the `--accordion-panel-height` and `--accordion-panel-width` CSS variables.
 
 ### CSS Animations
 
@@ -245,13 +245,13 @@ CSS animations can be used with two declarations:
     height: 0;
   }
   to {
-    height: var(--accordion-content-height);
+    height: var(--accordion-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--accordion-content-height);
+    height: var(--accordion-panel-height);
   }
   to {
     height: 0;
@@ -273,7 +273,7 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 }
 
 .Accordion-panel[data-collapsible='open'] {
-  height: var(--accordion-content-height);
+  height: var(--accordion-panel-height);
   transition: height 300ms ease-out;
 }
 

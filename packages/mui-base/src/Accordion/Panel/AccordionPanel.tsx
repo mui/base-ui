@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { useCollapsibleContent } from '../../Collapsible/Content/useCollapsibleContent';
+import { useCollapsiblePanel } from '../../Collapsible/Panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../Root/AccordionRootContext';
 import type { AccordionItem } from '../Item/AccordionItem';
 import { useAccordionItemContext } from '../Item/AccordionItemContext';
@@ -33,19 +33,19 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     ...otherProps
   } = props;
 
-  const { animated, mounted, open, contentId, setContentId, setMounted, setOpen } =
+  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen } =
     useCollapsibleRootContext();
 
   const { hiddenUntilFound } = useAccordionRootContext();
 
-  const { getRootProps, height, width } = useCollapsibleContent({
+  const { getRootProps, height, width } = useCollapsiblePanel({
     animated,
     hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
-    id: idProp ?? contentId,
+    id: idProp ?? panelId,
     mounted,
     open,
     ref: forwardedRef,
-    setContentId,
+    setPanelId,
     setMounted,
     setOpen,
   });
@@ -62,8 +62,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
       'aria-labelledby': triggerId,
       role: 'region',
       style: {
-        '--accordion-content-height': height ? `${height}px` : undefined,
-        '--accordion-content-width': width ? `${width}px` : undefined,
+        '--accordion-panel-height': height ? `${height}px` : undefined,
+        '--accordion-panel-width': width ? `${width}px` : undefined,
         ...styleProp,
       },
     },
@@ -76,7 +76,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.OwnerState>,
-      Pick<useCollapsibleContent.Parameters, 'hiddenUntilFound'> {}
+      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
 }
 
 export { AccordionPanel };

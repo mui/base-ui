@@ -16,8 +16,8 @@ export default function CssAnimatedCollapsible() {
         <ExpandMoreIcon className={classes.icon} />
         Show {open ? 'less' : 'more'}
       </Collapsible.Trigger>
-      <Collapsible.Content
-        className={classNames(classes.content, animationClasses.content)}
+      <Collapsible.Panel
+        className={classNames(classes.panel, animationClasses.panel)}
       >
         <p>This is the collapsed content</p>
         <p>
@@ -31,7 +31,7 @@ export default function CssAnimatedCollapsible() {
           </a>
         </p>
         <p>This is a longer sentence and also the third paragraph</p>
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible.Root>
   );
 }

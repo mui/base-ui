@@ -11,7 +11,7 @@ export default function UnstyledCollapsibleIntroduction() {
         <ExpandMoreIcon className={classes.icon} />
         Show {open ? 'less' : 'more'}
       </Collapsible.Trigger>
-      <Collapsible.Content className={classes.content}>
+      <Collapsible.Panel className={classes.panel}>
         <p>
           This is the collapsed content. The element that shows and hides the content
           has role button
@@ -21,7 +21,7 @@ export default function UnstyledCollapsibleIntroduction() {
           `aria-expanded` set to `true`
         </p>
         <p>When the content panel is hidden, it is set to `false`</p>
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible.Root>
   );
 }

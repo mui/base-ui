@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
-import { useCollapsibleContent } from './useCollapsibleContent';
+import { useCollapsiblePanel } from './useCollapsiblePanel';
 
 /**
  *
@@ -16,25 +16,25 @@ import { useCollapsibleContent } from './useCollapsibleContent';
  *
  * API:
  *
- * - [CollapsibleContent API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsibleContent)
+ * - [CollapsiblePanel API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsiblePanel)
  */
-const CollapsibleContent = React.forwardRef(function CollapsibleContent(
-  props: CollapsibleContent.Props,
+const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
+  props: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { className, hiddenUntilFound, render, ...otherProps } = props;
 
-  const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
+  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, ownerState } =
     useCollapsibleRootContext();
 
-  const { getRootProps, height, width } = useCollapsibleContent({
+  const { getRootProps, height, width } = useCollapsiblePanel({
     animated,
     hiddenUntilFound,
-    id: contentId,
+    id: panelId,
     mounted,
     open,
     ref: forwardedRef,
-    setContentId,
+    setPanelId,
     setMounted,
     setOpen,
   });
@@ -48,8 +48,8 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
       ...otherProps,
       style: {
         ...otherProps.style,
-        '--collapsible-content-height': height ? `${height}px` : undefined,
-        '--collapsible-content-width': width ? `${width}px` : undefined,
+        '--collapsible-panel-height': height ? `${height}px` : undefined,
+        '--collapsible-panel-width': width ? `${width}px` : undefined,
       },
     },
     customStyleHookMapping: collapsibleStyleHookMapping,
@@ -58,15 +58,15 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   return renderElement();
 });
 
-export { CollapsibleContent };
+export { CollapsiblePanel };
 
-namespace CollapsibleContent {
+namespace CollapsiblePanel {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
-      Pick<useCollapsibleContent.Parameters, 'hiddenUntilFound'> {}
+      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
 }
 
-CollapsibleContent.propTypes /* remove-proptypes */ = {
+CollapsiblePanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

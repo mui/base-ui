@@ -34,10 +34,10 @@ export default function CollapsibleHiddenUntilFound() {
             <ExpandMoreIcon className={classes.icon} />
             Trigger 1
           </Collapsible.Trigger>
-          <Collapsible.Content className={classNames(classes.content, classes.transition)}>
+          <Collapsible.Panel className={classNames(classes.panel, classes.transition)}>
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
 
         <Collapsible.Root defaultOpen={false}>
@@ -45,13 +45,13 @@ export default function CollapsibleHiddenUntilFound() {
             <ExpandMoreIcon className={classes.icon} />
             Trigger 2
           </Collapsible.Trigger>
-          <Collapsible.Content
-            className={classNames(classes.content, classes.animation)}
+          <Collapsible.Panel
+            className={classNames(classes.panel, classes.animation)}
             hiddenUntilFound
           >
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
 
         <Collapsible.Root defaultOpen={false}>
@@ -59,13 +59,13 @@ export default function CollapsibleHiddenUntilFound() {
             <ExpandMoreIcon className={classes.icon} />
             Trigger 3
           </Collapsible.Trigger>
-          <Collapsible.Content
-            className={classNames(classes.content, classes.transition)}
+          <Collapsible.Panel
+            className={classNames(classes.panel, classes.transition)}
             hiddenUntilFound
           >
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
       </div>
     </React.Fragment>

@@ -3,13 +3,13 @@
     height: 0;
   }
   to {
-    height: var(--accordion-content-height);
+    height: var(--accordion-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--accordion-content-height);
+    height: var(--accordion-panel-height);
   }
   to {
     height: 0;
@@ -110,7 +110,7 @@
 }
 
 .panel.csstransition[data-accordion='open'] {
-  height: var(--accordion-content-height);
+  height: var(--accordion-panel-height);
   transition: height var(--duration) ease-out;
 }
 

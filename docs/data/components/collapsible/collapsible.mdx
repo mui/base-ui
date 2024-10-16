@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Collapsible components
 description: Collapsible is a component that shows or hides content.
-components: CollapsibleRoot, CollapsibleTrigger, CollapsibleContent
+components: CollapsibleRoot, CollapsibleTrigger, CollapsiblePanel
 githubLabel: 'component: collapsible'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 packageName: '@base_ui/react'
@@ -24,12 +24,12 @@ packageName: '@base_ui/react'
 
 - `<Collapsible.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM by default.
 - `<Collapsible.Trigger />` is the trigger element, a `<button>` by default, that toggles the open/closed state of the content
-- `<Collapsible.Content />` is component that contains the Collapsible's content
+- `<Collapsible.Panel />` is component that contains the Collapsible's content
 
 ```js
 <Collapsible.Root>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-  <Collapsible.Content>This is the content</Collapsible.Content>
+  <Collapsible.Panel>This is the content</Collapsible.Panel>
 </Collapsible.Root>
 ```
 
@@ -41,15 +41,15 @@ packageName: '@base_ui/react'
   Firefox as of August 2024 and will fall back to the default `hidden` behavior.
 </Callout>
 
-Content hidden in the `Collapsible.Content` component can be made accessible only to a browser's find-in-page functionality with the `hiddenUntilFound` prop to improve searchability:
+Content hidden in the `Collapsible.Panel` component can be made accessible only to a browser's find-in-page functionality with the `hiddenUntilFound` prop to improve searchability:
 
 ```js
 <Collapsible.Root defaultOpen={false}>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-  <Collapsible.Content hiddenUntilFound>
+  <Collapsible.Panel hiddenUntilFound>
     When this component is closed, this sentence will only be accessible to the browser's native
     find-in-page functionality
-  </Collapsible.Content>
+  </Collapsible.Panel>
 </Collapsible.Root>
 ```
 
@@ -74,7 +74,7 @@ The component can be animate when opening or closing using either:
 - CSS transitions
 - JavaScript animations
 
-The dimensions of the `Content` subcomponent are provided as the `--collapsible-content-height` and `--collapsible-content-width` CSS variables
+The dimensions of the `Content` subcomponent are provided as the `--collapsible-panel-height` and `--collapsible-panel-width` CSS variables
 
 ### CSS Animations
 
@@ -98,13 +98,13 @@ CSS animations can be used with two declarations:
     height: 0;
   }
   to {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
   to {
     height: 0;
@@ -128,7 +128,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
 }
 
 .Collapsible-content[data-collapsible='open'] {
-  height: var(--collapsible-content-height);
+  height: var(--collapsible-panel-height);
   transition: height 300ms ease-out;
 }
 
@@ -146,7 +146,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
 
 ### JavaScript Animations
 
-When using external libraries for animation, for example `framer-motion`, be aware that Collapsible hides content using the html `hidden` attribute in the closed state, and does not unmount the `Collapsible.Content` subcomponent.
+When using external libraries for animation, for example `framer-motion`, be aware that Collapsible hides content using the html `hidden` attribute in the closed state, and does not unmount the `Collapsible.Panel` subcomponent.
 
 ```js
 function App() {
@@ -154,7 +154,7 @@ function App() {
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-      <Collapsible.Content
+      <Collapsible.Panel
         render={
           <motion.div
             key="CollapsibleContent"
@@ -176,7 +176,7 @@ function App() {
         }
       >
         This is the content
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible.Root>
   );
 }

@@ -38,11 +38,11 @@ const accordionItemContextValue: AccordionItemContext = {
 
 const collapsibleContextValue: CollapsibleRootContext = {
   animated: false,
-  contentId: ':content:',
+  panelId: ':panel:',
   disabled: false,
   mounted: true,
   open: true,
-  setContentId: NOOP,
+  setPanelId: NOOP,
   setMounted: NOOP,
   setOpen: NOOP,
   transitionStatus: undefined,

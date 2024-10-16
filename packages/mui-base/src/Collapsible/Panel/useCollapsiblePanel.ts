@@ -53,9 +53,9 @@ interface Dimensions {
   width: number;
 }
 
-export function useCollapsibleContent(
-  parameters: useCollapsibleContent.Parameters,
-): useCollapsibleContent.ReturnValue {
+export function useCollapsiblePanel(
+  parameters: useCollapsiblePanel.Parameters,
+): useCollapsiblePanel.ReturnValue {
   const {
     animated = false,
     hiddenUntilFound = false,
@@ -63,14 +63,14 @@ export function useCollapsibleContent(
     open,
     mounted: contextMounted,
     ref,
-    setContentId,
+    setPanelId,
     setMounted: setContextMounted,
     setOpen,
   } = parameters;
 
   const id = useId(idParam);
 
-  const contentElementRef = React.useRef<HTMLElement | null>(null);
+  const panelRef = React.useRef<HTMLElement | null>(null);
 
   const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: 0,
@@ -83,18 +83,18 @@ export function useCollapsibleContent(
   const isTransitioningRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    setContentId(id);
+    setPanelId(id);
     return () => {
-      setContentId(undefined);
+      setPanelId(undefined);
     };
-  }, [id, setContentId]);
+  }, [id, setPanelId]);
 
-  const handleContentRef = useEventCallback((element: HTMLElement) => {
+  const handlePanelRef = useEventCallback((element: HTMLElement) => {
     if (!element) {
       return;
     }
 
-    contentElementRef.current = element;
+    panelRef.current = element;
 
     const computedAnimationName = getAnimationNameFromComputedStyles(element);
 
@@ -102,9 +102,9 @@ export function useCollapsibleContent(
     originalTransitionDurationStyleRef.current = element.style.transitionDuration;
   });
 
-  const mergedRef = useForkRef(ref, handleContentRef);
+  const mergedRef = useForkRef(ref, handlePanelRef);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(contentElementRef);
+  const runOnceAnimationsFinish = useAnimationsFinished(panelRef);
 
   const isOpen = animated ? open || contextMounted : open;
 
@@ -113,7 +113,7 @@ export function useCollapsibleContent(
   const isBeforeMatchRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    const { current: element } = contentElementRef;
+    const { current: element } = panelRef;
 
     let frame1 = -1;
     let frame2 = -1;
@@ -169,7 +169,7 @@ export function useCollapsibleContent(
   }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
 
   React.useEffect(() => {
-    const { current: element } = contentElementRef;
+    const { current: element } = panelRef;
 
     let frame2 = -1;
     let frame3 = -1;
@@ -195,7 +195,7 @@ export function useCollapsibleContent(
   }, []);
 
   React.useEffect(function registerCssTransitionListeners() {
-    const { current: element } = contentElementRef;
+    const { current: element } = panelRef;
     if (!element) {
       return undefined;
     }
@@ -227,7 +227,7 @@ export function useCollapsibleContent(
   // we need to manually sync the open state
   React.useEffect(
     function registerBeforeMatchListener() {
-      const { current: element } = contentElementRef;
+      const { current: element } = panelRef;
 
       if (!element || !supportsHiddenUntilFound(element)) {
         return undefined;
@@ -255,7 +255,7 @@ export function useCollapsibleContent(
   // so we have to force it back to `'until-found'` in the DOM when applicable
   // https://github.com/facebook/react/issues/24740
   useEnhancedEffect(() => {
-    const { current: element } = contentElementRef;
+    const { current: element } = panelRef;
 
     if (
       element &&
@@ -271,7 +271,7 @@ export function useCollapsibleContent(
 
   const hidden = hiddenUntilFound ? 'until-found' : 'hidden';
 
-  const getRootProps: useCollapsibleContent.ReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useCollapsiblePanel.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
@@ -291,7 +291,7 @@ export function useCollapsibleContent(
   );
 }
 
-export namespace useCollapsibleContent {
+export namespace useCollapsiblePanel {
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
@@ -311,7 +311,7 @@ export namespace useCollapsibleContent {
      */
     open: boolean;
     ref: React.Ref<HTMLElement>;
-    setContentId: (id: string | undefined) => void;
+    setPanelId: (id: string | undefined) => void;
     setOpen: (nextOpen: boolean) => void;
     setMounted: (nextMounted: boolean) => void;
   }

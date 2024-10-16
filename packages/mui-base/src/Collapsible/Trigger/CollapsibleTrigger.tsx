@@ -24,10 +24,10 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { contentId, open, setOpen, ownerState } = useCollapsibleRootContext();
+  const { panelId, open, setOpen, ownerState } = useCollapsibleRootContext();
 
   const { getRootProps } = useCollapsibleTrigger({
-    contentId,
+    panelId,
     open,
     setOpen,
     rootRef: forwardedRef,

@@ -38,7 +38,7 @@
   transition: transform var(--duration) ease-out;
 }
 
-.content {
+.panel {
   background-color: #eaeaea;
   overflow: hidden;
   box-sizing: border-box;
@@ -47,38 +47,38 @@
   padding-right: 1rem;
 }
 
-.content.animation[data-collapsible='open'] {
+.panel.animation[data-collapsible='open'] {
   animation: slideDown var(--duration) ease-out;
 }
 
-.content.animation[data-collapsible='closed'] {
+.panel.animation[data-collapsible='closed'] {
   animation: slideUp var(--duration) ease-in;
 }
 
-.content.transition[data-collapsible='open'] {
-  height: var(--collapsible-content-height);
+.panel.transition[data-collapsible='open'] {
+  height: var(--collapsible-panel-height);
   transition: height var(--duration) ease-out;
 }
 
-.content.transition[data-collapsible='closed'] {
+.panel.transition[data-collapsible='closed'] {
   height: 0;
   transition: height var(--duration) ease-in;
 }
 
-.content.transition[data-entering] {
+.panel.transition[data-entering] {
   height: 0;
 }
 
-.content.transition[hidden='until-found'] {
+.panel.transition[hidden='until-found'] {
   transition-duration: 0s !important;
 }
 
-.content.framer {
+.panel.framer {
   display: flex;
   flex-direction: column;
 }
 
-.content p {
+.panel p {
   margin: 1.25rem auto;
   overflow-wrap: break-word;
 }
@@ -88,13 +88,13 @@
     height: 0;
   }
   to {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
   to {
     height: 0;

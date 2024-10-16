@@ -6,11 +6,11 @@ import { describeConformance } from '../../../test/describeConformance';
 
 const contextValue: CollapsibleRootContext = {
   animated: false,
-  contentId: 'ContentId',
+  panelId: 'PanelId',
   disabled: false,
   mounted: true,
   open: true,
-  setContentId() {},
+  setPanelId() {},
   setMounted() {},
   setOpen() {},
   transitionStatus: undefined,
@@ -21,10 +21,10 @@ const contextValue: CollapsibleRootContext = {
   },
 };
 
-describe('<Collapsible.Content />', () => {
+describe('<Collapsible.Panel />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Collapsible.Content />, () => ({
+  describeConformance(<Collapsible.Panel />, () => ({
     inheritComponent: 'div',
     render: (node) => {
       const { container, ...other } = render(

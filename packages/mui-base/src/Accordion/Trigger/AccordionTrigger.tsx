@@ -26,10 +26,10 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 ) {
   const { disabled: disabledProp, className, id, render, ...otherProps } = props;
 
-  const { contentId, disabled: contextDisabled, open, setOpen } = useCollapsibleRootContext();
+  const { panelId, disabled: contextDisabled, open, setOpen } = useCollapsibleRootContext();
 
   const { getRootProps } = useCollapsibleTrigger({
-    contentId,
+    panelId,
     disabled: disabledProp || contextDisabled,
     id,
     open,

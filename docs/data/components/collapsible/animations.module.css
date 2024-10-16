@@ -3,23 +3,23 @@
     height: 0;
   }
   to {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
   to {
     height: 0;
   }
 }
 
-.content[data-collapsible='open'] {
+.panel[data-collapsible='open'] {
   animation: slideDown 300ms ease-out;
 }
 
-.content[data-collapsible='closed'] {
+.panel[data-collapsible='closed'] {
   animation: slideUp 300ms ease-out;
 }

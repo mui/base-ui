@@ -17,11 +17,11 @@ export default function CollapsibleFramer() {
           <ExpandMoreIcon className={classes.icon} />
           Trigger
         </Collapsible.Trigger>
-        <Collapsible.Content
-          className={classNames(classes.content, classes.framer)}
+        <Collapsible.Panel
+          className={classNames(classes.panel, classes.framer)}
           render={
             <motion.div
-              key="CollapsibleContent"
+              key="CollapsiblePanel"
               initial={false}
               animate={open ? 'open' : 'closed'}
               exit={!open ? 'open' : 'closed'}
@@ -50,7 +50,7 @@ export default function CollapsibleFramer() {
           </p>
           <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
           <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-        </Collapsible.Content>
+        </Collapsible.Panel>
       </Collapsible.Root>
     </div>
   );
