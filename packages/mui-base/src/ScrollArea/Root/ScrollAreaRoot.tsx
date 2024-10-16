@@ -26,6 +26,8 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const scrollAreaRoot = useScrollAreaRoot({ dir, type, gutter });
 
+  const { rootId } = scrollAreaRoot;
+
   const { renderElement } = useComponentRenderer({
     propGetter: scrollAreaRoot.getRootProps,
     render: render ?? 'div',
@@ -45,8 +47,18 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     [dir, gutter, type, scrollAreaRoot],
   );
 
+  const viewportId = `[id="${rootId}-viewport"]`;
+  const scrollbarId = `[id="${rootId}-scrollbar"]`;
+
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
+      {rootId && (
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `${viewportId},${scrollbarId}{scrollbar-width:none;}${viewportId}::-webkit-scrollbar,${scrollbarId}::-webkit-scrollbar{display:none}`,
+          }}
+        />
+      )}
       {renderElement()}
     </ScrollAreaRootContext.Provider>
   );

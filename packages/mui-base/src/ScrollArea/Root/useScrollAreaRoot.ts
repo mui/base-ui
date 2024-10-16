@@ -4,6 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
+import { useId } from '../../utils/useId';
 
 export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const { dir: dirProp } = params;
@@ -14,6 +15,8 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     width: 0,
     height: 0,
   });
+
+  const rootId = useId();
 
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
   const scrollbarYRef = React.useRef<HTMLDivElement | null>(null);
@@ -178,6 +181,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       scrollbarXRef,
       thumbYRef,
       thumbXRef,
+      rootId,
     }),
     [
       cornerSize,
@@ -187,6 +191,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       handlePointerUp,
       hovering,
       scrolling,
+      rootId,
     ],
   );
 }
