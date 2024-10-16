@@ -9,52 +9,52 @@ import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 
-const InnerMenuItem = React.memo(
-  React.forwardRef(function InnerMenuItem(
-    props: InnerMenuItemProps,
-    forwardedRef: React.ForwardedRef<Element>,
-  ) {
-    const {
-      className,
-      closeOnClick = true,
-      disabled = false,
-      highlighted,
-      id,
-      menuEvents,
-      propGetter,
-      render,
-      treatMouseupAsClick,
-      typingRef,
-      ...other
-    } = props;
+const InnerMenuItem = React.forwardRef(function InnerMenuItem(
+  props: InnerMenuItemProps,
+  forwardedRef: React.ForwardedRef<Element>,
+) {
+  const {
+    className,
+    closeOnClick = true,
+    disabled = false,
+    highlighted,
+    id,
+    menuEvents,
+    propGetter,
+    render,
+    treatMouseupAsClick,
+    typingRef,
+    ...other
+  } = props;
 
-    const { getRootProps } = useMenuItem({
-      closeOnClick,
-      disabled,
-      highlighted,
-      id,
-      menuEvents,
-      ref: forwardedRef,
-      treatMouseupAsClick,
-      typingRef,
-    });
+  const { getRootProps } = useMenuItem({
+    closeOnClick,
+    disabled,
+    highlighted,
+    id,
+    menuEvents,
+    ref: forwardedRef,
+    treatMouseupAsClick,
+    typingRef,
+  });
 
-    const ownerState: MenuItem.OwnerState = React.useMemo(
-      () => ({ disabled, highlighted }),
-      [disabled, highlighted],
-    );
+  const ownerState: MenuItem.OwnerState = React.useMemo(
+    () => ({ disabled, highlighted }),
+    [disabled, highlighted],
+  );
 
-    const { renderElement } = useComponentRenderer({
-      render: render || 'div',
-      className,
-      ownerState,
-      propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
-      extraProps: other,
-    });
+  const { renderElement } = useComponentRenderer({
+    render: render || 'div',
+    className,
+    ownerState,
+    propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
+    extraProps: other,
+  });
 
-    return renderElement();
-  }),
-);
+  return renderElement();
+});
+
+const MemoizedInnerMenuItem = React.memo(InnerMenuItem);
 
 /**
  * An unstyled menu item to be used within a Menu.
@@ -67,6 +67,76 @@ const InnerMenuItem = React.memo(
  *
  * - [MenuItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuItem)
  */
+
+InnerMenuItem.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * If `true`, the menu will close when the menu item is clicked.
+   *
+   * @default true
+   */
+  closeOnClick: PropTypes.bool,
+  /**
+   * If `true`, the menu item will be disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  highlighted: PropTypes.bool.isRequired,
+  /**
+   * The id of the menu item.
+   */
+  id: PropTypes.string,
+  /**
+   * A text representation of the menu item's content.
+   * Used for keyboard text navigation matching.
+   */
+  label: PropTypes.string,
+  /**
+   * @ignore
+   */
+  menuEvents: PropTypes.shape({
+    emit: PropTypes.func.isRequired,
+    off: PropTypes.func.isRequired,
+    on: PropTypes.func.isRequired,
+  }).isRequired,
+  /**
+   * The click handler for the menu item.
+   */
+  onClick: PropTypes.func,
+  /**
+   * @ignore
+   */
+  propGetter: PropTypes.func.isRequired,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  treatMouseupAsClick: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
+  typingRef: PropTypes.shape({
+    current: PropTypes.bool,
+  }).isRequired,
+} as any;
+
 const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
@@ -88,7 +158,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   // only when it needs to.
 
   return (
-    <InnerMenuItem
+    <MemoizedInnerMenuItem
       {...other}
       id={id}
       ref={mergedRef}

@@ -206,7 +206,7 @@ export default function AnchorPositioning() {
               min={0}
               max={50}
               value={sideOffset}
-              onChange={(e) => setSideOffset(Number(e.target.value))}
+              onChange={(event) => setSideOffset(Number(event.target.value))}
             />
             {sideOffset}
           </fieldset>
@@ -218,7 +218,7 @@ export default function AnchorPositioning() {
               min={0}
               max={50}
               value={alignmentOffset}
-              onChange={(e) => setAlignmentOffset(Number(e.target.value))}
+              onChange={(event) => setAlignmentOffset(Number(event.target.value))}
             />
             {alignmentOffset}
           </fieldset>
@@ -230,7 +230,7 @@ export default function AnchorPositioning() {
               min={0}
               max={50}
               value={collisionPadding}
-              onChange={(e) => setCollisionPadding(Number(e.target.value))}
+              onChange={(event) => setCollisionPadding(Number(event.target.value))}
             />
             {collisionPadding}
           </fieldset>
@@ -242,7 +242,7 @@ export default function AnchorPositioning() {
               min={0}
               max={20}
               value={arrowPadding}
-              onChange={(e) => setArrowPadding(Number(e.target.value))}
+              onChange={(event) => setArrowPadding(Number(event.target.value))}
             />
             {arrowPadding}
           </fieldset>

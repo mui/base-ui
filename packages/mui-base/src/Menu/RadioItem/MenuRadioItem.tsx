@@ -12,54 +12,52 @@ import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 
-const InnerMenuRadioItem = React.memo(
-  React.forwardRef(function InnerMenuItem(
-    props: InnerMenuRadioItemProps,
-    forwardedRef: React.ForwardedRef<Element>,
-  ) {
-    const {
-      checked,
-      setChecked,
-      className,
-      closeOnClick = false,
-      disabled = false,
-      highlighted,
-      id,
-      menuEvents,
-      propGetter,
-      render,
-      treatMouseupAsClick,
-      typingRef,
-      ...other
-    } = props;
+const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
+  props: InnerMenuRadioItemProps,
+  forwardedRef: React.ForwardedRef<Element>,
+) {
+  const {
+    checked,
+    setChecked,
+    className,
+    closeOnClick = false,
+    disabled = false,
+    highlighted,
+    id,
+    menuEvents,
+    propGetter,
+    render,
+    treatMouseupAsClick,
+    typingRef,
+    ...other
+  } = props;
 
-    const { getRootProps } = useMenuRadioItem({
-      checked,
-      setChecked,
-      closeOnClick,
-      disabled,
-      highlighted,
-      id,
-      menuEvents,
-      ref: forwardedRef,
-      treatMouseupAsClick,
-      typingRef,
-    });
+  const { getRootProps } = useMenuRadioItem({
+    checked,
+    setChecked,
+    closeOnClick,
+    disabled,
+    highlighted,
+    id,
+    menuEvents,
+    ref: forwardedRef,
+    treatMouseupAsClick,
+    typingRef,
+  });
 
-    const ownerState: MenuRadioItem.OwnerState = { disabled, highlighted, checked };
+  const ownerState: MenuRadioItem.OwnerState = { disabled, highlighted, checked };
 
-    const { renderElement } = useComponentRenderer({
-      render: render || 'div',
-      className,
-      ownerState,
-      propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
-      customStyleHookMapping: itemMapping,
-      extraProps: other,
-    });
+  const { renderElement } = useComponentRenderer({
+    render: render || 'div',
+    className,
+    ownerState,
+    propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
+    customStyleHookMapping: itemMapping,
+    extraProps: other,
+  });
 
-    return renderElement();
-  }),
-);
+  return renderElement();
+});
 
 /**
  * An unstyled menu item to be used within a Menu.
@@ -72,6 +70,86 @@ const InnerMenuRadioItem = React.memo(
  *
  * - [MenuRadioItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuRadioItem)
  */
+
+InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  checked: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * If `true`, the menu will close when the menu item is clicked.
+   *
+   * @default true
+   */
+  closeOnClick: PropTypes.bool,
+  /**
+   * If `true`, the menu item will be disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  highlighted: PropTypes.bool.isRequired,
+  /**
+   * The id of the menu item.
+   */
+  id: PropTypes.string,
+  /**
+   * A text representation of the menu item's content.
+   * Used for keyboard text navigation matching.
+   */
+  label: PropTypes.string,
+  /**
+   * @ignore
+   */
+  menuEvents: PropTypes.shape({
+    emit: PropTypes.func.isRequired,
+    off: PropTypes.func.isRequired,
+    on: PropTypes.func.isRequired,
+  }).isRequired,
+  /**
+   * The click handler for the menu item.
+   */
+  onClick: PropTypes.func,
+  /**
+   * @ignore
+   */
+  propGetter: PropTypes.func.isRequired,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  setChecked: PropTypes.func.isRequired,
+  /**
+   * @ignore
+   */
+  treatMouseupAsClick: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
+  typingRef: PropTypes.shape({
+    current: PropTypes.bool,
+  }).isRequired,
+} as any;
+
+const MemoizedInnerMenuRadioItem = React.memo(InnerMenuRadioItem);
+
 const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
@@ -110,7 +188,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   return (
     <MenuRadioItemContext.Provider value={contextValue}>
-      <InnerMenuRadioItem
+      <MemoizedInnerMenuRadioItem
         {...other}
         id={id}
         ref={mergedRef}

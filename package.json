@@ -80,7 +80,7 @@
     "@mui/internal-markdown": "^1.0.17",
     "@mui/internal-scripts": "^1.0.24",
     "@mui/internal-test-utils": "1.0.17",
-    "@mui/monorepo": "github:mui/material-ui#v6.1.1",
+    "@mui/monorepo": "github:mui/material-ui#v6.1.4",
     "@mui/utils": "6.1.4",
     "@next/eslint-plugin-next": "^14.2.13",
     "@octokit/rest": "^20.1.1",

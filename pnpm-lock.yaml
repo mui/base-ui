@@ -68,8 +68,8 @@ importers:
         specifier: 1.0.17
         version: 1.0.17(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.1.1
-        version: https://codeload.github.com/mui/material-ui/tar.gz/11cc37f4ef5fc8f3d40fc209684626b206e76cca(encoding@0.1.13)
+        specifier: github:mui/material-ui#v6.1.4
+        version: https://codeload.github.com/mui/material-ui/tar.gz/27490f9c9093a703801354ee4ab586651c21ec8d(encoding@0.1.13)
       '@mui/utils':
         specifier: 6.1.4
         version: 6.1.4(@types/react@18.3.10)(react@18.3.1)
@@ -1925,10 +1925,10 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/11cc37f4ef5fc8f3d40fc209684626b206e76cca':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/11cc37f4ef5fc8f3d40fc209684626b206e76cca}
-    version: 6.1.1
-    engines: {pnpm: 9.10.0}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/27490f9c9093a703801354ee4ab586651c21ec8d':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/27490f9c9093a703801354ee4ab586651c21ec8d}
+    version: 6.1.4
+    engines: {pnpm: 9.12.0}
 
   '@mui/private-theming@6.1.4':
     resolution: {integrity: sha512-FPa+W5BSrRM/1QI5Gf/GwJinJ2WsrKPpJB6xMmmXMXSUIp31YioIVT04i28DQUXFFB3yZY12ukcZi51iLvPljw==}
@@ -2087,16 +2087,16 @@ packages:
     resolution: {integrity: sha512-zM0mVWSXE0a0h9aKACLwKmD6nHcRiKrPpCfvaKqG1CqDEyjEawId0ocXxVzPMCAm6kkWr2P025msfxXEnt8UGQ==}
     engines: {node: '>= 10'}
 
-  '@netlify/functions@2.8.1':
-    resolution: {integrity: sha512-+6wtYdoz0yE06dSa9XkP47tw5zm6g13QMeCwM3MmHx1vn8hzwFa51JtmfraprdkL7amvb7gaNM+OOhQU1h6T8A==}
+  '@netlify/functions@2.8.2':
+    resolution: {integrity: sha512-DeoAQh8LuNPvBE4qsKlezjKj0PyXDryOFJfJKo3Z1qZLKzQ21sT314KQKPVjfvw6knqijj+IO+0kHXy/TJiqNA==}
     engines: {node: '>=14.0.0'}
 
   '@netlify/node-cookies@0.1.0':
     resolution: {integrity: sha512-OAs1xG+FfLX0LoRASpqzVntVV/RpYkgpI0VrUnw2u0Q1qiZUzcPffxRK8HF3gc4GjuhG5ahOEMJ9bswBiZPq0g==}
     engines: {node: ^14.16.0 || >=16.0.0}
 
-  '@netlify/serverless-functions-api@1.19.1':
-    resolution: {integrity: sha512-2KYkyluThg1AKfd0JWI7FzpS4A/fzVVGYIf6AM4ydWyNj8eI/86GQVLeRgDoH7CNOxt243R5tutWlmHpVq0/Ew==}
+  '@netlify/serverless-functions-api@1.26.1':
+    resolution: {integrity: sha512-q3L9i3HoNfz0SGpTIS4zTcKBbRkxzCRpd169eyiTuk3IwcPC3/85mzLHranlKo2b+HYT0gu37YxGB45aD8A3Tw==}
     engines: {node: '>=18.0.0'}
 
   '@next/env@14.2.13':
@@ -4558,8 +4558,8 @@ packages:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
 
-  execa@9.3.1:
-    resolution: {integrity: sha512-gdhefCCNy/8tpH/2+ajP9IQc14vXchNdd0weyzSJEFURhRMGncQ+zKFxwjAufIewPEJm9BPOaJnvg2UtlH2gPQ==}
+  execa@9.4.0:
+    resolution: {integrity: sha512-yKHlle2YGxZE842MERVIplWwNH5VYmqqcPFgtnlU//K8gxuFFXu0pwd/CrfXTumFpeEiufsP7+opT/bPJa1yVw==}
     engines: {node: ^18.19.0 || >=20.5.0}
 
   expand-tilde@2.0.2:
@@ -6566,6 +6566,10 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  npm-run-path@6.0.0:
+    resolution: {integrity: sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA==}
+    engines: {node: '>=18'}
+
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
@@ -8334,6 +8338,10 @@ packages:
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
+    engines: {node: '>=18'}
+
+  unicorn-magic@0.3.0:
+    resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
     engines: {node: '>=18'}
 
   unified@11.0.5:
@@ -10333,12 +10341,12 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/11cc37f4ef5fc8f3d40fc209684626b206e76cca(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/27490f9c9093a703801354ee4ab586651c21ec8d(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
-      '@netlify/functions': 2.8.1
+      '@netlify/functions': 2.8.2
       '@slack/bolt': 3.22.0
-      execa: 9.3.1
+      execa: 9.4.0
       google-auth-library: 9.14.1(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
@@ -10469,13 +10477,13 @@ snapshots:
       '@napi-rs/nice-win32-x64-msvc': 1.0.1
     optional: true
 
-  '@netlify/functions@2.8.1':
+  '@netlify/functions@2.8.2':
     dependencies:
-      '@netlify/serverless-functions-api': 1.19.1
+      '@netlify/serverless-functions-api': 1.26.1
 
   '@netlify/node-cookies@0.1.0': {}
 
-  '@netlify/serverless-functions-api@1.19.1':
+  '@netlify/serverless-functions-api@1.26.1':
     dependencies:
       '@netlify/node-cookies': 0.1.0
       urlpattern-polyfill: 8.0.2
@@ -13542,7 +13550,7 @@ snapshots:
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
 
-  execa@9.3.1:
+  execa@9.4.0:
     dependencies:
       '@sindresorhus/merge-streams': 4.0.0
       cross-spawn: 7.0.3
@@ -13551,7 +13559,7 @@ snapshots:
       human-signals: 8.0.0
       is-plain-obj: 4.1.0
       is-stream: 4.0.1
-      npm-run-path: 5.3.0
+      npm-run-path: 6.0.0
       pretty-ms: 9.0.0
       signal-exit: 4.1.0
       strip-final-newline: 4.0.0
@@ -16174,6 +16182,11 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
+  npm-run-path@6.0.0:
+    dependencies:
+      path-key: 4.0.0
+      unicorn-magic: 0.3.0
+
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
@@ -18236,6 +18249,8 @@ snapshots:
   unicode-property-aliases-ecmascript@2.1.0: {}
 
   unicorn-magic@0.1.0: {}
+
+  unicorn-magic@0.3.0: {}
 
   unified@11.0.5:
     dependencies:
