@@ -162,6 +162,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       }),
     [
       dir,
+      type,
       handlePointerDown,
       handlePointerUp,
       orientation,
