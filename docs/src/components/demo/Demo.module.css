@@ -97,11 +97,11 @@
 .collapsible {
   overflow: hidden;
 
-  &[data-state='open'] {
+  &[data-open] {
     animation: slideDown 200ms ease-out;
   }
 
-  &[data-state='closed'] {
+  &[data-closed] {
     animation: slideUp 200ms ease-in;
   }
 }

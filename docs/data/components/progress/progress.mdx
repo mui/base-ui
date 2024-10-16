@@ -41,7 +41,7 @@ Progress
 
 ### Determinate
 
-The `value` prop represents the percentage value of the Progress component. The default minimum and maximum values are `0` and `100`, and can be changed with the `min` and `max` props. When progress is determinate the `data-state` attribute is initially `'progressing'`, changing to `'complete'` when `value` equals `max`.
+The `value` prop represents the percentage value of the Progress component. The default minimum and maximum values are `0` and `100`, and can be changed with the `min` and `max` props. When progress is determinate the `data-progressing` attribute exists, changing to `data-complete` when `value` equals `max`.
 
 ```tsx
 function App() {
@@ -58,7 +58,7 @@ function App() {
 
 ### Indeterminate
 
-Set `value` to `null` to configure an indeterminate progress bar. The `data-state` attribute will be set to `indeterminate`.
+Set `value` to `null` to configure an indeterminate progress bar. The `data-indeterminate` attribute will exist.
 
 ```tsx
 <Progress.Root value={null}>
