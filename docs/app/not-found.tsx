@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import { AppBar } from 'docs-base/src/components/AppBar';
-import { Navigation } from 'docs-base/src/components/Navigation';
-import routes from 'docs-base/data/pages';
+import { AppBar } from 'docs/src/components/AppBar';
+import { Navigation } from 'docs/src/components/Navigation';
+import routes from 'docs/data/pages';
 import classes from './(content)/styles.module.css';
 
 export default function NotFound() {

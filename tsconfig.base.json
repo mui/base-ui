@@ -21,8 +21,7 @@
       "@mui-internal/api-docs-builder/*": [
         "./node_modules/@mui/monorepo/packages/api-docs-builder/*"
       ],
-      "docs-base/*": ["./docs/*"],
-      "docs/*": ["./node_modules/@mui/monorepo/docs/*"]
+      "docs/*": ["./docs/*"]
     }
   },
   "exclude": ["**/.*/", "**/build", "**/build-tests", "**/node_modules", "docs/export"]

@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { ComponentAPIReference } from 'docs-base/types/ComponentAPIReference';
+import { ComponentAPIReference } from 'docs/types/ComponentAPIReference';
 import kebabCase from 'lodash/kebabCase';
 
 export function getApiReferenceData(componentNames: string[]): Promise<ComponentAPIReference[]> {

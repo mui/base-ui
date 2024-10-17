@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { RouteMetadata } from 'docs-base/data/pages';
+import { RouteMetadata } from 'docs/data/pages';
 import classes from './Navigation.module.css';
 
 interface NavigationProps {

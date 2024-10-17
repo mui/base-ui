@@ -1,18 +1,15 @@
 import * as React from 'react';
 import { Metadata } from 'next';
-import { components } from 'docs-base/src/components/content/MDXComponents';
-import { getMarkdownPage, getMarkdownPageMetadata } from 'docs-base/app/(content)/getMarkdownPage';
-import { ComponentLinkHeader } from 'docs-base/src/components/content/ComponentLinkHeader';
-import { Description } from 'docs-base/src/components/content/Description';
-import { TableOfContents } from 'docs-base/src/components/TableOfContents';
-import routes, { getSlugs } from 'docs-base/data/pages';
-import { SiblingPageLinks } from 'docs-base/src/components/SiblingPageLinks';
-import { EditPageGithubLink } from 'docs-base/src/components/EditPageGithubLink';
-import {
-  ApiReference,
-  getApiReferenceTableOfContents,
-} from 'docs-base/src/components/ApiReference';
-import { DemoLoader, DemoLoaderProps } from 'docs-base/src/components/demo/DemoLoader';
+import { components } from 'docs/src/components/content/MDXComponents';
+import { getMarkdownPage, getMarkdownPageMetadata } from 'docs/app/(content)/getMarkdownPage';
+import { ComponentLinkHeader } from 'docs/src/components/content/ComponentLinkHeader';
+import { Description } from 'docs/src/components/content/Description';
+import { TableOfContents } from 'docs/src/components/TableOfContents';
+import routes, { getSlugs } from 'docs/data/pages';
+import { SiblingPageLinks } from 'docs/src/components/SiblingPageLinks';
+import { EditPageGithubLink } from 'docs/src/components/EditPageGithubLink';
+import { ApiReference, getApiReferenceTableOfContents } from 'docs/src/components/ApiReference';
+import { DemoLoader, DemoLoaderProps } from 'docs/src/components/demo/DemoLoader';
 import { getApiReferenceData } from './getApiReferenceData';
 import classes from '../../styles.module.css';
 

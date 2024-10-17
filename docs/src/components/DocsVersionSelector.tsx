@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { SelectIcon } from 'docs-base/src/icons/Select';
+import { SelectIcon } from 'docs/src/icons/Select';
 import { Menu } from '@base_ui/react/Menu';
 import classes from './DocsVersionSelector.module.css';
 
