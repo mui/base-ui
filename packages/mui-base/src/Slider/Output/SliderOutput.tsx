@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderRootContext } from '../Root/SliderRootContext';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
@@ -23,7 +23,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { inputIdMap, ownerState, values } = useSliderContext();
+  const { inputIdMap, ownerState, values } = useSliderRootContext();
 
   const { getRootProps } = useSliderOutput({
     inputIdMap,

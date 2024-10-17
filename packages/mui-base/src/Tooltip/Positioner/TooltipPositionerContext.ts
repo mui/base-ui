@@ -11,13 +11,19 @@ export interface TooltipPositionerContext {
   arrowStyles: React.CSSProperties;
 }
 
-export const TooltipPositionerContext = React.createContext<TooltipPositionerContext | null>(null);
+export const TooltipPositionerContext = React.createContext<TooltipPositionerContext | undefined>(
+  undefined,
+);
+
+if (process.env.NODE_ENV !== 'production') {
+  TooltipPositionerContext.displayName = 'TooltipPositionerContext';
+}
 
 export function useTooltipPositionerContext() {
   const context = React.useContext(TooltipPositionerContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error(
-      '<Tooltip.Popup> and <Tooltip.Arrow> must be used within the <Tooltip.Positioner> component',
+      'Base UI: TooltipPositionerContext is missing. TooltipPositioner parts must be placed within <Tooltip.Positioner>.',
     );
   }
   return context;

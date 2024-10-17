@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useMenuGroupRootContext() {
   const context = React.useContext(MenuGroupContext);
-  if (context == null) {
+  if (context === undefined) {
     throw new Error('Base UI: Missing MenuGroupRootContext provider');
   }
 

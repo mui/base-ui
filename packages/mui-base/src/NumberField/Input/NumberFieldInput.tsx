@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
@@ -24,7 +24,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getInputProps, inputRef, ownerState } = useNumberFieldContext('Input');
+  const { getInputProps, inputRef, ownerState } = useNumberFieldRootContext();
 
   const mergedInputRef = useForkRef(forwardedRef, inputRef);
 

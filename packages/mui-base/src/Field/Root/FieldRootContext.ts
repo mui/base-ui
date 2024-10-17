@@ -70,7 +70,9 @@ export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);
 
   if (context.setControlId === NOOP && !optional) {
-    throw new Error('Base UI: Field components must be placed within <Field.Root>.');
+    throw new Error(
+      'Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.',
+    );
   }
 
   return context;

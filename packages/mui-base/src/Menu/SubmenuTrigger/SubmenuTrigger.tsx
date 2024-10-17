@@ -36,7 +36,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     typingRef,
   } = useMenuRootContext();
 
-  if (parentContext === null) {
+  if (parentContext === undefined) {
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
   }
 

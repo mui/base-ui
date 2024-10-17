@@ -5,7 +5,9 @@ export interface MenuRadioGroupContext {
   setValue: (newValue: any, event: Event) => void;
 }
 
-export const MenuRadioGroupContext = React.createContext<MenuRadioGroupContext | null>(null);
+export const MenuRadioGroupContext = React.createContext<MenuRadioGroupContext | undefined>(
+  undefined,
+);
 
 if (process.env.NODE_ENV !== 'production') {
   MenuRadioGroupContext.displayName = 'MenuRadioGroupContext';
@@ -13,8 +15,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useMenuRadioGroupContext() {
   const context = React.useContext(MenuRadioGroupContext);
-  if (context === null) {
-    throw new Error('useMenuRadioGroupContext must be used within a MenuRadioGroup');
+  if (context === undefined) {
+    throw new Error(
+      'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
+    );
   }
 
   return context;

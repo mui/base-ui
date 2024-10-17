@@ -18,10 +18,17 @@ export const AlertDialogRootContext = React.createContext<AlertDialogRootContext
   undefined,
 );
 
+if (process.env.NODE_ENV !== 'production') {
+  AlertDialogRootContext.displayName = 'AlertDialogRootContext';
+}
+
 export function useAlertDialogRootContext() {
   const context = React.useContext(AlertDialogRootContext);
   if (context === undefined) {
-    throw new Error('useAlertDialogRootContext must be used within an AlertDialogRoot');
+    throw new Error(
+      'Base UI: AlertDialogRootContext is missing. AlertDialog parts must be placed within <AlertDialog.Root>.',
+    );
   }
+
   return context;
 }

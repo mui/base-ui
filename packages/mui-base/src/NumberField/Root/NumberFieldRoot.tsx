@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NumberFieldContext } from './NumberFieldContext';
+import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -91,9 +91,9 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
 
   return (
-    <NumberFieldContext.Provider value={contextValue}>
+    <NumberFieldRootContext.Provider value={contextValue}>
       {renderElement()}
-    </NumberFieldContext.Provider>
+    </NumberFieldRootContext.Provider>
   );
 });
 

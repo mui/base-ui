@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -23,7 +23,7 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getIncrementButtonProps, ownerState } = useNumberFieldContext('Increment');
+  const { getIncrementButtonProps, ownerState } = useNumberFieldRootContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getIncrementButtonProps,

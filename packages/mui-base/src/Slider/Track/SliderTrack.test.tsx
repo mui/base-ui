@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { Slider } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SliderContext } from '../Root/SliderContext';
+import { SliderRootContext } from '../Root/SliderRootContext';
 import { NOOP } from '../../utils/noop';
-import type { SliderRoot } from '../Root/SliderRoot';
 
-const testRootContext: SliderRoot.Context = {
+const testRootContext: SliderRootContext = {
   active: -1,
   areValuesEqual: () => true,
   axis: 'horizontal',
@@ -59,7 +58,7 @@ describe('<Slider.Track />', () => {
   describeConformance(<Slider.Track />, () => ({
     render: (node) => {
       return render(
-        <SliderContext.Provider value={testRootContext}>{node}</SliderContext.Provider>,
+        <SliderRootContext.Provider value={testRootContext}>{node}</SliderRootContext.Provider>,
       );
     },
     refInstanceof: window.HTMLSpanElement,

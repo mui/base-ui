@@ -6,9 +6,7 @@ import type { CollapsibleRoot } from './CollapsibleRoot';
 export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
   ownerState: CollapsibleRoot.OwnerState;
 }
-/**
- * @ignore - internal component.
- */
+
 export const CollapsibleRootContext = React.createContext<CollapsibleRootContext | undefined>(
   undefined,
 );
@@ -20,7 +18,10 @@ if (process.env.NODE_ENV !== 'production') {
 export function useCollapsibleRootContext() {
   const context = React.useContext(CollapsibleRootContext);
   if (context === undefined) {
-    throw new Error('useCollapsibleRootContext must be used inside a Collapsible component');
+    throw new Error(
+      'Base UI: CollapsibleRootContext is missing. Collapsible parts must be placed within <Collapsible.Root>.',
+    );
   }
+
   return context;
 }

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
-import { NumberFieldContext } from '../Root/NumberFieldContext';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 const testContext = {
   getInputProps: (externalProps) => externalProps,
@@ -14,7 +14,7 @@ const testContext = {
     invalid: false,
     readOnly: false,
   },
-} as NumberFieldContext;
+} as NumberFieldRootContext;
 
 describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
@@ -23,7 +23,9 @@ describe('<NumberField.Input />', () => {
     refInstanceof: window.HTMLInputElement,
     render(node) {
       return render(
-        <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
+        <NumberFieldRootContext.Provider value={testContext}>
+          {node}
+        </NumberFieldRootContext.Provider>,
       );
     },
   }));
