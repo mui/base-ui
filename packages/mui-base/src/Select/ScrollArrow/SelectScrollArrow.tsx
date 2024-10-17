@@ -8,7 +8,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { ownerWindow } from '../../utils/owner';
-import { MAX_Z_INDEX } from '../../utils/floating';
+import { MAX_Z_INDEX } from '../../utils/constants';
 
 /**
  * @ignore - internal component.
@@ -55,7 +55,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         children: direction === 'down' ? '▼' : '▲',
         style: {
           position: 'absolute',
-          zIndex: MAX_Z_INDEX, // max z-index
+          zIndex: MAX_Z_INDEX,
         },
         onMouseEnter() {
           if (inert) {

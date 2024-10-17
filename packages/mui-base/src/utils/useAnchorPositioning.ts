@@ -102,7 +102,8 @@ export function useAnchorPositioning(
     innerOptions = {},
   } = params;
 
-  const standardMode = innerOptions.touchModality || !(!innerOptions.fallback && innerMiddleware);
+  const alignPopupToTrigger =
+    innerOptions.touchModality || !(!innerOptions.fallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
@@ -117,7 +118,7 @@ export function useAnchorPositioning(
 
   const middleware: UseFloatingOptions['middleware'] = [
     offset({
-      mainAxis: standardMode ? sideOffset : 0,
+      mainAxis: alignPopupToTrigger ? sideOffset : 0,
       crossAxis: alignmentOffset,
       alignmentAxis: alignmentOffset,
     }),
@@ -144,7 +145,7 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (standardMode) {
+  if (alignPopupToTrigger) {
     if (alignment !== 'center') {
       middleware.push(flipMiddleware, shiftMiddleware);
     } else {
@@ -153,7 +154,7 @@ export function useAnchorPositioning(
   }
 
   middleware.push(
-    ...(!standardMode ? [innerMiddleware, shiftMiddleware] : []),
+    ...(!alignPopupToTrigger ? [innerMiddleware, shiftMiddleware] : []),
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
@@ -176,8 +177,8 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hideWhenDetached && standardMode && hide(),
-    standardMode && {
+    hideWhenDetached && alignPopupToTrigger && hide(),
+    alignPopupToTrigger && {
       name: 'transformOrigin',
       fn({ elements, middlewareData, placement: renderedPlacement }) {
         const currentRenderedSide = getSide(renderedPlacement);

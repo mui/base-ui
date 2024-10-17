@@ -23,7 +23,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { warn } from '../../utils/warn';
-import { TYPEAHEAD_RESET_MS } from '../../utils/floating';
+import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 
 /**
  *
