@@ -51,7 +51,7 @@ const ProgressIndicator = styled(BaseProgress.Indicator)(
     background-color: ${theme.palette.mode === 'dark' ? BLUE400 : BLUE500};
     border-radius: inherit;
 
-    &[data-state='indeterminate'] {
+    &[data-indeterminate] {
       width: 25%;
       animation: ${indeterminateProgress} 1.5s infinite ease-in-out;
       will-change: transform;
