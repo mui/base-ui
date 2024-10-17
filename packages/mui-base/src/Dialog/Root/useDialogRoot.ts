@@ -68,9 +68,9 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 
-   if (!open && openMethod !== null) {
-     setOpenMethod(null)
-   }
+  if (!open && openMethod !== null) {
+    setOpenMethod(null);
+  }
 
   const handleNestedDialogOpen = React.useCallback((ownChildrenCount: number) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
