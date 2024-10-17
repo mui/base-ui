@@ -22,7 +22,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useAccordionItemContext() {
   const context = React.useContext(AccordionItemContext);
   if (context === undefined) {
-    throw new Error('useAccordionItemContext must be used inside the <Accordion.Item /> component');
+    throw new Error(
+      'Base UI: AccordionItemContext is missing. Accordion parts must be placed within <Accordion.Item>.',
+    );
   }
   return context;
 }

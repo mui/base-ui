@@ -1,11 +1,16 @@
 'use client';
 import * as React from 'react';
 import type { AccordionRoot } from './AccordionRoot';
+import type { useAccordionRoot } from './useAccordionRoot';
 
+export interface AccordionRootContext extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
+  ownerState: AccordionRoot.OwnerState;
+  hiddenUntilFound: boolean;
+}
 /**
  * @ignore - internal component.
  */
-export const AccordionRootContext = React.createContext<AccordionRoot.Context | undefined>(
+export const AccordionRootContext = React.createContext<AccordionRootContext | undefined>(
   undefined,
 );
 
@@ -16,7 +21,9 @@ if (process.env.NODE_ENV !== 'production') {
 export function useAccordionRootContext() {
   const context = React.useContext(AccordionRootContext);
   if (context === undefined) {
-    throw new Error('useAccordionRootContext must be used inside a Accordion component');
+    throw new Error(
+      'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',
+    );
   }
   return context;
 }

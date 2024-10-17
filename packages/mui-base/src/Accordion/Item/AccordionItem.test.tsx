@@ -4,7 +4,7 @@ import { describeConformance, createRenderer } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { AccordionRootContext } from '../Root/AccordionRootContext';
 
-const accordionRootContextValue: Accordion.Root.Context = {
+const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },
   animated: false,
   direction: 'ltr',

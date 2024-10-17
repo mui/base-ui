@@ -6,7 +6,7 @@ import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootCo
 import { AccordionRootContext } from '../Root/AccordionRootContext';
 import { AccordionItemContext } from '../Item/AccordionItemContext';
 
-const accordionRootContextValue: Accordion.Root.Context = {
+const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },
   animated: false,
   direction: 'ltr',

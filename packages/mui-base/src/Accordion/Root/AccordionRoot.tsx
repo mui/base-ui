@@ -68,7 +68,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     [accordion.value, accordion.disabled, accordion.orientation],
   );
 
-  const contextValue: AccordionRoot.Context = React.useMemo(
+  const contextValue: AccordionRootContext = React.useMemo(
     () => ({
       ...accordion,
       hiddenUntilFound,
@@ -103,11 +103,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
 });
 
 export namespace AccordionRoot {
-  export interface Context extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
-    ownerState: OwnerState;
-    hiddenUntilFound: boolean;
-  }
-
   export interface OwnerState {
     value: useAccordionRoot.Value;
     disabled: boolean;
