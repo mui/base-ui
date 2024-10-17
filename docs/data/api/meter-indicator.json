@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "MeterIndicator",
+  "imports": [
+    "import { Meter } from '@base-ui-components/react/meter';\nconst MeterIndicator = Meter.Indicator;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MeterIndicator",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/react/src/meter/indicator/MeterIndicator.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-meter/\">Meter</a></li></ul>",
+  "cssComponent": false
+}

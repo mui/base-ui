@@ -1,0 +1,38 @@
+---
+productId: base-ui
+title: React Meter components
+description: The Meter component provides a graphical display of a numeric value within a defined range
+components: MeterRoot, MeterTrack, MeterIndicator
+hooks: useMeterRoot, useMeterIndicator
+githubLabel: 'component: meter'
+waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/meter/
+packageName: '@base-ui-components/react'
+---
+
+# Meter
+
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+<Demo demo="MeterIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+<InstallationInstructions componentName="Meter" />
+
+### Anatomy
+
+Meter
+
+- `<Meter.Root />` is a top-level component that wraps the other components.
+- `<Meter.Track />` renders the rail that represents the full range of possible values.
+- `<Meter.Indicator />` renders the filled portion of the track.
+
+```tsx
+<Meter.Root>
+  <Meter.Track>
+    <Meter.Indicator />
+  </Meter.Track>
+</Meter.Root>
+```

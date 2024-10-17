@@ -1,0 +1,149 @@
+.grid {
+  background-color: var(--gray-container-1);
+  font-family: system-ui, sans-serif;
+  display: grid;
+  grid-template-columns: 40rem 40rem;
+  width: 100%;
+}
+
+.demo {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  margin-left: 4rem;
+}
+
+.meter {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  color: var(--gray-text-2);
+  width: 30rem;
+}
+
+.track {
+  position: relative;
+  width: 100%;
+  height: 1.5rem;
+  border-radius: 3px;
+  border: 2px solid currentColor;
+  padding: 2px;
+  display: flex;
+}
+
+.indicator {
+  --red: rgb(255, 59, 48);
+  --yellow: rgb(255, 204, 0);
+  --green: rgb(40, 205, 65);
+
+  position: relative;
+  background-color: var(--gray-text-1);
+  border-radius: 3px;
+  transition: background-color 200ms;
+}
+
+.indicator[data-segment='low'] {
+  background-color: var(--red);
+}
+
+.indicator[data-segment='low'][data-optimum] {
+  background-color: var(--green);
+}
+
+.indicator[data-segment='medium'] {
+  background-color: var(--yellow);
+}
+
+.indicator[data-segment='high'][data-optimum] {
+  background-color: var(--green);
+}
+
+.indicator[data-segment='high'] {
+  background-color: var(--red);
+}
+
+.controls {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  align-items: flex-start;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.label {
+  font-family: monospace;
+  font-weight: 400;
+  font-size: 1rem;
+  cursor: unset;
+  color: var(--gray-text-2);
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--gray-outline-2);
+  border-color: var(--gray-outline-2);
+  overflow: hidden;
+}
+
+.group:focus-within {
+  outline: 2px solid var(--code-4);
+  border-color: var(--code-6);
+}
+
+.input {
+  position: relative;
+  z-index: 10;
+  align-self: stretch;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border: none;
+  background-color: #fff;
+  color: var(--gray-text-2);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  max-width: 150px;
+  font: inherit;
+}
+
+.input:focus {
+  outline: none;
+  z-index: 10;
+}
+
+.button {
+  position: relative;
+  border: none;
+  font-weight: bold;
+  transition-property: background-color, border-color, color;
+  transition-duration: 100ms;
+  padding: 0.5rem 0.75rem;
+  flex: 1;
+  align-self: stretch;
+  font-family: inherit;
+  color: var(--gray-text-1);
+  margin: 0;
+  font-family: math;
+  background-color: var(--gray-container-2);
+}
+
+.button:hover {
+  background-color: var(--gray-surface-1);
+  color: var(--gray-text-2);
+}
+
+.decrement {
+  border-right: 1px solid var(--gray-outline-2);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.increment {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid var(--gray-outline-2);
+}

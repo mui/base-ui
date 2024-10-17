@@ -1,0 +1,40 @@
+{
+  "props": {
+    "value": { "type": { "name": "number" }, "required": true },
+    "aria-label": { "type": { "name": "string" } },
+    "aria-labelledby": { "type": { "name": "string" } },
+    "aria-valuetext": { "type": { "name": "string" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "direction": {
+      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
+      "default": "'ltr'"
+    },
+    "getAriaLabel": {
+      "type": { "name": "func" },
+      "signature": { "type": "function(value: number) => string", "describedArgs": ["value"] }
+    },
+    "getAriaValueText": {
+      "type": { "name": "func" },
+      "signature": { "type": "function(value: number) => string", "describedArgs": ["value"] }
+    },
+    "high": { "type": { "name": "number" }, "default": "100" },
+    "low": { "type": { "name": "number" }, "default": "0" },
+    "max": { "type": { "name": "number" }, "default": "100" },
+    "min": { "type": { "name": "number" }, "default": "0" },
+    "optimum": { "type": { "name": "number" }, "default": "50" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "MeterRoot",
+  "imports": [
+    "import { Meter } from '@base-ui-components/react/meter';\nconst MeterRoot = Meter.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MeterRoot",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/react/src/meter/root/MeterRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-meter/\">Meter</a></li></ul>",
+  "cssComponent": false
+}

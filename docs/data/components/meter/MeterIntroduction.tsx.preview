@@ -1,0 +1,6 @@
+<Meter.Root className={classes.meter} value={60} aria-label="Battery Life">
+  <Meter.Track className={classes.track}>
+    <BoltIcon className={classes.icon} />
+    <Meter.Indicator className={classes.indicator} />
+  </Meter.Track>
+</Meter.Root>
