@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTheme } from '@mui/system';
 import { Slider } from '@base_ui/react/Slider';
 import { Tooltip } from '@base_ui/react/Tooltip';
-import { useSliderRootContext } from '../../../packages/mui-base/src/Slider/Root/SliderRootContext';
+import { useSliderRootContext } from '../../../../packages/mui-base/src/Slider/Root/SliderRootContext';
 
 function useIsDarkMode() {
   const theme = useTheme();
@@ -51,14 +51,19 @@ export default function App() {
                   if (event.buttons !== 1) {
                     setValueLabelOpen(false);
                   } else {
-                    document.addEventListener('pointerup', handleGlobalPointerUp, { once: true });
+                    document.addEventListener('pointerup', handleGlobalPointerUp, {
+                      once: true,
+                    });
                   }
                 }}
               >
                 <Tooltip.Trigger className="SliderTooltip-trigger" />
               </Slider.Thumb>
               <Tooltip.Positioner sideOffset={10} alignment="center">
-                <Tooltip.Popup className="SliderTooltip-popup" data-open={String(valueLabelOpen)}>
+                <Tooltip.Popup
+                  className="SliderTooltip-popup"
+                  data-open={String(valueLabelOpen)}
+                >
                   <Slider.Output />
                   <Tooltip.Arrow className="SliderTooltip-arrow" />
                 </Tooltip.Popup>
@@ -72,7 +77,10 @@ export default function App() {
   );
 }
 
-const SliderMark = React.forwardRef(function SliderMark(props: any, ref: React.ForwardedRef<any>) {
+const SliderMark = React.forwardRef(function SliderMark(
+  props: any,
+  ref: React.ForwardedRef<any>,
+) {
   const { index, style, ...otherProps } = props;
   const { percentageValues } = useSliderRootContext();
   const isFilled = percentageValues[0] >= index * 10;

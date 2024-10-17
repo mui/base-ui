@@ -1,14 +1,20 @@
 import * as React from 'react';
 import { Metadata } from 'next';
 import { components } from 'docs/src/components/content/MDXComponents';
-import { getMarkdownPage, getMarkdownPageMetadata } from 'docs/app/(content)/getMarkdownPage';
+import {
+  getMarkdownPage,
+  getMarkdownPageMetadata,
+} from 'docs/src/app/(content)/getMarkdownPage';
 import { ComponentLinkHeader } from 'docs/src/components/content/ComponentLinkHeader';
 import { Description } from 'docs/src/components/content/Description';
 import { TableOfContents } from 'docs/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs/data/pages';
 import { SiblingPageLinks } from 'docs/src/components/SiblingPageLinks';
 import { EditPageGithubLink } from 'docs/src/components/EditPageGithubLink';
-import { ApiReference, getApiReferenceTableOfContents } from 'docs/src/components/ApiReference';
+import {
+  ApiReference,
+  getApiReferenceTableOfContents,
+} from 'docs/src/components/ApiReference';
 import { DemoLoader, DemoLoaderProps } from 'docs/src/components/demo/DemoLoader';
 import { getApiReferenceData } from './getApiReferenceData';
 import classes from '../../styles.module.css';
@@ -37,7 +43,8 @@ export default async function ComponentPage(props: Props) {
     componentName,
   );
 
-  const documentedComponents = metadata.components?.split(',').map((c: string) => c.trim()) ?? [];
+  const documentedComponents =
+    metadata.components?.split(',').map((c: string) => c.trim()) ?? [];
   const componentsApi = await getApiReferenceData(documentedComponents);
   const apiReferenceToc = getApiReferenceTableOfContents(componentsApi);
 
@@ -53,7 +60,10 @@ export default async function ComponentPage(props: Props) {
     Description: () => <Description text={metadata.description} />,
     // eslint-disable-next-line react/no-unstable-nested-components
     ComponentLinkHeader: () => (
-      <ComponentLinkHeader ariaSpecUrl={metadata.waiAria} githubLabel={metadata.githubLabel} />
+      <ComponentLinkHeader
+        ariaSpecUrl={metadata.waiAria}
+        githubLabel={metadata.githubLabel}
+      />
     ),
   };
 
@@ -67,7 +77,10 @@ export default async function ComponentPage(props: Props) {
             <EditPageGithubLink category={CATEGORY_SEGMENT} slug={componentName} />
           </div>
           <div>
-            <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
+            <SiblingPageLinks
+              currentSlug={`/${CATEGORY_SEGMENT}/${slug}`}
+              pages={routes}
+            />
           </div>
         </div>
       </main>

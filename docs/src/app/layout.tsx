@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Metadata } from 'next';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from './DocsProviders';
-import '../src/styles/style.css';
+import '../styles/style.css';
 
 interface Props {
   children: React.ReactNode;
@@ -15,7 +15,11 @@ export default function Layout({ children }: Props) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <link rel="manifest" href="/static/manifest.json" />
         <link rel="shortcut icon" href="/static/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/180x180.png" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/static/icons/180x180.png"
+        />
       </head>
       <body>
         <DocsProviders>

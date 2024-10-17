@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { useAnchorPositioning } from '../../../packages/mui-base/src/utils/useAnchorPositioning';
+import { useAnchorPositioning } from '../../../../packages/mui-base/src/utils/useAnchorPositioning';
 
 const oppositeSideMap = {
   top: 'bottom',
@@ -17,31 +17,40 @@ export default function AnchorPositioning() {
   const [popupSize, setPopupSize] = React.useState<Size>('xs');
   const [anchorSize, setAnchorSize] = React.useState<Size>('m');
   const [side, setSide] = React.useState<'top' | 'bottom' | 'left' | 'right'>('top');
-  const [alignment, setAlignment] = React.useState<'start' | 'center' | 'end'>('center');
+  const [alignment, setAlignment] = React.useState<'start' | 'center' | 'end'>(
+    'center',
+  );
   const [sideOffset, setSideOffset] = React.useState(0);
   const [alignmentOffset, setAlignmentOffset] = React.useState(0);
   const [collisionPadding, setCollisionPadding] = React.useState(5);
   const [arrowPadding, setArrowPadding] = React.useState(5);
   const [hideWhenDetached, setHideWhenDetached] = React.useState(false);
   const [arrow, setArrow] = React.useState(true);
-  const [hideArrowWhenUncentered, setHideArrowWhenUncentered] = React.useState(false);
+  const [hideArrowWhenUncentered, setHideArrowWhenUncentered] =
+    React.useState(false);
   const [sticky, setSticky] = React.useState(false);
   const [constrainSize, setConstrainSize] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
   const [trackAnchor, setTrackAnchor] = React.useState(true);
 
-  const { refs, positionerStyles, arrowStyles, arrowRef, renderedSide, arrowUncentered } =
-    useAnchorPositioning({
-      side,
-      alignment,
-      sideOffset,
-      alignmentOffset,
-      collisionPadding,
-      hideWhenDetached,
-      sticky,
-      arrowPadding,
-      trackAnchor,
-    });
+  const {
+    refs,
+    positionerStyles,
+    arrowStyles,
+    arrowRef,
+    renderedSide,
+    arrowUncentered,
+  } = useAnchorPositioning({
+    side,
+    alignment,
+    sideOffset,
+    alignmentOffset,
+    collisionPadding,
+    hideWhenDetached,
+    sticky,
+    arrowPadding,
+    trackAnchor,
+  });
 
   const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -98,14 +107,17 @@ export default function AnchorPositioning() {
             width: 20,
             height: 20,
             [oppositeSideMap[renderedSide]]: -10,
-            ...(arrowUncentered && hideArrowWhenUncentered && { visibility: 'hidden' }),
+            ...(arrowUncentered &&
+              hideArrowWhenUncentered && { visibility: 'hidden' }),
           }}
         />
       )}
     </div>
   );
 
-  const popupNode = trackAnchor ? popup : ReactDOM.createPortal(popup, document.body);
+  const popupNode = trackAnchor
+    ? popup
+    : ReactDOM.createPortal(popup, document.body);
 
   return (
     <div style={{ fontFamily: 'sans-serif', margin: 50 }}>
@@ -178,7 +190,12 @@ export default function AnchorPositioning() {
             <legend>Side</legend>
             {(['top', 'bottom', 'left', 'right'] as const).map((s) => (
               <label key={s}>
-                <input name="side" type="radio" checked={s === side} onChange={() => setSide(s)} />
+                <input
+                  name="side"
+                  type="radio"
+                  checked={s === side}
+                  onChange={() => setSide(s)}
+                />
                 {s}
               </label>
             ))}
@@ -266,7 +283,11 @@ export default function AnchorPositioning() {
           </label>
 
           <label>
-            <input type="checkbox" checked={arrow} onChange={() => setArrow((prev) => !prev)} />
+            <input
+              type="checkbox"
+              checked={arrow}
+              onChange={() => setArrow((prev) => !prev)}
+            />
             Arrow
           </label>
 
@@ -280,7 +301,11 @@ export default function AnchorPositioning() {
           </label>
 
           <label>
-            <input type="checkbox" checked={sticky} onChange={() => setSticky((prev) => !prev)} />
+            <input
+              type="checkbox"
+              checked={sticky}
+              onChange={() => setSticky((prev) => !prev)}
+            />
             Sticky
           </label>
 

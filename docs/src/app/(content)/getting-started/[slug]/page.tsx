@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { Metadata } from 'next';
 import { components } from 'docs/src/components/content/MDXComponents';
-import { getMarkdownPage, getMarkdownPageMetadata } from 'docs/app/(content)/getMarkdownPage';
+import {
+  getMarkdownPage,
+  getMarkdownPageMetadata,
+} from 'docs/src/app/(content)/getMarkdownPage';
 import { TableOfContents } from 'docs/src/components/TableOfContents';
 import routes, { getSlugs } from 'docs/data/pages';
 import { Description } from 'docs/src/components/content/Description';
@@ -9,7 +12,7 @@ import { SiblingPageLinks } from 'docs/src/components/SiblingPageLinks';
 import { EditPageGithubLink } from 'docs/src/components/EditPageGithubLink';
 import classes from '../../styles.module.css';
 
-const CATEGORY_SEGMENT = 'guides';
+const CATEGORY_SEGMENT = 'getting-started';
 
 interface Props {
   params: {
@@ -22,7 +25,10 @@ export default async function DocsPage(props: Props) {
     params: { slug },
   } = props;
 
-  const { MDXContent, tableOfContents, metadata } = await getMarkdownPage(CATEGORY_SEGMENT, slug);
+  const { MDXContent, tableOfContents, metadata } = await getMarkdownPage(
+    CATEGORY_SEGMENT,
+    slug,
+  );
 
   const allComponents = {
     ...components,
@@ -40,7 +46,10 @@ export default async function DocsPage(props: Props) {
             <EditPageGithubLink category={CATEGORY_SEGMENT} slug={slug} />
           </div>
           <div>
-            <SiblingPageLinks currentSlug={`/${CATEGORY_SEGMENT}/${slug}`} pages={routes} />
+            <SiblingPageLinks
+              currentSlug={`/${CATEGORY_SEGMENT}/${slug}`}
+              pages={routes}
+            />
           </div>
         </div>
       </main>
@@ -56,7 +65,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
-  const { title = 'Guides', description } = await getMarkdownPageMetadata(CATEGORY_SEGMENT, slug);
+  const { title = 'Getting started', description } = await getMarkdownPageMetadata(
+    CATEGORY_SEGMENT,
+    slug,
+  );
 
   return {
     title,

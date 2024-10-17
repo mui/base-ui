@@ -6,7 +6,9 @@ import classes from './experiments.module.css';
 
 export default async function Experiments() {
   /* @ts-ignore */
-  const allExperiments = (await readdir('app/experiments', { withFileTypes: true }))
+  const allExperiments = (
+    await readdir('src/app/experiments', { withFileTypes: true })
+  )
     .filter(
       (entry: Dirent) =>
         entry.name.endsWith('.tsx') &&
