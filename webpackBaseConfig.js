@@ -14,7 +14,7 @@ module.exports = {
         __dirname,
         './node_modules/@mui/monorepo/packages/api-docs-builder',
       ),
-      'docs': path.resolve(__dirname, './docs'),
+      docs: path.resolve(__dirname, './docs'),
     },
     extensions: ['.js', '.ts', '.tsx', '.d.ts'],
   },
