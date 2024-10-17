@@ -72,7 +72,7 @@
   margin: 12px auto 12px 0;
 }
 
-.trigger[data-open] svg {
+.trigger[data-panel-open] svg {
   transform: rotate(180deg);
 }
 

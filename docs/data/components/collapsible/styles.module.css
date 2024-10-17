@@ -9,7 +9,7 @@
   transform: rotate(-90deg);
 }
 
-.trigger[data-open] .icon {
+.trigger[data-panel-open] .icon {
   transform: rotate(0);
 }
 
