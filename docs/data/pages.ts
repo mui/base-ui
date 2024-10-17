@@ -22,6 +22,7 @@ const pages: readonly RouteMetadata[] = [
     pathname: '/components',
     title: 'Components',
     children: [
+      { pathname: '/components/react-accordion', title: 'Accordion' },
       { pathname: '/components/react-alert-dialog', title: 'Alert Dialog' },
       { pathname: '/components/react-checkbox', title: 'Checkbox' },
       { pathname: '/components/react-checkbox-group', title: 'Checkbox Group' },

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useCollapsibleContext } from '../Root/CollapsibleRootContext';
+import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../Root/CollapsibleRoot';
-import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 /**
@@ -24,12 +24,13 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { contentId, open, setOpen, ownerState } = useCollapsibleContext();
+  const { panelId, open, setOpen, ownerState } = useCollapsibleRootContext();
 
   const { getRootProps } = useCollapsibleTrigger({
-    contentId,
+    panelId,
     open,
     setOpen,
+    rootRef: forwardedRef,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -37,13 +38,14 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     render: render ?? 'button',
     ownerState,
     className,
-    ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();
 });
+
+export { CollapsibleTrigger };
 
 namespace CollapsibleTrigger {
   export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.OwnerState> {}
@@ -67,5 +69,3 @@ CollapsibleTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { CollapsibleTrigger };

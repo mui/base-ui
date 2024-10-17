@@ -81,13 +81,13 @@
     height: 0;
   }
   to {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
   to {
     height: 0;
@@ -96,12 +96,9 @@
 
 .collapsible {
   overflow: hidden;
+  animation: slideUp 200ms ease-in;
 
-  &[data-state='open'] {
+  &[data-open] {
     animation: slideDown 200ms ease-out;
-  }
-
-  &[data-state='closed'] {
-    animation: slideUp 200ms ease-in;
   }
 }
