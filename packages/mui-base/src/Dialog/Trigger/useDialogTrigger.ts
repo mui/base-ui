@@ -6,16 +6,16 @@ import { PointerType, useEnhancedClickHandler } from '../../utils/useEnhancedCli
 export function useDialogTrigger(
   params: useDialogTrigger.Parameters,
 ): useDialogTrigger.ReturnValue {
-  const { open, onOpenChange, popupElementId, fireTriggerClick } = params;
+  const { open, onOpenChange, popupElementId, onTriggerClick } = params;
 
   const handleClick = React.useCallback(
     (event: React.MouseEvent, pointerType: PointerType) => {
       if (!open) {
-        fireTriggerClick?.(event, pointerType);
+        onTriggerClick?.(event, pointerType);
         onOpenChange?.(true, event.nativeEvent);
       }
     },
-    [open, onOpenChange, fireTriggerClick],
+    [open, onOpenChange, onTriggerClick],
   );
 
   const { onClick, onPointerDown } = useEnhancedClickHandler(handleClick);
@@ -49,7 +49,7 @@ namespace useDialogTrigger {
      * Callback to fire when the dialog is requested to be opened or closed.
      */
     onOpenChange: (open: boolean, event: Event) => void;
-    fireTriggerClick?: (
+    onTriggerClick?: (
       event: React.MouseEvent | React.PointerEvent,
       pointerType: PointerType,
     ) => void;

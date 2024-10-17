@@ -8,10 +8,10 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { PointerType } from '../../utils/useEnhancedClickHandler';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
   ...baseMapping,

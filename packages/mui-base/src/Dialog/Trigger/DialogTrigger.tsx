@@ -22,18 +22,12 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const {
-    open,
-    onOpenChange,
-    onTriggerClick: fireTriggerClick,
-    modal,
-    popupElementId,
-  } = useDialogRootContext();
+  const { open, onOpenChange, onTriggerClick, modal, popupElementId } = useDialogRootContext();
 
   const { getRootProps } = useDialogTrigger({
     open,
     onOpenChange,
-    fireTriggerClick,
+    onTriggerClick,
     popupElementId,
   });
 
