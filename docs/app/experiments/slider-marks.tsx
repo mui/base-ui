@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Slider } from '@base_ui/react/Slider';
-import { useSliderContext } from '../../../packages/mui-base/src/Slider/Root/SliderContext';
+import { useSliderRootContext } from '../../../packages/mui-base/src/Slider/Root/SliderRootContext';
 
 const STOPS = [
   {
@@ -33,7 +33,7 @@ function getSliderThumbAriaValueText(value: number) {
 // for "inverted track", the track/rail can be styled with CSS but a prop is needed to flip the "mark active" state
 function MarkWithLabel(props: { index: number; value: number; label: string; inverted?: boolean }) {
   const { index, value, label, inverted = false } = props;
-  const { direction, values } = useSliderContext();
+  const { direction, values } = useSliderRootContext();
   const isRtl = direction === 'rtl';
   const isFilled = inverted ? value >= values[0] : values[0] >= value;
   return (

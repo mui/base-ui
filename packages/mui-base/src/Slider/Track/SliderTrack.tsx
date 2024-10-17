@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderRootContext } from '../Root/SliderRootContext';
 import type { SliderRoot } from '../Root/SliderRoot';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 /**
@@ -22,7 +22,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { ownerState } = useSliderContext();
+  const { ownerState } = useSliderRootContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',

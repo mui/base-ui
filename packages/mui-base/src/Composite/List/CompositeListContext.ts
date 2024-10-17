@@ -16,6 +16,10 @@ export const CompositeListContext = React.createContext<CompositeListContextValu
   elementsRef: { current: [] },
 });
 
+if (process.env.NODE_ENV !== 'production') {
+  CompositeListContext.displayName = 'CompositeListContext';
+}
+
 export function useCompositeListContext() {
   return React.useContext(CompositeListContext);
 }

@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderRootContext } from '../Root/SliderRootContext';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderIndicator } from './useSliderIndicator';
@@ -24,7 +24,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   const { render, className, ...otherProps } = props;
 
   const { axis, direction, disabled, orientation, ownerState, percentageValues } =
-    useSliderContext();
+    useSliderRootContext();
 
   const { getRootProps } = useSliderIndicator({
     axis,
