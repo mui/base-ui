@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { ProgressDirection } from '../Root/useProgressRoot';
+import { MeterDirection } from '../Root/useMeterRoot';
 
-function useProgressIndicator(
-  parameters: useProgressIndicator.Parameters,
-): useProgressIndicator.ReturnValue {
+function useMeterIndicator(
+  parameters: useMeterIndicator.Parameters,
+): useMeterIndicator.ReturnValue {
   const { direction, max = 100, min = 0, value } = parameters;
 
   const isRtl = direction === 'rtl';
@@ -21,12 +21,11 @@ function useProgressIndicator(
 
     return {
       [isRtl ? 'right' : 'left']: 0,
-      height: 'inherit',
       width: `${percentageValue}%`,
     };
   }, [isRtl, percentageValue]);
 
-  const getRootProps: useProgressIndicator.ReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps: useMeterIndicator.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'span'>(externalProps, {
         style: getStyles(),
@@ -39,13 +38,13 @@ function useProgressIndicator(
   };
 }
 
-namespace useProgressIndicator {
+namespace useMeterIndicator {
   export interface Parameters {
     /**
-     * The direction that progress bars fill in
+     * The direction that the meter fills towards
      * @default 'ltr'
      */
-    direction?: ProgressDirection;
+    direction?: MeterDirection;
     /**
      * The maximum value
      * @default 100
@@ -57,7 +56,7 @@ namespace useProgressIndicator {
      */
     min?: number;
     /**
-     * The current value. The component is indeterminate when value is `null`.
+     * The current value.
      */
     value: number | null;
   }
@@ -69,4 +68,4 @@ namespace useProgressIndicator {
   }
 }
 
-export { useProgressIndicator };
+export { useMeterIndicator };
