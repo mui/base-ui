@@ -9,6 +9,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { MAX_Z_INDEX } from '../../utils/constants';
 import { getInertValue } from '../../utils/getInertValue';
 
 export function usePopoverPositioner(
@@ -43,7 +44,7 @@ export function usePopoverPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            zIndex: 2147483647, // max z-index
+            zIndex: MAX_Z_INDEX,
           },
         });
       },
