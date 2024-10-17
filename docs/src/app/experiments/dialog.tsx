@@ -128,6 +128,7 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ReactSpringDialogDemo({
+  // @ts-ignore
   animated,
   keepMounted,
   modal,
