@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderRootContext } from '../Root/SliderRootContext';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
 import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderControl } from './useSliderControl';
@@ -39,7 +39,7 @@ const SliderControl = React.forwardRef(function SliderControl(
     setValueState,
     step,
     thumbRefs,
-  } = useSliderContext();
+  } = useSliderRootContext();
 
   const { getRootProps } = useSliderControl({
     areValuesEqual,

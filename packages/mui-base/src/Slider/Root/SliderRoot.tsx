@@ -7,8 +7,9 @@ import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
-import { SliderContext } from './SliderContext';
+import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+
 /**
  *
  * Demos:
@@ -104,18 +105,13 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   });
 
   return (
-    <SliderContext.Provider value={contextValue}>
+    <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={slider.thumbRefs}>{renderElement()}</CompositeList>
-    </SliderContext.Provider>
+    </SliderRootContext.Provider>
   );
 });
 
 export namespace SliderRoot {
-  export interface Context
-    extends Omit<useSliderRoot.ReturnValue, 'compoundComponentContextValue' | 'getRootProps'> {
-    ownerState: OwnerState;
-  }
-
   export interface OwnerState extends FieldRoot.OwnerState {
     /**
      * The index of the active thumb.
