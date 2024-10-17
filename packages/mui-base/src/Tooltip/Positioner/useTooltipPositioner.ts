@@ -3,11 +3,14 @@ import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@fl
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
   const { open = false, keepMounted = false, trackCursorAxis = 'none' } = params;
+
+  const { triggerElement } = useTooltipRootContext();
 
   const {
     positionerStyles,
@@ -17,7 +20,10 @@ export function useTooltipPositioner(
     arrowUncentered,
     renderedSide,
     renderedAlignment,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({
+    ...params,
+    triggerElement,
+  });
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(

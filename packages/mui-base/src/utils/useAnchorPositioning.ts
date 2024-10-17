@@ -47,6 +47,7 @@ interface UseAnchorPositioningParameters {
   mounted?: boolean;
   trackAnchor?: boolean;
   nodeId?: string;
+  triggerElement?: Element | null;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -86,6 +87,7 @@ export function useAnchorPositioning(
     arrowPadding = 5,
     mounted = true,
     trackAnchor = true,
+    triggerElement,
     nodeId,
   } = params;
 
@@ -210,10 +212,12 @@ export function useAnchorPositioning(
 
     if (resolvedAnchor) {
       const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
-      refs.setPositionReference(unwrappedElement);
-      registeredPositionReferenceRef.current = unwrappedElement;
+      if (unwrappedElement !== triggerElement) {
+        refs.setPositionReference(unwrappedElement);
+        registeredPositionReferenceRef.current = unwrappedElement;
+      }
     }
-  }, [refs, anchor]);
+  }, [refs, anchor, triggerElement]);
 
   React.useEffect(() => {
     // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
