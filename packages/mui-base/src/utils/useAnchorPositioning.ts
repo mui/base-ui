@@ -102,6 +102,7 @@ export function useAnchorPositioning(
     innerOptions = {},
   } = params;
 
+  // If `false`, aligns the option to the trigger instead. Inverse of `alignOptionToTrigger`.
   const alignPopupToTrigger =
     innerOptions.touchModality || !(!innerOptions.fallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
