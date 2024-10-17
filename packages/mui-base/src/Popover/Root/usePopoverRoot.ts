@@ -25,7 +25,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
     keepMounted = false,
-    delayType = 'rest',
     delay,
     closeDelay,
     openOnHover = false,
@@ -96,12 +95,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   });
 
-  const computedRestMs = delayType === 'rest' ? delayWithDefault : undefined;
-  let computedOpenDelay: number | undefined = delayType === 'hover' ? delayWithDefault : undefined;
-
-  if (delayType === 'hover') {
-    computedOpenDelay = delay == null ? delayWithDefault : delay;
-  }
+  const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
     enabled: openOnHover,
@@ -110,7 +104,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     handleClose: safePolygon(),
     restMs: computedRestMs,
     delay: {
-      open: computedOpenDelay,
       close: closeDelayWithDefault,
     },
   });
@@ -191,14 +184,6 @@ export namespace usePopoverRoot {
      * @default 0
      */
     closeDelay?: number;
-    /**
-     * The delay type to use when `openOnHover` is `true`. `rest` means the `delay` represents how
-     * long the user's cursor must rest on the trigger before the popover popup is opened. `hover`
-     * means the `delay` represents how long to wait as soon as the user's cursor has entered the
-     * trigger.
-     * @default 'rest'
-     */
-    delayType?: 'rest' | 'hover';
     /**
      * Whether the popover popup element stays mounted in the DOM when closed.
      * @default false

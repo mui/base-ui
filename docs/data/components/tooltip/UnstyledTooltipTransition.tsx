@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Tooltip from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base_ui/react/Tooltip';
 import { styled } from '@mui/system';
 
 export default function UnstyledTooltipTransition() {
@@ -36,7 +36,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     transform: scale(0.9);
     transform-origin: var(--transform-origin);
 
-    &[data-state='open'] {
+    &[data-open] {
       opacity: 1;
       transform: scale(1);
     }
@@ -62,7 +62,7 @@ export const AnchorButton = styled(Tooltip.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-popup-open] {
     background: ${blue[800]};
   }
 `;

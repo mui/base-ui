@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as BaseDialog from '@base_ui/react/Dialog';
+import { Dialog as BaseDialog } from '@base_ui/react/Dialog';
 import { styled } from '@mui/system';
 
 export default function NestedDialogs() {
@@ -72,7 +72,7 @@ const Popup = styled(BaseDialog.Popup)(
     opacity var(--transition-duration) ease-in,
     visibility var(--transition-duration) step-end;
 
-  &[data-state='open'] {
+  &[data-open] {
     @starting-style {
       & {
         transform: translate(-50%, -35%) scale(0.8) translateY(0);
@@ -140,7 +140,7 @@ const Backdrop = styled(BaseDialog.Backdrop)`
   transition-duration: 250ms;
   transition-timing-function: ease-in;
 
-  &[data-state='open'] {
+  &[data-open] {
     backdrop-filter: blur(6px);
     opacity: 1;
     transition-timing-function: ease-out;

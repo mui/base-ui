@@ -152,7 +152,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 }
 
 /* Represents the final styles once entered */
-.DialogPopup[data-state='open'] {
+.DialogPopup[data-open] {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
@@ -183,7 +183,7 @@ In newer browsers, there is a feature called `@starting-style` which allows tran
 
 /* Official Browser API - no Firefox support as of May 2024 */
 @starting-style {
-  .DialogPopup[data-state='open'] {
+  .DialogPopup[data-open] {
     opacity: 0;
     transform: translate(-50%, -35%) scale(0.8);
   }

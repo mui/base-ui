@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Tooltip from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base_ui/react/Tooltip';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -317,32 +317,6 @@ describe('<Tooltip.Root />', () => {
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      clock.tick(100);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should open after delay with hover type', async () => {
-      await render(
-        <Root delayType="hover">
-          <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-      clock.tick(OPEN_DELAY - 100);
 
       await flushMicrotasks();
 

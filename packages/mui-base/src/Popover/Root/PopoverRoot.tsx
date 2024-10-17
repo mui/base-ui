@@ -16,8 +16,8 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * - [PopoverRoot API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverRoot)
  */
-function PopoverRoot(props: PopoverRoot.Props) {
-  const { openOnHover = false, delayType = 'rest', delay, closeDelay = 0, animated = true } = props;
+const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
+  const { openOnHover = false, delay, closeDelay = 0, animated = true } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
@@ -43,7 +43,6 @@ function PopoverRoot(props: PopoverRoot.Props) {
   } = usePopoverRoot({
     openOnHover,
     delay: delayWithDefault,
-    delayType,
     closeDelay,
     animated,
     open: props.open,
@@ -55,7 +54,6 @@ function PopoverRoot(props: PopoverRoot.Props) {
     () => ({
       openOnHover,
       delay: delayWithDefault,
-      delayType,
       closeDelay,
       open,
       setOpen,
@@ -79,7 +77,6 @@ function PopoverRoot(props: PopoverRoot.Props) {
     [
       openOnHover,
       delayWithDefault,
-      delayType,
       closeDelay,
       open,
       setOpen,
@@ -105,7 +102,7 @@ function PopoverRoot(props: PopoverRoot.Props) {
   return (
     <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
   );
-}
+};
 
 namespace PopoverRoot {
   export interface OwnerState {}
@@ -145,14 +142,6 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
-  /**
-   * The delay type to use when `openOnHover` is `true`. `rest` means the `delay` represents how
-   * long the user's cursor must rest on the trigger before the popover popup is opened. `hover`
-   * means the `delay` represents how long to wait as soon as the user's cursor has entered the
-   * trigger.
-   * @default 'rest'
-   */
-  delayType: PropTypes.oneOf(['hover', 'rest']),
   /**
    * Callback fired when the popover popup is requested to be opened or closed. Use when
    * controlled.

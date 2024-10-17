@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import * as BaseCheckbox from '@base_ui/react/Checkbox';
-import * as CheckboxGroup from '@base_ui/react/CheckboxGroup';
-import * as Field from '@base_ui/react/Field';
+import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
+import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';
+import { Field } from '@base_ui/react/Field';
 
 function classNames(...classes: Array<string | undefined | null | false>) {
   return classes.filter(Boolean).join(' ');
@@ -19,7 +19,7 @@ function Label(props: React.ComponentPropsWithoutRef<'label'>) {
     // eslint-disable-next-line jsx-a11y/label-has-associated-control, jsx-a11y/no-noninteractive-element-interactions
     <label
       className="flex gap-2 mb-2"
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={(event) => event.preventDefault()}
       {...props}
     />
   );
@@ -99,7 +99,7 @@ const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.Indicator.Props
         ref={ref}
         className={(state) =>
           classNames(
-            'h-full inline-block invisible data-[state=checked]:visible text-gray-100',
+            'h-full inline-block invisible data-[checked]:visible text-gray-100',
             typeof props.className === 'function'
               ? props.className(state)
               : props.className,

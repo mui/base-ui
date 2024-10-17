@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as BaseCheckbox from '@base_ui/react/Checkbox';
+import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes: Array<string | undefined | null | false>) {
@@ -71,7 +71,7 @@ const Indicator = React.forwardRef<HTMLSpanElement, BaseCheckbox.Indicator.Props
         ref={ref}
         className={(state) =>
           classNames(
-            'h-full inline-block invisible data-[state=checked]:visible text-gray-100',
+            'h-full inline-block invisible data-[checked]:visible text-gray-100',
             typeof props.className === 'function'
               ? props.className(state)
               : props.className,

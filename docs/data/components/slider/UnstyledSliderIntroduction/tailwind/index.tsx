@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import * as BaseSlider from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base_ui/react/Slider';
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {
   return classes.filter(Boolean).join(' ');
@@ -22,7 +22,9 @@ export default function UnstyledSliderIntroduction() {
       style={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
     >
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
-        <Label id="VolumeSliderLabel">Volume</Label>
+        <Label id="VolumeSliderLabel" htmlFor=":slider-thumb-input:">
+          Volume
+        </Label>
         <SliderOutput />
         <SliderControl>
           <SliderTrack>
@@ -36,7 +38,7 @@ export default function UnstyledSliderIntroduction() {
 }
 
 const Slider = React.forwardRef(function Slider(
-  props: BaseSlider.RootProps,
+  props: BaseSlider.Root.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -45,7 +47,7 @@ const Slider = React.forwardRef(function Slider(
       ref={ref}
       className={(state) =>
         classNames(
-          'relative w-full items-center grid grid-cols-2 gap-4',
+          'font-sans relative w-full items-center grid grid-cols-2 gap-4',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -56,7 +58,7 @@ const Slider = React.forwardRef(function Slider(
 });
 
 const SliderOutput = React.forwardRef(function SliderOutput(
-  props: BaseSlider.OutputProps,
+  props: BaseSlider.Output.Props,
   ref: React.ForwardedRef<HTMLOutputElement>,
 ) {
   return (
@@ -76,7 +78,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 });
 
 const SliderControl = React.forwardRef(function SliderControl(
-  props: BaseSlider.ControlProps,
+  props: BaseSlider.Control.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
@@ -97,7 +99,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 });
 
 const SliderTrack = React.forwardRef(function SliderTrack(
-  props: BaseSlider.TrackProps,
+  props: BaseSlider.Track.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -117,7 +119,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 });
 
 const SliderThumb = React.forwardRef(function SliderThumb(
-  props: BaseSlider.ThumbProps,
+  props: BaseSlider.Thumb.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -139,7 +141,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 const SliderIndicator = React.forwardRef(function SliderIndicator(
-  props: BaseSlider.IndicatorProps,
+  props: BaseSlider.Indicator.Props,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
   return (
@@ -158,22 +160,8 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   );
 });
 
-function Label(props: React.HTMLAttributes<HTMLLabelElement>) {
-  const { id, ...otherProps } = props;
-  const { subitems, disabled } = BaseSlider.useSliderContext();
+function Label(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
+  const { id, htmlFor, ...otherProps } = props;
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
-
-  return (
-    <label
-      id={id}
-      htmlFor={htmlFor}
-      className={classNames('font-bold', disabled && 'text-gray-500')}
-      {...otherProps}
-    />
-  );
+  return <label id={id} htmlFor={htmlFor} className="font-bold" {...otherProps} />;
 }

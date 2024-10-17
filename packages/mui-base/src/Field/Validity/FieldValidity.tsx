@@ -16,7 +16,8 @@ import { FieldValidityData } from '../Root/FieldRoot';
  *
  * - [FieldValidity API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldValidity)
  */
-function FieldValidity(props: FieldValidity.Props) {
+const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
+  const { children } = props;
   const { validityData, invalid } = useFieldRootContext(false);
 
   const fieldValidityState: FieldValidityState = React.useMemo(() => {
@@ -27,8 +28,8 @@ function FieldValidity(props: FieldValidity.Props) {
     };
   }, [validityData, invalid]);
 
-  return <React.Fragment>{props.children(fieldValidityState)}</React.Fragment>;
-}
+  return <React.Fragment>{children(fieldValidityState)}</React.Fragment>;
+};
 
 export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
   validity: FieldValidityData['state'];

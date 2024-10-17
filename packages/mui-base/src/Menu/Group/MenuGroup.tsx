@@ -1,10 +1,11 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { MenuGroupContext } from './MenuGroupContext';
 
-const EMPTY_OBJECT = {};
+const ownerState = {};
 
 /**
  *
@@ -23,12 +24,13 @@ const MenuGroup = React.forwardRef(function MenuGroup(
   const { render, className, ...other } = props;
 
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+
   const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState: EMPTY_OBJECT,
+    ownerState,
     extraProps: {
       role: 'group',
       'aria-labelledby': labelId,

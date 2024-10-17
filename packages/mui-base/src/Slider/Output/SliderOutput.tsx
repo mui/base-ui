@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderContext } from '../Root/SliderProvider';
+import { useSliderContext } from '../Root/SliderContext';
 import { sliderStyleHookMapping } from '../Root/styleHooks';
-import { SliderOutputProps } from './SliderOutput.types';
+import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
-
 /**
  *
  * Demos:
@@ -18,15 +18,15 @@ import { useSliderOutput } from './useSliderOutput';
  * - [SliderOutput API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderOutput)
  */
 const SliderOutput = React.forwardRef(function SliderOutput(
-  props: SliderOutputProps,
+  props: SliderOutput.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { ownerState, subitems, values } = useSliderContext();
+  const { inputIdMap, ownerState, values } = useSliderContext();
 
   const { getRootProps } = useSliderOutput({
-    subitems,
+    inputIdMap,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -44,6 +44,12 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 
   return renderElement();
 });
+
+export namespace SliderOutput {
+  export interface Props extends BaseUIComponentProps<'output', SliderRoot.OwnerState> {}
+}
+
+export { SliderOutput };
 
 SliderOutput.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -63,5 +69,3 @@ SliderOutput.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SliderOutput };

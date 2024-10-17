@@ -1,5 +1,5 @@
 {
-  "componentDescription": "",
+  "componentDescription": "An unstyled checkbox menu item to be used within a Menu.",
   "propDescriptions": {
     "closeOnClick": {
       "description": "If <code>true</code>, the menu will close when the menu item is clicked."

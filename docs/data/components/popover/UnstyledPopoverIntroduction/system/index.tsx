@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Popover from '@base_ui/react/Popover';
+import { Popover } from '@base_ui/react/Popover';
 import { styled } from '@mui/system';
 
 export default function UnstyledPopoverIntroduction() {
@@ -58,7 +58,7 @@ export const AnchorButton = styled(Popover.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-popup-open] {
     background: ${blue[800]};
   }
 `;

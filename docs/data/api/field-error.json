@@ -11,7 +11,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "FieldError",
-  "imports": ["import * as Field from '@base_ui/react/Field';\nconst FieldError = Field.Error;"],
+  "imports": ["import { Field } from '@base_ui/react/Field';\nconst FieldError = Field.Error;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

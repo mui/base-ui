@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { act } from '@mui/internal-test-utils';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { MenuRootContext } from '../Root/MenuRootContext';
 
@@ -91,7 +91,7 @@ describe('<Menu.Trigger />', () => {
     const menuPopup = queryByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
 
-    expect(menuPopup).to.have.attribute('data-menu', 'open');
+    expect(menuPopup).to.have.attribute('data-open', '');
   });
 
   describe('keyboard navigation', () => {

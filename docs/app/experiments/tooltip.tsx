@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Tooltip from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base_ui/react/Tooltip';
 import { styled, keyframes } from '@mui/system';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,7 +40,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   }
 
   &[data-type='css-animation'] {
-    &[data-state='open'] {
+    &[data-open] {
       visibility: visible;
       animation: ${scaleIn} 0.2s forwards;
     }
@@ -53,7 +53,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   &[data-type='css-animation-keep-mounted'] {
     visibility: hidden;
 
-    &[data-state='open'] {
+    &[data-open] {
       visibility: visible;
       animation: ${scaleIn} 0.2s forwards;
     }
@@ -70,7 +70,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     opacity: 0;
     transform: scale(0);
 
-    &[data-state='open'] {
+    &[data-open] {
       opacity: 1;
       transform: scale(1);
     }
@@ -88,7 +88,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     transform: scale(0.8);
     visibility: hidden;
 
-    &[data-state='open'] {
+    &[data-open] {
       opacity: 1;
       transform: scale(1);
       visibility: visible;
@@ -106,13 +106,13 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     opacity: 0;
     transform: scale(0);
 
-    &[data-state='open'] {
+    &[data-open] {
       opacity: 1;
       transform: scale(1);
     }
 
     @starting-style {
-      &[data-state='open'] {
+      &[data-open] {
         opacity: 0;
         transform: scale(0.8);
       }
@@ -134,7 +134,7 @@ export const AnchorButton = styled(Tooltip.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-popup-open] {
     background: ${blue[800]};
   }
 `;

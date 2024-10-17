@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Tooltip from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base_ui/react/Tooltip';
 import { styled } from '@mui/system';
 
 export default function UnstyledTooltipDelayGroup() {
@@ -55,7 +55,7 @@ export const AnchorButton = styled(Tooltip.Trigger)`
   }
 
   &:hover,
-  &[data-state='open'] {
+  &[data-popup-open] {
     background: ${blue[800]};
   }
 `;

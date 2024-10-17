@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import * as Slider from '@base_ui/react/Slider';
+import { Slider } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
-import type { SliderRootProps } from './SliderRoot.types';
+import type { SliderRoot } from './SliderRoot';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
@@ -32,7 +32,7 @@ function createTouches(touches: Touches) {
   };
 }
 
-function TestSlider(props: SliderRootProps) {
+function TestSlider(props: SliderRoot.Props) {
   return (
     <Slider.Root data-testid="root" {...props}>
       <Slider.Output data-testid="output" />
@@ -46,7 +46,7 @@ function TestSlider(props: SliderRootProps) {
   );
 }
 
-function TestRangeSlider(props: SliderRootProps) {
+function TestRangeSlider(props: SliderRoot.Props) {
   return (
     <Slider.Root data-testid="root" {...props}>
       <Slider.Output data-testid="output" />

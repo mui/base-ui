@@ -16,15 +16,8 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * - [TooltipRoot API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipRoot)
  */
-function TooltipRoot(props: TooltipRoot.Props) {
-  const {
-    delayType = 'rest',
-    delay,
-    closeDelay,
-    hoverable = true,
-    animated = true,
-    trackCursorAxis = 'none',
-  } = props;
+const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
+  const { delay, closeDelay, hoverable = true, animated = true, trackCursorAxis = 'none' } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
@@ -49,7 +42,6 @@ function TooltipRoot(props: TooltipRoot.Props) {
     animated,
     trackCursorAxis,
     delay,
-    delayType,
     closeDelay,
     open: props.open,
     onOpenChange: props.onOpenChange,
@@ -59,7 +51,6 @@ function TooltipRoot(props: TooltipRoot.Props) {
   const contextValue = React.useMemo(
     () => ({
       delay: delayWithDefault,
-      delayType,
       closeDelay: closeDelayWithDefault,
       open,
       setOpen,
@@ -79,7 +70,6 @@ function TooltipRoot(props: TooltipRoot.Props) {
     }),
     [
       delayWithDefault,
-      delayType,
       closeDelayWithDefault,
       open,
       setOpen,
@@ -102,7 +92,7 @@ function TooltipRoot(props: TooltipRoot.Props) {
   return (
     <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
   );
-}
+};
 
 namespace TooltipRoot {
   export interface OwnerState {}
@@ -142,13 +132,6 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    * @default 600
    */
   delay: PropTypes.number,
-  /**
-   * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-   * rest on the trigger before the tooltip popup is opened. `hover` means the `delay` represents
-   * how long to wait as soon as the user's cursor has entered the trigger.
-   * @default 'rest'
-   */
-  delayType: PropTypes.oneOf(['hover', 'rest']),
   /**
    * Whether the user can move their cursor from the trigger element toward the tooltip popup element
    * without it closing using a "safe polygon" technique.

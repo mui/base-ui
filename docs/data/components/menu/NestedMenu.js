@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as Menu from '@base_ui/react/Menu';
+import { Menu } from '@base_ui/react/Menu';
 import { styled } from '@mui/system';
 
 export default function NestedMenu() {
@@ -208,7 +208,7 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
     float: right;
   }
 
-  &[data-state='open'] {
+  &[data-popup-open] {
     background-color: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled, useTheme, Box } from '@mui/system';
-import * as BaseSlider from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base_ui/react/Slider';
 
 export default function UnstyledSliderIntroduction() {
   // Replace this with your app logic for determining dark mode
@@ -13,12 +13,14 @@ export default function UnstyledSliderIntroduction() {
       sx={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
     >
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
-        <Label id="VolumeSliderLabel">Volume</Label>
+        <Label id="VolumeSliderLabel" htmlFor=":slider-thumb-input:">
+          Volume
+        </Label>
         <SliderOutput />
         <SliderControl>
           <SliderTrack>
             <SliderIndicator />
-            <SliderThumb />
+            <SliderThumb inputId=":slider-thumb-input:" />
           </SliderTrack>
         </SliderControl>
       </Slider>
@@ -27,21 +29,13 @@ export default function UnstyledSliderIntroduction() {
 }
 
 function BaseLabel(props) {
-  const { id, ...otherProps } = props;
-  const { subitems, disabled } = BaseSlider.useSliderContext();
+  const { id, htmlFor, ...otherProps } = props;
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
-
-  return (
-    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
-  );
+  return <label id={id} htmlFor={htmlFor} {...otherProps} />;
 }
 
 BaseLabel.propTypes = {
+  htmlFor: PropTypes.string,
   id: PropTypes.string,
 };
 

@@ -8,12 +8,13 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { refType, HTMLElementType } from '../../utils/proptypes';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { PointerType } from '../../utils/useEnhancedClickHandler';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
-  open: (value) => ({ 'data-state': value ? 'open' : 'closed' }),
+  ...baseMapping,
   nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
   transitionStatus: (value) => {
     if (value === 'entering') {

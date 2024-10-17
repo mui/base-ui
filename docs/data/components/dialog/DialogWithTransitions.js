@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as BaseDialog from '@base_ui/react/Dialog';
+import { Dialog as BaseDialog } from '@base_ui/react/Dialog';
 import { styled } from '@mui/system';
 
 export default function DialogWithTransitions() {
@@ -51,7 +51,7 @@ const Popup = styled(BaseDialog.Popup)(
   opacity: 0;
   transform: translate(-50%, -35%) scale(0.8);
 
-  &[data-state='open'] {
+  &[data-open] {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
     transition-timing-function: ease-out;
@@ -75,7 +75,7 @@ const Backdrop = styled(BaseDialog.Backdrop)`
   transition-duration: 250ms;
   transition-timing-function: ease-in;
 
-  &[data-state='open'] {
+  &[data-open] {
     backdrop-filter: blur(6px);
     opacity: 1;
     transition-timing-function: ease-out;
