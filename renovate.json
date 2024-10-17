@@ -78,11 +78,6 @@
       "enabled": false
     },
     {
-      "groupName": "examples",
-      "matchPaths": ["examples/**/package.json"],
-      "enabled": false
-    },
-    {
       "matchDepTypes": ["action"],
       "pinDigests": true
     },

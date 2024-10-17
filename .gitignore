@@ -17,7 +17,6 @@
 /docs/app/playground/*
 !/docs/app/playground/\[slug\]
 /docs/public/feed/
-/examples/**/.cache
 /test/bundling/fixtures/*/yarn.lock
 /test/bundling/fixtures/*/pnpm-lock.yaml
 # created by test/bundling/scripts/createFixture
