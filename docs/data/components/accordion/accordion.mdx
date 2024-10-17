@@ -26,7 +26,7 @@ packageName: '@base_ui/react'
 Accordions are implemented using a collection of related components:
 
 - `<Accordion.Root />` is a top-level component that wraps the other components.
-- `<Accordion.Item />` is a component that wraps each section of content
+- `<Accordion.Item />` is a component that wraps each section of content and it's associated `Trigger`
 - `<Accordion.Trigger />` is a button that toggles the open state of it's associated `Item`
 - `<Accordion.Header />` is a heading (`h3` by default) that wraps the `Trigger`
 - `<Accordion.Panel />` is the element that contains content in a `Item`
@@ -51,7 +51,7 @@ Accordions are implemented using a collection of related components:
 ## Value
 
 Each `Accordion.Item` is represented by a value, which by default is its zero-based index by DOM position.
-The first one has an implicit `value` of `0`, the second one has a `value` of `1`, and so on.
+The first `Item` has an implicit `value` of `0`, the second one `Item` a `value` of `1`, and so on.
 
 The open state of the accordion is represented an array holding the `value`s of all open `Item`s.
 
@@ -208,12 +208,11 @@ This relies on the HTML `hidden="until-found"` attribute which only has [partial
 
 Accordion uses [`Collapsible`](/components/react-collapsible/) internally, and can be animated in a [similar way](/components/react-collapsible/#animations).
 
-Four states are available as data attributes to animate the `Accordion.Panel`:
+Three states are available as data attributes to animate the `Accordion.Panel`:
 
-- `[data-accordion="open"]` - `open` state is `true`.
-- `[data-accordion="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
-- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the content element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
-- `[data-exiting]` - the content element is in the process of being hidden from the DOM, but is still mounted.
+- `[data-open]` - `open` state is `true`.
+- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
+- `[data-exiting]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
 
 The component can be animate when opening or closing using either:
 
@@ -221,23 +220,25 @@ The component can be animate when opening or closing using either:
 - CSS transitions
 - JavaScript animations
 
-The dimensions of the `Accordion.Panel` subcomponent are provided as the `--accordion-panel-height` and `--accordion-panel-width` CSS variables.
+### Styling
+
+The `Accordion.Panel` element receives the following CSS variables about its dimensions, which can be used to style animations or transitions:
+
+-- `--accordion-panel-height`: Specifies the height of the `Panel`.
+-- `--accordion-panel-width`: Specifies the width of the `Panel`.
 
 ### CSS Animations
 
 CSS animations can be used with two declarations:
 
 ```css
-.Accordion-panel {
+.AccordionPanel {
   overflow: hidden;
-}
-
-.Accordion-panel[data-collapsible='open'] {
-  animation: slideDown 300ms ease-out;
-}
-
-.Accordion-panel[data-collapsible='closed'] {
   animation: slideUp 300ms ease-in;
+}
+
+.AccordionPanel[data-open] {
+  animation: slideDown 300ms ease-out;
 }
 
 @keyframes slideDown {
@@ -263,27 +264,27 @@ CSS animations can be used with two declarations:
 
 When using CSS transitions, styles for the `Panel` must be applied to three states:
 
-- The closed styles with `[data-collapsible="closed"]`
-- The open styles with `[data-collapsible="open"]`
-- The entering styles with `[data-entering]`
+- The exiting styles, placed on the base element class
+- The open styles, placed on the base element class with `[data-state="open"]`
+- The entering styles, placed on the base element class with `[data-entering]`
 
 ```css
-.Accordion-panel {
+.AccordionPanel {
   overflow: hidden;
+  /* The final styles once closed/exited  */
+  height: 0;
+  transition: height 300ms ease-in;
 }
 
-.Accordion-panel[data-collapsible='open'] {
+/* The final styles once opened/entered */
+.AccordionPanel[data-open] {
   height: var(--accordion-panel-height);
   transition: height 300ms ease-out;
 }
 
-.Accordion-panel[data-entering] {
+/* The initial styles when opening/entering */
+.AccordionPanel[data-entering] {
   height: 0;
-}
-
-.Accordion-panel[data-collapsible='closed'] {
-  height: 0;
-  transition: height 300ms ease-in;
 }
 ```
 
