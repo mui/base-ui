@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Metadata } from 'next';
-import { GoogleAnalytics } from 'docs-base/src/components/GoogleAnalytics';
+import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from './DocsProviders';
 import '../src/styles/style.css';
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
-import { IconLinkButton } from 'docs-base/src/design-system/IconLinkButton';
-import { GitHubIcon } from 'docs-base/src/icons/GitHub';
+import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
+import { IconLinkButton } from 'docs/src/design-system/IconLinkButton';
+import { GitHubIcon } from 'docs/src/icons/GitHub';
 
 export function GitHubLink() {
   const { selectedFile } = useDemoContext();

@@ -95,10 +95,6 @@ module.exports = {
       // Exclude polyfill and treat 'zlib' as an empty module since it is not required. next -> gzip-size relies on it.
       zlib: false,
     },
-    alias: {
-      ...webpackBaseConfig.resolve.alias,
-      docs: false, // Disable this alias as it creates a circular resolution loop with the docs-base alias
-    },
   },
   // TODO: 'browserslist:modern'
   // See https://github.com/webpack/webpack/issues/14203
