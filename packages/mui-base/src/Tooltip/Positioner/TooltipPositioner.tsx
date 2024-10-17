@@ -46,17 +46,11 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ...otherProps
   } = props;
 
-  const {
-    open,
-    triggerElement,
-    setPositionerElement,
-    mounted,
-    floatingRootContext,
-    trackCursorAxis,
-  } = useTooltipRootContext();
+  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis } =
+    useTooltipRootContext();
 
   const positioner = useTooltipPositioner({
-    anchor: anchor || triggerElement,
+    anchor,
     floatingRootContext,
     positionMethod,
     open,

@@ -45,11 +45,10 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     ...otherProps
   } = props;
 
-  const { open, mounted, floatingRootContext, triggerElement, setPositionerElement } =
-    usePreviewCardRootContext();
+  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
 
   const positioner = usePreviewCardPositioner({
-    anchor: anchor || triggerElement,
+    anchor,
     floatingRootContext,
     positionMethod,
     container,
