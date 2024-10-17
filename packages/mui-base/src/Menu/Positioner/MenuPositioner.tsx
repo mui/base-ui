@@ -60,7 +60,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     nested,
     itemDomElements,
     itemLabels,
-    triggerElement,
     mounted,
   } = useMenuRootContext();
 
