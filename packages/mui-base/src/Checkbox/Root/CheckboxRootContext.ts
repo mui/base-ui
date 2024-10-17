@@ -4,14 +4,19 @@ import type { CheckboxRoot } from './CheckboxRoot';
 
 export type CheckboxRootContext = CheckboxRoot.OwnerState;
 
-export const CheckboxRootContext = React.createContext<CheckboxRootContext | null>(null);
+export const CheckboxRootContext = React.createContext<CheckboxRootContext | undefined>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  CheckboxRootContext.displayName = 'CheckboxRootContext';
+}
 
 export function useCheckboxRootContext() {
   const context = React.useContext(CheckboxRootContext);
-  if (context === null) {
+  if (context === undefined) {
     throw new Error(
-      'Base UI: Checkbox.Indicator must be placed inside the Checkbox.Root component.',
+      'Base UI: CheckboxRootContext is missing. Checkbox parts must be placed within <Checkbox.Root>.',
     );
   }
+
   return context;
 }

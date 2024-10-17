@@ -14,7 +14,7 @@ const testRootContext: MenuRootContext = {
   getPositionerProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
-  parentContext: null,
+  parentContext: undefined,
   nested: false,
   triggerElement: null,
   setTriggerElement: () => {},

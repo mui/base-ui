@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import { Collapsible } from '@base_ui/react/Collapsible';
-import { CollapsibleContext } from '../Root/CollapsibleContext';
 import { describeConformance } from '../../../test/describeConformance';
+import { CollapsibleRootContext } from '../Root/CollapsibleRootContext';
 
-const contextValue: Collapsible.Root.Context = {
+const contextValue: CollapsibleRootContext = {
   animated: false,
   contentId: 'ContentId',
   disabled: false,
@@ -28,7 +28,9 @@ describe('<Collapsible.Trigger />', () => {
     inheritComponent: 'button',
     render: (node) => {
       const { container, ...other } = render(
-        <CollapsibleContext.Provider value={contextValue}>{node}</CollapsibleContext.Provider>,
+        <CollapsibleRootContext.Provider value={contextValue}>
+          {node}
+        </CollapsibleRootContext.Provider>,
       );
 
       return { container, ...other };

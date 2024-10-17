@@ -9,10 +9,16 @@ export interface TabsListContext {
 
 export const TabsListContext = React.createContext<TabsListContext | undefined>(undefined);
 
+if (process.env.NODE_ENV !== 'production') {
+  TabsListContext.displayName = 'TabsListContext';
+}
+
 export function useTabsListContext() {
   const context = React.useContext(TabsListContext);
   if (context === undefined) {
-    throw new Error('useTabsListContext must be used within a TabsList component');
+    throw new Error(
+      'Base UI: TabsListContext is missing. TabsList parts must be placed within <Tabs.List>.',
+    );
   }
 
   return context;

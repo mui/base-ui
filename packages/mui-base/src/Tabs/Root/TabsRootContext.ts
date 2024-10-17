@@ -46,7 +46,7 @@ export interface TabsRootContext {
 /**
  * @ignore - internal component.
  */
-const TabsRootContext = React.createContext<TabsRootContext | null>(null);
+const TabsRootContext = React.createContext<TabsRootContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   TabsRootContext.displayName = 'TabsRootContext';
@@ -54,8 +54,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useTabsRootContext() {
   const context = React.useContext(TabsRootContext);
-  if (context == null) {
-    throw new Error('Base UI: No TabsRootContext provided');
+  if (context === undefined) {
+    throw new Error(
+      'Base UI: TabsRootContext is missing. Tabs parts must be placed within <Tabs.Root>.',
+    );
   }
 
   return context;

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -28,7 +28,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   const { render, className, ...otherProps } = props;
 
   const { isScrubbing, scrubAreaCursorRef, ownerState, getScrubAreaCursorProps } =
-    useNumberFieldContext('ScrubAreaCursor');
+    useNumberFieldRootContext();
 
   const [element, setElement] = React.useState<Element | null>(null);
 

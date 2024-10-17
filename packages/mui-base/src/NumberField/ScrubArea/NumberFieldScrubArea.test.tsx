@@ -4,7 +4,7 @@ import { screen, waitFor } from '@mui/internal-test-utils';
 import { NumberField } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { NumberFieldContext } from '../Root/NumberFieldContext';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {
@@ -23,7 +23,7 @@ const testContext = {
     invalid: false,
     readOnly: false,
   },
-} as NumberFieldContext;
+} as NumberFieldRootContext;
 
 describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
@@ -32,7 +32,9 @@ describe('<NumberField.ScrubArea />', () => {
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
-        <NumberFieldContext.Provider value={testContext}>{node}</NumberFieldContext.Provider>,
+        <NumberFieldRootContext.Provider value={testContext}>
+          {node}
+        </NumberFieldRootContext.Provider>,
       );
     },
   }));
