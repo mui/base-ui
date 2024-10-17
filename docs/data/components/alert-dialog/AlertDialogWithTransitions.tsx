@@ -51,7 +51,7 @@ const Popup = styled(BaseAlertDialog.Popup)(
   opacity: 0;
   transform: translate(-50%, -35%) scale(0.8);
 
-  &[data-state='open'] {
+  &[data-open] {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
     transition-timing-function: ease-out;
@@ -75,7 +75,7 @@ const Backdrop = styled(BaseAlertDialog.Backdrop)`
   transition-duration: 250ms;
   transition-timing-function: ease-in;
 
-  &[data-state='open'] {
+  &[data-open] {
     backdrop-filter: blur(6px);
     opacity: 1;
     transition-timing-function: ease-out;

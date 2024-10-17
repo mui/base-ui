@@ -13,7 +13,6 @@ export interface PreviewCardRootContext {
   setPositionerElement: (el: HTMLElement | null) => void;
   delay: number;
   closeDelay: number;
-  delayType: 'rest' | 'hover';
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

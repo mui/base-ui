@@ -5,19 +5,23 @@ import { Side, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { BaseUIComponentProps } from '../../utils/types';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { BaseUIComponentProps } from '../../utils/types';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
-  ...commonStyleHooks,
-  entering(value) {
-    return value ? { 'data-menu-entering': '' } : null;
-  },
-  exiting(value) {
-    return value ? { 'data-menu-exiting': '' } : null;
+  ...baseMapping,
+  transitionStatus(value) {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
   },
 };
 
@@ -47,13 +51,15 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const ownerState: MenuPopup.OwnerState = {
-    entering: transitionStatus === 'entering',
-    exiting: transitionStatus === 'exiting',
-    side,
-    alignment,
-    open,
-  };
+  const ownerState: MenuPopup.OwnerState = React.useMemo(
+    () => ({
+      transitionStatus,
+      side,
+      alignment,
+      open,
+    }),
+    [transitionStatus, side, alignment, open],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
@@ -77,8 +83,7 @@ namespace MenuPopup {
   }
 
   export type OwnerState = {
-    entering: boolean;
-    exiting: boolean;
+    transitionStatus: TransitionStatus;
     side: Side;
     alignment: 'start' | 'end' | 'center';
     open: boolean;

@@ -10,6 +10,7 @@ import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * The tooltip positioner element.
@@ -100,6 +101,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;

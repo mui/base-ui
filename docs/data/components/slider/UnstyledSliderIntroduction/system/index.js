@@ -13,12 +13,14 @@ export default function UnstyledSliderIntroduction() {
       sx={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
     >
       <Slider defaultValue={50} aria-labelledby="VolumeSliderLabel">
-        <Label id="VolumeSliderLabel">Volume</Label>
+        <Label id="VolumeSliderLabel" htmlFor=":slider-thumb-input:">
+          Volume
+        </Label>
         <SliderOutput />
         <SliderControl>
           <SliderTrack>
             <SliderIndicator />
-            <SliderThumb />
+            <SliderThumb inputId=":slider-thumb-input:" />
           </SliderTrack>
         </SliderControl>
       </Slider>
@@ -27,21 +29,13 @@ export default function UnstyledSliderIntroduction() {
 }
 
 function BaseLabel(props) {
-  const { id, ...otherProps } = props;
-  const { subitems, disabled } = BaseSlider.useSliderContext();
+  const { id, htmlFor, ...otherProps } = props;
 
-  const htmlFor = Array.from(subitems.values())
-    .reduce((acc, item) => {
-      return `${acc} ${item.inputId}`;
-    }, '')
-    .trim();
-
-  return (
-    <label id={id} htmlFor={htmlFor} data-disabled={disabled} {...otherProps} />
-  );
+  return <label id={id} htmlFor={htmlFor} {...otherProps} />;
 }
 
 BaseLabel.propTypes = {
+  htmlFor: PropTypes.string,
   id: PropTypes.string,
 };
 

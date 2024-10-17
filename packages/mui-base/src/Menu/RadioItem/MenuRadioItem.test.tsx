@@ -173,7 +173,7 @@ describe('<Menu.RadioItem />', () => {
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'true');
-      expect(item).to.have.attribute('data-radioitem', 'checked');
+      expect(item).to.have.attribute('data-checked', '');
     });
 
     ['Space', 'Enter'].forEach((key) => {
@@ -201,7 +201,7 @@ describe('<Menu.RadioItem />', () => {
         });
 
         await user.keyboard(`[${key}]`);
-        expect(item).to.have.attribute('data-radioitem', 'checked');
+        expect(item).to.have.attribute('data-checked', '');
       });
     });
 
@@ -256,7 +256,7 @@ describe('<Menu.RadioItem />', () => {
 
       const itemAfterReopen = getByRole('menuitemradio');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
-      expect(itemAfterReopen).to.have.attribute('data-radioitem', 'checked');
+      expect(itemAfterReopen).to.have.attribute('data-checked', '');
     });
   });
 

@@ -104,12 +104,6 @@ To change how long the Preview Card waits until it opens or closes, use the `del
 <PreviewCard.Root delay={200} closeDelay={200}>
 ```
 
-The delay type can be changed from `"rest"` (user's cursor is static over the trigger for the given timeout in milliseconds) to `"hover"` (the user's cursor has entered the trigger):
-
-```jsx
-<PreviewCard.Root delayType="hover">
-```
-
 ## Controlled
 
 To control the Preview Card with external state, use the `open` and `onOpenChange` props:
@@ -259,7 +253,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 }
 
 /* Represents the final styles once entered */
-.PreviewCardPopup[data-state='open'] {
+.PreviewCardPopup[data-open] {
   opacity: 1;
   transform: scale(1);
 }
@@ -290,7 +284,7 @@ In newer browsers, there is a feature called `@starting-style` which allows tran
 
 /* Official Browser API - no Firefox support as of May 2024 */
 @starting-style {
-  .PreviewCardPopup[data-state='open'] {
+  .PreviewCardPopup[data-open] {
     opacity: 0;
     transform: scale(0.9);
   }

@@ -143,7 +143,7 @@ const Indicator = styled(Menu.RadioItemIndicator)(
   box-sizing: border-box;
   border-radius: 50%;
 
-  &[data-radioitem=checked] {
+  &[data-checked] {
     background: ${theme.palette.mode === 'dark' ? grey[800] : grey[700]};
     box-shadow: 0 0 0 2px ${theme.palette.mode === 'dark' ? grey[900] : '#fff'} inset;
   }

@@ -10,6 +10,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -101,6 +102,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;

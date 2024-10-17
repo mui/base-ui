@@ -1,14 +1,10 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { MenuCheckboxItem } from '../CheckboxItem/MenuCheckboxItem';
 import { useMenuCheckboxItemContext } from '../CheckboxItem/MenuCheckboxItemContext';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-
-const customStyleHookMapping: CustomStyleHookMapping<MenuCheckboxItem.OwnerState> = {
-  checked: (value: boolean) => ({ 'data-checkboxitem': value ? 'checked' : 'unchecked' }),
-};
+import { itemMapping } from '../utils/styleHookMapping';
 
 /**
  *
@@ -32,7 +28,7 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
     render: render || 'span',
     className,
     ownerState,
-    customStyleHookMapping,
+    customStyleHookMapping: itemMapping,
     extraProps: other,
     ref: forwardedRef,
   });

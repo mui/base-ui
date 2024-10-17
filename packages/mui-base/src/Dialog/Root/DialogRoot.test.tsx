@@ -136,7 +136,7 @@ describe('<Dialog.Root />', () => {
       transition: opacity 200ms;
     }
 
-    .dialog[data-state='open'] {
+    .dialog[data-open] {
       opacity: 1;
     }
   `;

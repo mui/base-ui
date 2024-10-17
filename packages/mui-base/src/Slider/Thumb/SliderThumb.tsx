@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { resolveClassName } from '../../utils/resolveClassName';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSliderContext } from '../Root/SliderProvider';
-import { SliderThumbProps } from './SliderThumb.types';
+import type { SliderRoot } from '../Root/SliderRoot';
+import { useSliderContext } from '../Root/SliderContext';
 import { useSliderThumb } from './useSliderThumb';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
@@ -22,7 +23,6 @@ function defaultRender(
     </span>
   );
 }
-
 /**
  *
  * Demos:
@@ -34,7 +34,7 @@ function defaultRender(
  * - [SliderThumb API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderThumb)
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
-  props: SliderThumbProps,
+  props: SliderThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
@@ -66,6 +66,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     orientation,
     ownerState,
     percentageValues,
+    registerInputId,
     step,
     tabIndex,
     values,
@@ -97,6 +98,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     name,
     orientation,
     percentageValues,
+    registerInputId,
     rootRef: mergedRef,
     step,
     tabIndex,
@@ -130,6 +132,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
       ...thumbProps,
       children: (
         <React.Fragment>
+          {/* @ts-ignore */}
           {typeof children === 'function' ? children() : children}
           <input {...inputProps} />
         </React.Fragment>
@@ -139,6 +142,32 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     ref: thumbProps.ref,
   });
 });
+
+export namespace SliderThumb {
+  export interface OwnerState extends SliderRoot.OwnerState {}
+
+  export interface Props
+    extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
+      Omit<BaseUIComponentProps<'span', OwnerState>, 'render'> {
+    onPointerLeave?: React.PointerEventHandler;
+    onPointerOver?: React.PointerEventHandler;
+    onBlur?: React.FocusEventHandler;
+    onFocus?: React.FocusEventHandler;
+    onKeyDown?: React.KeyboardEventHandler;
+    /**
+     * A function to customize rendering of the component.
+     */
+    render?:
+      | ((
+          props: React.ComponentPropsWithRef<'span'>,
+          inputProps: React.ComponentPropsWithRef<'input'>,
+          state: OwnerState,
+        ) => React.ReactElement)
+      | (React.ReactElement & { ref: React.Ref<Element> });
+  }
+}
+
+export { SliderThumb };
 
 SliderThumb.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -211,5 +240,3 @@ SliderThumb.propTypes /* remove-proptypes */ = {
     PropTypes.node,
   ]),
 } as any;
-
-export { SliderThumb };

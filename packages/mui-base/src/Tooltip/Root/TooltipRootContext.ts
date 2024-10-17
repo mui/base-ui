@@ -14,7 +14,6 @@ export interface TooltipRootContext {
   popupRef: React.RefObject<HTMLElement | null>;
   delay: number;
   closeDelay: number;
-  delayType: 'rest' | 'hover';
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
