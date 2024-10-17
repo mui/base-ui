@@ -91,7 +91,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    it('should apply [data-field] style hooks to field components', () => {
+    it('should apply [data-valid] and [data-invalid] style hooks to field components', () => {
       render(
         <Field.Root>
           <Field.Label data-testid="label">Label</Field.Label>
@@ -106,9 +106,9 @@ describe('<Field.Root />', () => {
       const description = screen.getByTestId('description');
       let error = screen.queryByTestId('error');
 
-      expect(control).not.to.have.attribute('data-field');
-      expect(label).not.to.have.attribute('data-field');
-      expect(description).not.to.have.attribute('data-field');
+      expect(control).not.to.have.attribute('data-valid');
+      expect(label).not.to.have.attribute('data-valid');
+      expect(description).not.to.have.attribute('data-valid');
       expect(error).to.equal(null);
 
       fireEvent.focus(control);
@@ -118,10 +118,10 @@ describe('<Field.Root />', () => {
 
       error = screen.getByTestId('error');
 
-      expect(control).to.have.attribute('data-field', 'invalid');
-      expect(label).to.have.attribute('data-field', 'invalid');
-      expect(description).to.have.attribute('data-field', 'invalid');
-      expect(error).to.have.attribute('data-field', 'invalid');
+      expect(control).to.have.attribute('data-invalid', '');
+      expect(label).to.have.attribute('data-invalid', '');
+      expect(description).to.have.attribute('data-invalid', '');
+      expect(error).to.have.attribute('data-invalid', '');
 
       act(() => {
         control.value = 'value';
@@ -131,9 +131,9 @@ describe('<Field.Root />', () => {
 
       error = screen.queryByTestId('error');
 
-      expect(control).to.have.attribute('data-field', 'valid');
-      expect(label).to.have.attribute('data-field', 'valid');
-      expect(description).to.have.attribute('data-field', 'valid');
+      expect(control).to.have.attribute('data-valid', '');
+      expect(label).to.have.attribute('data-valid', '');
+      expect(description).to.have.attribute('data-valid', '');
       expect(error).to.equal(null);
     });
 
@@ -281,7 +281,7 @@ describe('<Field.Root />', () => {
 
       fireEvent.change(control, { target: { value: 't' } });
 
-      expect(control).to.have.attribute('data-field', 'invalid');
+      expect(control).to.have.attribute('data-invalid', '');
       expect(control).to.have.attribute('aria-invalid', 'true');
     });
   });
