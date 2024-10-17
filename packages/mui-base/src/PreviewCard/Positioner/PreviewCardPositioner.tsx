@@ -49,7 +49,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     usePreviewCardRootContext();
 
   const positioner = usePreviewCardPositioner({
-    anchor: anchor || triggerElement,
+    anchor,
     floatingRootContext,
     positionMethod,
     container,
