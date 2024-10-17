@@ -11,7 +11,11 @@ export default function CollapsibleDemo() {
         <Collapsible.Root>
           <Collapsible.Trigger className="MyCollapsible-trigger">
             <span className="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 80 80"
+                focusable="false"
+              >
                 <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
               </svg>
             </span>
@@ -30,7 +34,11 @@ export default function CollapsibleDemo() {
         <Collapsible.Root>
           <Collapsible.Trigger className="MyCollapsible-trigger">
             <span className="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 80 80"
+                focusable="false"
+              >
                 <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
               </svg>
             </span>
@@ -48,7 +56,11 @@ export default function CollapsibleDemo() {
       <Collapsible.Root render="span" className="MyCollapsible-root">
         <Collapsible.Trigger className="MyCollapsible-trigger">
           <span className="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 80 80"
+              focusable="false"
+            >
               <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
             </svg>
           </span>

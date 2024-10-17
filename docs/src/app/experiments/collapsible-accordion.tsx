@@ -12,10 +12,17 @@ function AccordionSection(props: {
   const { index, openIndex, setOpen } = props;
   const isOpen = index === openIndex;
   return (
-    <Collapsible.Root open={isOpen} onOpenChange={() => setOpen(isOpen ? -1 : index)}>
+    <Collapsible.Root
+      open={isOpen}
+      onOpenChange={() => setOpen(isOpen ? -1 : index)}
+    >
       <Collapsible.Trigger className="MyCollapsible2-trigger">
         <span className="icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 80 80"
+            focusable="false"
+          >
             <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
           </svg>
         </span>
@@ -36,12 +43,18 @@ export default function CollapsibleAccordion() {
   return (
     <div className="CollapsibleAccordion">
       <pre>
-        A crude accordion where only 1 of the 3 {`<Collapsible/>`}s can be open at any time
+        A crude accordion where only 1 of the 3 {`<Collapsible/>`}s can be open at
+        any time
         <br />
         Animated using CSS transitions
       </pre>
       {[0, 1, 2].map((index) => (
-        <AccordionSection index={index} key={index} openIndex={openIndex} setOpen={setOpen} />
+        <AccordionSection
+          index={index}
+          key={index}
+          openIndex={openIndex}
+          setOpen={setOpen}
+        />
       ))}
     </div>
   );

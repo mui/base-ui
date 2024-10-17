@@ -25,7 +25,12 @@ export default function ProgressDemos() {
         </Progress.Track>
       </Progress.Root>
 
-      <Progress.Root className="MyProgress" value={50} aria-labelledby="Label3" direction="rtl">
+      <Progress.Root
+        className="MyProgress"
+        value={50}
+        aria-labelledby="Label3"
+        direction="rtl"
+      >
         <span className="Label" id="Label3">
           Progress (RTL)
         </span>
@@ -34,7 +39,12 @@ export default function ProgressDemos() {
         </Progress.Track>
       </Progress.Root>
 
-      <Progress.Root className="MyProgress" value={null} aria-labelledby="Label4" direction="rtl">
+      <Progress.Root
+        className="MyProgress"
+        value={null}
+        aria-labelledby="Label4"
+        direction="rtl"
+      >
         <span className="Label" id="Label4">
           Indeterminate (RTL)
         </span>
@@ -49,7 +59,9 @@ export default function ProgressDemos() {
         className="MyProgress buffer"
         aria-labelledby="Label5"
         value={VAL1}
-        getAriaValueText={(value) => `${value}% complete, ${CUSTOM_BUFFER_VAL}% buffered`}
+        getAriaValueText={(value) =>
+          `${value}% complete, ${CUSTOM_BUFFER_VAL}% buffered`
+        }
         max={Math.min(100, CUSTOM_BUFFER_VAL)}
       >
         <span className="Label" id="Label5">
@@ -65,7 +77,9 @@ export default function ProgressDemos() {
         className="MyProgress buffer"
         aria-labelledby="Label6"
         value={VAL1}
-        getAriaValueText={(value) => `${value}% complete, ${CUSTOM_BUFFER_VAL}% buffered`}
+        getAriaValueText={(value) =>
+          `${value}% complete, ${CUSTOM_BUFFER_VAL}% buffered`
+        }
         max={Math.min(100, CUSTOM_BUFFER_VAL)}
         direction="rtl"
       >

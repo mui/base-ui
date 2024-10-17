@@ -8,28 +8,33 @@ export default function CollapsibleHiddenUntilFound() {
   return (
     <React.Fragment>
       <pre className="pre">
-        All 3 Collapsibles contain the text &quot;May the force be with you&quot; but only the
-        content in the 2nd and 3rd Collapsible will be revealed by the browser&apos;s in-page search
-        (e.g. Ctrl/Cmd-F) in{' '}
+        All 3 Collapsibles contain the text &quot;May the force be with you&quot; but
+        only the content in the 2nd and 3rd Collapsible will be revealed by the
+        browser&apos;s in-page search (e.g. Ctrl/Cmd-F) in{' '}
         <a href="https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value">
           supported browsers
         </a>
         <br />
         <br />
-        All Collapsibles here are animated, but if they are opened by find-in-page, the opening
-        animation will be disabled (one-off) and open instantly
+        All Collapsibles here are animated, but if they are opened by find-in-page,
+        the opening animation will be disabled (one-off) and open instantly
         <br />
         <br />
-        Collapsible #2 is animated using CSS @keyframe animation, while #3 is animated with CSS
-        transitions. #3 demonstrates a possible browser bug where the matching text is not properly
-        highlighted by the browser the first time that instance is matched. It only occurs with
-        transitions, not @keyframe animations.
+        Collapsible #2 is animated using CSS @keyframe animation, while #3 is
+        animated with CSS transitions. #3 demonstrates a possible browser bug where
+        the matching text is not properly highlighted by the browser the first time
+        that instance is matched. It only occurs with transitions, not @keyframe
+        animations.
       </pre>
       <div className="CollapsibleHiddenUntilFound">
         <Collapsible.Root defaultOpen={false}>
           <Collapsible.Trigger className="MyCollapsible-trigger">
             <span className="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 80 80"
+                focusable="false"
+              >
                 <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
               </svg>
             </span>
@@ -45,13 +50,20 @@ export default function CollapsibleHiddenUntilFound() {
         <Collapsible.Root defaultOpen={false}>
           <Collapsible.Trigger className="MyCollapsible-trigger">
             <span className="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 80 80"
+                focusable="false"
+              >
                 <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
               </svg>
             </span>
             Toggle 2
           </Collapsible.Trigger>
-          <Collapsible.Content className="MyCollapsible-content animation" htmlHidden="until-found">
+          <Collapsible.Content
+            className="MyCollapsible-content animation"
+            htmlHidden="until-found"
+          >
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
           </Collapsible.Content>
@@ -61,7 +73,11 @@ export default function CollapsibleHiddenUntilFound() {
         <Collapsible.Root defaultOpen={false}>
           <Collapsible.Trigger className="MyCollapsible-trigger">
             <span className="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 80 80"
+                focusable="false"
+              >
                 <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
               </svg>
             </span>

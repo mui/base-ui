@@ -208,7 +208,9 @@ export default function TooltipTransitionExperiment() {
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
         <Tooltip.Positioner sideOffset={7}>
-          <TooltipPopup data-type="css-transition-starting-style">Tooltip</TooltipPopup>
+          <TooltipPopup data-type="css-transition-starting-style">
+            Tooltip
+          </TooltipPopup>
         </Tooltip.Positioner>
       </Tooltip.Root>
 
@@ -222,13 +224,17 @@ export default function TooltipTransitionExperiment() {
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-animation-keep-mounted">Tooltip</TooltipPopup>
+              <TooltipPopup data-type="css-animation-keep-mounted">
+                Tooltip
+              </TooltipPopup>
             </Tooltip.Positioner>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-animation-keep-mounted">Tooltip</TooltipPopup>
+              <TooltipPopup data-type="css-animation-keep-mounted">
+                Tooltip
+              </TooltipPopup>
             </Tooltip.Positioner>
           </Tooltip.Root>
         </Tooltip.Provider>
@@ -247,13 +253,17 @@ export default function TooltipTransitionExperiment() {
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-transition-keep-mounted">Tooltip</TooltipPopup>
+              <TooltipPopup data-type="css-transition-keep-mounted">
+                Tooltip
+              </TooltipPopup>
             </Tooltip.Positioner>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-transition-keep-mounted">Tooltip</TooltipPopup>
+              <TooltipPopup data-type="css-transition-keep-mounted">
+                Tooltip
+              </TooltipPopup>
             </Tooltip.Positioner>
           </Tooltip.Root>
         </Tooltip.Provider>
@@ -262,7 +272,9 @@ export default function TooltipTransitionExperiment() {
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
         <Tooltip.Positioner sideOffset={7} keepMounted>
-          <TooltipPopup data-type="css-transition-keep-mounted">Tooltip</TooltipPopup>
+          <TooltipPopup data-type="css-transition-keep-mounted">
+            Tooltip
+          </TooltipPopup>
         </Tooltip.Positioner>
       </Tooltip.Root>
 

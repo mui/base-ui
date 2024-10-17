@@ -34,7 +34,8 @@ export default function Home() {
   );
 }
 
-const description = 'Unstyled UI components for building accessible web apps and design systems.';
+const description =
+  'Unstyled UI components for building accessible web apps and design systems.';
 
 export const metadata: Metadata = {
   description,

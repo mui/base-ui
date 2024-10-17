@@ -9,7 +9,9 @@ export default function UnstyledTabsIntroduction() {
 
   return (
     <div style={{ margin: '30px auto', maxWidth: '1800px', display: 'block' }}>
-      <style dangerouslySetInnerHTML={{ __html: 'body { display: block !important;' }} />
+      <style
+        dangerouslySetInnerHTML={{ __html: 'body { display: block !important;' }}
+      />
       <h1>Tabs</h1>
       <h2>Horizontal</h2>
       <Tabs value={v} onValueChange={(val) => sv(val)}>

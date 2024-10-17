@@ -14,16 +14,30 @@ export default function Page() {
       <h1>Element passed to anchor</h1>
       <Menu.Root animated={false}>
         <Menu.Trigger>Trigger</Menu.Trigger>
-        <Menu.Positioner side="bottom" alignment="start" arrowPadding={0} anchor={anchorEl}>
+        <Menu.Positioner
+          side="bottom"
+          alignment="start"
+          arrowPadding={0}
+          anchor={anchorEl}
+        >
           <Menu.Popup>
-            <Menu.Item style={{ background: 'lightgray', padding: '5px' }}>One</Menu.Item>
-            <Menu.Item style={{ background: 'lightgray', padding: '5px' }}>Two</Menu.Item>
+            <Menu.Item style={{ background: 'lightgray', padding: '5px' }}>
+              One
+            </Menu.Item>
+            <Menu.Item style={{ background: 'lightgray', padding: '5px' }}>
+              Two
+            </Menu.Item>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Root>
       <div
         data-testid="anchor"
-        style={{ margin: '100px', background: 'yellowgreen', height: '50px', width: '200px' }}
+        style={{
+          margin: '100px',
+          background: 'yellowgreen',
+          height: '50px',
+          width: '200px',
+        }}
         ref={handleRef}
       >
         Anchor

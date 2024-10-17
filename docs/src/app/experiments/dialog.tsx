@@ -4,7 +4,11 @@ import clsx from 'clsx';
 import { Dialog } from '@base_ui/react/Dialog';
 // eslint-disable-next-line no-restricted-imports
 import { useTransitionStatus } from '@base_ui/react/utils/useTransitionStatus';
-import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
+import {
+  animated as springAnimated,
+  useSpring,
+  useSpringRef,
+} from '@react-spring/web';
 import classes from './dialog.module.css';
 
 const NESTED_DIALOGS = 8;
@@ -27,9 +31,9 @@ function renderContent(
       <Dialog.Title className={classes.title}>{title}</Dialog.Title>
       <Dialog.Description>This is a sample dialog.</Dialog.Description>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget sapien id dolor rutrum
-        porta. Sed enim nulla, placerat eu tincidunt non, ultrices in lectus. Curabitur pellentesque
-        diam nec ligula hendrerit dapibus.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget sapien id
+        dolor rutrum porta. Sed enim nulla, placerat eu tincidunt non, ultrices in
+        lectus. Curabitur pellentesque diam nec ligula hendrerit dapibus.
       </p>
 
       <div className={classes.form}>
@@ -65,7 +69,9 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps)
   return (
     <span className={classes.demo}>
       <Dialog.Root modal={modal} dismissible={dismissible}>
-        <Dialog.Trigger className={classes.button}>Open with CSS transition</Dialog.Trigger>
+        <Dialog.Trigger className={classes.button}>
+          Open with CSS transition
+        </Dialog.Trigger>
 
         <Dialog.Backdrop
           keepMounted={keepMounted}
@@ -93,7 +99,9 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
   return (
     <span className={classes.demo}>
       <Dialog.Root modal={modal} dismissible={dismissible}>
-        <Dialog.Trigger className={classes.button}>Open with CSS animation</Dialog.Trigger>
+        <Dialog.Trigger className={classes.button}>
+          Open with CSS animation
+        </Dialog.Trigger>
 
         <Dialog.Backdrop
           keepMounted={keepMounted}
@@ -119,17 +127,29 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
 
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ReactSpringDialogDemo({ animated, keepMounted, modal, dismissible }: DemoProps) {
+function ReactSpringDialogDemo({
+  animated,
+  keepMounted,
+  modal,
+  dismissible,
+}: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root dismissible open={open} onOpenChange={setOpen} animated={animated}>
+      <Dialog.Root
+        dismissible
+        open={open}
+        onOpenChange={setOpen}
+        animated={animated}
+      >
         <Dialog.Trigger className={classes.button}>
           Open with React Spring transition
         </Dialog.Trigger>
 
-        <Dialog.Backdrop className={`${classes.backdrop} ${animated && classes.withAnimations}`} />
+        <Dialog.Backdrop
+          className={`${classes.backdrop} ${animated && classes.withAnimations}`}
+        />
 
         <ReactSpringTransition open={open}>
           <Dialog.Popup
@@ -150,7 +170,10 @@ function ReactSpringDialogDemo({ animated, keepMounted, modal, dismissible }: De
   );
 }
 
-function ReactSpringTransition(props: { open: boolean; children?: React.ReactElement<unknown> }) {
+function ReactSpringTransition(props: {
+  open: boolean;
+  children?: React.ReactElement<unknown>;
+}) {
   const { open, children } = props;
 
   const api = useSpringRef();
@@ -194,8 +217,16 @@ export default function DialogExperiment() {
   return (
     <div className={classes.page}>
       <h1>Dialog</h1>
-      <CssTransitionDialogDemo keepMounted={keepMounted} modal={modal} dismissible={dismissible} />
-      <CssAnimationDialogDemo keepMounted={keepMounted} modal={modal} dismissible={dismissible} />
+      <CssTransitionDialogDemo
+        keepMounted={keepMounted}
+        modal={modal}
+        dismissible={dismissible}
+      />
+      <CssAnimationDialogDemo
+        keepMounted={keepMounted}
+        modal={modal}
+        dismissible={dismissible}
+      />
 
       <h2>Options</h2>
       <label>

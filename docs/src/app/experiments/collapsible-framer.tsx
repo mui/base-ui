@@ -11,7 +11,11 @@ export default function CollapsibleFramer() {
       <Collapsible.Root open={open} onOpenChange={setOpen}>
         <Collapsible.Trigger className="FramerCollapsible-trigger">
           <span className="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 80 80"
+              focusable="false"
+            >
               <path d="M70.3 13.8L40 66.3 9.7 13.8z" />
             </svg>
           </span>
@@ -41,8 +45,8 @@ export default function CollapsibleFramer() {
         >
           <p>This is the collapsed content</p>
           <p>
-            Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded cabbage & carrot
-            with mustard mayonnaise And Potato Wedges
+            Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded
+            cabbage & carrot with mustard mayonnaise And Potato Wedges
           </p>
           <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
           <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
