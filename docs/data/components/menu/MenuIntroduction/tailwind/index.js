@@ -73,7 +73,7 @@ const MenuPositioner = React.forwardRef((props, ref) => {
   return (
     <Menu.Positioner
       ref={ref}
-      className="focus-visible:outline-0 closed:pointer-events-none"
+      className="closed:pointer-events-none focus-visible:outline-0"
       {...props}
     />
   );
@@ -83,7 +83,7 @@ const MenuSeparator = React.forwardRef((props, ref) => {
   return (
     <Menu.Separator
       ref={ref}
-      className="border-t border-solid border-slate-200 dark:border-slate-700 my-2"
+      className="my-2 border-t border-solid border-slate-200 dark:border-slate-700"
       {...props}
     />
   );
@@ -93,7 +93,7 @@ const MenuGroupLabel = React.forwardRef((props, ref) => {
   return (
     <Menu.GroupLabel
       ref={ref}
-      className="text-xs font-sans font-semibold text-slate-700 dark:text-slate-200 uppercase p-2 select-none"
+      className="select-none p-2 font-sans text-xs font-semibold uppercase text-slate-700 dark:text-slate-200"
       {...props}
     />
   );
