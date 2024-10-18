@@ -76,7 +76,7 @@ async function run(argv) {
   }
 
   if (bundle === 'stable') {
-    await exec(`echo { "type": "module" } > ${path.join(outDir, 'package.json')}`);
+    await exec(`echo "{ \\"type\\": \\"module\\" }" > ${path.join(outDir, 'package.json')}`);
   }
 
   if (verbose) {
