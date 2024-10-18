@@ -20,6 +20,7 @@ const rootPackage = loadPackageJson();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  trailingSlash: false,
   env: {
     // docs-infra
     LIB_VERSION: rootPackage.version,
