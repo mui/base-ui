@@ -41,7 +41,7 @@ function Controls(props) {
   return (
     <div
       {...props}
-      className="flex flex-row-reverse bg-slate-100 dark:bg-slate-800 gap-2 p-4 mt-8 -mx-4 -mb-4"
+      className="-mx-4 -mb-4 mt-8 flex flex-row-reverse gap-2 bg-slate-100 p-4 dark:bg-slate-800"
     />
   );
 }
@@ -67,7 +67,7 @@ function Backdrop(props) {
   return (
     <AlertDialog.Backdrop
       {...props}
-      className="bg-black/35 fixed inset-0 backdrop-blur-sm z-[2000]"
+      className="fixed inset-0 z-[2000] bg-black/35 backdrop-blur-sm"
     />
   );
 }

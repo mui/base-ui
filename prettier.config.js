@@ -2,6 +2,7 @@ module.exports = {
   printWidth: 100,
   singleQuote: true,
   trailingComma: 'all',
+  plugins: ['prettier-plugin-tailwindcss'],
   overrides: [
     {
       files: ['docs/**/*.md', 'docs/src/app/**/*.{js,tsx}', 'docs/data/**/*.{js,tsx}'],

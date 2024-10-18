@@ -11,13 +11,13 @@ export function IconLinkButton(props: IconLinkButton.Props) {
     <Link
       aria-label={label}
       {...(other as React.ComponentPropsWithoutRef<typeof Link>)}
-      className={clsx(classes.root, classes[`size-${size}`], props.className)}
+      className={clsx(classes.root, classes[`s-${size}`], props.className)}
     />
   ) : (
     <a
       aria-label={label}
       {...(other as React.ComponentPropsWithoutRef<'a'>)}
-      className={clsx(classes.root, classes[`size-${size}`], props.className)}
+      className={clsx(classes.root, classes[`s-${size}`], props.className)}
     />
   );
 

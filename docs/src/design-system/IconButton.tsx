@@ -10,7 +10,7 @@ export function IconButton(props: IconButton.Props) {
       type="button"
       aria-label={label}
       {...other}
-      className={clsx(classes.root, classes[`size-${size}`], props.className)}
+      className={clsx(classes.root, classes[`s-${size}`], props.className)}
     />
   );
 

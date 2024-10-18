@@ -10,7 +10,6 @@ import routes, { getSlugs } from 'docs/data/pages';
 import { Description } from 'docs/src/components/content/Description';
 import { SiblingPageLinks } from 'docs/src/components/SiblingPageLinks';
 import { EditPageGithubLink } from 'docs/src/components/EditPageGithubLink';
-import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'guides';
 
@@ -39,10 +38,10 @@ export default async function DocsPage(props: Props) {
 
   return (
     <React.Fragment>
-      <main className={classes.content}>
+      <main className="Content">
         <MDXContent components={allComponents} />
         <div>
-          <div className={classes.editLink}>
+          <div className="EditLink">
             <EditPageGithubLink category={CATEGORY_SEGMENT} slug={slug} />
           </div>
           <div>

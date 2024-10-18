@@ -50,14 +50,14 @@
   }
 }
 
-.SelectTrigger.size-1 {
+.SelectTrigger.s-1 {
   height: var(--space-6);
   padding-left: var(--space-2);
   padding-right: var(--space-5);
   font-size: var(--fs-2);
 }
 
-.SelectTrigger.size-2 {
+.SelectTrigger.s-2 {
   height: var(--space-7);
   padding-left: var(--space-3);
   padding-right: var(--space-6);

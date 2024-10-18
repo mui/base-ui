@@ -50,7 +50,7 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(props, ref) {
       ref={ref}
       className={(state) =>
         classNames(
-          'relative w-full h-1 rounded-full bg-gray-400 flex overflow-hidden',
+          'relative flex h-1 w-full overflow-hidden rounded-full bg-gray-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -74,7 +74,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(props, ref
       ref={ref}
       className={(state) =>
         classNames(
-          'bg-blue-500 dark:bg-blue-400 rounded-[inherit]',
+          'rounded-[inherit] bg-blue-500 dark:bg-blue-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,

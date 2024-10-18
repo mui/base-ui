@@ -3,6 +3,7 @@
 @import 'shiki.css';
 
 @import 'demo-colors.css';
+@import 'content.css';
 
 @import 'components/badge.css';
 @import 'components/callout.css';
@@ -22,17 +23,6 @@
 @import 'components/text.css';
 @import 'components/textarea.css';
 @import 'components/toggle.css';
-
-@import 'utilities/align-items.css';
-@import 'utilities/align-self.css';
-@import 'utilities/display.css';
-@import 'utilities/flex-direction.css';
-@import 'utilities/gap.css';
-@import 'utilities/height.css';
-@import 'utilities/justify-content.css';
-@import 'utilities/margin.css';
-@import 'utilities/padding.css';
-@import 'utilities/position.css';
 
 @tailwind base;
 @tailwind components;

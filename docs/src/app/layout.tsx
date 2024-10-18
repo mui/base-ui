@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Metadata } from 'next';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from './DocsProviders';
-import '../styles/style.css';
 
 interface Props {
   children: React.ReactNode;

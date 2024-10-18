@@ -1,5 +1,6 @@
-@layer mdx {
-  .content {
+@layer components {
+  .Content {
+    box-sizing: content-box;
     max-width: 714px;
     padding-top: var(--space-9);
     padding-left: var(--space-6);
@@ -197,9 +198,9 @@
       }
     }
   }
-}
 
-.editLink {
-  padding-top: var(--space-9);
-  padding-bottom: var(--space-9);
+  .EditLink {
+    padding-top: var(--space-9);
+    padding-bottom: var(--space-9);
+  }
 }
