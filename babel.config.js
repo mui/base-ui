@@ -68,6 +68,7 @@ module.exports = function getBabelConfig(api) {
         mode: 'unsafe-wrap',
       },
     ],
+    'babel-plugin-add-import-extension',
   ];
 
   if (process.env.NODE_ENV === 'production') {

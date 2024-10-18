@@ -4,7 +4,6 @@
   "private": false,
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
-  "main": "./src/index.ts",
   "keywords": [
     "react",
     "react-component",
@@ -26,9 +25,15 @@
     "type": "opencollective",
     "url": "https://opencollective.com/mui-org"
   },
+  "exports": {
+    "./*": {
+      "import": "./src/*/index.ts"
+    }
+  },
   "imports": {
     "#test-utils": "./test/index.ts"
   },
+  "type": "commonjs",
   "scripts": {
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:node": "node ../../scripts/build.mjs node",
