@@ -10,6 +10,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { useForkRef } from '../../utils/useForkRef';
+import { PointerType } from '../../utils/useEnhancedClickHandler';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.OwnerState> = {
   ...baseMapping,
@@ -39,18 +41,23 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, container, id, keepMounted = false, render, ...other } = props;
+  const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
 
   const rootContext = useAlertDialogRootContext();
   const { open, nestedOpenDialogCount } = rootContext;
 
-  const { getRootProps, floatingContext, mounted, transitionStatus } = useDialogPopup({
-    id,
-    ref: forwardedRef,
-    dismissible: false,
-    isTopmost: nestedOpenDialogCount === 0,
-    ...rootContext,
-  });
+  const popupRef = React.useRef<HTMLElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, popupRef);
+
+  const { getRootProps, floatingContext, mounted, transitionStatus, resolvedInitialFocus } =
+    useDialogPopup({
+      id,
+      ref: mergedRef,
+      isTopmost: nestedOpenDialogCount === 0,
+      dismissible: false,
+      initialFocus,
+      ...rootContext,
+    });
 
   const ownerState: AlertDialogPopup.OwnerState = React.useMemo(
     () => ({
@@ -80,7 +87,12 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   return (
     <FloatingPortal root={container}>
-      <FloatingFocusManager context={floatingContext} modal disabled={!mounted}>
+      <FloatingFocusManager
+        context={floatingContext}
+        modal
+        disabled={!mounted}
+        initialFocus={resolvedInitialFocus}
+      >
         {renderElement()}
       </FloatingFocusManager>
     </FloatingPortal>
@@ -99,6 +111,14 @@ namespace AlertDialogPopup {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * Determines an element to focus when the dialog is opened.
+     * It can be either a ref to the element or a function that returns such a ref.
+     * If not provided, the first focusable element is focused.
+     */
+    initialFocus?:
+      | React.RefObject<HTMLElement>
+      | ((pointerType: PointerType) => React.RefObject<HTMLElement>);
   }
 
   export interface OwnerState {
@@ -129,6 +149,23 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
+  /**
+   * Determines an element to focus when the dialog is opened.
+   * It can be either a ref to the element or a function that returns such a ref.
+   * If not provided, the first focusable element is focused.
+   */
+  initialFocus: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: function (props, propName) {
+        if (props[propName] == null) {
+          return null;
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
+        }
+      },
+    }),
+  ]),
   /**
    * If `true`, the dialog element is kept in the DOM when closed.
    *
