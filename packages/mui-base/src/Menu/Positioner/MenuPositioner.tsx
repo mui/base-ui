@@ -60,14 +60,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     nested,
     itemDomElements,
     itemLabels,
-    triggerElement,
     mounted,
   } = useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
 
   const positioner = useMenuPositioner({
-    anchor: anchor || triggerElement,
+    anchor,
     floatingRootContext,
     positionMethod,
     container,
