@@ -40,6 +40,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     setTitleId,
     descriptionId,
     setDescriptionId,
+    openMethod,
   } = usePopoverRoot({
     openOnHover,
     delay: delayWithDefault,
@@ -73,6 +74,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       floatingRootContext,
       getRootPopupProps,
       getRootTriggerProps,
+      openMethod,
     }),
     [
       openOnHover,
@@ -96,6 +98,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       floatingRootContext,
       getRootPopupProps,
       getRootTriggerProps,
+      openMethod,
     ],
   );
 

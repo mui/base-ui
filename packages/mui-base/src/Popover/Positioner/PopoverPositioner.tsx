@@ -43,11 +43,19 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     hideWhenDetached = false,
     sticky = false,
+    initialFocus,
     ...otherProps
   } = props;
 
-  const { floatingRootContext, open, mounted, triggerElement, setPositionerElement } =
-    usePopoverRootContext();
+  const {
+    floatingRootContext,
+    open,
+    mounted,
+    triggerElement,
+    setPositionerElement,
+    popupRef,
+    openMethod,
+  } = usePopoverRootContext();
 
   const positioner = usePopoverPositioner({
     anchor: anchor || triggerElement,
@@ -64,6 +72,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionPadding,
     hideWhenDetached,
     sticky,
+    popupRef,
+    openMethod,
+    initialFocus,
   });
 
   const ownerState: PopoverPositioner.OwnerState = React.useMemo(
@@ -109,6 +120,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
           context={positioner.positionerContext}
           modal={false}
           disabled={!mounted}
+          initialFocus={positioner.resolvedInitialFocus}
         >
           {renderElement()}
         </FloatingFocusManager>
