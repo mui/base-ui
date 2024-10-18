@@ -17,8 +17,13 @@ export const STYLE_HOOK_MAPPING = {
     if (value === null) {
       return null;
     }
+    if (value) {
+      return {
+        'data-valid': '',
+      };
+    }
     return {
-      'data-field': value ? 'valid' : 'invalid',
+      'data-invalid': '',
     };
   },
 };
