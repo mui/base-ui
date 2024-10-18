@@ -1,0 +1,16 @@
+{
+  "props": { "keepMounted": { "type": { "name": "bool" }, "default": "false" } },
+  "name": "SelectScrollUpArrow",
+  "imports": [
+    "import { Select } from '@base_ui/react/Select';\nconst SelectScrollUpArrow = Select.ScrollUpArrow;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectScrollUpArrow",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/ScrollUpArrow/SelectScrollUpArrow.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

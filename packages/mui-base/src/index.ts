@@ -13,6 +13,7 @@ export * from './PreviewCard';
 export * from './Progress';
 export * from './RadioGroup';
 export * from './Separator';
+export * from './Select';
 export * from './Slider';
 export * from './Switch';
 export * from './Tabs';
