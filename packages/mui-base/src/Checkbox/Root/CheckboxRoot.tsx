@@ -42,7 +42,8 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = props;
 
   const groupContext = useCheckboxGroupRootContext();
-  const isGrouped = groupContext?.parent && groupContext.allValues;
+  const parentContext = groupContext?.parent;
+  const isGrouped = parentContext && groupContext.allValues;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGrouped) {
@@ -73,6 +74,12 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
+
+  React.useEffect(() => {
+    if (parentContext && name) {
+      parentContext.disabledStatesRef.current.set(name, disabled);
+    }
+  }, [parentContext, disabled, name]);
 
   const ownerState: CheckboxRoot.OwnerState = React.useMemo(
     () => ({
