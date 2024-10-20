@@ -7,7 +7,6 @@ import type { GenericHTMLProps } from '../../utils/types';
 export interface PreviewCardRootContext {
   open: boolean;
   setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
