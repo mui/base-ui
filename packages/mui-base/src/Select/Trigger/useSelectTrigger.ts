@@ -25,11 +25,11 @@ export function useSelectTrigger(
     setOpen,
     setTriggerElement,
     selectionRef,
-    popupRef,
     value,
     getValidationProps,
     commitValidation,
     setTouchModality,
+    positionerElement,
   } = useSelectRootContext();
 
   const { labelId, setTouched } = useFieldRootContext();
@@ -49,12 +49,12 @@ export function useSelectTrigger(
 
   React.useEffect(() => {
     if (open) {
-      timeoutRef.current = window.setTimeout(() => {
+      const timeoutId = window.setTimeout(() => {
         selectionRef.current.allowMouseUp = true;
       }, 400);
 
       return () => {
-        window.clearTimeout(timeoutRef.current);
+        clearTimeout(timeoutId);
       };
     }
 
@@ -62,6 +62,8 @@ export function useSelectTrigger(
       allowMouseUp: false,
       allowSelect: true,
     };
+
+    clearTimeout(timeoutRef.current);
 
     return undefined;
   }, [open, selectionRef]);
@@ -108,7 +110,7 @@ export function useSelectTrigger(
 
               if (
                 isInsideTrigger ||
-                contains(popupRef.current, mouseUpTarget) ||
+                contains(positionerElement, mouseUpTarget) ||
                 contains(triggerRef.current, mouseUpTarget)
               ) {
                 return;
@@ -117,7 +119,10 @@ export function useSelectTrigger(
               setOpen(false, mouseEvent);
             }
 
-            doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            // Firefox can fire this upon mousedown
+            timeoutRef.current = window.setTimeout(() => {
+              doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            });
           },
         },
         getButtonProps(),
@@ -133,7 +138,7 @@ export function useSelectTrigger(
       value,
       setTouchModality,
       open,
-      popupRef,
+      positionerElement,
       setOpen,
     ],
   );
