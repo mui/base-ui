@@ -41,7 +41,7 @@
       transform 200ms ease-in;
   }
 
-  &[data-state='open'] {
+  &[data-open] {
     opacity: 1;
     transform: scale(1, 1);
     transition:

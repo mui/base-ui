@@ -208,7 +208,7 @@ const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
     float: right;
   }
 
-  &[data-state='open'] {
+  &[data-popup-open] {
     background-color: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }

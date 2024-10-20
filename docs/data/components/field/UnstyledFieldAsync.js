@@ -37,7 +37,7 @@ export default function UnstyledFieldAsync() {
       const error = await checkAvailability(name);
       setLoading(false);
       return error;
-    } catch (e) {
+    } catch {
       setLoading(false);
       return 'Failed to fetch name availability';
     }

@@ -38,8 +38,7 @@ const nextConfig = {
         ...config.resolve,
         alias: {
           ...config.resolve.alias,
-          'docs-base': path.resolve(workspaceRoot, 'docs'),
-          docs: path.resolve(workspaceRoot, 'node_modules/@mui/monorepo/docs'),
+          docs: path.resolve(workspaceRoot, 'docs'),
         },
       },
       module: {

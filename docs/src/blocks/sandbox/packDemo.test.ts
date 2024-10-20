@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { DemoFile } from 'docs-base/src/blocks/Demo';
+import { DemoFile } from 'docs/src/blocks/Demo';
 import { packDemo } from './packDemo';
 
 describe('packDemo', () => {

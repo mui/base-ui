@@ -12,7 +12,7 @@ const testRootContext: MenuRootContext = {
   getPositionerProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
-  parentContext: null,
+  parentContext: undefined,
   nested: false,
   triggerElement: null,
   setTriggerElement: () => {},
@@ -91,7 +91,7 @@ describe('<Menu.Trigger />', () => {
     const menuPopup = queryByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
 
-    expect(menuPopup).to.have.attribute('data-menu', 'open');
+    expect(menuPopup).to.have.attribute('data-open', '');
   });
 
   describe('keyboard navigation', () => {

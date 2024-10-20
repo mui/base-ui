@@ -29,7 +29,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     hoverable = true,
     animated = true,
     trackCursorAxis = 'none',
-    delayType = 'rest',
     delay,
     closeDelay,
   } = params;
@@ -110,22 +109,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     instantType = instantTypeState;
   }
 
-  const computedRestMs = delayType === 'rest' ? openGroupDelay || delayWithDefault : undefined;
-  let computedOpenDelay: number | undefined = delayType === 'hover' ? delayWithDefault : undefined;
+  const computedRestMs = openGroupDelay || delayWithDefault;
   let computedCloseDelay: number | undefined = closeDelayWithDefault;
-
-  if (delayType === 'hover') {
-    if (delay == null) {
-      computedOpenDelay =
-        groupDelay === 0
-          ? // A provider is not present.
-            delayWithDefault
-          : // A provider is present.
-            openGroupDelay;
-    } else {
-      computedOpenDelay = delay;
-    }
-  }
 
   // A provider is present and the close delay is not set.
   if (closeDelay == null && groupDelay !== 0) {
@@ -138,7 +123,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
     restMs: computedRestMs,
     delay: {
-      open: computedOpenDelay,
       close: computedCloseDelay,
     },
   });
@@ -228,13 +212,6 @@ export namespace useTooltipRoot {
      * @default 0
      */
     closeDelay?: number;
-    /**
-     * The delay type to use. `rest` means the `delay` represents how long the user's cursor must
-     * rest on the trigger before the tooltip popup is opened. `hover` means the `delay` represents
-     * how long to wait as soon as the user's cursor has entered the trigger.
-     * @default 'rest'
-     */
-    delayType?: 'rest' | 'hover';
     /**
      * Whether the tooltip popup element stays mounted in the DOM when closed.
      * @default false

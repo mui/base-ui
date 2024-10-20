@@ -8,12 +8,19 @@ export interface RadioRootContext {
   required: boolean;
 }
 
-export const RadioRootContext = React.createContext<RadioRootContext | null>(null);
+export const RadioRootContext = React.createContext<RadioRootContext | undefined>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  RadioRootContext.displayName = 'RadioRootContext';
+}
 
 export function useRadioRootContext() {
   const value = React.useContext(RadioRootContext);
-  if (value === null) {
-    throw new Error('Base UI: <Radio.Indicator> must be used within <Radio.Root>');
+  if (value === undefined) {
+    throw new Error(
+      'Base UI: RadioRootContext is missing. Radio parts must be placed within <Radio.Root>.',
+    );
   }
+
   return value;
 }

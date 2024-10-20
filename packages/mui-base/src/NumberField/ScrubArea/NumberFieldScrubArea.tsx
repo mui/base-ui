@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
@@ -32,7 +32,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   } = props;
 
   const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, ownerState } =
-    useNumberFieldContext('ScrubArea');
+    useNumberFieldRootContext();
 
   React.useImperativeHandle(scrubHandleRef, () => ({
     direction,

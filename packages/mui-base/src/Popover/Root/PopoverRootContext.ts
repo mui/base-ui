@@ -15,7 +15,6 @@ export interface PopoverRootContext {
   popupRef: React.RefObject<HTMLElement | null>;
   delay: number;
   closeDelay: number;
-  delayType: 'rest' | 'hover';
   instantType: 'dismiss' | 'click' | undefined;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -29,12 +28,19 @@ export interface PopoverRootContext {
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
 }
 
-export const PopoverRootContext = React.createContext<PopoverRootContext | null>(null);
+export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  PopoverRootContext.displayName = 'PopoverRootContext';
+}
 
 export function usePopoverRootContext() {
   const context = React.useContext(PopoverRootContext);
-  if (context === null) {
-    throw new Error('Popover components must be used within the <Popover.Root> component');
+  if (context === undefined) {
+    throw new Error(
+      'Base UI: PopoverRootContext is missing. Popover parts must be placed within <Popover.Root>.',
+    );
   }
+
   return context;
 }

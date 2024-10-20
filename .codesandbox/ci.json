@@ -6,6 +6,6 @@
   "publishDirectory": {
     "@base_ui/react": "packages/mui-base/build"
   },
-  "sandboxes": ["/examples/base-ui-cra-ts"],
+  "sandboxes": ["/.codesandbox/template"],
   "silent": true
 }

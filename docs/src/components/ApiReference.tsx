@@ -1,6 +1,6 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
-import { ComponentAPIReference } from 'docs-base/types/ComponentAPIReference';
+import { ComponentAPIReference } from 'docs/types/ComponentAPIReference';
 import { type TocEntry } from '@stefanprobst/rehype-extract-toc';
 import classes from './ApiReference.module.css';
 

@@ -28,6 +28,10 @@ export const FormRootContext = React.createContext<FormRootContext>({
   onClearErrors: () => {},
 });
 
+if (process.env.NODE_ENV !== 'production') {
+  FormRootContext.displayName = 'FormRootContext';
+}
+
 export function useFormRootContext() {
   return React.useContext(FormRootContext);
 }

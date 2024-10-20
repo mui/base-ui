@@ -2,8 +2,8 @@ import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, resolve } from 'node:path';
 import { codeToHtml } from 'shiki';
-import { config } from 'docs-base/config';
-import { DemoFile, DemoVariant } from 'docs-base/src/blocks/Demo';
+import { config } from 'docs/config';
+import { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
 
 const COMPONENTS_BASE_PATH = 'data/components';
 
@@ -92,7 +92,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   const DemoComponent = (
     await import(
       /* webpackInclude: /\.(tsx?|jsx?)$/ */
-      `docs-base/data/components/${path}`
+      `docs/data/components/${path}`
     )
   ).default;
 

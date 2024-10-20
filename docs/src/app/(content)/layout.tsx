@@ -1,0 +1,15 @@
+import * as React from 'react';
+
+import { AppBar } from 'docs/src/components/AppBar';
+import { Navigation } from 'docs/src/components/Navigation';
+import routes from 'docs/data/pages';
+
+export default function Layout({ children }: React.PropsWithChildren<{}>) {
+  return (
+    <React.Fragment>
+      <AppBar />
+      <Navigation routes={routes} />
+      {children}
+    </React.Fragment>
+  );
+}

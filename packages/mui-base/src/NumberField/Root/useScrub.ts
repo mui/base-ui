@@ -146,7 +146,7 @@ export function useScrub(params: ScrubParams) {
                 // We need to await it even though it doesn't appear to return a promise in the
                 // types in order for the `catch` to work.
                 await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-              } catch (e) {
+              } catch {
                 //
               }
             }, 20);
@@ -200,7 +200,7 @@ export function useScrub(params: ScrubParams) {
           try {
             // Avoid errors in testing environments.
             ownerDocument(scrubAreaRef.current).exitPointerLock();
-          } catch (e) {
+          } catch {
             //
           }
         }

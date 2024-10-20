@@ -7,7 +7,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import type { SliderRoot } from '../Root/SliderRoot';
-import { useSliderContext } from '../Root/SliderContext';
+import { useSliderRootContext } from '../Root/SliderRootContext';
 import { useSliderThumb } from './useSliderThumb';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
@@ -70,7 +70,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     step,
     tabIndex,
     values,
-  } = useSliderContext();
+  } = useSliderRootContext();
 
   let renderPropRef = null;
   if (typeof render !== 'function') {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -23,7 +23,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getDecrementButtonProps, ownerState } = useNumberFieldContext('Decrement');
+  const { getDecrementButtonProps, ownerState } = useNumberFieldRootContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getDecrementButtonProps,

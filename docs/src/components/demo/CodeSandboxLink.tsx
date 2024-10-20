@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
-import { createCodeSandbox } from 'docs-base/src/blocks/sandbox/createCodeSandbox';
-import { CodesandboxIcon } from 'docs-base/src/icons/Codesandbox';
-import { IconButton } from 'docs-base/src/design-system/IconButton';
+import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
+import { createCodeSandbox } from 'docs/src/blocks/sandbox/createCodeSandbox';
+import { CodesandboxIcon } from 'docs/src/icons/Codesandbox';
+import { IconButton } from 'docs/src/design-system/IconButton';
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;

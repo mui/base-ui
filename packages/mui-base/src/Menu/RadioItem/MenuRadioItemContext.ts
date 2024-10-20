@@ -10,10 +10,16 @@ export const MenuRadioItemContext = React.createContext<MenuRadioItemContext | u
   undefined,
 );
 
+if (process.env.NODE_ENV !== 'production') {
+  MenuRadioItemContext.displayName = 'MenuRadioItemContext';
+}
+
 export function useMenuRadioItemContext() {
   const context = React.useContext(MenuRadioItemContext);
   if (context === undefined) {
-    throw new Error('useMenuRadioItemContext must be used within a MenuRadioItemProvider');
+    throw new Error(
+      'Base UI: MenuRadioItemContext is missing. MenuRadioItem parts must be placed within <Menu.RadioItem>.',
+    );
   }
 
   return context;

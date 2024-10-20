@@ -14,7 +14,6 @@ export interface TooltipRootContext {
   popupRef: React.RefObject<HTMLElement | null>;
   delay: number;
   closeDelay: number;
-  delayType: 'rest' | 'hover';
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
@@ -25,12 +24,15 @@ export interface TooltipRootContext {
   transitionStatus: TransitionStatus;
 }
 
-export const TooltipRootContext = React.createContext<TooltipRootContext | null>(null);
+export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);
 
 export function useTooltipRootContext() {
   const context = React.useContext(TooltipRootContext);
-  if (context === null) {
-    throw new Error('Tooltip components must be used within the <Tooltip.Root> component');
+  if (context === undefined) {
+    throw new Error(
+      'Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.',
+    );
   }
+
   return context;
 }

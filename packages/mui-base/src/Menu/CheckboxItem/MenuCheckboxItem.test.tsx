@@ -13,7 +13,7 @@ const testRootContext: MenuRootContext = {
   getPositionerProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
-  parentContext: null,
+  parentContext: undefined,
   nested: false,
   triggerElement: null,
   setTriggerElement: () => {},
@@ -147,7 +147,7 @@ describe('<Menu.CheckboxItem />', () => {
 
         const item = getByRole('menuitemcheckbox');
         expect(item).to.have.attribute('aria-checked', ariaChecked);
-        expect(item).to.have.attribute('data-checkboxitem', dataState);
+        expect(item).to.have.attribute(`data-${dataState}`, '');
       }),
     );
 
@@ -170,12 +170,12 @@ describe('<Menu.CheckboxItem />', () => {
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'true');
-      expect(item).to.have.attribute('data-checkboxitem', 'checked');
+      expect(item).to.have.attribute('data-checked', '');
 
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'false');
-      expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
+      expect(item).to.have.attribute('data-unchecked', '');
     });
 
     it(`toggles the checked state when Space is pressed`, async () => {
@@ -202,10 +202,10 @@ describe('<Menu.CheckboxItem />', () => {
       });
 
       await user.keyboard(`[Space]`);
-      expect(item).to.have.attribute('data-checkboxitem', 'checked');
+      expect(item).to.have.attribute('data-checked', '');
 
       await user.keyboard(`[Space]`);
-      expect(item).to.have.attribute('data-checkboxitem', 'unchecked');
+      expect(item).to.have.attribute('data-unchecked', '');
     });
 
     it(`toggles the checked state and closes the menu when Enter is pressed`, async () => {
@@ -236,7 +236,7 @@ describe('<Menu.CheckboxItem />', () => {
 
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
       await user.click(trigger);
-      expect(item).to.have.attribute('data-checkboxitem', 'checked');
+      expect(item).to.have.attribute('data-checked', '');
     });
 
     it('calls `onCheckedChange` when the item is clicked', async () => {
@@ -291,7 +291,7 @@ describe('<Menu.CheckboxItem />', () => {
 
       const itemAfterReopen = getByRole('menuitemcheckbox');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
-      expect(itemAfterReopen).to.have.attribute('data-checkboxitem', 'checked');
+      expect(itemAfterReopen).to.have.attribute('data-checked');
     });
   });
 

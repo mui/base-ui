@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
-import { createStackBlitzProject } from 'docs-base/src/blocks/sandbox/createStackBlitzProject';
-import { IconButton } from 'docs-base/src/design-system/IconButton';
-import { StackBlitzIcon } from 'docs-base/src/icons/StackBlitz';
+import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
+import { createStackBlitzProject } from 'docs/src/blocks/sandbox/createStackBlitzProject';
+import { IconButton } from 'docs/src/design-system/IconButton';
+import { StackBlitzIcon } from 'docs/src/icons/StackBlitz';
 
 const tailwindSetup = `
     <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation -->

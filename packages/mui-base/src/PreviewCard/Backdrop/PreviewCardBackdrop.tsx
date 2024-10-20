@@ -7,6 +7,22 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerState> = {
+  ...baseMapping,
+  transitionStatus(value) {
+    if (value === 'entering') {
+      return { 'data-entering': '' } as Record<string, string>;
+    }
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+    return null;
+  },
+};
 
 /**
  *
@@ -24,10 +40,16 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
 ) {
   const { render, className, keepMounted = false, container, ...otherProps } = props;
 
-  const { open, mounted } = usePreviewCardRootContext();
+  const { open, mounted, transitionStatus } = usePreviewCardRootContext();
   const { getBackdropProps } = usePreviewCardBackdrop();
 
-  const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(
+    () => ({
+      open,
+      transitionStatus,
+    }),
+    [open, transitionStatus],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getBackdropProps,
@@ -36,6 +58,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -49,6 +72,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
 namespace PreviewCardBackdrop {
   export interface OwnerState {
     open: boolean;
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {

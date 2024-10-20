@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldContext } from '../Root/NumberFieldContext';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -23,7 +23,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getGroupProps, ownerState } = useNumberFieldContext('Group');
+  const { getGroupProps, ownerState } = useNumberFieldRootContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getGroupProps,

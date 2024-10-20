@@ -13,7 +13,6 @@ export interface PreviewCardRootContext {
   setPositionerElement: (el: HTMLElement | null) => void;
   delay: number;
   closeDelay: number;
-  delayType: 'rest' | 'hover';
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
@@ -23,12 +22,21 @@ export interface PreviewCardRootContext {
   popupRef: React.RefObject<HTMLElement | null>;
 }
 
-export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | null>(null);
+export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | undefined>(
+  undefined,
+);
+
+if (process.env.NODE_ENV !== 'production') {
+  PreviewCardRootContext.displayName = 'PreviewCardRootContext';
+}
 
 export function usePreviewCardRootContext() {
   const context = React.useContext(PreviewCardRootContext);
-  if (context === null) {
-    throw new Error('PreviewCard components must be used within the <PreviewCard.Root> component');
+  if (context === undefined) {
+    throw new Error(
+      'Base UI: PreviewCardRootContext is missing. PreviewCard parts must be placed within <PreviewCard.Root>.',
+    );
   }
+
   return context;
 }

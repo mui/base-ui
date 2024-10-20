@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleContext } from '../Root/CollapsibleContext';
+import { useCollapsibleContext } from '../Root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../Root/styleHooks';
 import { useCollapsibleContent } from './useCollapsibleContent';
