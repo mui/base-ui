@@ -14,6 +14,9 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
+/**
+ * @ignore - internal component.
+ */
 const InnerSelectOption = React.memo(
   React.forwardRef(function InnerSelectOption(
     props: InnerSelectOptionProps,
