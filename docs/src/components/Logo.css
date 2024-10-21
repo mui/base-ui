@@ -1,0 +1,14 @@
+/* Snap logo letters to whole pixels @1x */
+@layer components {
+  @media (max-resolution: 1dppx) {
+    .Logo-A {
+      transform: translate(0.5px);
+    }
+    .Logo-S {
+      transform: translate(1px);
+    }
+    .Logo-E {
+      transform: translate(1.5px);
+    }
+  }
+}

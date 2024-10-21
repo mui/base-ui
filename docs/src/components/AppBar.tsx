@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { BaseUIIcon } from 'docs/src/icons/BaseUI';
 import { GitHubIcon } from 'docs/src/icons/GitHub';
 import { SettingsIcon } from 'docs/src/icons/Settings';
 import { IconButton } from 'docs/src/design-system/IconButton';
 import { IconLinkButton } from 'docs/src/design-system/IconLinkButton';
+import NextLink from 'next/link';
 import { DocsVersionSelector } from './DocsVersionSelector';
 import packageJson from '../../../package.json';
 import classes from './AppBar.module.css';
+import { Logo } from './Logo';
 
 const currentVersion = packageJson.version;
 const supportedVersions = [
@@ -24,9 +25,9 @@ export function AppBar() {
   return (
     <header className={classes.root}>
       <div className={classes.primary}>
-        <IconLinkButton useNextLink href="/" label="Base UI" size={3}>
-          <BaseUIIcon />
-        </IconLinkButton>
+        <NextLink href="/" className="-m-3 block p-3">
+          <Logo />
+        </NextLink>
         <DocsVersionSelector currentVersion={currentVersion} versions={supportedVersions} />
       </div>
       <div className={classes.secondary}>
