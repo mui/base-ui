@@ -8,11 +8,49 @@ import { defineWorkspace } from 'vitest/config';
 export default defineWorkspace([
   {
     extends: './vitest.config.mts',
-    plugins: [react({ jsxRuntime: 'classic' })],
+    plugins: [react()],
+    test: {
+      include: [`packages/mui-base/src/**/*.test.?(c|m)[jt]s?(x)`],
+      exclude: [`packages/mui-base/src/**/*.jsdom.test.?(c|m)[jt]s?(x)`],
+      name: `browser.chromium/base-ui`,
+      env: {
+        MUI_BROWSER: 'true',
+      },
+      browser: {
+        enabled: true,
+        name: 'chromium',
+        provider: 'playwright',
+        headless: true,
+        screenshotFailures: false,
+      },
+    },
+  },
+  {
+    extends: './vitest.config.mts',
+    plugins: [react()],
+    test: {
+      include: [`packages/mui-base/src/**/*.test.?(c|m)[jt]s?(x)`],
+      exclude: [`packages/mui-base/src/**/*.jsdom.test.?(c|m)[jt]s?(x)`],
+      name: `browser.firefox/base-ui`,
+      env: {
+        MUI_BROWSER: 'true',
+      },
+      browser: {
+        enabled: true,
+        name: 'firefox',
+        provider: 'playwright',
+        headless: true,
+        screenshotFailures: false,
+      },
+    },
+  },
+  {
+    extends: './vitest.config.mts',
+    plugins: [react()],
     test: {
       include: [`packages/mui-base/src/**/*.test.?(c|m)[jt]s?(x)`],
       exclude: [`packages/mui-base/src/**/*.browser.test.?(c|m)[jt]s?(x)`],
-      name: `jsdom/mui-base`,
+      name: `jsdom/base-ui`,
       environment: 'jsdom',
       env: {
         MUI_JSDOM: 'true',

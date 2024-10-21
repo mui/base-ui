@@ -551,8 +551,14 @@ describe('<Menu.Root />', () => {
       expect(button).toHaveFocus();
     });
 
-    // TODO: this stopped working in vitest
-    it.skip('focuses the trigger after the menu is closed but not unmounted', async () => {
+    it('focuses the trigger after the menu is closed but not unmounted', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // TODO: this stopped working in vitest JSDOM mode
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
       const { getByRole } = await render(
         <div>
           <input type="text" />

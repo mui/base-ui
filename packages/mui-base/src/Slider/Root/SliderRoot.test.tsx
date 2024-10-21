@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
@@ -61,14 +61,9 @@ function TestRangeSlider(props: SliderRoot.Props) {
   );
 }
 
-describe('<Slider.Root />', () => {
+describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
+  // eslint-disable-next-line mocha/no-top-level-hooks
   before(function beforeHook() {
-    if (typeof Touch === 'undefined') {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
-    }
-
     // PointerEvent not fully implemented in jsdom, causing
     // fireEvent.pointer* to ignore options
     // https://github.com/jsdom/jsdom/issues/2527

@@ -134,7 +134,6 @@ describe('<Dialog.Root />', () => {
       opacity: 1;
     }
   `;
-    q;
 
     it('when `true`, waits for the exit transition to finish before unmounting', async () => {
       const { setProps, queryByRole } = await render(

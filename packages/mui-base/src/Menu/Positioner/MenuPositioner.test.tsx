@@ -57,7 +57,7 @@ describe('<Menu.Positioner />', () => {
         const anchor = React.useRef<HTMLDivElement | null>(null);
 
         return (
-          <div>
+          <div style={{ margin: '50px' }}>
             <Menu.Root open animated={false}>
               <Menu.Positioner side="bottom" alignment="start" anchor={anchor} arrowPadding={0}>
                 <Menu.Popup>
@@ -99,7 +99,7 @@ describe('<Menu.Positioner />', () => {
         }, []);
 
         return (
-          <div>
+          <div style={{ margin: '50px' }}>
             <Menu.Root open animated={false}>
               <Menu.Positioner side="bottom" alignment="start" anchor={anchor} arrowPadding={0}>
                 <Menu.Popup>
@@ -127,7 +127,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returingn an element is passed', async function test(t = {}) {
+    it('should be placed near the specified element when a function returning an element is passed', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -143,7 +143,7 @@ describe('<Menu.Positioner />', () => {
         const getAnchor = React.useCallback(() => anchor, [anchor]);
 
         return (
-          <div>
+          <div style={{ margin: '50px' }}>
             <Menu.Root open animated={false}>
               <Menu.Positioner side="bottom" alignment="start" anchor={getAnchor} arrowPadding={0}>
                 <Menu.Popup>
