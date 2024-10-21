@@ -32,7 +32,9 @@ export default function App() {
       >
         <Accordion.Item className="MyAccordion-item">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 1</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 1
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 1
@@ -42,7 +44,9 @@ export default function App() {
 
         <Accordion.Item className="MyAccordion-item">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 2</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 2
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 2
@@ -57,13 +61,16 @@ export default function App() {
             </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
-            This is the contents of Accordion.Panel 3<a href="https://mui.com">MUI</a>
+            This is the contents of Accordion.Panel 3
+            <a href="https://mui.com">MUI</a>
           </Accordion.Panel>
         </Accordion.Item>
 
         <Accordion.Item className="MyAccordion-item">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 4</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 4
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 4
@@ -72,7 +79,9 @@ export default function App() {
 
         <Accordion.Item className="MyAccordion-item">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 5</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 5
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 5
@@ -93,7 +102,9 @@ export default function App() {
       >
         <Accordion.Item className="MyAccordion-item" value="one">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 1</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 1
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 1, the value is &quot;one&quot;
@@ -102,7 +113,9 @@ export default function App() {
 
         <Accordion.Item className="MyAccordion-item" value="two">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 2</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 2
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 2, the value is &quot;two&quot;
@@ -111,7 +124,9 @@ export default function App() {
 
         <Accordion.Item className="MyAccordion-item" value="three">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 3</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 3
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 3, the value is &quot;three&quot;
@@ -136,7 +151,9 @@ export default function App() {
       >
         <Accordion.Item className="MyAccordion-item" value="one">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 1</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 1
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 1, the value is &quot;one&quot;
@@ -145,7 +162,9 @@ export default function App() {
 
         <Accordion.Item className="MyAccordion-item" value="two">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 2</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 2
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 2, the value is &quot;two&quot;
@@ -154,7 +173,9 @@ export default function App() {
 
         <Accordion.Item className="MyAccordion-item" value="three">
           <Accordion.Header className="MyAccordion-header">
-            <Accordion.Trigger className="MyAccordion-trigger">Trigger 3</Accordion.Trigger>
+            <Accordion.Trigger className="MyAccordion-trigger">
+              Trigger 3
+            </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Panel className="MyAccordion-panel">
             This is the contents of Accordion.Panel 3, the value is &quot;three&quot;
@@ -175,7 +196,10 @@ function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="none"
     >
-      <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
     </svg>
   );
 }

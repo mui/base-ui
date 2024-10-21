@@ -20,7 +20,11 @@ export default function AnimatedCollapsibles() {
           <p>This is the collapsed content</p>
           <p>
             You can find the Base UI repository{' '}
-            <a href="https://github.com/mui/base-ui" target="_blank" rel="noreferrer noopener">
+            <a
+              href="https://github.com/mui/base-ui"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
               here
             </a>
           </p>
@@ -36,7 +40,11 @@ export default function AnimatedCollapsibles() {
           <p>This is the collapsed content</p>
           <p>
             You can find the Base UI repository{' '}
-            <a href="https://github.com/mui/base-ui" target="_blank" rel="noreferrer noopener">
+            <a
+              href="https://github.com/mui/base-ui"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
               here
             </a>
           </p>
@@ -52,7 +60,11 @@ export default function AnimatedCollapsibles() {
           <p>This is the collapsed content</p>
           <p>
             You can find the Base UI repository{' '}
-            <a href="https://github.com/mui/base-ui" target="_blank" rel="noreferrer noopener">
+            <a
+              href="https://github.com/mui/base-ui"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
               here
             </a>
           </p>
@@ -68,7 +80,11 @@ export default function AnimatedCollapsibles() {
           <p>This is the collapsed content</p>
           <p>
             You can find the Base UI repository{' '}
-            <a href="https://github.com/mui/base-ui" target="_blank" rel="noreferrer noopener">
+            <a
+              href="https://github.com/mui/base-ui"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
               here
             </a>
           </p>

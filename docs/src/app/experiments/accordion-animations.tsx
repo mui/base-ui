@@ -25,12 +25,14 @@ export default function App() {
                 <ExpandMoreIcon />
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel className={classNames(classes.panel, classes.cssanimation)}>
+            <Accordion.Panel
+              className={classNames(classes.panel, classes.cssanimation)}
+            >
               <p>
                 This is the contents of Accordion.Panel {index + 1}
                 <br />
-                It uses `hidden=&quot;until-found&quot;` and can be opened by the browser&apos;s
-                in-page search
+                It uses `hidden=&quot;until-found&quot;` and can be opened by the
+                browser&apos;s in-page search
                 <br />
                 <input type="text" />
               </p>
@@ -40,7 +42,10 @@ export default function App() {
       </Accordion.Root>
 
       <h3>CSS transitions</h3>
-      <Accordion.Root className={classes.root} aria-label="Uncontrolled Material UI Accordion">
+      <Accordion.Root
+        className={classes.root}
+        aria-label="Uncontrolled Material UI Accordion"
+      >
         {[0, 1, 2].map((index) => (
           <Accordion.Item className={classes.item} key={index}>
             <Accordion.Header className={classes.header}>
@@ -49,7 +54,9 @@ export default function App() {
                 <ExpandMoreIcon />
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel className={classNames(classes.panel, classes.csstransition)}>
+            <Accordion.Panel
+              className={classNames(classes.panel, classes.csstransition)}
+            >
               <p>This is the contents of Accordion.Panel {index + 1}</p>
               <a href="https://www.w3.org/TR/WCAG22/">WCAG 2.2</a>
             </Accordion.Panel>

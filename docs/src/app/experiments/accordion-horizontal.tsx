@@ -21,7 +21,9 @@ export default function App() {
         {['one', 'two', 'three'].map((value, index) => (
           <Accordion.Item className={classes.item} key={value}>
             <Accordion.Header className={classes.header}>
-              <Accordion.Trigger className={classNames(classes.trigger, classes[value])}>
+              <Accordion.Trigger
+                className={classNames(classes.trigger, classes[value])}
+              >
                 <span className={classes.triggerText}>{index + 1}</span>
                 <span className={classes.triggerLabel}>{value}</span>
               </Accordion.Trigger>
@@ -53,7 +55,9 @@ export default function App() {
         {['one', 'two', 'three'].map((value, index) => (
           <Accordion.Item className={classes.item} key={value} value={value}>
             <Accordion.Header className={classes.header}>
-              <Accordion.Trigger className={classNames(classes.trigger, classes[value])}>
+              <Accordion.Trigger
+                className={classNames(classes.trigger, classes[value])}
+              >
                 <span className={classes.triggerText}>{index + 1}</span>
                 <span className={classes.triggerLabel}>{value}</span>
               </Accordion.Trigger>
