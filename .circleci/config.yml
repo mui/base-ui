@@ -151,7 +151,7 @@ jobs:
           react-version: << parameters.react-version >>
       - run:
           name: Tests fake browser
-          command: pnpm test:jsdom
+          command: pnpm test:jsdom --coverage
       - run:
           name: Check coverage generated
           command: |
