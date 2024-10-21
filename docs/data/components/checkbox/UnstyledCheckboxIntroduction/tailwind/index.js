@@ -46,11 +46,11 @@ const Checkbox = React.forwardRef(function Checkbox(props, ref) {
       ref={ref}
       className={(state) =>
         classNames(
-          'w-6 h-6 p-0 rounded-md',
+          'h-6 w-6 rounded-md p-0',
           'border-2 border-solid border-purple-500',
-          'outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500 focus-visible:ring-opacity-60',
+          'outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-opacity-60 focus-visible:ring-offset-2',
           'transition-colors duration-150',
-          state.disabled && 'opacity-40 cursor-not-allowed',
+          state.disabled && 'cursor-not-allowed opacity-40',
           state.checked && 'bg-purple-500',
           !state.checked && 'bg-transparent',
           typeof props.className === 'function'
@@ -76,14 +76,14 @@ const Indicator = React.forwardRef(function Indicator(props, ref) {
       ref={ref}
       className={(state) =>
         classNames(
-          'h-full inline-block invisible data-[checked]:visible text-gray-100',
+          'invisible inline-block h-full text-gray-100 data-[checked]:visible',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
         )
       }
     >
-      <CheckIcon className="w-full h-full" />
+      <CheckIcon className="h-full w-full" />
     </BaseCheckbox.Indicator>
   );
 });
