@@ -256,7 +256,7 @@ describe('<Field.Root />', () => {
       it('supports Select', async () => {
         await render(
           <Field.Root validate={() => 'error'}>
-            <Select.Root>
+            <Select.Root animated={false}>
               <Select.Trigger data-testid="trigger" />
               <Select.Positioner />
             </Select.Root>
@@ -651,7 +651,7 @@ describe('<Field.Root />', () => {
       it('supports Select', async () => {
         await render(
           <Field.Root>
-            <Select.Root>
+            <Select.Root animated={false}>
               <Select.Trigger data-testid="trigger" />
               <Select.Positioner>
                 <Select.Popup>
