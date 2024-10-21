@@ -154,17 +154,9 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    * It can be either a ref to the element or a function that returns such a ref.
    * If not provided, the first focusable element is focused.
    */
-  initialFocus: PropTypes.oneOfType([
+  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,
-    PropTypes.shape({
-      current: function (props, propName) {
-        if (props[propName] == null) {
-          return null;
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
-        }
-      },
-    }),
+    refType,
   ]),
   /**
    * If `true`, the dialog element is kept in the DOM when closed.

@@ -7,7 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { HTMLElementType } from '../../utils/proptypes';
+import { HTMLElementType, refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
@@ -225,6 +225,15 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
+  /**
+   * Determines an element to focus when the popover is opened.
+   * It can be either a ref to the element or a function that returns such a ref.
+   * If not provided, the first focusable element is focused.
+   */
+  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    PropTypes.func,
+    refType,
+  ]),
   /**
    * Whether the popover remains mounted in the DOM while closed.
    * @default false

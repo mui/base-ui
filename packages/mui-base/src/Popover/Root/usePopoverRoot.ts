@@ -120,21 +120,13 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
-  const handleTriggerClick = React.useCallback(
-    (_: React.MouseEvent | React.PointerEvent, pointerType: PointerType) => {
-      console.log('setting open method', pointerType);
-      setOpenMethod(pointerType);
-    },
-    [],
-  );
-
   const handleClick = React.useCallback(
-    (event: React.MouseEvent, pointerType: PointerType) => {
+    (_: React.MouseEvent, pointerType: PointerType) => {
       if (!open) {
-        handleTriggerClick?.(event, pointerType);
+        setOpenMethod(pointerType);
       }
     },
-    [open, handleTriggerClick],
+    [open, setOpenMethod],
   );
 
   const { onClick, onPointerDown } = useEnhancedClickHandler(handleClick);
@@ -155,8 +147,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       setTitleId,
       descriptionId,
       setDescriptionId,
-      getRootTriggerProps: (otherProps: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(otherProps, { onClick, onPointerDown })),
+      getRootTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
+        getReferenceProps(mergeReactProps(externalProps, { onClick, onPointerDown })),
       getRootPopupProps: getFloatingProps,
       floatingRootContext: context,
       instantType,

@@ -196,7 +196,13 @@ export namespace usePopoverPositioner {
      * The floating root context.
      */
     floatingRootContext?: FloatingRootContext;
+    /**
+     * Method used to open the popover.
+     */
     openMethod: PointerType | null;
+    /**
+     * The ref to the popup element.
+     */
     popupRef: React.RefObject<HTMLElement | null>;
   }
 
@@ -229,6 +235,9 @@ export namespace usePopoverPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
+    /**
+     * Ref to the element to focus when the popover is opened, or `0` to focus the first element within the popover.
+     */
     resolvedInitialFocus: React.RefObject<HTMLElement | null> | 0;
   }
 }
