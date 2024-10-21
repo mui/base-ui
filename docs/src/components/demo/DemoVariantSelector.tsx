@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { type DemoVariant } from 'docs-base/src/blocks/Demo';
-import { useDemoContext } from 'docs-base/src/blocks/Demo/DemoContext';
-import { ToggleButtonGroup } from 'docs-base/src/design-system/ToggleButtonGroup';
+import { type DemoVariant } from 'docs/src/blocks/Demo';
+import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
+import { ToggleButtonGroup } from 'docs/src/design-system/ToggleButtonGroup';
 import classes from './DemoVariantSelector.module.css';
 import { useDemoVariantSelectorContext } from './DemoVariantSelectorProvider';
 

@@ -17,8 +17,7 @@ module.exports = function getBabelConfig(api) {
 
   const defaultAlias = {
     '@base_ui/react': resolveAliasPath('./packages/mui-base/src'),
-    docs: resolveAliasPath('./node_modules/@mui/monorepo/docs'),
-    'docs-base': resolveAliasPath('./docs'),
+    docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
     '@mui-internal/api-docs-builder': resolveAliasPath(
       './node_modules/@mui/monorepo/packages/api-docs-builder',

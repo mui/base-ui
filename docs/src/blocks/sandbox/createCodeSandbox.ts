@@ -1,5 +1,5 @@
 import LZString from 'lz-string';
-import { DemoFile } from 'docs-base/src/blocks/Demo';
+import { DemoFile } from 'docs/src/blocks/Demo';
 import * as CRA from './CreateReactApp';
 import { packDemo } from './packDemo';
 import { addHiddenInput } from './addHiddenInput';

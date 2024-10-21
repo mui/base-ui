@@ -78,8 +78,8 @@
       "enabled": false
     },
     {
-      "groupName": "examples",
-      "matchPaths": ["examples/**/package.json"],
+      "groupName": "CodeSandbox template",
+      "matchPaths": [".codesandbox/template/package.json"],
       "enabled": false
     },
     {
