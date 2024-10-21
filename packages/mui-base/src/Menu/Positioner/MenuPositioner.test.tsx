@@ -46,9 +46,11 @@ describe('<Menu.Positioner />', () => {
   }));
 
   describe('prop: anchor', () => {
-    it('should be placed near the specified element when a ref is passed', async function test() {
+    it('should be placed near the specified element when a ref is passed', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       function TestComponent() {
@@ -83,9 +85,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when an element is passed', async function test() {
+    it('should be placed near the specified element when an element is passed', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       function TestComponent() {
@@ -123,9 +127,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returingn an element is passed', async function test() {
+    it('should be placed near the specified element when a function returingn an element is passed', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       function TestComponent() {
@@ -165,9 +171,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed at the specified position', async function test() {
+    it('should be placed at the specified position', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        t; // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const boundingRect = {

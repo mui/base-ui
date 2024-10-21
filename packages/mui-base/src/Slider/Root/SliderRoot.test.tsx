@@ -64,7 +64,9 @@ function TestRangeSlider(props: SliderRoot.Props) {
 describe('<Slider.Root />', () => {
   before(function beforeHook() {
     if (typeof Touch === 'undefined') {
-      this.skip();
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
     }
 
     // PointerEvent not fully implemented in jsdom, causing
@@ -315,10 +317,12 @@ describe('<Slider.Root />', () => {
       });
     });
 
-    it('should not respond to drag events after becoming disabled', async function test() {
+    it('should not respond to drag events after becoming disabled', async function test(t = {}) {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const { getByRole, setProps, getByTestId } = await render(
@@ -352,10 +356,12 @@ describe('<Slider.Root />', () => {
       expect(thumb).to.have.attribute('aria-valuenow', '21');
     });
 
-    it('should not respond to drag events if disabled', async function test() {
+    it('should not respond to drag events if disabled', async function test(t = {}) {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const { getByRole, getByTestId } = await render(
@@ -407,9 +413,11 @@ describe('<Slider.Root />', () => {
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    it('does not set the orientation via appearance for WebKit browsers', async function test() {
+    it('does not set the orientation via appearance for WebKit browsers', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent) || !/WebKit/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       await render(<TestSlider orientation="vertical" />);
@@ -1096,10 +1104,12 @@ describe('<Slider.Root />', () => {
 
   describe('form submission', () => {
     // doesn't work with two `<input type="range" />` elements with the same name attribute
-    it('includes the slider value in formData when the `name` attribute is provided', async function test() {
+    it('includes the slider value in formData when the `name` attribute is provided', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
