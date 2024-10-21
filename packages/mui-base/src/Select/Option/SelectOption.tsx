@@ -14,64 +14,62 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
-const InnerSelectOption = React.memo(
-  React.forwardRef(function InnerSelectOption(
-    props: InnerSelectOptionProps,
-    forwardedRef: React.ForwardedRef<Element>,
-  ) {
-    const {
-      className,
-      disabled = false,
-      highlighted,
-      selected,
-      id,
-      getItemProps: getRootItemProps,
-      render,
-      setOpen,
-      typingRef,
-      handleSelect,
-      selectionRef,
-      open,
-      ...otherProps
-    } = props;
+const InnerSelectOption = React.forwardRef(function InnerSelectOption(
+  props: InnerSelectOptionProps,
+  forwardedRef: React.ForwardedRef<Element>,
+) {
+  const {
+    className,
+    disabled = false,
+    highlighted,
+    selected,
+    id,
+    getItemProps: getRootItemProps,
+    render,
+    setOpen,
+    typingRef,
+    handleSelect,
+    selectionRef,
+    open,
+    ...otherProps
+  } = props;
 
-    const { getItemProps } = useSelectOption({
-      setOpen,
-      disabled,
-      highlighted,
-      selected,
-      id,
-      ref: forwardedRef,
-      typingRef,
-      handleSelect,
-      selectionRef,
-    });
+  const { getItemProps } = useSelectOption({
+    setOpen,
+    disabled,
+    highlighted,
+    selected,
+    id,
+    ref: forwardedRef,
+    typingRef,
+    handleSelect,
+    selectionRef,
+  });
 
-    const ownerState: SelectOption.OwnerState = React.useMemo(
-      () => ({ open, disabled, highlighted, selected }),
-      [open, disabled, highlighted, selected],
-    );
+  const ownerState: SelectOption.OwnerState = React.useMemo(
+    () => ({ open, disabled, highlighted, selected }),
+    [open, disabled, highlighted, selected],
+  );
 
-    const { renderElement } = useComponentRenderer({
-      render: render ?? 'div',
-      className,
-      ownerState,
-      propGetter: (externalProps) => {
-        // Preserve the component prop `id` if it's provided.
-        const { id: idProp, ...rootItemProps } = getRootItemProps({
-          ...externalProps,
-          selected,
-          active: highlighted,
-        });
-        return getItemProps(rootItemProps);
-      },
-      extraProps: otherProps,
-      customStyleHookMapping: commonStyleHooks,
-    });
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'div',
+    className,
+    ownerState,
+    propGetter: (externalProps) => {
+      // Preserve the component prop `id` if it's provided.
+      const { id: idProp, ...rootItemProps } = getRootItemProps({
+        ...externalProps,
+        selected,
+        active: highlighted,
+      });
+      return getItemProps(rootItemProps);
+    },
+    extraProps: otherProps,
+    customStyleHookMapping: commonStyleHooks,
+  });
 
-    return renderElement();
-  }),
-);
+  return renderElement();
+});
 
 InnerSelectOption.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -149,6 +147,8 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
   }).isRequired,
 } as any;
 
+const MemoizedInnerSelectOption = React.memo(InnerSelectOption);
+
 /**
  *
  * Demos:
@@ -210,7 +210,7 @@ const SelectOption = React.forwardRef(function SelectOption(
 
   return (
     <SelectOptionContext.Provider value={contextValue}>
-      <InnerSelectOption
+      <MemoizedInnerSelectOption
         {...otherProps}
         id={id}
         ref={mergedRef}
