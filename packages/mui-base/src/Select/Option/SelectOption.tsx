@@ -14,9 +14,6 @@ import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
-/**
- * @ignore - internal component.
- */
 const InnerSelectOption = React.memo(
   React.forwardRef(function InnerSelectOption(
     props: InnerSelectOptionProps,
@@ -77,7 +74,93 @@ const InnerSelectOption = React.memo(
 );
 
 /**
- * An unstyled select item to be used within a Select.
+ *
+ * Demos:
+ *
+ * - [Select](https://base-ui.netlify.app/components/react-select/)
+ *
+ * API:
+ *
+ * - [SelectOption API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOption)
+ */
+
+InnerSelectOption.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * If `true`, the select option will be disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  getItemProps: PropTypes.func.isRequired,
+  /**
+   * @ignore
+   */
+  handleSelect: PropTypes.func.isRequired,
+  /**
+   * @ignore
+   */
+  highlighted: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
+   * A text representation of the select option's content.
+   * Used for keyboard text navigation matching.
+   */
+  label: PropTypes.string,
+  /**
+   * The click handler for the select option.
+   */
+  onClick: PropTypes.func,
+  /**
+   * @ignore
+   */
+  open: PropTypes.bool.isRequired,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  selected: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
+  selectionRef: PropTypes.shape({
+    current: PropTypes.shape({
+      allowMouseUp: PropTypes.bool.isRequired,
+      allowSelect: PropTypes.bool.isRequired,
+    }).isRequired,
+  }).isRequired,
+  /**
+   * @ignore
+   */
+  setOpen: PropTypes.func.isRequired,
+  /**
+   * @ignore
+   */
+  typingRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
+} as any;
+
+/**
  *
  * Demos:
  *

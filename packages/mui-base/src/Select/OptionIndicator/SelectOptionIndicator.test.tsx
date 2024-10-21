@@ -1,28 +1,23 @@
-// import * as React from 'react';
-// import { Select } from '@base_ui/react/Select';
-// import { createRenderer, describeConformance } from '#test-utils';
-// import { SelectOptionContext } from '../Option/SelectOptionContext';
+import * as React from 'react';
+import { Select } from '@base_ui/react/Select';
+import { createRenderer, describeConformance } from '#test-utils';
 
-// const selectItemContextValue = {
-//   open: true,
-//   selected: true,
-// };
+describe('<Select.OptionIndicator />', () => {
+  const { render } = createRenderer();
 
-// describe('<Select.OptionIndicator />', () => {
-//   const { render } = createRenderer();
-
-//   describeConformance(<Select.OptionIndicator />, () => ({
-//     refInstanceof: window.HTMLSpanElement,
-//     render(node) {
-//       return render(
-//         <Select.Root open animated={false}>
-//           <Select.Positioner>
-//             <SelectOptionContext.Provider value={selectItemContextValue}>
-//               {node}
-//             </SelectOptionContext.Provider>
-//           </Select.Positioner>
-//         </Select.Root>,
-//       );
-//     },
-//   }));
-// });
+  describeConformance(<Select.OptionIndicator />, () => ({
+    refInstanceof: window.HTMLSpanElement,
+    render(node) {
+      return render(
+        <Select.Root open animated={false}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Positioner>
+            <Select.Option>{node}</Select.Option>
+          </Select.Positioner>
+        </Select.Root>,
+      );
+    },
+  }));
+});
