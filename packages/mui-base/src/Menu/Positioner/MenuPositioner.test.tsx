@@ -173,7 +173,7 @@ describe('<Menu.Positioner />', () => {
 
     it('should be placed at the specified position', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        t; // @ts-expect-error to support mocha and vitest
+        // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
       }
