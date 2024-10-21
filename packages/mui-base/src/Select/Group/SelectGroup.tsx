@@ -5,7 +5,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { SelectGroupContext } from './SelectGroupContext';
-import { useSelectRootContext } from '../Root/SelectRootContext';
+
+const ownerState = {};
 
 /**
  *
@@ -23,16 +24,7 @@ const SelectGroup = React.forwardRef(function SelectGroup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open } = useSelectRootContext();
-
   const [labelId, setLabelId] = React.useState<string | undefined>();
-
-  const ownerState: SelectGroup.OwnerState = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
 
   const getSelectOptionGroupProps = React.useCallback(
     (externalProps = {}) =>
@@ -68,9 +60,7 @@ const SelectGroup = React.forwardRef(function SelectGroup(
 });
 
 namespace SelectGroup {
-  export interface OwnerState {
-    open: boolean;
-  }
+  export interface OwnerState {}
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }

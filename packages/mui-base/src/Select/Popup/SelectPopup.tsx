@@ -5,19 +5,25 @@ import type { Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
-  ...commonStyleHooks,
-  entering(value) {
-    return value ? { 'data-entering': '' } : null;
-  },
-  exiting(value) {
-    return value ? { 'data-exiting': '' } : null;
+  ...popupOpenStateMapping,
+  transitionStatus(value): Record<string, string> | null {
+    if (value === 'entering') {
+      return { 'data-entering': '' };
+    }
+
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+
+    return null;
   },
 };
 
@@ -45,8 +51,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   const ownerState: SelectPopup.OwnerState = React.useMemo(
     () => ({
-      entering: transitionStatus === 'entering',
-      exiting: transitionStatus === 'exiting',
+      transitionStatus,
       side,
       alignment,
       open,
@@ -77,11 +82,10 @@ namespace SelectPopup {
   }
 
   export interface OwnerState {
-    entering: boolean;
-    exiting: boolean;
     side: Side | 'none';
     alignment: 'start' | 'end' | 'center';
     open: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 

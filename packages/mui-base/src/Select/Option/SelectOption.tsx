@@ -10,7 +10,7 @@ import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectOptionContext } from './SelectOptionContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
@@ -65,7 +65,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
       return getItemProps(rootItemProps);
     },
     extraProps: otherProps,
-    customStyleHookMapping: commonStyleHooks,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   return renderElement();

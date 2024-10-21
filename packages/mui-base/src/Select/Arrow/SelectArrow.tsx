@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -58,7 +58,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: commonStyleHooks,
+    customStyleHookMapping: popupOpenStateMapping,
   });
 
   if (alignOptionToTrigger) {

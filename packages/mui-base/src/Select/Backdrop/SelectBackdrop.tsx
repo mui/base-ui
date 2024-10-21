@@ -8,10 +8,24 @@ import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useSelectBackdrop } from './useSelectBackdrop';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = commonStyleHooks;
+const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = {
+  ...popupOpenStateMapping,
+  transitionStatus(value): Record<string, string> | null {
+    if (value === 'entering') {
+      return { 'data-entering': '' };
+    }
+
+    if (value === 'exiting') {
+      return { 'data-exiting': '' };
+    }
+
+    return null;
+  },
+};
 
 /**
  *
@@ -29,13 +43,16 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { className, render, keepMounted = false, container, ...otherProps } = props;
 
-  const { open, mounted, backdropRef } = useSelectRootContext();
+  const { open, mounted, backdropRef, transitionStatus } = useSelectRootContext();
 
   const { getBackdropProps } = useSelectBackdrop();
 
   const mergedRef = useForkRef(backdropRef, forwardedRef);
 
-  const ownerState: SelectBackdrop.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const ownerState: SelectBackdrop.OwnerState = React.useMemo(
+    () => ({ open, transitionStatus }),
+    [open, transitionStatus],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getBackdropProps,
@@ -68,8 +85,10 @@ namespace SelectBackdrop {
      */
     container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
+
   export interface OwnerState {
     open: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+
 /**
  *
  * Demos:
@@ -43,6 +44,7 @@ const SelectIcon = React.forwardRef(function SelectIcon(
 
 namespace SelectIcon {
   export interface OwnerState {}
+
   export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
 }
 

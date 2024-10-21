@@ -3,14 +3,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectOptionContext } from '../Option/SelectOptionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectOptionIndicator.OwnerState> =
-  commonStyleHooks;
+  popupOpenStateMapping;
 
 /**
  *

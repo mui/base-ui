@@ -229,7 +229,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 }
 
 /* Represents the final styles once entered */
-.SelectPopup[data-select='open'] {
+.SelectPopup[data-open] {
   opacity: 1;
   transform: scale(1);
 }
@@ -258,7 +258,7 @@ In newer browsers, there is a feature called `@starting-style` which allows tran
 
 /* Official Browser API - no Firefox support as of May 2024 */
 @starting-style {
-  .SelectPopup[data-select='open'] {
+  .SelectPopup[data-open] {
     opacity: 0;
     transform: scale(0.9);
   }
@@ -330,8 +330,7 @@ function App() {
 
 Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
 
-- `[data-select="open"]` - `open` state is `true`.
-- `[data-select="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
+- `[data-open]` - `open` state is `true`.
 - `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
 - `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
 

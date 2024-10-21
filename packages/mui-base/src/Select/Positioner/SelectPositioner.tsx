@@ -5,7 +5,6 @@ import { FloatingFocusManager, FloatingPortal, inner, type Side } from '@floatin
 import type { BaseUIComponentProps } from '../../utils/types';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-import { commonStyleHooks } from '../utils/commonStyleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectPositioner } from './useSelectPositioner';
@@ -18,6 +17,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { useField } from '../../Field/useField';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  * Renders the element that positions the Select popup.
@@ -207,7 +207,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     render: render ?? 'div',
     className,
     ownerState,
-    customStyleHookMapping: commonStyleHooks,
+    customStyleHookMapping: popupOpenStateMapping,
     ref: mergedRef,
     extraProps: otherProps,
   });
