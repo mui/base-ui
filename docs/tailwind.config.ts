@@ -1,5 +1,8 @@
 import type { Config } from 'tailwindcss';
 
+// Handy link to the default config:
+// https://github.com/tailwindlabs/tailwindcss/blob/main/stubs/config.full.js
+
 export default {
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
@@ -25,6 +28,7 @@ export default {
         lg: ['1.1875rem', { lineHeight: '1.75rem' }],
         xl: ['1.3125rem', { lineHeight: '1.75rem' }],
         '2xl': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.0125em' }],
+        '3xl': ['1.875rem', { lineHeight: '1.2', letterSpacing: '-0.015em' }],
       },
     },
   },
