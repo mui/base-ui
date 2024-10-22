@@ -120,7 +120,6 @@ export function usePreviewCardRoot(
       setOpen,
       mounted,
       setMounted,
-      triggerElement,
       setTriggerElement,
       positionerElement,
       setPositionerElement,
@@ -136,7 +135,6 @@ export function usePreviewCardRoot(
       open,
       setMounted,
       setOpen,
-      triggerElement,
       positionerElement,
       getRootTriggerProps,
       getRootPopupProps,
@@ -202,7 +200,6 @@ export namespace usePreviewCardRoot {
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;
-    triggerElement: Element | null;
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     positionerElement: HTMLElement | null;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;

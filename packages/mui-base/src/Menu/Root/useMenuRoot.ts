@@ -161,7 +161,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     () => ({
       activeIndex,
       floatingRootContext,
-      triggerElement,
       setTriggerElement,
       getTriggerProps,
       setPositionerElement,
@@ -178,7 +177,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     [
       activeIndex,
       floatingRootContext,
-      triggerElement,
       getTriggerProps,
       getPositionerProps,
       getItemProps,
@@ -272,6 +270,5 @@ export namespace useMenuRoot {
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: 'entering' | 'exiting' | undefined;
-    triggerElement: HTMLElement | null;
   }
 }
