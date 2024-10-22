@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { TabsOrientation } from '../Root/TabsRoot';
+import type { TabsOrientation } from '../Root/TabsRoot';
+import { useTabsRootContext } from '../Root/TabsRootContext';
 
 /**
  *
@@ -20,18 +21,25 @@ const Tab = React.forwardRef(function Tab(
   props: Tab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { className, disabled = false, render, value, ...other } = props;
+  const { className, disabled = false, render, value: valueProp, ...other } = props;
 
-  const { selected, getRootProps, orientation } = useTab({
+  const { value: selectedValue, getTabPanelId, orientation } = useTabsRootContext();
+
+  const { selected, getRootProps } = useTab({
     ...props,
+    getTabPanelId,
+    isSelected: valueProp === selectedValue,
     rootRef: forwardedRef,
   });
 
-  const ownerState: Tab.OwnerState = {
-    disabled,
-    selected,
-    orientation,
-  };
+  const ownerState: Tab.OwnerState = React.useMemo(
+    () => ({
+      disabled,
+      selected,
+      orientation,
+    }),
+    [disabled, selected, orientation],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
