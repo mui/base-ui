@@ -24,6 +24,9 @@
     "hideWhenDetached": {
       "description": "Whether the popover element is hidden if it appears detached from its anchor element due to the anchor element being clipped (or hidden) from view."
     },
+    "initialFocus": {
+      "description": "Determines an element to focus when the popover is opened. It can be either a ref to the element or a function that returns such a ref. If not provided, the first focusable element is focused."
+    },
     "keepMounted": {
       "description": "Whether the popover remains mounted in the DOM while closed."
     },
