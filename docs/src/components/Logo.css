@@ -1,20 +1,18 @@
 @layer components {
   .Logo {
     /*
-     * Snap logo letters to whole pixels when the logo is rendered at its natural size on a @1x screens.
-     * (Otherwise, it's pixel-perfect on @2x screens out of the box).
+     * Snap logo letters to whole pixels when the logo is rendered on @1x screens.
+     * (It's designed to be pixel-perfect on @2x screens out of the box).
      */
-    &[width='70'][height='16'] {
-      @media (max-resolution: 1dppx) {
-        & path:nth-child(2) {
-          transform: translate(0.5px);
-        }
-        & path:nth-child(3) {
-          transform: translate(1px);
-        }
-        & path:nth-child(4) {
-          transform: translate(1.5px);
-        }
+    @media (max-resolution: 1dppx) {
+      & path:nth-child(2) {
+        transform: translate(0.5px);
+      }
+      & path:nth-child(3) {
+        transform: translate(1px);
+      }
+      & path:nth-child(4) {
+        transform: translate(1.5px);
       }
     }
   }
