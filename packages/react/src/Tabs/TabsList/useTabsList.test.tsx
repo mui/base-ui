@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui-components/react/Tabs';
+import { NOOP } from '../../utils/noop';
 import { useTabsList } from './useTabsList';
 
 describe('useTabsList', () => {
@@ -12,7 +13,16 @@ describe('useTabsList', () => {
     it('returns props for root slot', () => {
       function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
-        const { getRootProps } = useTabsList({ rootRef, activateOnFocus: true, loop: true });
+        const { getRootProps } = useTabsList({
+          activateOnFocus: true,
+          direction: 'ltr',
+          loop: true,
+          onSelected: NOOP,
+          orientation: 'horizontal',
+          registerTabIdLookup: NOOP,
+          rootRef,
+          value: 0,
+        });
         return <div {...getRootProps()} />;
       }
 
@@ -35,7 +45,16 @@ describe('useTabsList', () => {
 
       function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
-        const { getRootProps } = useTabsList({ rootRef, activateOnFocus: true, loop: true });
+        const { getRootProps } = useTabsList({
+          activateOnFocus: true,
+          direction: 'ltr',
+          loop: true,
+          onSelected: NOOP,
+          orientation: 'horizontal',
+          registerTabIdLookup: NOOP,
+          rootRef,
+          value: 0,
+        });
         return (
           <div
             {...getRootProps({
