@@ -8,14 +8,20 @@ export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <Favicons />
+
+        {/* iOS header background */}
         <meta
-          // iOS header background
           name="theme-color"
           content="oklch(98% 0.25% 264)"
           media="(prefers-color-scheme: light)"
         />
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <Favicons />
+        <meta
+          name="theme-color"
+          content="oklch(0% 0% 0)"
+          media="(prefers-color-scheme: dark)"
+        />
       </head>
       <body>
         <DocsProviders>
