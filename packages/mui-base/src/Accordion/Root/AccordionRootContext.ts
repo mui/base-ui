@@ -7,9 +7,7 @@ export interface AccordionRootContext extends Omit<useAccordionRoot.ReturnValue,
   ownerState: AccordionRoot.OwnerState;
   hiddenUntilFound: boolean;
 }
-/**
- * @ignore - internal component.
- */
+
 export const AccordionRootContext = React.createContext<AccordionRootContext | undefined>(
   undefined,
 );

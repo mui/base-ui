@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
+import clsx from 'clsx';
 import { Collapsible } from '@base_ui/react/Collapsible';
 import animationClasses from './animations.module.css';
 import classes from './styles.module.css';
-
-function classNames(...c) {
-  return c.filter(Boolean).join(' ');
-}
 
 export default function CssAnimatedCollapsible() {
   const [open, setOpen] = React.useState(true);
@@ -16,9 +13,7 @@ export default function CssAnimatedCollapsible() {
         <ExpandMoreIcon className={classes.icon} />
         Show {open ? 'less' : 'more'}
       </Collapsible.Trigger>
-      <Collapsible.Panel
-        className={classNames(classes.panel, animationClasses.panel)}
-      >
+      <Collapsible.Panel className={clsx(classes.panel, animationClasses.panel)}>
         <p>This is the collapsed content</p>
         <p>
           You can find the Base UI repository{' '}

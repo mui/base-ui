@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
+import clsx from 'clsx';
 import { Collapsible } from '@base_ui/react/Collapsible';
 import transitionClasses from './transitions.module.css';
 import classes from './styles.module.css';
-
-function classNames(...c: Array<string | undefined | null | false>) {
-  return c.filter(Boolean).join(' ');
-}
 
 export default function CssTransitionCollapsible() {
   const [open, setOpen] = React.useState(true);
@@ -16,9 +13,7 @@ export default function CssTransitionCollapsible() {
         <ExpandMoreIcon className={classes.icon} />
         Show {open ? 'less' : 'more'}
       </Collapsible.Trigger>
-      <Collapsible.Panel
-        className={classNames(classes.panel, transitionClasses.panel)}
-      >
+      <Collapsible.Panel className={clsx(classes.panel, transitionClasses.panel)}>
         <p>This is the collapsed content.</p>
         <p>
           You can find the Base UI repository{' '}

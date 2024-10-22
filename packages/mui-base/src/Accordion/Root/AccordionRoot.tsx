@@ -7,6 +7,16 @@ import { CompositeList } from '../../Composite/List/CompositeList';
 import { useAccordionRoot } from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
 
+const rootStyleHookMapping = {
+  disabled: (value: boolean) => {
+    if (value) {
+      return { 'data-disabled': '' };
+    }
+    return null;
+  },
+  value: () => null,
+};
+
 /**
  *
  * Demos:
@@ -84,15 +94,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     ownerState,
     ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: {
-      disabled: (isDisabled) => {
-        if (isDisabled) {
-          return { 'data-disabled': '' };
-        }
-        return null;
-      },
-      value: () => null,
-    },
+    customStyleHookMapping: rootStyleHookMapping,
   });
 
   return (

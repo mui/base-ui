@@ -8,9 +8,7 @@ export interface AccordionItemContext {
   setTriggerId: (id: string | undefined) => void;
   triggerId?: string;
 }
-/**
- * @ignore - internal component.
- */
+
 export const AccordionItemContext = React.createContext<AccordionItemContext | undefined>(
   undefined,
 );
