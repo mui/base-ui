@@ -24,6 +24,6 @@
 @import 'components/textarea.css';
 @import 'components/toggle.css';
 
-@tailwindcss base;
-@tailwindcss components;
-@tailwindcss utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
