@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <div className="m-auto px-7 pb-[min(5rem,max(3.5rem,10vh))] pt-7 md:pt-12">
       <div className="max-w-[420px]">
-        <Logo className="mb-8 ml-px" />
+        <Logo aria-label="Base UI" className="mb-8 ml-px" />
         <h1 className="mb-2 text-balance text-2xl font-medium">
           Unstyled React components for building accessible user interfaces.
         </h1>

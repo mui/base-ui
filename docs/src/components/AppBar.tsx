@@ -26,7 +26,7 @@ export function AppBar() {
     <header className={classes.root}>
       <div className={classes.primary}>
         <NextLink href="/" className="-m-3 block p-3">
-          <Logo />
+          <Logo aria-label="Base UI" />
         </NextLink>
         <DocsVersionSelector currentVersion={currentVersion} versions={supportedVersions} />
       </div>
