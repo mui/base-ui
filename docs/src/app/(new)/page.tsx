@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Metadata } from 'next/types';
 import { readFile } from 'node:fs/promises';
+import './page.css';
 
 const description =
   'Unstyled React components for building accessible user interfaces.';
@@ -8,8 +9,8 @@ const description =
 export default async function Page() {
   const logo = await readFile('public/static/logo.svg', 'utf-8');
   return (
-    <div className="relative flex grow flex-col justify-between gap-10 lg:justify-center">
-      <div className="flex px-7 pt-7 md:px-16 md:pt-14 lg:items-center lg:pb-[min(5rem,max(3.5rem,10vh))]">
+    <div className="relative flex grow flex-col justify-between gap-10 lg:justify-center [@media(min-height:700px)]:justify-center">
+      <div className="flex px-7 pt-7 md:px-16 md:pt-14 lg:items-center lg:pb-[min(10rem,max(3.5rem,10vh))]">
         <div className="max-w-[26rem] 2xl:max-w-[40rem]">
           <h1 className="mb-2 text-balance text-2xl font-medium 2xl:mb-3 2xl:text-3xl">
             {description}
@@ -27,6 +28,7 @@ export default async function Page() {
 
       <div className="mb-10 lg:hidden">
         <div
+          className="LogoPattern"
           style={{
             height: 70,
             background: 'var(--color-gridline)',
@@ -36,6 +38,7 @@ export default async function Page() {
           }}
         />
         <div
+          className="LogoPattern"
           style={{
             height: 70,
             background: 'var(--color-gridline)',
@@ -47,7 +50,7 @@ export default async function Page() {
       </div>
 
       <div
-        className="hidden lg:block"
+        className="LogoPattern hidden lg:block"
         style={{
           position: 'absolute',
           top: 0,
