@@ -6,7 +6,7 @@ export interface TabsRootContext {
   /**
    * The currently selected tab's value.
    */
-  value?: any | null;
+  value: any | null;
   /**
    * Callback for setting new value.
    */
@@ -36,7 +36,7 @@ export interface TabsRootContext {
    * Gets the id of the tab panel with the given value.
    * @param value Value to find the tab panel for.
    */
-  getTabPanelId: (value: any) => string | undefined;
+  getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
   /**
    * The position of the active tab relative to the previously active tab.
    */

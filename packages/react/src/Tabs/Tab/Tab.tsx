@@ -23,11 +23,15 @@ const Tab = React.forwardRef(function Tab(
 ) {
   const { className, disabled = false, render, value: valueProp, ...other } = props;
 
-  const { value: selectedValue, getTabPanelId, orientation } = useTabsRootContext();
+  const {
+    value: selectedValue,
+    getTabPanelIdByTabValueOrIndex,
+    orientation,
+  } = useTabsRootContext();
 
   const { selected, getRootProps } = useTab({
     ...props,
-    getTabPanelId,
+    getTabPanelIdByTabValueOrIndex,
     isSelected: valueProp === selectedValue,
     rootRef: forwardedRef,
   });

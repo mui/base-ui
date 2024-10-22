@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabsRoot } from './useTabsRoot';
-import { tabsStyleHookMapping } from './styleHooks';
-import { TabsProvider } from './TabsProvider';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { CompositeList } from '../../Composite/List/CompositeList';
+import { useTabsRoot } from './useTabsRoot';
+import { TabsRootContext } from './TabsRootContext';
+import { tabsStyleHookMapping } from './styleHooks';
+import { TabPanelMetadata } from '../TabPanel/useTabPanel';
 
 /**
  *
@@ -24,21 +26,54 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   const {
     className,
     defaultValue,
-    direction = 'ltr',
+    direction: directionProp = 'ltr',
     onValueChange,
     orientation = 'horizontal',
     render,
-    value,
+    value: valueProp,
     ...other
   } = props;
 
-  const { contextValue, getRootProps, tabActivationDirection } = useTabsRoot({
+  const {
+    getRootProps,
+    direction,
+    getTabId,
+    getTabPanelIdByTabValueOrIndex,
+    onSelected,
+    registerTabIdLookup,
+    setTabPanelMap,
+    tabActivationDirection,
+    tabPanelRefs,
     value,
+  } = useTabsRoot({
+    value: valueProp,
     defaultValue,
     onValueChange,
-    orientation,
-    direction,
+    direction: directionProp,
   });
+
+  const tabsContextValue = React.useMemo(
+    () => ({
+      direction,
+      getTabId,
+      getTabPanelIdByTabValueOrIndex,
+      onSelected,
+      orientation,
+      registerTabIdLookup,
+      tabActivationDirection,
+      value,
+    }),
+    [
+      direction,
+      getTabId,
+      getTabPanelIdByTabValueOrIndex,
+      onSelected,
+      orientation,
+      registerTabIdLookup,
+      tabActivationDirection,
+      value,
+    ],
+  );
 
   const ownerState: TabsRoot.OwnerState = {
     orientation,
@@ -56,7 +91,13 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return <TabsProvider value={contextValue}>{renderElement()}</TabsProvider>;
+  return (
+    <TabsRootContext.Provider value={tabsContextValue}>
+      <CompositeList<TabPanelMetadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
+        {renderElement()}
+      </CompositeList>
+    </TabsRootContext.Provider>
+  );
 });
 
 export type TabsOrientation = 'horizontal' | 'vertical';

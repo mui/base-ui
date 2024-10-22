@@ -18,7 +18,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     value: valueParam,
     rootRef: externalRef,
     disabled = false,
-    getTabPanelId,
+    getTabPanelIdByTabValueOrIndex,
     id: idParam,
     isSelected,
   } = parameters;
@@ -46,7 +46,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
 
   const handleRef = useForkRef(tabRef, externalRef, buttonRefHandler);
 
-  const tabPanelId = value !== undefined ? getTabPanelId(value) : undefined;
+  const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueParam, index) : undefined;
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -79,7 +79,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
 }
 
 namespace useTab {
-  export interface Parameters extends Pick<TabsRootContext, 'getTabPanelId'> {
+  export interface Parameters extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'> {
     /**
      * The value of the tab.
      * It's used to associate the tab with a tab panel(s) with the same value.

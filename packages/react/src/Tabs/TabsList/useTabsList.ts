@@ -28,6 +28,9 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
     TabMetadata
   >();
 
+  // get id attribute of a Tab by tab value
+  // for binding aria attributes
+  // this function needs to be registered to the context
   const tabIdLookup = React.useCallback(
     (tabValue: any) => {
       return subitems.get(tabValue)?.id;
@@ -39,6 +42,7 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
 
   const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
 
+  // get the element/node of a tab by tab value
   const getTabElement = React.useCallback(
     (tabValue: any) => {
       if (tabValue == null) {

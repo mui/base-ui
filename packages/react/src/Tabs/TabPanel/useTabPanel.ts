@@ -1,49 +1,76 @@
 'use client';
 import * as React from 'react';
 import type { TabsRootContext } from '../Root/TabsRootContext';
-import { useCompoundItem } from '../../useCompound';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useCompositeListContext } from '../../Composite/List/CompositeListContext';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
-function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
-  return otherTabPanelValues.size;
+export interface TabPanelMetadata {
+  id?: string;
+  value: useTabPanel.Parameters['value'];
 }
 
 function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValue {
-  const {
-    getTabId,
-    id: idParam,
-    rootRef: externalRef,
-    selectedValue,
-    value: valueParam,
-  } = parameters;
+  const { rootRef: externalRef, selectedValue, value: valueParam } = parameters;
 
-  const id = useId(idParam);
-  const ref = React.useRef<HTMLElement>(null);
-  const handleRef = useForkRef(ref, externalRef);
-  const metadata = React.useMemo(() => ({ id, ref }), [id]);
+  const id = useId();
 
-  const { id: value } = useCompoundItem(valueParam ?? tabPanelValueGenerator, metadata);
+  const metadata = React.useMemo(
+    () => ({
+      id,
+      value: valueParam,
+    }),
+    [id, valueParam],
+  );
 
-  const hidden = value !== selectedValue;
+  // tabPanelCompositeMap
+  const { map: tabPanelCompositeMap } = useCompositeListContext();
 
-  const correspondingTabId = value !== undefined ? getTabId(value) : undefined;
+  const { ref: listItemRef, index } = useCompositeListItem<TabPanelMetadata>({
+    metadata,
+  });
+
+  const tabPanelValue = valueParam ?? index;
+
+  const panelRef = React.useRef<HTMLElement>(null);
+  const handleRef = useForkRef(panelRef, listItemRef, externalRef);
+
+  const hidden = tabPanelValue !== selectedValue;
+
+  // const correspondingTabId = tabPanelValue !== undefined ? getTabId(tabPanelValue) : undefined;
+
+  const tabId = React.useMemo(() => {
+    if (index < 0) {
+      return undefined;
+    }
+
+    // TODO: this is incorrect, should be tabButtonMap
+    for (const value of tabPanelCompositeMap.values()) {
+      if (value.index > -1 && value.index === index) {
+        return value.id;
+      }
+    }
+
+    return undefined;
+  }, [index, tabPanelCompositeMap]);
 
   const getRootProps = React.useCallback(
     (
       externalProps: React.ComponentPropsWithoutRef<'div'> = {},
     ): React.ComponentPropsWithRef<'div'> => {
       return mergeReactProps(externalProps, {
-        'aria-labelledby': correspondingTabId ?? undefined,
+        'aria-labelledby': undefined,
         hidden,
         id: id ?? undefined,
         role: 'tabpanel',
         tabIndex: hidden ? -1 : 0,
         ref: handleRef,
+        'data-index': index,
       });
     },
-    [correspondingTabId, handleRef, hidden, id],
+    [handleRef, hidden, id, index],
   );
 
   return {

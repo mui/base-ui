@@ -15,7 +15,7 @@ describe('useTab', () => {
         const { getRootProps } = useTab({
           rootRef,
           isSelected: true,
-          getTabPanelId: () => undefined,
+          getTabPanelIdByTabValueOrIndex: () => undefined,
         });
         return <button {...getRootProps()} />;
       }
@@ -44,7 +44,7 @@ describe('useTab', () => {
         const { getRootProps } = useTab({
           rootRef,
           isSelected: true,
-          getTabPanelId: () => undefined,
+          getTabPanelIdByTabValueOrIndex: () => undefined,
         });
         return (
           <button

@@ -27,7 +27,7 @@ describe('<Tabs.Tab />', () => {
     onSelected() {},
     registerTabIdLookup() {},
     getTabId: () => '',
-    getTabPanelId: () => '',
+    getTabPanelIdByTabValueOrIndex: () => '',
     orientation: 'horizontal',
     direction: 'ltr',
     tabActivationDirection: 'none',
