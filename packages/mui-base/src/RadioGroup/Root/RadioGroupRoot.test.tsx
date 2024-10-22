@@ -154,10 +154,12 @@ describe('<RadioGroup.Root />', () => {
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
-  it('should include the radio value in the form submission', async function test() {
+  it('should include the radio value in the form submission', async function test(t = {}) {
     if (isJSDOM) {
       // FormData is not available in JSDOM
-      this.skip();
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
     }
 
     let stringifiedFormData = '';

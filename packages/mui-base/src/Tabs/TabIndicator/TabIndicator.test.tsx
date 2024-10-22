@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Tabs } from '@base_ui/react/Tabs';
-import { waitFor } from '@mui/internal-test-utils';
+import { describeSkipIf, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tabs.Indicator />', () => {
@@ -22,13 +22,7 @@ describe('<Tabs.Indicator />', () => {
     testRenderPropWith: 'div',
   }));
 
-  describe('rendering', () => {
-    before(function suite() {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
-      }
-    });
-
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('rendering', () => {
     it('should not render when no tab is selected', async () => {
       const { queryByTestId } = await render(
         <Tabs.Root value={null}>

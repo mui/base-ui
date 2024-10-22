@@ -64,7 +64,7 @@
     "@babel/preset-typescript": "^7.24.7",
     "@mui/internal-docs-utils": "^1.0.14",
     "@mui/internal-scripts": "^1.0.24",
-    "@mui/internal-test-utils": "1.0.17",
+    "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
     "@types/chai": "^4.3.20",
     "@types/gtag.js": "^0.0.20",
     "@types/hast": "^3.0.4",

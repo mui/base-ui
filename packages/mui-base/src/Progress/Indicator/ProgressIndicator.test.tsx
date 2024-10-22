@@ -30,9 +30,11 @@ describe('<Progress.Indicator />', () => {
   }));
 
   describe('internal styles', () => {
-    it('determinate', async function test() {
+    it('determinate', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const { getByTestId } = await render(
@@ -51,9 +53,11 @@ describe('<Progress.Indicator />', () => {
       });
     });
 
-    it('indeterminate', async function test() {
+    it('indeterminate', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const { getByTestId } = await render(

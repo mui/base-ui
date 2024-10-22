@@ -221,12 +221,7 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('form handling', () => {
-    it('should toggle the checkbox when a parent label is clicked', async function test() {
-      // Clicking the label causes unrelated browser tests to fail.
-      if (!isJSDOM) {
-        this.skip();
-      }
-
+    it('should toggle the checkbox when a parent label is clicked', async () => {
       const { getByTestId, getAllByRole } = await render(
         <label data-testid="label">
           <Checkbox.Root />
@@ -246,12 +241,7 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should toggle the checkbox when a linked label is clicked', async function test() {
-      // Clicking the label causes unrelated browser tests to fail.
-      if (!isJSDOM) {
-        this.skip();
-      }
-
+    it('should toggle the checkbox when a linked label is clicked', async () => {
       const { getByTestId, getAllByRole } = await render(
         <div>
           <label htmlFor="test-checkbox" data-testid="label">
@@ -274,10 +264,12 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should include the checkbox value in the form submission', async function test() {
+  it('should include the checkbox value in the form submission', async function test(t = {}) {
     if (isJSDOM) {
       // FormData is not available in JSDOM
-      this.skip();
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
     }
 
     let stringifiedFormData = '';

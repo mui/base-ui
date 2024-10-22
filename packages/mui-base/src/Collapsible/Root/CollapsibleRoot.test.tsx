@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { createRenderer, act, describeSkipIf } from '@mui/internal-test-utils';
 import { Collapsible } from '@base_ui/react/Collapsible';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -20,7 +20,7 @@ describe('<Collapsible.Root />', () => {
   describe('ARIA attributes', () => {
     it('sets ARIA attributes', async () => {
       const { getByTestId, getByRole } = await render(
-        <Collapsible.Root>
+        <Collapsible.Root animated={false}>
           <Collapsible.Trigger />
           <Collapsible.Content data-testid="content" />
         </Collapsible.Root>,
@@ -64,7 +64,13 @@ describe('<Collapsible.Root />', () => {
       expect(content).to.have.attribute('hidden');
     });
 
-    it('uncontrolled mode', async () => {
+    it('uncontrolled mode', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
       const { getByTestId, getByRole, user } = await render(
         <Collapsible.Root defaultOpen={false} animated={false}>
           <Collapsible.Trigger />
@@ -93,7 +99,7 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describe('keyboard interactions', () => {
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { getByTestId, getByRole, user } = await render(
@@ -128,10 +134,12 @@ describe('<Collapsible.Root />', () => {
   });
 
   describe('prop: htmlHidden', () => {
-    it('supports "hidden until found" state', async function test() {
+    it('supports "hidden until found" state', async function test(t = {}) {
       // we test firefox in browserstack which does not support this yet
-      if (!('onbeforematch' in window)) {
-        this.skip();
+      if (!('onbeforematch' in window) || /jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const handleOpenChange = spy();
