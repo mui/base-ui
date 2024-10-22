@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTabPanel } from './useTabPanel';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useTabsRootContext } from '../Root/TabsRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { TabsRoot } from '../Root/TabsRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -21,19 +22,32 @@ const TabPanel = React.forwardRef(function TabPanel(
   props: TabPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, className, value, render, keepMounted = false, ...other } = props;
+  const { children, className, value: valueProp, render, keepMounted = false, ...other } = props;
 
-  const { hidden, getRootProps, orientation, direction, tabActivationDirection } = useTabPanel({
-    ...props,
-    rootRef: forwardedRef,
-  });
-
-  const ownerState: TabPanel.OwnerState = {
-    hidden,
+  const {
+    value: selectedValue,
+    getTabId,
     orientation,
     direction,
     tabActivationDirection,
-  };
+  } = useTabsRootContext();
+
+  const { hidden, getRootProps } = useTabPanel({
+    getTabId,
+    rootRef: forwardedRef,
+    selectedValue,
+    value: valueProp,
+  });
+
+  const ownerState: TabPanel.OwnerState = React.useMemo(
+    () => ({
+      direction,
+      hidden,
+      orientation,
+      tabActivationDirection,
+    }),
+    [direction, hidden, orientation, tabActivationDirection],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
