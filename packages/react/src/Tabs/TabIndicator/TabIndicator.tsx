@@ -6,7 +6,9 @@ import { script as prehydrationScript } from './prehydrationScript.min';
 import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useTabsListContext } from '../TabsList/TabsListContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 const noop = () => null;
@@ -25,28 +27,30 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
   function TabIndicator(props, forwardedRef) {
     const { className, render, renderBeforeHydration = false, ...other } = props;
 
+    const { orientation, direction, value, tabActivationDirection } = useTabsRootContext();
+    const { tabsListRef, getTabElement } = useTabsListContext();
+
     const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
     const [isMounted, setIsMounted] = React.useState(false);
     const { value: activeTabValue } = useTabsRootContext();
 
-    React.useEffect(() => {
-      setIsMounted(true);
-    }, []);
+    useOnMount(() => setIsMounted(true));
 
-    const {
-      direction,
-      getRootProps,
-      orientation,
-      activeTabPosition: selectedTabPosition,
-      tabActivationDirection,
-    } = useTabIndicator();
+    const { getRootProps, activeTabPosition: selectedTabPosition } = useTabIndicator({
+      getTabElement,
+      tabsListRef,
+      value,
+    });
 
-    const ownerState: TabIndicator.OwnerState = {
-      selectedTabPosition,
-      orientation,
-      direction,
-      tabActivationDirection,
-    };
+    const ownerState: TabIndicator.OwnerState = React.useMemo(
+      () => ({
+        direction,
+        orientation,
+        selectedTabPosition,
+        tabActivationDirection,
+      }),
+      [direction, orientation, selectedTabPosition, tabActivationDirection],
+    );
 
     const { renderElement } = useComponentRenderer({
       propGetter: getRootProps,
