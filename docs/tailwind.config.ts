@@ -11,6 +11,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+      },
       colors: {
         'color-gridline': 'var(--color-gridline)',
         'color-content': 'var(--color-content)',
@@ -29,6 +32,9 @@ export default {
         xl: ['1.3125rem', { lineHeight: '1.75rem' }],
         '2xl': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.0125em' }],
         '3xl': ['1.875rem', { lineHeight: '1.2', letterSpacing: '-0.015em' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.015em' }],
+        '5xl': ['3rem', { lineHeight: '1', letterSpacing: '-0.015em' }],
+        '6xl': ['3.75rem', { lineHeight: '0.95', letterSpacing: '-0.015em' }],
       },
     },
   },
