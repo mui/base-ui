@@ -12,7 +12,13 @@ describe('useTabPanel', () => {
     it('returns props for root slot', () => {
       const rootRef = React.createRef<HTMLDivElement>();
       function TestTabPanel() {
-        const { getRootProps } = useTabPanel({ rootRef, id: 'test-tabpanel', value: 0 });
+        const { getRootProps } = useTabPanel({
+          getTabId: () => undefined,
+          id: 'test-tabpanel',
+          rootRef,
+          selectedValue: 0,
+          value: 0,
+        });
         return <div {...getRootProps()} />;
       }
 
@@ -35,7 +41,13 @@ describe('useTabPanel', () => {
       const rootRef = React.createRef<HTMLElement>();
 
       function TestTabPanel() {
-        const { getRootProps } = useTabPanel({ rootRef, value: 0 });
+        const { getRootProps } = useTabPanel({
+          getTabId: () => undefined,
+          id: 'test-tabpanel',
+          rootRef,
+          selectedValue: 0,
+          value: 0,
+        });
         return (
           <div
             {...getRootProps({

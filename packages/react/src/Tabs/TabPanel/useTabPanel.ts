@@ -1,25 +1,23 @@
 'use client';
 import * as React from 'react';
-import { useTabsRootContext } from '../Root/TabsRootContext';
+import type { TabsRootContext } from '../Root/TabsRootContext';
 import { useCompoundItem } from '../../useCompound';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { TabActivationDirection, TabsDirection, TabsOrientation } from '../Root/TabsRoot';
 
 function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
   return otherTabPanelValues.size;
 }
 
 function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValue {
-  const { value: valueParam, id: idParam, rootRef: externalRef } = parameters;
   const {
-    value: selectedTabValue,
     getTabId,
-    orientation,
-    direction,
-    tabActivationDirection,
-  } = useTabsRootContext();
+    id: idParam,
+    rootRef: externalRef,
+    selectedValue,
+    value: valueParam,
+  } = parameters;
 
   const id = useId(idParam);
   const ref = React.useRef<HTMLElement>(null);
@@ -28,7 +26,7 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
 
   const { id: value } = useCompoundItem(valueParam ?? tabPanelValueGenerator, metadata);
 
-  const hidden = value !== selectedTabValue;
+  const hidden = value !== selectedValue;
 
   const correspondingTabId = value !== undefined ? getTabId(value) : undefined;
 
@@ -52,14 +50,11 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
     hidden,
     getRootProps,
     rootRef: handleRef,
-    orientation,
-    direction,
-    tabActivationDirection,
   };
 }
 
 namespace useTabPanel {
-  export interface Parameters {
+  export interface Parameters extends Pick<TabsRootContext, 'getTabId'> {
     /**
      * The id of the TabPanel.
      */
@@ -68,6 +63,10 @@ namespace useTabPanel {
      * The ref of the TabPanel.
      */
     rootRef?: React.Ref<HTMLElement>;
+    /**
+     * The (context) value of the currently active/selected Tab.
+     */
+    selectedValue: TabsRootContext['value'];
     /**
      * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
      */
@@ -88,9 +87,6 @@ namespace useTabPanel {
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
     rootRef: React.RefCallback<HTMLElement> | null;
-    orientation: TabsOrientation;
-    direction: TabsDirection;
-    tabActivationDirection: TabActivationDirection;
   }
 }
 
