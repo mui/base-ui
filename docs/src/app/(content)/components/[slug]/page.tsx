@@ -17,7 +17,6 @@ import {
 } from 'docs/src/components/ApiReference';
 import { DemoLoader, DemoLoaderProps } from 'docs/src/components/demo/DemoLoader';
 import { getApiReferenceData } from './getApiReferenceData';
-import classes from '../../styles.module.css';
 
 const CATEGORY_SEGMENT = 'components';
 
@@ -69,11 +68,11 @@ export default async function ComponentPage(props: Props) {
 
   return (
     <React.Fragment>
-      <main className={classes.content}>
+      <main className="Content">
         <MDXContent components={{ ...allComponents }} />
         <ApiReference componentsApi={componentsApi} />
         <div>
-          <div className={classes.editLink}>
+          <div className="EditLink">
             <EditPageGithubLink category={CATEGORY_SEGMENT} slug={componentName} />
           </div>
           <div>
