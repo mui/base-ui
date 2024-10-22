@@ -22,7 +22,7 @@ const CollapsibleContent = React.forwardRef(function CollapsibleContent(
   props: CollapsibleContent.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, htmlHidden, render, ...otherProps } = props;
+  const { className, htmlHidden = 'hidden', render, ...otherProps } = props;
 
   const { animated, mounted, open, contentId, setContentId, setMounted, setOpen, ownerState } =
     useCollapsibleContext();

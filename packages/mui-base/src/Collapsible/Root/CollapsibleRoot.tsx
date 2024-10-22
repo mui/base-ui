@@ -22,11 +22,11 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated,
+    animated = true,
     children,
     className,
-    defaultOpen,
-    disabled,
+    defaultOpen = true,
+    disabled = false,
     onOpenChange,
     open,
     render: renderProp,
