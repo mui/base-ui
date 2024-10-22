@@ -65,7 +65,10 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         const maxThumbOffsetY =
           scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
         const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
-        const thumbOffsetY = scrollRatioY * maxThumbOffsetY;
+
+        // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
+        // band effect.
+        const thumbOffsetY = Math.min(maxThumbOffsetY, Math.max(0, scrollRatioY * maxThumbOffsetY));
 
         thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
       }
@@ -97,7 +100,10 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         const maxThumbOffsetX =
           scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
         const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
-        const thumbOffsetX = scrollRatioX * maxThumbOffsetX;
+
+        // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
+        // band effect.
+        const thumbOffsetX = Math.min(maxThumbOffsetX, Math.max(0, scrollRatioX * maxThumbOffsetX));
 
         thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
       }
