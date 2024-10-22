@@ -192,16 +192,16 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).to.have.attribute('data-checked', '');
     expect(checkbox).not.to.have.attribute('data-unchecked');
 
-    expect(checkbox).to.have.attribute('data-disabled', 'true');
-    expect(checkbox).to.have.attribute('data-readonly', 'true');
-    expect(checkbox).to.have.attribute('data-required', 'true');
+    expect(checkbox).to.have.attribute('data-disabled', '');
+    expect(checkbox).to.have.attribute('data-readonly', '');
+    expect(checkbox).to.have.attribute('data-required', '');
 
     expect(indicator).to.have.attribute('data-checked', '');
     expect(indicator).not.to.have.attribute('data-unchecked');
 
-    expect(indicator).to.have.attribute('data-disabled', 'true');
-    expect(indicator).to.have.attribute('data-readonly', 'true');
-    expect(indicator).to.have.attribute('data-required', 'true');
+    expect(indicator).to.have.attribute('data-disabled', '');
+    expect(indicator).to.have.attribute('data-readonly', '');
+    expect(indicator).to.have.attribute('data-required', '');
 
     setProps({ disabled: false, readOnly: false });
     fireEvent.click(checkbox);

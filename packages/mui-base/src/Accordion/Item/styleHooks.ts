@@ -4,12 +4,6 @@ import type { AccordionItem } from './AccordionItem';
 
 export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.OwnerState> = {
   ...baseMapping,
-  disabled: (value) => {
-    if (value) {
-      return { 'data-disabled': '' };
-    }
-    return null;
-  },
   index: (value) => {
     return Number.isInteger(value) ? { 'data-index': String(value) } : null;
   },

@@ -8,12 +8,6 @@ import { useAccordionRoot } from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
 
 const rootStyleHookMapping = {
-  disabled: (value: boolean) => {
-    if (value) {
-      return { 'data-disabled': '' };
-    }
-    return null;
-  },
   value: () => null,
 };
 

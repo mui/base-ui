@@ -311,7 +311,7 @@ describe('<Slider.Root />', () => {
       const thumb = getByTestId('thumb');
 
       [root, output, control, track, indicator, thumb].forEach((subcomponent) => {
-        expect(subcomponent).to.have.attribute('data-disabled', 'true');
+        expect(subcomponent).to.have.attribute('data-disabled', '');
       });
     });
 
@@ -1088,7 +1088,7 @@ describe('<Slider.Root />', () => {
         createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
       );
 
-      expect(sliderControl).to.have.attribute('data-dragging', 'true');
+      expect(sliderControl).to.have.attribute('data-dragging', '');
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
       expect(sliderControl).to.not.have.attribute('data-dragging');
     });
