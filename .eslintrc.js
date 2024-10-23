@@ -38,6 +38,9 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-redeclare': 'off',
+
+    // We LOVE non-breaking spaces here
+    'no-irregular-whitespace': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(
