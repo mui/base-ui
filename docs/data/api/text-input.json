@@ -1,0 +1,14 @@
+{
+  "props": {},
+  "name": "TextInput",
+  "imports": ["import { TextInput } from '@base_ui/react/TextInput';"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TextInput",
+  "forwardsRefTo": "HTMLInputElement",
+  "filename": "/packages/mui-base/src/TextInput/TextInput.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-text-input/\">Text Input</a></li></ul>",
+  "cssComponent": false
+}

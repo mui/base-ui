@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Field } from '@base_ui/react/Field';
+import { TextInput } from '@base_ui/react/TextInput';
 import { styled } from '@mui/system';
 
 type Status = 'initial' | 'loading' | 'success' | 'error';
@@ -42,7 +43,7 @@ export default function UnstyledFieldServerError() {
     <form onSubmit={handleSubmit} noValidate>
       <FieldRoot invalid={error} name="email">
         <Field.Label>Email address</Field.Label>
-        <FieldControl
+        <Input
           ref={controlRef}
           type="email"
           required
@@ -91,7 +92,7 @@ const FieldRoot = styled(Field.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;

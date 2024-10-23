@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Form } from '@base_ui/react/Form';
 import { Fieldset } from '@base_ui/react/Fieldset';
 import { Field } from '@base_ui/react/Field';
+import { TextInput } from '@base_ui/react/TextInput';
 import { styled } from '@mui/system';
 
 export default function FormIntroduction() {
@@ -53,12 +54,12 @@ export default function FormIntroduction() {
         </p>
         <Field.Root name="username">
           <Field.Label>Username</Field.Label>
-          <FieldControl required />
+          <Input required />
           <FieldError />
         </Field.Root>
         <Field.Root name="password">
           <Field.Label>Password</Field.Label>
-          <FieldControl type="password" required />
+          <Input type="password" required />
           <FieldError />
         </Field.Root>
       </FieldsetRoot>
@@ -78,7 +79,7 @@ const FormRoot = styled(Form.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;

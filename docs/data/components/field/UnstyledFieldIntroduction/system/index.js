@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Field } from '@base_ui/react/Field';
+import { TextInput } from '@base_ui/react/TextInput';
 import { styled } from '@mui/system';
 
 export default function UnstyledFieldIntroduction() {
@@ -8,7 +9,7 @@ export default function UnstyledFieldIntroduction() {
     <FieldRoot validate={(value) => (value === 'admin' ? 'Name not allowed' : null)}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Field.Label>Name</Field.Label>
-        <FieldControl required pattern="[a-zA-Z0-9]+" />
+        <Input required pattern="[a-zA-Z0-9]+" />
       </div>
       <Field.Validity>
         {({ validity, value }) => {
@@ -40,7 +41,7 @@ const FieldRoot = styled(Field.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;

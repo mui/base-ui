@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Field } from '@base_ui/react/Field';
+import { TextInput } from '@base_ui/react/TextInput';
 import { styled } from '@mui/system';
 
 function validate(value) {
@@ -31,7 +32,7 @@ export default function UnstyledFieldPassword() {
   return (
     <FieldRoot invalid={errors.length > 0}>
       <Field.Label>Password</Field.Label>
-      <FieldControl
+      <Input
         type="password"
         value={value}
         onChange={(event) => setValue(event.currentTarget.value)}
@@ -51,7 +52,7 @@ const FieldRoot = styled(Field.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
