@@ -1,0 +1,18 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "id": { "type": { "name": "string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "SelectPopup",
+  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectPopup = Select.Popup;"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectPopup",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/Popup/SelectPopup.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

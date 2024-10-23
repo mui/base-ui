@@ -17,6 +17,7 @@ import {
   type VirtualElement,
   type Padding,
   type FloatingContext,
+  type Middleware,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
@@ -45,8 +46,15 @@ interface UseAnchorPositioningParameters {
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted?: boolean;
+  open?: boolean;
   trackAnchor?: boolean;
   nodeId?: string;
+  inner?: Middleware;
+  innerOptions?: {
+    fallback?: boolean;
+    touchModality?: boolean;
+  };
+  allowAxisFlip?: boolean;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -59,6 +67,7 @@ interface UseAnchorPositioningReturnValue {
   hidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
   positionerContext: FloatingContext;
+  isPositioned: boolean;
 }
 
 /**
@@ -86,9 +95,16 @@ export function useAnchorPositioning(
     arrowPadding = 5,
     mounted = true,
     trackAnchor = true,
+    allowAxisFlip = true,
+    open,
     nodeId,
+    inner: innerMiddleware,
+    innerOptions = {},
   } = params;
 
+  // If `false`, aligns the option to the trigger instead. Inverse of `alignOptionToTrigger`.
+  const alignPopupToTrigger =
+    innerOptions.touchModality || !(!innerOptions.fallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
@@ -103,7 +119,7 @@ export function useAnchorPositioning(
 
   const middleware: UseFloatingOptions['middleware'] = [
     offset({
-      mainAxis: sideOffset,
+      mainAxis: alignPopupToTrigger ? sideOffset : 0,
       crossAxis: alignmentOffset,
       alignmentAxis: alignmentOffset,
     }),
@@ -111,7 +127,7 @@ export function useAnchorPositioning(
 
   const flipMiddleware = flip({
     ...commonCollisionProps,
-    fallbackAxisSideDirection,
+    fallbackAxisSideDirection: allowAxisFlip ? fallbackAxisSideDirection : 'none',
   });
   const shiftMiddleware = shift({
     ...commonCollisionProps,
@@ -130,13 +146,16 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (alignment !== 'center') {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
-    middleware.push(shiftMiddleware, flipMiddleware);
+  if (alignPopupToTrigger) {
+    if (alignment !== 'center') {
+      middleware.push(flipMiddleware, shiftMiddleware);
+    } else {
+      middleware.push(shiftMiddleware, flipMiddleware);
+    }
   }
 
   middleware.push(
+    ...(!alignPopupToTrigger ? [innerMiddleware, shiftMiddleware] : []),
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
@@ -159,8 +178,8 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hideWhenDetached && hide(),
-    {
+    hideWhenDetached && alignPopupToTrigger && hide(),
+    alignPopupToTrigger && {
       name: 'transformOrigin',
       fn({ elements, middlewareData, placement: renderedPlacement }) {
         const currentRenderedSide = getSide(renderedPlacement);
@@ -194,12 +213,23 @@ export function useAnchorPositioning(
     update,
     placement: renderedPlacement,
     context: positionerContext,
+    isPositioned,
   } = useFloating({
     rootContext: floatingRootContext,
+    open,
     placement,
     middleware,
     strategy: positionMethod,
-    whileElementsMounted: keepMounted || !trackAnchor ? undefined : autoUpdate,
+    whileElementsMounted: keepMounted
+      ? undefined
+      : (...args) =>
+          autoUpdate(...args, {
+            // Keep `ancestorResize` for window resizing. TODO: determine the best configuration, or
+            // if we need to allow options.
+            ancestorScroll: trackAnchor,
+            elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
+            layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
+          }),
     nodeId,
   });
 
@@ -269,6 +299,7 @@ export function useAnchorPositioning(
       hidden,
       refs,
       positionerContext,
+      isPositioned,
     }),
     [
       positionerStyles,
@@ -280,6 +311,7 @@ export function useAnchorPositioning(
       hidden,
       refs,
       positionerContext,
+      isPositioned,
     ],
   );
 }

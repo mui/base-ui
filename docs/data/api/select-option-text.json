@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "SelectOptionText",
+  "imports": [
+    "import { Select } from '@base_ui/react/Select';\nconst SelectOptionText = Select.OptionText;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectOptionText",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/OptionText/SelectOptionText.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}
