@@ -155,14 +155,6 @@
     td {
       border-bottom: 1px solid var(--gray-outline-2);
       padding: var(--space-3);
-
-      &:first-child {
-        padding-left: 0;
-      }
-
-      &:last-child {
-        padding-right: 0;
-      }
     }
 
     strong {
