@@ -97,7 +97,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     customStyleHookMapping,
     extraProps: {
       ...otherProps,
-      ...otherGroupProps
+      ...otherGroupProps,
     },
   });
 
