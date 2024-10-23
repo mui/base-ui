@@ -40,7 +40,7 @@ module.exports = {
     '@typescript-eslint/no-redeclare': 'off',
 
     // We LOVE non-breaking spaces here
-    'no-irregular-whitespace': { skipJSXText: true, skipStrings: true },
+    'no-irregular-whitespace': ['warning', { skipJSXText: true, skipStrings: true }],
   },
   overrides: [
     ...baseline.overrides.filter(
