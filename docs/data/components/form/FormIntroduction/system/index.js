@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Form } from '@base_ui/react/Form';
 import { Fieldset } from '@base_ui/react/Fieldset';
 import { Field } from '@base_ui/react/Field';
+import { TextField } from '@base_ui/react/TextField';
 import { styled } from '@mui/system';
 
 export default function FormIntroduction() {
@@ -78,7 +79,7 @@ const FormRoot = styled(Form.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const FieldControl = styled(TextField)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
