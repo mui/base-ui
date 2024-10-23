@@ -42,7 +42,7 @@ const FieldControl = React.forwardRef(function FieldControl(
     ownerState: fieldOwnerState,
     name: fieldName,
     disabled: fieldDisabled,
-  } = useFieldRootContext(false);
+  } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -77,7 +77,7 @@ const FieldControl = React.forwardRef(function FieldControl(
 namespace FieldControl {
   export type OwnerState = FieldRoot.OwnerState;
 
-  export interface Props extends BaseUIComponentProps<'input', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'input' | 'textarea' | 'select', OwnerState> {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */

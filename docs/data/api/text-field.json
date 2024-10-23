@@ -1,0 +1,14 @@
+{
+  "props": {},
+  "name": "TextField",
+  "imports": ["import { TextField } from '@base_ui/react/TextField';"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TextField",
+  "forwardsRefTo": "HTMLInputElement",
+  "filename": "/packages/mui-base/src/TextField/TextField.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-text-field/\">Text Field</a></li></ul>",
+  "cssComponent": false
+}

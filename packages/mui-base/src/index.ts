@@ -16,4 +16,6 @@ export * from './Separator';
 export * from './Slider';
 export * from './Switch';
 export * from './Tabs';
+export * from './TextArea';
+export * from './TextField';
 export * from './Tooltip';

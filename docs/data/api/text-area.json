@@ -1,0 +1,14 @@
+{
+  "props": {},
+  "name": "TextArea",
+  "imports": ["import { TextArea } from '@base_ui/react/TextArea';"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TextArea",
+  "forwardsRefTo": "HTMLTextAreaElement",
+  "filename": "/packages/mui-base/src/TextArea/TextArea.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-text-area/\">Text Area</a></li></ul>",
+  "cssComponent": false
+}
