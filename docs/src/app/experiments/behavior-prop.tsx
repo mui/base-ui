@@ -4,11 +4,20 @@ import { Dialog } from '@base_ui/react/Dialog';
 import { Button } from '@base_ui/react/Button';
 import { Text } from '@base_ui/react/Text';
 import { styled } from '@mui/system';
+import { Tooltip } from '@base_ui/react/Tooltip';
 
 export default function Demo() {
   return (
     <Dialog.Root>
-      <MyButton behavior={Dialog.Trigger}>Subscribe</MyButton>
+      <Tooltip.Root>
+        <MyButton behavior={[Dialog.Trigger, Tooltip.Trigger]}>Subscribe</MyButton>
+        <Tooltip.Positioner sideOffset={7}>
+          <TooltipPopup>
+            This is a tooltip
+            <TooltipArrow />
+          </TooltipPopup>
+        </Tooltip.Positioner>
+      </Tooltip.Root>
       <Backdrop />
       <Popup>
         <HeaderText tag="h3" behavior={Dialog.Title}>
@@ -105,4 +114,38 @@ const TextField = styled('input')`
   margin: 16px 0;
   width: 100%;
   box-sizing: border-box;
+`;
+
+export const TooltipPopup = styled(Tooltip.Popup)`
+  ${({ theme }) => `
+    background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
+    color: ${theme.palette.mode === 'dark' ? 'black' : 'white'};
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 95%;
+    cursor: default;
+  `}
+`;
+
+export const TooltipArrow = styled(Tooltip.Arrow)`
+  ${({ theme }) => `
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    background: ${theme.palette.mode === 'dark' ? 'white' : 'black'};
+    z-index: -1;
+
+    &[data-side='top'] {
+      bottom: -5px;
+    }
+    &[data-side='right'] {
+      left: -5px;
+    }
+    &[data-side='bottom'] {
+      top: -5px;
+    }
+    &[data-side='left'] {
+      right: -5px;
+    }
+  `}
 `;
