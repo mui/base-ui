@@ -181,7 +181,7 @@ export function Styles() {
       fill: #00f;
     }
 
-    .MyCollapsible-trigger[data-state='open'] svg {
+    .MyCollapsible-trigger[data-open] svg {
       transform: rotate(90deg);
     }
 
@@ -190,20 +190,20 @@ export function Styles() {
       overflow: hidden;
     }
 
-    .MyCollapsible-content.animation[data-state='open'] {
+    .MyCollapsible-content.animation[data-open] {
       animation: slideDown ${DURATION} ease-out;
     }
 
-    .MyCollapsible-content.animation[data-state='closed'] {
+    .MyCollapsible-content.animation[data-closed] {
       animation: slideUp ${DURATION} ease-in;
     }
 
-    .MyCollapsible-content.csstransition[data-state='open'] {
+    .MyCollapsible-content.csstransition[data-open] {
       height: var(--collapsible-content-height);
       transition: height ${DURATION} ease-out;
     }
 
-    .MyCollapsible-content.csstransition[data-state='closed'] {
+    .MyCollapsible-content.csstransition[data-closed] {
       height: 0;
       transition: height ${DURATION} ease-in;
     }

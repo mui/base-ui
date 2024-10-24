@@ -16,7 +16,7 @@ const CollapsibleTrigger = styled(BaseCollapsible.Trigger)`
     margin-top: 1px;
   }
 
-  &[data-state='open'] svg {
+  &[data-open] svg {
     transform: rotate(180deg);
   }
 `;

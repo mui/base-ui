@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { type ProgressDirection, useProgressRoot } from './useProgressRoot';
+import { type ProgressDirection, ProgressStatus, useProgressRoot } from './useProgressRoot';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -53,7 +53,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
       direction,
       max,
       min,
-      state: progress.state,
+      status: progress.state,
     }),
     [direction, max, min, progress.state],
   );
@@ -88,6 +88,7 @@ namespace ProgressRoot {
     direction: ProgressDirection;
     max: number;
     min: number;
+    status: ProgressStatus;
   };
 
   export interface Props
