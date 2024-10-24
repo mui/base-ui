@@ -8,6 +8,17 @@ import upperFirst from 'lodash/upperFirst.js';
  * - Converts `path` prop value into an absolute pathname
  * - Adds `scope` prop based on the `path` value
  * - Adds corresponding import statements for the live demo components
+ *
+ * Example input:
+ * ```
+ * <Demo path="./foo/bar" />
+ * ```
+ *
+ * Corresponding output:
+ * ```
+ * import * as FooBar from './foo/bar';
+ * <Demo path="/absolute/path/to/foo/bar" scope={FooBar} />
+ * ```
  */
 export function rehypeDemos() {
   return (tree, file) => {
