@@ -68,12 +68,12 @@ const Tab = styled(Tabs.Tab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &[data-selected='true'] {
+  &[data-selected] {
     background-color: #fff;
     color: ${blue[600]};
   }
 
-  &[data-disabled='true'] {
+  &[data-disabled] {
     opacity: 0.5;
     cursor: not-allowed;
   }

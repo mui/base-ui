@@ -1,0 +1,12 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "onOpenChange": { "description": "Callback fired when the Collapsible is opened or closed." },
+    "render": { "description": "A function to customize rendering of the component." }
+  },
+  "classDescriptions": {}
+}

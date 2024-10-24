@@ -32,7 +32,7 @@ export const ToggleButtonGroup = React.forwardRef(function ToggleButtonGroup<
           type="button"
           key={option.value}
           value={option.value}
-          data-selected={value === option.value}
+          data-selected={value === option.value || undefined}
           aria-pressed={value === option.value || undefined}
           onClick={() => {
             setValue(option.value);

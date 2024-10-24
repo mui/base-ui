@@ -11,7 +11,7 @@ describe('getStyleHookProps', () => {
 
     const result = getStyleHookProps(state);
     expect(result).to.deep.equal({
-      'data-checked': 'true',
+      'data-checked': '',
       'data-orientation': 'vertical',
       'data-count': '42',
     });
@@ -24,8 +24,18 @@ describe('getStyleHookProps', () => {
 
     const result = getStyleHookProps(state);
     expect(result).to.deep.equal({
-      'data-readonly': 'true',
+      'data-readonly': '',
     });
+  });
+
+  it('changes true values to a data-attribute without a value', () => {
+    const state = {
+      required: true,
+      disabled: false,
+    };
+
+    const result = getStyleHookProps(state);
+    expect(result).to.deep.equal({ 'data-required': '' });
   });
 
   it('does not include false values', () => {

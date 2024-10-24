@@ -1,0 +1,25 @@
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--collapsible-panel-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--collapsible-panel-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.panel[data-open] {
+  animation: slideDown 300ms ease-out;
+}
+
+.panel {
+  animation: slideUp 300ms ease-out;
+}

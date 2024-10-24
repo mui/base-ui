@@ -1,0 +1,21 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "onOpenChange": { "type": { "name": "func" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "AccordionItem",
+  "imports": [
+    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionItem = Accordion.Item;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "AccordionItem",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Accordion/Item/AccordionItem.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
+  "cssComponent": false
+}

@@ -1,5 +1,0 @@
-{
-  "hookDescription": "Used to register a list item and its index (DOM position) in the\n`CompositeList`.",
-  "parametersDescriptions": {},
-  "returnValueDescriptions": {}
-}

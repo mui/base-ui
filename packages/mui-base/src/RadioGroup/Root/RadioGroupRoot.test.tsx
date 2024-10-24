@@ -132,19 +132,19 @@ describe('<RadioGroup.Root />', () => {
     const item = screen.getByTestId('item');
     const indicator = screen.getByTestId('indicator');
 
-    expect(root).to.have.attribute('data-disabled', 'true');
-    expect(root).to.have.attribute('data-readonly', 'true');
-    expect(root).to.have.attribute('data-required', 'true');
+    expect(root).to.have.attribute('data-disabled', '');
+    expect(root).to.have.attribute('data-readonly', '');
+    expect(root).to.have.attribute('data-required', '');
 
     expect(item).to.have.attribute('data-radio', 'checked');
-    expect(item).to.have.attribute('data-disabled', 'true');
-    expect(item).to.have.attribute('data-readonly', 'true');
-    expect(item).to.have.attribute('data-required', 'true');
+    expect(item).to.have.attribute('data-disabled', '');
+    expect(item).to.have.attribute('data-readonly', '');
+    expect(item).to.have.attribute('data-required', '');
 
     expect(indicator).to.have.attribute('data-radio', 'checked');
-    expect(indicator).to.have.attribute('data-disabled', 'true');
-    expect(indicator).to.have.attribute('data-readonly', 'true');
-    expect(indicator).to.have.attribute('data-required', 'true');
+    expect(indicator).to.have.attribute('data-disabled', '');
+    expect(indicator).to.have.attribute('data-readonly', '');
+    expect(indicator).to.have.attribute('data-required', '');
   });
 
   it('should set the name attribute on the input', () => {

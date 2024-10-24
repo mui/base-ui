@@ -256,14 +256,14 @@ describe('<Switch.Root />', () => {
     const thumb = screen.getByTestId('thumb');
 
     expect(switchElement).to.have.attribute('data-checked', '');
-    expect(switchElement).to.have.attribute('data-disabled', 'true');
-    expect(switchElement).to.have.attribute('data-readonly', 'true');
-    expect(switchElement).to.have.attribute('data-required', 'true');
+    expect(switchElement).to.have.attribute('data-disabled', '');
+    expect(switchElement).to.have.attribute('data-readonly', '');
+    expect(switchElement).to.have.attribute('data-required', '');
 
     expect(thumb).to.have.attribute('data-checked', '');
-    expect(thumb).to.have.attribute('data-disabled', 'true');
-    expect(thumb).to.have.attribute('data-readonly', 'true');
-    expect(thumb).to.have.attribute('data-required', 'true');
+    expect(thumb).to.have.attribute('data-disabled', '');
+    expect(thumb).to.have.attribute('data-readonly', '');
+    expect(thumb).to.have.attribute('data-required', '');
 
     setProps({ disabled: false, readOnly: false });
     fireEvent.click(switchElement);

@@ -107,12 +107,12 @@ function Styles() {
         outline: 3px solid ${cyan[200]};
       }
 
-      .CustomTabIntroduction[data-selected='true'] {
+      .CustomTabIntroduction[data-selected] {
         background-color: #fff;
         color: ${cyan[600]};
       }
 
-      .CustomTabIntroduction[data-disabled='true'] {
+      .CustomTabIntroduction[data-disabled] {
         opacity: 0.5;
         cursor: not-allowed;
       }

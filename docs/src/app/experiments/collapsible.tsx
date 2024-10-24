@@ -21,12 +21,12 @@ export default function CollapsibleDemo() {
             </span>
             Trigger (CSS animation)
           </Collapsible.Trigger>
-          <Collapsible.Content className="MyCollapsible-content cssanimation">
+          <Collapsible.Panel className="MyCollapsible-content cssanimation">
             <p>This is the collapsed content</p>
             <p>This component is animated with CSS @keyframe animations</p>
             <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
             <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
       </div>
 
@@ -44,12 +44,12 @@ export default function CollapsibleDemo() {
             </span>
             Trigger (CSS transition)
           </Collapsible.Trigger>
-          <Collapsible.Content className="MyCollapsible-content csstransition">
+          <Collapsible.Panel className="MyCollapsible-content csstransition">
             <p>This is the collapsed content</p>
             <p>This component is animated with CSS transitions</p>
             <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
             <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
       </div>
 
@@ -66,12 +66,12 @@ export default function CollapsibleDemo() {
           </span>
           Trigger (root renders a span + CSS transition)
         </Collapsible.Trigger>
-        <Collapsible.Content className="MyCollapsible-content csstransition">
+        <Collapsible.Panel className="MyCollapsible-content csstransition">
           <p>This is the collapsed content</p>
           <p>This component is animated with CSS transitions</p>
           <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
           <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-        </Collapsible.Content>
+        </Collapsible.Panel>
       </Collapsible.Root>
       <Styles />
     </div>

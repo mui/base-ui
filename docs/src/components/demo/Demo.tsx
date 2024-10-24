@@ -92,13 +92,13 @@ export function Demo(props: DemoProps) {
           </div>
         </div>
 
-        <Collapsible.Content className={classes.collapsible}>
+        <Collapsible.Panel className={classes.collapsible}>
           <DemoFileSelector className={classes.fileTabs} />
 
           <div className={classes.source}>
             <BaseDemo.SourceBrowser className={classes.scrollArea} />
           </div>
-        </Collapsible.Content>
+        </Collapsible.Panel>
       </Collapsible.Root>
     </BaseDemo.Root>
   );
