@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { valueToPercent } from '../../utils/valueToPercent';
 import { ProgressDirection } from '../Root/useProgressRoot';
-
-function valueToPercent(value: number, min: number, max: number) {
-  return ((value - min) * 100) / (max - min);
-}
 
 function useProgressIndicator(
   parameters: useProgressIndicator.Parameters,
