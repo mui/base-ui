@@ -13,3 +13,5 @@ export { MenuRoot as Root } from './Root/MenuRoot';
 export { MenuTrigger as Trigger } from './Trigger/MenuTrigger';
 export { SeparatorRoot as Separator } from '../Separator/Root/SeparatorRoot';
 export { SubmenuTrigger } from './SubmenuTrigger/SubmenuTrigger';
+
+export { asMenuTrigger } from './Trigger/asMenuTrigger';
