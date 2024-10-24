@@ -69,8 +69,8 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
         ref: buttonRef,
         type: 'button',
         role: 'switch',
+        disabled,
         'aria-checked': checked,
-        'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly,
         'aria-labelledby': labelId,
         onBlur() {

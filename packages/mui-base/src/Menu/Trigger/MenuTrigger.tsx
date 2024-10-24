@@ -68,11 +68,6 @@ namespace MenuTrigger {
      */
     disabled?: boolean;
     /**
-     * If `true`, allows a disabled button to receive focus.
-     * @default false
-     */
-    focusableWhenDisabled?: boolean;
-    /**
      * Label of the button
      */
     label?: string;
@@ -101,11 +96,6 @@ MenuTrigger.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * If `true`, allows a disabled button to receive focus.
-   * @default false
-   */
-  focusableWhenDisabled: PropTypes.bool,
   /**
    * Label of the button
    */
