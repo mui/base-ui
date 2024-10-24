@@ -21,7 +21,7 @@ export async function DemoLoader(props: DemoLoaderProps) {
       );
     }
 
-    return <Demo componentName={componentName} demoName={demo} variants={demoVariants} />;
+    return <Demo variants={demoVariants} />;
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
       console.error(error);

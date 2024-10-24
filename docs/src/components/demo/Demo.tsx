@@ -19,14 +19,12 @@ import { StackBlitzLink } from './StackBlitzLink';
 import classes from './Demo.module.css';
 
 export interface DemoProps {
-  componentName: string;
-  demoName: string;
   variants: BaseDemo.DemoVariant[];
   defaultCodeOpen?: boolean;
 }
 
 export function Demo(props: DemoProps) {
-  const { componentName, demoName, variants: demoVariants, defaultCodeOpen = true } = props;
+  const { variants: demoVariants, defaultCodeOpen = true } = props;
 
   const focusTargetRef = React.useRef<HTMLButtonElement>(null);
 
@@ -43,9 +41,6 @@ export function Demo(props: DemoProps) {
   const resetDemo = React.useCallback(() => {
     setKey((prevKey) => prevKey + 1);
   }, []);
-
-  const title = `Base UI ${componentName} demo`;
-  const description = `Base UI ${componentName} ${demoName} demo`;
 
   return (
     <BaseDemo.Root
@@ -84,9 +79,8 @@ export function Demo(props: DemoProps) {
               <ResetIcon />
             </IconButton>
 
-            <CodeSandboxLink title={title} description={description} />
-
-            <StackBlitzLink title={title} description={description} />
+            <CodeSandboxLink title="Base UI example" description="Base UI example" />
+            <StackBlitzLink title="Base UI example" description="Base UI example" />
 
             <GitHubLink />
           </div>
