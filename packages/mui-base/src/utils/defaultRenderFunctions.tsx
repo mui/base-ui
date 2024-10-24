@@ -37,4 +37,7 @@ export const defaultRenderFunctions = {
   form: (props: React.ComponentPropsWithRef<'form'>) => {
     return <form {...props} />;
   },
+  textarea: (props: React.ComponentPropsWithRef<'textarea'>) => {
+    return <textarea {...props} />;
+  },
 };
