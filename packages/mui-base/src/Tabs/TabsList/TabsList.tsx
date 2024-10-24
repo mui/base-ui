@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useTabsList } from './useTabsList';
 import { TabsListProvider } from './TabsListProvider';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useTabsRootContext } from '../Root/TabsRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { TabsRoot } from '../Root/TabsRoot';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -24,12 +25,25 @@ const TabsList = React.forwardRef(function TabsList(
 ) {
   const { activateOnFocus = true, className, loop = true, render, ...other } = props;
 
-  const { direction, orientation, getRootProps, contextValue, tabActivationDirection } =
-    useTabsList({
-      rootRef: forwardedRef,
-      loop,
-      activateOnFocus,
-    });
+  const {
+    direction = 'ltr',
+    onSelected,
+    orientation = 'horizontal',
+    value,
+    registerTabIdLookup,
+    tabActivationDirection,
+  } = useTabsRootContext();
+
+  const { getRootProps, contextValue } = useTabsList({
+    activateOnFocus,
+    direction,
+    loop,
+    onSelected,
+    orientation,
+    registerTabIdLookup,
+    rootRef: forwardedRef,
+    value,
+  });
 
   const ownerState: TabsList.OwnerState = React.useMemo(
     () => ({

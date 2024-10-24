@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTabsRootContext } from '../Root/TabsRootContext';
+import type { TabsRootContext } from '../Root/TabsRootContext';
 import { TabMetadata } from '../Root/useTabsRoot';
 import { useCompoundItem } from '../../useCompound';
 import { useListItem } from '../../useList';
@@ -8,19 +8,23 @@ import { useButton } from '../../useButton';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { TabsOrientation } from '../Root/TabsRoot';
 
 function tabValueGenerator(otherTabValues: Set<any>) {
   return otherTabValues.size;
 }
 
 function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
-  const { value: valueParam, rootRef: externalRef, disabled = false, id: idParam } = parameters;
+  const {
+    value: valueParam,
+    rootRef: externalRef,
+    disabled = false,
+    getTabPanelId,
+    id: idParam,
+    isSelected,
+  } = parameters;
 
   const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
-
-  const { value: selectedValue, getTabPanelId, orientation } = useTabsRootContext();
 
   const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
 
@@ -46,7 +50,6 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      //
       return mergeReactProps<'button'>(
         externalProps,
         mergeReactProps<'button'>(
@@ -70,14 +73,13 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     rootRef: handleRef,
     // the `selected` state isn't set on the server (it relies on effects to be calculated),
     // so we fall back to checking the `value` prop with the selectedValue from the TabsContext
-    selected: selected || value === selectedValue,
+    selected: selected || isSelected,
     totalTabsCount,
-    orientation,
   };
 }
 
 namespace useTab {
-  export interface Parameters {
+  export interface Parameters extends Pick<TabsRootContext, 'getTabPanelId'> {
     /**
      * The value of the tab.
      * It's used to associate the tab with a tab panel(s) with the same value.
@@ -97,6 +99,7 @@ namespace useTab {
      * If not provided, it will be automatically generated.
      */
     id?: string;
+    isSelected: boolean;
     /**
      * Ref to the root slot's DOM element.
      */
@@ -116,7 +119,6 @@ namespace useTab {
      * 0-based index of the tab in the list of tabs.
      */
     index: number;
-    orientation: TabsOrientation;
     /**
      * Ref to the root slot's DOM element.
      */

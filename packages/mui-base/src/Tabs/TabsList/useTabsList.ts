@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TabsListActionTypes, tabsListReducer, ValueChangeAction } from './tabsListReducer';
-import { useTabsRootContext } from '../Root/TabsRootContext';
+import type { TabsRootContext } from '../Root/TabsRootContext';
 import { type TabMetadata } from '../Root/useTabsRoot';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot';
 import { useCompoundParent } from '../../useCompound';
@@ -9,20 +9,19 @@ import { useList, ListState, UseListParameters, ListAction } from '../../useList
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { TabsDirection } from '../Root/TabsRoot';
 import { TabsListProviderValue } from './TabsListProvider';
 
 function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
-  const { rootRef: externalRef, loop, activateOnFocus } = parameters;
-
   const {
-    direction = 'ltr',
+    activateOnFocus,
+    direction,
+    loop,
     onSelected,
-    orientation = 'horizontal',
-    value,
+    orientation,
     registerTabIdLookup,
-    tabActivationDirection,
-  } = useTabsRootContext();
+    rootRef: externalRef,
+    value,
+  } = parameters;
 
   const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
     any,
@@ -169,11 +168,8 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
     dispatch,
     getRootProps,
     highlightedValue,
-    direction,
-    orientation,
     rootRef: handleRef,
     selectedValue: selectedValues[0] ?? null,
-    tabActivationDirection,
   };
 }
 
@@ -260,7 +256,11 @@ function useActivationDirectionDetector(
 }
 
 namespace useTabsList {
-  export interface Parameters {
+  export interface Parameters
+    extends Pick<
+      TabsRootContext,
+      'direction' | 'onSelected' | 'orientation' | 'registerTabIdLookup' | 'value'
+    > {
     /**
      * If `true`, the tab will be activated whenever it is focused.
      * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
@@ -298,20 +298,11 @@ namespace useTabsList {
      * The value of the currently highlighted tab.
      */
     highlightedValue: any | null;
-    /**
-     * If `true`, it will indicate that the text's direction in right-to-left.
-     */
-    direction: TabsDirection;
-    /**
-     * The component orientation (layout flow direction).
-     */
-    orientation: TabsOrientation;
     rootRef: React.RefCallback<Element> | null;
     /**
      * The value of the currently selected tab.
      */
     selectedValue: any | null;
-    tabActivationDirection: TabActivationDirection;
   }
 }
 
