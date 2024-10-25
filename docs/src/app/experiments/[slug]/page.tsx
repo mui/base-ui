@@ -7,15 +7,13 @@ import { readdir } from 'node:fs/promises';
 import '../../../styles/style.css';
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function Page(props: Props) {
-  const {
-    params: { slug },
-  } = props;
+  const { slug } = await props.params;
 
   try {
     const Experiment = (await import(`../${slug}.tsx`)).default;
@@ -37,7 +35,8 @@ export async function generateStaticParams() {
     .map((entry: Dirent) => ({ slug: basename(entry.name, extname(entry.name)) }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
 
   return {

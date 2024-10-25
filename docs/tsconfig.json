@@ -9,7 +9,7 @@
     "next.config.mjs",
     ".next/types/**/*.ts",
     "export/types/**/*.ts",
-    "config.ts"
+    "shiki.config.ts"
   ],
   "compilerOptions": {
     "allowJs": true,
