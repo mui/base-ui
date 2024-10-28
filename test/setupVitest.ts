@@ -48,4 +48,13 @@ if (isVitestJsdom) {
   }
   // @ts-expect-error
   globalThis.window.Touch = Touch;
+
+  globalThis.window.scrollTo = () => {};
+
+  globalThis.requestAnimationFrame = (cb) => {
+    cb(0);
+    return 0;
+  };
+
+  globalThis.Element.prototype.getAnimations = () => [];
 }
