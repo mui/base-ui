@@ -21,7 +21,7 @@ packageName: '@base-ui-components/react'
 
 <InstallationInstructions componentName="Meter" />
 
-### Anatomy
+## Anatomy
 
 Meter
 
@@ -35,4 +35,69 @@ Meter
     <Meter.Indicator />
   </Meter.Track>
 </Meter.Root>
+```
+
+## Value
+
+The `value` prop represents the (percentage) value of the Meter component.
+
+```tsx
+<Meter.Root value={myValue}>
+  <Meter.Track>
+    <Meter.Indicator />
+  </Meter.Track>
+</Meter.Root>
+```
+
+## Min/max and high/low
+
+The `min` and `max` props can be used to establish the lower and upper bound of the range. The default minimum and maximum values are `0` and `100`.
+
+```tsx
+<Meter.Root min={0} max={10}>
+  <Meter.Track>
+    <Meter.Indicator />
+  </Meter.Track>
+</Meter.Root>
+```
+
+The `high` and `low` props can be used together with `min` and `max` to divide the range into 3 segments: `'low'`, `'medium'`, and `'high'`.
+A `[data-segment='low' | 'medium' | 'high']` attribute is set depending on which segment the value lands on.
+
+```tsx
+<Meter.Root min={0} max={100} low={20} high={80}>
+  <Meter.Track>
+    <Meter.Indicator />
+  </Meter.Track>
+</Meter.Root>
+```
+
+## Optimum value
+
+The optimum prop defines whether the low, medium, or high segment of the range is "preferable". For example, for "battery health" higher is better, but for "CPU temperature" lower may be better. A `[data-optimum]` attribute is set when the value is in the "preferable" segment.
+
+```tsx
+<Meter.Root min={0} max={100} low={20} high={75} optimum={80}>
+  <Meter.Track>
+    <Meter.Indicator />
+  </Meter.Track>
+</Meter.Root>
+```
+
+## RTL
+
+Set the `direction` prop to `'rtl'` to change the direction that the `Indicator` fills towards for right-to-left languages:
+
+```jsx
+<Meter.Root direction="rtl">{/* Subcomponents */}</Meter.Root>
+```
+
+## Overriding default components
+
+Use the `render` prop to override the rendered element for all subcomponents:
+
+```jsx
+<Meter.Indicator render={<MyCustomIndicator />} />
+// or
+<Meter.Indicator render={(props) => <MyCustomIndicator {...props} />} />
 ```
