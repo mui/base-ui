@@ -88,14 +88,14 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should have the `aria-disabled` attribute', async () => {
+    it('should have the `disabled` attribute', async () => {
       const { getAllByRole } = await render(<Checkbox.Root disabled />);
-      expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-disabled', 'true');
+      expect(getAllByRole('checkbox')[0]).to.have.attribute('disabled');
     });
 
-    it('should not have the aria attribute when `disabled` is not set', async () => {
+    it('should not have the `disabled` attribute when `disabled` is not set', async () => {
       const { getAllByRole } = await render(<Checkbox.Root />);
-      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-disabled');
+      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
