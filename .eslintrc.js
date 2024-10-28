@@ -39,8 +39,10 @@ module.exports = {
     ],
     '@typescript-eslint/no-redeclare': 'off',
 
-    // We LOVE non-breaking spaces here
+    // We LOVE non-breaking spaces, and both straight and curly quotes here
     'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
+    'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
+    'material-ui/straight-quotes': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(
