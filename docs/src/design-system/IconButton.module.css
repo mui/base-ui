@@ -28,17 +28,17 @@
   }
 }
 
-.size-1 {
+.s-1 {
   width: var(--space-6);
   height: var(--space-6);
 }
 
-.size-2 {
+.s-2 {
   width: var(--space-7);
   height: var(--space-7);
 }
 
-.size-3 {
+.s-3 {
   width: var(--space-8);
   height: var(--space-8);
 }

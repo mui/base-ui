@@ -78,8 +78,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         value: 'off',
         type: 'button',
         role: 'checkbox',
+        disabled,
         'aria-checked': indeterminate ? 'mixed' : checked,
-        'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         onBlur() {

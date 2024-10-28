@@ -1,5 +1,6 @@
-@layer mdx {
-  .content {
+@layer components {
+  .Content {
+    box-sizing: content-box;
     max-width: 714px;
     padding-top: var(--space-9);
     padding-left: var(--space-6);
@@ -154,14 +155,6 @@
     td {
       border-bottom: 1px solid var(--gray-outline-2);
       padding: var(--space-3);
-
-      &:first-child {
-        padding-left: 0;
-      }
-
-      &:last-child {
-        padding-right: 0;
-      }
     }
 
     strong {
@@ -197,9 +190,9 @@
       }
     }
   }
-}
 
-.editLink {
-  padding-top: var(--space-9);
-  padding-bottom: var(--space-9);
+  .EditLink {
+    padding-top: var(--space-9);
+    padding-bottom: var(--space-9);
+  }
 }

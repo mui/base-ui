@@ -10,10 +10,7 @@ export function Description(props: DescriptionProps) {
   const { text, children, ...other } = props;
 
   return (
-    <p
-      {...other}
-      className={clsx('Text size-5 weight-1 color-gray', classes.root, props.className)}
-    >
+    <p {...other} className={clsx('Text s-5 weight-1 color-gray', classes.root, props.className)}>
       {text ?? children}
     </p>
   );
