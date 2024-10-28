@@ -1,3 +1,4 @@
+// @ts-check
 import { visit } from 'unist-util-visit';
 import { join, dirname } from 'path';
 import camelCase from 'lodash/camelCase.js';

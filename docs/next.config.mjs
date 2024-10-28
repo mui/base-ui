@@ -28,7 +28,7 @@ const rootPackage = loadPackageJson();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
-  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
+  pageExtensions: ['mdx', 'tsx'],
   env: {
     // docs-infra
     LIB_VERSION: rootPackage.version,
