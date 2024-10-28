@@ -18,6 +18,7 @@ export default defineConfig({
     // Required for some tests that contain early returns.
     // Should be removed once we migrate to vitest.
     passWithNoTests: true,
+    reporters: ['basic'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
