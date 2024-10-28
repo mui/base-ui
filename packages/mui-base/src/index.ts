@@ -20,4 +20,5 @@ export * from './Slider';
 export * from './Switch';
 export * from './Tabs';
 export * from './TextInput';
+export * from './ToggleButton';
 export * from './Tooltip';
