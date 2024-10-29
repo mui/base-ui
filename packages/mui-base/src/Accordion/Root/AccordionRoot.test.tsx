@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { createRenderer, describeSkipIf } from '@mui/internal-test-utils';
 import { Accordion } from '@base_ui/react/Accordion';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance } from '#test-utils';
 
 describe('<Accordion.Root />', () => {
   const { render } = createRenderer();
@@ -41,7 +42,13 @@ describe('<Accordion.Root />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('open state', async () => {
+    it('open state', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
       const { getByRole, queryByText, user } = await render(
         <Accordion.Root data-testid="root" animated={false}>
           <Accordion.Item>
@@ -283,7 +290,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe('keyboard interactions', () => {
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} toggles the Accordion open state`, async () => {
         const { getByRole, queryByText, user } = await render(
@@ -510,7 +517,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe('prop: openMultiple', () => {
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('prop: openMultiple', () => {
     it('multiple items can be open by default', async () => {
       const { getByTestId, queryByText, user } = await render(
         <Accordion.Root animated={false}>
@@ -589,7 +596,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe('horizontal orientation', () => {
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('horizontal orientation', () => {
     it('ArrowLeft/Right moves focus in horizontal orientation', async () => {
       const { getByTestId, user } = await render(
         <Accordion.Root animated={false} orientation="horizontal">
@@ -627,7 +634,7 @@ describe('<Accordion.Root />', () => {
       expect(trigger1).toHaveFocus();
     });
 
-    describe('RTL', () => {
+    describeSkipIf(/jsdom/.test(window.navigator.userAgent))('RTL', () => {
       it('ArrowLeft/Right is reversed for horizontal accordions in RTL mode', async () => {
         const { getByTestId, user } = await render(
           <Accordion.Root animated={false} orientation="horizontal" direction="rtl">
@@ -667,7 +674,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe('prop: onValueChange', () => {
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('prop: onValueChange', () => {
     it('default item value', async () => {
       const onValueChange = spy();
 
