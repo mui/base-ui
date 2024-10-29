@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { NOOP } from '../utils/noop';
-import { GenericHTMLProps } from '../utils/types';
-import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
-import { useButton } from '../useButton/useButton';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { NOOP } from '../../utils/noop';
+import { GenericHTMLProps } from '../../utils/types';
+import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useButton } from '../../useButton/useButton';
 
-export function useToggleButton(
-  parameters: useToggleButton.Parameters,
-): useToggleButton.ReturnValue {
+export function useToggleButtonRoot(
+  parameters: useToggleButtonRoot.Parameters,
+): useToggleButtonRoot.ReturnValue {
   const {
     pressed: pressedProp,
     onPressedChange: onPressedChangeProp = NOOP,
@@ -62,7 +62,7 @@ export function useToggleButton(
   );
 }
 
-export namespace useToggleButton {
+export namespace useToggleButtonRoot {
   export interface Parameters {
     buttonRef?: React.Ref<HTMLElement>;
     /**

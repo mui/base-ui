@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../utils/types';
-import { useToggleButton } from './useToggleButton';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useToggleButtonRoot } from './useToggleButtonRoot';
 
 const customStyleHookMapping = {
   disabled: () => null,
@@ -17,10 +17,10 @@ const customStyleHookMapping = {
  *
  * API:
  *
- * - [ToggleButton API](https://base-ui.netlify.app/components/react-toggle-button/#api-reference-ToggleButton)
+ * - [ToggleButtonRoot API](https://base-ui.netlify.app/components/react-toggle-button/#api-reference-ToggleButtonRoot)
  */
-const ToggleButton = React.forwardRef(function ToggleButton(
-  props: ToggleButton.Props,
+const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
+  props: ToggleButtonRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -33,7 +33,7 @@ const ToggleButton = React.forwardRef(function ToggleButton(
     ...otherProps
   } = props;
 
-  const { disabled, pressed, getRootProps } = useToggleButton({
+  const { disabled, pressed, getRootProps } = useToggleButtonRoot({
     pressed: pressedProp,
     defaultPressed: defaultPressedProp,
     disabled: disabledProp,
@@ -41,7 +41,7 @@ const ToggleButton = React.forwardRef(function ToggleButton(
     buttonRef: forwardedRef,
   });
 
-  const ownerState: ToggleButton.OwnerState = React.useMemo(
+  const ownerState: ToggleButtonRoot.OwnerState = React.useMemo(
     () => ({
       disabled,
       pressed,
@@ -56,15 +56,38 @@ const ToggleButton = React.forwardRef(function ToggleButton(
     ownerState,
     className,
     customStyleHookMapping,
-    extraProps: {
-      ...otherProps,
-    },
+    extraProps: otherProps,
   });
 
   return renderElement();
 });
 
-ToggleButton.propTypes /* remove-proptypes */ = {
+export { ToggleButtonRoot };
+
+export namespace ToggleButtonRoot {
+  export interface OwnerState {
+    pressed: boolean;
+    disabled: boolean;
+  }
+
+  export interface Props
+    extends Pick<
+        useToggleButtonRoot.Parameters,
+        'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange'
+      >,
+      BaseUIComponentProps<'button', OwnerState> {
+    /**
+     * The label for the ToggleButton.
+     */
+    'aria-label'?: React.AriaAttributes['aria-label'];
+    /**
+     * An id or space-separated list of ids of elements that label the ToggleButton.
+     */
+    'aria-labelledby'?: React.AriaAttributes['aria-labelledby'];
+  }
+}
+
+ToggleButtonRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -115,28 +138,3 @@ ToggleButton.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { ToggleButton };
-
-export namespace ToggleButton {
-  export interface OwnerState {
-    pressed: boolean;
-    disabled: boolean;
-  }
-
-  export interface Props
-    extends Pick<
-        useToggleButton.Parameters,
-        'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange'
-      >,
-      BaseUIComponentProps<'button', OwnerState> {
-    /**
-     * The label for the ToggleButton.
-     */
-    'aria-label'?: React.AriaAttributes['aria-label'];
-    /**
-     * An id or space-separated list of ids of elements that label the ToggleButton.
-     */
-    'aria-labelledby'?: React.AriaAttributes['aria-labelledby'];
-  }
-}
