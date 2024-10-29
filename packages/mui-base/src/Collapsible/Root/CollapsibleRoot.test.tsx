@@ -70,7 +70,7 @@ describe('<Collapsible.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
-      const { getByRole, user } = await render(
+      const { getByRole, queryByText, user } = await render(
         <Collapsible.Root defaultOpen={false} animated={false}>
           <Collapsible.Trigger />
           <Collapsible.Panel>This is content</Collapsible.Panel>
