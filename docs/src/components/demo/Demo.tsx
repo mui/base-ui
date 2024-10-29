@@ -57,6 +57,8 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
         </div>
 
         <Collapsible.Panel
+          hidden={false}
+          aria-hidden={!open}
           render={<BaseDemo.SourceBrowser />}
           className="DemoCodeBlock"
           onScrollCapture={(event) => {
