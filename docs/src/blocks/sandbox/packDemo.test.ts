@@ -1,4 +1,4 @@
-import { describe, it } from 'mocha';
+import { describe, it } from 'vitest';
 import { expect } from 'chai';
 import { DemoFile } from 'docs/src/blocks/Demo';
 import { packDemo } from './packDemo';
