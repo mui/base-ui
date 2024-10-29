@@ -12,7 +12,7 @@
 }
 
 /* GitHub-style hues */
-/*
+
 :root {
   --syntax-comment: var(--color-gray);
   --syntax-constant: var(--color-blue);
@@ -23,10 +23,10 @@
   --syntax-string: var(--color-navy);
   --syntax-variable: var(--color-red);
   --syntax-invalid: var(--color-red);
-} */
+}
 
 [data-language='css'] {
-  --syntax-default: var(--color-purple);
+  /* --syntax-default: var(--color-purple);
   --syntax-comment: var(--color-gray);
   --syntax-constant: var(--color-foreground);
   --syntax-entity: var(--color-blue);
@@ -35,10 +35,10 @@
   --syntax-keyword: var(--color-green);
   --syntax-string: var(--color-navy);
   --syntax-variable: var(--color-blue);
-  --syntax-invalid: var(--color-red);
+  --syntax-invalid: var(--color-red); */
 
   /* Target CSS property names */
-  & [style='color:var(--syntax-constant)']:first-child {
+  /* & [style='color:var(--syntax-constant)']:first-child {
     --syntax-constant: var(--color-purple);
-  }
+  } */
 }
