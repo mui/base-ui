@@ -1,0 +1,24 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "direction": {
+      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
+      "default": "'ltr'"
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "toggleMultiple": { "type": { "name": "bool" }, "default": "false" }
+  },
+  "name": "ToggleButtonGroupRoot",
+  "imports": [
+    "import { ToggleButtonGroup } from '@base_ui/react/ToggleButtonGroup';\nconst ToggleButtonGroupRoot = ToggleButtonGroup.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "ToggleButtonGroupRoot",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/ToggleButtonGroup/Root/ToggleButtonGroupRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-toggle-button-group/\">ToggleButtonGroup</a></li></ul>",
+  "cssComponent": false
+}

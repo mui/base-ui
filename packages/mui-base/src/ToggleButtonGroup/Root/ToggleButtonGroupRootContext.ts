@@ -1,0 +1,27 @@
+'use client';
+import * as React from 'react';
+
+export interface ToggleButtonGroupRootContext {
+  value: unknown[];
+  setGroupValue: (newValue: unknown, nextPressed: boolean, event: Event) => void;
+  disabled: boolean;
+}
+
+export const ToggleButtonGroupRootContext = React.createContext<
+  ToggleButtonGroupRootContext | undefined
+>(undefined);
+
+if (process.env.NODE_ENV !== 'production') {
+  ToggleButtonGroupRootContext.displayName = 'ToggleButtonGroupRootContext';
+}
+
+export function useToggleButtonGroupRootContext() {
+  const context = React.useContext(ToggleButtonGroupRootContext);
+  if (context === undefined) {
+    throw new Error(
+      'Base UI: ToggleButtonGroupRootContext is missing. ToggleButtonGroup parts must be placed within <ToggleButtonGroup.Root>.',
+    );
+  }
+
+  return context;
+}

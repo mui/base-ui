@@ -1,0 +1,29 @@
+{
+  "props": {
+    "value": { "type": { "name": "any" }, "required": true },
+    "aria-label": { "type": { "name": "string" } },
+    "aria-labelledby": { "type": { "name": "string" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "onPressedChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(pressed: boolean, event: Event) => void",
+        "describedArgs": ["pressed", "event"]
+      }
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "ToggleButtonGroupItem",
+  "imports": [
+    "import { ToggleButtonGroup } from '@base_ui/react/ToggleButtonGroup';\nconst ToggleButtonGroupItem = ToggleButtonGroup.Item;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "ToggleButtonGroupItem",
+  "forwardsRefTo": "HTMLButtonElement",
+  "filename": "/packages/mui-base/src/ToggleButtonGroup/Item/ToggleButtonGroupItem.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-toggle-button-group/\">ToggleButtonGroup</a></li></ul>",
+  "cssComponent": false
+}

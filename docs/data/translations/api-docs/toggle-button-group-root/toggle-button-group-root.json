@@ -1,0 +1,14 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "direction": { "description": "Text direction" },
+    "render": { "description": "A function to customize rendering of the component." },
+    "toggleMultiple": {
+      "description": "When <code>false</code> only one ToggleButton in the group can be pressed. When a ToggleButton is pressed, the others in the group will become unpressed"
+    }
+  },
+  "classDescriptions": {}
+}

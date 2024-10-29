@@ -21,4 +21,5 @@ export * from './Switch';
 export * from './Tabs';
 export * from './TextInput';
 export * from './ToggleButton';
+export * from './ToggleButtonGroup';
 export * from './Tooltip';

@@ -45,6 +45,7 @@ const pages: readonly RouteMetadata[] = [
       { pathname: '/components/react-tabs', title: 'Tabs' },
       { pathname: '/components/react-text-input', title: 'Text Input' },
       { pathname: '/components/react-toggle-button', title: 'Toggle Button' },
+      { pathname: '/components/react-toggle-button-group', title: 'Toggle Button Group' },
       { pathname: '/components/react-tooltip', title: 'Tooltip' },
     ],
   },
