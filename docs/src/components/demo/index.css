@@ -206,6 +206,7 @@
       cursor: text;
       font-size: 0.8125rem;
       line-height: 1.25rem;
+      max-height: 12.5rem;
       padding: 0.5rem 0.75rem;
       outline: 0;
 
@@ -222,11 +223,7 @@
       outline-offset: -1px;
     }
 
-    &[data-closed] pre {
-      max-height: 12.5rem;
-    }
-
-    &[data-closed]::before {
+    &::before {
       content: '';
       position: absolute;
       pointer-events: none;
@@ -254,6 +251,15 @@
       opacity: 1;
       transition-duration: 1000ms;
       transition-delay: 500ms;
+    }
+
+    &[data-open] {
+      & pre {
+        max-height: none;
+      }
+      &::before {
+        content: none;
+      }
     }
 
     & code {
