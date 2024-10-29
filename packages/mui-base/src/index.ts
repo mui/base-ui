@@ -1,3 +1,4 @@
+export * from './Accordion';
 export * from './AlertDialog';
 export * from './Checkbox';
 export * from './CheckboxGroup';

@@ -117,7 +117,7 @@ const Tab = styled(BaseTabs.Tab)`
     outline: none;
   }
 
-  &[data-disabled='true'] {
+  &[data-disabled] {
     opacity: 0.5;
     cursor: not-allowed;
   }

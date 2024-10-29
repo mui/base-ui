@@ -41,10 +41,10 @@ describe('<Field.Root />', () => {
       const label = screen.getByTestId('label');
       const message = screen.getByTestId('message');
 
-      expect(field).to.have.attribute('data-disabled', 'true');
-      expect(control).to.have.attribute('data-disabled', 'true');
-      expect(label).to.have.attribute('data-disabled', 'true');
-      expect(message).to.have.attribute('data-disabled', 'true');
+      expect(field).to.have.attribute('data-disabled', '');
+      expect(control).to.have.attribute('data-disabled', '');
+      expect(label).to.have.attribute('data-disabled', '');
+      expect(message).to.have.attribute('data-disabled', '');
     });
   });
 
@@ -357,10 +357,10 @@ describe('<Field.Root />', () => {
         fireEvent.focus(control);
         fireEvent.blur(control);
 
-        expect(root).to.have.attribute('data-touched', 'true');
-        expect(control).to.have.attribute('data-touched', 'true');
-        expect(label).to.have.attribute('data-touched', 'true');
-        expect(description).to.have.attribute('data-touched', 'true');
+        expect(root).to.have.attribute('data-touched', '');
+        expect(control).to.have.attribute('data-touched', '');
+        expect(label).to.have.attribute('data-touched', '');
+        expect(description).to.have.attribute('data-touched', '');
         expect(error).to.equal(null);
       });
 
@@ -376,7 +376,7 @@ describe('<Field.Root />', () => {
         fireEvent.focus(button);
         fireEvent.blur(button);
 
-        expect(button).to.have.attribute('data-touched', 'true');
+        expect(button).to.have.attribute('data-touched', '');
       });
 
       it('supports Switch', () => {
@@ -391,7 +391,7 @@ describe('<Field.Root />', () => {
         fireEvent.focus(button);
         fireEvent.blur(button);
 
-        expect(button).to.have.attribute('data-touched', 'true');
+        expect(button).to.have.attribute('data-touched', '');
       });
 
       it('supports NumberField', () => {
@@ -408,7 +408,7 @@ describe('<Field.Root />', () => {
         fireEvent.focus(input);
         fireEvent.blur(input);
 
-        expect(input).to.have.attribute('data-touched', 'true');
+        expect(input).to.have.attribute('data-touched', '');
       });
 
       it('supports Slider', () => {
@@ -428,7 +428,7 @@ describe('<Field.Root />', () => {
         fireEvent.focus(thumb);
         fireEvent.blur(thumb);
 
-        expect(root).to.have.attribute('data-touched', 'true');
+        expect(root).to.have.attribute('data-touched', '');
       });
 
       it('supports RadioGroup (click)', () => {
@@ -448,8 +448,8 @@ describe('<Field.Root />', () => {
 
         fireEvent.click(control);
 
-        expect(group).to.have.attribute('data-touched', 'true');
-        expect(control).to.have.attribute('data-touched', 'true');
+        expect(group).to.have.attribute('data-touched', '');
+        expect(control).to.have.attribute('data-touched', '');
       });
 
       it('supports RadioGroup (blur)', async () => {
@@ -471,8 +471,8 @@ describe('<Field.Root />', () => {
         await userEvent.tab(); // onto control
         await userEvent.tab(); // onto last button
 
-        expect(group).to.have.attribute('data-touched', 'true');
-        expect(control).to.have.attribute('data-touched', 'true');
+        expect(group).to.have.attribute('data-touched', '');
+        expect(control).to.have.attribute('data-touched', '');
       });
     });
 
@@ -499,10 +499,10 @@ describe('<Field.Root />', () => {
 
         fireEvent.change(control, { target: { value: 'value' } });
 
-        expect(root).to.have.attribute('data-dirty', 'true');
-        expect(control).to.have.attribute('data-dirty', 'true');
-        expect(label).to.have.attribute('data-dirty', 'true');
-        expect(description).to.have.attribute('data-dirty', 'true');
+        expect(root).to.have.attribute('data-dirty', '');
+        expect(control).to.have.attribute('data-dirty', '');
+        expect(label).to.have.attribute('data-dirty', '');
+        expect(description).to.have.attribute('data-dirty', '');
 
         fireEvent.change(control, { target: { value: '' } });
 
@@ -525,7 +525,7 @@ describe('<Field.Root />', () => {
 
         fireEvent.click(button);
 
-        expect(button).to.have.attribute('data-dirty', 'true');
+        expect(button).to.have.attribute('data-dirty', '');
       });
 
       it('supports Switch', () => {
@@ -541,7 +541,7 @@ describe('<Field.Root />', () => {
 
         fireEvent.click(button);
 
-        expect(button).to.have.attribute('data-dirty', 'true');
+        expect(button).to.have.attribute('data-dirty', '');
       });
 
       it('supports NumberField', () => {
@@ -559,7 +559,7 @@ describe('<Field.Root />', () => {
 
         fireEvent.change(input, { target: { value: '1' } });
 
-        expect(input).to.have.attribute('data-dirty', 'true');
+        expect(input).to.have.attribute('data-dirty', '');
       });
 
       it('supports Slider', () => {
@@ -581,7 +581,7 @@ describe('<Field.Root />', () => {
 
         fireEvent.change(input, { target: { value: 'value' } });
 
-        expect(root).to.have.attribute('data-dirty', 'true');
+        expect(root).to.have.attribute('data-dirty', '');
       });
 
       it('supports RadioGroup', () => {
@@ -600,7 +600,7 @@ describe('<Field.Root />', () => {
 
         fireEvent.click(screen.getByText('One'));
 
-        expect(group).to.have.attribute('data-dirty', 'true');
+        expect(group).to.have.attribute('data-dirty', '');
       });
     });
   });

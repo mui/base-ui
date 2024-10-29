@@ -126,7 +126,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
     outline-offset: 3px;
   }
 
-  &[data-dragging='true'] {
+  &[data-dragging] {
     background-color: pink;
   }
 
@@ -135,7 +135,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
     background-color: ${grey[600]};
   }
 
-  .dark &[data-dragging='true'] {
+  .dark &[data-dragging] {
     background-color: pink;
   }
 `;
@@ -144,7 +144,7 @@ const Label = styled(BaseLabel)`
   cursor: unset;
   font-weight: bold;
 
-  &[data-disabled='true'] {
+  &[data-disabled] {
     color: ${grey[600]};
   }
 `;

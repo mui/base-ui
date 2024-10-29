@@ -11,6 +11,10 @@ export const defaultRenderFunctions = {
     // eslint-disable-next-line jsx-a11y/heading-has-content
     return <h2 {...props} />;
   },
+  h3: (props: React.ComponentPropsWithRef<'h3'>) => {
+    // eslint-disable-next-line jsx-a11y/heading-has-content
+    return <h3 {...props} />;
+  },
   output: (props: React.ComponentPropsWithRef<'output'>) => {
     return <output {...props} />;
   },

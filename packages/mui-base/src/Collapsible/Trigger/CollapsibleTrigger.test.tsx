@@ -6,11 +6,11 @@ import { CollapsibleRootContext } from '../Root/CollapsibleRootContext';
 
 const contextValue: CollapsibleRootContext = {
   animated: false,
-  contentId: 'ContentId',
+  panelId: 'PanelId',
   disabled: false,
   mounted: true,
   open: true,
-  setContentId() {},
+  setPanelId() {},
   setMounted() {},
   setOpen() {},
   transitionStatus: undefined,

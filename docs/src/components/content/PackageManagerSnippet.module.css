@@ -44,7 +44,7 @@
   width: var(--space-9);
   letter-spacing: 0.18px;
 
-  &[data-selected='true'] {
+  &[data-selected] {
     border-radius: var(--br-pill);
     background-color: white;
     box-shadow:
@@ -55,7 +55,7 @@
   }
 
   @media (hover: hover) {
-    &:not([data-selected='true']):hover {
+    &:not([data-selected]):hover {
       background-color: var(--gray-container-3);
     }
   }
