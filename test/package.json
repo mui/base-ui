@@ -10,7 +10,7 @@
     "@base_ui/react": "workspace:*",
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.13.3",
-    "@mui/internal-test-utils": "1.0.18",
+    "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
     "@playwright/test": "1.48.1",
     "@testing-library/dom": "^10.4.0",
     "@types/chai": "^4.3.20",

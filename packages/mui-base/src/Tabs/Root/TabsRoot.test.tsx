@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base_ui/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -16,7 +16,9 @@ describe('<Tabs.Root />', () => {
     // container.scrollLeft = 200;
     // expect(container.scrollLeft).to.equal(200); 💥
     if (isSafari) {
-      this.skip();
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
     }
   });
 
@@ -766,13 +768,7 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describe('activation direction', () => {
-    before(function suite() {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
-      }
-    });
-
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('activation direction', () => {
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       const { getAllByRole, getByTestId } = await render(
         <Tabs.Root data-testid="root">
