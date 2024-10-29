@@ -53,7 +53,9 @@ export default async function ComponentPage(props: Props) {
     ...components,
     // eslint-disable-next-line react/no-unstable-nested-components
     Demo: (demoProps: Omit<DemoLoaderProps, 'componentName'>) => (
-      <DemoLoader componentName={componentName} {...demoProps} />
+      <div className="my-5">
+        <DemoLoader componentName={componentName} {...demoProps} />
+      </div>
     ),
     // eslint-disable-next-line react/no-unstable-nested-components
     Description: () => <Description text={metadata.description} />,

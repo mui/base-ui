@@ -1,12 +1,15 @@
-# Dialog
+<Demo title="index.tsx" path="./UnstyledDialogIntroduction" />
 
-A common interactive component that appears on top of the page content.
+```tsx title="Controlled dialog"
+const [open, setOpen] = React.useState(false);
 
-## Features
-
-- Accessible to screen readers
-- Prevents outside interactions
-- Configurable behavior
-
-<Demo path="./UnstyledDialogIntroduction" />
-<Demo path="./NestedDialogs.tsx" />
+return (
+  <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Trigger>Open</Dialog.Trigger>
+    <Dialog.Popup>
+      <Dialog.Title>Demo dialog</Dialog.Title>
+      <Dialog.Close>Close</Dialog.Close>
+    </Dialog.Popup>
+  </Dialog.Root>
+);
+```

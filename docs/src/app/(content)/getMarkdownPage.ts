@@ -12,7 +12,7 @@ import extractToc, { type Toc } from '@stefanprobst/rehype-extract-toc';
 import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
 import { read as readVFile } from 'to-vfile';
 import { matter } from 'vfile-matter';
-import { config } from 'docs/config';
+import { highlighter } from 'docs/src/syntax-highlighting';
 
 export const DATA_PATH = path.join(process.cwd(), 'data');
 
@@ -50,7 +50,15 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
     ...jsxRuntime,
     remarkPlugins: [remarkGfm, remarkFrontmatter, remarkMdxFrontmatter],
     rehypePlugins: [
-      [rehypePrettyCode, { theme: config.shikiThemes }],
+      [
+        rehypePrettyCode,
+        {
+          getHighlighter: () => highlighter,
+          theme: 'base-ui-theme',
+          bypassInlineCode: true,
+          grid: false,
+        },
+      ],
       rehypeSlug,
       extractToc,
       exportToc,

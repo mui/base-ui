@@ -12,14 +12,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        'color-gridline': 'var(--color-gridline)',
-        'color-content': 'var(--color-content)',
-        'color-link': 'var(--color-link)',
-        'color-gray': 'var(--color-gray)',
+        // Functional colors
+        'color-background': 'var(--color-background)',
+        'color-foreground': 'var(--color-foreground)',
         'color-border': 'var(--color-border)',
+        'color-content': 'var(--color-content)',
+        'color-gridline': 'var(--color-gridline)',
+        'color-panel': 'var(--color-panel)',
+        'color-selection': 'var(--color-selection)',
+
+        // Text colors
+        'color-blue': 'var(--color-blue)',
+        'color-gray': 'var(--color-gray)',
+        'color-green': 'var(--color-green)',
+        'color-navy': 'var(--color-navy)',
+        'color-purple': 'var(--color-purple)',
+        'color-red': 'var(--color-red)',
+        'color-violet': 'var(--color-violet)',
       },
       fontFamily: {
-        sans: '"Unica 77", system-ui',
+        sans: 'var(--font-sans)',
+        mono: 'var(--font-mono)',
       },
       fontSize: {
         xs: ['0.8125rem', { lineHeight: '1rem', letterSpacing: '0.00125em' }],

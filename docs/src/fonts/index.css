@@ -1,0 +1,76 @@
+/*
+ * Legal Disclaimer for Web licence
+ *
+ * Licence to use self-hosted webfonts for displaying dynamic text on specified website domains. Our package includes WOFF and WOFF2 font formats.
+ *
+ * Should the license page views limit be exceeded the license holder will be required to contact Lineto.com for an upgrade.
+ *
+ * It is strictly prohibited to rename the font and to download or use these fonts in any other media.
+ *
+ * These Web fonts are licensed exclusively for the use on the following domain(s) and their subdomains:
+ *
+ * base-ui.com (monthly pageviews: < 250K)
+ *
+ */
+
+@font-face {
+  font-family: 'Unica 77';
+  font-weight: normal;
+  src: url('./fonts/regular.woff2');
+}
+
+@font-face {
+  font-family: 'Unica 77';
+  font-weight: 500;
+  src: url('./fonts/medium.woff2');
+}
+
+@font-face {
+  font-family: 'Unica 77';
+  font-weight: bold;
+  src: url('./fonts/bold.woff2');
+}
+
+@font-face {
+  font-family: 'Menlo';
+  font-weight: normal;
+  src: local('Menlo-Regular');
+  /* Match 13px Unica to 12px Menlo */
+  size-adjust: calc(100% * 12 / 13);
+}
+
+@font-face {
+  font-family: 'Menlo';
+  font-weight: bold;
+  src: local('Menlo-Bold');
+  size-adjust: calc(100% * 12 / 13);
+}
+
+@font-face {
+  font-family: 'DejaVu Sans Mono';
+  font-weight: normal;
+  src: local('DejaVuSansMono');
+  size-adjust: calc(100% * 12 / 13);
+}
+
+@font-face {
+  font-family: 'DejaVu Sans Mono';
+  font-weight: bold;
+  src: local('DejaVuSansMono-Bold');
+  size-adjust: calc(100% * 12 / 13);
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-weight: normal;
+  src: local('Inconsolata-Regular');
+  /* Inconsolata is a touch small, match 13px Unica to 14px Inconsolata */
+  size-adjust: calc(100% * 14 / 13);
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-weight: bold;
+  src: local('Inconsolata-Bold');
+  size-adjust: calc(100% * 14 / 13);
+}
