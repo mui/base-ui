@@ -284,6 +284,8 @@
     border-bottom: 1px solid transparent;
     background-clip: padding-box;
     margin-bottom: -1px;
+    -webkit-user-select: none;
+    user-select: none;
 
     @media (hover: hover) {
       &:hover {
