@@ -63,7 +63,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     return () => {
       scrollbarEl?.removeEventListener('wheel', handleWheel);
     };
-  }, [orientation, scrollbarXRef, scrollbarYRef, thumbYRef, viewportRef]);
+  }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
 
   const getScrollbarProps = React.useCallback(
     (externalProps = {}) =>
@@ -127,7 +127,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         onPointerUp: handlePointerUp,
         style: {
           position: 'absolute',
-          ...(type === 'inlay' && { touchAction: 'none' }),
+          ...(type === 'inset' && { touchAction: 'none' }),
           ...(orientation === 'vertical' && {
             top: 0,
             bottom: 0,
@@ -163,7 +163,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
   );
 }
 
-namespace useScrollAreaScrollbar {
+export namespace useScrollAreaScrollbar {
   export interface Parameters {
     orientation: 'vertical' | 'horizontal';
   }

@@ -10,7 +10,7 @@
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "type": {
-      "type": { "name": "enum", "description": "'inlay'<br>&#124;&nbsp;'overlay'" },
+      "type": { "name": "enum", "description": "'inset'<br>&#124;&nbsp;'overlay'" },
       "default": "'overlay'"
     }
   },

@@ -22,6 +22,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     gutter,
     setCornerSize,
     rootId,
+    setHiddenState,
+    hiddenState,
   } = useScrollAreaRootContext();
 
   const timeoutRef = React.useRef(-1);
@@ -29,8 +31,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   const [paddingX, setPaddingX] = React.useState(0);
   const [paddingY, setPaddingY] = React.useState(0);
-  const [hiddenX, setHiddenX] = React.useState(false);
-  const [hiddenY, setHiddenY] = React.useState(false);
 
   const computeThumb = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -73,14 +73,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
       }
 
-      if (scrollbarYHidden) {
-        scrollbarYEl.setAttribute('hidden', '');
-      } else {
-        scrollbarYEl.removeAttribute('hidden');
-      }
-
-      setHiddenY(scrollbarYHidden);
-
       scrollbarYEl.style.setProperty(
         '--scroll-area-thumb-height',
         scrollbarYHidden
@@ -108,14 +100,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
       }
 
-      if (scrollbarXHidden) {
-        scrollbarXEl.setAttribute('hidden', '');
-      } else {
-        scrollbarXEl.removeAttribute('hidden');
-      }
-
-      setHiddenX(scrollbarXHidden);
-
       scrollbarXEl.style.setProperty(
         '--scroll-area-thumb-width',
         scrollbarXHidden ? '0px' : `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
@@ -124,15 +108,19 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     if (cornerEl) {
       if (scrollbarXHidden || scrollbarYHidden) {
-        cornerEl.setAttribute('hidden', '');
         setCornerSize({ width: 0, height: 0 });
       } else if (!scrollbarXHidden && !scrollbarYHidden) {
-        cornerEl.removeAttribute('hidden');
         const width = scrollbarYRef.current?.offsetWidth || 0;
         const height = scrollbarXRef.current?.offsetHeight || 0;
         setCornerSize({ width, height });
       }
     }
+
+    setHiddenState({
+      scrollbarYHidden,
+      scrollbarXHidden,
+      cornerHidden: scrollbarYHidden || scrollbarXHidden,
+    });
   });
 
   useEnhancedEffect(() => {
@@ -187,25 +175,29 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     };
   }, [computeThumb, viewportRef]);
 
-  const wrapperStyles: React.CSSProperties = React.useMemo(() => ({}), []);
+  const wrapperStyles: React.CSSProperties = React.useMemo(() => {
+    const styles: React.CSSProperties = {};
 
-  if (type === 'inlay') {
-    if (!hiddenY) {
-      wrapperStyles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
-    }
-    if (!hiddenX) {
-      wrapperStyles.paddingBottom = paddingY;
-    }
+    if (type === 'inset') {
+      if (!hiddenState.scrollbarYHidden) {
+        styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
+      }
+      if (!hiddenState.scrollbarXHidden) {
+        styles.paddingBottom = paddingY;
+      }
 
-    if (hiddenY) {
-      if (gutter === 'stable') {
-        wrapperStyles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
-      } else if (gutter === 'both-edges') {
-        wrapperStyles.paddingLeft = paddingX;
-        wrapperStyles.paddingRight = paddingX;
+      if (hiddenState.scrollbarYHidden) {
+        if (gutter === 'stable') {
+          styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
+        } else if (gutter === 'both-edges') {
+          styles.paddingLeft = paddingX;
+          styles.paddingRight = paddingX;
+        }
       }
     }
-  }
+
+    return styles;
+  }, [type, hiddenState, paddingX, paddingY, dir, gutter]);
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>

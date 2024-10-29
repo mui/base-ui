@@ -23,7 +23,7 @@ describe('<ScrollArea.Corner />', () => {
     }
 
     await render(
-      <ScrollArea.Root type="inlay" style={{ width: 200, height: 200 }}>
+      <ScrollArea.Root type="inset" style={{ width: 200, height: 200 }}>
         <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>

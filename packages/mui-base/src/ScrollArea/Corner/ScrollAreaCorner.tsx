@@ -25,7 +25,7 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { dir, cornerRef } = useScrollAreaRootContext();
+  const { dir, cornerRef, hiddenState } = useScrollAreaRootContext();
 
   const mergedRef = useForkRef(cornerRef, forwardedRef);
 
@@ -42,6 +42,10 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
       },
     }),
   });
+
+  if (hiddenState.cornerHidden) {
+    return null;
+  }
 
   return renderElement();
 });

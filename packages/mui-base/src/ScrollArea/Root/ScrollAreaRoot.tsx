@@ -68,10 +68,11 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 namespace ScrollAreaRoot {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     /**
-     * The type of scrollbars.
+     * Whether the scrollbars are rendered as overlay (not affecting layout) or inset (affecting
+     * layout).
      * @default 'overlay'
      */
-    type?: 'overlay' | 'inlay';
+    type?: 'overlay' | 'inset';
     /**
      * Determines the permanent scrollbar gutter when using the `inlay` type to prevent layout
      * shifts when the scrollbar is hidden/shown.
@@ -111,10 +112,11 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The type of scrollbars.
+   * Whether the scrollbars are rendered as overlay (not affecting layout) or inset (affecting
+   * layout).
    * @default 'overlay'
    */
-  type: PropTypes.oneOf(['inlay', 'overlay']),
+  type: PropTypes.oneOf(['inset', 'overlay']),
 } as any;
 
 export { ScrollAreaRoot };

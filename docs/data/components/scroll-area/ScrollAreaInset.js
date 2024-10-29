@@ -16,9 +16,9 @@ const data = [
   'f9e87c8f-7b4f-4c7e-bb72-ebe8e2277c5e',
 ];
 
-export default function ScrollAreaInlay() {
+export default function ScrollAreaInset() {
   return (
-    <ScrollAreaRoot type="inlay" gutter="none">
+    <ScrollAreaRoot type="inset">
       <ScrollAreaViewport>
         <div style={{ padding: '10px 20px' }}>
           <h3 style={{ margin: '20px 0 10px' }}>User IDs</h3>

@@ -3,8 +3,8 @@ import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerWindow } from '../../utils/owner';
 import { useId } from '../../utils/useId';
+import { ownerWindow } from '../../utils/owner';
 
 export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const { dir: dirProp } = params;
@@ -32,6 +32,18 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
 
+  const [hiddenState, setHiddenState] = React.useState({
+    scrollbarYHidden: false,
+    scrollbarXHidden: false,
+    cornerHidden: false,
+  });
+
+  const [dir, setDir] = useControlled({
+    controlled: dirProp,
+    default: dirProp ?? 'ltr',
+    name: 'ScrollArea',
+  });
+
   React.useEffect(() => {
     if (!viewportRef.current) {
       return undefined;
@@ -54,12 +66,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       win.removeEventListener('resize', handleResize);
     };
   }, []);
-
-  const [dir, setDir] = useControlled({
-    controlled: dirProp,
-    default: dirProp ?? 'ltr',
-    name: 'ScrollArea',
-  });
 
   useEnhancedEffect(() => {
     if (viewportRef.current) {
@@ -182,21 +188,34 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       thumbYRef,
       thumbXRef,
       rootId,
+      hiddenState,
+      setHiddenState,
     }),
     [
-      cornerSize,
       getRootProps,
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
-      hovering,
+      cornerSize,
+      setCornerSize,
+      cornerRef,
       scrolling,
+      setScrolling,
+      hovering,
+      setHovering,
+      viewportRef,
+      scrollbarYRef,
+      scrollbarXRef,
+      thumbYRef,
+      thumbXRef,
       rootId,
+      hiddenState,
+      setHiddenState,
     ],
   );
 }
 
-namespace useScrollAreaRoot {
+export namespace useScrollAreaRoot {
   export interface Parameters {
     dir: string | undefined;
     gutter: string;

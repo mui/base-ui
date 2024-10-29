@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export interface ScrollAreaRootContext {
   dir: string | undefined;
-  type: 'overlay' | 'inlay';
+  type: 'overlay' | 'inset';
   gutter?: 'stable' | 'both-edges' | 'none';
   cornerSize: { width: number; height: number };
   setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
@@ -20,6 +20,18 @@ export interface ScrollAreaRootContext {
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
   rootId: string | undefined;
+  hiddenState: {
+    scrollbarYHidden: boolean;
+    scrollbarXHidden: boolean;
+    cornerHidden: boolean;
+  };
+  setHiddenState: React.Dispatch<
+    React.SetStateAction<{
+      scrollbarYHidden: boolean;
+      scrollbarXHidden: boolean;
+      cornerHidden: boolean;
+    }>
+  >;
 }
 
 export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | undefined>(

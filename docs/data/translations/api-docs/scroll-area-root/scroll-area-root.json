@@ -8,7 +8,9 @@
       "description": "Determines the permanent scrollbar gutter when using the <code>inlay</code> type to prevent layout shifts when the scrollbar is hidden/shown."
     },
     "render": { "description": "A function to customize rendering of the component." },
-    "type": { "description": "The type of scrollbars." }
+    "type": {
+      "description": "Whether the scrollbars are rendered as overlay (not affecting layout) or inset (affecting layout)."
+    }
   },
   "classDescriptions": {}
 }

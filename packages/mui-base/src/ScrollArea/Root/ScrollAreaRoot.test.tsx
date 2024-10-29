@@ -89,8 +89,8 @@ describe('<ScrollArea.Root />', () => {
         </ScrollArea.Root>,
       );
 
-      const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-      const style = getComputedStyle(tableWrapper);
+      const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
+      const style = getComputedStyle(contentWrapper);
 
       expect(style.paddingLeft).to.equal('0px');
       expect(style.paddingRight).to.equal('0px');
@@ -103,7 +103,7 @@ describe('<ScrollArea.Root />', () => {
       }
 
       await render(
-        <ScrollArea.Root type="inlay" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+        <ScrollArea.Root type="inset" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
           <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
             <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
           </ScrollArea.Viewport>
@@ -118,8 +118,8 @@ describe('<ScrollArea.Root />', () => {
         </ScrollArea.Root>,
       );
 
-      const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-      const style = getComputedStyle(tableWrapper);
+      const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
+      const style = getComputedStyle(contentWrapper);
 
       expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
       expect(style.paddingBottom).to.equal(`${SCROLLBAR_HEIGHT}px`);
@@ -134,7 +134,7 @@ describe('<ScrollArea.Root />', () => {
 
       await render(
         <ScrollArea.Root
-          type="inlay"
+          type="inset"
           dir="rtl"
           style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
         >
@@ -152,8 +152,8 @@ describe('<ScrollArea.Root />', () => {
         </ScrollArea.Root>,
       );
 
-      const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-      const style = getComputedStyle(tableWrapper);
+      const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
+      const style = getComputedStyle(contentWrapper);
 
       expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
       expect(style.paddingRight).not.to.equal(`${SCROLLBAR_WIDTH}px`);
@@ -169,7 +169,7 @@ describe('<ScrollArea.Root />', () => {
 
       await render(
         <ScrollArea.Root
-          type="inlay"
+          type="inset"
           gutter="both-edges"
           style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
         >
@@ -185,8 +185,8 @@ describe('<ScrollArea.Root />', () => {
         </ScrollArea.Root>,
       );
 
-      const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-      const style = getComputedStyle(tableWrapper);
+      const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
+      const style = getComputedStyle(contentWrapper);
 
       expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
       expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
@@ -199,7 +199,7 @@ describe('<ScrollArea.Root />', () => {
 
       await render(
         <ScrollArea.Root
-          type="inlay"
+          type="inset"
           gutter="none"
           style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
         >
@@ -215,8 +215,8 @@ describe('<ScrollArea.Root />', () => {
         </ScrollArea.Root>,
       );
 
-      const tableWrapper = screen.getByTestId('viewport').firstElementChild!;
-      const style = getComputedStyle(tableWrapper);
+      const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
+      const style = getComputedStyle(contentWrapper);
 
       expect(style.paddingLeft).to.equal('0px');
       expect(style.paddingRight).to.equal('0px');

@@ -24,7 +24,8 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
 ) {
   const { render, className, orientation = 'vertical', ...otherProps } = props;
 
-  const { hovering, scrolling, scrollbarYRef, scrollbarXRef } = useScrollAreaRootContext();
+  const { hovering, scrolling, hiddenState, scrollbarYRef, scrollbarXRef } =
+    useScrollAreaRootContext();
 
   const mergedRef = useForkRef(
     forwardedRef,
@@ -54,6 +55,13 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   });
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
+
+  const isHidden =
+    orientation === 'vertical' ? hiddenState.scrollbarYHidden : hiddenState.scrollbarXHidden;
+
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <ScrollAreaScrollbarContext.Provider value={contextValue}>
