@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { act, describeSkipIf, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base_ui/react/Dialog';
 import { createRenderer } from '#test-utils';
 
@@ -123,13 +123,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: animated', () => {
-    before(function test() {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
-      }
-    });
-
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('prop: animated', () => {
     const css = `
     .dialog {
       opacity: 0;
@@ -168,13 +162,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('focus management', () => {
-    before(function test() {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
-      }
-    });
-
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('focus management', () => {
     it('should focus the first focusable element within the popup', async () => {
       const { getByText, getByTestId } = await render(
         <div>

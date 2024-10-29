@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act } from '@mui/internal-test-utils';
+import { createRenderer, act, describeSkipIf } from '@mui/internal-test-utils';
 import { Collapsible } from '@base_ui/react/Collapsible';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -20,7 +20,7 @@ describe('<Collapsible.Root />', () => {
   describe('ARIA attributes', () => {
     it('sets ARIA attributes', async () => {
       const { getByTestId, getByRole } = await render(
-        <Collapsible.Root>
+        <Collapsible.Root animated={false}>
           <Collapsible.Trigger />
           <Collapsible.Panel data-testid="panel" />
         </Collapsible.Root>,
@@ -63,8 +63,14 @@ describe('<Collapsible.Root />', () => {
       expect(panel).not.toBeVisible();
     });
 
-    it('uncontrolled mode', async () => {
-      const { queryByText, getByRole, user } = await render(
+    it('uncontrolled mode', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      const { getByRole, user } = await render(
         <Collapsible.Root defaultOpen={false} animated={false}>
           <Collapsible.Trigger />
           <Collapsible.Panel>This is content</Collapsible.Panel>
@@ -92,7 +98,7 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describe('keyboard interactions', () => {
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { queryByText, getByRole, user } = await render(
@@ -127,10 +133,12 @@ describe('<Collapsible.Root />', () => {
   });
 
   describe('prop: hiddenUntilFound', () => {
-    it('uses `hidden="until-found" to hide panel when true', async function test() {
+    it('uses `hidden="until-found" to hide panel when true', async function test(t = {}) {
       // we test firefox in browserstack which does not support this yet
-      if (!('onbeforematch' in window)) {
-        this.skip();
+      if (!('onbeforematch' in window) || /jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const handleOpenChange = spy();
