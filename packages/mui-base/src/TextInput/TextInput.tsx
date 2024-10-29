@@ -18,7 +18,8 @@ const TextInput = React.forwardRef(function TextInput(
   props: TextInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  return <Field.Control ref={forwardedRef} {...props} />;
+  const { render, className, ...otherProps } = props;
+  return <Field.Control ref={forwardedRef} render={render} className={className} {...otherProps} />;
 });
 
 namespace TextInput {
@@ -36,6 +37,14 @@ TextInput.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { TextInput };

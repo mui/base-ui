@@ -1,5 +1,8 @@
 {
-  "props": {},
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
   "name": "TextInput",
   "imports": ["import { TextInput } from '@base_ui/react/TextInput';"],
   "classes": [],
