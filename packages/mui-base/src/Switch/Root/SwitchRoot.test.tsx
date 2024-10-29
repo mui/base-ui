@@ -207,10 +207,12 @@ describe('<Switch.Root />', () => {
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should include the switch value in the form submission', async function test() {
+    it('should include the switch value in the form submission', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       let stringifiedFormData = '';
