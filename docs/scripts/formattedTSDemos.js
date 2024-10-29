@@ -88,7 +88,7 @@ async function transpileFile(tsxPath, project) {
     if (enableJSXPreview) {
       transformOptions.plugins = transformOptions.plugins.concat([
         [
-          require.resolve('docs/src/modules/utils/babel-plugin-jsx-preview'),
+          require.resolve('@mui/monorepo/docs/src/modules/utils/babel-plugin-jsx-preview'),
           { maxLines: 16, outputFilename: `${tsxPath}.preview` },
         ],
       ]);

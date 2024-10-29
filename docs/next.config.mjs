@@ -4,9 +4,16 @@ import * as url from 'url';
 import * as fs from 'fs';
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
+import nextMdx from '@next/mdx';
+import { rehypeDemos } from './src/components/demo/rehypeDemos.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
+const withMdx = nextMdx({
+  options: {
+    rehypePlugins: [rehypeDemos],
+  },
+});
 
 /**
  * @returns {{version: string}}
@@ -20,6 +27,8 @@ const rootPackage = loadPackageJson();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  trailingSlash: false,
+  pageExtensions: ['mdx', 'tsx'],
   env: {
     // docs-infra
     LIB_VERSION: rootPackage.version,
@@ -38,8 +47,7 @@ const nextConfig = {
         ...config.resolve,
         alias: {
           ...config.resolve.alias,
-          'docs-base': path.resolve(workspaceRoot, 'docs'),
-          docs: path.resolve(workspaceRoot, 'node_modules/@mui/monorepo/docs'),
+          docs: path.resolve(workspaceRoot, 'docs'),
         },
       },
       module: {
@@ -67,4 +75,4 @@ const nextConfig = {
   },
 };
 
-export default withDocsInfra(nextConfig);
+export default withDocsInfra(withMdx(nextConfig));

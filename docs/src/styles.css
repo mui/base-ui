@@ -1,0 +1,46 @@
+@import './fonts/fonts.css';
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --color-content: #fff;
+  --color-background: oklch(98% 0.25% 264);
+  --color-foreground: oklch(21% 2% 264);
+  --color-selection: oklch(80% 0.2 264 / 60%);
+  --color-gray: oklch(12.7% 6% 264 / 67%);
+  --color-link: oklch(47% 50% 264);
+  --color-border: oklch(20% 12% 264 / 25%);
+  --color-gridline: oklch(91.6% 1% 264);
+
+  @media (prefers-color-scheme: dark) {
+    --color-content: #000;
+    --color-background: #000;
+    --color-foreground: oklch(90% 2% 264);
+    --color-selection: oklch(50% 0.2 264 / 80%);
+    --color-gray: oklch(90% 6% 264 / 70%);
+    --color-link: oklch(69% 50% 264);
+    --color-border: oklch(90% 12% 264 / 35%);
+    --color-gridline: oklch(24% 1% 264);
+  }
+}
+
+html {
+  /* macOS overscroll background */
+  background-color: #000;
+}
+
+body {
+  min-width: 360px;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-selection);
+}

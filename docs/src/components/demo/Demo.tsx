@@ -3,13 +3,13 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Collapsible } from '@base_ui/react/Collapsible';
 import { ErrorBoundary } from 'react-error-boundary';
-import * as BaseDemo from 'docs-base/src/blocks/Demo';
-import { CopyIcon } from 'docs-base/src/icons/Copy';
-import { ResetIcon } from 'docs-base/src/icons/Reset';
-import { ResetFocusIcon } from 'docs-base/src/icons/ResetFocus';
-import { ChevronDownIcon } from 'docs-base/src/icons/ChevronDown';
-import { IconButton } from 'docs-base/src/design-system/IconButton';
-import { Button } from 'docs-base/src/design-system/Button';
+import * as BaseDemo from 'docs/src/blocks/Demo';
+import { CopyIcon } from 'docs/src/icons/Copy';
+import { ResetIcon } from 'docs/src/icons/Reset';
+import { ResetFocusIcon } from 'docs/src/icons/ResetFocus';
+import { ChevronDownIcon } from 'docs/src/icons/ChevronDown';
+import { IconButton } from 'docs/src/design-system/IconButton';
+import { Button } from 'docs/src/design-system/Button';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
@@ -19,14 +19,12 @@ import { StackBlitzLink } from './StackBlitzLink';
 import classes from './Demo.module.css';
 
 export interface DemoProps {
-  componentName: string;
-  demoName: string;
   variants: BaseDemo.DemoVariant[];
   defaultCodeOpen?: boolean;
 }
 
 export function Demo(props: DemoProps) {
-  const { componentName, demoName, variants: demoVariants, defaultCodeOpen = true } = props;
+  const { variants: demoVariants, defaultCodeOpen = true } = props;
 
   const focusTargetRef = React.useRef<HTMLButtonElement>(null);
 
@@ -43,9 +41,6 @@ export function Demo(props: DemoProps) {
   const resetDemo = React.useCallback(() => {
     setKey((prevKey) => prevKey + 1);
   }, []);
-
-  const title = `Base UI ${componentName} demo`;
-  const description = `Base UI ${componentName} ${demoName} demo`;
 
   return (
     <BaseDemo.Root
@@ -84,9 +79,8 @@ export function Demo(props: DemoProps) {
               <ResetIcon />
             </IconButton>
 
-            <CodeSandboxLink title={title} description={description} />
-
-            <StackBlitzLink title={title} description={description} />
+            <CodeSandboxLink title="Base UI example" description="Base UI example" />
+            <StackBlitzLink title="Base UI example" description="Base UI example" />
 
             <GitHubLink />
           </div>

@@ -138,7 +138,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       mounted,
       setMounted,
       transitionStatus,
-      triggerElement,
       setTriggerElement,
       positionerElement,
       setPositionerElement,
@@ -160,7 +159,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       setMounted,
       setOpen,
       transitionStatus,
-      triggerElement,
       positionerElement,
       titleId,
       descriptionId,
@@ -234,7 +232,6 @@ export namespace usePopoverRoot {
     getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     instantType: 'dismiss' | 'click' | undefined;
-    triggerElement: Element | null;
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     positionerElement: HTMLElement | null;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;

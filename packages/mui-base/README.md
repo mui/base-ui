@@ -26,10 +26,6 @@ Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full docu
 For how-to questions that don't involve making changes to the code base, please use [Stack Overflow](https://stackoverflow.com/questions/tagged/base-ui) instead of GitHub issues.
 Use the "base-ui" tag on Stack Overflow to make it easier for the community to find your question.
 
-## Examples
-
-Our documentation features [a collection of example projects using Base UI](https://github.com/mui/base-ui/tree/master/examples).
-
 ## Contributing
 
 Read the [contributing guide](/CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes.

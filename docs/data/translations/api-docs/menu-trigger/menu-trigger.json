@@ -5,9 +5,6 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
-    "focusableWhenDisabled": {
-      "description": "If <code>true</code>, allows a disabled button to receive focus."
-    },
     "label": { "description": "Label of the button" },
     "render": { "description": "A function to customize rendering of the component." }
   },

@@ -107,14 +107,14 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should have the `aria-disabled` attribute', async () => {
+    it('should have the `disabled` attribute', async () => {
       const { getByRole } = await render(<Switch.Root disabled />);
-      expect(getByRole('switch')).to.have.attribute('aria-disabled', 'true');
+      expect(getByRole('switch')).to.have.attribute('disabled');
     });
 
-    it('should not have the aria attribute when `disabled` is not set', async () => {
+    it('should not have the `disabled` attribute when `disabled` is not set', async () => {
       const { getByRole } = await render(<Switch.Root />);
-      expect(getByRole('switch')).not.to.have.attribute('aria-disabled');
+      expect(getByRole('switch')).not.to.have.attribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
