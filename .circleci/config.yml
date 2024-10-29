@@ -150,17 +150,17 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Tests fake browser
+          name: Run tests on JSDOM
           command: pnpm test:jsdom --coverage
       - run:
-          name: Check coverage generated
+          name: Check if coverage report is generated
           command: |
             if ! [[ -s coverage/lcov.info ]]
             then
               exit 1
             fi
       - run:
-          name: Coverage
+          name: Upload coverage report to Codecov
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
@@ -295,17 +295,17 @@ jobs:
           react-version: << parameters.react-version >>
           browsers: true
       - run:
-          name: Tests real browsers
+          name: Run tests on headless Chromium
           command: pnpm test:chromium --coverage
       - run:
-          name: Check coverage generated
+          name: Check if coverage report is generated
           command: |
             if ! [[ -s coverage/lcov.info ]]
             then
               exit 1
             fi
       - run:
-          name: Coverage
+          name: Upload coverage report to Codecov
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
