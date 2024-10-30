@@ -42,7 +42,7 @@ export const components = {
   },
   figcaption: (props: React.ComponentProps<'figcaption'>) => {
     if ('data-rehype-pretty-code-title' in props) {
-      return <CodeBlock.Title {...props} />;
+      return <CodeBlock.Panel {...props} />;
     }
 
     return <figcaption {...props} />;
