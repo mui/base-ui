@@ -20,8 +20,8 @@ describe('<ScrollArea.Scrollbar />', () => {
 
   it('adds [data-hovering] attribute when viewport is hovered', async () => {
     await render(
-      <ScrollArea.Root style={{ width: 200, height: 200 }}>
-        <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+      <ScrollArea.Root style={{ width: 200, height: 200 }} data-testid="root">
+        <ScrollArea.Viewport style={{ width: '100%', height: '100%' }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
@@ -36,12 +36,12 @@ describe('<ScrollArea.Scrollbar />', () => {
     expect(verticalScrollbar).not.to.have.attribute('data-hovering');
     expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
 
-    fireEvent.mouseEnter(screen.getByTestId('viewport'));
+    fireEvent.mouseEnter(screen.getByTestId('root'));
 
     expect(verticalScrollbar).to.have.attribute('data-hovering', '');
     expect(horizontalScrollbar).to.have.attribute('data-hovering', '');
 
-    fireEvent.mouseLeave(screen.getByTestId('viewport'));
+    fireEvent.mouseLeave(screen.getByTestId('root'));
 
     expect(verticalScrollbar).not.to.have.attribute('data-hovering');
     expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
