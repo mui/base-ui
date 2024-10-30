@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { BaseUIIcon } from 'docs/src/icons/BaseUI';
+import '../styles.css';
 import '../styles/style.css';
 
 export default function Home() {

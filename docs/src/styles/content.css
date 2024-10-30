@@ -1,4 +1,3 @@
-@tailwind components;
 @layer components {
   .Content {
     box-sizing: content-box;
