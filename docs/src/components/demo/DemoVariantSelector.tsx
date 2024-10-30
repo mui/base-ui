@@ -2,8 +2,6 @@
 import * as React from 'react';
 import { type DemoVariant } from 'docs/src/blocks/Demo';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
-import { ToggleButtonGroup } from 'docs/src/design-system/ToggleButtonGroup';
-import classes from './DemoVariantSelector.module.css';
 import { useDemoVariantSelectorContext } from './DemoVariantSelectorProvider';
 
 const translations = {
@@ -24,9 +22,7 @@ export interface DemoVariantSelectorProps extends React.HtmlHTMLAttributes<HTMLD
   showLanguageSelector?: boolean;
 }
 
-export function DemoVariantSelector(props: DemoVariantSelectorProps) {
-  const { showLanguageSelector = true, ...other } = props;
-
+export function DemoVariantSelector({ showLanguageSelector, ...props }: DemoVariantSelectorProps) {
   /*
     The "local" variant is the one that is selected in the current demo.
     The "global" one is the one that comes from the DemoVariantSelectorContext.
@@ -113,16 +109,15 @@ export function DemoVariantSelector(props: DemoVariantSelectorProps) {
 
   const renderVariantSelector = Object.keys(variantsMap).length > 1;
   const renderLanguageSelector = currentVariantLanguages.length > 1 && showLanguageSelector;
-  const renderSeparator = renderVariantSelector && renderLanguageSelector;
 
   return (
-    <div {...other} className={classes.root}>
+    <div {...props}>
       {renderVariantSelector && (
         <select
+          className="DemoSelect"
           value={selectedLocalVariant.name}
           onChange={handleVariantChange}
-          className={classes.variantSelector}
-          aria-label="Styling solution selector"
+          aria-label="Styles"
         >
           {Object.keys(variantsMap).map((variantName) => (
             <option key={variantName} value={variantName}>
@@ -132,16 +127,26 @@ export function DemoVariantSelector(props: DemoVariantSelectorProps) {
         </select>
       )}
 
-      {renderSeparator && <span role="separator" className={classes.separator} />}
-
       {renderLanguageSelector && (
-        <ToggleButtonGroup
-          className={classes.languages}
-          options={currentVariantLanguages}
+        <select
+          className="DemoSelect"
           value={selectedLocalVariant.language}
-          onValueChange={handleLanguageChange}
-          aria-label="Language selector"
-        />
+          onChange={(event) => {
+            const language = currentVariantLanguages.find(
+              ({ value }) => value === event.target.value,
+            );
+            if (language) {
+              handleLanguageChange(language);
+            }
+          }}
+          aria-label="Language"
+        >
+          {currentVariantLanguages.map((language) => (
+            <option key={language.value} value={language.value}>
+              {language.label}
+            </option>
+          ))}
+        </select>
       )}
     </div>
   );

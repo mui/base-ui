@@ -1,0 +1,16 @@
+html {
+  /* macOS overscroll background */
+  background-color: #000;
+}
+
+body {
+  min-width: 360px;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+::selection {
+  background-color: var(--color-selection);
+}

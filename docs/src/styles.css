@@ -1,46 +1,53 @@
-@import './fonts/fonts.css';
+@import './fonts/index.css';
+@import './syntax-highlighting/index.css';
+@import './components/demo/index.css';
+@import './components/CodeBlock.css';
+@import './components/ToolbarButton.css';
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --color-content: #fff;
+  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-sans: 'Unica 77', system-ui, sans-serif;
+
   --color-background: oklch(98% 0.25% 264);
   --color-foreground: oklch(21% 2% 264);
-  --color-selection: oklch(80% 0.2 264 / 60%);
-  --color-gray: oklch(12.7% 6% 264 / 67%);
-  --color-link: oklch(47% 50% 264);
-  --color-border: oklch(20% 12% 264 / 25%);
+  --color-border: oklch(20% 12% 264 / 10%);
+  --color-content: #fff;
   --color-gridline: oklch(91.6% 1% 264);
+  --color-panel: oklch(98% 0.25% 264);
+  --color-selection: oklch(80% 0.2 264 / 25%);
+
+  --color-blue: oklch(45% 50% 264);
+  --color-gray: oklch(12.7% 6% 264 / 67%);
+  --color-green: oklch(46% 30% 150);
+  --color-navy: oklch(31% 25% 264);
+  --color-purple: oklch(40% 45% 360);
+  --color-red: oklch(50% 55% 31);
+  --color-violet: oklch(40% 60% 300);
 
   @media (prefers-color-scheme: dark) {
-    --color-content: #000;
     --color-background: #000;
     --color-foreground: oklch(90% 2% 264);
-    --color-selection: oklch(50% 0.2 264 / 80%);
-    --color-gray: oklch(90% 6% 264 / 70%);
-    --color-link: oklch(69% 50% 264);
-    --color-border: oklch(90% 12% 264 / 35%);
+    --color-border: oklch(90% 12% 264 / 20%);
+    --color-content: #000;
     --color-gridline: oklch(24% 1% 264);
+    --color-panel: oklch(15% 1% 264);
+    --color-selection: oklch(50% 0.2 264 / 40%);
+
+    --color-blue: oklch(69% 50% 264);
+    --color-gray: oklch(90% 6% 264 / 70%);
+    --color-green: oklch(75% 25% 150);
+    --color-navy: oklch(85% 25% 264);
+    --color-purple: oklch(85% 30% 360);
+    --color-red: oklch(80% 55% 31);
+    --color-violet: oklch(80% 60% 300);
   }
 }
 
-html {
-  /* macOS overscroll background */
-  background-color: #000;
-}
-
 body {
-  min-width: 360px;
-  font-size: 1.0625rem;
-  line-height: 1.5rem;
-  background-color: var(--color-background);
-  color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-::selection {
-  background-color: var(--color-selection);
 }
