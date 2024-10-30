@@ -5,7 +5,7 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "gutter": {
-      "description": "Determines the permanent scrollbar gutter when using the <code>inlay</code> type to prevent layout shifts when the scrollbar is hidden/shown."
+      "description": "Determines the permanent scrollbar gutter when using the <code>inset</code> type to prevent layout shifts when the scrollbar is hidden/shown."
     },
     "render": { "description": "A function to customize rendering of the component." },
     "type": {
