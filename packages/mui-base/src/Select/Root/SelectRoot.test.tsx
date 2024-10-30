@@ -32,7 +32,7 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
         'data-selected',
-        'true',
+        '',
       );
     });
   });
@@ -61,7 +61,7 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
         'data-selected',
-        'true',
+        '',
       );
     });
 
@@ -88,7 +88,7 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'a', hidden: false })).to.have.attribute(
         'data-selected',
-        'true',
+        '',
       );
 
       setProps({ value: 'b' });
@@ -97,18 +97,13 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
         'data-selected',
-        'true',
+        '',
       );
     });
   });
 
   describe('prop: onValueChange', () => {
     it('should call onValueChange when an option is selected', async function test() {
-      // Skipped in browser due to unsolved flakiness
-      if (!/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
-      }
-
       const handleValueChange = spy();
 
       function App() {
@@ -259,7 +254,7 @@ describe('<Select.Root />', () => {
 
     expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
       'data-selected',
-      'true',
+      '',
     );
   });
 });

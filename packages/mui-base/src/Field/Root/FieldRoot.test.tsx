@@ -473,7 +473,7 @@ describe('<Field.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(trigger).to.have.attribute('data-touched', 'true');
+        expect(trigger).to.have.attribute('data-touched', '');
       });
 
       it('supports RadioGroup (click)', async () => {
@@ -680,7 +680,7 @@ describe('<Field.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(trigger).to.have.attribute('data-dirty', 'true');
+        expect(trigger).to.have.attribute('data-dirty', '');
       });
     });
   });

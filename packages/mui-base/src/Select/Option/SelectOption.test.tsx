@@ -81,10 +81,6 @@ describe('<Select.Option />', () => {
   });
 
   it('should select option when Enter key is pressed', async function test() {
-    if (!/jsdom/.test(window.navigator.userAgent)) {
-      this.skip();
-    }
-
     const { user } = await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
@@ -203,18 +199,12 @@ describe('<Select.Option />', () => {
 
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute(
-        'data-highlighted',
-        'true',
-      );
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted', '');
       expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-highlighted');
 
       await user.keyboard('{ArrowDown}');
 
-      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute(
-        'data-highlighted',
-        'true',
-      );
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted', '');
       expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute('data-highlighted');
     });
 
@@ -252,7 +242,7 @@ describe('<Select.Option />', () => {
 
       expect(screen.getByRole('option', { name: 'a', hidden: false })).to.have.attribute(
         'data-selected',
-        'true',
+        '',
       );
       expect(screen.getByRole('option', { name: 'b', hidden: false })).not.to.have.attribute(
         'data-selected',
