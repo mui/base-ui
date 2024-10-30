@@ -1,19 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, describeSkipIf, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base_ui/react/AlertDialog';
 import { createRenderer } from '#test-utils';
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
 
-  describe('prop: initial focus', () => {
-    before(function test() {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
-      }
-    });
-
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('prop: initial focus', () => {
     it('should focus the first focusable element within the popup by default', async () => {
       const { getByText, getByTestId } = await render(
         <div>
