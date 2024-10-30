@@ -16,7 +16,7 @@ export function DemoFileSelector() {
   } = demoContext;
 
   if (files.length === 1) {
-    return <div className="DemoTitle">{files[0].name}</div>;
+    return <div className="DemoFilename">{files[0].name}</div>;
   }
 
   return (

@@ -14,7 +14,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     },
     figcaption: (props) => {
       if ('data-rehype-pretty-code-title' in props) {
-        return <CodeBlock.Title {...props} />;
+        return <CodeBlock.Panel {...props} />;
       }
 
       return <figcaption {...props} />;

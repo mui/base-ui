@@ -17,47 +17,72 @@
   font-family: 'Unica 77';
   font-weight: normal;
   src: url('./fonts/regular.woff2');
+
+  /* Unica baseline is a hair low by default */
+  ascent-override: 89%;
+
+  /* Default values for future reference */
+  /* ascent-override: 97%; */
+  /* descent-override: 24%; */
 }
 
 @font-face {
   font-family: 'Unica 77';
   font-weight: 500;
   src: url('./fonts/medium.woff2');
+  ascent-override: 89%;
 }
 
 @font-face {
   font-family: 'Unica 77';
   font-weight: bold;
   src: url('./fonts/bold.woff2');
+  ascent-override: 89%;
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-weight: normal;
+  src: local('SFMono-Regular'), local('ui-monospace');
+  /* Match 13px Unica to 12px SF Mono */
+  size-adjust: calc(100% * 12 / 13);
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-weight: bold;
+  src: local('SFMono-Bold'), local('ui-monospace');
+  /* Match 13px Unica to 12px SF Mono */
+  size-adjust: calc(100% * 12 / 13);
 }
 
 @font-face {
   font-family: 'Menlo';
   font-weight: normal;
   src: local('Menlo-Regular');
-  /* Match 13px Unica to 12px Menlo */
-  size-adjust: calc(100% * 12 / 13);
+  /* Match 13px Unica to 11.5px Menlo */
+  size-adjust: calc(100% * 11.5 / 13);
 }
 
 @font-face {
   font-family: 'Menlo';
   font-weight: bold;
   src: local('Menlo-Bold');
-  size-adjust: calc(100% * 12 / 13);
+  size-adjust: calc(100% * 11.5 / 13);
 }
 
 @font-face {
   font-family: 'DejaVu Sans Mono';
   font-weight: normal;
   src: local('DejaVuSansMono');
-  size-adjust: calc(100% * 12 / 13);
+  size-adjust: calc(100% * 11.5 / 13);
 }
 
 @font-face {
   font-family: 'DejaVu Sans Mono';
   font-weight: bold;
   src: local('DejaVuSansMono-Bold');
-  size-adjust: calc(100% * 12 / 13);
+  size-adjust: calc(100% * 11.5 / 13);
 }
 
 @font-face {

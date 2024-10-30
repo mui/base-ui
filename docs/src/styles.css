@@ -8,7 +8,7 @@
 @tailwind utilities;
 
 :root {
-  --font-mono: 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-sans: 'Unica 77', system-ui, sans-serif;
 
   --color-background: oklch(98% 0.25% 264);
@@ -24,7 +24,7 @@
   --color-green: oklch(46% 30% 150);
   --color-navy: oklch(31% 25% 264);
   --color-purple: oklch(40% 45% 360);
-  --color-red: oklch(54% 70% 31);
+  --color-red: oklch(50% 55% 31);
   --color-violet: oklch(40% 60% 300);
 
   @media (prefers-color-scheme: dark) {
@@ -41,7 +41,7 @@
     --color-green: oklch(75% 25% 150);
     --color-navy: oklch(85% 25% 264);
     --color-purple: oklch(85% 30% 360);
-    --color-red: oklch(80% 70% 31);
+    --color-red: oklch(80% 55% 31);
     --color-violet: oklch(80% 60% 300);
   }
 }

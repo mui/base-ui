@@ -38,13 +38,14 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
               className="DemoToolbarButton"
             />
             <BaseDemo.SourceCopy
+              aria-label="Copy code"
               className="DemoToolbarButton"
               onCopied={() => {
-                window.clearTimeout(copyTimeout);
                 const newTimeout = window.setTimeout(() => {
                   window.clearTimeout(newTimeout);
                   setCopyTimeout(0);
                 }, 2000);
+                window.clearTimeout(copyTimeout);
                 setCopyTimeout(newTimeout);
               }}
             >
@@ -58,17 +59,24 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
 
         <Collapsible.Panel
           hidden={false}
-          aria-hidden={!open}
-          render={<BaseDemo.SourceBrowser />}
-          className="DemoCodeBlock"
-          onScrollCapture={(event) => {
-            if (event.target instanceof HTMLElement) {
-              event.currentTarget.setAttribute(
-                'data-scroll-top',
-                event.target.scrollTop.toString(),
-              );
-            }
-          }}
+          render={
+            <BaseDemo.SourceBrowser
+              className="DemoCodeBlock"
+              tabIndex={-1}
+              onKeyDown={(event) => {
+                // Select code block contents on Ctrl/Cmd + A
+                if (
+                  event.key === 'a' &&
+                  (event.metaKey || event.ctrlKey) &&
+                  !event.shiftKey &&
+                  !event.altKey
+                ) {
+                  event.preventDefault();
+                  window.getSelection()?.selectAllChildren(event.currentTarget);
+                }
+              }}
+            />
+          }
         />
 
         <Collapsible.Trigger className="DemoCollapseButton">

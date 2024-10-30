@@ -12,6 +12,8 @@ export const DemoSourceBrowser = React.forwardRef<HTMLDivElement, React.Componen
     const { selectedFile } = demoContext;
 
     if (selectedFile.prettyContent != null) {
+      // Remove tabindex="0" that the syntax highlighter adds
+      selectedFile.prettyContent = selectedFile.prettyContent.replace('tabindex="0"', '');
       return (
         <div
           {...props}
