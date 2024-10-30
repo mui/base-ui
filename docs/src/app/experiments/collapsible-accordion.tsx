@@ -28,11 +28,11 @@ function AccordionSection(props: {
         </span>
         {isOpen ? 'Close' : 'Open'} Panel {index}
       </Collapsible.Trigger>
-      <Collapsible.Content className="MyCollapsible2-content">
+      <Collapsible.Panel className="MyCollapsible2-content">
         <p>This is the collapsed content of Panel {index}</p>
         <p>This is the second paragraph</p>
         <p>This is the third paragraph</p>
-      </Collapsible.Content>
+      </Collapsible.Panel>
       <Styles />
     </Collapsible.Root>
   );

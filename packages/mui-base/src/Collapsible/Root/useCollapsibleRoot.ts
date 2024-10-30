@@ -25,7 +25,7 @@ export function useCollapsibleRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const [contentId, setContentId] = React.useState<string | undefined>(useId());
+  const [panelId, setPanelId] = React.useState<string | undefined>(useId());
 
   const setOpen = useEventCallback((nextOpen: boolean) => {
     onOpenChange?.(nextOpen);
@@ -35,26 +35,16 @@ export function useCollapsibleRoot(
   return React.useMemo(
     () => ({
       animated,
-      contentId,
+      panelId,
       disabled,
       mounted,
       open,
-      setContentId,
+      setPanelId,
       setMounted,
       setOpen,
       transitionStatus,
     }),
-    [
-      animated,
-      contentId,
-      disabled,
-      mounted,
-      open,
-      setContentId,
-      setMounted,
-      setOpen,
-      transitionStatus,
-    ],
+    [animated, panelId, disabled, mounted, open, setPanelId, setMounted, setOpen, transitionStatus],
   );
 }
 
@@ -89,7 +79,7 @@ export namespace useCollapsibleRoot {
 
   export interface ReturnValue {
     animated: boolean;
-    contentId: React.HTMLAttributes<Element>['id'];
+    panelId: React.HTMLAttributes<Element>['id'];
     /**
      * The disabled state of the Collapsible
      */
@@ -99,7 +89,7 @@ export namespace useCollapsibleRoot {
      * The open state of the Collapsible
      */
     open: boolean;
-    setContentId: (id: string | undefined) => void;
+    setPanelId: (id: string | undefined) => void;
     setMounted: (open: boolean) => void;
     setOpen: (open: boolean) => void;
     transitionStatus: TransitionStatus;

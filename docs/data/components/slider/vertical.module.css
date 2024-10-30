@@ -101,6 +101,6 @@
   color: inherit;
 }
 
-.label[data-disabled='true'] {
+.label[data-disabled] {
   color: var(--gray-600);
 }

@@ -24,7 +24,7 @@ packageName: '@base_ui/react'
 Fields are implemented using a collection of related components:
 
 - `<Field.Root />` is a top-level component that wraps all other components.
-- `<Field.Control />` renders the control when not using a native Base UI input component.
+- `<Field.Control />` renders a control when not using a native Base UI input component.
 - `<Field.Label />` renders a label for the control.
 - `<Field.Description />` renders an optional description for the control to provide additional information.
 - `<Field.Error />` renders error messages for the control.
@@ -54,7 +54,7 @@ All Base UI input components are aware of Base UI's `Field` component. The lab
 </Field.Root>
 ```
 
-When using a native control like `input` or a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
+When using a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
 
 ```jsx
 <Field.Root>

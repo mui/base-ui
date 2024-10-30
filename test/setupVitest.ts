@@ -15,7 +15,7 @@ globalThis.after = afterAll;
 // @ts-ignore
 globalThis.vi = vi;
 
-const isVitestJsdom = process.env.MUI_JSDOM === 'true';
+const isVitestJsdom = process.env.VITEST_ENV === 'jsdom';
 
 // Only necessary when not in browser mode.
 if (isVitestJsdom) {
