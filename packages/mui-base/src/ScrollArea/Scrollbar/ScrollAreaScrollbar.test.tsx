@@ -38,8 +38,8 @@ describe('<ScrollArea.Scrollbar />', () => {
 
     fireEvent.mouseEnter(screen.getByTestId('viewport'));
 
-    expect(verticalScrollbar).to.have.attribute('data-hovering', 'true');
-    expect(horizontalScrollbar).to.have.attribute('data-hovering', 'true');
+    expect(verticalScrollbar).to.have.attribute('data-hovering', '');
+    expect(horizontalScrollbar).to.have.attribute('data-hovering', '');
 
     fireEvent.mouseLeave(screen.getByTestId('viewport'));
 
@@ -67,13 +67,13 @@ describe('<ScrollArea.Scrollbar />', () => {
 
     fireEvent.scroll(screen.getByTestId('viewport'));
 
-    expect(verticalScrollbar).to.have.attribute('data-scrolling', 'true');
-    expect(horizontalScrollbar).to.have.attribute('data-scrolling', 'true');
+    expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
+    expect(horizontalScrollbar).to.have.attribute('data-scrolling', '');
 
     clock.tick(SCROLL_TIMEOUT - 1);
 
-    expect(verticalScrollbar).to.have.attribute('data-scrolling', 'true');
-    expect(horizontalScrollbar).to.have.attribute('data-scrolling', 'true');
+    expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
+    expect(horizontalScrollbar).to.have.attribute('data-scrolling', '');
 
     clock.tick(1);
 
