@@ -1,4 +1,5 @@
 :root {
+  --syntax-default: var(--color-foreground);
   --syntax-comment: var(--color-gray);
   --syntax-constant: var(--color-blue);
   --syntax-entity: var(--color-violet);

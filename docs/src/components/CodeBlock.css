@@ -1,6 +1,6 @@
 @layer components {
   .CodeBlockRoot {
-    background-color: var(--color-background);
+    background-color: var(--color-content);
     border: 1px solid var(--color-border);
     border-radius: 0.375rem;
   }
@@ -8,6 +8,8 @@
   .CodeBlockPanel {
     @apply text-xs;
     line-height: 1;
+    background-color: var(--color-panel);
+    background-clip: padding-box;
     color: var(--color-gray);
     display: flex;
     align-items: center;

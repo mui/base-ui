@@ -1,6 +1,6 @@
 @layer components {
   .DemoRoot {
-    background-clip: padding-box;
+    background-color: var(--color-content);
     border: 1px solid var(--color-border);
     border-radius: 0.375rem;
   }
