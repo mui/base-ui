@@ -7,7 +7,7 @@
 
   .CodeBlockPanel {
     @apply text-xs;
-    line-height: 1.25rem;
+    line-height: 1;
     color: var(--color-gray);
     display: flex;
     align-items: center;
@@ -60,7 +60,7 @@
       flex-grow: 1;
     }
 
-    .CodeBlockTitle + & {
+    .CodeBlockPanel + & {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
     }

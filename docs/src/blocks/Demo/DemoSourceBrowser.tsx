@@ -3,7 +3,7 @@ import * as React from 'react';
 import { DemoContext } from './DemoContext';
 
 export const DemoSourceBrowser = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-  (props) => {
+  (props, forwardedRef) => {
     const demoContext = React.useContext(DemoContext);
     if (!demoContext) {
       throw new Error('Demo.Playground must be used within a Demo.Root');
@@ -17,6 +17,7 @@ export const DemoSourceBrowser = React.forwardRef<HTMLDivElement, React.Componen
       return (
         <div
           {...props}
+          ref={forwardedRef}
           data-language={selectedFile.type}
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: selectedFile.prettyContent }}
@@ -25,7 +26,7 @@ export const DemoSourceBrowser = React.forwardRef<HTMLDivElement, React.Componen
     }
 
     return (
-      <div {...props}>
+      <div {...props} ref={forwardedRef}>
         <pre>{selectedFile.content}</pre>
       </div>
     );

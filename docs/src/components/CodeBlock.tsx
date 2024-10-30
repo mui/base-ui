@@ -6,20 +6,37 @@ import { CopyIcon } from '../icons/Copy';
 import { CheckIcon } from '../icons/Check';
 import { ToolbarButton } from './ToolbarButton';
 
-export function Root({ className, ...props }: React.ComponentProps<'figure'>) {
-  return <figure className={clsx('CodeBlockRoot', className)} {...props} />;
+const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
+
+export function Root({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+  const titleId = React.useId();
+  const codeId = React.useId();
+  const context = React.useMemo(() => ({ codeId, titleId }), [codeId, titleId]);
+  return (
+    <CodeBlockContext.Provider value={context}>
+      <div
+        role="figure"
+        aria-labelledby={titleId}
+        className={clsx('CodeBlockRoot', className)}
+        {...props}
+      />
+    </CodeBlockContext.Provider>
+  );
 }
 
 export function Panel({ className, children, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+  const { codeId, titleId } = React.useContext(CodeBlockContext);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
 
   return (
     <div className={clsx('CodeBlockPanel', className)} {...props}>
-      <figcaption className="CodeBlockPanelTitle">{children}</figcaption>
+      <div id={titleId} className="CodeBlockPanelTitle">
+        {children}
+      </div>
       <ToolbarButton
         aria-label="Copy code"
-        onClick={async (event) => {
-          const code = event.currentTarget.closest('figure')?.querySelector('pre')?.textContent;
+        onClick={async () => {
+          const code = document.getElementById(codeId)?.textContent;
 
           if (code) {
             await copy(code);
@@ -42,12 +59,14 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
 }
 
 export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
+  const { codeId } = React.useContext(CodeBlockContext);
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <pre
-      className={clsx('CodeBlockPre', className)}
       {...props}
+      id={codeId}
       tabIndex={-1}
+      className={clsx('CodeBlockPre', className)}
       onKeyDown={(event) => {
         // Select code block contents on Ctrl/Cmd + A
         if (

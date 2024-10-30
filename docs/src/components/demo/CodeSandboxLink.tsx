@@ -68,7 +68,7 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   }, [files, language, name, title, description]);
 
   return (
-    <ToolbarButton type="button" onClick={handleClick} {...props}>
+    <ToolbarButton aria-label="Open in CodeSandbox" type="button" onClick={handleClick} {...props}>
       CodeSandbox
       <ExternalLinkIcon />
     </ToolbarButton>
