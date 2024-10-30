@@ -36,6 +36,7 @@
 
   .CodeBlockPre {
     cursor: text;
+    background-color: var(--color-content);
     padding: 0.5rem 0.75rem;
     border-radius: inherit;
     font-size: 0.8125rem;
