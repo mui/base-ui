@@ -99,7 +99,7 @@ describe('<ScrollArea.Root />', () => {
     });
 
     describe('prop: dir', () => {
-      it('should adjust inlay padding for rtl', async () => {
+      it('should adjust inset padding for rtl', async () => {
         await render(
           <ScrollArea.Root
             type="inset"
@@ -130,7 +130,7 @@ describe('<ScrollArea.Root />', () => {
     });
 
     describe('prop: gutter', () => {
-      it('should adjust inlay padding for gutter: both-edges', async () => {
+      it('should adjust inset padding for gutter: both-edges', async () => {
         await render(
           <ScrollArea.Root
             type="inset"
@@ -156,7 +156,7 @@ describe('<ScrollArea.Root />', () => {
         expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
       });
 
-      it('should not add inlay padding for gutter: none', async () => {
+      it('should not add inset padding for gutter: none', async () => {
         await render(
           <ScrollArea.Root
             type="inset"
