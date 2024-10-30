@@ -3,7 +3,11 @@ import * as React from 'react';
 import { DemoContext } from 'docs/src/blocks/Demo';
 import { Tabs } from '@base_ui/react/Tabs';
 
-export function DemoFileSelector() {
+interface DemoFileSelectorProps {
+  onTabChange?: () => void;
+}
+
+export function DemoFileSelector({ onTabChange }: DemoFileSelectorProps) {
   const demoContext = React.useContext(DemoContext);
   if (!demoContext) {
     throw new Error('Missing DemoContext');
@@ -20,7 +24,13 @@ export function DemoFileSelector() {
   }
 
   return (
-    <Tabs.Root value={selectedFile} onValueChange={setSelectedFile}>
+    <Tabs.Root
+      value={selectedFile}
+      onValueChange={(value) => {
+        setSelectedFile(value);
+        onTabChange?.();
+      }}
+    >
       <Tabs.List className="DemoTabsList" aria-label="Files">
         {files.map((file) => (
           <Tabs.Tab className="DemoTab" value={file} key={file.path}>

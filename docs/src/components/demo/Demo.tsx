@@ -30,7 +30,7 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
       <Collapsible.Root open={open} onOpenChange={setOpen}>
         <div role="figure" aria-label="Component demo code">
           <div className="DemoToolbar">
-            <DemoFileSelector />
+            <DemoFileSelector onTabChange={() => setOpen(true)} />
 
             <div className="ml-auto flex items-center gap-4">
               <DemoVariantSelector className="contents" />
