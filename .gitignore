@@ -14,8 +14,8 @@
 /coverage
 /docs/.env.local
 /docs/export
-/docs/app/playground/*
-!/docs/app/playground/\[slug\]
+/docs/src/app/playground/*
+!/docs/src/app/playground/\[slug\]
 /docs/public/feed/
 /test/bundling/fixtures/*/yarn.lock
 /test/bundling/fixtures/*/pnpm-lock.yaml

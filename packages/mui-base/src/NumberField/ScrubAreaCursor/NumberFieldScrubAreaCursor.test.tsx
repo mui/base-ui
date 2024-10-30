@@ -28,7 +28,7 @@ describe('<NumberField.ScrubAreaCursor />', () => {
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
     refInstanceof: window.HTMLSpanElement,
-    render(node) {
+    render: async (node) => {
       return render(
         <NumberFieldRootContext.Provider value={testContext}>
           {node}

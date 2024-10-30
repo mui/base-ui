@@ -142,7 +142,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       setOpen,
       mounted,
       setMounted,
-      triggerElement,
       setTriggerElement,
       positionerElement,
       setPositionerElement,
@@ -157,7 +156,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       mounted,
       open,
       setMounted,
-      triggerElement,
       positionerElement,
       setOpen,
       getRootTriggerProps,
@@ -229,7 +227,6 @@ export namespace useTooltipRoot {
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;
-    triggerElement: Element | null;
     positionerElement: HTMLElement | null;
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;

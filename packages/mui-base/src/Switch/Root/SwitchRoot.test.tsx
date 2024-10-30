@@ -107,14 +107,14 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should have the `aria-disabled` attribute', async () => {
+    it('should have the `disabled` attribute', async () => {
       const { getByRole } = await render(<Switch.Root disabled />);
-      expect(getByRole('switch')).to.have.attribute('aria-disabled', 'true');
+      expect(getByRole('switch')).to.have.attribute('disabled');
     });
 
-    it('should not have the aria attribute when `disabled` is not set', async () => {
+    it('should not have the `disabled` attribute when `disabled` is not set', async () => {
       const { getByRole } = await render(<Switch.Root />);
-      expect(getByRole('switch')).not.to.have.attribute('aria-disabled');
+      expect(getByRole('switch')).not.to.have.attribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
@@ -207,10 +207,12 @@ describe('<Switch.Root />', () => {
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should include the switch value in the form submission', async function test() {
+    it('should include the switch value in the form submission', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       let stringifiedFormData = '';
@@ -256,14 +258,14 @@ describe('<Switch.Root />', () => {
     const thumb = screen.getByTestId('thumb');
 
     expect(switchElement).to.have.attribute('data-checked', '');
-    expect(switchElement).to.have.attribute('data-disabled', 'true');
-    expect(switchElement).to.have.attribute('data-readonly', 'true');
-    expect(switchElement).to.have.attribute('data-required', 'true');
+    expect(switchElement).to.have.attribute('data-disabled', '');
+    expect(switchElement).to.have.attribute('data-readonly', '');
+    expect(switchElement).to.have.attribute('data-required', '');
 
     expect(thumb).to.have.attribute('data-checked', '');
-    expect(thumb).to.have.attribute('data-disabled', 'true');
-    expect(thumb).to.have.attribute('data-readonly', 'true');
-    expect(thumb).to.have.attribute('data-required', 'true');
+    expect(thumb).to.have.attribute('data-disabled', '');
+    expect(thumb).to.have.attribute('data-readonly', '');
+    expect(thumb).to.have.attribute('data-required', '');
 
     setProps({ disabled: false, readOnly: false });
     fireEvent.click(switchElement);

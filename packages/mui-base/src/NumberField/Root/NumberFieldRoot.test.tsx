@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, screen, fireEvent } from '@mui/internal-test-utils';
+import { act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -441,10 +441,12 @@ describe('<NumberField />', () => {
   });
 
   describe('form handling', () => {
-    it('should include the input value in the form submission', async function test() {
+    it('should include the input value in the form submission', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       let stringifiedFormData = '';
@@ -487,12 +489,7 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('pasting', () => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // ClipboardEvent is not available in JSDOM
-      return;
-    }
-
+  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('pasting', () => {
     it('should allow pasting a valid number', async () => {
       await render(<NumberField />);
       const input = screen.getByRole('textbox');

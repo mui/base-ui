@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { CollapsibleRoot } from './CollapsibleRoot';
 import type { useCollapsibleRoot } from './useCollapsibleRoot';
+import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
   ownerState: CollapsibleRoot.OwnerState;
@@ -15,7 +15,7 @@ if (process.env.NODE_ENV !== 'production') {
   CollapsibleRootContext.displayName = 'CollapsibleRootContext';
 }
 
-export function useCollapsibleContext() {
+export function useCollapsibleRootContext() {
   const context = React.useContext(CollapsibleRootContext);
   if (context === undefined) {
     throw new Error(

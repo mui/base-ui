@@ -1,0 +1,32 @@
+/*
+ * Legal Disclaimer for Web licence
+ *
+ * Licence to use self-hosted webfonts for displaying dynamic text on specified website domains. Our package includes WOFF and WOFF2 font formats.
+ *
+ * Should the license page views limit be exceeded the license holder will be required to contact Lineto.com for an upgrade.
+ *
+ * It is strictly prohibited to rename the font and to download or use these fonts in any other media.
+ *
+ * These Web fonts are licensed exclusively for the use on the following domain(s) and their subdomains:
+ *
+ * base-ui.com (monthly pageviews: < 250K)
+ *
+ */
+
+@font-face {
+  font-family: 'Unica 77';
+  font-weight: normal;
+  src: url('./fonts/regular.woff2');
+}
+
+@font-face {
+  font-family: 'Unica 77';
+  font-weight: 500;
+  src: url('./fonts/medium.woff2');
+}
+
+@font-face {
+  font-family: 'Unica 77';
+  font-weight: bold;
+  src: url('./fonts/bold.woff2');
+}

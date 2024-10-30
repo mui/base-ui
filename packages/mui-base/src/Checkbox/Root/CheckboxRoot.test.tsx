@@ -88,14 +88,14 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should have the `aria-disabled` attribute', async () => {
+    it('should have the `disabled` attribute', async () => {
       const { getAllByRole } = await render(<Checkbox.Root disabled />);
-      expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-disabled', 'true');
+      expect(getAllByRole('checkbox')[0]).to.have.attribute('disabled');
     });
 
-    it('should not have the aria attribute when `disabled` is not set', async () => {
+    it('should not have the `disabled` attribute when `disabled` is not set', async () => {
       const { getAllByRole } = await render(<Checkbox.Root />);
-      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-disabled');
+      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
@@ -192,16 +192,16 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).to.have.attribute('data-checked', '');
     expect(checkbox).not.to.have.attribute('data-unchecked');
 
-    expect(checkbox).to.have.attribute('data-disabled', 'true');
-    expect(checkbox).to.have.attribute('data-readonly', 'true');
-    expect(checkbox).to.have.attribute('data-required', 'true');
+    expect(checkbox).to.have.attribute('data-disabled', '');
+    expect(checkbox).to.have.attribute('data-readonly', '');
+    expect(checkbox).to.have.attribute('data-required', '');
 
     expect(indicator).to.have.attribute('data-checked', '');
     expect(indicator).not.to.have.attribute('data-unchecked');
 
-    expect(indicator).to.have.attribute('data-disabled', 'true');
-    expect(indicator).to.have.attribute('data-readonly', 'true');
-    expect(indicator).to.have.attribute('data-required', 'true');
+    expect(indicator).to.have.attribute('data-disabled', '');
+    expect(indicator).to.have.attribute('data-readonly', '');
+    expect(indicator).to.have.attribute('data-required', '');
 
     setProps({ disabled: false, readOnly: false });
     fireEvent.click(checkbox);
@@ -221,12 +221,7 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('form handling', () => {
-    it('should toggle the checkbox when a parent label is clicked', async function test() {
-      // Clicking the label causes unrelated browser tests to fail.
-      if (!isJSDOM) {
-        this.skip();
-      }
-
+    it('should toggle the checkbox when a parent label is clicked', async () => {
       const { getByTestId, getAllByRole } = await render(
         <label data-testid="label">
           <Checkbox.Root />
@@ -246,12 +241,7 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should toggle the checkbox when a linked label is clicked', async function test() {
-      // Clicking the label causes unrelated browser tests to fail.
-      if (!isJSDOM) {
-        this.skip();
-      }
-
+    it('should toggle the checkbox when a linked label is clicked', async () => {
       const { getByTestId, getAllByRole } = await render(
         <div>
           <label htmlFor="test-checkbox" data-testid="label">
@@ -274,10 +264,12 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should include the checkbox value in the form submission', async function test() {
+  it('should include the checkbox value in the form submission', async function test(t = {}) {
     if (isJSDOM) {
       // FormData is not available in JSDOM
-      this.skip();
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
     }
 
     let stringifiedFormData = '';

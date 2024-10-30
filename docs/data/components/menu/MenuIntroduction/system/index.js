@@ -152,10 +152,6 @@ const MenuPositioner = styled(Menu.Positioner)`
   &:focus-visible {
     outline: 0;
   }
-
-  &[data-state='closed'] {
-    pointer-events: none;
-  }
 `;
 
 export const MenuArrow = styled(Menu.Arrow)(

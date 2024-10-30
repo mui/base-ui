@@ -1,23 +1,43 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForkRef } from '../../utils/useForkRef';
+import { GenericHTMLProps } from '../../utils/types';
+import { useButton } from '../../useButton';
 
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,
 ): useCollapsibleTrigger.ReturnValue {
-  const { contentId, open, setOpen } = parameters;
+  const { panelId, disabled, id, open, rootRef: externalRef, setOpen } = parameters;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
+    type: 'button',
+  });
+
+  const handleRef = useForkRef(externalRef, buttonRef);
 
   const getRootProps: useCollapsibleTrigger.ReturnValue['getRootProps'] = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps<'button'>(externalProps, {
-        type: 'button',
-        'aria-controls': contentId,
-        'aria-expanded': open,
-        onClick() {
-          setOpen(!open);
-        },
-      }),
-    [contentId, open, setOpen],
+    (externalProps: GenericHTMLProps = {}) =>
+      mergeReactProps(
+        externalProps,
+        mergeReactProps(
+          {
+            type: 'button',
+            'aria-controls': panelId,
+            'aria-expanded': open,
+            disabled,
+            id,
+            onClick() {
+              setOpen(!open);
+            },
+            ref: handleRef,
+          },
+          getButtonProps(),
+        ),
+      ),
+    [panelId, disabled, getButtonProps, handleRef, id, open, setOpen],
   );
 
   return {
@@ -30,11 +50,14 @@ export namespace useCollapsibleTrigger {
     /**
      *  The id of the element controlled by the Trigger
      */
-    contentId: React.HTMLAttributes<Element>['id'];
+    panelId: React.HTMLAttributes<Element>['id'];
+    disabled?: boolean;
+    id?: React.HTMLAttributes<Element>['id'];
     /**
      * The open state of the Collapsible
      */
     open: boolean;
+    rootRef?: React.Ref<Element>;
     /**
      * A state setter that sets the open state of the Collapsible
      */
@@ -42,8 +65,6 @@ export namespace useCollapsibleTrigger {
   }
 
   export interface ReturnValue {
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'button'>,
-    ) => React.ComponentPropsWithRef<'button'>;
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }

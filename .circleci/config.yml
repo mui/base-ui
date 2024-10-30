@@ -150,17 +150,17 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Tests fake browser
-          command: pnpm test:coverage:ci
+          name: Run tests on JSDOM
+          command: pnpm test:jsdom --coverage
       - run:
-          name: Check coverage generated
+          name: Check if coverage report is generated
           command: |
             if ! [[ -s coverage/lcov.info ]]
             then
               exit 1
             fi
       - run:
-          name: Coverage
+          name: Upload coverage report to Codecov
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
@@ -288,24 +288,24 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.48.1-focal
     steps:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
           browsers: true
       - run:
-          name: Tests real browsers
-          command: pnpm test:karma
+          name: Run tests on headless Chromium
+          command: pnpm test:chromium --coverage
       - run:
-          name: Check coverage generated
+          name: Check if coverage report is generated
           command: |
             if ! [[ -s coverage/lcov.info ]]
             then
               exit 1
             fi
       - run:
-          name: Coverage
+          name: Upload coverage report to Codecov
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
@@ -317,7 +317,7 @@ jobs:
   test_profile:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.48.1-focal
     steps:
       - checkout
       - install_js:
@@ -343,7 +343,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.48.1-focal
     steps:
       - checkout
       - install_js:
@@ -358,7 +358,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.48.1-focal
     steps:
       - checkout
       - install_js:

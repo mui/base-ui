@@ -15,7 +15,6 @@ const testRootContext: MenuRootContext = {
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,
   nested: false,
-  triggerElement: null,
   setTriggerElement: () => {},
   setPositionerElement: () => {},
   activeIndex: null,
@@ -47,9 +46,11 @@ describe('<Menu.Item />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async function test() {
+  it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
     if (/jsdom/.test(window.navigator.userAgent)) {
-      this.skip();
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
     }
 
     const renderItem1Spy = spy();
