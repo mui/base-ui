@@ -69,14 +69,7 @@ module.exports = {
               postcssOptions: {
                 config: false,
                 plugins: {
-                  tailwindcss: {
-                    content: ['docs/data/**/*.{js,tsx}'],
-                    darkMode: ['class', '[data-color-scheme="dark"]'],
-                    corePlugins: {
-                      // Remove the Tailwind CSS preflight styles as they would apply to the whole site.
-                      preflight: false,
-                    },
-                  },
+                  '@tailwindcss/postcss': {},
                 },
               },
             },
