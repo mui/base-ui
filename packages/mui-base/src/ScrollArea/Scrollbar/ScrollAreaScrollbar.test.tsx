@@ -18,7 +18,7 @@ describe('<ScrollArea.Scrollbar />', () => {
     },
   }));
 
-  it('adds [data-hovering] attribute when viewport is hovered', async function test() {
+  it('adds [data-hovering] attribute when viewport is hovered', async function test(t = {}) {
     // Fails to pass in browser CI, but works locally
     if (!/jsdom/.test(window.navigator.userAgent)) {
       // @ts-expect-error to support mocha and vitest
