@@ -93,7 +93,7 @@ const MenuGroupLabel = React.forwardRef((props, ref) => {
   return (
     <Menu.GroupLabel
       ref={ref}
-      className="select-none p-2 font-sans text-xs font-semibold uppercase text-slate-700 dark:text-slate-200"
+      className="p-2 font-sans text-xs font-semibold text-slate-700 uppercase select-none dark:text-slate-200"
       {...props}
     />
   );
