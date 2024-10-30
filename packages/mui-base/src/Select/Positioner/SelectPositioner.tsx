@@ -117,7 +117,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   }, [open, selectedIndexRef]);
 
   const positioner = useSelectPositioner({
-    anchor: anchor || triggerElement,
+    anchor,
     floatingRootContext,
     positionMethod,
     container,

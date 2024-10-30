@@ -46,7 +46,6 @@ export function useSelectPositioner(
     isPositioned,
   } = useAnchorPositioning({
     ...params,
-    positionMethod: itemAligned ? 'fixed' : params.positionMethod,
     innerOptions: {
       fallback: params.innerFallback,
       touchModality,
