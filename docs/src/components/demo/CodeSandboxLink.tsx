@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import { createCodeSandbox } from 'docs/src/blocks/sandbox/createCodeSandbox';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLink';
+import { ToolbarButton } from '../ToolbarButton';
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
@@ -67,10 +68,10 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   }, [files, language, name, title, description]);
 
   return (
-    <button type="button" onClick={handleClick} {...props}>
+    <ToolbarButton type="button" onClick={handleClick} {...props}>
       CodeSandbox
       <ExternalLinkIcon />
-    </button>
+    </ToolbarButton>
   );
 }
 

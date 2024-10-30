@@ -2,6 +2,7 @@
 @import './syntax-highlighting/index.css';
 @import './components/demo/index.css';
 @import './components/CodeBlock.css';
+@import './components/ToolbarButton.css';
 
 @tailwind base;
 @tailwind components;

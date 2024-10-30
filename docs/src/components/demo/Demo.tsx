@@ -10,6 +10,7 @@ import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import { DemoErrorFallback } from './DemoErrorFallback';
+import { ToolbarButton } from '../ToolbarButton';
 
 export interface DemoProps extends React.ComponentProps<typeof BaseDemo.Root> {
   variants: BaseDemo.DemoVariant[];
@@ -32,14 +33,10 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
 
           <div className="ml-auto flex items-center gap-4">
             <DemoVariantSelector className="contents" />
-            <CodeSandboxLink
-              title="Base UI example"
-              description="Base UI example"
-              className="DemoToolbarButton"
-            />
+            <CodeSandboxLink title="Base UI example" description="Base UI example" />
             <BaseDemo.SourceCopy
               aria-label="Copy code"
-              className="DemoToolbarButton"
+              render={<ToolbarButton />}
               onCopied={() => {
                 const newTimeout = window.setTimeout(() => {
                   window.clearTimeout(newTimeout);

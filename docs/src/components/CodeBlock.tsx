@@ -4,6 +4,7 @@ import copy from 'clipboard-copy';
 import clsx from 'clsx';
 import { CopyIcon } from '../icons/Copy';
 import { CheckIcon } from '../icons/Check';
+import { ToolbarButton } from './ToolbarButton';
 
 export function Root({ className, ...props }: React.ComponentProps<'figure'>) {
   return <figure className={clsx('CodeBlockRoot', className)} {...props} />;
@@ -15,10 +16,8 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
   return (
     <div className={clsx('CodeBlockPanel', className)} {...props}>
       <figcaption className="CodeBlockPanelTitle">{children}</figcaption>
-      <button
-        type="button"
+      <ToolbarButton
         aria-label="Copy code"
-        className="CodeBlockPanelButton"
         onClick={async (event) => {
           const code = event.currentTarget.closest('figure')?.querySelector('pre')?.textContent;
 
@@ -37,7 +36,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
         <span className="flex size-[14px] items-center justify-center">
           {copyTimeout ? <CheckIcon /> : <CopyIcon />}
         </span>
-      </button>
+      </ToolbarButton>
     </div>
   );
 }
