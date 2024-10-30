@@ -15,23 +15,6 @@ const SCROLLBAR_HEIGHT = 15;
 describe('<ScrollArea.Root />', () => {
   const { render } = createRenderer();
 
-  beforeEach(() => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      *, 
-      *::before, 
-      *::after {
-        box-sizing: border-box;
-        scrollbar-width: none;
-      }
-    `;
-    document.head.appendChild(style);
-  });
-
-  afterEach(() => {
-    document.head.innerHTML = '';
-  });
-
   describeConformance(<ScrollArea.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
