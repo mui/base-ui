@@ -80,7 +80,13 @@ describe('<Select.Option />', () => {
     });
   });
 
-  it('should select option when Enter key is pressed', async function test() {
+  it('should select option when Enter key is pressed', async function test(t = {}) {
+    if (!/jsdom/.test(window.navigator.userAgent)) {
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
+    }
+
     const { user } = await render(
       <Select.Root animated={false}>
         <Select.Trigger data-testid="trigger">
