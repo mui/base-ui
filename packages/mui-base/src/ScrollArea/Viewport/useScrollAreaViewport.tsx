@@ -116,10 +116,22 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       }
     }
 
-    setHiddenState({
-      scrollbarYHidden,
-      scrollbarXHidden,
-      cornerHidden: scrollbarYHidden || scrollbarXHidden,
+    setHiddenState((prevState) => {
+      const cornerHidden = scrollbarYHidden || scrollbarXHidden;
+
+      if (
+        prevState.scrollbarYHidden === scrollbarYHidden &&
+        prevState.scrollbarXHidden === scrollbarXHidden &&
+        prevState.cornerHidden === cornerHidden
+      ) {
+        return prevState;
+      }
+
+      return {
+        scrollbarYHidden,
+        scrollbarXHidden,
+        cornerHidden,
+      };
     });
   });
 
