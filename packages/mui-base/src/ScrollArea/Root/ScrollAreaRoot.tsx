@@ -74,7 +74,7 @@ namespace ScrollAreaRoot {
      */
     type?: 'overlay' | 'inset';
     /**
-     * Determines the permanent scrollbar gutter when using the `inlay` type to prevent layout
+     * Determines the permanent scrollbar gutter when using the `inset` type to prevent layout
      * shifts when the scrollbar is hidden/shown.
      * @default 'stable'
      */
@@ -102,7 +102,7 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    */
   dir: PropTypes.string,
   /**
-   * Determines the permanent scrollbar gutter when using the `inlay` type to prevent layout
+   * Determines the permanent scrollbar gutter when using the `inset` type to prevent layout
    * shifts when the scrollbar is hidden/shown.
    * @default 'stable'
    */

@@ -37,7 +37,7 @@ githubLabel: 'component: scrollarea'
 
 ## Type
 
-The scrollbars can be either `overlay` (default) or `inlay`. The `overlay` type will overlay the scrollbar on top of the content, while the `inlay` type will push the content to make space for the scrollbar.
+The scrollbars can be either `overlay` (default) or `inset`. The `overlay` type will overlay the scrollbar on top of the content, while the `inset` type will push the content to make space for the scrollbar.
 
 ```jsx
 <ScrollArea.Root type="inlay">
@@ -47,7 +47,7 @@ The scrollbars can be either `overlay` (default) or `inlay`. The `overlay` type 
 
 ### Gutter stability
 
-When using `inlay` scrollbars, the `gutter` prop can be used to keep a gutter present when the scrollbar is hidden. This is useful to prevent layout shift when the scrollbar is shown or hidden based on the content.
+When using `inset` scrollbars, the `gutter` prop can be used to keep a gutter present when the scrollbar is hidden. This is useful to prevent layout shift when the scrollbar is shown or hidden based on the content.
 
 Possible values match the CSS `scrollbar-gutter` property:
 
@@ -86,7 +86,7 @@ The Scrollbar element can be shown conditionally based on the user's interaction
 
 ### Corner
 
-When using `inlay` scrollbars, the scrollbar elements can adjust their size to account for a corner using the `--scroll-area-corner-width` and `--scroll-area-corner-height` CSS variables:
+When using `inset` scrollbars, the scrollbar elements can adjust their size to account for a corner using the `--scroll-area-corner-width` and `--scroll-area-corner-height` CSS variables:
 
 ```jsx
 <ScrollArea.Scrollbar orientation="vertical" />
