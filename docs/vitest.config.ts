@@ -10,6 +10,9 @@ export default mergeConfig(
         enabled: false,
         name: 'node',
       },
+      env: {
+        VITEST_ENV: 'node',
+      },
     },
   }),
 );
