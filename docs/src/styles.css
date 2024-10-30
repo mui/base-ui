@@ -1,16 +1,16 @@
+@import 'tailwindcss';
 @import './fonts/index.css';
 @import './syntax-highlighting/index.css';
 @import './components/demo/index.css';
 @import './components/CodeBlock.css';
 @import './components/ToolbarButton.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Handy link to the default Tailwind theme:
+/* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
 
-:root {
-  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
-  --font-sans: 'Unica 77', system-ui, sans-serif;
+@theme {
+  --font-family-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-family-sans: 'Unica 77', system-ui, sans-serif;
 
   --color-background: oklch(98% 0.25% 264);
   --color-foreground: oklch(21% 2% 264);
@@ -28,6 +28,45 @@
   --color-red: oklch(50% 55% 31);
   --color-violet: oklch(40% 60% 300);
 
+  --font-size-xs: 0.8125rem;
+  --font-size-xs--line-height: 1rem;
+  --font-size-xs--letter-spacing: 0.00125em;
+
+  --font-size-sm: 0.9375rem;
+  --font-size-sm--line-height: 1.25rem;
+  --font-size-sm--letter-spacing: 0.001em;
+
+  --font-size-base: 1.0625rem;
+  --font-size-base--line-height: 1.5rem;
+
+  --font-size-lg: 1.1875rem;
+  --font-size-lg--line-height: 1.75rem;
+
+  --font-size-xl: 1.3125rem;
+  --font-size-xl--line-height: 1.75rem;
+
+  --font-size-2xl: 1.5rem;
+  --font-size-2xl--line-height: 1.25;
+  --font-size-2xl--letter-spacing: -0.0125em;
+
+  --font-size-3xl: 1.875rem;
+  --font-size-3xl--line-height: 1.2;
+  --font-size-3xl--letter-spacing: -0.015em;
+
+  --font-size-4xl: 2.25rem;
+  --font-size-4xl--line-height: 2.5rem;
+  --font-size-4xl--letter-spacing: -0.015em;
+
+  --font-size-5xl: 3rem;
+  --font-size-5xl--line-height: 1;
+  --font-size-5xl--letter-spacing: -0.015em;
+
+  --font-size-6xl: 3.75rem;
+  --font-size-6xl--line-height: 0.95;
+  --font-size-6xl--letter-spacing: -0.015em;
+}
+
+:root {
   @media (prefers-color-scheme: dark) {
     --color-background: #000;
     --color-foreground: oklch(90% 2% 264);

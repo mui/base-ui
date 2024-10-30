@@ -5,7 +5,7 @@
   border: 1px solid var(--gray-outline-2);
   background-clip: padding-box;
 
-  table {
+  & table {
     all: unset;
     box-sizing: border-box;
     display: table;
@@ -19,12 +19,12 @@
     table-layout: fixed;
   }
 
-  tr {
+  & tr {
     vertical-align: inherit;
     box-sizing: border-box;
   }
 
-  thead th {
+  & thead th {
     background-color: var(--gray-surface-2);
     font-weight: var(--fw-2);
     text-align: start;
@@ -34,8 +34,8 @@
     padding-left: var(--space-4);
   }
 
-  tbody th,
-  td {
+  & tbody th,
+  & td {
     text-align: start;
     padding-top: var(--space-3);
     padding-right: var(--space-4);
