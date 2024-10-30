@@ -73,7 +73,7 @@ describe('<ScrollArea.Root />', () => {
         expect(style.paddingBottom).to.equal('0px');
       });
 
-      it('should add padding for inlay scrollbars', async () => {
+      it('should add padding for inset scrollbars', async () => {
         await render(
           <ScrollArea.Root type="inset" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
             <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>

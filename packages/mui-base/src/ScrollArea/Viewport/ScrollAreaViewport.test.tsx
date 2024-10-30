@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ScrollArea } from '@base_ui/react/ScrollArea';
-import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<ScrollArea.Viewport />', () => {

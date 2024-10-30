@@ -21,7 +21,7 @@ describe('<ScrollArea.Scrollbar />', () => {
   it('adds [data-hovering] attribute when viewport is hovered', async () => {
     await render(
       <ScrollArea.Root>
-        <ScrollArea.Viewport data-testid="viewport">
+        <ScrollArea.Viewport data-testid="viewport" style={{ width: 200, height: 200 }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
@@ -50,7 +50,7 @@ describe('<ScrollArea.Scrollbar />', () => {
   it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
     await render(
       <ScrollArea.Root>
-        <ScrollArea.Viewport data-testid="viewport">
+        <ScrollArea.Viewport data-testid="viewport" style={{ width: 200, height: 200 }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
