@@ -143,6 +143,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
             parseFloat(getComputedStyle(scrollbarXRef.current).height),
         );
       }
+
       computeThumb();
     }
 

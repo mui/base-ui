@@ -4,7 +4,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
-import { ownerWindow } from '../../utils/owner';
 
 interface Size {
   width: number;
@@ -46,29 +45,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     default: dirProp ?? 'ltr',
     name: 'ScrollArea',
   });
-
-  React.useEffect(() => {
-    if (!viewportRef.current) {
-      return undefined;
-    }
-
-    const win = ownerWindow(viewportRef.current);
-
-    function handleResize() {
-      if (viewportRef.current) {
-        const width = scrollbarYRef.current?.offsetWidth || 0;
-        const height = scrollbarXRef.current?.offsetHeight || 0;
-        setCornerSize({ width, height });
-      }
-    }
-
-    handleResize();
-
-    win.addEventListener('resize', handleResize);
-    return () => {
-      win.removeEventListener('resize', handleResize);
-    };
-  }, []);
 
   useEnhancedEffect(() => {
     if (viewportRef.current) {
