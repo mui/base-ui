@@ -53,7 +53,7 @@ export default function CollapsibleDemo() {
         </Collapsible.Root>
       </div>
 
-      <Collapsible.Root render="span" className="MyCollapsible-root">
+      <Collapsible.Root render={<span />} className="MyCollapsible-root">
         <Collapsible.Trigger className="MyCollapsible-trigger">
           <span className="icon">
             <svg
