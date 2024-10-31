@@ -127,6 +127,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
   window.addEventListener('resize', handleResize);
 
   return () => {
+    cancelAnimationFrame(resizeRaf);
     cleanup();
     window.removeEventListener('resize', handleResize);
   };
