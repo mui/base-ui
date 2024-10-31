@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act, describeSkipIf } from '@mui/internal-test-utils';
+import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base_ui/react/Collapsible';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Collapsible.Root />', () => {
   const { render } = createRenderer();
@@ -51,6 +51,7 @@ describe('<Collapsible.Root />', () => {
       expect(panel).not.toBeVisible();
 
       setProps({ open: true });
+      await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(panel).toBeVisible();
@@ -58,6 +59,7 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('data-panel-open');
 
       setProps({ open: false });
+      await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(panel).not.toBeVisible();
