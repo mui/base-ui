@@ -7,7 +7,7 @@ const data = Array.from({ length: 30 }, (_, i) => i + 1);
 
 export default function ScrollAreaIntroduction() {
   return (
-    <ScrollAreaRoot dir="rtl">
+    <ScrollAreaRoot>
       <ScrollAreaViewport>
         <ul
           style={{
