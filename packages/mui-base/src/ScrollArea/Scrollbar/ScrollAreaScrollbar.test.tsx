@@ -43,12 +43,12 @@ describe('<ScrollArea.Scrollbar />', () => {
     expect(verticalScrollbar).not.to.have.attribute('data-hovering');
     expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
 
-    fireEvent.mouseEnter(screen.getByTestId('root'));
+    fireEvent.pointerEnter(screen.getByTestId('root'), { pointerType: 'mouse' });
 
     expect(verticalScrollbar).to.have.attribute('data-hovering', '');
     expect(horizontalScrollbar).to.have.attribute('data-hovering', '');
 
-    fireEvent.mouseLeave(screen.getByTestId('root'));
+    fireEvent.pointerLeave(screen.getByTestId('root'), { pointerType: 'mouse' });
 
     expect(verticalScrollbar).not.to.have.attribute('data-hovering');
     expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
