@@ -46,8 +46,8 @@ export default function App() {
         orientation="horizontal"
         direction="rtl"
         value={val}
-        onValueChange={(newValue: Accordion.Root.Props['Value']) => {
-          if (newValue.length > 0) {
+        onValueChange={(newValue: Accordion.Root.Props['value']) => {
+          if (Array.isArray(newValue) && newValue.length > 0) {
             setVal(newValue);
           }
         }}

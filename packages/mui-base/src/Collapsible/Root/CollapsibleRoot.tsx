@@ -90,7 +90,7 @@ export namespace CollapsibleRoot {
 
   export interface Props
     extends useCollapsibleRoot.Parameters,
-      BaseUIComponentProps<any, OwnerState> {}
+      BaseUIComponentProps<'div', OwnerState> {}
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {
@@ -103,6 +103,10 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   animated: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */

@@ -48,7 +48,7 @@ function Controls(props) {
   return (
     <div
       {...props}
-      className="-mx-4 -mb-4 mt-8 flex flex-row-reverse gap-2 bg-slate-100 p-4 dark:bg-slate-800"
+      className="-mx-4 mt-8 -mb-4 flex flex-row-reverse gap-2 bg-slate-100 p-4 dark:bg-slate-800"
     />
   );
 }

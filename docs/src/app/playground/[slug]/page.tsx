@@ -7,17 +7,15 @@ import { readdir } from 'node:fs/promises';
 import '../../../styles/style.css';
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 const DUMMY_SLUG = '_';
 
 export default async function Page(props: Props) {
-  const {
-    params: { slug },
-  } = props;
+  const { slug } = await props.params;
 
   if (slug === DUMMY_SLUG) {
     notFound();
@@ -46,7 +44,8 @@ export async function generateStaticParams() {
   return routes;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
 
   return {

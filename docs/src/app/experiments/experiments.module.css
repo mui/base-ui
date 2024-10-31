@@ -18,7 +18,7 @@
   justify-content: center;
   text-align: center;
 
-  a {
+  & a {
     text-decoration: none;
     color: var(--color-foreground);
     margin: 0.5rem;

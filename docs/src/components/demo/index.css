@@ -1,0 +1,253 @@
+@layer components {
+  .DemoRoot {
+    background-color: var(--color-content);
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+  }
+
+  .DemoPlayground {
+    background-color: var(--color-content);
+    min-height: 10rem;
+    padding: 3rem 1.5rem;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+
+    /* Scroll */
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+
+    /* Center the contents */
+    display: grid;
+    & > * {
+      margin: auto;
+    }
+  }
+
+  .DemoToolbar {
+    white-space: nowrap;
+    color: var(--color-gray);
+    background-color: var(--color-panel);
+    background-clip: padding-box;
+    border-block: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    -webkit-user-select: none;
+    user-select: none;
+
+    /* Scroll */
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .DemoFilename {
+    @apply text-xs;
+    font-family: var(--font-family-mono);
+    color: var(--color-foreground);
+    font-weight: bold;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  .DemoTabsList {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .DemoTab {
+    @apply text-xs;
+    font-family: var(--font-family-mono);
+    cursor: default;
+    position: relative;
+    margin: -0.5rem;
+    padding: 0.5rem;
+    z-index: 0;
+    outline: 0;
+
+    @media (hover: hover) {
+      &:hover {
+        &::before {
+          background-color: oklch(20% 12% 264 / 5%);
+
+          @media (prefers-color-scheme: dark) {
+            background-color: oklch(90% 5% 264 / 8%);
+          }
+        }
+      }
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      inset: 0.25rem 0.125rem;
+      border-radius: 0.25rem;
+      z-index: -1;
+    }
+
+    &:focus-visible::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      inset: 0.125rem 0;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -3px;
+      border-radius: 0.375rem;
+    }
+
+    &[data-selected] {
+      color: var(--color-foreground);
+      font-weight: bold;
+
+      &::before {
+        background-color: white;
+        outline: 1px solid oklch(20% 12% 264 / 15%);
+        outline-offset: -1px;
+        box-shadow:
+          0px 2px 3px -2px oklch(20% 12% 264 / 10%),
+          inset 0px -1px 1px oklch(20% 12% 264 / 10%);
+
+        @media (prefers-color-scheme: dark) {
+          background-color: oklch(22% 2% 264);
+          outline: 1px solid oklch(90% 12% 264 / 15%);
+          box-shadow: none;
+        }
+      }
+
+      &:focus-visible {
+        &::before {
+          @media (prefers-color-scheme: dark) {
+            background-color: black;
+          }
+        }
+      }
+    }
+  }
+
+  .DemoSelect {
+    appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+
+    &:focus-visible {
+      border-radius: 1px;
+      outline: 2px solid var(--color-blue);
+      outline-offset: 2px;
+    }
+  }
+
+  .DemoCodeBlockContainer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    outline: 0;
+
+    & pre {
+      cursor: text;
+      font-size: 0.8125rem;
+      line-height: 1.25rem;
+      padding: 0.5rem 0.75rem;
+
+      /* Closed state */
+      overflow: hidden;
+      max-height: 12.5rem;
+    }
+
+    & pre:focus-visible {
+      z-index: 1;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      height: 7.5rem;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 60%));
+
+      @media (prefers-color-scheme: dark) {
+        background: linear-gradient(to bottom, rgb(0 0 0 / 0), rgb(0 0 0 / 60%));
+      }
+    }
+
+    &[data-open] {
+      & pre {
+        max-height: none;
+
+        /* Scroll */
+        display: flex;
+        overflow: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+      }
+      &::before {
+        content: none;
+      }
+    }
+
+    & code {
+      /* Different fonts may introduce vertical alignment issues */
+      display: block;
+      /* Make sure selection highlight spans full container width in Safari */
+      flex-grow: 1;
+    }
+  }
+
+  .DemoCollapseButton {
+    @apply text-xs;
+    background-color: var(--color-panel);
+    cursor: default;
+    width: 100%;
+    color: var(--color-gray);
+    height: 2.25rem;
+    border-top: 1px solid var(--color-border);
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+    border-bottom: 1px solid transparent;
+    background-clip: padding-box;
+    margin-bottom: -1px;
+    -webkit-user-select: none;
+    user-select: none;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: oklch(97% 0.25% 264);
+        @media (prefers-color-scheme: dark) {
+          background-color: oklch(17% 1% 264);
+        }
+      }
+    }
+
+    &:active {
+      background-color: oklch(96% 0.25% 264);
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(18% 1% 264);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+      z-index: 1;
+      position: relative;
+    }
+  }
+}

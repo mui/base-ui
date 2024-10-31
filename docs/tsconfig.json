@@ -8,8 +8,7 @@
     "next-env.d.ts",
     "next.config.mjs",
     ".next/types/**/*.ts",
-    "export/types/**/*.ts",
-    "config.ts"
+    "export/types/**/*.ts"
   ],
   "compilerOptions": {
     "allowJs": true,

@@ -65,7 +65,7 @@ const Tab = React.forwardRef((props, ref) => {
               : 'bg-transparent text-white hover:bg-purple-400 focus:text-white'
           } ${
             disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-          } focus:shadow-outline-purple-light m-1.5 flex w-full justify-center rounded-md border-0 px-3 py-2.5 text-sm font-semibold leading-[1.3] focus:outline-0`,
+          } focus:shadow-outline-purple-light m-1.5 flex w-full justify-center rounded-md border-0 px-3 py-2.5 text-sm leading-[1.3] font-semibold focus:outline-0`,
           className,
         )
       }

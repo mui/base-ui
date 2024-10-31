@@ -45,8 +45,8 @@
     "@floating-ui/react": "^0.26.27",
     "@floating-ui/react-dom": "^2.1.2",
     "@floating-ui/utils": "^0.2.8",
-    "@mui/types": "^7.2.18",
-    "@mui/utils": "^6.1.5",
+    "@mui/types": "^7.2.19",
+    "@mui/utils": "^6.1.6",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1",
     "use-sync-external-store": "^1.2.2"
@@ -58,22 +58,22 @@
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.13",
-    "@types/react": "^18.3.10",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "@types/sinon": "^17.0.3",
     "@types/use-sync-external-store": "^0.0.6",
     "chai": "^4.5.0",
     "fast-glob": "^3.3.2",
     "lodash": "^4.17.21",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "19.0.0-rc-69d4b800-20241021",
+    "react-dom": "19.0.0-rc-69d4b800-20241021",
     "sinon": "^19.0.2",
     "typescript": "^5.6.3"
   },
   "peerDependencies": {
-    "@types/react": "^17.0.0 || ^18.0.0",
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0"
+    "@types/react": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc",
+    "react": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc",
+    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc"
   },
   "peerDependenciesMeta": {
     "@types/react": {

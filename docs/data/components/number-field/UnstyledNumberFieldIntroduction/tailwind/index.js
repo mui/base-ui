@@ -97,7 +97,7 @@ const NumberFieldScrubArea = React.forwardRef(
         ref={ref}
         className={(state) =>
           classNames(
-            'cursor-ns-resize select-none font-bold',
+            'cursor-ns-resize font-bold select-none',
             typeof props.className === 'function'
               ? props.className(state)
               : props.className,
