@@ -53,18 +53,17 @@ export default function ScrollAreaInset() {
 const ScrollAreaRoot = styled(ScrollArea.Root)`
   width: 250px;
   height: 250px;
-  border-radius: 6px;
+  border-radius: 2px;
   background: #f5f5f5;
-  overflow: hidden;
 `;
 
 const ScrollAreaViewport = styled(ScrollArea.Viewport)`
   width: 100%;
   height: 100%;
-  scrollbar-width: none;
+  border-radius: 2px;
 
-  &::-webkit-scrollbar {
-    display: none;
+  &:focus-visible {
+    outline: 2px solid rgb(0 0 0 / 0.5);
   }
 `;
 
