@@ -54,6 +54,10 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
         setScrolling(false);
         handlePointerUp(event);
       },
+      style: {
+        ...(orientation === 'vertical' && { height: 'var(--scroll-area-thumb-height)' }),
+        ...(orientation === 'horizontal' && { width: 'var(--scroll-area-thumb-width)' }),
+      },
     }),
   });
 

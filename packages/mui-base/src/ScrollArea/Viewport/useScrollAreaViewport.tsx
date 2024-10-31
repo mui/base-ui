@@ -21,6 +21,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     dir,
     gutter,
     setCornerSize,
+    setThumbSize,
     rootId,
     setHiddenState,
     hiddenState,
@@ -55,66 +56,54 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
 
     // Handle Y (vertical) scroll
-    if (scrollbarYEl) {
-      if (thumbYEl) {
-        const thumbHeight = thumbYEl.offsetHeight;
-        const scrollbarStylesY = getComputedStyle(scrollbarYEl);
-        const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
-        const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
+    if (scrollbarYEl && thumbYEl) {
+      const thumbHeight = thumbYEl.offsetHeight;
+      const scrollbarStylesY = getComputedStyle(scrollbarYEl);
+      const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
+      const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
 
-        const maxThumbOffsetY =
-          scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
-        const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
+      const maxThumbOffsetY =
+        scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
+      const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
 
-        // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
-        // band effect.
-        const thumbOffsetY = Math.min(maxThumbOffsetY, Math.max(0, scrollRatioY * maxThumbOffsetY));
+      // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
+      // band effect.
+      const thumbOffsetY = Math.min(maxThumbOffsetY, Math.max(0, scrollRatioY * maxThumbOffsetY));
 
-        thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
-      }
-
-      scrollbarYEl.style.setProperty(
-        '--scroll-area-thumb-height',
-        scrollbarYHidden
-          ? '0px'
-          : `${(viewportHeight / scrollableContentHeight) * viewportHeight}px`,
-      );
+      thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
     }
 
     // Handle X (horizontal) scroll
-    if (scrollbarXEl) {
-      if (thumbXEl) {
-        const thumbWidth = thumbXEl.offsetWidth;
-        const scrollbarStylesX = getComputedStyle(scrollbarXEl);
-        const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
-        const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
+    if (scrollbarXEl && thumbXEl) {
+      const thumbWidth = thumbXEl.offsetWidth;
+      const scrollbarStylesX = getComputedStyle(scrollbarXEl);
+      const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
+      const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
 
-        const maxThumbOffsetX =
-          scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
-        const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
+      const maxThumbOffsetX = scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
+      const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
 
-        // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
-        // band effect.
-        const thumbOffsetX = Math.min(maxThumbOffsetX, Math.max(0, scrollRatioX * maxThumbOffsetX));
+      // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
+      // band effect.
+      const thumbOffsetX = Math.min(maxThumbOffsetX, Math.max(0, scrollRatioX * maxThumbOffsetX));
 
-        thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
-      }
-
-      scrollbarXEl.style.setProperty(
-        '--scroll-area-thumb-width',
-        scrollbarXHidden ? '0px' : `${(viewportWidth / scrollableContentWidth) * viewportWidth}px`,
-      );
+      thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
     }
 
     if (cornerEl) {
       if (scrollbarXHidden || scrollbarYHidden) {
         setCornerSize({ width: 0, height: 0 });
       } else if (!scrollbarXHidden && !scrollbarYHidden) {
-        const width = scrollbarYRef.current?.offsetWidth || 0;
-        const height = scrollbarXRef.current?.offsetHeight || 0;
+        const width = scrollbarYEl?.offsetWidth || 0;
+        const height = scrollbarXEl?.offsetHeight || 0;
         setCornerSize({ width, height });
       }
     }
+
+    setThumbSize({
+      width: scrollbarXHidden ? 0 : (viewportWidth / scrollableContentWidth) * viewportWidth,
+      height: scrollbarYHidden ? 0 : (viewportHeight / scrollableContentHeight) * viewportHeight,
+    });
 
     setHiddenState((prevState) => {
       const cornerHidden = scrollbarYHidden || scrollbarXHidden;
@@ -187,6 +176,10 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     };
   }, [computeThumb, viewportRef]);
 
+  useEnhancedEffect(() => {
+    computeThumb();
+  }, [hiddenState, computeThumb]);
+
   const wrapperStyles: React.CSSProperties = React.useMemo(() => {
     const styles: React.CSSProperties = {};
 
@@ -215,6 +208,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         ...(rootId && { id: `${rootId}-viewport` }),
+        // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
+        ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
         style: {
           overflow: 'scroll',
         },
@@ -239,7 +234,15 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
           </div>
         ),
       }),
-    [children, computeThumb, setScrolling, wrapperStyles, rootId],
+    [
+      rootId,
+      hiddenState.scrollbarXHidden,
+      hiddenState.scrollbarYHidden,
+      wrapperStyles,
+      children,
+      computeThumb,
+      setScrolling,
+    ],
   );
 
   return React.useMemo(

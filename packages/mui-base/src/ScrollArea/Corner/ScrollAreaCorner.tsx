@@ -25,7 +25,7 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { dir, cornerRef, hiddenState } = useScrollAreaRootContext();
+  const { dir, cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
 
   const mergedRef = useForkRef(cornerRef, forwardedRef);
 
@@ -39,6 +39,8 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
         position: 'absolute',
         bottom: 0,
         [dir === 'rtl' ? 'left' : 'right']: 0,
+        width: cornerSize.width,
+        height: cornerSize.height,
       },
     }),
   });

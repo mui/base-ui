@@ -6,6 +6,8 @@ export interface ScrollAreaRootContext {
   gutter?: 'stable' | 'both-edges' | 'none';
   cornerSize: { width: number; height: number };
   setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
+  thumbSize: { width: number; height: number };
+  setThumbSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   scrolling: boolean;

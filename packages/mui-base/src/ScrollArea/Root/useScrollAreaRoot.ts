@@ -6,15 +6,18 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
 import { ownerWindow } from '../../utils/owner';
 
+interface Size {
+  width: number;
+  height: number;
+}
+
 export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const { dir: dirProp } = params;
 
   const [hovering, setHovering] = React.useState(false);
   const [scrolling, setScrolling] = React.useState(false);
-  const [cornerSize, setCornerSize] = React.useState<{ width: number; height: number }>({
-    width: 0,
-    height: 0,
-  });
+  const [cornerSize, setCornerSize] = React.useState<Size>({ width: 0, height: 0 });
+  const [thumbSize, setThumbSize] = React.useState<Size>({ width: 0, height: 0 });
 
   const rootId = useId();
 
@@ -150,20 +153,18 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         dir,
-        onMouseEnter() {
-          setHovering(true);
+        onPointerEnter({ pointerType }) {
+          if (pointerType !== 'touch') {
+            setHovering(true);
+          }
         },
-        onMouseLeave() {
+        onPointerLeave() {
           setHovering(false);
         },
         style: {
           position: 'relative',
-          ...(cornerSize.width > 0 && {
-            '--scroll-area-corner-width': `${cornerSize.width}px`,
-          }),
-          ...(cornerSize.height > 0 && {
-            '--scroll-area-corner-height': `${cornerSize.height}px`,
-          }),
+          ['--scroll-area-corner-width' as string]: `${cornerSize.width}px`,
+          ['--scroll-area-corner-height' as string]: `${cornerSize.height}px`,
         },
       }),
     [cornerSize, dir],
@@ -177,6 +178,8 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       handlePointerUp,
       cornerSize,
       setCornerSize,
+      thumbSize,
+      setThumbSize,
       cornerRef,
       scrolling,
       setScrolling,
@@ -197,10 +200,9 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       handlePointerMove,
       handlePointerUp,
       cornerSize,
-      setCornerSize,
+      thumbSize,
       cornerRef,
       scrolling,
-      setScrolling,
       hovering,
       setHovering,
       viewportRef,
@@ -210,7 +212,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       thumbXRef,
       rootId,
       hiddenState,
-      setHiddenState,
     ],
   );
 }

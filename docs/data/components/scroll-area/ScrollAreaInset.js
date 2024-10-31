@@ -69,13 +69,14 @@ const ScrollAreaViewport = styled(ScrollArea.Viewport)`
 `;
 
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
-  width: 10px;
-  height: calc(100% - var(--scroll-area-corner-height));
   background: rgb(220 220 220);
   box-sizing: border-box;
 
+  &[data-orientation='vertical'] {
+    width: 10px;
+  }
+
   &[data-orientation='horizontal'] {
-    width: calc(100% - var(--scroll-area-corner-width));
     height: 10px;
   }
 `;
@@ -85,11 +86,9 @@ const ScrollAreaThumb = styled(ScrollArea.Thumb)`
 
   &[data-orientation='vertical'] {
     width: 10px;
-    height: var(--scroll-area-thumb-height, 0);
   }
 
   &[data-orientation='horizontal'] {
-    width: var(--scroll-area-thumb-width, 0);
     height: 10px;
   }
 
@@ -112,7 +111,5 @@ const ScrollAreaThumb = styled(ScrollArea.Thumb)`
 `;
 
 const ScrollAreaCorner = styled(ScrollArea.Corner)`
-  width: var(--scroll-area-corner-width, 10px);
-  height: var(--scroll-area-corner-height, 10px);
   background: rgb(220 220 220);
 `;

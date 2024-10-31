@@ -41,12 +41,16 @@ const ScrollAreaRoot = styled(ScrollArea.Root)`
   height: 250px;
   border-radius: 6px;
   background: #f5f5f5;
-  overflow: hidden;
 `;
 
 const ScrollAreaViewport = styled(ScrollArea.Viewport)`
   width: 100%;
   height: 100%;
+  border-radius: 6px;
+
+  &:focus-visible {
+    outline: 2px solid rgb(0 0 0 / 0.5);
+  }
 `;
 
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
@@ -75,6 +79,10 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   &:hover {
     visibility: visible;
     opacity: 1;
+  }
+
+  &[data-scrolling]:not(:hover) {
+    transition: none;
   }
 `;
 

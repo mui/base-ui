@@ -61,21 +61,7 @@ Possible values match the CSS `scrollbar-gutter` property:
 
 ## Styling
 
-The thumb element can be styled using `--scroll-area-thumb-height` and `--scroll-area-thumb-width` CSS variables.
-
-These are available depending on the `orientation` prop supplied to the `Scrollbar` subcomponent:
-
-- `height` is available for `vertical` orientation (default)
-- `width` is available for `horizontal` orientation
-
-```css
-.ScrollAreaThumb {
-  height: var(--scroll-area-thumb-height, 6px);
-  width: var(--scroll-area-thumb-width, 6px);
-}
-```
-
-The Scrollbar element can be shown conditionally based on the user's interaction with the Scroll Area. The `[data-scrolling]` and `[data-hovering]` attributes are added to the scrollbar element while the user is scrolling or hovering over the Scroll Area.
+The scrollbar elements can be shown conditionally based on the user's interaction with the Scroll Area. The `[data-scrolling]` and `[data-hovering]` attributes are added to the scrollbar element while the user is scrolling or hovering over the Scroll Area.
 
 ```css
 .ScrollAreaScrollbar[data-scrolling],
@@ -86,20 +72,10 @@ The Scrollbar element can be shown conditionally based on the user's interaction
 
 ### Corner
 
-When using `inset` scrollbars, the scrollbar elements can adjust their size to account for a corner using the `--scroll-area-corner-width` and `--scroll-area-corner-height` CSS variables:
+When using `inset` scrollbars, the scrollbar elements can prevent overlapping by rendering a `Corner`:
 
 ```jsx
 <ScrollArea.Scrollbar orientation="vertical" />
 <ScrollArea.Scrollbar orientation="horizontal" />
 <ScrollArea.Corner />
-```
-
-```css
-.ScrollAreaScrollbar[data-orientation='vertical'] {
-  height: calc(100% - var(--scroll-area-corner-height));
-}
-
-.ScrollAreaScrollbar[data-orientation='horizontal'] {
-  width: calc(100% - var(--scroll-area-corner-width));
-}
 ```
