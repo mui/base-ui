@@ -148,7 +148,7 @@ export namespace AccordionItem {
   }
 
   export interface Props
-    extends BaseUIComponentProps<any, OwnerState>,
+    extends BaseUIComponentProps<'div', OwnerState>,
       Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
     value?: Value;
   }
@@ -161,6 +161,10 @@ AccordionItem.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
