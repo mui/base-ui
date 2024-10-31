@@ -439,24 +439,22 @@ workflows:
       - test_regressions:
           <<: *default-context
           react-version: ^17.0.0
-  react-next:
-    triggers:
-      - schedule:
-          cron: '0 0 * * *'
-          filters:
-            branches:
-              only:
-                - master
+  react-18:
+    when:
+      equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
       - test_unit:
           <<: *default-context
-          react-version: next
+          react-version: '^18'
       - test_browser:
           <<: *default-context
-          react-version: next
+          react-version: '^18'
       - test_regressions:
           <<: *default-context
-          react-version: next
+          react-version: '^18'
+      - test_types:
+          <<: *default-context
+          react-version: '^18'
   typescript-next:
     triggers:
       - schedule:
