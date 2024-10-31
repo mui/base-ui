@@ -155,8 +155,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
                 }
               }
 
-              // Prevent infinite loop when the due to the `isScrollable` check in the inner
-              // middleware.
+              // Prevent infinite loop due to the `isScrollable` check in the inner middleware.
               // https://github.com/floating-ui/floating-ui/blob/c9672007a7cf8a0b3b0b3b654a234dbe681a1a1c/packages/react/src/inner.ts#L178
               if (fallbackChangeRef.current) {
                 undoMaxHeight();
