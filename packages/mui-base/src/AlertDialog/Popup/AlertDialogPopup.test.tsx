@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base_ui/react/AlertDialog';
+import userEvent from '@testing-library/user-event';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<AlertDialog.Popup />', () => {
@@ -148,14 +149,10 @@ describe('<AlertDialog.Popup />', () => {
       );
 
       const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
+      await userEvent.click(trigger);
 
       const closeButton = getByText('Close');
-      await act(async () => {
-        closeButton.click();
-      });
+      await userEvent.click(closeButton);
 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -169,6 +166,7 @@ describe('<AlertDialog.Popup />', () => {
           <div>
             <input />
             <AlertDialog.Root animated={false}>
+              <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
               <AlertDialog.Popup finalFocus={inputRef}>
                 <AlertDialog.Close>Close</AlertDialog.Close>
@@ -184,14 +182,10 @@ describe('<AlertDialog.Popup />', () => {
       const { getByText, getByTestId } = await render(<TestComponent />);
 
       const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
+      await userEvent.click(trigger);
 
       const closeButton = getByText('Close');
-      await act(async () => {
-        closeButton.click();
-      });
+      await userEvent.click(closeButton);
 
       const inputToFocus = getByTestId('input-to-focus');
 
