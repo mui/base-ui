@@ -163,7 +163,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
               }
 
               setInnerFallback(fallbackValue);
-              if (fallbackValue && popupRef.current) {
+
+              if (fallbackValue) {
                 fallbackChangeRef.current = true;
                 undoMaxHeight();
               }
