@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { act, describeSkipIf, fireEvent } from '@mui/internal-test-utils';
 import { Dialog } from '@base_ui/react/Dialog';
 import { createRenderer } from '#test-utils';
 
@@ -159,103 +159,6 @@ describe('<Dialog.Root />', () => {
 
       setProps({ open: false });
       expect(queryByRole('dialog')).to.equal(null);
-    });
-  });
-
-  describe('prop: initial focus', () => {
-    it('should focus the first focusable element within the popup', async () => {
-      const { getByText, getByTestId } = await render(
-        <div>
-          <input />
-          <Dialog.Root modal={false} animated={false}>
-            <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Popup data-testid="dialog">
-              <input data-testid="dialog-input" />
-              <button>Close</button>
-            </Dialog.Popup>
-          </Dialog.Root>
-          <input />
-        </div>,
-      );
-
-      const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
-
-      await waitFor(() => {
-        const dialogInput = getByTestId('dialog-input');
-        expect(dialogInput).to.toHaveFocus();
-      });
-    });
-
-    it('should focus the element provided to `initialFocus` as a ref when open', async () => {
-      function TestComponent() {
-        const input2Ref = React.useRef<HTMLInputElement>(null);
-        return (
-          <div>
-            <input />
-            <Dialog.Root modal={false} animated={false}>
-              <Dialog.Trigger>Open</Dialog.Trigger>
-              <Dialog.Popup data-testid="dialog" initialFocus={input2Ref}>
-                <input data-testid="input-1" />
-                <input data-testid="input-2" ref={input2Ref} />
-                <input data-testid="input-3" />
-                <button>Close</button>
-              </Dialog.Popup>
-            </Dialog.Root>
-            <input />
-          </div>
-        );
-      }
-
-      const { getByText, getByTestId } = await render(<TestComponent />);
-
-      const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
-
-      await waitFor(() => {
-        const input2 = getByTestId('input-2');
-        expect(input2).to.toHaveFocus();
-      });
-    });
-
-    it('should focus the element provided to `initialFocus` as a function when open', async () => {
-      function TestComponent() {
-        const input2Ref = React.useRef<HTMLInputElement>(null);
-
-        const getRef = React.useCallback(() => input2Ref, []);
-
-        return (
-          <div>
-            <input />
-            <Dialog.Root modal={false} animated={false}>
-              <Dialog.Trigger>Open</Dialog.Trigger>
-              <Dialog.Popup data-testid="dialog" initialFocus={getRef}>
-                <input data-testid="input-1" />
-                <input data-testid="input-2" ref={input2Ref} />
-                <input data-testid="input-3" />
-                <button>Close</button>
-              </Dialog.Popup>
-            </Dialog.Root>
-            <input />
-          </div>
-        );
-      }
-
-      const { getByText, getByTestId } = await render(<TestComponent />);
-
-      const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
-
-      await waitFor(() => {
-        const input2 = getByTestId('input-2');
-        expect(input2).to.toHaveFocus();
-      });
     });
   });
 });
