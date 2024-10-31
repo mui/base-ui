@@ -31,6 +31,12 @@
       "default": "5"
     },
     "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" } },
+    "finalFocus": {
+      "type": {
+        "name": "shape",
+        "description": "{ current?: (props, propName) => {\n  if (props[propName] == null) {\n    return null;\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n} }"
+      }
+    },
     "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
     "initialFocus": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;ref" } },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
