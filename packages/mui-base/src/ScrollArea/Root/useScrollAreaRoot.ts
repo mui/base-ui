@@ -17,6 +17,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const [scrolling, setScrolling] = React.useState(false);
   const [cornerSize, setCornerSize] = React.useState<Size>({ width: 0, height: 0 });
   const [thumbSize, setThumbSize] = React.useState<Size>({ width: 0, height: 0 });
+  const [touchModality, setTouchModality] = React.useState(false);
 
   const rootId = useId();
 
@@ -130,9 +131,16 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       mergeReactProps<'div'>(externalProps, {
         dir,
         onPointerEnter({ pointerType }) {
-          if (pointerType !== 'touch') {
+          const isTouch = pointerType === 'touch';
+
+          setTouchModality(isTouch);
+
+          if (!isTouch) {
             setHovering(true);
           }
+        },
+        onPointerDown({ pointerType }) {
+          setTouchModality(pointerType === 'touch');
         },
         onPointerLeave() {
           setHovering(false);
@@ -156,6 +164,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       setCornerSize,
       thumbSize,
       setThumbSize,
+      touchModality,
       cornerRef,
       scrolling,
       setScrolling,
@@ -177,6 +186,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       handlePointerUp,
       cornerSize,
       thumbSize,
+      touchModality,
       cornerRef,
       scrolling,
       hovering,

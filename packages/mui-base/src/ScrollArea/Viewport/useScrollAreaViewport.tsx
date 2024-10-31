@@ -205,17 +205,13 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       if (!hiddenState.scrollbarYHidden) {
         styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
       }
+
       if (!hiddenState.scrollbarXHidden) {
         styles.paddingBottom = paddingY;
       }
 
-      if (hiddenState.scrollbarYHidden) {
-        if (gutter === 'stable') {
-          styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
-        } else if (gutter === 'both-edges') {
-          styles.paddingLeft = paddingX;
-          styles.paddingRight = paddingX;
-        }
+      if (hiddenState.scrollbarYHidden && gutter === 'stable') {
+        styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
       }
     }
 

@@ -67,7 +67,6 @@ const ScrollAreaViewport = styled(ScrollArea.Viewport)`
 `;
 
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
-  width: 10px;
   padding: 2px;
   visibility: hidden;
   background: transparent;
@@ -82,8 +81,11 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
     background: rgb(0 0 0 / 0.1);
   }
 
+  &[data-orientation='vertical'] {
+    width: 10px;
+  }
+
   &[data-orientation='horizontal'] {
-    width: 100%;
     height: 10px;
   }
 

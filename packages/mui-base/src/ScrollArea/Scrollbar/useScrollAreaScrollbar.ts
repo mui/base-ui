@@ -17,6 +17,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     rootId,
     type,
     thumbSize,
+    touchModality,
   } = useScrollAreaRootContext();
 
   React.useEffect(() => {
@@ -128,7 +129,9 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         onPointerUp: handlePointerUp,
         style: {
           position: 'absolute',
-          ...(type === 'inset' && { touchAction: 'none' }),
+          ...(type === 'inset'
+            ? { touchAction: 'none' }
+            : { pointerEvents: touchModality ? 'none' : 'auto' }),
           ...(orientation === 'vertical' && {
             top: 0,
             bottom: 'var(--scroll-area-corner-height)',
@@ -147,9 +150,11 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       rootId,
       handlePointerUp,
       type,
+      touchModality,
       orientation,
       dir,
-      thumbSize,
+      thumbSize.height,
+      thumbSize.width,
       viewportRef,
       thumbYRef,
       scrollbarYRef,

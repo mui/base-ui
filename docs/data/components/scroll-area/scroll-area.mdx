@@ -49,14 +49,11 @@ The scrollbars can be either `overlay` (default) or `inset`. The `overlay` type 
 
 When using `inset` scrollbars, the `gutter` prop can be used to keep a gutter present when the scrollbar is hidden. This is useful to prevent layout shift when the scrollbar is shown or hidden based on the content.
 
-Possible values match the CSS `scrollbar-gutter` property:
-
 - `stable` (default; padding added to account for vertical scrollbar)
-- `both-edges` (symmetrical padding added for vertical scrollbar)
 - `none` (layout shift allowed)
 
 ```jsx
-<ScrollArea.Root gutter="both-edges">
+<ScrollArea.Root gutter="none">
 ```
 
 ## Styling

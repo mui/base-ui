@@ -130,32 +130,6 @@ describe('<ScrollArea.Root />', () => {
     });
 
     describe('prop: gutter', () => {
-      it('should adjust inset padding for gutter: both-edges', async () => {
-        await render(
-          <ScrollArea.Root
-            type="inset"
-            gutter="both-edges"
-            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
-          >
-            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }} />
-            <ScrollArea.Scrollbar
-              orientation="vertical"
-              style={{ width: SCROLLBAR_WIDTH, height: '100%' }}
-            />
-            <ScrollArea.Scrollbar
-              orientation="horizontal"
-              style={{ height: SCROLLBAR_HEIGHT, width: '100%' }}
-            />
-          </ScrollArea.Root>,
-        );
-
-        const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
-        const style = getComputedStyle(contentWrapper);
-
-        expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
-        expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
-      });
-
       it('should not add inset padding for gutter: none', async () => {
         await render(
           <ScrollArea.Root

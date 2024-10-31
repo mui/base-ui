@@ -3,11 +3,12 @@ import * as React from 'react';
 export interface ScrollAreaRootContext {
   dir: string | undefined;
   type: 'overlay' | 'inset';
-  gutter?: 'stable' | 'both-edges' | 'none';
+  gutter?: 'stable' | 'none';
   cornerSize: { width: number; height: number };
   setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
   thumbSize: { width: number; height: number };
   setThumbSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
+  touchModality: boolean;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   scrolling: boolean;

@@ -78,7 +78,7 @@ namespace ScrollAreaRoot {
      * shifts when the scrollbar is hidden/shown.
      * @default 'stable'
      */
-    gutter?: 'none' | 'stable' | 'both-edges';
+    gutter?: 'none' | 'stable';
   }
 
   export interface OwnerState {}
@@ -106,7 +106,7 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    * shifts when the scrollbar is hidden/shown.
    * @default 'stable'
    */
-  gutter: PropTypes.oneOf(['both-edges', 'none', 'stable']),
+  gutter: PropTypes.oneOf(['none', 'stable']),
   /**
    * A function to customize rendering of the component.
    */
