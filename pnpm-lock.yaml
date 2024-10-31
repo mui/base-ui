@@ -68,8 +68,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.25.2)(@types/react-dom@18.3.0)(@types/react@18.3.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.1.5
-        version: https://codeload.github.com/mui/material-ui/tar.gz/02ba366cf1056a29388fa22c0695596852fc3181(encoding@0.1.13)
+        specifier: github:mui/material-ui#v6.1.6
+        version: https://codeload.github.com/mui/material-ui/tar.gz/be4cb167324f1da36f69d0db84429214545a1674(encoding@0.1.13)
       '@mui/utils':
         specifier: 6.1.6
         version: 6.1.6(@types/react@18.3.10)(react@18.3.1)
@@ -2162,9 +2162,9 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/02ba366cf1056a29388fa22c0695596852fc3181':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/02ba366cf1056a29388fa22c0695596852fc3181}
-    version: 6.1.5
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/be4cb167324f1da36f69d0db84429214545a1674':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/be4cb167324f1da36f69d0db84429214545a1674}
+    version: 6.1.6
     engines: {pnpm: 9.12.2}
 
   '@mui/private-theming@6.1.6':
@@ -11290,7 +11290,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/02ba366cf1056a29388fa22c0695596852fc3181(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/be4cb167324f1da36f69d0db84429214545a1674(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
       '@netlify/functions': 2.8.2
