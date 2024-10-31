@@ -144,7 +144,7 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   typingRef: PropTypes.shape({
-    current: PropTypes.bool,
+    current: PropTypes.bool.isRequired,
   }).isRequired,
 } as any;
 
