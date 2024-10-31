@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
-    "@floating-ui/react": "^0.26.26",
+    "@floating-ui/react": "^0.26.27",
     "@floating-ui/react-dom": "^2.1.2",
     "@floating-ui/utils": "^0.2.8",
     "@mui/types": "^7.2.18",

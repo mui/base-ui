@@ -84,7 +84,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const { commitValidation } = useFieldControlValidation();
 
   const triggerRef = useLatestRef(triggerElement);
-  const fallbackChangeRef = React.useRef(false);
 
   const id = useId(idProp);
 
@@ -114,8 +113,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   useEnhancedEffect(() => {
     if (open) {
       setSelectedIndexOnMount(selectedIndexRef.current);
-    } else {
-      fallbackChangeRef.current = false;
     }
   }, [open, selectedIndexRef]);
 
@@ -155,17 +152,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
                 }
               }
 
-              // Prevent infinite loop due to the `isScrollable` check in the inner middleware.
-              // https://github.com/floating-ui/floating-ui/blob/c9672007a7cf8a0b3b0b3b654a234dbe681a1a1c/packages/react/src/inner.ts#L178
-              if (fallbackChangeRef.current) {
-                undoMaxHeight();
-                return;
-              }
-
               setInnerFallback(fallbackValue);
 
               if (fallbackValue) {
-                fallbackChangeRef.current = true;
                 undoMaxHeight();
               }
             },
@@ -209,16 +198,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ],
   );
 
-  const setPositionerElementGuarded = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      if (open) {
-        setPositionerElement(node);
-      }
-    },
-    [open, setPositionerElement],
-  );
-
-  const mergedRef = useForkRef(forwardedRef, setPositionerElementGuarded);
+  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
     propGetter: positioner.getPositionerProps,
@@ -314,8 +294,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     </SelectPositionerContext.Provider>
   );
 });
-
-export { SelectPositioner };
 
 export namespace SelectPositioner {
   export interface OwnerState {
@@ -438,3 +416,5 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   sticky: PropTypes.bool,
 } as any;
+
+export { SelectPositioner };
