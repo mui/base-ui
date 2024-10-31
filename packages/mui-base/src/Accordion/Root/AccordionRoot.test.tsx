@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, describeSkipIf } from '@mui/internal-test-utils';
+import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
 import { Accordion } from '@base_ui/react/Accordion';
-import { describeConformance } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Accordion.Root />', () => {
   const { render } = createRenderer();
@@ -154,6 +154,7 @@ describe('<Accordion.Root />', () => {
       expect(panel).not.toBeVisible();
 
       setProps({ value: [0] });
+      await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -161,6 +162,7 @@ describe('<Accordion.Root />', () => {
       expect(panel).to.have.attribute('data-open');
 
       setProps({ value: [] });
+      await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(panel).not.toBeVisible();
