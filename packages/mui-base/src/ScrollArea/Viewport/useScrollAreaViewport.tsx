@@ -83,9 +83,15 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       const maxThumbOffsetX = scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
       const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
 
+      const clamp = (value: number, min: number, max: number) =>
+        Math.min(Math.max(value, min), max);
+
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
       // band effect.
-      const thumbOffsetX = Math.min(maxThumbOffsetX, Math.max(0, scrollRatioX * maxThumbOffsetX));
+      const thumbOffsetX =
+        dir === 'rtl'
+          ? clamp(scrollRatioX * maxThumbOffsetX, -maxThumbOffsetX, 0)
+          : clamp(scrollRatioX * maxThumbOffsetX, 0, maxThumbOffsetX);
 
       thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
     }
@@ -100,9 +106,20 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       }
     }
 
-    setThumbSize({
-      width: scrollbarXHidden ? 0 : (viewportWidth / scrollableContentWidth) * viewportWidth,
-      height: scrollbarYHidden ? 0 : (viewportHeight / scrollableContentHeight) * viewportHeight,
+    setThumbSize((prevSize) => {
+      const width = scrollbarXHidden ? 0 : (viewportWidth / scrollableContentWidth) * viewportWidth;
+      const height = scrollbarYHidden
+        ? 0
+        : (viewportHeight / scrollableContentHeight) * viewportHeight;
+
+      if (prevSize.height === height && prevSize.width === width) {
+        return prevSize;
+      }
+
+      return {
+        width: scrollbarXHidden ? 0 : (viewportWidth / scrollableContentWidth) * viewportWidth,
+        height: scrollbarYHidden ? 0 : (viewportHeight / scrollableContentHeight) * viewportHeight,
+      };
     });
 
     setHiddenState((prevState) => {

@@ -7,7 +7,7 @@ const data = Array.from({ length: 30 }, (_, i) => i + 1);
 
 export default function ScrollAreaIntroduction() {
   return (
-    <ScrollAreaRoot>
+    <ScrollAreaRoot dir="rtl">
       <ScrollAreaViewport>
         <ul
           style={{
@@ -20,7 +20,7 @@ export default function ScrollAreaIntroduction() {
           }}
         >
           {data.map((value) => (
-            <li key={value} style={{ padding: 5, width: 'auto' }}>
+            <li key={value} style={{ padding: 5, width: '1000px' }}>
               List item {value}
             </li>
           ))}
