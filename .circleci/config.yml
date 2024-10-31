@@ -385,6 +385,7 @@ workflows:
           <<: *default-context
       - test_unit:
           <<: *default-context
+          name: 'JSDOM tests'
           requires:
             - checkout
       - test_lint:
@@ -397,14 +398,17 @@ workflows:
             - checkout
       - test_types:
           <<: *default-context
+          name: 'Typechecking'
           requires:
             - checkout
       - test_browser:
           <<: *default-context
+          name: 'Browser tests'
           requires:
             - checkout
       - test_regressions:
           <<: *default-context
+          name: 'Regression tests'
           requires:
             - checkout
       - test_e2e:
@@ -445,15 +449,19 @@ workflows:
     jobs:
       - test_unit:
           <<: *default-context
+          name: 'JSDOM tests (React 18)'
           react-version: '^18'
       - test_browser:
           <<: *default-context
+          name: 'Browser tests (React 18)'
           react-version: '^18'
       - test_regressions:
           <<: *default-context
+          name: 'Regression tests (React 18)'
           react-version: '^18'
       - test_types:
           <<: *default-context
+          name: 'Typechecking (React 18)'
           react-version: '^18'
   typescript-next:
     triggers:
@@ -466,3 +474,4 @@ workflows:
     jobs:
       - test_types_next:
           <<: *default-context
+          name: 'Typechecking (typescript@next)'
