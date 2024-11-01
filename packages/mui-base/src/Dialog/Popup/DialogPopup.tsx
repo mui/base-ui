@@ -161,17 +161,7 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * Determines an element to focus after the dialog is closed.
    * If not provided, the focus returns to the trigger.
    */
-  finalFocus: PropTypes.shape({
-    current: (props, propName) => {
-      if (props[propName] == null) {
-        return null;
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-  }),
+  finalFocus: refType,
   /**
    * @ignore
    */
