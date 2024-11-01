@@ -33,7 +33,7 @@
   "imports": {
     "#test-utils": "./test/index.ts"
   },
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:node": "node ../../scripts/build.mjs node",

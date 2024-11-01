@@ -1,17 +1,24 @@
 import childProcess from 'child_process';
 import path from 'path';
+import { writeFile } from 'fs/promises';
 import { promisify } from 'util';
 import yargs from 'yargs';
 import { getWorkspaceRoot } from './utils.mjs';
 
 const exec = promisify(childProcess.exec);
 
-const validBundles = [
-  // build for node using commonJS modules
-  'node',
-  // build with a hardcoded target using ES6 modules
-  'stable',
-];
+const bundleConfig = {
+  node: {
+    moduleType: 'commonjs',
+    outDirectory: './cjs',
+  },
+  stable: {
+    moduleType: 'module',
+    outDirectory: './esm',
+  },
+};
+
+const validBundles = Object.keys(bundleConfig);
 
 async function run(argv) {
   const { bundle, largeFiles, outDir: relativeOutDir, verbose } = argv;
@@ -39,13 +46,7 @@ async function run(argv) {
     '**/*.d.ts',
   ];
 
-  const outDir = path.resolve(
-    relativeOutDir,
-    {
-      node: './cjs',
-      stable: './esm',
-    }[bundle],
-  );
+  const outDir = path.resolve(relativeOutDir, bundleConfig[bundle].outDirectory);
 
   const babelArgs = [
     '--config-file',
@@ -75,9 +76,8 @@ async function run(argv) {
     throw new Error(`'${command}' failed with \n${stderr}`);
   }
 
-  if (bundle === 'stable') {
-    await exec(`echo "{ \\"type\\": \\"module\\" }" > ${path.join(outDir, 'package.json')}`);
-  }
+  const rootBundlePackageJson = path.join(outDir, 'package.json');
+  await writeFile(rootBundlePackageJson, JSON.stringify({ type: bundleConfig[bundle].moduleType }));
 
   if (verbose) {
     // eslint-disable-next-line no-console
