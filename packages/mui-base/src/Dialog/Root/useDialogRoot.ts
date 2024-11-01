@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
-import { PointerType } from '../../utils/useEnhancedClickHandler';
+import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -25,7 +25,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   );
   const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
   const hasBackdrop = React.useRef(false);
-  const [openMethod, setOpenMethod] = React.useState<PointerType | null>(null);
+  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -85,8 +85,8 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   }, []);
 
   const handleTriggerClick = React.useCallback(
-    (_: React.MouseEvent | React.PointerEvent, pointerType: PointerType) => {
-      setOpenMethod(pointerType);
+    (_: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => {
+      setOpenMethod(interactionType);
     },
     [],
   );
@@ -202,13 +202,13 @@ export namespace useDialogRoot {
     /**
      * Determines what triggered the dialog to open.
      */
-    openMethod: PointerType | null;
+    openMethod: InteractionType | null;
     /**
      * Callback to fire when the trigger is activated.
      */
     onTriggerClick: (
       event: React.MouseEvent | React.PointerEvent,
-      pointerType: PointerType,
+      interactionType: InteractionType,
     ) => void;
     /**
      * The id of the popup element.

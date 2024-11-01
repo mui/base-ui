@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export type PointerType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 
 /**
  * Provides a cross-browser way to determine the type of the pointer used to click.
@@ -10,16 +10,16 @@ export type PointerType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
  * @param handler The function to be called when the button is clicked. The first parameter is the original event and the second parameter is the pointer type.
  */
 export function useEnhancedClickHandler(
-  handler: (event: React.MouseEvent | React.PointerEvent, pointerType: PointerType) => void,
+  handler: (event: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => void,
 ) {
-  const lastClickPointerTypeRef = React.useRef<PointerType>('');
+  const lastClickInteractionTypeRef = React.useRef<InteractionType>('');
 
   const handlePointerDown = React.useCallback((event: React.PointerEvent) => {
     if (event.defaultPrevented) {
       return;
     }
 
-    lastClickPointerTypeRef.current = event.pointerType as PointerType;
+    lastClickInteractionTypeRef.current = event.pointerType as InteractionType;
   }, []);
 
   const handleClick = React.useCallback(
@@ -35,8 +35,8 @@ export function useEnhancedClickHandler(
         handler(event, event.pointerType);
       }
 
-      handler(event, lastClickPointerTypeRef.current);
-      lastClickPointerTypeRef.current = '';
+      handler(event, lastClickInteractionTypeRef.current);
+      lastClickInteractionTypeRef.current = '';
     },
     [handler],
   );

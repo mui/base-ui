@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { PointerType, useEnhancedClickHandler } from '../../utils/useEnhancedClickHandler';
+import { InteractionType, useEnhancedClickHandler } from '../../utils/useEnhancedClickHandler';
 
 export function useDialogTrigger(
   params: useDialogTrigger.Parameters,
@@ -9,9 +9,9 @@ export function useDialogTrigger(
   const { open, onOpenChange, popupElementId, onTriggerClick } = params;
 
   const handleClick = React.useCallback(
-    (event: React.MouseEvent, pointerType: PointerType) => {
+    (event: React.MouseEvent, interactionType: InteractionType) => {
       if (!open) {
-        onTriggerClick?.(event, pointerType);
+        onTriggerClick?.(event, interactionType);
         onOpenChange?.(true, event.nativeEvent);
       }
     },
@@ -51,7 +51,7 @@ namespace useDialogTrigger {
     onOpenChange: (open: boolean, event: Event) => void;
     onTriggerClick?: (
       event: React.MouseEvent | React.PointerEvent,
-      pointerType: PointerType,
+      interactionType: InteractionType,
     ) => void;
     /**
      * The id of the popup element.

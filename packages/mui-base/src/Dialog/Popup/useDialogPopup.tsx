@@ -8,7 +8,7 @@ import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type PointerType } from '../../utils/useEnhancedClickHandler';
+import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -55,8 +55,8 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback((pointerType: PointerType) => {
-    if (pointerType === 'touch') {
+  const defaultInitialFocus = React.useCallback((interactionType: InteractionType) => {
+    if (interactionType === 'touch') {
       return popupRef;
     }
 
@@ -127,7 +127,7 @@ export namespace useDialogPopup {
      * Determines if the dialog is open.
      */
     open: boolean;
-    openMethod: PointerType | null;
+    openMethod: InteractionType | null;
     /**
      * Callback fired when the dialog is requested to be opened or closed.
      */
@@ -160,7 +160,7 @@ export namespace useDialogPopup {
      */
     initialFocus?:
       | React.RefObject<HTMLElement>
-      | ((pointerType: PointerType) => React.RefObject<HTMLElement>);
+      | ((interactionType: InteractionType) => React.RefObject<HTMLElement>);
   }
 
   export interface ReturnValue {

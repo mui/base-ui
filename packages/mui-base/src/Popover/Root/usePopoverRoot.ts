@@ -18,7 +18,7 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useEnhancedClickHandler, type PointerType } from '../../utils/useEnhancedClickHandler';
+import { useEnhancedClickHandler, type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
@@ -41,7 +41,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [openMethod, setOpenMethod] = React.useState<PointerType | null>(null);
+  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
 
@@ -121,9 +121,9 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   const handleClick = React.useCallback(
-    (_: React.MouseEvent, pointerType: PointerType) => {
+    (_: React.MouseEvent, interactionType: InteractionType) => {
       if (!open) {
-        setOpenMethod(pointerType);
+        setOpenMethod(interactionType);
       }
     },
     [open, setOpenMethod],
@@ -236,6 +236,6 @@ export namespace usePopoverRoot {
     positionerElement: HTMLElement | null;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
-    openMethod: PointerType | null;
+    openMethod: InteractionType | null;
   }
 }

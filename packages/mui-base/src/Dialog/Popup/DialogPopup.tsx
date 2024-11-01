@@ -11,7 +11,7 @@ import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
-import { PointerType } from '../../utils/useEnhancedClickHandler';
+import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
   ...baseMapping,
@@ -114,7 +114,7 @@ namespace DialogPopup {
      */
     initialFocus?:
       | React.RefObject<HTMLElement>
-      | ((pointerType: PointerType) => React.RefObject<HTMLElement>);
+      | ((interactionType: InteractionType) => React.RefObject<HTMLElement>);
   }
 
   export interface OwnerState {

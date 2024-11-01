@@ -10,7 +10,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { getInertValue } from '../../utils/getInertValue';
-import { PointerType } from '../../utils/useEnhancedClickHandler';
+import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
@@ -32,8 +32,8 @@ export function usePopoverPositioner(
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
   const defaultInitialFocus = React.useCallback(
-    (pointerType: PointerType) => {
-      if (pointerType === 'touch') {
+    (interactionType: InteractionType) => {
+      if (interactionType === 'touch') {
         return popupRef;
       }
 
@@ -183,7 +183,7 @@ export namespace usePopoverPositioner {
      */
     initialFocus?:
       | React.RefObject<HTMLElement>
-      | ((pointerType: PointerType) => React.RefObject<HTMLElement>);
+      | ((interactionType: InteractionType) => React.RefObject<HTMLElement>);
   }
 
   export interface Parameters extends SharedParameters {
@@ -199,7 +199,7 @@ export namespace usePopoverPositioner {
     /**
      * Method used to open the popover.
      */
-    openMethod: PointerType | null;
+    openMethod: InteractionType | null;
     /**
      * The ref to the popup element.
      */
