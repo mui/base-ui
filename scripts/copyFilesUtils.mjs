@@ -99,7 +99,16 @@ export async function createPackageFile() {
   const newPackageData = {
     ...packageDataOther,
     private: false,
+    main: './cjs/index.js',
+    module: './esm/index.js',
+    types: './types/index.d.ts',
+    type: 'commonjs',
     exports: {
+      '.': {
+        types: './types/index.d.ts',
+        import: './esm/index.js',
+        require: './cjs/index.js',
+      },
       './*': {
         types: './types/*/index.d.ts',
         import: './esm/*/index.js',

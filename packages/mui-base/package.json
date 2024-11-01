@@ -25,7 +25,13 @@
     "type": "opencollective",
     "url": "https://opencollective.com/mui-org"
   },
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "types": "./build/types/index.d.ts",
   "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
     "./*": {
       "import": "./src/*/index.ts"
     }
