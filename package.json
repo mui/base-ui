@@ -88,7 +88,7 @@
     "@next/eslint-plugin-next": "^14.2.13",
     "@octokit/rest": "^20.1.1",
     "@playwright/test": "1.48.2",
-    "@tailwindcss/postcss": "4.0.0-alpha.30",
+    "@tailwindcss/postcss": "4.0.0-alpha.31",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.9",
     "@types/mocha": "^10.0.8",
