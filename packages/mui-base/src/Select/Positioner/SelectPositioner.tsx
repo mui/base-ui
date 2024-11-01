@@ -222,7 +222,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     return JSON.stringify(value);
   }, [value]);
 
-  const mountedItemsElement = keepMounted ? null : <div hidden>{positionerElement}</div>;
+  const mountedItemsElement = null;
 
   const nativeSelectElement = (
     <input

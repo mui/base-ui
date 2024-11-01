@@ -27,12 +27,12 @@ const entries = Object.entries(data);
 
 export default function SelectGroup() {
   return (
-    <Select.Root>
+    <Select.Root alignOptionToTrigger={false}>
       <SelectTrigger aria-label="Select food">
         <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <Select.Positioner sideOffset={5}>
+      <SelectPositioner sideOffset={5} keepMounted>
         <SelectScrollUpArrow
           render={(props) => (
             <div {...props}>
@@ -56,7 +56,10 @@ export default function SelectGroup() {
                     value={item.value}
                     disabled={item.value === 'banana'}
                   >
-                    <SelectOptionIndicator render={<CheckIcon />} />
+                    <SelectOptionIndicator
+                      render={<CheckIcon />}
+                      keepMounted={false}
+                    />
                     <Select.OptionText>{item.label}</Select.OptionText>
                   </SelectOption>
                 ))}
@@ -71,7 +74,7 @@ export default function SelectGroup() {
             </div>
           )}
         />
-      </Select.Positioner>
+      </SelectPositioner>
     </Select.Root>
   );
 }
@@ -103,6 +106,14 @@ const gray = {
 
 const triggerPaddingX = 6;
 const popupPadding = 4;
+
+const SelectPositioner = styled(Select.Positioner)`
+  display: none;
+
+  &[data-open] {
+    display: block;
+  }
+`;
 
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;

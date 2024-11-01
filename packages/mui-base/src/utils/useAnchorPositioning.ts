@@ -26,6 +26,7 @@ export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
 
 interface UseAnchorPositioningParameters {
+  enabled?: boolean;
   anchor?:
     | Element
     | VirtualElement

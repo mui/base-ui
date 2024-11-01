@@ -1,0 +1,207 @@
+'use client';
+import * as React from 'react';
+import type { UseInteractionsReturn } from '@floating-ui/react';
+import { SelectRootContext, useSelectIndexContext, useSelectRootContext } from '../SelectRoot';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
+import { useForkRef } from '../../utils/useForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useSelectOption } from './useSelectOption';
+import { useId } from '../../utils/useId';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useLatestRef } from '../../utils/useLatestRef';
+
+interface SelectOptionContext {
+  selected: boolean;
+  indexRef: React.RefObject<number>;
+}
+
+const SelectOptionContext = React.createContext<SelectOptionContext | null>(null);
+
+export function useSelectOptionContext() {
+  const context = React.useContext(SelectOptionContext);
+  if (context === null) {
+    throw new Error('useSelectOptionContext must be used within a SelectOption');
+  }
+  return context;
+}
+
+interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
+  highlighted: boolean;
+  selected: boolean;
+  getRootItemProps: UseInteractionsReturn['getItemProps'];
+  setOpen: SelectRootContext['setOpen'];
+  typingRef: React.MutableRefObject<boolean>;
+  selectionRef: React.MutableRefObject<{
+    allowMouseUp: boolean;
+    allowSelect: boolean;
+  }>;
+  open: boolean;
+  value: any;
+  setValue: SelectRootContext['setValue'];
+  selectedIndexRef: React.RefObject<number | null>;
+  indexRef: React.RefObject<number>;
+}
+
+const InnerSelectOption = React.forwardRef(function InnerSelectOption(
+  props: InnerSelectOptionProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const {
+    className,
+    disabled = false,
+    highlighted,
+    selected,
+    id,
+    getRootItemProps,
+    render,
+    setOpen,
+    typingRef,
+    selectionRef,
+    open,
+    value,
+    setValue,
+    selectedIndexRef,
+    indexRef,
+    ...otherProps
+  } = props;
+
+  const ownerState = React.useMemo(
+    () => ({
+      disabled,
+      open,
+      highlighted,
+      selected,
+    }),
+    [disabled, open, highlighted, selected],
+  );
+
+  const { getItemProps } = useSelectOption({
+    setOpen,
+    disabled,
+    highlighted,
+    selected,
+    id,
+    ref: forwardedRef,
+    typingRef,
+    handleSelect: () => setValue(value),
+    selectionRef,
+    selectedIndexRef,
+    indexRef,
+  });
+
+  const { renderElement } = useComponentRenderer({
+    propGetter(externalProps = {}) {
+      return getItemProps(
+        getRootItemProps({
+          ...externalProps,
+          active: highlighted,
+          selected,
+        }),
+      );
+    },
+    render: render ?? 'div',
+    ref: forwardedRef,
+    ownerState,
+    extraProps: otherProps,
+  });
+
+  return renderElement();
+});
+
+const MemoizedInnerSelectOption = React.memo(InnerSelectOption);
+
+export const SelectOption = React.forwardRef(function SelectOption(
+  props: SelectOption.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { value: valueProp = null, id: idProp, label, ...otherProps } = props;
+
+  const listItem = useCompositeListItem({ label });
+  const { activeIndex, selectedIndex } = useSelectIndexContext();
+  const { getItemProps, setOpen, setValue, open, selectionRef, typingRef, valuesRef } =
+    useSelectRootContext();
+
+  const id = useId(idProp);
+  const selectedIndexRef = useLatestRef(selectedIndex);
+  const indexRef = useLatestRef(listItem.index);
+
+  const mergedRef = useForkRef(listItem.ref, forwardedRef);
+
+  useEnhancedEffect(() => {
+    if (listItem.index === -1) {
+      return undefined;
+    }
+
+    const values = valuesRef.current;
+    values[listItem.index] = valueProp;
+
+    return () => {
+      delete values[listItem.index];
+    };
+  }, [listItem.index, valueProp, valuesRef]);
+
+  const isHighlighted = activeIndex === listItem.index;
+  const isSelected = selectedIndex === listItem.index;
+
+  const contextValue = React.useMemo(
+    () => ({
+      selected: isSelected,
+      indexRef,
+    }),
+    [isSelected, indexRef],
+  );
+
+  return (
+    <SelectOptionContext.Provider value={contextValue}>
+      <MemoizedInnerSelectOption
+        ref={mergedRef}
+        highlighted={isHighlighted}
+        selected={isSelected}
+        getRootItemProps={getItemProps}
+        setOpen={setOpen}
+        id={id}
+        open={open}
+        selectionRef={selectionRef}
+        typingRef={typingRef}
+        value={valueProp}
+        setValue={setValue}
+        selectedIndexRef={selectedIndexRef}
+        indexRef={indexRef}
+        {...otherProps}
+      />
+    </SelectOptionContext.Provider>
+  );
+});
+
+namespace SelectOption {
+  export interface OwnerState {
+    disabled: boolean;
+    highlighted: boolean;
+    selected: boolean;
+    open: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    children?: React.ReactNode;
+    /**
+     * The value of the select option.
+     * @default null
+     */
+    value?: any;
+    /**
+     * The click handler for the select option.
+     */
+    onClick?: React.MouseEventHandler<HTMLElement>;
+    /**
+     * If `true`, the select option will be disabled.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * A text representation of the select option's content.
+     * Used for keyboard text navigation matching.
+     */
+    label?: string;
+  }
+}
