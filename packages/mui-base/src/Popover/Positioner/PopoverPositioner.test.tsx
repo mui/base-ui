@@ -71,7 +71,7 @@ describe('<Popover.Positioner />', () => {
 
     it('should focus the element provided to `initialFocus` as a ref when open', async () => {
       function TestComponent() {
-        const input2Ref = React.useRef<HTMLInputElement>(null);
+        const input2Ref = React.useRef<HTMLInputElement | null>(null);
         return (
           <div>
             <input />

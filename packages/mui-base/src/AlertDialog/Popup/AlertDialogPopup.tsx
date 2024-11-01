@@ -117,8 +117,8 @@ namespace AlertDialogPopup {
      * If not provided, the first focusable element is focused.
      */
     initialFocus?:
-      | React.RefObject<HTMLElement>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement>);
+      | React.RefObject<HTMLElement | null>
+      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
   }
 
   export interface OwnerState {
