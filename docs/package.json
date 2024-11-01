@@ -58,7 +58,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
-    "shiki": "^1.22.1",
+    "shiki": "^1.22.2",
     "to-vfile": "^8.0.0",
     "unist-util-visit": "^5.0.0",
     "vfile-matter": "^5.0.0"
