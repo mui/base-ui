@@ -42,7 +42,7 @@
     "fast-glob": "^3.3.2",
     "lodash": "^4.17.21",
     "lz-string": "^1.5.0",
-    "next": "15.0.1",
+    "next": "15.0.2",
     "postcss": "^8.4.47",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
