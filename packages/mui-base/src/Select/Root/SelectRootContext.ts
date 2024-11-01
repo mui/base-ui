@@ -6,7 +6,7 @@ import { useFieldControlValidation } from '../../Field/Control/useFieldControlVa
 export interface SelectRootContext
   extends useSelectRoot.ReturnValue,
     useFieldControlValidation.ReturnValue {
-  typingRef: React.MutableRefObject<boolean>;
+  typingRef: React.RefObject<boolean>;
   alignOptionToTrigger: boolean;
   id: string | undefined;
   name: string | undefined;

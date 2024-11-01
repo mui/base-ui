@@ -334,9 +334,9 @@ export namespace useSelectRoot {
     getItemProps: UseInteractionsReturn['getItemProps'];
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    elementsRef: React.MutableRefObject<(HTMLElement | null)[]>;
-    labelsRef: React.MutableRefObject<Array<string | null>>;
-    valuesRef: React.MutableRefObject<Array<any>>;
+    elementsRef: React.RefObject<(HTMLElement | null)[]>;
+    labelsRef: React.RefObject<Array<string | null>>;
+    valuesRef: React.RefObject<Array<any>>;
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
@@ -346,19 +346,16 @@ export namespace useSelectRoot {
     transitionStatus: 'entering' | 'exiting' | undefined;
     triggerElement: HTMLElement | null;
     positionerElement: HTMLElement | null;
-    typingRef: React.MutableRefObject<boolean>;
-    selectionRef: React.MutableRefObject<{
-      allowMouseUp: boolean;
-      allowSelect: boolean;
-    }>;
+    typingRef: React.RefObject<boolean>;
+    selectionRef: React.RefObject<{ allowMouseUp: boolean; allowSelect: boolean }>;
     innerOffset: number;
     setInnerOffset: React.Dispatch<React.SetStateAction<number>>;
-    overflowRef: React.MutableRefObject<SideObject>;
-    backdropRef: React.RefObject<HTMLElement>;
+    overflowRef: React.RefObject<SideObject>;
+    backdropRef: React.RefObject<HTMLElement | null>;
     innerFallback: boolean;
     setInnerFallback: React.Dispatch<React.SetStateAction<boolean>>;
     touchModality: boolean;
     setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
-    valueRef: React.RefObject<HTMLSpanElement>;
+    valueRef: React.RefObject<HTMLSpanElement | null>;
   }
 }
