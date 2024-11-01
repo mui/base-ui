@@ -14,9 +14,9 @@
     "link-check": "tsx ./scripts/reportBrokenLinks.mts"
   },
   "dependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/runtime": "^7.25.6",
-    "@babel/runtime-corejs3": "^7.25.6",
+    "@babel/core": "^7.26.0",
+    "@babel/runtime": "^7.26.0",
+    "@babel/runtime-corejs3": "^7.26.0",
     "@base_ui/react": "workspace:*",
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.13.3",
@@ -64,8 +64,8 @@
     "vfile-matter": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-constant-elements": "^7.25.1",
-    "@babel/preset-typescript": "^7.24.7",
+    "@babel/plugin-transform-react-constant-elements": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@mui/internal-docs-utils": "^1.0.15",
     "@mui/internal-scripts": "^1.0.26",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
