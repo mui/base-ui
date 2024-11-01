@@ -182,6 +182,6 @@ export namespace useDialogPopup {
      * The current transition status of the dialog.
      */
     transitionStatus: TransitionStatus;
-    resolvedInitialFocus: React.RefObject<HTMLElement> | number;
+    resolvedInitialFocus: React.RefObject<HTMLElement | null> | number;
   }
 }
