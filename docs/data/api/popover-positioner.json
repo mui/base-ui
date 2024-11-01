@@ -32,6 +32,7 @@
     },
     "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" } },
     "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
+    "initialFocus": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;ref" } },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "positionMethod": {
       "type": { "name": "enum", "description": "'absolute'<br>&#124;&nbsp;'fixed'" },

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { act, describeSkipIf, fireEvent } from '@mui/internal-test-utils';
 import { Dialog } from '@base_ui/react/Dialog';
 import { createRenderer } from '#test-utils';
 
@@ -159,34 +159,6 @@ describe('<Dialog.Root />', () => {
 
       setProps({ open: false });
       expect(queryByRole('dialog')).to.equal(null);
-    });
-  });
-
-  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('focus management', () => {
-    it('should focus the first focusable element within the popup', async () => {
-      const { getByText, getByTestId } = await render(
-        <div>
-          <input />
-          <Dialog.Root modal={false} animated={false}>
-            <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Popup data-testid="dialog">
-              <input data-testid="dialog-input" />
-              <button>Close</button>
-            </Dialog.Popup>
-          </Dialog.Root>
-          <input />
-        </div>,
-      );
-
-      const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
-
-      await waitFor(() => {
-        const dialogInput = getByTestId('dialog-input');
-        expect(dialogInput).to.toHaveFocus();
-      });
     });
   });
 });

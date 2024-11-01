@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { OpenChangeReason, FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
+import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export interface PopoverRootContext {
   open: boolean;
@@ -25,6 +26,7 @@ export interface PopoverRootContext {
   floatingRootContext: FloatingRootContext;
   getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  openMethod: InteractionType | null;
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
