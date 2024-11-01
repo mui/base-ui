@@ -163,7 +163,7 @@ describe('<Select.Option />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    fireEvent.click(trigger);
+    await user.click(trigger);
 
     await flushMicrotasks();
 
@@ -175,8 +175,8 @@ describe('<Select.Option />', () => {
     await user.keyboard('{ArrowUp}');
     await user.keyboard('{ArrowUp}');
 
-    fireEvent.click(screen.getByRole('option', { name: 'three' }));
-    fireEvent.click(trigger);
+    await user.click(screen.getByRole('option', { name: 'three' }));
+    await user.click(trigger);
 
     await flushMicrotasks();
 

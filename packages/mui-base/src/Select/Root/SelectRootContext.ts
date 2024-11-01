@@ -13,6 +13,7 @@ export interface SelectRootContext
   disabled: boolean;
   required: boolean;
   readOnly: boolean;
+  selectId: string | undefined;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | undefined>(undefined);

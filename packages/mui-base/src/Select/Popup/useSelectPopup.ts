@@ -12,16 +12,9 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
  * - [useSelectPopup API](https://mui.com/base-ui/api/use-select-popup/)
  */
 export function useSelectPopup(): useSelectPopup.ReturnValue {
-  const {
-    getPopupProps: getRootPopupProps,
-    alignOptionToTrigger,
-    selectedIndex,
-    touchModality,
-  } = useSelectRootContext();
+  const { getPopupProps: getRootPopupProps, open } = useSelectRootContext();
 
   const { isPositioned } = useSelectPositionerContext();
-
-  const hasSelectedIndex = selectedIndex !== null;
 
   const [pointerEvents, setPointerEvents] = React.useState<'auto' | 'none'>('none');
 
@@ -30,20 +23,14 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       return mergeReactProps<'div'>(getRootPopupProps(externalProps), {
         style: {
           ...(pointerEvents === 'none' && { pointerEvents }),
-          ...(alignOptionToTrigger &&
-            hasSelectedIndex &&
-            !touchModality && {
-              // Note: not supported in Safari. Needs to be manually specified in CSS.
-              scrollbarWidth: 'none',
-            }),
         },
       });
     },
-    [getRootPopupProps, pointerEvents, alignOptionToTrigger, hasSelectedIndex, touchModality],
+    [getRootPopupProps, pointerEvents],
   );
 
   useEnhancedEffect(() => {
-    if (!isPositioned) {
+    if (!open) {
       return undefined;
     }
 
@@ -58,7 +45,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       cancelAnimationFrame(frame);
       setPointerEvents('none');
     };
-  }, [isPositioned]);
+  }, [isPositioned, open]);
 
   return React.useMemo(
     () => ({

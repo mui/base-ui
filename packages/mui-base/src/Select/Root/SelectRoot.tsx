@@ -61,7 +61,22 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     [selectRoot, disabled, id, name, required, readOnly, alignOptionToTrigger],
   );
 
-  return <SelectRootContext.Provider value={context}>{children}</SelectRootContext.Provider>;
+  const hasSelectedIndex = selectRoot.selectedIndex !== null;
+  const touchModality = selectRoot.touchModality;
+
+  return (
+    <SelectRootContext.Provider value={context}>
+      {selectRoot.selectId && alignOptionToTrigger && hasSelectedIndex && !touchModality && (
+        <style
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `[data-id="${selectRoot.selectId}-popup"]{scrollbar-width:none}[data-id="${selectRoot.selectId}-popup"]::-webkit-scrollbar{display:none}`,
+          }}
+        />
+      )}
+      {children}
+    </SelectRootContext.Provider>
+  );
 };
 
 namespace SelectRoot {

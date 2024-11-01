@@ -24,6 +24,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { warn } from '../../utils/warn';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { useId } from '../../utils/useId';
 
 /**
  *
@@ -47,6 +48,8 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
+
+  const selectId = useId();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -249,6 +252,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       touchModality,
       setTouchModality,
       valueRef,
+      selectId,
     }),
     [
       fieldControlValidation,
@@ -270,6 +274,7 @@ export function useSelectRoot(params: useSelectRoot.Parameters): useSelectRoot.R
       innerOffset,
       innerFallback,
       touchModality,
+      selectId,
     ],
   );
 }
@@ -357,5 +362,6 @@ export namespace useSelectRoot {
     touchModality: boolean;
     setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
     valueRef: React.RefObject<HTMLSpanElement | null>;
+    selectId: string | undefined;
   }
 }

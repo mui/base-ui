@@ -42,7 +42,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...otherProps } = props;
-  const { open, popupRef, transitionStatus } = useSelectRootContext();
+  const { open, popupRef, transitionStatus, selectId } = useSelectRootContext();
   const { side, alignment } = useSelectPositionerContext();
 
   const { getPopupProps } = useSelectPopup();
@@ -66,7 +66,10 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     className,
     ownerState,
     customStyleHookMapping,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      'data-id': `${selectId}-popup`,
+    },
   });
 
   return renderElement();
