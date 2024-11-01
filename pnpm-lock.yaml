@@ -398,7 +398,7 @@ importers:
         specifier: 6.1.6
         version: 6.1.6(react@19.0.0-rc-69d4b800-20241021)(types-react@19.0.0-rc.1)
       '@next/mdx':
-        specifier: ^15.0.1
+        specifier: ^15.0.2
         version: 15.0.2(@mdx-js/loader@3.1.0(acorn@8.12.1)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-69d4b800-20241021)(types-react@19.0.0-rc.1))
       '@react-spring/web':
         specifier: ^9.7.4
@@ -7941,6 +7941,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
