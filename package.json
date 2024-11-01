@@ -194,9 +194,9 @@
     "@babel/preset-typescript": "^7.24.7",
     "@babel/runtime": "^7.25.6",
     "@babel/types": "^7.25.6",
-    "@definitelytyped/header-parser": "^0.2.12",
+    "@definitelytyped/header-parser": "^0.2.13",
     "@definitelytyped/typescript-versions": "^0.1.4",
-    "@definitelytyped/utils": "^0.1.7",
+    "@definitelytyped/utils": "^0.1.8",
     "@types/node": "^18.19.63",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
