@@ -177,7 +177,7 @@ describe('<Popover.Positioner />', () => {
 
     it('should focus the element provided to the prop when closed', async () => {
       function TestComponent() {
-        const inputRef = React.useRef<HTMLInputElement>(null);
+        const inputRef = React.useRef<HTMLInputElement | null>(null);
         return (
           <div>
             <input />

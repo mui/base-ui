@@ -142,7 +142,7 @@ namespace PopoverPositioner {
      * Determines an element to focus after the popover is closed.
      * If not provided, the focus returns to the trigger.
      */
-    finalFocus?: React.RefObject<HTMLElement>;
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 }
 

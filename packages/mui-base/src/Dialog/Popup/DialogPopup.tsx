@@ -129,7 +129,7 @@ namespace DialogPopup {
      * Determines an element to focus after the dialog is closed.
      * If not provided, the focus returns to the trigger.
      */
-    finalFocus?: React.RefObject<HTMLElement>;
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export interface OwnerState {
