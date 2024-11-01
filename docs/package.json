@@ -27,7 +27,7 @@
     "@mdx-js/react": "^3.1.0",
     "@mui/system": "6.1.6",
     "@mui/utils": "6.1.6",
-    "@next/mdx": "^15.0.1",
+    "@next/mdx": "^15.0.2",
     "@react-spring/web": "^9.7.4",
     "@stefanprobst/rehype-extract-toc": "^2.2.0",
     "@types/mdx": "^2.0.13",
