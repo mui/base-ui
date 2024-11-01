@@ -110,7 +110,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 
 ### Docs
 
-- [docs] Add badges like in Material UI @oliviertassinari
+- [docs] Add badges like in Material UI @oliviertassinari
 - [docs] Add the logo to the README (#448) @danilo-leal
 - [docs] Convert alpha component docs to new docs template (#392) @colmtuite
 - [docs] Correct Bundlephobia links (#419) @michaldudak
