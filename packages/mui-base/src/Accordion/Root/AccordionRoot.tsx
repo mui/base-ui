@@ -107,7 +107,7 @@ export namespace AccordionRoot {
 
   export interface Props
     extends useAccordionRoot.Parameters,
-      BaseUIComponentProps<any, OwnerState> {
+      Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
     hiddenUntilFound?: boolean;
   }
 }
@@ -124,6 +124,10 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   animated: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */

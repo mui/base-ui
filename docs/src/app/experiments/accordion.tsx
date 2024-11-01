@@ -5,7 +5,7 @@ import { Accordion } from '@base_ui/react/Accordion';
 
 export default function App() {
   const [openMultiple, setOpenMultiple] = React.useState(true);
-  const [val, setVal] = React.useState(['one']);
+  const [val, setVal] = React.useState<readonly (string | number)[]>(['one']);
   const [val2, setVal2] = React.useState(['one']);
   return (
     <div className="AccordionDemo">
@@ -141,8 +141,8 @@ export default function App() {
       <Accordion.Root
         className="MyAccordion-root"
         value={val2}
-        onValueChange={(newValue: Accordion.Root.Props['Value']) => {
-          if (newValue.length > 0) {
+        onValueChange={(newValue: Accordion.Root.Props['value']) => {
+          if (Array.isArray(newValue) && newValue.length > 0) {
             setVal2(newValue);
           }
         }}
