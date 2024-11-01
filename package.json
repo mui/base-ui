@@ -90,7 +90,7 @@
     "@playwright/test": "1.48.2",
     "@tailwindcss/postcss": "4.0.0-alpha.30",
     "@types/fs-extra": "^11.0.4",
-    "@types/lodash": "^4.17.9",
+    "@types/lodash": "^4.17.13",
     "@types/mocha": "^10.0.8",
     "@types/node": "^18.19.54",
     "@types/react": "npm:types-react@19.0.0-rc.1",
