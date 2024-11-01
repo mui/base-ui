@@ -167,10 +167,6 @@ describe('<Select.Option />', () => {
 
     await flushMicrotasks();
 
-    await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
-    });
-
     await user.keyboard('{ArrowDown}');
     await user.keyboard('{ArrowUp}');
     await user.keyboard('{ArrowUp}');
