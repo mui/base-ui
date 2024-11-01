@@ -28,7 +28,7 @@
     "@mui/system": "6.1.6",
     "@mui/utils": "6.1.6",
     "@next/mdx": "^15.0.2",
-    "@react-spring/web": "^9.7.4",
+    "@react-spring/web": "^9.7.5",
     "@stefanprobst/rehype-extract-toc": "^2.2.0",
     "@types/mdx": "^2.0.13",
     "babel-plugin-module-resolver": "^5.0.2",
