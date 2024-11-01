@@ -104,7 +104,9 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
             if (innerFallback) {
               setInnerOffset(0);
-              popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
+              if (popupRef.current) {
+                popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
+              }
             } else {
               setInnerOffset((o) => o + scrollDirection * pixelsToScroll);
             }
