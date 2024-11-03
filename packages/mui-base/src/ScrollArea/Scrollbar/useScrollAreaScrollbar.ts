@@ -15,7 +15,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     handlePointerDown,
     handlePointerUp,
     rootId,
-    type,
     thumbSize,
     touchModality,
   } = useScrollAreaRootContext();
@@ -23,6 +22,10 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
+
+    if (!scrollbarEl) {
+      return undefined;
+    }
 
     function handleWheel(event: WheelEvent) {
       if (!viewportEl || !scrollbarEl || event.ctrlKey) {
@@ -60,10 +63,10 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       }
     }
 
-    scrollbarEl?.addEventListener('wheel', handleWheel, { passive: false });
+    scrollbarEl.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
-      scrollbarEl?.removeEventListener('wheel', handleWheel);
+      scrollbarEl.removeEventListener('wheel', handleWheel);
     };
   }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
 
@@ -129,9 +132,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         onPointerUp: handlePointerUp,
         style: {
           position: 'absolute',
-          ...(type === 'inset'
-            ? { touchAction: 'none' }
-            : { pointerEvents: touchModality ? 'none' : 'auto' }),
+          ...(touchModality && { pointerEvents: 'none' }),
           ...(orientation === 'vertical' && {
             top: 0,
             bottom: 'var(--scroll-area-corner-height)',
@@ -149,12 +150,10 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     [
       rootId,
       handlePointerUp,
-      type,
       touchModality,
       orientation,
       dir,
-      thumbSize.height,
-      thumbSize.width,
+      thumbSize,
       viewportRef,
       thumbYRef,
       scrollbarYRef,

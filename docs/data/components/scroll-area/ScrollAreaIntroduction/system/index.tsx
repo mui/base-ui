@@ -76,6 +76,7 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
     background 0.2s,
     visibility 0.2s;
   opacity: 0;
+  display: flex;
 
   &:hover {
     background: rgb(0 0 0 / 0.1);
@@ -86,6 +87,7 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   }
 
   &[data-orientation='horizontal'] {
+    flex-direction: column;
     height: 10px;
   }
 
@@ -104,8 +106,7 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
 const ScrollAreaThumb = styled(ScrollArea.Thumb)`
   background: rgb(0 0 0 / 0.5);
   border-radius: 20px;
-  height: var(--scroll-area-thumb-height, 6px);
-  width: var(--scroll-area-thumb-width, 6px);
+  flex: 1;
 
   &::before {
     content: '';

@@ -4,7 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
-import { SCROLL_TIMEOUT } from '../constants';
+import { MIN_THUMB_SIZE, SCROLL_TIMEOUT } from '../constants';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -112,13 +112,16 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         ? 0
         : (viewportHeight / scrollableContentHeight) * viewportHeight;
 
-      if (prevSize.height === height && prevSize.width === width) {
+      const clampedWidth = Math.max(MIN_THUMB_SIZE, width);
+      const clampedHeight = Math.max(MIN_THUMB_SIZE, height);
+
+      if (prevSize.height === clampedHeight && prevSize.width === clampedWidth) {
         return prevSize;
       }
 
       return {
-        width: scrollbarXHidden ? 0 : (viewportWidth / scrollableContentWidth) * viewportWidth,
-        height: scrollbarYHidden ? 0 : (viewportHeight / scrollableContentHeight) * viewportHeight,
+        width: clampedWidth,
+        height: clampedHeight,
       };
     });
 
