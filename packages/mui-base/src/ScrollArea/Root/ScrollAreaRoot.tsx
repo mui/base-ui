@@ -47,8 +47,8 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     [dir, gutter, type, scrollAreaRoot],
   );
 
-  const viewportId = `[id="${rootId}-viewport"]`;
-  const scrollbarId = `[id="${rootId}-scrollbar"]`;
+  const viewportId = `[data-id="${rootId}-viewport"]`;
+  const scrollbarId = `[data-id="${rootId}-scrollbar"]`;
 
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
@@ -56,7 +56,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `${viewportId},${scrollbarId}{scrollbar-width:none;}${viewportId}::-webkit-scrollbar,${scrollbarId}::-webkit-scrollbar{display:none}`,
+            __html: `${viewportId},${scrollbarId}{scrollbar-width:none}${viewportId}::-webkit-scrollbar,${scrollbarId}::-webkit-scrollbar{display:none}`,
           }}
         />
       )}

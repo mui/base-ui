@@ -73,7 +73,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
   const getScrollbarProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        ...(rootId && { id: `${rootId}-scrollbar` }),
+        ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
         onPointerDown(event) {
           // Ignore clicks on thumb
           if (event.currentTarget !== event.target) {
