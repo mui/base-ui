@@ -1,6 +1,11 @@
 {
   "props": {
-    "children": { "type": { "name": "node" } },
+    "children": {
+      "type": {
+        "name": "union",
+        "description": "element<br>&#124;&nbsp;func<br>&#124;&nbsp;number<br>&#124;&nbsp;object<br>&#124;&nbsp;{ __@toStringTag@620: 'BigInt', toLocaleString: func, toString: func, valueOf: func }<br>&#124;&nbsp;{ __@iterator@96: func }<br>&#124;&nbsp;{ children?: node, key?: string, props: any, type: func<br>&#124;&nbsp;string }<br>&#124;&nbsp;{ __@toStringTag@620: string, catch: func, finally: func, then: func }<br>&#124;&nbsp;{ key?: string, props: object, toExponential: func, toFixed: func, toLocaleString: func, toPrecision: func, toString: func, type: func<br>&#124;&nbsp;string, valueOf: func }<br>&#124;&nbsp;{ __@toStringTag@620: 'BigInt', key?: string, props: object, toLocaleString: func, toString: func, type: func<br>&#124;&nbsp;string, valueOf: func }<br>&#124;&nbsp;{ key?: string, props: object, type: func<br>&#124;&nbsp;string, valueOf: func }<br>&#124;&nbsp;{ key?: string, props: object, type: func<br>&#124;&nbsp;string }<br>&#124;&nbsp;{ __@iterator@96: func, key?: string, props: object, type: func<br>&#124;&nbsp;string }<br>&#124;&nbsp;{ children?: node, key?: string, props: object, type: func<br>&#124;&nbsp;string }<br>&#124;&nbsp;{ __@toStringTag@620: string, catch: func, finally: func, key?: string, props: object, then: func, type: func<br>&#124;&nbsp;string }<br>&#124;&nbsp;string<br>&#124;&nbsp;bool"
+      }
+    },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultValue": { "type": { "name": "any" } },
     "onValueChange": { "type": { "name": "func" }, "default": "() => {}" },

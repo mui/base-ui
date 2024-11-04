@@ -50,7 +50,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
 namespace DialogRoot {
   export type Props = CommonParameters & {
     children?: React.ReactNode;
-  }
+  };
 }
 
 DialogRoot.propTypes /* remove-proptypes */ = {

@@ -93,7 +93,7 @@ namespace PreviewCardRoot {
 
   export type Props = usePreviewCardRoot.Parameters & {
     children?: React.ReactNode;
-  }
+  };
 }
 
 PreviewCardRoot.propTypes /* remove-proptypes */ = {

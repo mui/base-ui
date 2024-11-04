@@ -96,7 +96,7 @@ namespace TooltipRoot {
 
   export type Props = useTooltipRoot.Parameters & {
     children?: React.ReactNode;
-  }
+  };
 }
 
 TooltipRoot.propTypes /* remove-proptypes */ = {

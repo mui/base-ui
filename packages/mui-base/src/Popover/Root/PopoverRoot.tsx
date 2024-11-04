@@ -109,7 +109,7 @@ namespace PopoverRoot {
 
   export type Props = Omit<usePopoverRoot.Parameters, 'floatingRootContext'> & {
     children?: React.ReactNode;
-  }
+  };
 }
 
 PopoverRoot.propTypes /* remove-proptypes */ = {

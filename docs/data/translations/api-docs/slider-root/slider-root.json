@@ -8,7 +8,7 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "defaultValue": {
-      "description": "The default value of the slider. Use when the component is not controlled."
+      "description": "The default value. Use when the component is not controlled."
     },
     "direction": {
       "description": "Sets the direction. For right-to-left languages, the lowest value is on the right-hand side."
