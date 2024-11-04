@@ -24,7 +24,11 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
   return (
     <BaseDemo.Root className={clsx('DemoRoot', className)} {...props}>
       <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-        <BaseDemo.Playground aria-label="Component demo" className="DemoPlayground" />
+        <BaseDemo.Playground
+          suppressHydrationWarning
+          aria-label="Component demo"
+          className="DemoPlayground"
+        />
       </ErrorBoundary>
 
       <Collapsible.Root open={open} onOpenChange={setOpen}>
@@ -66,14 +70,13 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
 
             <Collapsible.Panel
               hidden={false}
+              aria-hidden={!open}
               render={
                 <BaseDemo.SourceBrowser
-                  tabIndex={-1}
-                  aria-hidden={!open}
-                  // aria-label="Code snippet"
                   className="DemoCodeBlockContainer"
+                  // Select code block contents on Ctrl/Cmd + A
+                  tabIndex={-1}
                   onKeyDown={(event) => {
-                    // Select code block contents on Ctrl/Cmd + A
                     if (
                       event.key === 'a' &&
                       (event.metaKey || event.ctrlKey) &&
