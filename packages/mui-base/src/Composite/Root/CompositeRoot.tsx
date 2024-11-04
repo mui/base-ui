@@ -54,7 +54,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
 namespace CompositeRoot {
   export interface OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;

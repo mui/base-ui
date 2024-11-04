@@ -85,7 +85,7 @@ namespace CheckboxGroupRoot {
   export interface OwnerState extends FieldRoot.OwnerState {
     disabled: boolean;
   }
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * The currently checked values of the checkbox group. Use when controlled.
      */

@@ -47,7 +47,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
 });
 
 namespace DialogTitle {
-  export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
+  export type Props = BaseUIComponentProps<'h2', OwnerState> & {}
 
   export interface OwnerState {}
 }

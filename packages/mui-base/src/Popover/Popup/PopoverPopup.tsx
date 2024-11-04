@@ -93,7 +93,7 @@ namespace PopoverPopup {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 }
 
 PopoverPopup.propTypes /* remove-proptypes */ = {

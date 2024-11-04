@@ -165,7 +165,7 @@ namespace FieldRoot {
     valid: boolean | null;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
      * component.

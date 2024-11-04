@@ -66,7 +66,7 @@ MenuCheckboxItemIndicator.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuCheckboxItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {
     /**
      * If `true`, the component is mounted even if the checkbox is not checked.
      *

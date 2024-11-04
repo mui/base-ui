@@ -56,7 +56,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
 
 namespace NumberFieldScrubArea {
   export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {
     /**
      * The direction that the scrub area should change the value.
      * @default 'vertical'

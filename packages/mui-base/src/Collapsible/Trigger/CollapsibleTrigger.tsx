@@ -48,7 +48,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 export { CollapsibleTrigger };
 
 namespace CollapsibleTrigger {
-  export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.OwnerState> {}
+  export type Props = BaseUIComponentProps<'button', CollapsibleRoot.OwnerState> & {}
 }
 
 CollapsibleTrigger.propTypes /* remove-proptypes */ = {

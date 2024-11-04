@@ -91,7 +91,7 @@ namespace TabIndicator {
     direction: TabsDirection;
   }
 
-  export interface Props extends BaseUIComponentProps<'span', TabIndicator.OwnerState> {
+  export type Props = BaseUIComponentProps<'span', TabIndicator.OwnerState> & {
     /**
      * If `true`, the indicator will include code to render itself before React hydrates.
      * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.

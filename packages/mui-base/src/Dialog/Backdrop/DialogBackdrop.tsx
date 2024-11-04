@@ -78,14 +78,14 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 });
 
 namespace DialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * If `true`, the backdrop element is kept in the DOM when closed.
      *
      * @default false
      */
     keepMounted?: boolean;
-  }
+  };
 
   export interface OwnerState {
     open: boolean;

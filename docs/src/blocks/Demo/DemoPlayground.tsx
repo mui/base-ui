@@ -23,9 +23,9 @@ const DemoPlayground = React.forwardRef(function DemoPlayground(
 });
 
 namespace DemoPlayground {
-  export interface Props extends React.HTMLAttributes<HTMLDivElement> {
+  export type Props = React.HTMLAttributes<HTMLDivElement> & {
     className?: string;
-  }
+  };
 }
 
 export { DemoPlayground };

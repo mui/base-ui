@@ -210,7 +210,7 @@ namespace MenuCheckboxItem {
     checked: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     checked?: boolean;
     defaultChecked?: boolean;
     onCheckedChange?: (checked: boolean, event: Event) => void;

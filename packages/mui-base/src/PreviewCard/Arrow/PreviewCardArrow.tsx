@@ -66,7 +66,7 @@ namespace PreviewCardArrow {
     alignment: Alignment;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * Whether the `Arrow` is hidden when it can't point to the center of the anchor element.
      * @default false

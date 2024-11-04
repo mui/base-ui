@@ -68,7 +68,7 @@ namespace PopoverArrow {
     arrowUncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
      * @default false

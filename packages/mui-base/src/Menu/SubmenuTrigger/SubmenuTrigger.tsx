@@ -79,7 +79,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 });
 
 namespace SubmenuTrigger {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**

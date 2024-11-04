@@ -39,7 +39,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
 
 namespace NumberFieldDecrement {
   export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export type Props = BaseUIComponentProps<'button', OwnerState> & {}
 }
 
 NumberFieldDecrement.propTypes /* remove-proptypes */ = {

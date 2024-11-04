@@ -45,7 +45,7 @@ const FieldDescription = React.forwardRef(function FieldDescription(
 namespace FieldDescription {
   export type OwnerState = FieldRoot.OwnerState;
 
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+  export type Props = BaseUIComponentProps<'p', OwnerState> & {}
 }
 
 FieldDescription.propTypes /* remove-proptypes */ = {

@@ -96,7 +96,7 @@ const FormRoot = React.forwardRef(function FormRoot(
 });
 
 namespace FormRoot {
-  export interface Props extends BaseUIComponentProps<'form', OwnerState> {
+  export type Props = BaseUIComponentProps<'form', OwnerState> & {
     /**
      * Object of error messages with each key mapping to the `name` prop of a Field control, usually
      * from server-side validation.

@@ -39,7 +39,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 
 namespace NumberFieldGroup {
   export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 }
 
 NumberFieldGroup.propTypes /* remove-proptypes */ = {

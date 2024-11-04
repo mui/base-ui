@@ -51,7 +51,7 @@ namespace FieldsetLegend {
     disabled: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {}
 }
 
 FieldsetLegend.propTypes /* remove-proptypes */ = {

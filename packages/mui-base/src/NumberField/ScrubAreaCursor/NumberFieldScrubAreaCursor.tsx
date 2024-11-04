@@ -52,7 +52,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 
 namespace NumberFieldScrubAreaCursor {
   export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {}
 }
 
 NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {

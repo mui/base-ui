@@ -49,7 +49,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 namespace ProgressIndicator {
   export interface OwnerState extends ProgressRoot.OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {}
 }
 
 ProgressIndicator.propTypes /* remove-proptypes */ = {

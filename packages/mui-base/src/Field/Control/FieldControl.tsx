@@ -77,7 +77,7 @@ const FieldControl = React.forwardRef(function FieldControl(
 namespace FieldControl {
   export type OwnerState = FieldRoot.OwnerState;
 
-  export interface Props extends BaseUIComponentProps<'input' | 'textarea' | 'select', OwnerState> {
+  export type Props = BaseUIComponentProps<'input' | 'textarea' | 'select', OwnerState> & {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */

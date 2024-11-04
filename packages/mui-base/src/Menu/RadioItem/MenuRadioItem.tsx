@@ -232,7 +232,7 @@ namespace MenuRadioItem {
     checked: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * Value of the radio item.
      * This is the value that will be set in the MenuRadioGroup when the item is selected.

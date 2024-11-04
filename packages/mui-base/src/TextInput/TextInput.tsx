@@ -23,7 +23,7 @@ const TextInput = React.forwardRef(function TextInput(
 });
 
 namespace TextInput {
-  export interface Props extends BaseUIComponentProps<'input', OwnerState> {}
+  export type Props = BaseUIComponentProps<'input', OwnerState> & {}
 
   export interface OwnerState {}
 }

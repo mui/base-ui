@@ -45,7 +45,7 @@ namespace CompositeItem {
     active: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 }
 
 CompositeItem.propTypes /* remove-proptypes */ = {

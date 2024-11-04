@@ -49,7 +49,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 });
 
 namespace RadioIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {
     /**
      * Whether the component should be kept mounted when not checked.
      * @default true

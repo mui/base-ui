@@ -74,7 +74,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 });
 
 namespace MenuPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     children?: React.ReactNode;
     /**
      * The id of the popup element.

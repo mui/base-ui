@@ -48,7 +48,7 @@ namespace PopoverTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, OwnerState> {}
+  export type Props = BaseUIComponentProps<any, OwnerState> & {}
 }
 
 PopoverTrigger.propTypes /* remove-proptypes */ = {

@@ -42,7 +42,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
 namespace NumberFieldInput {
   export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'input', OwnerState> {}
+  export type Props = BaseUIComponentProps<'input', OwnerState> & {}
 }
 
 NumberFieldInput.propTypes /* remove-proptypes */ = {

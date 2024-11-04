@@ -60,7 +60,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 });
 
 namespace MenuTrigger {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+  export type Props = BaseUIComponentProps<'button', OwnerState> & {
     children?: React.ReactNode;
     /**
      * If `true`, the component is disabled.

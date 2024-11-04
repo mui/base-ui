@@ -75,7 +75,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
 });
 
 namespace AlertDialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * If `true`, the backdrop element is kept in the DOM when closed.
      *

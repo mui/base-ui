@@ -47,7 +47,7 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
 namespace PopoverDescription {
   export interface OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+  export type Props = BaseUIComponentProps<'p', OwnerState> & {}
 }
 
 PopoverDescription.propTypes /* remove-proptypes */ = {

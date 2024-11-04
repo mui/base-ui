@@ -82,7 +82,7 @@ namespace TooltipPopup {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 }
 
 TooltipPopup.propTypes /* remove-proptypes */ = {

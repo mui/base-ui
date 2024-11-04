@@ -66,7 +66,7 @@ MenuRadioItemIndicator.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuRadioItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {
     /**
      * If `true`, the component is mounted even if the Radio is not checked.
      *

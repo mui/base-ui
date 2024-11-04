@@ -45,7 +45,7 @@ const Tab = React.forwardRef(function Tab(
 });
 
 namespace Tab {
-  export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
+  export type Props = BaseUIComponentProps<'button', Tab.OwnerState> & {
     /**
      * You can provide your own value. Otherwise, it falls back to the child position index.
      */

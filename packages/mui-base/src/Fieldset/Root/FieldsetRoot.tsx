@@ -62,7 +62,7 @@ namespace FieldsetRoot {
     disabled: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'fieldset', OwnerState> {}
+  export type Props = BaseUIComponentProps<'fieldset', OwnerState> & {}
 }
 
 FieldsetRoot.propTypes /* remove-proptypes */ = {

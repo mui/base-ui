@@ -46,7 +46,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 });
 
 export namespace SliderOutput {
-  export interface Props extends BaseUIComponentProps<'output', SliderRoot.OwnerState> {}
+  export type Props = BaseUIComponentProps<'output', SliderRoot.OwnerState> & {}
 }
 
 export { SliderOutput };

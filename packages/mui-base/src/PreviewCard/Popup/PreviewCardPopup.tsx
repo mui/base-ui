@@ -81,7 +81,7 @@ namespace PreviewCardPopup {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 }
 
 PreviewCardPopup.propTypes /* remove-proptypes */ = {

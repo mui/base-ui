@@ -70,7 +70,7 @@ namespace TabsRoot {
     tabActivationDirection: TabActivationDirection;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * The value of the currently selected `Tab`.
      * If you don't want any selected `Tab`, you can set this prop to `null`.

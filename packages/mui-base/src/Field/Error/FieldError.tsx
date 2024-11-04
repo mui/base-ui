@@ -63,7 +63,7 @@ const FieldError = React.forwardRef(function FieldError(
 namespace FieldError {
   export type OwnerState = FieldRoot.OwnerState;
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * Determines whether the error message should be shown when it matches a given property of the
      * field's `ValidityState`.

@@ -39,7 +39,7 @@ const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 });
 
 namespace AlertDialogClose {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export type Props = BaseUIComponentProps<'button', OwnerState> & {}
 
   export interface OwnerState {}
 }

@@ -47,7 +47,7 @@ const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
 });
 
 namespace AlertDialogTitle {
-  export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
+  export type Props = BaseUIComponentProps<'h2', OwnerState> & {}
 
   export interface OwnerState {}
 }

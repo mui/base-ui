@@ -52,7 +52,7 @@ namespace TabPanel {
     hidden: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
      * If not provided, it will fall back to the index of the panel.

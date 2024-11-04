@@ -47,7 +47,7 @@ namespace PreviewCardTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'a', OwnerState> {}
+  export type Props = BaseUIComponentProps<'a', OwnerState> & {}
 }
 
 PreviewCardTrigger.propTypes /* remove-proptypes */ = {

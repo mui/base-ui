@@ -42,7 +42,10 @@ export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   OwnerState,
   RenderFunctionProps = React.HTMLAttributes<any>,
-> = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
+> = (Omit<
+  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
+  'className' | 'children'
+> & {
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
@@ -51,6 +54,15 @@ export type BaseUIComponentProps<
    * A function to customize rendering of the component.
    */
   render?:
+    | ComponentRenderFn<RenderFunctionProps, OwnerState>
+    | React.ReactElement<Record<string, unknown>>;
+}) &
+  (PropsWithoutAsChild | PropsWithAsChild<RenderFunctionProps, OwnerState>);
+
+type PropsWithoutAsChild = { asChild?: false; children?: React.ReactNode };
+type PropsWithAsChild<RenderFunctionProps, OwnerState> = {
+  asChild: true;
+  children:
     | ComponentRenderFn<RenderFunctionProps, OwnerState>
     | React.ReactElement<Record<string, unknown>>;
 };

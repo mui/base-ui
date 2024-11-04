@@ -22,9 +22,9 @@ export function IconButton(props: IconButton.Props) {
 }
 
 export namespace IconButton {
-  export interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  export type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     size?: 1 | 2 | 3;
     label: string;
     withTooltip?: boolean;
-  }
+  };
 }

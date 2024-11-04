@@ -37,7 +37,7 @@ export function DemoRoot(props: DemoRoot.Props) {
 }
 
 export namespace DemoRoot {
-  export interface Props extends React.HTMLAttributes<HTMLDivElement> {
+  export type Props = React.HTMLAttributes<HTMLDivElement> & {
     variants: DemoVariant[];
-  }
+  };
 }

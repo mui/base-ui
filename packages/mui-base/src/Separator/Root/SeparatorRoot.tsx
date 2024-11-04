@@ -53,7 +53,7 @@ SeparatorRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace SeparatorRoot {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 
   export interface OwnerState {}
 }

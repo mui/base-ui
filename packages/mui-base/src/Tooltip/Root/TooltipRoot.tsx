@@ -94,7 +94,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
 namespace TooltipRoot {
   export interface OwnerState {}
 
-  export interface Props extends useTooltipRoot.Parameters {
+  export type Props = useTooltipRoot.Parameters & {
     children?: React.ReactNode;
   }
 }

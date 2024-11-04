@@ -48,7 +48,7 @@ const PopoverClose = React.forwardRef(function PopoverClose(
 namespace PopoverClose {
   export interface OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export type Props = BaseUIComponentProps<'button', OwnerState> & {}
 }
 
 PopoverClose.propTypes /* remove-proptypes */ = {

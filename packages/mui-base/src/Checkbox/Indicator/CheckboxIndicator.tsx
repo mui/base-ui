@@ -47,7 +47,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
 namespace CheckboxIndicator {
   export interface OwnerState extends CheckboxRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {
     /**
      * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
      * @default true

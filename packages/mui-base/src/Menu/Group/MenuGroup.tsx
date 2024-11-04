@@ -62,7 +62,7 @@ MenuGroup.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuGroup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * The content of the component.
      */

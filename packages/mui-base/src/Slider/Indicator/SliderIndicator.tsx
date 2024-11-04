@@ -48,7 +48,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 });
 
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+  export type Props = BaseUIComponentProps<'span', SliderRoot.OwnerState> & {}
 }
 
 export { SliderIndicator };

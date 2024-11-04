@@ -100,7 +100,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 });
 
 namespace AlertDialogPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * The container element to which the popup is appended to.
      */

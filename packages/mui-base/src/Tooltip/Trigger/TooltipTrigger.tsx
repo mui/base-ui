@@ -48,7 +48,7 @@ namespace TooltipTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, OwnerState> {}
+  export type Props = BaseUIComponentProps<any, OwnerState> & {}
 }
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {

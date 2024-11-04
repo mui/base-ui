@@ -77,7 +77,7 @@ namespace PopoverBackdrop {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * If `true`, the backdrop remains mounted when the popover content is closed.
      * @default false

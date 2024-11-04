@@ -47,7 +47,7 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 });
 
 namespace AlertDialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export type Props = BaseUIComponentProps<'button', OwnerState> & {}
 
   export interface OwnerState {
     open: boolean;

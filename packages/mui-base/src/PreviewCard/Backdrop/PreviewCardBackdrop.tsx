@@ -75,7 +75,7 @@ namespace PreviewCardBackdrop {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
      * @default false

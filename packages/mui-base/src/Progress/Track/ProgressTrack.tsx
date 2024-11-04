@@ -40,7 +40,7 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
 namespace ProgressTrack {
   export interface OwnerState extends ProgressRoot.OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export type Props = BaseUIComponentProps<'span', OwnerState> & {}
 }
 
 ProgressTrack.propTypes /* remove-proptypes */ = {

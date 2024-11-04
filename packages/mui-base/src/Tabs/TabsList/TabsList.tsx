@@ -55,7 +55,7 @@ const TabsList = React.forwardRef(function TabsList(
 namespace TabsList {
   export type OwnerState = TabsRoot.OwnerState;
 
-  export interface Props extends BaseUIComponentProps<'div', TabsList.OwnerState> {
+  export type Props = BaseUIComponentProps<'div', TabsList.OwnerState> & {
     /**
      * If `true`, the tab will be activated whenever it is focused.
      * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.

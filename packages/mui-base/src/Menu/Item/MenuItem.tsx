@@ -196,7 +196,7 @@ namespace MenuItem {
     highlighted: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     children?: React.ReactNode;
     /**
      * The click handler for the menu item.

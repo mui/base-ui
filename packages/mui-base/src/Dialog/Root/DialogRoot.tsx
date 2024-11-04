@@ -48,7 +48,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
 };
 
 namespace DialogRoot {
-  export interface Props extends CommonParameters {
+  export type Props = CommonParameters & {
     children?: React.ReactNode;
   }
 }

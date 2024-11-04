@@ -56,7 +56,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 namespace FieldLabel {
   export type OwnerState = FieldRoot.OwnerState;
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {}
 }
 
 FieldLabel.propTypes /* remove-proptypes */ = {

@@ -96,7 +96,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 });
 
 namespace DialogPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export type Props = BaseUIComponentProps<'div', OwnerState> & {
     /**
      * The container element to which the popup is appended to.
      */
@@ -115,7 +115,7 @@ namespace DialogPopup {
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
-  }
+  };
 
   export interface OwnerState {
     open: boolean;
