@@ -13,12 +13,12 @@ export interface ScrollAreaRootContext {
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   scrolling: boolean;
   setScrolling: React.Dispatch<React.SetStateAction<boolean>>;
-  viewportRef: React.RefObject<HTMLDivElement>;
-  scrollbarYRef: React.RefObject<HTMLDivElement>;
-  thumbYRef: React.RefObject<HTMLDivElement>;
-  scrollbarXRef: React.RefObject<HTMLDivElement>;
-  thumbXRef: React.RefObject<HTMLDivElement>;
-  cornerRef: React.RefObject<HTMLDivElement>;
+  viewportRef: React.RefObject<HTMLDivElement | null>;
+  scrollbarYRef: React.RefObject<HTMLDivElement | null>;
+  thumbYRef: React.RefObject<HTMLDivElement | null>;
+  scrollbarXRef: React.RefObject<HTMLDivElement | null>;
+  thumbXRef: React.RefObject<HTMLDivElement | null>;
+  cornerRef: React.RefObject<HTMLDivElement | null>;
   handlePointerDown: (event: React.PointerEvent) => void;
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
