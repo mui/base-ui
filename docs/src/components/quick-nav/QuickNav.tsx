@@ -111,31 +111,29 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       }
     }
 
-    function unstick(top: number, delta: number) {
+    function unstick(top: number, bottom: number, delta: number) {
       if (ref.current) {
         state = 'Scrollable';
-        const dvh = window.innerHeight;
+        const { absoluteTop, absoluteBottom, staticTop } = getCachedPositions();
         const scrollY = window.scrollY;
         const bodyHeight = document.body.clientHeight;
-
-        const { absoluteTop, absoluteBottom, staticTop } = getCachedPositions();
         const minMarginTop = staticTop - absoluteTop;
         const rootOffset = scrollY + top;
         const marginTop = Math.max(minMarginTop, rootOffset - absoluteTop - delta);
-        const marginBottom = Math.max(0, bodyHeight - scrollY - dvh - absoluteBottom + delta);
+        const marginBottom = Math.max(0, bodyHeight - scrollY - bottom - absoluteBottom + delta);
 
         // Choose the smaller margin because at document edges,
         // the larger one may push the nav out of the container edges
-        if (marginTop > marginBottom) {
-          ref.current.style.top = '';
-          ref.current.style.bottom = '';
-          ref.current.style.marginTop = '';
-          ref.current.style.marginBottom = marginBottom ? `${marginBottom}px` : '';
-        } else {
+        if (marginTop < marginBottom) {
           ref.current.style.top = 'auto';
           ref.current.style.bottom = '0';
           ref.current.style.marginTop = marginTop ? `${marginTop}px` : '';
           ref.current.style.marginBottom = '';
+        } else {
+          ref.current.style.top = '';
+          ref.current.style.bottom = '';
+          ref.current.style.marginTop = '';
+          ref.current.style.marginBottom = marginBottom ? `${marginBottom}px` : '';
         }
       }
     }
@@ -149,7 +147,6 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
 
         const scrollY = window.scrollY;
         const delta = scrollY - prevScrollY;
-
         prevScrollY = scrollY;
 
         // Skip when scrolling in the direction that matches the sticky position
@@ -157,7 +154,6 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
           return;
         }
 
-        // prevRect = rect;
         const rect = ref.current.getBoundingClientRect();
 
         // Should be top-sticky if the entire nav can fit in the viewport
@@ -177,7 +173,7 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
           if (delta >= clippedAtBottom) {
             stickToBottom();
           } else {
-            unstick(top, delta);
+            unstick(top, bottom, delta);
           }
           return;
         }
@@ -186,7 +182,7 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
           if (delta <= top) {
             stickToTop();
           } else {
-            unstick(top, delta);
+            unstick(top, bottom, delta);
           }
           return;
         }
