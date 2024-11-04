@@ -182,13 +182,13 @@ const MenuItem = React.forwardRef(function MenuItem(
   );
 });
 
-interface InnerMenuItemProps extends MenuItem.Props {
+type InnerMenuItemProps = MenuItem.Props & {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
   treatMouseupAsClick: boolean;
   typingRef: React.RefObject<boolean>;
-}
+};
 
 namespace MenuItem {
   export type OwnerState = {
@@ -222,7 +222,7 @@ namespace MenuItem {
      * @default true
      */
     closeOnClick?: boolean;
-  }
+  };
 }
 
 MenuItem.propTypes /* remove-proptypes */ = {

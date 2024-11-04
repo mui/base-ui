@@ -70,6 +70,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   if (!renderProp) {
     return (
       <CollapsibleRootContext.Provider value={contextValue}>
+        {/* @ts-expect-error */}
         {children}
       </CollapsibleRootContext.Provider>
     );
@@ -88,9 +89,7 @@ export namespace CollapsibleRoot {
   export interface OwnerState
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
-  export interface Props
-    extends useCollapsibleRoot.Parameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = useCollapsibleRoot.Parameters & BaseUIComponentProps<'div', OwnerState> & {};
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {

@@ -129,14 +129,13 @@ namespace PopoverPositioner {
     alignment: Alignment;
   }
 
-  export interface Props
-    extends usePopoverPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * The element the popover positioner element is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+  export type Props = usePopoverPositioner.SharedParameters &
+    BaseUIComponentProps<'div', OwnerState> & {
+      /**
+       * The element the popover positioner element is appended to.
+       */
+      container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+    };
 }
 
 PopoverPositioner.propTypes /* remove-proptypes */ = {

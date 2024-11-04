@@ -98,9 +98,8 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 });
 
 export namespace NumberFieldRoot {
-  export interface Props
-    extends UseNumberFieldRoot.Parameters,
-      Omit<BaseUIComponentProps<'div', OwnerState>, 'onChange' | 'defaultValue'> {}
+  export type Props = UseNumberFieldRoot.Parameters &
+    Omit<BaseUIComponentProps<'div', OwnerState>, 'onChange' | 'defaultValue'> & {};
 
   export interface OwnerState extends FieldRoot.OwnerState {
     /**

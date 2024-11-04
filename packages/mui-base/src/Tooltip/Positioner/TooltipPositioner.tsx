@@ -117,14 +117,13 @@ namespace TooltipPositioner {
     alignment: Alignment;
   }
 
-  export interface Props
-    extends BaseUIComponentProps<'div', OwnerState>,
-      useTooltipPositioner.SharedParameters {
-    /**
-     * The container element the tooltip positioner is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+  export type Props = BaseUIComponentProps<'div', OwnerState> &
+    useTooltipPositioner.SharedParameters & {
+      /**
+       * The container element the tooltip positioner is appended to.
+       */
+      container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+    };
 }
 
 TooltipPositioner.propTypes /* remove-proptypes */ = {

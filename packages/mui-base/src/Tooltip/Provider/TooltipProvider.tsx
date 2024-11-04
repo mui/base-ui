@@ -25,7 +25,7 @@ const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvide
 };
 
 namespace TooltipProvider {
-  export interface Props {
+  export type Props = {
     children?: React.ReactNode;
     /**
      * The delay in milliseconds until tooltips within the group are open.
@@ -41,7 +41,7 @@ namespace TooltipProvider {
      * @default 400
      */
     timeout?: number;
-  }
+  };
 }
 
 TooltipProvider.propTypes /* remove-proptypes */ = {

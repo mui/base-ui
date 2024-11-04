@@ -74,9 +74,8 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
 });
 
 namespace SwitchRoot {
-  export interface Props
-    extends useSwitchRoot.Parameters,
-      Omit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> {}
+  export type Props = useSwitchRoot.Parameters &
+    Omit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> & {};
 
   export interface OwnerState extends FieldRoot.OwnerState {
     checked: boolean;

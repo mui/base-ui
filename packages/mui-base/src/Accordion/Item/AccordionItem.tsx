@@ -147,11 +147,10 @@ export namespace AccordionItem {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props
-    extends BaseUIComponentProps<'div', OwnerState>,
-      Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
-    value?: Value;
-  }
+  export type Props = BaseUIComponentProps<'div', OwnerState> &
+    Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> & {
+      value?: Value;
+    };
 }
 
 export { AccordionItem };

@@ -45,12 +45,12 @@ const Tab = React.forwardRef(function Tab(
 });
 
 namespace Tab {
-  export type Props = BaseUIComponentProps<'button', Tab.OwnerState> & {
+  export type Props = Omit<BaseUIComponentProps<'button', Tab.OwnerState>, 'value'> & {
     /**
      * You can provide your own value. Otherwise, it falls back to the child position index.
      */
     value?: any;
-  }
+  };
 
   export interface OwnerState {
     disabled: boolean;

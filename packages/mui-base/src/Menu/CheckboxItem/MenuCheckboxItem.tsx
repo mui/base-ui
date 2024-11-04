@@ -195,13 +195,13 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
-interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
+type InnerMenuCheckboxItemProps = MenuCheckboxItem.Props & {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
   treatMouseupAsClick: boolean;
   typingRef: React.RefObject<boolean>;
-}
+};
 
 namespace MenuCheckboxItem {
   export type OwnerState = {
@@ -239,7 +239,7 @@ namespace MenuCheckboxItem {
      * @default true
      */
     closeOnClick?: boolean;
-  }
+  };
 }
 
 MenuCheckboxItem.propTypes /* remove-proptypes */ = {

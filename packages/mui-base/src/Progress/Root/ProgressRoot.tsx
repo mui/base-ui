@@ -91,9 +91,7 @@ namespace ProgressRoot {
     status: ProgressStatus;
   };
 
-  export interface Props
-    extends useProgressRoot.Parameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = useProgressRoot.Parameters & BaseUIComponentProps<'div', OwnerState> & {};
 }
 
 ProgressRoot.propTypes /* remove-proptypes */ = {

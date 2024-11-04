@@ -105,11 +105,10 @@ export namespace AccordionRoot {
     orientation: useAccordionRoot.Orientation;
   }
 
-  export interface Props
-    extends useAccordionRoot.Parameters,
-      Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
-    hiddenUntilFound?: boolean;
-  }
+  export type Props = useAccordionRoot.Parameters &
+    Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> & {
+      hiddenUntilFound?: boolean;
+    };
 }
 
 export { AccordionRoot };

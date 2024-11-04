@@ -160,9 +160,8 @@ export namespace MenuPositioner {
     alignment: 'start' | 'end' | 'center';
   };
 
-  export interface Props
-    extends useMenuPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+  export type Props = useMenuPositioner.SharedParameters &
+    BaseUIComponentProps<'div', OwnerState> & {};
 }
 
 MenuPositioner.propTypes /* remove-proptypes */ = {

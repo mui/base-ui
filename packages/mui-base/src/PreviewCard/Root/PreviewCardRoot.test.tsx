@@ -10,7 +10,7 @@ function Root(props: PreviewCard.Root.Props) {
   return <PreviewCard.Root animated={false} {...props} />;
 }
 
-function Trigger(props: PreviewCard.Trigger.Props) {
+function Trigger(props: Omit<PreviewCard.Trigger.Props, 'asChild'>) {
   return (
     <PreviewCard.Trigger href="#" {...props}>
       Link

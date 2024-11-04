@@ -61,9 +61,8 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 export { CollapsiblePanel };
 
 namespace CollapsiblePanel {
-  export interface Props
-    extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+  export type Props = BaseUIComponentProps<'div', CollapsibleRoot.OwnerState> &
+    Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> & {};
 }
 
 CollapsiblePanel.propTypes /* remove-proptypes */ = {

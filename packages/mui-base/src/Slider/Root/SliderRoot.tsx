@@ -149,24 +149,23 @@ export namespace SliderRoot {
     values: ReadonlyArray<number>;
   }
 
-  export interface Props
-    extends Omit<useSliderRoot.Parameters, 'rootRef'>,
-      Omit<BaseUIComponentProps<'span', OwnerState>, 'defaultValue' | 'onChange' | 'values'> {
-    /**
-     * The default value of the slider. Use when the component is not controlled.
-     */
-    defaultValue?: number | ReadonlyArray<number>;
-    /**
-     * If `true`, the component is disabled.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * The value of the slider.
-     * For ranged sliders, provide an array with two values.
-     */
-    value?: number | ReadonlyArray<number>;
-  }
+  export type Props = Omit<useSliderRoot.Parameters, 'rootRef'> &
+    Omit<BaseUIComponentProps<'span', OwnerState>, 'defaultValue' | 'onChange' | 'values'> & {
+      /**
+       * The default value of the slider. Use when the component is not controlled.
+       */
+      defaultValue?: number | ReadonlyArray<number>;
+      /**
+       * If `true`, the component is disabled.
+       * @default false
+       */
+      disabled?: boolean;
+      /**
+       * The value of the slider.
+       * For ranged sliders, provide an array with two values.
+       */
+      value?: number | ReadonlyArray<number>;
+    };
 }
 
 export { SliderRoot };

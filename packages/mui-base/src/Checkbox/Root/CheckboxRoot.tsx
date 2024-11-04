@@ -118,9 +118,8 @@ namespace CheckboxRoot {
     required: boolean;
     indeterminate: boolean;
   }
-  export interface Props
-    extends UseCheckboxRoot.Parameters,
-      Omit<BaseUIComponentProps<'button', OwnerState>, 'onChange'> {}
+  export type Props = UseCheckboxRoot.Parameters &
+    Omit<BaseUIComponentProps<'button', OwnerState>, 'onChange'> & {};
 }
 
 CheckboxRoot.propTypes /* remove-proptypes */ = {

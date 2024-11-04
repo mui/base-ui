@@ -98,8 +98,7 @@ namespace RadioGroupRoot {
     readOnly: boolean | undefined;
   }
 
-  export interface Props
-    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> {
+  export type Props = Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> & {
     /**
      * Determines if the radio group is disabled.
      * @default false
@@ -131,7 +130,7 @@ namespace RadioGroupRoot {
      * Callback fired when the value changes.
      */
     onValueChange?: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
-  }
+  };
 }
 
 RadioGroupRoot.propTypes /* remove-proptypes */ = {
