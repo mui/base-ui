@@ -22,7 +22,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   props: ScrollAreaScrollbar.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, orientation = 'vertical', keepMounted = false, ...otherProps } = props;
+  const { render, className, orientation = 'vertical', ...otherProps } = props;
 
   const { hovering, scrolling, hiddenState, scrollbarYRef, scrollbarXRef } =
     useScrollAreaRootContext();
@@ -59,8 +59,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   const isHidden =
     orientation === 'vertical' ? hiddenState.scrollbarYHidden : hiddenState.scrollbarXHidden;
 
-  const shouldRender = keepMounted || !isHidden;
-  if (!shouldRender) {
+  if (isHidden) {
     return null;
   }
 
@@ -84,11 +83,6 @@ namespace ScrollAreaScrollbar {
      * @default 'vertical'
      */
     orientation?: 'vertical' | 'horizontal';
-    /**
-     * Whether to keep the scrollbar mounted in the DOM when there is no overflow.
-     * @default false
-     */
-    keepMounted?: boolean;
   }
 }
 
@@ -105,11 +99,6 @@ ScrollAreaScrollbar.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the scrollbar mounted in the DOM when there is no overflow.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * The orientation of the scrollbar.
    * @default 'vertical'

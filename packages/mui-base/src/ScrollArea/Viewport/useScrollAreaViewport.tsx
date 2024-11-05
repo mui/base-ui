@@ -10,7 +10,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   const { children } = params;
 
   const {
-    type,
     viewportRef,
     scrollbarYRef,
     scrollbarXRef,
@@ -29,9 +28,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   const timeoutRef = React.useRef(-1);
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
-
-  const [paddingX, setPaddingX] = React.useState(0);
-  const [paddingY, setPaddingY] = React.useState(0);
 
   const computeThumb = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -149,33 +145,15 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       return undefined;
     }
 
-    function handleResize() {
-      // Parse computed styles as the scrollbars may not be rendered to measure.
-      if (scrollbarYRef.current) {
-        setPaddingX(
-          scrollbarYRef.current.offsetWidth ||
-            parseFloat(getComputedStyle(scrollbarYRef.current).width),
-        );
-      }
-      if (scrollbarXRef.current) {
-        setPaddingY(
-          scrollbarXRef.current.offsetHeight ||
-            parseFloat(getComputedStyle(scrollbarXRef.current).height),
-        );
-      }
-
-      computeThumb();
-    }
-
     // Wait for the scrollbar-related refs to be set.
-    queueMicrotask(handleResize);
+    queueMicrotask(computeThumb);
 
     const win = ownerWindow(viewportRef.current);
 
-    win.addEventListener('resize', handleResize);
+    win.addEventListener('resize', computeThumb);
 
     return () => {
-      win.removeEventListener('resize', handleResize);
+      win.removeEventListener('resize', computeThumb);
     };
   }, [scrollbarYRef, scrollbarXRef, viewportRef, computeThumb]);
 
@@ -204,22 +182,20 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   const wrapperStyles: React.CSSProperties = React.useMemo(() => {
     const styles: React.CSSProperties = {};
 
-    if (type === 'inset') {
-      if (!hiddenState.scrollbarYHidden) {
-        styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
-      }
+    if (!gutter) {
+      return styles;
+    }
 
-      if (!hiddenState.scrollbarXHidden) {
-        styles.paddingBottom = paddingY;
-      }
+    // Unconditional for layout stability: prevent layout shifts when the vertical scrollbar is
+    // hidden/shown.
+    styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = gutter;
 
-      if (hiddenState.scrollbarYHidden && gutter === 'stable') {
-        styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = paddingX;
-      }
+    if (!hiddenState.scrollbarXHidden) {
+      styles.paddingBottom = gutter;
     }
 
     return styles;
-  }, [type, hiddenState, paddingX, paddingY, dir, gutter]);
+  }, [hiddenState, dir, gutter]);
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>

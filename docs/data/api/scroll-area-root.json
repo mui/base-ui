@@ -2,14 +2,10 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "gutter": {
-      "type": { "name": "enum", "description": "'none'<br>&#124;&nbsp;'stable'" },
-      "default": "'stable'"
+      "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" },
+      "default": "0"
     },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "type": {
-      "type": { "name": "enum", "description": "'inset'<br>&#124;&nbsp;'overlay'" },
-      "default": "'overlay'"
-    }
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "ScrollAreaRoot",
   "imports": [

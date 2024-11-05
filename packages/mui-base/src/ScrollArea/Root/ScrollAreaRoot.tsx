@@ -22,7 +22,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir, type = 'overlay', gutter = 'stable', ...otherProps } = props;
+  const { render, className, dir, type = 'overlay', gutter = 0, ...otherProps } = props;
 
   const scrollAreaRoot = useScrollAreaRoot({ dir, type, gutter });
 
@@ -68,17 +68,10 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 namespace ScrollAreaRoot {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     /**
-     * Whether the scrollbars are rendered as overlay (not affecting layout) or inset (affecting
-     * layout).
-     * @default 'overlay'
+     * Determines the space to account for inset scrollbars.
+     * @default 0
      */
-    type?: 'overlay' | 'inset';
-    /**
-     * Determines the permanent scrollbar gutter when using the `inset` type to prevent layout
-     * shifts when the scrollbar is hidden/shown.
-     * @default 'stable'
-     */
-    gutter?: 'none' | 'stable';
+    gutter?: number | string;
   }
 
   export interface OwnerState {}
@@ -102,21 +95,14 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    */
   dir: PropTypes.string,
   /**
-   * Determines the permanent scrollbar gutter when using the `inset` type to prevent layout
-   * shifts when the scrollbar is hidden/shown.
-   * @default 'stable'
+   * Determines the space to account for inset scrollbars.
+   * @default 0
    */
-  gutter: PropTypes.oneOf(['none', 'stable']),
+  gutter: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Whether the scrollbars are rendered as overlay (not affecting layout) or inset (affecting
-   * layout).
-   * @default 'overlay'
-   */
-  type: PropTypes.oneOf(['inset', 'overlay']),
 } as any;
 
 export { ScrollAreaRoot };

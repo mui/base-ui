@@ -208,7 +208,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
 export namespace useScrollAreaRoot {
   export interface Parameters {
     dir: string | undefined;
-    gutter: string;
+    gutter: number | string;
     type: string;
   }
 }

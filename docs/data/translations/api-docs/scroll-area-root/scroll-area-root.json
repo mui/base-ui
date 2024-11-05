@@ -4,13 +4,8 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "gutter": {
-      "description": "Determines the permanent scrollbar gutter when using the <code>inset</code> type to prevent layout shifts when the scrollbar is hidden/shown."
-    },
-    "render": { "description": "A function to customize rendering of the component." },
-    "type": {
-      "description": "Whether the scrollbars are rendered as overlay (not affecting layout) or inset (affecting layout)."
-    }
+    "gutter": { "description": "Determines the space to account for inset scrollbars." },
+    "render": { "description": "A function to customize rendering of the component." }
   },
   "classDescriptions": {}
 }

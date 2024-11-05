@@ -16,9 +16,11 @@ const data = [
   'f9e87c8f-7b4f-4c7e-bb72-ebe8e2277c5e',
 ];
 
+const scrollbarSize = 10;
+
 export default function ScrollAreaInset() {
   return (
-    <ScrollAreaRoot type="inset">
+    <ScrollAreaRoot gutter={scrollbarSize}>
       <ScrollAreaViewport>
         <div style={{ padding: '10px 20px' }}>
           <h3 style={{ margin: '20px 0 10px' }}>User IDs</h3>
@@ -55,6 +57,7 @@ const ScrollAreaRoot = styled(ScrollArea.Root)`
   height: 250px;
   border-radius: 2px;
   background: #f5f5f5;
+  --scrollbar-size: ${scrollbarSize}px;
 `;
 
 const ScrollAreaViewport = styled(ScrollArea.Viewport)`
@@ -70,26 +73,21 @@ const ScrollAreaViewport = styled(ScrollArea.Viewport)`
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   background: rgb(220 220 220);
   box-sizing: border-box;
+  display: flex;
 
   &[data-orientation='vertical'] {
-    width: 10px;
+    width: var(--scrollbar-size);
   }
 
   &[data-orientation='horizontal'] {
-    height: 10px;
+    flex-direction: column;
+    height: var(--scrollbar-size);
   }
 `;
 
 const ScrollAreaThumb = styled(ScrollArea.Thumb)`
   background: rgb(180 180 180);
-
-  &[data-orientation='vertical'] {
-    width: 10px;
-  }
-
-  &[data-orientation='horizontal'] {
-    height: 10px;
-  }
+  flex: 1;
 
   &:hover {
     background: rgb(150 150 150);
