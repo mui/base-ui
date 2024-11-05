@@ -53,14 +53,16 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       ref.current.style.marginTop = '';
       ref.current.style.marginBottom = '';
 
-      // Get the nav's natural top position from the start of the document
+      // Get the nav top Y coordinate from the start of the document
       // if it was `position: static` and `position: absolute`
+      // relative to the start of the document
       ref.current.style.position = 'static';
       const staticTop = window.scrollY + ref.current.getBoundingClientRect().y;
       ref.current.style.position = 'absolute';
       const absoluteTop = window.scrollY + ref.current.getBoundingClientRect().y;
 
-      // Get the nav's Y coordinate when it's at its maximum possible bottom position
+      // Get the nav bottom Y coordinate when it's at its maximum possible bottom position
+      // relative to the start of the document
       ref.current.style.position = 'absolute';
       ref.current.style.top = 'auto';
       ref.current.style.bottom = '0';
