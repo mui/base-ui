@@ -14,10 +14,11 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
     }
 
     let prevScrollY = window.scrollY;
+    let top: number;
+    let bottom: number;
     let resizeObserver: ResizeObserver | undefined;
     let state: 'Scrollable' | 'StickyTop' | 'StickyBottom' = 'StickyTop';
     let raf = 0;
-    let hash = '';
 
     const cssTop = parseFloat(getComputedStyle(ref.current).top);
 
@@ -111,16 +112,16 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       }
     }
 
-    function unstick(top: number, bottom: number, delta: number) {
+    function unstick(newTop: number, newBottom: number) {
       if (ref.current) {
         state = 'Scrollable';
         const { absoluteTop, absoluteBottom, staticTop } = getCachedPositions();
         const scrollY = window.scrollY;
         const bodyHeight = document.body.clientHeight;
         const minMarginTop = staticTop - absoluteTop;
-        const rootOffset = scrollY + top;
-        const marginTop = Math.max(minMarginTop, rootOffset - absoluteTop - delta);
-        const marginBottom = Math.max(0, bodyHeight - scrollY - bottom - absoluteBottom + delta);
+        const rootOffset = scrollY + newTop;
+        const marginTop = Math.max(minMarginTop, rootOffset - absoluteTop);
+        const marginBottom = Math.max(0, bodyHeight - scrollY - newBottom - absoluteBottom);
 
         // Choose the smaller margin because at document edges,
         // the larger one may push the nav out of the container edges
@@ -149,12 +150,15 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
         const delta = scrollY - prevScrollY;
         prevScrollY = scrollY;
 
+        // We may get into <0.1px rounding issues in Safari and Firefox
+        const rect = ref.current.getBoundingClientRect();
+        top = Math.round(rect.top);
+        bottom = Math.round(rect.bottom);
+
         // Skip when scrolling in the direction that matches the sticky position
         if ((delta > 0 && state === 'StickyBottom') || (delta < 0 && state === 'StickyTop')) {
           return;
         }
-
-        const rect = ref.current.getBoundingClientRect();
 
         // Should be top-sticky if the entire nav can fit in the viewport
         if (rect.height + cssTop <= window.innerHeight) {
@@ -164,16 +168,12 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
           return;
         }
 
-        // We may get into <0.1px rounding issues in Safari and Firefox
-        const top = Math.round(rect.top);
-        const bottom = Math.round(rect.bottom);
-
         if (state === 'StickyTop') {
           const clippedAtBottom = bottom - window.innerHeight;
           if (delta >= clippedAtBottom) {
             stickToBottom();
           } else {
-            unstick(top, bottom, delta);
+            unstick(top - delta, bottom - delta);
           }
           return;
         }
@@ -182,34 +182,21 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
           if (delta <= top) {
             stickToTop();
           } else {
-            unstick(top, bottom, delta);
+            unstick(top - delta, bottom - delta);
           }
           return;
         }
 
-        if (state === 'Scrollable' && delta <= 0 && top >= cssTop) {
+        if (state === 'Scrollable' && delta <= 0 && top - delta >= cssTop) {
           stickToTop();
           return;
         }
 
-        if (state === 'Scrollable' && delta >= 0 && bottom <= window.innerHeight) {
+        if (state === 'Scrollable' && delta >= 0 && bottom - delta <= window.innerHeight) {
           stickToBottom();
         }
       });
     }
-
-    // Do not handle scroll changes when hash changes
-    function handlePopState() {
-      if (hash !== window.location.hash) {
-        window.removeEventListener('scroll', handleUpdate);
-        requestAnimationFrame(() => {
-          hash = window.location.hash;
-          prevScrollY = window.scrollY;
-          window.addEventListener('scroll', handleUpdate);
-        });
-      }
-    }
-
     const requestIdleCallback = window.requestIdleCallback ?? window.setTimeout;
     const cancelIdleCallback = window.cancelIdleCallback ?? window.clearTimeout;
 
@@ -226,13 +213,11 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
     requestIdleCallback(getCachedPositions);
     window.addEventListener('scroll', handleUpdate);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('popstate', handlePopState);
 
     return () => {
       resizeObserver?.disconnect();
       window.removeEventListener('scroll', handleUpdate);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
