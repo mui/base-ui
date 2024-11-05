@@ -139,8 +139,8 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
             ['--scroll-area-thumb-height' as string]: `${thumbSize.height}px`,
           }),
           ...(orientation === 'horizontal' && {
-            left: 0,
-            right: 'var(--scroll-area-corner-width)',
+            [dir === 'rtl' ? 'right' : 'left']: 0,
+            [dir === 'rtl' ? 'left' : 'right']: 'var(--scroll-area-corner-width)',
             bottom: 0,
             ['--scroll-area-thumb-width' as string]: `${thumbSize.width}px`,
           }),
