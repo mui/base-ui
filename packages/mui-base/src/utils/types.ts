@@ -66,3 +66,11 @@ type PropsWithAsChild<RenderFunctionProps, OwnerState> = {
     | ComponentRenderFn<RenderFunctionProps, OwnerState>
     | React.ReactElement<Record<string, unknown>>;
 };
+
+/**
+ * Remove properties `K` from `T`.
+ * Distributive for union types.
+ *
+ * @internal
+ */
+export type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;

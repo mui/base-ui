@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { CompositeList } from '../../Composite/List/CompositeList';
@@ -150,7 +150,10 @@ export namespace SliderRoot {
   }
 
   export type Props = Omit<useSliderRoot.Parameters, 'rootRef'> &
-    Omit<BaseUIComponentProps<'span', OwnerState>, 'defaultValue' | 'onChange' | 'values'> & {
+    DistributiveOmit<
+      BaseUIComponentProps<'span', OwnerState>,
+      'defaultValue' | 'onChange' | 'values'
+    > & {
       /**
        * The default value of the slider. Use when the component is not controlled.
        */

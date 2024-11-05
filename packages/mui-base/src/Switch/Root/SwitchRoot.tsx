@@ -8,7 +8,7 @@ import { styleHookMapping } from '../styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled switches.
@@ -75,7 +75,7 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
 
 namespace SwitchRoot {
   export type Props = useSwitchRoot.Parameters &
-    Omit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> & {};
+    DistributiveOmit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> & {};
 
   export interface OwnerState extends FieldRoot.OwnerState {
     checked: boolean;

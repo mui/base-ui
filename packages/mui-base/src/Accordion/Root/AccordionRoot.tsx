@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import { useAccordionRoot } from './useAccordionRoot';
@@ -106,7 +106,7 @@ export namespace AccordionRoot {
   }
 
   export type Props = useAccordionRoot.Parameters &
-    Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> & {
+    DistributiveOmit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> & {
       hiddenUntilFound?: boolean;
     };
 }

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
@@ -92,7 +92,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 namespace RadioRoot {
-  export type Props = Omit<BaseUIComponentProps<'button', OwnerState>, 'value'> & {
+  export type Props = DistributiveOmit<BaseUIComponentProps<'button', OwnerState>, 'value'> & {
     /**
      * The unique identifying value of the radio in a group.
      */

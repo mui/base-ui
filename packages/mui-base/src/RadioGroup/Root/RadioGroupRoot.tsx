@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -98,7 +98,10 @@ namespace RadioGroupRoot {
     readOnly: boolean | undefined;
   }
 
-  export type Props = Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> & {
+  export type Props = DistributiveOmit<
+    BaseUIComponentProps<'div', OwnerState>,
+    'value' | 'defaultValue'
+  > & {
     /**
      * Determines if the radio group is disabled.
      * @default false

@@ -6,7 +6,7 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
 
@@ -119,7 +119,7 @@ namespace CheckboxRoot {
     indeterminate: boolean;
   }
   export type Props = UseCheckboxRoot.Parameters &
-    Omit<BaseUIComponentProps<'button', OwnerState>, 'onChange'> & {};
+    DistributiveOmit<BaseUIComponentProps<'button', OwnerState>, 'onChange'> & {};
 }
 
 CheckboxRoot.propTypes /* remove-proptypes */ = {

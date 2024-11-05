@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { resolveClassName } from '../../utils/resolveClassName';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import type { SliderRoot } from '../Root/SliderRoot';
 import { useSliderRootContext } from '../Root/SliderRootContext';
@@ -148,7 +148,7 @@ export namespace SliderThumb {
   export interface OwnerState extends SliderRoot.OwnerState {}
 
   export type Props = Partial<Omit<useSliderThumb.Parameters, 'rootRef'>> &
-    Omit<BaseUIComponentProps<'span', OwnerState>, 'render'> & {
+    DistributiveOmit<BaseUIComponentProps<'span', OwnerState>, 'render'> & {
       onPointerLeave?: React.PointerEventHandler;
       onPointerOver?: React.PointerEventHandler;
       onBlur?: React.FocusEventHandler;

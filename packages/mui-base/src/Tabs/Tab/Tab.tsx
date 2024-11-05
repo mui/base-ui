@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, DistributiveOmit } from '../../utils/types';
 import { TabsOrientation } from '../Root/TabsRoot';
 
 /**
@@ -45,7 +45,7 @@ const Tab = React.forwardRef(function Tab(
 });
 
 namespace Tab {
-  export type Props = Omit<BaseUIComponentProps<'button', Tab.OwnerState>, 'value'> & {
+  export type Props = DistributiveOmit<BaseUIComponentProps<'button', Tab.OwnerState>, 'value'> & {
     /**
      * You can provide your own value. Otherwise, it falls back to the child position index.
      */

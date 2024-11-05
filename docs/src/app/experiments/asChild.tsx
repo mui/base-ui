@@ -1,10 +1,36 @@
 'use client';
 
 import * as React from 'react';
+import { Switch } from '@base_ui/react/Switch';
 import { Dialog } from '@base_ui/react/Dialog';
 import classes from './asChild.module.css';
 
 export default function AsChildExperiment() {
+  return (
+    <div>
+      <MyDialog />
+      <MySwitch />
+    </div>
+  );
+}
+
+function MyButton(props: React.ComponentProps<'button'>) {
+  return <button type="button" {...props} className={classes.trigger} />;
+}
+
+export function MySwitch(props: Omit<Switch.Root.Props, 'asChild'>) {
+  return (
+    <Switch.Root {...props} asChild>
+      {(partProps) => (
+        <button type="button" {...partProps}>
+          <Switch.Thumb data-part="thumb" />
+        </button>
+      )}
+    </Switch.Root>
+  );
+}
+
+function MyDialog() {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -37,8 +63,4 @@ export default function AsChildExperiment() {
       </Dialog.Popup>
     </Dialog.Root>
   );
-}
-
-function MyButton(props: React.ComponentProps<'button'>) {
-  return <button type="button" {...props} className={classes.trigger} />;
 }
