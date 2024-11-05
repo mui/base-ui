@@ -60,13 +60,12 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       ref.current.style.position = 'absolute';
       const absoluteTop = window.scrollY + ref.current.getBoundingClientRect().y;
 
-      // Get the nav's natural distance from bottom to the end of the document
-      // if it was `position: absolute` and `bottom: 0`
+      // Get the nav's Y coordinate when it's at its maximum possible bottom position
       ref.current.style.position = 'absolute';
       ref.current.style.top = 'auto';
       ref.current.style.bottom = '0';
       const rect = ref.current.getBoundingClientRect();
-      const absoluteBottom = document.body.clientHeight - window.scrollY - rect.bottom;
+      const absoluteBottom = window.scrollY + rect.bottom;
 
       ref.current.style.position = '';
       ref.current.style.top = initialStyles.top;
@@ -116,12 +115,8 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       if (ref.current) {
         state = 'Scrollable';
         const { absoluteTop, absoluteBottom, staticTop } = getCachedPositions();
-        const scrollY = window.scrollY;
-        const bodyHeight = document.body.clientHeight;
-        const minMarginTop = staticTop - absoluteTop;
-        const rootOffset = scrollY + newTop;
-        const marginTop = Math.max(minMarginTop, rootOffset - absoluteTop);
-        const marginBottom = Math.max(0, bodyHeight - scrollY - newBottom - absoluteBottom);
+        const marginTop = Math.max(staticTop - absoluteTop, window.scrollY + newTop - absoluteTop);
+        const marginBottom = Math.max(0, absoluteBottom - window.scrollY - newBottom);
 
         // Choose the smaller margin because at document edges,
         // the larger one may push the nav out of the container edges
