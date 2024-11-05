@@ -10,7 +10,7 @@ const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 const VIEWPORT_SIZE = 200;
 const SCROLLABLE_CONTENT_SIZE = 1000;
 const SCROLLBAR_WIDTH = 10;
-const SCROLLBAR_HEIGHT = 15;
+const SCROLLBAR_HEIGHT = 10;
 
 describe('<ScrollArea.Root />', () => {
   const { render } = createRenderer();
@@ -47,10 +47,10 @@ describe('<ScrollArea.Root />', () => {
       ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
     });
 
-    describe('prop: type', () => {
+    describe('prop: gutter', () => {
       it('should not add padding for overlay scrollbars', async () => {
         await render(
-          <ScrollArea.Root type="overlay" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
             <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
               <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
             </ScrollArea.Viewport>
@@ -75,7 +75,10 @@ describe('<ScrollArea.Root />', () => {
 
       it('should add padding for inset scrollbars', async () => {
         await render(
-          <ScrollArea.Root type="inset" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Root
+            gutter={SCROLLBAR_WIDTH}
+            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+          >
             <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
               <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
             </ScrollArea.Viewport>
@@ -101,11 +104,7 @@ describe('<ScrollArea.Root />', () => {
     describe('prop: dir', () => {
       it('should adjust inset padding for rtl', async () => {
         await render(
-          <ScrollArea.Root
-            type="inset"
-            dir="rtl"
-            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
-          >
+          <ScrollArea.Root dir="rtl" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
             <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
               <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
             </ScrollArea.Viewport>
@@ -126,34 +125,6 @@ describe('<ScrollArea.Root />', () => {
         expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
         expect(style.paddingRight).not.to.equal(`${SCROLLBAR_WIDTH}px`);
         expect(style.paddingBottom).to.equal(`${SCROLLBAR_HEIGHT}px`);
-      });
-    });
-
-    describe('prop: gutter', () => {
-      it('should not add inset padding for gutter: none', async () => {
-        await render(
-          <ScrollArea.Root
-            type="inset"
-            gutter="none"
-            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
-          >
-            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }} />
-            <ScrollArea.Scrollbar
-              orientation="vertical"
-              style={{ width: SCROLLBAR_WIDTH, height: '100%' }}
-            />
-            <ScrollArea.Scrollbar
-              orientation="horizontal"
-              style={{ height: SCROLLBAR_HEIGHT, width: '100%' }}
-            />
-          </ScrollArea.Root>,
-        );
-
-        const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
-        const style = getComputedStyle(contentWrapper);
-
-        expect(style.paddingLeft).to.equal('0px');
-        expect(style.paddingRight).to.equal('0px');
       });
     });
   });
