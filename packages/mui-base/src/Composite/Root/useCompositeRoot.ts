@@ -25,6 +25,8 @@ import {
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
+  // isRtl not yet supported for grids (cols > 1)
+  isRtl?: boolean;
   loop?: boolean;
   activeIndex?: number;
   onActiveIndexChange?: (index: number) => void;
@@ -42,6 +44,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
+    isRtl = false,
     loop = true,
     dense = false,
     orientation = 'both',
@@ -135,17 +138,29 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             ] as number; // navigated cell will never be nullish
           }
 
-          const toEndKeys = {
-            horizontal: [ARROW_RIGHT],
-            vertical: [ARROW_DOWN],
-            both: [ARROW_RIGHT, ARROW_DOWN],
-          }[orientation];
+          const toEndKeys = isRtl
+            ? {
+                horizontal: [ARROW_LEFT],
+                vertical: [ARROW_DOWN],
+                both: [ARROW_LEFT, ARROW_DOWN],
+              }[orientation]
+            : {
+                horizontal: [ARROW_RIGHT],
+                vertical: [ARROW_DOWN],
+                both: [ARROW_RIGHT, ARROW_DOWN],
+              }[orientation];
 
-          const toStartKeys = {
-            horizontal: [ARROW_LEFT],
-            vertical: [ARROW_UP],
-            both: [ARROW_LEFT, ARROW_UP],
-          }[orientation];
+          const toStartKeys = isRtl
+            ? {
+                horizontal: [ARROW_RIGHT],
+                vertical: [ARROW_UP],
+                both: [ARROW_RIGHT, ARROW_UP],
+              }[orientation]
+            : {
+                horizontal: [ARROW_LEFT],
+                vertical: [ARROW_UP],
+                both: [ARROW_LEFT, ARROW_UP],
+              }[orientation];
 
           const preventedKeys = isGrid
             ? ALL_KEYS
@@ -191,6 +206,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       dense,
       elementsRef,
       isGrid,
+      isRtl,
       itemSizes,
       loop,
       onActiveIndexChange,

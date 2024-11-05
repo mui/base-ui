@@ -25,6 +25,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     itemSizes,
     loop,
     cols,
+    isRtl,
     ...otherProps
   } = props;
 
@@ -58,6 +59,7 @@ namespace CompositeRoot {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
+    isRtl?: boolean;
     activeIndex?: number;
     onActiveIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
@@ -90,6 +92,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   dense: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  isRtl: PropTypes.bool,
   /**
    * @ignore
    */
