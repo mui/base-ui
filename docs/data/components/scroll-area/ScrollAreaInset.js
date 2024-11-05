@@ -57,6 +57,7 @@ const ScrollAreaRoot = styled(ScrollArea.Root)`
   height: 250px;
   border-radius: 2px;
   background: #f5f5f5;
+
   --scrollbar-size: ${scrollbarSize}px;
 `;
 

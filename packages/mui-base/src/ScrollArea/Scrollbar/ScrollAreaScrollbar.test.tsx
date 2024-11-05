@@ -11,7 +11,7 @@ describe('<ScrollArea.Scrollbar />', () => {
 
   clock.withFakeTimers();
 
-  describeConformance(<ScrollArea.Scrollbar />, () => ({
+  describeConformance(<ScrollArea.Scrollbar keepMounted />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
@@ -31,8 +31,8 @@ describe('<ScrollArea.Scrollbar />', () => {
         <ScrollArea.Viewport style={{ width: '100%', height: '100%' }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" />
-        <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" />
+        <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
+        <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
         <ScrollArea.Corner />
       </ScrollArea.Root>,
     );
@@ -60,8 +60,8 @@ describe('<ScrollArea.Scrollbar />', () => {
         <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" />
-        <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" />
+        <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
+        <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
         <ScrollArea.Corner />
       </ScrollArea.Root>,
     );
