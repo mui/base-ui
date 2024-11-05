@@ -22,9 +22,9 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir, type = 'overlay', gutter = 0, ...otherProps } = props;
+  const { render, className, dir, gutter = 0, ...otherProps } = props;
 
-  const scrollAreaRoot = useScrollAreaRoot({ dir, type, gutter });
+  const scrollAreaRoot = useScrollAreaRoot({ dir, gutter });
 
   const { rootId } = scrollAreaRoot;
 
@@ -40,11 +40,10 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const contextValue = React.useMemo(
     () => ({
       dir,
-      type,
       gutter,
       ...scrollAreaRoot,
     }),
-    [dir, gutter, type, scrollAreaRoot],
+    [dir, gutter, scrollAreaRoot],
   );
 
   const viewportId = `[data-id="${rootId}-viewport"]`;

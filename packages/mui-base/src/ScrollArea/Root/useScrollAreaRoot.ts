@@ -209,6 +209,5 @@ export namespace useScrollAreaRoot {
   export interface Parameters {
     dir: string | undefined;
     gutter: number | string;
-    type: string;
   }
 }
