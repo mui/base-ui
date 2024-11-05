@@ -34,9 +34,11 @@ describe('<Meter.Indicator />', () => {
   }));
 
   describe('internal styles', () => {
-    it('sets positioning styles', async function test() {
+    it('sets positioning styles', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        this.skip();
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       const { getByTestId } = await render(
