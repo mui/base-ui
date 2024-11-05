@@ -141,21 +141,14 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   });
 
   useEnhancedEffect(() => {
-    if (!viewportRef.current) {
-      return undefined;
-    }
-
+    // First load computation.
     // Wait for the scrollbar-related refs to be set.
     queueMicrotask(computeThumb);
+  }, []);
 
-    const win = ownerWindow(viewportRef.current);
-
-    win.addEventListener('resize', computeThumb);
-
-    return () => {
-      win.removeEventListener('resize', computeThumb);
-    };
-  }, [scrollbarYRef, scrollbarXRef, viewportRef, computeThumb]);
+  useEnhancedEffect(() => {
+    computeThumb();
+  }, [computeThumb, hiddenState, dir]);
 
   React.useEffect(() => {
     if (
@@ -174,10 +167,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       ro.disconnect();
     };
   }, [computeThumb, viewportRef]);
-
-  useEnhancedEffect(() => {
-    computeThumb();
-  }, [hiddenState, computeThumb, dir]);
 
   const wrapperStyles: React.CSSProperties = React.useMemo(() => {
     const styles: React.CSSProperties = {};
