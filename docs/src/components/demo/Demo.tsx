@@ -24,11 +24,7 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
   return (
     <BaseDemo.Root className={clsx('DemoRoot', className)} {...props}>
       <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-        <BaseDemo.Playground
-          suppressHydrationWarning
-          aria-label="Component demo"
-          className="DemoPlayground"
-        />
+        <BaseDemo.Playground aria-label="Component demo" className="DemoPlayground" />
       </ErrorBoundary>
 
       <Collapsible.Root open={open} onOpenChange={setOpen}>
