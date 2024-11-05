@@ -12,7 +12,7 @@ interface Size {
 }
 
 export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
-  const { dir: dirProp } = params;
+  const { dir: dirParam } = params;
 
   const [hovering, setHovering] = React.useState(false);
   const [scrolling, setScrolling] = React.useState(false);
@@ -43,17 +43,14 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     cornerHidden: false,
   });
 
-  const [dir, setDir] = useControlled({
-    controlled: dirProp,
-    default: dirProp ?? 'ltr',
-    name: 'ScrollArea',
-  });
+  const [autoDir, setAutoDir] = React.useState(dirParam);
+  const dir = dirParam ?? autoDir;
 
   useEnhancedEffect(() => {
-    if (viewportRef.current) {
-      setDir(getComputedStyle(viewportRef.current).direction);
+    if (dirParam === undefined && viewportRef.current) {
+      setAutoDir(getComputedStyle(viewportRef.current).direction);
     }
-  }, [setDir]);
+  }, [dirParam]);
 
   React.useEffect(() => {
     return () => {
