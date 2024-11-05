@@ -16,7 +16,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     thumbYRef,
     thumbXRef,
     cornerRef,
-    setScrolling,
     dir,
     gutter,
     setCornerSize,
@@ -229,7 +228,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       wrapperStyles,
       children,
       computeThumb,
-      setScrolling,
       handleScroll,
     ],
   );
