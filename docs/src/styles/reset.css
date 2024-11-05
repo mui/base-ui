@@ -4,6 +4,12 @@ body {
   padding-top: 49px;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 ::selection {
   background: var(--gray-container-3);
 }

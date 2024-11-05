@@ -1,0 +1,67 @@
+---
+productId: base-ui
+title: React Scroll Area component
+description: Scroll Area creates a scrollable region with custom scrollbars.
+components: ScrollAreaRoot, ScrollAreaViewport, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaCorner
+githubLabel: 'component: scrollarea'
+---
+
+# Scroll Area
+
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+## Introduction
+
+<Demo demo="ScrollAreaIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+<InstallationInstructions componentName={['ScrollArea']} />
+
+## Anatomy
+
+```jsx
+<ScrollArea.Root>
+  <ScrollArea.Viewport />
+  <ScrollArea.Scrollbar orientation="vertical">
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Scrollbar orientation="horizontal">
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Corner />
+</ScrollArea.Root>
+```
+
+## Styling
+
+The scrollbar elements can be shown conditionally based on the user's interaction with the Scroll Area. The `[data-scrolling]` and `[data-hovering]` attributes are added to the scrollbar element while the user is scrolling or hovering over the Scroll Area.
+
+```css
+.ScrollAreaScrollbar[data-scrolling],
+.ScrollAreaScrollbar[data-hovering] {
+  opacity: 1;
+}
+```
+
+## Inset scrollbars
+
+By specifying a `gutter` prop, you can create inset scrollbars that make space for the scrollbar, preventing them from overlapping content. The value should match the size of the scrollbar width/height.
+
+```jsx
+<ScrollArea.Root gutter={10}>
+```
+
+<Demo demo="ScrollAreaInset" defaultCodeOpen="false" />
+
+## Corner
+
+The vertical and horizontal scrollbar elements can prevent overlapping each other by rendering a `Corner`:
+
+```jsx
+<ScrollArea.Scrollbar orientation="vertical" />
+<ScrollArea.Scrollbar orientation="horizontal" />
+<ScrollArea.Corner />
+```
