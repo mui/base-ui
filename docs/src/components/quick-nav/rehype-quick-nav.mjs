@@ -35,7 +35,7 @@ export function rehypeQuickNav() {
     // Place quick nav after the `<Subtitle>` that immediately follows the first `<h1>`,
     // or after the first `<h1>` if a matching `<Subtitle>` wasn't found.
     let index = tree.children.indexOf(h1) + 2; // Adding "2" because there's also a line break below h1
-    index = tree.children[index + 1]?.name === DOC_SUBTITLE ? index + 1 : index;
+    index = tree.children[index]?.name === DOC_SUBTITLE ? index + 1 : index;
     tree.children.splice(index, 0, root);
   };
 }
