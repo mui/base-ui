@@ -3,7 +3,6 @@ import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerWindow } from '../../utils/owner';
 import { MIN_THUMB_SIZE } from '../constants';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
