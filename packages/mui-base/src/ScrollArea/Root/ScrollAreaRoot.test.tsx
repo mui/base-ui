@@ -104,7 +104,11 @@ describe('<ScrollArea.Root />', () => {
     describe('prop: dir', () => {
       it('should adjust inset padding for rtl', async () => {
         await render(
-          <ScrollArea.Root dir="rtl" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Root
+            dir="rtl"
+            gutter={SCROLLBAR_WIDTH}
+            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+          >
             <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
               <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
             </ScrollArea.Viewport>
