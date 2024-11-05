@@ -13,9 +13,9 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       return undefined;
     }
 
-    let prevScrollY = window.scrollY;
     let top: number;
     let bottom: number;
+    let prevScrollY = window.scrollY;
     let resizeObserver: ResizeObserver | undefined;
     let state: 'Scrollable' | 'StickyTop' | 'StickyBottom' = 'StickyTop';
     let raf = 0;
@@ -137,15 +137,15 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
     }
 
     function handleUpdate() {
+      console.log('handleUpdate');
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (!ref.current) {
           return;
         }
 
-        const scrollY = window.scrollY;
-        const delta = scrollY - prevScrollY;
-        prevScrollY = scrollY;
+        const delta = window.scrollY - prevScrollY;
+        prevScrollY = window.scrollY;
 
         // We may get into <0.1px rounding issues in Safari and Firefox
         const rect = ref.current.getBoundingClientRect();
@@ -206,22 +206,44 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       });
     }
 
-    // Set cached positions when event loop is empty
+    // Maintain nav position as much as possible to avoid layout shifts
+    let hash = window.location.hash;
+    let pathname = window.location.pathname;
+    function handlePopState() {
+      if (hash !== window.location.hash && pathname === window.location.pathname) {
+        window.removeEventListener('scroll', handleUpdate);
+
+        requestAnimationFrame(() => {
+          if (state === 'Scrollable') {
+            unstick(Math.min(cssTop, top), Math.max(window.innerHeight, bottom));
+          }
+
+          prevScrollY = window.scrollY;
+          window.addEventListener('scroll', handleUpdate);
+        });
+      }
+      hash = window.location.hash;
+      pathname = window.location.pathname;
+    }
+
     requestIdleCallback(getCachedPositions);
+    requestIdleCallback(handleUpdate);
     window.addEventListener('scroll', handleUpdate);
     window.addEventListener('resize', handleResize);
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
       resizeObserver?.disconnect();
       window.removeEventListener('scroll', handleUpdate);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
   return (
     <div ref={ref} className={clsx('QuickNavRoot', className)} {...props}>
       <div className="QuickNavInner">
-        <h2 className="QuickNavTitle">On this page</h2>
+        <h2 className="QuickNavTitle">Contents</h2>
         {children}
       </div>
     </div>

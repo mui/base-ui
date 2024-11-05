@@ -25,11 +25,15 @@ export function rehypeQuickNav() {
       children: [
         createMdxElement({
           name: LIST,
-          children: toc.flatMap((entry) => entry.children?.map(getNodeFromEntry)),
+          children: [
+            getNodeFromEntry({ value: '(Top)', id: '', depth: 2 }),
+            ...toc.flatMap((entry) => entry.children?.map(getNodeFromEntry)),
+          ],
         }),
       ],
     });
 
+    // TODO first subtitle or first heading
     const index = tree.children.findLastIndex(
       /** @param {{ name: string; tagName: string; }} node */
       (node) => node.name === 'Subtitle' || node.tagName === 'h1',
