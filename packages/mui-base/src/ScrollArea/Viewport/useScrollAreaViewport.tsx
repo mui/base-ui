@@ -50,15 +50,34 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
 
+    const nextWidth = scrollbarYHidden
+      ? 0
+      : (viewportWidth / scrollableContentWidth) * viewportWidth;
+    const nextHeight = scrollbarXHidden
+      ? 0
+      : (viewportHeight / scrollableContentHeight) * viewportHeight;
+    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth);
+    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, nextHeight);
+
+    setThumbSize((prevSize) => {
+      if (prevSize.height === clampedNextHeight && prevSize.width === clampedNextWidth) {
+        return prevSize;
+      }
+
+      return {
+        width: clampedNextWidth,
+        height: clampedNextHeight,
+      };
+    });
+
     // Handle Y (vertical) scroll
     if (scrollbarYEl && thumbYEl) {
-      const thumbHeight = thumbYEl.offsetHeight;
       const scrollbarStylesY = getComputedStyle(scrollbarYEl);
       const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
       const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
 
       const maxThumbOffsetY =
-        scrollbarYEl.offsetHeight - thumbHeight - (paddingTop + paddingBottom);
+        scrollbarYEl.offsetHeight - clampedNextHeight - (paddingTop + paddingBottom);
       const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
 
       // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
@@ -70,12 +89,12 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     // Handle X (horizontal) scroll
     if (scrollbarXEl && thumbXEl) {
-      const thumbWidth = thumbXEl.offsetWidth;
       const scrollbarStylesX = getComputedStyle(scrollbarXEl);
       const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
       const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
 
-      const maxThumbOffsetX = scrollbarXEl.offsetWidth - thumbWidth - (paddingLeft + paddingRight);
+      const maxThumbOffsetX =
+        scrollbarXEl.offsetWidth - clampedNextWidth - (paddingLeft + paddingRight);
       const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
 
       const clamp = (value: number, min: number, max: number) =>
@@ -100,25 +119,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         setCornerSize({ width, height });
       }
     }
-
-    setThumbSize((prevSize) => {
-      const width = scrollbarXHidden ? 0 : (viewportWidth / scrollableContentWidth) * viewportWidth;
-      const height = scrollbarYHidden
-        ? 0
-        : (viewportHeight / scrollableContentHeight) * viewportHeight;
-
-      const clampedWidth = Math.max(MIN_THUMB_SIZE, width);
-      const clampedHeight = Math.max(MIN_THUMB_SIZE, height);
-
-      if (prevSize.height === clampedHeight && prevSize.width === clampedWidth) {
-        return prevSize;
-      }
-
-      return {
-        width: clampedWidth,
-        height: clampedHeight,
-      };
-    });
 
     setHiddenState((prevState) => {
       const cornerHidden = scrollbarYHidden || scrollbarXHidden;
