@@ -143,7 +143,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     // First load computation.
     // Wait for the scrollbar-related refs to be set.
     queueMicrotask(computeThumb);
-  }, []);
+  }, [computeThumb]);
 
   useEnhancedEffect(() => {
     computeThumb();
