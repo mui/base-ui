@@ -177,7 +177,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   useEnhancedEffect(() => {
     computeThumb();
-  }, [hiddenState, computeThumb]);
+  }, [hiddenState, computeThumb, dir]);
 
   const wrapperStyles: React.CSSProperties = React.useMemo(() => {
     const styles: React.CSSProperties = {};
