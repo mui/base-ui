@@ -21,6 +21,7 @@ export interface ScrollAreaRootContext {
   handlePointerDown: (event: React.PointerEvent) => void;
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
+  handleScroll: () => void;
   rootId: string | undefined;
   hiddenState: {
     scrollbarYHidden: boolean;

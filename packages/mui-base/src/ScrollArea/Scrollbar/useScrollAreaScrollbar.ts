@@ -16,7 +16,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     handlePointerUp,
     rootId,
     thumbSize,
-    touchModality,
   } = useScrollAreaRootContext();
 
   React.useEffect(() => {
@@ -113,7 +112,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
 
             let newScrollLeft: number;
             if (dir === 'rtl') {
-              // In RTL, we need to invert the scroll direction
+              // In RTL, invert the scroll direction
               newScrollLeft = (1 - scrollRatioX) * (scrollableContentWidth - viewportWidth);
 
               // Adjust for browsers that use negative scrollLeft in RTL
@@ -132,7 +131,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         onPointerUp: handlePointerUp,
         style: {
           position: 'absolute',
-          ...(touchModality && { pointerEvents: 'none' }),
+          touchAction: 'none',
           ...(orientation === 'vertical' && {
             top: 0,
             bottom: 'var(--scroll-area-corner-height)',
@@ -148,10 +147,9 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
         },
       }),
     [
-      orientation,
       rootId,
       handlePointerUp,
-      touchModality,
+      orientation,
       dir,
       thumbSize.height,
       thumbSize.width,

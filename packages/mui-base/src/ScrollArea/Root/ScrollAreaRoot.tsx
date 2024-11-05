@@ -49,14 +49,19 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const viewportId = `[data-id="${rootId}-viewport"]`;
   const scrollbarId = `[data-id="${rootId}-scrollbar"]`;
 
+  const html = React.useMemo(
+    () => ({
+      __html: `${viewportId},${scrollbarId}{scrollbar-width:none}${viewportId}::-webkit-scrollbar,${scrollbarId}::-webkit-scrollbar{display:none}`,
+    }),
+    [scrollbarId, viewportId],
+  );
+
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
       {rootId && (
         <style
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: `${viewportId},${scrollbarId}{scrollbar-width:none}${viewportId}::-webkit-scrollbar,${scrollbarId}::-webkit-scrollbar{display:none}`,
-          }}
+          dangerouslySetInnerHTML={html}
         />
       )}
       {renderElement()}

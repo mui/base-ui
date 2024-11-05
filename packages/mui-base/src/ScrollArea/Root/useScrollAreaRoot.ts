@@ -4,6 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
+import { SCROLL_TIMEOUT } from '../constants';
 
 interface Size {
   width: number;
@@ -34,6 +35,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const startScrollTopRef = React.useRef(0);
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
+  const timeoutRef = React.useRef(-1);
 
   const [hiddenState, setHiddenState] = React.useState({
     scrollbarYHidden: false,
@@ -52,6 +54,21 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       setDir(getComputedStyle(viewportRef.current).direction);
     }
   }, [setDir]);
+
+  React.useEffect(() => {
+    return () => {
+      window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handleScroll = useEventCallback(() => {
+    setScrolling(true);
+
+    window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => {
+      setScrolling(false);
+    }, SCROLL_TIMEOUT);
+  });
 
   const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
     thumbDraggingRef.current = true;
@@ -98,6 +115,11 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         viewportRef.current.scrollTop =
           startScrollTopRef.current + scrollRatioY * (scrollableContentHeight - viewportHeight);
         event.preventDefault();
+        setScrolling(true);
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = window.setTimeout(() => {
+          setScrolling(false);
+        }, SCROLL_TIMEOUT);
       }
 
       if (
@@ -111,6 +133,11 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         viewportRef.current.scrollLeft =
           startScrollLeftRef.current + scrollRatioX * (scrollableContentWidth - viewportWidth);
         event.preventDefault();
+        setScrolling(true);
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = window.setTimeout(() => {
+          setScrolling(false);
+        }, SCROLL_TIMEOUT);
       }
     }
   });
@@ -163,6 +190,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
+      handleScroll,
       cornerSize,
       setCornerSize,
       thumbSize,
@@ -187,6 +215,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
+      handleScroll,
       cornerSize,
       thumbSize,
       touchModality,

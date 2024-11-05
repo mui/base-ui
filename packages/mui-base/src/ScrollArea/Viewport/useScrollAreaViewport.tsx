@@ -4,7 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
-import { MIN_THUMB_SIZE, SCROLL_TIMEOUT } from '../constants';
+import { MIN_THUMB_SIZE } from '../constants';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -24,9 +24,9 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     rootId,
     setHiddenState,
     hiddenState,
+    handleScroll,
   } = useScrollAreaRootContext();
 
-  const timeoutRef = React.useRef(-1);
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const computeThumb = useEventCallback(() => {
@@ -208,12 +208,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
         },
         onScroll() {
           computeThumb();
-          setScrolling(true);
-
-          window.clearTimeout(timeoutRef.current);
-          timeoutRef.current = window.setTimeout(() => {
-            setScrolling(false);
-          }, SCROLL_TIMEOUT);
+          handleScroll();
         },
         children: (
           <div
