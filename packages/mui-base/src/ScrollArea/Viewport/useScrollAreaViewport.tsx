@@ -50,12 +50,13 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
 
-    const nextWidth = scrollbarYHidden
+    const nextWidth = scrollbarXHidden
       ? 0
       : (viewportWidth / scrollableContentWidth) * viewportWidth;
-    const nextHeight = scrollbarXHidden
+    const nextHeight = scrollbarYHidden
       ? 0
       : (viewportHeight / scrollableContentHeight) * viewportHeight;
+
     const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth);
     const clampedNextHeight = Math.max(MIN_THUMB_SIZE, nextHeight);
 
