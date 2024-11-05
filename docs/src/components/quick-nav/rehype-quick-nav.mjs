@@ -1,9 +1,11 @@
 // @ts-check
 
 const ROOT = 'QuickNav.Root';
+const TITLE = 'QuickNav.Title';
 const LIST = 'QuickNav.List';
 const ITEM = 'QuickNav.Item';
 const LINK = 'QuickNav.Link';
+const DOC_SUBTITLE = 'Subtitle';
 
 /**
  * @typedef {Object} TocEntry
@@ -18,35 +20,54 @@ const LINK = 'QuickNav.Link';
  */
 export function rehypeQuickNav() {
   return (tree, file) => {
+    const h1 = tree.children.find(
+      /** @param {{ tagName: string; }} node */
+      (node) => node.tagName === 'h1',
+    );
+
     /** @type {TocEntry[]} */
     const toc = file.data.toc;
     const root = createMdxElement({
       name: ROOT,
-      children: [
-        createMdxElement({
-          name: LIST,
-          children: [
-            getNodeFromEntry({ value: '(Top)', id: '', depth: 2 }),
-            ...toc.flatMap((entry) => entry.children?.map(getNodeFromEntry)),
-          ],
-        }),
-      ],
+      children: toc.flatMap(getNodeFromEntry).filter(Boolean),
     });
 
-    // TODO first subtitle or first heading
-    const index = tree.children.findLastIndex(
-      /** @param {{ name: string; tagName: string; }} node */
-      (node) => node.name === 'Subtitle' || node.tagName === 'h1',
-    );
-    tree.children.splice(index + 1, 0, root);
+    // Place quick nav after the `<Subtitle>` that immediately follows the first `<h1>`,
+    // or after the first `<h1>` if a matching `<Subtitle>` wasn't found.
+    let index = tree.children.indexOf(h1) + 2; // Adding "2" because there's also a line break below h1
+    index = tree.children[index + 1]?.name === DOC_SUBTITLE ? index + 1 : index;
+    tree.children.splice(index, 0, root);
   };
 }
 
 /**
  * @param {TocEntry} entry
- * @returns {Object}
+ * @returns {Record<string, unknown> | Record<string, unknown>[]}
  */
-function getNodeFromEntry({ value, id, children }) {
+function getNodeFromEntry({ value, depth, id, children }) {
+  const sub = createMdxElement({
+    name: LIST,
+    children: [],
+  });
+
+  if (children?.length) {
+    sub.children = children.map(getNodeFromEntry);
+  }
+
+  if (depth === 1) {
+    // Insert "(Top)" link
+    sub.children.unshift(getNodeFromEntry({ value: '(Top)', id: '', depth: 2 }));
+
+    return [
+      // Insert a top-level title
+      createMdxElement({
+        name: TITLE,
+        children: [{ type: 'text', value }],
+      }),
+      sub,
+    ];
+  }
+
   const link = createMdxElement({
     name: LINK,
     children: [{ type: 'text', value }],
@@ -55,18 +76,9 @@ function getNodeFromEntry({ value, id, children }) {
     },
   });
 
-  let sub;
-
-  if (children?.length) {
-    sub = createMdxElement({
-      name: LIST,
-      children: children.map(getNodeFromEntry),
-    });
-  }
-
   return createMdxElement({
     name: ITEM,
-    children: [link, sub].filter(Boolean),
+    children: [link, sub],
   });
 }
 
@@ -75,7 +87,6 @@ function getNodeFromEntry({ value, id, children }) {
  * @param {string} args.name
  * @param {unknown[]} args.children
  * @param {Record<string, unknown>} [args.props]
- * @returns {Object}
  */
 function createMdxElement({ name, children, props = {} }) {
   return {

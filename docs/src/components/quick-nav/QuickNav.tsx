@@ -137,7 +137,6 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
     }
 
     function handleUpdate() {
-      console.log('handleUpdate');
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (!ref.current) {
@@ -242,12 +241,13 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
 
   return (
     <div ref={ref} className={clsx('QuickNavRoot', className)} {...props}>
-      <div className="QuickNavInner">
-        <h2 className="QuickNavTitle">Contents</h2>
-        {children}
-      </div>
+      <div className="QuickNavInner">{children}</div>
     </div>
   );
+}
+
+export function Title({ className, ...props }: React.ComponentProps<'h2'>) {
+  return <h2 className={clsx('QuickNavTitle', className)} {...props} />;
 }
 
 export function List({ className, ...props }: React.ComponentProps<'ul'>) {
