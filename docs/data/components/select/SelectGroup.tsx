@@ -27,12 +27,12 @@ const entries = Object.entries(data);
 
 export default function SelectGroup() {
   return (
-    <Select.Root alignOptionToTrigger={false}>
+    <Select.Root>
       <SelectTrigger aria-label="Select food">
         <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5} keepMounted>
+      <Select.Positioner sideOffset={5}>
         <SelectScrollUpArrow
           render={(props) => (
             <div {...props}>
@@ -56,10 +56,7 @@ export default function SelectGroup() {
                     value={item.value}
                     disabled={item.value === 'banana'}
                   >
-                    <SelectOptionIndicator
-                      render={<CheckIcon />}
-                      keepMounted={false}
-                    />
+                    <SelectOptionIndicator render={<CheckIcon />} />
                     <Select.OptionText>{item.label}</Select.OptionText>
                   </SelectOption>
                 ))}
@@ -74,7 +71,7 @@ export default function SelectGroup() {
             </div>
           )}
         />
-      </SelectPositioner>
+      </Select.Positioner>
     </Select.Root>
   );
 }
@@ -106,14 +103,6 @@ const gray = {
 
 const triggerPaddingX = 6;
 const popupPadding = 4;
-
-const SelectPositioner = styled(Select.Positioner)`
-  display: none;
-
-  &[data-open] {
-    display: block;
-  }
-`;
 
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;
@@ -168,7 +157,10 @@ const SelectOption = styled(Select.Option)`
   display: flex;
   align-items: center;
   line-height: 1.5;
-  scroll-margin: 15px;
+
+  &[data-side='none'] {
+    scroll-margin: 15px;
+  }
 
   &[data-disabled] {
     opacity: 0.5;

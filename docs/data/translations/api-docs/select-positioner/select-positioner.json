@@ -1,5 +1,5 @@
 {
-  "componentDescription": "Renders the element that positions the Select popup.",
+  "componentDescription": "",
   "propDescriptions": {
     "alignment": {
       "description": "The alignment of the Select element to the anchor element along its cross axis."

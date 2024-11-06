@@ -1,26 +1,27 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal, inner, type Side } from '@floating-ui/react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { SelectPositionerContext } from './SelectPositionerContext';
-import { useSelectRootContext } from '../Root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSelectPositioner } from './useSelectPositioner';
-import { HTMLElementType } from '../../utils/proptypes';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 import { CompositeList } from '../../Composite/List/CompositeList';
-import { useField } from '../../Field/useField';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useSelectPositioner } from './useSelectPositioner';
 
+type SelectPositionerContext = ReturnType<typeof useSelectPositioner>['positioner'];
+
+const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
+
+export function useSelectPositionerContext() {
+  const context = React.useContext(SelectPositionerContext);
+  if (context === null) {
+    throw new Error('useSelectPositionerContext must be used within a SelectPositioner');
+  }
+  return context;
+}
 /**
- * Renders the element that positions the Select popup.
  *
  * Demos:
  *
@@ -32,14 +33,13 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     anchor,
     positionMethod = 'absolute',
     className,
     render,
-    keepMounted = false,
     side = 'bottom',
     alignment = 'start',
     sideOffset = 0,
@@ -53,259 +53,57 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...otherProps
   } = props;
 
-  const {
-    open,
-    floatingRootContext,
-    setPositionerElement,
-    elementsRef,
-    labelsRef,
-    triggerElement,
-    mounted,
-    popupRef,
-    overflowRef,
-    innerOffset,
-    innerFallback,
-    setInnerFallback,
-    selectedIndex,
-    name,
-    required,
-    disabled,
-    id: idProp,
-    value,
-    setValue,
-    inputRef,
-    getInputValidationProps,
-    touchModality,
-    alignOptionToTrigger,
-    valuesRef,
-  } = useSelectRootContext();
+  const { mounted, setPositionerElement, listRef, labelsRef, floatingRootContext } =
+    useSelectRootContext();
 
-  const { setControlId, validityData, setDirty } = useFieldRootContext();
-  const { commitValidation } = useFieldControlValidation();
-
-  const triggerRef = useLatestRef(triggerElement);
-
-  const id = useId(idProp);
-
-  useEnhancedEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
-
-  useField({
-    id,
-    commitValidation,
-    value,
-    controlRef: triggerRef,
-  });
-
-  const [optionTextOffset, setOptionTextOffset] = React.useState<number | null>(null);
-  const [selectedIndexOnMount, setSelectedIndexOnMount] = React.useState(selectedIndex);
-
-  if (optionTextOffset !== null && (!mounted || innerFallback)) {
-    setOptionTextOffset(null);
-  }
-
-  const selectedIndexRef = useLatestRef(selectedIndex);
-
-  useEnhancedEffect(() => {
-    if (open) {
-      setSelectedIndexOnMount(selectedIndexRef.current);
-    }
-  }, [open, selectedIndexRef]);
-
-  const positioner = useSelectPositioner({
+  const { getPositionerProps, positioner } = useSelectPositioner({
     anchor,
     floatingRootContext,
     positionMethod,
     container,
-    open,
     mounted,
     side,
     sideOffset,
     alignment,
-    alignmentOffset: optionTextOffset ?? alignmentOffset,
+    alignmentOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
     hideWhenDetached,
     sticky,
     allowAxisFlip: false,
-    innerFallback,
-    inner:
-      alignOptionToTrigger && selectedIndexOnMount !== null
-        ? // Dependency-injected for tree-shaking purposes. Other floating element components don't
-          // use or need this.
-          inner({
-            boundary: collisionBoundary,
-            padding: collisionPadding ?? 10,
-            listRef: elementsRef,
-            index: selectedIndexOnMount,
-            scrollRef: popupRef,
-            offset: innerOffset,
-            onFallbackChange(fallbackValue) {
-              function undoMaxHeight() {
-                if (popupRef.current) {
-                  popupRef.current.style.maxHeight = '';
-                }
-              }
-
-              setInnerFallback(fallbackValue);
-
-              if (fallbackValue) {
-                undoMaxHeight();
-              }
-            },
-            minItemsVisible: touchModality ? 8 : 2.5,
-            referenceOverflowThreshold: 20,
-            overflowRef,
-          })
-        : undefined,
   });
 
-  const ownerState: SelectPositioner.OwnerState = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      alignment: positioner.alignment,
-    }),
-    [open, positioner.side, positioner.alignment],
-  );
+  const mergedRef = useForkRef(ref, setPositionerElement);
 
-  const contextValue: SelectPositionerContext = React.useMemo(
-    () => ({
-      isPositioned: positioner.isPositioned,
-      side: positioner.side,
-      alignment: positioner.alignment,
-      arrowRef: positioner.arrowRef,
-      arrowUncentered: positioner.arrowUncentered,
-      arrowStyles: positioner.arrowStyles,
-      floatingContext: positioner.floatingContext,
-      optionTextOffset,
-      setOptionTextOffset,
-    }),
-    [
-      positioner.isPositioned,
-      positioner.side,
-      positioner.alignment,
-      positioner.arrowRef,
-      positioner.arrowUncentered,
-      positioner.arrowStyles,
-      positioner.floatingContext,
-      optionTextOffset,
-    ],
-  );
-
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
+  const ownerState: SelectPositioner.OwnerState = React.useMemo(() => ({}), []);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
+    propGetter: getPositionerProps,
     render: render ?? 'div',
+    ref: mergedRef,
     className,
     ownerState,
     customStyleHookMapping: popupOpenStateMapping,
-    ref: mergedRef,
     extraProps: otherProps,
   });
 
-  const positionerElement = renderElement();
-
-  const serializedValue = React.useMemo(() => {
-    if (value == null) {
-      return ''; // avoid uncontrolled -> controlled error
-    }
-    if (typeof value === 'string') {
-      return value;
-    }
-    return JSON.stringify(value);
-  }, [value]);
-
-  const mountedItemsElement = null;
-
-  const nativeSelectElement = (
-    <input
-      {...getInputValidationProps({
-        onFocus() {
-          // Move focus from the hidden <select> to the trigger element.
-          triggerElement?.focus();
-        },
-        // Handle browser autofill.
-        onChange(event: React.ChangeEvent<HTMLSelectElement>) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
-
-          const nextValue = event.target.value;
-
-          const exactValue = valuesRef.current.find(
-            (v) =>
-              v === nextValue ||
-              (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-          );
-
-          if (exactValue != null) {
-            setDirty(exactValue !== validityData.initialValue);
-            setValue?.(exactValue, event.nativeEvent);
-          }
-        },
-        id,
-        // @ts-ignore - GenericHTMLProps
-        name,
-        disabled,
-        required,
-        value: serializedValue,
-        ref: inputRef,
-        style: visuallyHidden,
-        tabIndex: -1,
-        'aria-hidden': true,
-      })}
-    />
-  );
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return (
-      <SelectPositionerContext.Provider value={contextValue}>
-        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
-          {nativeSelectElement}
-          {mountedItemsElement}
-        </CompositeList>
-      </SelectPositionerContext.Provider>
-    );
-  }
-
   return (
-    <SelectPositionerContext.Provider value={contextValue}>
-      <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
-        {nativeSelectElement}
-        <FloatingPortal root={props.container}>
-          <FloatingFocusManager
-            context={positioner.floatingContext}
-            modal={false}
-            disabled={!mounted}
-          >
-            {positionerElement}
-          </FloatingFocusManager>
-        </FloatingPortal>
-      </CompositeList>
-    </SelectPositionerContext.Provider>
+    <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
+      <FloatingPortal root={container}>
+        <FloatingFocusManager
+          context={positioner.positionerContext}
+          modal={false}
+          disabled={!mounted}
+        >
+          <SelectPositionerContext.Provider value={positioner}>
+            {renderElement()}
+          </SelectPositionerContext.Provider>
+        </FloatingFocusManager>
+      </FloatingPortal>
+    </CompositeList>
   );
 });
-
-export namespace SelectPositioner {
-  export interface OwnerState {
-    open: boolean;
-    side: Side | 'none';
-    alignment: 'start' | 'end' | 'center';
-  }
-
-  export interface Props
-    extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
-}
 
 SelectPositioner.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -325,10 +123,41 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   /**
    * The anchor element to which the Select popup will be placed at.
    */
-  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.object,
+  anchor: PropTypes.oneOfType([
+    (props, propName) => {
+      if (props[propName] == null) {
+        return new Error(`Prop '${propName}' is required but wasn't specified`);
+      }
+      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error(`Expected prop '${propName}' to be of type Element`);
+      }
+      return null;
+    },
     PropTypes.func,
+    PropTypes.shape({
+      current: (props, propName) => {
+        if (props[propName] == null) {
+          return null;
+        }
+        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error(`Expected prop '${propName}' to be of type Element`);
+        }
+        return null;
+      },
+    }),
+    PropTypes.shape({
+      contextElement: (props, propName) => {
+        if (props[propName] == null) {
+          return null;
+        }
+        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error(`Expected prop '${propName}' to be of type Element`);
+        }
+        return null;
+      },
+      getBoundingClientRect: PropTypes.func.isRequired,
+      getClientRects: PropTypes.func,
+    }),
   ]),
   /**
    * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
@@ -348,15 +177,31 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * The boundary that the Select element should be constrained to.
    * @default 'clippingAncestors'
    */
-  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.arrayOf(HTMLElementType),
-    PropTypes.string,
+  collisionBoundary: PropTypes.oneOfType([
+    PropTypes.oneOf(['clippingAncestors']),
+    PropTypes.arrayOf((props, propName) => {
+      if (props[propName] == null) {
+        return new Error(`Prop '${propName}' is required but wasn't specified`);
+      }
+      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error(`Expected prop '${propName}' to be of type Element`);
+      }
+      return null;
+    }),
+    (props, propName) => {
+      if (props[propName] == null) {
+        return new Error(`Prop '${propName}' is required but wasn't specified`);
+      }
+      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error(`Expected prop '${propName}' to be of type Element`);
+      }
+      return null;
+    },
     PropTypes.shape({
-      height: PropTypes.number,
-      width: PropTypes.number,
-      x: PropTypes.number,
-      y: PropTypes.number,
+      height: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired,
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
     }),
   ]),
   /**
@@ -375,9 +220,27 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   /**
    * The container element to which the Select popup will be appended to.
    */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
+  container: PropTypes.oneOfType([
+    (props, propName) => {
+      if (props[propName] == null) {
+        return new Error(`Prop '${propName}' is required but wasn't specified`);
+      }
+      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error(`Expected prop '${propName}' to be of type Element`);
+      }
+      return null;
+    },
+    PropTypes.shape({
+      current: (props, propName) => {
+        if (props[propName] == null) {
+          return null;
+        }
+        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error(`Expected prop '${propName}' to be of type Element`);
+        }
+        return null;
+      },
+    }),
   ]),
   /**
    * If `true`, the Select will be hidden if it is detached from its anchor element due to
@@ -387,7 +250,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   hideWhenDetached: PropTypes.bool,
   /**
    * Whether the select popup remains mounted in the DOM while closed.
-   * @default false
+   * @default true
    */
   keepMounted: PropTypes.bool,
   /**
@@ -418,3 +281,11 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { SelectPositioner };
+
+namespace SelectPositioner {
+  export interface OwnerState {}
+
+  export interface Props
+    extends useSelectPositioner.SharedParameters,
+      BaseUIComponentProps<'div', OwnerState> {}
+}

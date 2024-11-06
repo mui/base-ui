@@ -122,7 +122,10 @@ const SelectOption = styled(Select.Option)`
   display: flex;
   align-items: center;
   line-height: 1.5;
-  scroll-margin: 15px;
+
+  &[data-side='none'] {
+    scroll-margin: 15px;
+  }
 
   &[data-disabled] {
     opacity: 0.5;

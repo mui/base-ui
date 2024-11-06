@@ -1,9 +1,8 @@
-'use client';
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../useButton';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { SelectRootContext } from '../Root/SelectRootContext';
+import type { SelectRootContext } from '../Root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
@@ -50,7 +49,11 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             pointerEvents: disabled ? 'none' : undefined,
           },
           onTouchStart() {
-            selectionRef.current = { allowMouseUp: false, allowSelect: true };
+            selectionRef.current = {
+              allowSelectedMouseUp: false,
+              allowUnselectedMouseUp: false,
+              allowSelect: true,
+            };
           },
           onKeyDown(event) {
             selectionRef.current.allowSelect = true;
@@ -76,8 +79,13 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             pointerTypeRef.current = event.pointerType;
           },
           onMouseUp(event) {
+            const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
+            const disallowUnselectedMouseUp =
+              !selectionRef.current.allowUnselectedMouseUp && !selected;
+
             if (
-              (!selectionRef.current.allowMouseUp && selected) ||
+              disallowSelectedMouseUp ||
+              disallowUnselectedMouseUp ||
               (pointerTypeRef.current !== 'touch' && !highlighted)
             ) {
               return;
@@ -142,9 +150,18 @@ export namespace useSelectOption {
      * The ref to the selection state of the option.
      */
     selectionRef: React.MutableRefObject<{
-      allowMouseUp: boolean;
+      allowSelectedMouseUp: boolean;
+      allowUnselectedMouseUp: boolean;
       allowSelect: boolean;
     }>;
+    /**
+     * A ref to the index of the selected item.
+     */
+    selectedIndexRef: React.RefObject<number | null>;
+    /**
+     * A ref to the index of the item.
+     */
+    indexRef: React.RefObject<number>;
   }
 
   export interface ReturnValue {

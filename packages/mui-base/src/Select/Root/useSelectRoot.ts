@@ -25,10 +25,10 @@ import type { SelectIndexContext } from './SelectIndexContext';
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     value: valueProp,
-    defaultValue,
+    defaultValue = null,
     onValueChange,
     open: openProp,
-    defaultOpen,
+    defaultOpen = false,
     onOpenChange,
     alignOptionToTrigger: alignOptionToTriggerParam = true,
     loop = true,
@@ -50,8 +50,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
-
-  const alignOptionToTrigger = Boolean(alignOptionToTriggerParam && !touchModality);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -85,6 +83,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
+
+  const alignOptionToTrigger = Boolean(mounted && alignOptionToTriggerParam && !touchModality);
 
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
@@ -158,6 +158,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     selectedIndex,
     loop,
     onNavigate: setActiveIndex,
+    focusItemOnHover: false,
   });
 
   const typehaead = useTypeahead(floatingRootContext, {

@@ -1,8 +1,5 @@
 {
-  "props": {
-    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
-  },
+  "props": {},
   "name": "SelectOptionText",
   "imports": [
     "import { Select } from '@base_ui/react/Select';\nconst SelectOptionText = Select.OptionText;"

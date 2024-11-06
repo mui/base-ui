@@ -17,7 +17,6 @@ import {
   type VirtualElement,
   type Padding,
   type FloatingContext,
-  type Middleware,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
@@ -50,11 +49,6 @@ interface UseAnchorPositioningParameters {
   open?: boolean;
   trackAnchor?: boolean;
   nodeId?: string;
-  inner?: Middleware;
-  innerOptions?: {
-    fallback?: boolean;
-    touchModality?: boolean;
-  };
   allowAxisFlip?: boolean;
 }
 
@@ -99,13 +93,8 @@ export function useAnchorPositioning(
     allowAxisFlip = true,
     open,
     nodeId,
-    inner: innerMiddleware,
-    innerOptions = {},
   } = params;
 
-  // If `false`, aligns the option to the trigger instead. Inverse of `alignOptionToTrigger`.
-  const alignPopupToTrigger =
-    innerOptions.touchModality || !(!innerOptions.fallback && innerMiddleware);
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
@@ -120,7 +109,7 @@ export function useAnchorPositioning(
 
   const middleware: UseFloatingOptions['middleware'] = [
     offset({
-      mainAxis: alignPopupToTrigger ? sideOffset : 0,
+      mainAxis: sideOffset,
       crossAxis: alignmentOffset,
       alignmentAxis: alignmentOffset,
     }),
@@ -147,16 +136,13 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (alignPopupToTrigger) {
-    if (alignment !== 'center') {
-      middleware.push(flipMiddleware, shiftMiddleware);
-    } else {
-      middleware.push(shiftMiddleware, flipMiddleware);
-    }
+  if (alignment !== 'center') {
+    middleware.push(flipMiddleware, shiftMiddleware);
+  } else {
+    middleware.push(shiftMiddleware, flipMiddleware);
   }
 
   middleware.push(
-    ...(!alignPopupToTrigger ? [innerMiddleware, shiftMiddleware] : []),
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
@@ -179,8 +165,8 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hideWhenDetached && alignPopupToTrigger && hide(),
-    alignPopupToTrigger && {
+    hideWhenDetached && hide(),
+    {
       name: 'transformOrigin',
       fn({ elements, middlewareData, placement: renderedPlacement }) {
         const currentRenderedSide = getSide(renderedPlacement);

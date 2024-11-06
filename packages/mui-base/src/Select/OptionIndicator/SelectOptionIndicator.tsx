@@ -2,15 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectOptionContext } from '../Option/SelectOptionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
-
-const customStyleHookMapping: CustomStyleHookMapping<SelectOptionIndicator.OwnerState> =
-  popupOpenStateMapping;
 
 /**
  *
@@ -26,9 +20,8 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   props: SelectOptionIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = true, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
-  const { open } = useSelectRootContext();
   const { selected } = useSelectOptionContext();
 
   const getOptionProps = React.useCallback(
@@ -42,10 +35,9 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
 
   const ownerState: SelectOptionIndicator.OwnerState = React.useMemo(
     () => ({
-      open,
       selected,
     }),
-    [open, selected],
+    [selected],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -54,7 +46,6 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
     ref: forwardedRef,
     className,
     ownerState,
-    customStyleHookMapping,
     extraProps: otherProps,
   });
 
@@ -72,13 +63,12 @@ namespace SelectOptionIndicator {
     /**
      * If `true`, the item indicator remains mounted when the item is not
      * selected.
-     * @default true
+     * @default false
      */
     keepMounted?: boolean;
   }
 
   export interface OwnerState {
-    open: boolean;
     selected: boolean;
   }
 }
@@ -99,7 +89,7 @@ SelectOptionIndicator.propTypes /* remove-proptypes */ = {
   /**
    * If `true`, the item indicator remains mounted when the item is not
    * selected.
-   * @default true
+   * @default false
    */
   keepMounted: PropTypes.bool,
   /**

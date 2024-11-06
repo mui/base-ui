@@ -50,7 +50,6 @@ const SelectValue = React.forwardRef(function SelectValue(
 });
 
 namespace SelectValue {
-  export interface OwnerState {}
   export interface Props extends Omit<BaseUIComponentProps<'span', OwnerState>, 'children'> {
     children?: null | ((value: string) => React.ReactNode);
     /**
@@ -58,6 +57,8 @@ namespace SelectValue {
      */
     placeholder?: string;
   }
+
+  export interface OwnerState {}
 }
 
 SelectValue.propTypes /* remove-proptypes */ = {

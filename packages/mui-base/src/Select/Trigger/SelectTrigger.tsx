@@ -33,11 +33,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
 
-  const {
-    getTriggerProps: getRootTriggerProps,
-    disabled: selectDisabled,
-    open,
-  } = useSelectRootContext();
+  const { getRootTriggerProps, disabled: selectDisabled, open } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 

@@ -11,10 +11,7 @@
     "import { Select } from '@base_ui/react/Select';\nconst SelectTrigger = Select.Trigger;"
   ],
   "classes": [],
-  "spread": true,
-  "themeDefaultProps": true,
   "muiName": "SelectTrigger",
-  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/mui-base/src/Select/Trigger/SelectTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",

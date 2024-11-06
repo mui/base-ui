@@ -5,7 +5,6 @@ import { FloatingPortal } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
-import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useSelectBackdrop } from './useSelectBackdrop';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
@@ -43,11 +42,9 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { className, render, keepMounted = false, container, ...otherProps } = props;
 
-  const { open, mounted, backdropRef, transitionStatus } = useSelectRootContext();
+  const { open, mounted, transitionStatus } = useSelectRootContext();
 
   const { getBackdropProps } = useSelectBackdrop();
-
-  const mergedRef = useForkRef(backdropRef, forwardedRef);
 
   const ownerState: SelectBackdrop.OwnerState = React.useMemo(
     () => ({ open, transitionStatus }),
@@ -59,7 +56,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     render: render ?? 'div',
     className,
     ownerState,
-    ref: mergedRef,
+    ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping,
   });

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -5,7 +6,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { ownerWindow } from '../../utils/owner';
 import { MAX_Z_INDEX } from '../../utils/constants';
@@ -19,21 +19,11 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
-  const {
-    alignOptionToTrigger,
-    innerOffset,
-    setInnerOffset,
-    innerFallback,
-    popupRef,
-    touchModality,
-  } = useSelectRootContext();
-  const { isPositioned, side } = useSelectPositionerContext();
+  const { open, alignOptionToTrigger, popupRef } = useSelectRootContext();
 
   const [visible, setVisible] = React.useState(false);
 
-  const inert = !alignOptionToTrigger || touchModality;
-
-  if (visible && inert) {
+  if (visible && !alignOptionToTrigger) {
     setVisible(false);
   }
 
@@ -43,9 +33,8 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     () => ({
       direction,
       visible,
-      side,
     }),
-    [direction, visible, side],
+    [direction, visible],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -58,7 +47,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           zIndex: MAX_Z_INDEX,
         },
         onMouseEnter() {
-          if (inert) {
+          if (!alignOptionToTrigger) {
             return;
           }
 
@@ -102,13 +91,8 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
             const scrollDirection = direction === 'up' ? -1 : 1;
 
-            if (innerFallback) {
-              setInnerOffset(0);
-              if (popupRef.current) {
-                popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
-              }
-            } else {
-              setInnerOffset((o) => o + scrollDirection * pixelsToScroll);
+            if (popupRef.current) {
+              popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
             }
 
             frameRef.current = requestAnimationFrame(handleFrame);
@@ -120,7 +104,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           cancelAnimationFrame(frameRef.current);
         },
       }),
-    [direction, innerFallback, popupRef, setInnerOffset, inert],
+    [direction, popupRef, alignOptionToTrigger],
   );
 
   const handleScrollArrowVisible = useEventCallback(() => {
@@ -141,7 +125,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   React.useEffect(() => {
     const popupElement = popupRef.current;
-    if (!popupElement || inert) {
+    if (!popupElement || !alignOptionToTrigger) {
       return undefined;
     }
 
@@ -158,26 +142,15 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       win.removeEventListener('resize', handleScrollArrowVisible);
       win.removeEventListener('scroll', handleScrollArrowVisible);
     };
-  }, [inert, popupRef, direction, handleScrollArrowVisible]);
+  }, [alignOptionToTrigger, popupRef, direction, handleScrollArrowVisible]);
 
   useEnhancedEffect(() => {
-    if (!isPositioned || inert) {
+    if (!open || !alignOptionToTrigger) {
       return;
     }
 
     handleScrollArrowVisible();
-  }, [isPositioned, side, inert, handleScrollArrowVisible]);
-
-  useEnhancedEffect(() => {
-    if (!isPositioned || inert) {
-      return;
-    }
-
-    // Wait for the `innerOffset` to be applied in the DOM. While navigating with arrow keys, the
-    // scroll arrow might render even though it doesn't need to be visible because the select's
-    // height hasn't yet expanded.
-    requestAnimationFrame(handleScrollArrowVisible);
-  }, [isPositioned, inert, innerOffset, handleScrollArrowVisible]);
+  }, [open, alignOptionToTrigger, handleScrollArrowVisible]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,
@@ -199,9 +172,9 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 namespace SelectScrollArrow {
   export interface OwnerState {
     direction: 'up' | 'down';
-    side: 'top' | 'right' | 'bottom' | 'left' | 'none';
     visible: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     direction: 'up' | 'down';
     /**

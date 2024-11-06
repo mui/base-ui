@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import type { Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
   ...popupOpenStateMapping,
@@ -42,8 +42,9 @@ const SelectPopup = React.forwardRef(function SelectPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...otherProps } = props;
-  const { open, popupRef, transitionStatus, selectId } = useSelectRootContext();
-  const { side, alignment } = useSelectPositionerContext();
+
+  const { id, open, popupRef, transitionStatus, alignOptionToTrigger } = useSelectRootContext();
+  const positioner = useSelectPositionerContext();
 
   const { getPopupProps } = useSelectPopup();
 
@@ -51,12 +52,12 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   const ownerState: SelectPopup.OwnerState = React.useMemo(
     () => ({
-      transitionStatus,
-      side,
-      alignment,
       open,
+      transitionStatus,
+      side: positioner.side,
+      alignment: positioner.alignment,
     }),
-    [transitionStatus, side, alignment, open],
+    [open, transitionStatus, positioner],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -66,13 +67,29 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     className,
     ownerState,
     customStyleHookMapping,
-    extraProps: {
-      ...otherProps,
-      'data-id': `${selectId}-popup`,
-    },
+    extraProps: otherProps,
   });
 
-  return renderElement();
+  const popupSelector = `[data-id="${id}-popup"]`;
+
+  const html = React.useMemo(
+    () => ({
+      __html: `${popupSelector}{scrollbar-width:none}${popupSelector}::-webkit-scrollbar{display:none}`,
+    }),
+    [popupSelector],
+  );
+
+  return (
+    <React.Fragment>
+      {id && alignOptionToTrigger && (
+        <style
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={html}
+        />
+      )}
+      {renderElement()}
+    </React.Fragment>
+  );
 });
 
 namespace SelectPopup {

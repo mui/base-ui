@@ -1,20 +1,5 @@
 {
-  "props": {
-    "alignOptionToTrigger": { "type": { "name": "bool" }, "default": "true" },
-    "animated": { "type": { "name": "bool" }, "default": "true" },
-    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
-    "defaultValue": { "type": { "name": "any" } },
-    "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "id": { "type": { "name": "string" } },
-    "loop": { "type": { "name": "bool" }, "default": "true" },
-    "name": { "type": { "name": "string" } },
-    "onOpenChange": { "type": { "name": "func" } },
-    "onValueChange": { "type": { "name": "func" } },
-    "open": { "type": { "name": "bool" } },
-    "readOnly": { "type": { "name": "bool" }, "default": "false" },
-    "required": { "type": { "name": "bool" }, "default": "false" },
-    "value": { "type": { "name": "any" } }
-  },
+  "props": {},
   "name": "SelectRoot",
   "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectRoot = Select.Root;"],
   "classes": [],

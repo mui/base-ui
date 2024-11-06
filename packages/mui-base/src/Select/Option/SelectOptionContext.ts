@@ -2,13 +2,10 @@ import * as React from 'react';
 
 interface SelectOptionContext {
   selected: boolean;
+  indexRef: React.RefObject<number>;
 }
 
 export const SelectOptionContext = React.createContext<SelectOptionContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  SelectOptionContext.displayName = 'SelectOptionContext';
-}
 
 export function useSelectOptionContext() {
   const context = React.useContext(SelectOptionContext);
