@@ -6,6 +6,7 @@ import type { useAccordionRoot } from './useAccordionRoot';
 export interface AccordionRootContext extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
   state: AccordionRoot.State;
   hiddenUntilFound: boolean;
+  keepMounted: boolean;
 }
 
 export const AccordionRootContext = React.createContext<AccordionRootContext | undefined>(
