@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext } from './DialogRootContext';
-import { CommonParameters, useDialogRoot } from './useDialogRoot';
+import { type CommonParameters, useDialogRoot } from './useDialogRoot';
 
 /**
  *

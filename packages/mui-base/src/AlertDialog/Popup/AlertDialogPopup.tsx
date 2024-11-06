@@ -43,21 +43,36 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 ) {
   const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
 
-  const rootContext = useAlertDialogRootContext();
-  const { open, nestedOpenDialogCount } = rootContext;
+  const {
+    open,
+    nestedOpenDialogCount,
+    mounted,
+    transitionStatus,
+    getPopupProps,
+    openMethod,
+    onOpenChange,
+    titleElementId,
+    descriptionElementId,
+    setPopupElementId,
+    popupRef,
+  } = useAlertDialogRootContext();
 
-  const popupRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, mounted, transitionStatus, resolvedInitialFocus } =
-    useDialogPopup({
-      id,
-      ref: mergedRef,
-      isTopmost: nestedOpenDialogCount === 0,
-      dismissible: false,
-      initialFocus,
-      ...rootContext,
-    });
+  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+    descriptionElementId,
+    getPopupProps,
+    id,
+    initialFocus,
+    modal: true,
+    mounted,
+    onOpenChange,
+    open,
+    openMethod,
+    ref: mergedRef,
+    setPopupElementId,
+    titleElementId,
+  });
 
   const ownerState: AlertDialogPopup.OwnerState = React.useMemo(
     () => ({

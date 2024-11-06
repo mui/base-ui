@@ -61,18 +61,18 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
   const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
-    id,
-    ref: mergedRef,
-    initialFocus,
+    descriptionElementId,
     getPopupProps,
+    id,
+    initialFocus,
     modal,
+    mounted,
+    onOpenChange,
     open,
     openMethod,
-    onOpenChange,
-    titleElementId,
-    descriptionElementId,
+    ref: mergedRef,
     setPopupElementId,
-    mounted,
+    titleElementId,
   });
 
   const ownerState: DialogPopup.OwnerState = {
