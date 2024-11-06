@@ -42,20 +42,38 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
-  const rootContext = useDialogRootContext();
-  const { open, modal, nestedOpenDialogCount, dismissible } = rootContext;
+  const {
+    open,
+    modal,
+    nestedOpenDialogCount,
+    dismissible,
+    mounted,
+    transitionStatus,
+    getPopupProps,
+    openMethod,
+    onOpenChange,
+    titleElementId,
+    descriptionElementId,
+    setPopupElementId,
+    popupRef,
+  } = useDialogRootContext();
 
-  const popupRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, mounted, transitionStatus, resolvedInitialFocus } =
-    useDialogPopup({
-      id,
-      ref: mergedRef,
-      isTopmost: nestedOpenDialogCount === 0,
-      initialFocus,
-      ...rootContext,
-    });
+  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+    id,
+    ref: mergedRef,
+    initialFocus,
+    getPopupProps,
+    modal,
+    open,
+    openMethod,
+    onOpenChange,
+    titleElementId,
+    descriptionElementId,
+    setPopupElementId,
+    mounted,
+  });
 
   const ownerState: DialogPopup.OwnerState = {
     open,

@@ -1,52 +1,75 @@
 'use client';
 import * as React from 'react';
+import { useClick, useDismiss, useFloatingRootContext, useInteractions } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
-import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { type InteractionType } from '../../utils/useEnhancedClickHandler';
+import { GenericHTMLProps } from '../../utils/types';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
-    open: openParam,
+    animated = true,
     defaultOpen = false,
-    onOpenChange,
+    dismissible = true,
+    keepMounted = false,
     modal = true,
-    onNestedDialogOpen,
     onNestedDialogClose,
+    onNestedDialogOpen,
+    onOpenChange,
+    open: openParam,
   } = parameters;
 
-  const [open, setOpen] = useControlled({
+  const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
     default: defaultOpen,
     name: 'DialogRoot',
+    state: 'open',
   });
 
+  const popupRef = React.useRef<HTMLElement>(null);
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
   const [titleElementId, setTitleElementId] = React.useState<string | undefined>(undefined);
   const [descriptionElementId, setDescriptionElementId] = React.useState<string | undefined>(
     undefined,
   );
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
-  const hasBackdrop = React.useRef(false);
-  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (modal && !hasBackdrop.current) {
-        console.warn(
-          'Base UI: The Dialog is modal but no backdrop is present. Add the backdrop component to prevent interacting with the rest of the page.',
-        );
+  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
+    onOpenChange?.(nextOpen, event);
+    setOpenUnwrapped(nextOpen);
+    if (!keepMounted && !nextOpen) {
+      if (animated) {
+        runOnceAnimationsFinish(() => setMounted(false));
+      } else {
+        setMounted(false);
       }
-    }, [modal]);
-  }
+    }
+  });
 
-  const handleOpenChange = React.useCallback(
-    (shouldOpen: boolean, event?: Event) => {
-      setOpen(shouldOpen);
-      onOpenChange?.(shouldOpen, event);
-    },
-    [onOpenChange, setOpen],
-  );
-
+  const context = useFloatingRootContext({
+    elements: { reference: triggerElement, floating: popupElement },
+    open,
+    onOpenChange: setOpen,
+  });
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const isTopmost = ownNestedOpenDialogs === 0;
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context, {
+    outsidePressEvent: 'mousedown',
+    outsidePress: isTopmost && dismissible,
+    escapeKey: isTopmost,
+  });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
@@ -68,10 +91,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 
-  if (!open && openMethod !== null) {
-    setOpenMethod(null);
-  }
-
   const handleNestedDialogOpen = React.useCallback((ownChildrenCount: number) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
   }, []);
@@ -80,21 +99,12 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     setOwnNestedOpenDialogs(0);
   }, []);
 
-  const setBackdropPresent = React.useCallback((present: boolean) => {
-    hasBackdrop.current = present;
-  }, []);
-
-  const handleTriggerClick = React.useCallback(
-    (_: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => {
-      setOpenMethod(interactionType);
-    },
-    [],
-  );
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   return React.useMemo(() => {
     return {
       modal,
-      onOpenChange: handleOpenChange,
+      onOpenChange: setOpen,
       open,
       titleElementId,
       setTitleElementId,
@@ -105,23 +115,35 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
       onNestedDialogOpen: handleNestedDialogOpen,
       onNestedDialogClose: handleNestedDialogClose,
       nestedOpenDialogCount: ownNestedOpenDialogs,
-      setBackdropPresent,
-      onTriggerClick: handleTriggerClick,
       openMethod,
-    };
+      mounted,
+      transitionStatus,
+      getTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
+        getReferenceProps(mergeReactProps(externalProps, triggerProps)),
+      getPopupProps: getFloatingProps,
+      setTriggerElement,
+      setPopupElement,
+      popupRef,
+    } satisfies useDialogRoot.ReturnValue;
   }, [
     modal,
-    handleOpenChange,
     open,
+    setOpen,
     titleElementId,
     descriptionElementId,
     popupElementId,
     handleNestedDialogClose,
     handleNestedDialogOpen,
     ownNestedOpenDialogs,
-    setBackdropPresent,
-    handleTriggerClick,
     openMethod,
+    mounted,
+    transitionStatus,
+    getReferenceProps,
+    getFloatingProps,
+    setTriggerElement,
+    setPopupElement,
+    triggerProps,
+    popupRef,
   ]);
 }
 
@@ -156,6 +178,11 @@ export interface CommonParameters {
    * @default true
    */
   dismissible?: boolean;
+  /**
+   * Whether the dialog element stays mounted in the DOM when closed.
+   * @default false
+   */
+  keepMounted?: boolean;
 }
 
 export namespace useDialogRoot {
@@ -204,20 +231,9 @@ export namespace useDialogRoot {
      */
     openMethod: InteractionType | null;
     /**
-     * Callback to fire when the trigger is activated.
-     */
-    onTriggerClick: (
-      event: React.MouseEvent | React.PointerEvent,
-      interactionType: InteractionType,
-    ) => void;
-    /**
      * The id of the popup element.
      */
     popupElementId: string | undefined;
-    /**
-     * Callback to notify the dialog that the backdrop is present.
-     */
-    setBackdropPresent: (present: boolean) => void;
     /**
      * Callback to set the id of the description element associated with the dialog.
      */
@@ -234,5 +250,12 @@ export namespace useDialogRoot {
      * The id of the title element associated with the dialog.
      */
     titleElementId: string | undefined;
+    mounted: boolean;
+    transitionStatus: TransitionStatus;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+    setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+    popupRef: React.RefObject<HTMLElement | null>;
   }
 }
