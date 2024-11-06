@@ -2,16 +2,14 @@
 import * as React from 'react';
 import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSelectRootContext } from '../SelectRoot';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 import { CompositeList } from '../../Composite/List/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 
-interface SelectPositionerContext {
-  positioner: ReturnType<typeof useSelectPositioner>['positioner'];
-}
+type SelectPositionerContext = ReturnType<typeof useSelectPositioner>['positioner'];
 
 const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
 
@@ -73,13 +71,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const ownerState: SelectPositioner.OwnerState = React.useMemo(() => ({}), []);
 
-  const contextValue: SelectPositionerContext = React.useMemo(
-    () => ({
-      positioner,
-    }),
-    [positioner],
-  );
-
   const { renderElement } = useComponentRenderer({
     propGetter: getPositionerProps,
     render: render ?? 'div',
@@ -103,7 +94,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         disabled={!mounted}
       >
         <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-          <SelectPositionerContext.Provider value={contextValue}>
+          <SelectPositionerContext.Provider value={positioner}>
             {renderElement()}
           </SelectPositionerContext.Provider>
         </CompositeList>

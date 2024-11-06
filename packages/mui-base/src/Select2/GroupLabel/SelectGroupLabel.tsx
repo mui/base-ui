@@ -1,11 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useSelectRootContext } from '../Root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useId } from '../../utils/useId';
+import { useSelectGroupContext } from '../Group/SelectGroupContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+
+const ownerState = {};
 
 /**
  *
@@ -15,53 +18,49 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * API:
  *
- * - [SelectValue API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectValue)
+ * - [SelectGroupLabel API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectGroupLabel)
  */
-const SelectValue = React.forwardRef(function SelectValue(
-  props: SelectValue.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
+  props: SelectGroupLabel.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, placeholder, ...otherProps } = props;
+  const { className, render, id: idProp, ...otherProps } = props;
 
-  const { label, valueRef } = useSelectRootContext();
+  const { setLabelId } = useSelectGroupContext();
 
-  const mergedRef = useForkRef(forwardedRef, valueRef);
+  const id = useId(idProp);
 
-  const ownerState: SelectValue.OwnerState = React.useMemo(() => ({}), []);
+  useEnhancedEffect(() => {
+    setLabelId(id);
+  }, [id, setLabelId]);
 
-  const getValueProps = React.useCallback(
+  const getSelectOptionGroupLabelProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
-        children: typeof children === 'function' ? children(label) : label || placeholder,
+        id,
       }),
-    [children, label, placeholder],
+    [id],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
-    render: render ?? 'span',
-    className,
+    propGetter: getSelectOptionGroupLabelProps,
+    render: render ?? 'div',
+    ref: forwardedRef,
     ownerState,
-    ref: mergedRef,
+    className,
     extraProps: otherProps,
   });
 
   return renderElement();
 });
 
-namespace SelectValue {
-  export interface Props extends Omit<BaseUIComponentProps<'span', OwnerState>, 'children'> {
-    children?: null | ((value: string) => React.ReactNode);
-    /**
-     * The placeholder value to display when the value is empty (such as during SSR).
-     */
-    placeholder?: string;
-  }
-
+namespace SelectGroupLabel {
   export interface OwnerState {}
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 
-SelectValue.propTypes /* remove-proptypes */ = {
+SelectGroupLabel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -69,19 +68,19 @@ SelectValue.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.func,
+  children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The placeholder value to display when the value is empty (such as during SSR).
+   * @ignore
    */
-  placeholder: PropTypes.string,
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SelectValue };
+export { SelectGroupLabel };

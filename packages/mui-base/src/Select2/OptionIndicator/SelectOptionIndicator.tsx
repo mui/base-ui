@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useSelectRootContext } from '../Root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useSelectOptionContext } from '../Option/SelectOptionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
@@ -15,53 +14,66 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * API:
  *
- * - [SelectValue API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectValue)
+ * - [SelectOptionIndicator API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOptionIndicator)
  */
-const SelectValue = React.forwardRef(function SelectValue(
-  props: SelectValue.Props,
+const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
+  props: SelectOptionIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, placeholder, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
-  const { label, valueRef } = useSelectRootContext();
+  const { selected } = useSelectOptionContext();
 
-  const mergedRef = useForkRef(forwardedRef, valueRef);
-
-  const ownerState: SelectValue.OwnerState = React.useMemo(() => ({}), []);
-
-  const getValueProps = React.useCallback(
+  const getOptionProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
-        children: typeof children === 'function' ? children(label) : label || placeholder,
+        'aria-hidden': true,
+        children: '✔️',
       }),
-    [children, label, placeholder],
+    [],
+  );
+
+  const ownerState: SelectOptionIndicator.OwnerState = React.useMemo(
+    () => ({
+      selected,
+    }),
+    [selected],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
+    propGetter: getOptionProps,
     render: render ?? 'span',
+    ref: forwardedRef,
     className,
     ownerState,
-    ref: mergedRef,
     extraProps: otherProps,
   });
+
+  const shouldRender = selected || keepMounted;
+  if (!shouldRender) {
+    return null;
+  }
 
   return renderElement();
 });
 
-namespace SelectValue {
-  export interface Props extends Omit<BaseUIComponentProps<'span', OwnerState>, 'children'> {
-    children?: null | ((value: string) => React.ReactNode);
+namespace SelectOptionIndicator {
+  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+    children?: React.ReactNode;
     /**
-     * The placeholder value to display when the value is empty (such as during SSR).
+     * If `true`, the item indicator remains mounted when the item is not
+     * selected.
+     * @default true
      */
-    placeholder?: string;
+    keepMounted?: boolean;
   }
 
-  export interface OwnerState {}
+  export interface OwnerState {
+    selected: boolean;
+  }
 }
 
-SelectValue.propTypes /* remove-proptypes */ = {
+SelectOptionIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -69,19 +81,21 @@ SelectValue.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.func,
+  children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The placeholder value to display when the value is empty (such as during SSR).
+   * If `true`, the item indicator remains mounted when the item is not
+   * selected.
+   * @default true
    */
-  placeholder: PropTypes.string,
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SelectValue };
+export { SelectOptionIndicator };

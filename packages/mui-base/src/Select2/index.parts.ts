@@ -1,7 +1,12 @@
-export { SelectRoot as Root } from './SelectRoot';
+export { SelectRoot as Root } from './Root/SelectRoot';
 export { SelectPositioner as Positioner } from './Positioner/SelectPositioner';
 export { SelectOption as Option } from './Option/SelectOption';
 export { SelectTrigger as Trigger } from './Trigger/SelectTrigger';
 export { SelectPopup as Popup } from './Popup/SelectPopup';
 export { SelectValue as Value } from './Value/SelectValue';
 export { SelectOptionText as OptionText } from './OptionText/SelectOptionText';
+export { SelectArrow as Arrow } from './Arrow/SelectArrow';
+export { SelectBackdrop as Backdrop } from './Backdrop/SelectBackdrop';
+export { SelectIcon as Icon } from './Icon/SelectIcon';
+export { SelectScrollDownArrow as ScrollDownArrow } from './ScrollDownArrow/SelectScrollDownArrow';
+export { SelectScrollUpArrow as ScrollUpArrow } from './ScrollUpArrow/SelectScrollUpArrow';

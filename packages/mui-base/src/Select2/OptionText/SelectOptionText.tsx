@@ -1,9 +1,10 @@
+'use client';
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useSelectRootContext } from '../SelectRoot';
-import { useSelectOptionContext } from '../Option/SelectOption';
+import { useSelectRootContext } from '../Root/SelectRootContext';
+import { useSelectOptionContext } from '../Option/SelectOptionContext';
 
 interface InnerSelectOptionTextProps extends SelectOptionText.Props {
   selected: boolean;
@@ -26,11 +27,15 @@ const InnerSelectOptionText = React.forwardRef(function InnerSelectOptionText(
       if (mergedRef) {
         mergedRef(node);
       }
-      if (selected || (selectedOptionTextRef.current === null && indexRef.current === 0)) {
-        selectedOptionTextRef.current = node;
-      }
+
+      // Wait for the DOM indices to be set.
+      queueMicrotask(() => {
+        if (selected || (selectedOptionTextRef.current === null && indexRef.current === 0)) {
+          selectedOptionTextRef.current = node;
+        }
+      });
     },
-    [mergedRef, selectedOptionTextRef, selected],
+    [mergedRef, selected, selectedOptionTextRef, indexRef],
   );
 
   const { renderElement } = useComponentRenderer({

@@ -11,7 +11,7 @@ import type {
 import type { GenericHTMLProps } from '../../utils/types';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useSelectRootContext } from '../SelectRoot';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { MAX_Z_INDEX } from '../../utils/constants';
 import { getInertValue } from '../../utils/getInertValue';
@@ -27,12 +27,9 @@ export function useSelectPositioner(
 ): useSelectPositioner.ReturnValue {
   const { keepMounted } = params;
 
-  const { open, touchModality, alignOptionToTrigger, innerFallback, mounted, triggerElement } =
-    useSelectRootContext();
+  const { open, alignOptionToTrigger, mounted, triggerElement } = useSelectRootContext();
 
-  const itemAligned = alignOptionToTrigger && !innerFallback && !touchModality;
-
-  useScrollLock(itemAligned && mounted, triggerElement);
+  useScrollLock(alignOptionToTrigger && mounted, triggerElement);
 
   const {
     positionerStyles: enabledPositionerStyles,
@@ -46,12 +43,12 @@ export function useSelectPositioner(
     isPositioned,
   } = useAnchorPositioning({
     ...params,
-    trackAnchor: !itemAligned,
+    trackAnchor: !alignOptionToTrigger,
   });
 
   const positionerStyles = React.useMemo(
-    () => (itemAligned ? { position: 'fixed' } : enabledPositionerStyles),
-    [itemAligned, enabledPositionerStyles],
+    () => (alignOptionToTrigger ? { position: 'fixed' } : enabledPositionerStyles),
+    [alignOptionToTrigger, enabledPositionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -75,7 +72,7 @@ export function useSelectPositioner(
           },
         });
       },
-      [positionerStyles, open, mounted, keepMounted, hidden],
+      [keepMounted, open, hidden, mounted, positionerStyles, alignOptionToTrigger],
     );
 
   const positioner = React.useMemo(
@@ -84,7 +81,7 @@ export function useSelectPositioner(
         arrowRef,
         arrowUncentered,
         arrowStyles,
-        side: alignOptionToTrigger && !innerFallback ? 'none' : renderedSide,
+        side: alignOptionToTrigger ? 'none' : renderedSide,
         alignment: renderedAlignment,
         positionerContext,
         isPositioned,
@@ -94,7 +91,6 @@ export function useSelectPositioner(
       arrowRef,
       arrowStyles,
       arrowUncentered,
-      innerFallback,
       isPositioned,
       positionerContext,
       renderedAlignment,

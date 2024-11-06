@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useSelectTrigger } from './useSelectTrigger';
-import { useSelectRootContext } from '../SelectRoot';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';

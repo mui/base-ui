@@ -1,18 +1,17 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { Side } from '@floating-ui/react';
+import { FloatingPortal } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useSelectRootContext } from '../Root/SelectRootContext';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { HTMLElementType } from '../../utils/proptypes';
+import { useSelectRootContext } from '../Root/SelectRootContext';
+import { useSelectBackdrop } from './useSelectBackdrop';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = {
   ...popupOpenStateMapping,
   transitionStatus(value): Record<string, string> | null {
     if (value === 'entering') {
@@ -35,81 +34,62 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
  *
  * API:
  *
- * - [SelectPopup API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectPopup)
+ * - [SelectBackdrop API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectBackdrop)
  */
-const SelectPopup = React.forwardRef(function SelectPopup(
-  props: SelectPopup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+const SelectBackdrop = React.forwardRef(function SelectBackdrop(
+  props: SelectBackdrop.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { className, render, keepMounted = false, container, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus } = useSelectRootContext();
-  const positioner = useSelectPositionerContext();
+  const { open, mounted, transitionStatus } = useSelectRootContext();
 
-  const { getPopupProps } = useSelectPopup();
+  const { getBackdropProps } = useSelectBackdrop();
 
-  const mergedRef = useForkRef(forwardedRef, popupRef);
-
-  const ownerState: SelectPopup.OwnerState = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      side: positioner.side,
-      alignment: positioner.alignment,
-    }),
-    [open, transitionStatus, positioner],
+  const ownerState: SelectBackdrop.OwnerState = React.useMemo(
+    () => ({ open, transitionStatus }),
+    [open, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getPopupProps,
+    propGetter: getBackdropProps,
     render: render ?? 'div',
-    ref: mergedRef,
     className,
     ownerState,
-    customStyleHookMapping,
+    ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
-  const popupSelector = `[data-id="${id}-popup"]`;
+  const shouldRender = keepMounted || mounted;
+  if (!shouldRender) {
+    return null;
+  }
 
-  const html = React.useMemo(
-    () => ({
-      __html: `${popupSelector}{scrollbar-width:none}${popupSelector}::-webkit-scrollbar{display:none}`,
-    }),
-    [popupSelector],
-  );
-
-  return (
-    <React.Fragment>
-      {id && (
-        <style
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={html}
-        />
-      )}
-      {renderElement()}
-    </React.Fragment>
-  );
+  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
 
-namespace SelectPopup {
+namespace SelectBackdrop {
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    children?: React.ReactNode;
     /**
-     * The id of the popup element.
+     * If `true`, the Backdrop remains mounted when the Select popup is closed.
+     * @default false
      */
-    id?: string;
+    keepMounted?: boolean;
+    /**
+     * The container element to which the Backdrop is appended to.
+     * @default false
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface OwnerState {
-    side: Side | 'none';
-    alignment: 'start' | 'end' | 'center';
     open: boolean;
     transitionStatus: TransitionStatus;
   }
 }
 
-SelectPopup.propTypes /* remove-proptypes */ = {
+SelectBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -123,13 +103,22 @@ SelectPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The id of the popup element.
+   * The container element to which the Backdrop is appended to.
+   * @default false
    */
-  id: PropTypes.string,
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.func,
+  ]),
+  /**
+   * If `true`, the Backdrop remains mounted when the Select popup is closed.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SelectPopup };
+export { SelectBackdrop };

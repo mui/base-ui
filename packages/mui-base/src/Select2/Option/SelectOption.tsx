@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { UseInteractionsReturn } from '@floating-ui/react';
-import { SelectRootContext, useSelectIndexContext, useSelectRootContext } from '../SelectRoot';
+import { SelectRootContext, useSelectRootContext } from '../Root/SelectRootContext';
+import { useSelectIndexContext } from '../Root/SelectIndexContext';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -10,21 +11,7 @@ import { useSelectOption } from './useSelectOption';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
-
-interface SelectOptionContext {
-  selected: boolean;
-  indexRef: React.RefObject<number>;
-}
-
-const SelectOptionContext = React.createContext<SelectOptionContext | null>(null);
-
-export function useSelectOptionContext() {
-  const context = React.useContext(SelectOptionContext);
-  if (context === null) {
-    throw new Error('useSelectOptionContext must be used within a SelectOption');
-  }
-  return context;
-}
+import { SelectOptionContext } from './SelectOptionContext';
 
 interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   highlighted: boolean;
@@ -33,7 +20,8 @@ interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   setOpen: SelectRootContext['setOpen'];
   typingRef: React.MutableRefObject<boolean>;
   selectionRef: React.MutableRefObject<{
-    allowMouseUp: boolean;
+    allowUnselectedMouseUp: boolean;
+    allowSelectedMouseUp: boolean;
     allowSelect: boolean;
   }>;
   open: boolean;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useSelectRootContext } from '../SelectRoot';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument } from '../../utils/owner';
 
@@ -45,6 +45,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (positionerElement) {
       Object.assign(positionerElement.style, {
         left: '',
+        right: '',
         height: '',
         bottom: '',
         top: '',
@@ -69,7 +70,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
-    const borderTop = parseFloat(popupStyles.borderTopWidth);
     const borderBottom = parseFloat(popupStyles.borderBottomWidth);
     const minHeight = parseFloat(positionerStyles.minHeight) || 100;
 
@@ -79,6 +79,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const triggerX = triggerRect.left;
     const triggerHeight = triggerRect.height;
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
+    const viewportWidth = doc.documentElement.clientWidth;
     const availableSpaceBeneathTrigger = viewportHeight - triggerRect.bottom + triggerHeight;
 
     const optionTextElement = selectedOptionTextRef.current;
@@ -102,9 +103,16 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const maxHeight = viewportHeight - marginTop - marginBottom;
     const scrollTop = idealHeight - height;
 
-    positionerElement.style.left = `${triggerX + offsetX}px`;
-    positionerElement.style.height = `${height}px`;
+    const left = Math.max(10, triggerX + offsetX);
+    const maxRight = viewportWidth - 10;
+
+    positionerElement.style.left = `${left}px`;
+    positionerElement.style.height = `${height - 1}px`;
     positionerElement.style.minHeight = `${minHeight}px`;
+
+    if (left + positionerRect.width > maxRight) {
+      positionerElement.style.right = '10px';
+    }
 
     const maxScrollTop = popupRef.current.scrollHeight - popupRef.current.clientHeight;
     const isTopPositioned = scrollTop >= maxScrollTop;
@@ -143,7 +151,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(getRootPositionerProps(externalProps), {
-        ['data-id' as string]: id,
+        ['data-id' as string]: `${id}-popup`,
         onScroll(event) {
           if (
             !alignOptionToTrigger ||
@@ -191,8 +199,13 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
             if (nextHeight !== viewportHeight) {
               event.currentTarget.scrollTop = 0;
             } else {
-              event.currentTarget.scrollTop -= diff - overshoot;
               reachedMaxHeightRef.current = true;
+              if (
+                event.currentTarget.scrollTop <
+                event.currentTarget.scrollHeight - event.currentTarget.clientHeight
+              ) {
+                event.currentTarget.scrollTop -= diff - overshoot;
+              }
             }
           }
         },

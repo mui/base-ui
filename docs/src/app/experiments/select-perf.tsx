@@ -6,30 +6,61 @@ import * as Select from '@radix-ui/react-select';
 
 const options = [...Array(1000)].map((_, i) => `Item ${i + 1}`);
 
+const arrowStyles: React.CSSProperties = {
+  width: 'calc(100% - 2px)',
+  margin: '0 auto',
+  textAlign: 'center',
+  background: 'white',
+  fontSize: 12,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginInline: 1,
+};
+
 function BaseSelect2Example() {
   return (
     <BaseSelect2.Root>
       <BaseSelect2.Trigger
         aria-label="Select"
-        style={{ fontSize: 16, height: 40, border: 'none' }}
+        style={{ fontSize: 16, border: 'none', lineHeight: 1, fontFamily: 'Arial' }}
       >
         <BaseSelect2.Value placeholder="Select..." />
       </BaseSelect2.Trigger>
-      <BaseSelect2.Positioner>
+      <BaseSelect2.Positioner style={{ margin: '10px 0' }}>
+        <BaseSelect2.ScrollUpArrow
+          style={{
+            ...arrowStyles,
+            top: 0,
+            marginTop: 1,
+          }}
+        />
         <BaseSelect2.Popup
           style={{
             padding: '1rem 0.5rem',
-            border: '5px solid black',
+            border: '1px solid black',
             background: 'white',
             fontSize: 16,
+            fontFamily: 'Arial',
           }}
         >
           {options.map((item) => (
-            <BaseSelect2.Option key={item} value={item}>
+            <BaseSelect2.Option
+              key={item}
+              value={item}
+              style={{ scrollMargin: 15, lineHeight: 1 }}
+            >
               <BaseSelect2.OptionText>{item}</BaseSelect2.OptionText>
             </BaseSelect2.Option>
           ))}
         </BaseSelect2.Popup>
+        <BaseSelect2.ScrollDownArrow
+          style={{
+            ...arrowStyles,
+            bottom: 0,
+            marginBottom: 1,
+          }}
+        />
       </BaseSelect2.Positioner>
     </BaseSelect2.Root>
   );

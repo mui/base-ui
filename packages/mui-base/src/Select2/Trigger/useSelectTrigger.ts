@@ -5,7 +5,7 @@ import { useButton } from '../../useButton/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
-import { useSelectRootContext } from '../SelectRoot';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 
@@ -26,8 +26,7 @@ export function useSelectTrigger(
     setTriggerElement,
     selectionRef,
     value,
-    getValidationProps,
-    commitValidation,
+    fieldControlValidation,
     setTouchModality,
     positionerElement,
   } = useSelectRootContext();
@@ -49,17 +48,24 @@ export function useSelectTrigger(
 
   React.useEffect(() => {
     if (open) {
-      const timeoutId = window.setTimeout(() => {
-        selectionRef.current.allowMouseUp = true;
+      // mousedown -> mouseup on selected option should not select within 400ms.
+      const timeoutId1 = window.setTimeout(() => {
+        selectionRef.current.allowSelectedMouseUp = true;
       }, 400);
+      // mousedown -> move to unselected option -> mouseup should not select within 200ms.
+      const timeoutId2 = window.setTimeout(() => {
+        selectionRef.current.allowUnselectedMouseUp = true;
+      }, 200);
 
       return () => {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId1);
+        clearTimeout(timeoutId2);
       };
     }
 
     selectionRef.current = {
-      allowMouseUp: false,
+      allowSelectedMouseUp: false,
+      allowUnselectedMouseUp: false,
       allowSelect: true,
     };
 
@@ -71,14 +77,14 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps<'button'>(
-        getValidationProps(externalProps),
+        fieldControlValidation.getValidationProps(externalProps),
         {
           'aria-labelledby': labelId,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onBlur() {
             setTouched(true);
-            commitValidation(value);
+            fieldControlValidation.commitValidation(value);
           },
           onPointerMove({ pointerType }) {
             setTouchModality(pointerType === 'touch');
@@ -129,12 +135,11 @@ export function useSelectTrigger(
       );
     },
     [
-      getValidationProps,
+      fieldControlValidation,
       labelId,
       handleRef,
       getButtonProps,
       setTouched,
-      commitValidation,
       value,
       setTouchModality,
       open,

@@ -1,4 +1,5 @@
-'use client';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   useClick,
   useDismiss,
@@ -8,101 +9,35 @@ import {
   useRole,
   useTypeahead,
 } from '@floating-ui/react';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useControlled } from '../utils/useControlled';
-import { TransitionStatus, useTransitionStatus } from '../utils';
-import { useAnimationsFinished } from '../utils/useAnimationsFinished';
-import { GenericHTMLProps } from '../utils/types';
-import { useEventCallback } from '../utils/useEventCallback';
-import { useLatestRef } from '../utils/useLatestRef';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
-import { warn } from '../utils/warn';
-import { useFieldRootContext } from '../Field/Root/FieldRootContext';
-import { useFieldControlValidation } from '../Field/Control/useFieldControlValidation';
-import { useId } from '../utils/useId';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useId } from '../../utils/useId';
+import { useControlled } from '../../utils/useControlled';
+import { type TransitionStatus, useTransitionStatus } from '../../utils';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { warn } from '../../utils/warn';
+import type { SelectRootContext } from './SelectRootContext';
+import type { SelectIndexContext } from './SelectIndexContext';
 
-export interface SelectRootContext extends useFieldControlValidation.ReturnValue {
-  value: any;
-  setValue: (nextValue: any, event?: Event) => void;
-  open: boolean;
-  setOpen: (nextOpen: boolean, event?: Event) => void;
-  mounted: boolean;
-  disabled: boolean;
-  setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  transitionStatus: TransitionStatus;
-  triggerElement: HTMLElement | null;
-  setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  positionerElement: HTMLElement | null;
-  setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>;
-  popupRef: React.MutableRefObject<HTMLDivElement | null>;
-  getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPositionerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-  getItemProps: (
-    props?: GenericHTMLProps & { active?: boolean; selected?: boolean },
-  ) => Record<string, unknown>;
-  floatingRootContext: ReturnType<typeof useFloatingRootContext>;
-  label: string;
-  setLabel: React.Dispatch<React.SetStateAction<string>>;
-  valuesRef: React.MutableRefObject<Array<any>>;
-  valueRef: React.MutableRefObject<HTMLSpanElement | null>;
-  selectedOptionTextRef: React.MutableRefObject<HTMLSpanElement | null>;
-  labelsRef: React.MutableRefObject<Array<string | null>>;
-  touchModality: boolean;
-  setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
-  alignOptionToTrigger: boolean;
-  innerFallback: boolean;
-  typingRef: React.MutableRefObject<boolean>;
-  selectionRef: React.MutableRefObject<{
-    allowMouseUp: boolean;
-    allowSelect: boolean;
-  }>;
-  id: string | undefined;
-}
-
-interface SelectIndexContext {
-  activeIndex: number | null;
-  setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  selectedIndex: number | null;
-  setSelectedIndex: React.Dispatch<React.SetStateAction<number | null>>;
-}
-
-const SelectRootContext = React.createContext<SelectRootContext | null>(null);
-const SelectIndexContext = React.createContext<SelectIndexContext | null>(null);
-
-export function useSelectIndexContext() {
-  const context = React.useContext(SelectIndexContext);
-  if (context === null) {
-    throw new Error('useSelectIndexContext must be used within a SelectIndexContext');
-  }
-  return context;
-}
-
-export function useSelectRootContext() {
-  const context = React.useContext(SelectRootContext);
-  if (context === null) {
-    throw new Error('useSelectRootContext must be used within a SelectRoot');
-  }
-  return context;
-}
-
-export const SelectRoot: SelectRoot = function SelectRoot<Value>(
-  props: SelectRoot.Props<Value>,
-): React.JSX.Element {
+export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
-    children,
     value: valueProp,
-    onValueChange,
     defaultValue,
+    onValueChange,
     open: openProp,
-    defaultOpen = false,
+    defaultOpen,
     onOpenChange,
-    animated,
+    alignOptionToTrigger: alignOptionToTriggerParam = true,
     loop = true,
+    animated = false,
+    name,
     disabled = false,
-    alignOptionToTrigger: alignOptionToTriggerProp = true,
-  } = props;
+    readOnly = false,
+    required = false,
+  } = params;
 
   const id = useId();
 
@@ -116,7 +51,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
 
-  const alignOptionToTrigger = alignOptionToTriggerProp && !touchModality;
+  const alignOptionToTrigger = Boolean(alignOptionToTriggerParam && !touchModality);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -139,7 +74,11 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
   const selectedOptionTextRef = React.useRef<HTMLSpanElement | null>(null);
-  const selectionRef = React.useRef({ allowMouseUp: false, allowSelect: false });
+  const selectionRef = React.useRef({
+    allowSelectedMouseUp: false,
+    allowUnselectedMouseUp: false,
+    allowSelect: false,
+  });
 
   const liveValueRef = useLatestRef(value);
 
@@ -244,35 +183,33 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typehaead]);
 
-  const innerFallback = false;
-
-  const rootContextValue = React.useMemo(
+  const rootContext = React.useMemo(
     () => ({
       id,
+      name,
+      required,
+      disabled,
+      readOnly,
+      triggerElement,
+      setTriggerElement,
+      positionerElement,
+      setPositionerElement,
+      value,
+      setValue,
       open,
       setOpen,
       mounted,
       setMounted,
-      value,
-      setValue,
-      disabled,
-      transitionStatus,
       label,
       setLabel,
       valueRef,
       valuesRef,
       labelsRef,
-      triggerElement,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
+      typingRef,
+      selectionRef,
       getRootPositionerProps,
       getRootTriggerProps,
       getItemProps,
-      activeIndex,
-      setActiveIndex,
-      selectedIndex,
-      setSelectedIndex,
       listRef,
       popupRef,
       selectedOptionTextRef,
@@ -280,59 +217,56 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
       touchModality,
       setTouchModality,
       alignOptionToTrigger,
-      innerFallback,
-      typingRef,
-      selectionRef,
-      ...fieldControlValidation,
+      transitionStatus,
+      fieldControlValidation,
     }),
     [
       id,
+      name,
+      required,
+      disabled,
+      readOnly,
+      triggerElement,
+      positionerElement,
+      value,
+      setValue,
       open,
       setOpen,
       mounted,
       setMounted,
-      value,
-      setValue,
-      disabled,
-      transitionStatus,
       label,
-      valueRef,
-      triggerElement,
-      positionerElement,
       getRootPositionerProps,
       getRootTriggerProps,
       getItemProps,
-      activeIndex,
-      selectedIndex,
       floatingRootContext,
       touchModality,
       alignOptionToTrigger,
-      innerFallback,
+      transitionStatus,
       fieldControlValidation,
     ],
   );
 
-  const indexContextValue = React.useMemo(
+  const indexContext = React.useMemo(
     () => ({
       activeIndex,
       setActiveIndex,
       selectedIndex,
       setSelectedIndex,
     }),
-    [activeIndex, setActiveIndex, selectedIndex, setSelectedIndex],
+    [activeIndex, selectedIndex],
   );
 
-  return (
-    <SelectRootContext.Provider value={rootContextValue}>
-      <SelectIndexContext.Provider value={indexContextValue}>
-        {children}
-      </SelectIndexContext.Provider>
-    </SelectRootContext.Provider>
+  return React.useMemo(
+    () => ({
+      rootContext,
+      indexContext,
+    }),
+    [rootContext, indexContext],
   );
-};
+}
 
-namespace SelectRoot {
-  export interface Props<Value> {
+export namespace useSelectRoot {
+  export interface Parameters<Value> {
     /**
      * If `true`, the Select supports CSS-based animations and transitions.
      * It is kept in the DOM until the animation completes.
@@ -402,10 +336,14 @@ namespace SelectRoot {
      * @default true
      */
     alignOptionToTrigger?: boolean;
+    /**
+     * The transition status of the Select.
+     */
+    transitionStatus?: TransitionStatus;
   }
-}
 
-interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
-  propTypes?: any;
+  export interface ReturnValue {
+    rootContext: SelectRootContext;
+    indexContext: SelectIndexContext;
+  }
 }
