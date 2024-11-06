@@ -286,8 +286,9 @@ export function useCollapsiblePanel(
       getRootProps,
       height,
       width,
+      isOpen,
     }),
-    [getRootProps, height, width],
+    [getRootProps, height, width, isOpen],
   );
 }
 
@@ -300,6 +301,7 @@ export namespace useCollapsiblePanel {
     animated?: boolean;
     /**
      * If `true`, sets `hidden="until-found"` when closed.
+     * Requires setting `keepMounted` to `true`.
      * If `false`, sets `hidden` when closed.
      * @default false
      */
@@ -307,7 +309,7 @@ export namespace useCollapsiblePanel {
     id?: React.HTMLAttributes<Element>['id'];
     mounted: boolean;
     /**
-     * The open state of the Collapsible
+     * The open state of the Collapsible.
      */
     open: boolean;
     ref: React.Ref<HTMLElement>;
@@ -322,5 +324,9 @@ export namespace useCollapsiblePanel {
     ) => React.ComponentPropsWithRef<'button'>;
     height: number;
     width: number;
+    /**
+     * The open state of the panel, that accounts for animation/transition status.
+     */
+    isOpen: boolean;
   }
 }

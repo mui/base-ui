@@ -1,4 +1,5 @@
 .trigger {
+  background-color: buttonface;
   display: flex;
   width: 320px;
   align-items: center;

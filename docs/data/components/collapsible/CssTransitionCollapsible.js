@@ -8,27 +8,29 @@ import classes from './styles.module.css';
 export default function CssTransitionCollapsible() {
   const [open, setOpen] = React.useState(true);
   return (
-    <Collapsible.Root open={open} onOpenChange={setOpen}>
-      <Collapsible.Trigger className={classes.trigger}>
-        <ExpandMoreIcon className={classes.icon} />
-        Show {open ? 'less' : 'more'}
-      </Collapsible.Trigger>
-      <Collapsible.Panel className={clsx(classes.panel, transitionClasses.panel)}>
-        <p>This is the collapsed content.</p>
-        <p>
-          You can find the Base UI repository{' '}
-          <a
-            href="https://github.com/mui/base-ui"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            here
-          </a>
-          .
-        </p>
-        <p>This is a longer sentence and also the third paragraph.</p>
-      </Collapsible.Panel>
-    </Collapsible.Root>
+    <div>
+      <Collapsible.Root open={open} onOpenChange={setOpen}>
+        <Collapsible.Trigger className={classes.trigger}>
+          <ExpandMoreIcon className={classes.icon} />
+          Show {open ? 'less' : 'more'}
+        </Collapsible.Trigger>
+        <Collapsible.Panel className={clsx(classes.panel, transitionClasses.panel)}>
+          <p>This is the collapsed content.</p>
+          <p>
+            You can find the Base UI repository{' '}
+            <a
+              href="https://github.com/mui/base-ui"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              here
+            </a>
+            .
+          </p>
+          <p>This is a longer sentence and also the third paragraph.</p>
+        </Collapsible.Panel>
+      </Collapsible.Root>
+    </div>
   );
 }
 

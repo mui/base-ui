@@ -36,6 +36,7 @@ export default function CollapsibleHiddenUntilFound() {
             Trigger 1
           </Collapsible.Trigger>
           <Collapsible.Panel
+            keepMounted
             className={classNames(classes.panel, classes.transition)}
           >
             <p>This is the collapsed content</p>
@@ -49,8 +50,9 @@ export default function CollapsibleHiddenUntilFound() {
             Trigger 2
           </Collapsible.Trigger>
           <Collapsible.Panel
-            className={classNames(classes.panel, classes.animation)}
             hiddenUntilFound
+            keepMounted
+            className={classNames(classes.panel, classes.animation)}
           >
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>
@@ -63,8 +65,9 @@ export default function CollapsibleHiddenUntilFound() {
             Trigger 3
           </Collapsible.Trigger>
           <Collapsible.Panel
-            className={classNames(classes.panel, classes.transition)}
             hiddenUntilFound
+            keepMounted
+            className={classNames(classes.panel, classes.transition)}
           >
             <p>This is the collapsed content</p>
             <p>May the force be with you</p>

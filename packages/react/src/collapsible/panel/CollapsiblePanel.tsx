@@ -22,12 +22,12 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, hiddenUntilFound, render, ...otherProps } = props;
+  const { className, hiddenUntilFound, keepMounted = false, render, ...otherProps } = props;
 
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();
 
-  const { getRootProps, height, width } = useCollapsiblePanel({
+  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
     hiddenUntilFound,
     id: panelId,
@@ -55,6 +55,10 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
+  if (!keepMounted && !isOpen) {
+    return null;
+  }
+
   return renderElement();
 });
 
@@ -63,7 +67,15 @@ export { CollapsiblePanel };
 namespace CollapsiblePanel {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {
+    /**
+     * If `true`, the panel remains mounted when closed and is instead
+     * hidden using the `hidden` attribute
+     * If `false`, the panel is unmounted when closed.
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
 }
 
 CollapsiblePanel.propTypes /* remove-proptypes */ = {
@@ -81,10 +93,18 @@ CollapsiblePanel.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * If `true`, sets `hidden="until-found"` when closed.
+   * Requires setting `keepMounted` to `true`.
    * If `false`, sets `hidden` when closed.
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,
+  /**
+   * If `true`, the panel remains mounted when closed and is instead
+   * hidden using the `hidden` attribute
+   * If `false`, the panel is unmounted when closed.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

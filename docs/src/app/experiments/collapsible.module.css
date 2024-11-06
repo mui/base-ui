@@ -33,7 +33,7 @@
   transition: transform var(--duration) ease-in;
 }
 
-.trigger[data-open] .icon {
+.trigger[data-panel-open] .icon {
   transform: rotate(0);
   transition: transform var(--duration) ease-out;
 }
