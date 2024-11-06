@@ -133,8 +133,17 @@ export namespace useDialogPopup {
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+    /**
+     * The Floating UI root context.
+     */
     floatingRootContext?: FloatingRootContext;
+    /**
+     * Determines if the dialog should be mounted.
+     */
     mounted: boolean;
+    /**
+     * The resolver for the popup element props.
+     */
     getPopupProps: () => GenericHTMLProps;
   }
 
