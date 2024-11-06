@@ -11,6 +11,12 @@
       "description": "The default value representing the currently open <code>Accordion.Item</code> This is the uncontrolled counterpart of <code>value</code>."
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "hiddenUntilFound": {
+      "description": "If <code>true</code>, sets <code>hidden=&quot;until-found&quot;</code> when closed. Requires setting <code>keepMounted</code> to <code>true</code>. If <code>false</code>, sets <code>hidden</code> when closed."
+    },
+    "keepMounted": {
+      "description": "If <code>true</code>, accordion items remains mounted when closed and is instead hidden using the <code>hidden</code> attribute. If <code>false</code>, accordion items are unmounted when closed."
+    },
     "loop": {
       "description": "If <code>true</code>, focus will loop when moving focus between <code>Trigger</code>s using the arrow keys."
     },

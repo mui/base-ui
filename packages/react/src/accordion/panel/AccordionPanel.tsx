@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
+import type { AccordionRoot } from '../root/AccordionRoot';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
@@ -27,6 +28,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   const {
     className,
     hiddenUntilFound: hiddenUntilFoundProp,
+    keepMounted: keepMountedProp,
     id: idProp,
     render,
     style: styleProp,
@@ -36,12 +38,15 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen } =
     useCollapsibleRootContext();
 
-  const { hiddenUntilFound } = useAccordionRootContext();
+  const { hiddenUntilFound, keepMounted: contextKeepMounted } = useAccordionRootContext();
 
-  const { getRootProps, height, width } = useCollapsiblePanel({
+  const keepMounted = keepMountedProp ?? contextKeepMounted;
+
+  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
     hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
     id: idProp ?? panelId,
+    keepMounted,
     mounted,
     open,
     ref: forwardedRef,
@@ -70,13 +75,17 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
+  if (!keepMounted && !isOpen) {
+    return null;
+  }
+
   return renderElement();
 });
 
 export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+      Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
 }
 
 export { AccordionPanel };
@@ -96,6 +105,7 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * If `true`, sets `hidden="until-found"` when closed.
+   * Requires setting `keepMounted` to `true`.
    * If `false`, sets `hidden` when closed.
    * @default false
    */
@@ -104,6 +114,13 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
+  /**
+   * If `true`, accordion items remains mounted when closed and is instead
+   * hidden using the `hidden` attribute.
+   * If `false`, accordion items are unmounted when closed.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

@@ -31,6 +31,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     direction,
     disabled = false,
     hiddenUntilFound = false,
+    keepMounted = false,
     loop,
     onValueChange,
     openMultiple = true,
@@ -76,9 +77,10 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     () => ({
       ...accordion,
       hiddenUntilFound,
+      keepMounted,
       state,
     }),
-    [accordion, hiddenUntilFound, state],
+    [accordion, hiddenUntilFound, keepMounted, state],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -108,7 +110,20 @@ export namespace AccordionRoot {
   export interface Props
     extends useAccordionRoot.Parameters,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+    /**
+     * If `true`, sets `hidden="until-found"` when closed.
+     * Requires setting `keepMounted` to `true`.
+     * If `false`, sets `hidden` when closed.
+     * @default false
+     */
     hiddenUntilFound?: boolean;
+    /**
+     * If `true`, accordion items remains mounted when closed and is instead
+     * hidden using the `hidden` attribute.
+     * If `false`, accordion items are unmounted when closed.
+     * @default false
+     */
+    keepMounted?: boolean;
   }
 }
 
@@ -150,9 +165,19 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * @ignore
+   * If `true`, sets `hidden="until-found"` when closed.
+   * Requires setting `keepMounted` to `true`.
+   * If `false`, sets `hidden` when closed.
+   * @default false
    */
   hiddenUntilFound: PropTypes.bool,
+  /**
+   * If `true`, accordion items remains mounted when closed and is instead
+   * hidden using the `hidden` attribute.
+   * If `false`, accordion items are unmounted when closed.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
   /**
    * If `true`, focus will loop when moving focus between `Trigger`s using
    * the arrow keys.
