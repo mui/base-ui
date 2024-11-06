@@ -250,12 +250,33 @@ export namespace useDialogRoot {
      * The id of the title element associated with the dialog.
      */
     titleElementId: string | undefined;
+    /**
+     * Determines if the dialog should be mounted.
+     */
     mounted: boolean;
+    /**
+     * The transition status of the dialog.
+     */
     transitionStatus: TransitionStatus;
+    /**
+     * Resolver for the Trigger element's props.
+     */
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    /**
+     * Resolver for the Popup element's props.
+     */
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    /**
+     * Callback to register the Trigger element DOM node.
+     */
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+    /**
+     * Callback to register the Popup element DOM node.
+     */
     setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+    /**
+     * The ref to the Popup element.
+     */
     popupRef: React.RefObject<HTMLElement | null>;
   }
 }
