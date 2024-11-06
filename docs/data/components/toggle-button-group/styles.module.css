@@ -4,8 +4,10 @@
 
 .button {
   --size: 2.5rem;
-  --corner: 0.4rem;
+  --corner-radius: 0.4rem;
   --border-color: var(--gray-outline-2);
+  --border-radius-visual-right: 0 var(--corner-radius) var(--corner-radius) 0;
+  --border-radius-visual-left: var(--corner-radius) 0 0 var(--corner-radius);
 
   display: flex;
   flex-flow: row nowrap;
@@ -19,16 +21,24 @@
 }
 
 .button:first-child {
-  border-radius: var(--corner) 0 0 var(--corner);
+  border-radius: var(--border-radius-visual-left);
   border-right-color: transparent;
 }
 
 .button:last-child {
-  border-radius: 0 var(--corner) var(--corner) 0;
+  border-radius: var(--border-radius-visual-right);
   border-left-color: transparent;
 }
 
-.button:hover {
+[dir='rtl'] .button:first-child {
+  border-radius: var(--border-radius-visual-right);
+}
+
+[dir='rtl'] .button:last-child {
+  border-radius: var(--border-radius-visual-left);
+}
+
+.button:not(:disabled):hover {
   background-color: var(--gray-surface-1);
   outline: 1px solid var(--gray-500);
   outline-offset: -1px;
@@ -38,7 +48,7 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--gray-900);
+  outline: 2px solid var(--color-violet);
   z-index: 1;
 }
 

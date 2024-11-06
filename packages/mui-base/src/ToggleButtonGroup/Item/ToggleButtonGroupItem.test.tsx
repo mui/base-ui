@@ -5,6 +5,7 @@ import { act } from '@mui/internal-test-utils';
 import { ToggleButtonGroup } from '@base_ui/react/ToggleButtonGroup';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
+import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
 import { ToggleButtonGroupRootContext } from '../Root/ToggleButtonGroupRootContext';
 
 const contextValue: ToggleButtonGroupRootContext = {
@@ -21,7 +22,7 @@ describe('<ToggleButtonGroup.Item />', () => {
     render: (node) =>
       render(
         <ToggleButtonGroupRootContext.Provider value={contextValue}>
-          {node}
+          <CompositeRoot>{node}</CompositeRoot>
         </ToggleButtonGroupRootContext.Provider>,
       ),
   }));

@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
 import { ToggleButtonGroup } from '@base_ui/react/ToggleButtonGroup';
 import { createRenderer, describeConformance } from '#test-utils';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<ToggleButtonGroup.Root />', () => {
   const { render } = createRenderer();
@@ -21,7 +23,7 @@ describe('<ToggleButtonGroup.Root />', () => {
 
   describe('uncontrolled', () => {
     it('pressed state', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -197,6 +199,117 @@ describe('<ToggleButtonGroup.Root />', () => {
     });
   });
 
+  describeSkipIf(isJSDOM)('keyboard interactions', () => {
+    it('ltr', async () => {
+      const { getAllByRole, user } = await render(
+        <ToggleButtonGroup.Root>
+          <ToggleButtonGroup.Item value="one" />
+          <ToggleButtonGroup.Item value="two" />
+        </ToggleButtonGroup.Root>,
+      );
+
+      const [button1, button2] = getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+
+      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+
+      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('tabindex', '0');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+
+      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('tabindex', '0');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+    });
+
+    it('rtl', async () => {
+      const { getAllByRole, user } = await render(
+        <ToggleButtonGroup.Root direction="rtl">
+          <ToggleButtonGroup.Item value="one" />
+          <ToggleButtonGroup.Item value="two" />
+        </ToggleButtonGroup.Root>,
+      );
+
+      const [button1, button2] = getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+
+      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowLeft]');
+
+      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('tabindex', '0');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowLeft]');
+
+      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('tabindex', '0');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+    });
+
+    ['Enter', 'Space'].forEach((key) => {
+      it(`key: ${key} toggles the pressed state`, async () => {
+        const { getAllByRole, user } = await render(
+          <ToggleButtonGroup.Root>
+            <ToggleButtonGroup.Item value="one" />
+            <ToggleButtonGroup.Item value="two" />
+          </ToggleButtonGroup.Root>,
+        );
+
+        const [button1] = getAllByRole('button');
+
+        expect(button1).to.have.attribute('aria-pressed', 'false');
+
+        await act(async () => {
+          button1.focus();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(button1).to.have.attribute('aria-pressed', 'true');
+
+        await user.keyboard(`[${key}]`);
+
+        expect(button1).to.have.attribute('aria-pressed', 'false');
+      });
+    });
+  });
+
   describe('prop: onValueChange', () => {
     it('fires when an Item is clicked', async () => {
       const onValueChange = spy();
@@ -223,46 +336,44 @@ describe('<ToggleButtonGroup.Root />', () => {
       expect(onValueChange.args[1][0]).to.deep.equal(['two']);
     });
 
-    describe('keypresses', () => {
-      ['Enter', 'Space'].forEach((key) => {
-        it(`fires when when the ${key} is pressed`, async function test(t = {}) {
-          if (/jsdom/.test(window.navigator.userAgent)) {
-            // @ts-expect-error to support mocha and vitest
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            this?.skip?.() || t?.skip();
-          }
+    ['Enter', 'Space'].forEach((key) => {
+      it(`fires when when the ${key} is pressed`, async function test(t = {}) {
+        if (isJSDOM) {
+          // @ts-expect-error to support mocha and vitest
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          this?.skip?.() || t?.skip();
+        }
 
-          const onValueChange = spy();
+        const onValueChange = spy();
 
-          const { getAllByRole, user } = await render(
-            <ToggleButtonGroup.Root onValueChange={onValueChange}>
-              <ToggleButtonGroup.Item value="one" />
-              <ToggleButtonGroup.Item value="two" />
-            </ToggleButtonGroup.Root>,
-          );
+        const { getAllByRole, user } = await render(
+          <ToggleButtonGroup.Root onValueChange={onValueChange}>
+            <ToggleButtonGroup.Item value="one" />
+            <ToggleButtonGroup.Item value="two" />
+          </ToggleButtonGroup.Root>,
+        );
 
-          const [button1, button2] = getAllByRole('button');
+        const [button1, button2] = getAllByRole('button');
 
-          expect(onValueChange.callCount).to.equal(0);
+        expect(onValueChange.callCount).to.equal(0);
 
-          await act(async () => {
-            button1.focus();
-          });
-
-          await user.keyboard(`[${key}]`);
-
-          expect(onValueChange.callCount).to.equal(1);
-          expect(onValueChange.args[0][0]).to.deep.equal(['one']);
-
-          await act(async () => {
-            button2.focus();
-          });
-
-          await user.keyboard(`[${key}]`);
-
-          expect(onValueChange.callCount).to.equal(2);
-          expect(onValueChange.args[1][0]).to.deep.equal(['two']);
+        await act(async () => {
+          button1.focus();
         });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onValueChange.callCount).to.equal(1);
+        expect(onValueChange.args[0][0]).to.deep.equal(['one']);
+
+        await act(async () => {
+          button2.focus();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onValueChange.callCount).to.equal(2);
+        expect(onValueChange.args[1][0]).to.deep.equal(['two']);
       });
     });
   });

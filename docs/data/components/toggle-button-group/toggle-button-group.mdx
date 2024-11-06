@@ -57,7 +57,7 @@ When uncontrolled, use the `defaultValue` prop to set the initial state of the g
 When controlled, pass the `value` and `onValueChange` props to `ToggleButtonGroup.Root`:
 
 ```tsx
-const [value, setValue] = React.useState(['italics']);
+const [value, setValue] = React.useState(['align-center']);
 
 return (
   <ToggleButtonGroup.Root value={value} onValueChange={setValue}>
@@ -113,6 +113,8 @@ Use the `direction` prop to configure a RTL toggle button group:
 ```tsx
 <ToggleButtonGroup.Root direction="rtl">{/* toggle buttons */}</ToggleButtonGroup.Root>
 ```
+
+<Demo demo="ToggleButtonGroupRtl" />
 
 ## Accessibility
 

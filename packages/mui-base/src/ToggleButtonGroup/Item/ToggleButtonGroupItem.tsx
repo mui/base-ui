@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { CompositeItem } from '../../Composite/Item/CompositeItem';
 import { useToggleButtonGroupRootContext } from '../Root/ToggleButtonGroupRootContext';
 import { useToggleButtonGroupItem } from './useToggleButtonGroupItem';
 
@@ -67,7 +68,7 @@ const ToggleButtonGroupItem = React.forwardRef(function ToggleButtonGroupItem(
     extraProps: otherProps,
   });
 
-  return renderElement();
+  return <CompositeItem render={renderElement()} />;
 });
 
 export { ToggleButtonGroupItem };

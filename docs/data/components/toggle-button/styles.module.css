@@ -20,7 +20,7 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--gray-900);
+  outline: 2px solid var(--color-violet);
 }
 
 .icon {
