@@ -199,7 +199,7 @@ describe('<Select.Option />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      fireEvent.click(trigger);
+      await user.click(trigger);
 
       await flushMicrotasks();
 
@@ -208,8 +208,13 @@ describe('<Select.Option />', () => {
 
       await user.keyboard('{ArrowDown}');
 
-      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted', '');
-      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute('data-highlighted');
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(
+        'data-highlighted',
+        '',
+      );
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted');
     });
 
     it('should apply data-selected attribute when option is selected', async () => {
