@@ -250,11 +250,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   hideWhenDetached: PropTypes.bool,
   /**
-   * Whether the select popup remains mounted in the DOM while closed.
-   * @default true
-   */
-  keepMounted: PropTypes.bool,
-  /**
    * The CSS position method for positioning the Select popup element.
    * @default 'absolute'
    */

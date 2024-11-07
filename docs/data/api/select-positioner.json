@@ -37,7 +37,6 @@
       }
     },
     "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
-    "keepMounted": { "type": { "name": "bool" }, "default": "true" },
     "positionMethod": {
       "type": { "name": "enum", "description": "'absolute'<br>&#124;&nbsp;'fixed'" },
       "default": "'absolute'"

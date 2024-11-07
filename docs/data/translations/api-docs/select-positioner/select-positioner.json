@@ -24,9 +24,6 @@
     "hideWhenDetached": {
       "description": "If <code>true</code>, the Select will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
-    "keepMounted": {
-      "description": "Whether the select popup remains mounted in the DOM while closed."
-    },
     "positionMethod": {
       "description": "The CSS position method for positioning the Select popup element."
     },

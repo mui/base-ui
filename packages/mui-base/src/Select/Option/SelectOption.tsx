@@ -126,6 +126,10 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  alignOptionToTrigger: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
@@ -147,10 +151,6 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  id: PropTypes.string,
-  /**
-   * @ignore
-   */
   indexRef: PropTypes.shape({
     current: PropTypes.number.isRequired,
   }).isRequired,
@@ -167,6 +167,12 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   open: PropTypes.bool.isRequired,
+  /**
+   * @ignore
+   */
+  popupRef: PropTypes.shape({
+    current: PropTypes.object,
+  }).isRequired,
   /**
    * A function to customize rendering of the component.
    */
@@ -191,6 +197,10 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
       allowUnselectedMouseUp: PropTypes.bool.isRequired,
     }).isRequired,
   }).isRequired,
+  /**
+   * @ignore
+   */
+  setActiveIndex: PropTypes.func.isRequired,
   /**
    * @ignore
    */
@@ -309,10 +319,6 @@ SelectOption.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
   /**
    * A text representation of the select option's content.
    * Used for keyboard text navigation matching.

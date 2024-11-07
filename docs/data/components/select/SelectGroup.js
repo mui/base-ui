@@ -27,12 +27,12 @@ const entries = Object.entries(data);
 
 export default function SelectGroup() {
   return (
-    <Select.Root alignOptionToTrigger={false}>
+    <Select.Root>
       <SelectTrigger aria-label="Select food">
         <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5} keepMounted>
+      <Select.Positioner sideOffset={5}>
         <SelectScrollUpArrow
           render={(props) => (
             <div {...props}>
@@ -56,10 +56,7 @@ export default function SelectGroup() {
                     value={item.value}
                     disabled={item.value === 'banana'}
                   >
-                    <SelectOptionIndicator
-                      render={<CheckIcon />}
-                      keepMounted={false}
-                    />
+                    <SelectOptionIndicator render={<CheckIcon />} />
                     <Select.OptionText>{item.label}</Select.OptionText>
                   </SelectOption>
                 ))}
@@ -74,7 +71,7 @@ export default function SelectGroup() {
             </div>
           )}
         />
-      </SelectPositioner>
+      </Select.Positioner>
     </Select.Root>
   );
 }
@@ -106,14 +103,6 @@ const gray = {
 
 const triggerPaddingX = 6;
 const popupPadding = 4;
-
-const SelectPositioner = styled(Select.Positioner)`
-  display: none;
-
-  &[data-open] {
-    display: block;
-  }
-`;
 
 const SelectTrigger = styled(Select.Trigger)`
   font-family: 'IBM Plex Sans', sans-serif;
@@ -152,7 +141,6 @@ const SelectPopup = styled(Select.Popup)`
     0 2px 4px rgb(0 0 0 / 0.1),
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
-  outline: 0;
   min-width: min(
     calc(var(--available-width) - ${popupPadding * 2}px),
     calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
@@ -160,7 +148,10 @@ const SelectPopup = styled(Select.Popup)`
 `;
 
 const SelectOption = styled(Select.Option)`
-  padding: 6px 16px 6px 4px;
+  --padding: 6px;
+  --icon-size: 16px;
+  --icon-margin: 4px;
+
   outline: 0;
   cursor: default;
   border-radius: 4px;
@@ -168,7 +159,16 @@ const SelectOption = styled(Select.Option)`
   display: flex;
   align-items: center;
   line-height: 1.5;
-  scroll-margin: 15px;
+  padding-block: var(--padding);
+  padding-inline: calc(var(--padding) + var(--icon-margin) + var(--icon-size));
+
+  &[data-selected] {
+    padding-left: var(--padding);
+  }
+
+  &[data-trigger-aligned] {
+    scroll-margin: 15px;
+  }
 
   &[data-disabled] {
     opacity: 0.5;
@@ -182,13 +182,51 @@ const SelectOption = styled(Select.Option)`
 `;
 
 const SelectOptionIndicator = styled(Select.OptionIndicator)`
-  margin-right: 4px;
+  margin-right: var(--icon-margin);
   visibility: hidden;
-  width: 16px;
-  height: 16px;
+  width: var(--icon-size);
+  height: var(--icon-size);
 
   &[data-selected] {
     visibility: visible;
+  }
+`;
+
+const scrollArrowStyles = css`
+  position: relative;
+  width: 100%;
+  height: 15px;
+  font-size: 10px;
+  cursor: default;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: calc(100% + 10px);
+  }
+`;
+
+const SelectScrollUpArrow = styled(Select.ScrollUpArrow)`
+  ${scrollArrowStyles}
+
+  &::before {
+    top: -10px;
+  }
+`;
+
+const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
+  ${scrollArrowStyles}
+  bottom: 0;
+
+  &::before {
+    top: 0;
   }
 `;
 
@@ -198,53 +236,6 @@ const SelectGroupLabel = styled(Select.GroupLabel)`
   cursor: default;
   user-select: none;
   height: 30px;
-`;
-
-const scrollArrowStyles = css`
-  width: 100%;
-  height: 15px;
-  font-size: 10px;
-  cursor: default;
-
-  &[data-side='none'] {
-    height: 25px;
-  }
-
-  > div {
-    position: absolute;
-    background: white;
-    width: 100%;
-    height: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-  }
-`;
-
-const SelectScrollUpArrow = styled(Select.ScrollUpArrow)`
-  ${scrollArrowStyles}
-
-  &[data-side='none'] {
-    top: -10px;
-
-    > div {
-      top: 10px;
-    }
-  }
-`;
-
-const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
-  ${scrollArrowStyles}
-  bottom: 0;
-
-  &[data-side='none'] {
-    bottom: -10px;
-
-    > div {
-      bottom: 10px;
-    }
-  }
 `;
 
 const SelectSeparator = styled(Select.Separator)`
