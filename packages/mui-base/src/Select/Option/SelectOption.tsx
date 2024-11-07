@@ -82,7 +82,8 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     [disabled, open, highlighted, selected, alignOptionToTrigger],
   );
 
-  const { getItemProps } = useSelectOption({
+  const { getItemProps, rootRef } = useSelectOption({
+    open,
     setOpen,
     disabled,
     highlighted,
@@ -97,6 +98,8 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     popupRef,
   });
 
+  const mergedRef = useForkRef(rootRef, forwardedRef);
+
   const { renderElement } = useComponentRenderer({
     propGetter(externalProps = {}) {
       const rootProps = getRootItemProps({
@@ -110,7 +113,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
       return getItemProps(rootProps);
     },
     render: render ?? 'div',
-    ref: forwardedRef,
+    ref: mergedRef,
     className,
     ownerState,
     extraProps: otherProps,

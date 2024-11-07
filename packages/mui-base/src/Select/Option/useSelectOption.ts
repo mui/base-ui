@@ -5,6 +5,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { SelectRootContext } from '../Root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../Root/SelectIndexContext';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  *
@@ -14,6 +15,7 @@ import { SelectIndexContext } from '../Root/SelectIndexContext';
  */
 export function useSelectOption(params: useSelectOption.Parameters): useSelectOption.ReturnValue {
   const {
+    open,
     disabled = false,
     highlighted,
     selected,
@@ -27,10 +29,25 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
     popupRef,
   } = params;
 
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  const mergedRef = useForkRef(externalRef, ref);
+
+  // Manually set the tabindex.
+  // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+  // option upon close when tabbing out: https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+  React.useEffect(() => {
+    if (!open || !ref.current) {
+      return;
+    }
+
+    ref.current.setAttribute('tabindex', highlighted ? '0' : '-1');
+  }, [open, highlighted]);
+
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    buttonRef: externalRef,
+    buttonRef: mergedRef,
   });
 
   const commitSelection = useEventCallback((event: Event) => {
@@ -48,7 +65,6 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
-          tabIndex: highlighted ? 0 : -1,
           style: {
             pointerEvents: disabled ? 'none' : undefined,
           },
@@ -166,6 +182,10 @@ export namespace useSelectOption {
      * The ref of the trigger element.
      */
     ref?: React.Ref<Element>;
+    /**
+     * The open state of the select.
+     */
+    open: boolean;
     /**
      * The function to set the open state of the select.
      */
