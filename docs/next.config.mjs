@@ -7,6 +7,7 @@ import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
 import nextMdx from '@next/mdx';
 import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
+import remarkGfm from 'remark-gfm';
 import { rehypeDemos } from './src/components/demo/rehypeDemos.mjs';
 import { highlighter } from './src/syntax-highlighting/index.mjs';
 import { rehypeInlineCode } from './src/syntax-highlighting/rehype-inline-code.mjs';
@@ -19,6 +20,7 @@ const getHighlighter = () => highlighter;
 
 const withMdx = nextMdx({
   options: {
+    remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeDemos,
       rehypeInlineCode,

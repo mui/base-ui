@@ -1,0 +1,30 @@
+@layer components {
+  .TableRoot {
+    @apply text-sm;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .TableHeaderCell {
+    font-weight: 500;
+    text-align: initial;
+  }
+
+  .TableCell,
+  .TableHeaderCell {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+
+    /* Not `border` because Safari renders transparent borders with glitches */
+    box-shadow: 0 1px var(--color-border);
+
+    &:first-child {
+      padding-left: 0;
+    }
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+}

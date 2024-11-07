@@ -4,6 +4,7 @@
 @import './components/demo/index.css';
 @import './components/quick-nav/QuickNav.css';
 @import './components/CodeBlock.css';
+@import './components/Table.css';
 @import './components/ToolbarButton.css';
 
 /* Handy link to the default Tailwind theme:

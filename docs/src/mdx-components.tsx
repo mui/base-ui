@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { DemoLoader } from './components/demo/NewDemoLoader';
 import * as CodeBlock from './components/CodeBlock';
+import * as Table from './components/Table';
 import * as QuickNav from './components/quick-nav/QuickNav';
 
 interface MDXComponents {
@@ -39,7 +40,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     // Don't pass the tabindex prop from shiki, most browsers
     // now handle scroll containers focus out of the box
     pre: ({ tabIndex, ...props }) => <CodeBlock.Pre {...props} />,
-
+    table: (props) => <Table.Root className="my-5" {...props} />,
+    thead: Table.Head,
+    tbody: Table.Body,
+    tr: Table.Row,
+    th: Table.HeaderCell,
+    td: Table.Cell,
     // Custom components
     Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
     QuickNav,
