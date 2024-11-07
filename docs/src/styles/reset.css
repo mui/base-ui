@@ -11,6 +11,12 @@ body {
   box-sizing: border-box;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 ::selection {
   background: var(--gray-container-3);
 }

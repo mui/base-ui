@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
+import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -24,6 +25,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   );
   const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
   const hasBackdrop = React.useRef(false);
+  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -37,9 +39,9 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   }
 
   const handleOpenChange = React.useCallback(
-    (shouldOpen: boolean) => {
+    (shouldOpen: boolean, event?: Event) => {
       setOpen(shouldOpen);
-      onOpenChange?.(shouldOpen);
+      onOpenChange?.(shouldOpen, event);
     },
     [onOpenChange, setOpen],
   );
@@ -66,6 +68,10 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 
+  if (!open && openMethod !== null) {
+    setOpenMethod(null);
+  }
+
   const handleNestedDialogOpen = React.useCallback((ownChildrenCount: number) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
   }, []);
@@ -77,6 +83,13 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   const setBackdropPresent = React.useCallback((present: boolean) => {
     hasBackdrop.current = present;
   }, []);
+
+  const handleTriggerClick = React.useCallback(
+    (_: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => {
+      setOpenMethod(interactionType);
+    },
+    [],
+  );
 
   return React.useMemo(() => {
     return {
@@ -93,6 +106,8 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
       onNestedDialogClose: handleNestedDialogClose,
       nestedOpenDialogCount: ownNestedOpenDialogs,
       setBackdropPresent,
+      onTriggerClick: handleTriggerClick,
+      openMethod,
     };
   }, [
     modal,
@@ -105,6 +120,8 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     handleNestedDialogOpen,
     ownNestedOpenDialogs,
     setBackdropPresent,
+    handleTriggerClick,
+    openMethod,
   ]);
 }
 
@@ -133,7 +150,7 @@ export interface CommonParameters {
   /**
    * Callback invoked when the dialog is being opened or closed.
    */
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (open: boolean, event?: Event) => void;
   /**
    * Determines whether the dialog should close when clicking outside of it.
    * @default true
@@ -177,11 +194,22 @@ export namespace useDialogRoot {
     /**
      * Callback to fire when the dialog is requested to be opened or closed.
      */
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: (open: boolean, event?: Event) => void;
     /**
      * Determines if the dialog is open.
      */
     open: boolean;
+    /**
+     * Determines what triggered the dialog to open.
+     */
+    openMethod: InteractionType | null;
+    /**
+     * Callback to fire when the trigger is activated.
+     */
+    onTriggerClick: (
+      event: React.MouseEvent | React.PointerEvent,
+      interactionType: InteractionType,
+    ) => void;
     /**
      * The id of the popup element.
      */
