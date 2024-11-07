@@ -16,7 +16,6 @@ import { useControlled } from '../../utils/useControlled';
 import { type TransitionStatus, useTransitionStatus } from '../../utils';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
@@ -77,8 +76,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
-
-  const liveValueRef = useLatestRef(value);
+  const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
+  const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
@@ -123,17 +122,17 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   useEnhancedEffect(() => {
     // Wait for the items to have registered their values in `valuesRef`.
     queueMicrotask(() => {
-      const v = liveValueRef.current;
-      const stringValue = typeof v === 'string' || v === null ? v : JSON.stringify(v);
+      const stringValue =
+        typeof value === 'string' || value === null ? value : JSON.stringify(value);
       const index = valuesRef.current.indexOf(stringValue);
       if (index !== -1) {
         setSelectedIndex(index);
         setLabel(labelsRef.current[index] ?? '');
-      } else if (v) {
+      } else if (value) {
         warn(`The value \`${stringValue}\` is not present in the Select options.`);
       }
     });
-  }, [liveValueRef]);
+  }, [value]);
 
   const floatingRootContext = useFloatingRootContext({
     open,
@@ -197,6 +196,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      scrollUpArrowVisible,
+      setScrollUpArrowVisible,
+      scrollDownArrowVisible,
+      setScrollDownArrowVisible,
       value,
       setValue,
       open,
@@ -231,6 +234,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       readOnly,
       triggerElement,
       positionerElement,
+      scrollUpArrowVisible,
+      scrollDownArrowVisible,
       value,
       setValue,
       open,

@@ -42,6 +42,8 @@ describe('<Select.Option />', () => {
 
     fireEvent.click(screen.getByText('one'));
 
+    await flushMicrotasks();
+
     expect(value.textContent).to.equal('one');
 
     expect(positioner).not.toBeVisible();
@@ -237,6 +239,8 @@ describe('<Select.Option />', () => {
       );
 
       fireEvent.click(screen.getByRole('option', { name: 'a', hidden: false }));
+
+      await flushMicrotasks();
 
       fireEvent.click(trigger);
 

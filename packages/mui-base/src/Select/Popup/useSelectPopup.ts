@@ -23,6 +23,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     valueRef,
     selectedOptionTextRef,
     popupRef,
+    setScrollUpArrowVisible,
+    setScrollDownArrowVisible,
   } = useSelectRootContext();
 
   const initialHeightRef = React.useRef(0);
@@ -127,6 +129,14 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       reachedMaxHeightRef.current = true;
     }
 
+    const isScrolledToTop = popupRef.current.scrollTop < 1;
+    const isScrolledToBottom =
+      Math.ceil(popupRef.current.scrollTop + popupRef.current.clientHeight) >=
+      popupRef.current.scrollHeight - 1;
+
+    setScrollUpArrowVisible(!isScrolledToTop);
+    setScrollDownArrowVisible(!isScrolledToBottom);
+
     setTimeout(() => {
       initialPlacedRef.current = true;
     });
@@ -137,6 +147,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     valueRef,
     selectedOptionTextRef,
     popupRef,
+    setScrollUpArrowVisible,
+    setScrollDownArrowVisible,
   ]);
 
   React.useEffect(() => {
