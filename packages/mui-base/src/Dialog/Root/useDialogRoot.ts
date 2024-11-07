@@ -1,12 +1,18 @@
 'use client';
 import * as React from 'react';
-import { useClick, useDismiss, useFloatingRootContext, useInteractions } from '@floating-ui/react';
+import {
+  FloatingRootContext,
+  useClick,
+  useDismiss,
+  useFloatingRootContext,
+  useInteractions,
+} from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { GenericHTMLProps } from '../../utils/types';
+import { type GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
@@ -124,6 +130,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
       setTriggerElement,
       setPopupElement,
       popupRef,
+      floatingRootContext: context,
     } satisfies useDialogRoot.ReturnValue;
   }, [
     modal,
@@ -144,6 +151,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     setPopupElement,
     triggerProps,
     popupRef,
+    context,
   ]);
 }
 
@@ -278,5 +286,9 @@ export namespace useDialogRoot {
      * The ref to the Popup element.
      */
     popupRef: React.RefObject<HTMLElement | null>;
+    /**
+     * The Floating UI root context.
+     */
+    floatingRootContext: FloatingRootContext;
   }
 }

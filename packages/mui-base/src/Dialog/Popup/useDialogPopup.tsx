@@ -23,10 +23,11 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     openMethod,
     ref,
     setPopupElementId,
+    setPopupElement,
     titleElementId,
   } = parameters;
 
-  const { refs, context, elements } = useFloating({
+  const { context, elements } = useFloating({
     open,
     onOpenChange,
     rootContext: floatingRootContext,
@@ -35,7 +36,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   const popupRef = React.useRef<HTMLElement>(null);
 
   const id = useId(idParam);
-  const handleRef = useForkRef(ref, popupRef, refs.setFloating);
+  const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
   useScrollLock(modal && mounted, elements.floating);
 
@@ -124,7 +125,6 @@ export namespace useDialogPopup {
      * Callback to set the id of the popup element.
      */
     setPopupElementId: (id: string | undefined) => void;
-
     /**
      * Determines an element to focus when the dialog is opened.
      * It can be either a ref to the element or a function that returns such a ref.
@@ -136,7 +136,7 @@ export namespace useDialogPopup {
     /**
      * The Floating UI root context.
      */
-    floatingRootContext?: FloatingRootContext;
+    floatingRootContext: FloatingRootContext;
     /**
      * Determines if the dialog should be mounted.
      */
@@ -145,6 +145,10 @@ export namespace useDialogPopup {
      * The resolver for the popup element props.
      */
     getPopupProps: () => GenericHTMLProps;
+    /**
+     * Callback to register the popup element.
+     */
+    setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   }
 
   export interface ReturnValue {

@@ -43,25 +43,28 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
   const {
-    open,
-    modal,
-    nestedOpenDialogCount,
-    dismissible,
-    mounted,
-    transitionStatus,
-    getPopupProps,
-    openMethod,
-    onOpenChange,
-    titleElementId,
     descriptionElementId,
-    setPopupElementId,
+    dismissible,
+    floatingRootContext,
+    getPopupProps,
+    modal,
+    mounted,
+    nestedOpenDialogCount,
+    onOpenChange,
+    open,
+    openMethod,
     popupRef,
+    setPopupElement,
+    setPopupElementId,
+    titleElementId,
+    transitionStatus,
   } = useDialogRootContext();
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
   const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
+    floatingRootContext,
     getPopupProps,
     id,
     initialFocus,
@@ -71,6 +74,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     open,
     openMethod,
     ref: mergedRef,
+    setPopupElement,
     setPopupElementId,
     titleElementId,
   });
