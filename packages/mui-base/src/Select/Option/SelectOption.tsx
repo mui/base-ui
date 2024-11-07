@@ -99,13 +99,15 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
 
   const { renderElement } = useComponentRenderer({
     propGetter(externalProps = {}) {
-      return getItemProps(
-        getRootItemProps({
-          ...externalProps,
-          active: highlighted,
-          selected,
-        }),
-      );
+      const rootProps = getRootItemProps({
+        ...externalProps,
+        active: highlighted,
+        selected,
+      });
+      // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
+      // cause the index state to be stuck when leaving the select popup.
+      rootProps.onFocus = undefined;
+      return getItemProps(rootProps);
     },
     render: render ?? 'div',
     ref: forwardedRef,
@@ -222,6 +224,7 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
 } as any;
 
 const MemoizedInnerSelectOption = React.memo(InnerSelectOption);
+
 /**
  *
  * Demos:

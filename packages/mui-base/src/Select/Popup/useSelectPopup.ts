@@ -4,6 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument } from '../../utils/owner';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  *
@@ -31,6 +32,20 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const reachedMaxHeightRef = React.useRef(false);
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
+
+  const handleScrollArrowVisibility = useEventCallback(() => {
+    if (!alignOptionToTrigger || !popupRef.current) {
+      return;
+    }
+
+    const isScrolledToTop = popupRef.current.scrollTop < 1;
+    const isScrolledToBottom =
+      Math.ceil(popupRef.current.scrollTop + popupRef.current.clientHeight) >=
+      popupRef.current.scrollHeight - 1;
+
+    setScrollUpArrowVisible(!isScrolledToTop);
+    setScrollDownArrowVisible(!isScrolledToBottom);
+  });
 
   useEnhancedEffect(() => {
     if (mounted) {
@@ -129,13 +144,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       reachedMaxHeightRef.current = true;
     }
 
-    const isScrolledToTop = popupRef.current.scrollTop < 1;
-    const isScrolledToBottom =
-      Math.ceil(popupRef.current.scrollTop + popupRef.current.clientHeight) >=
-      popupRef.current.scrollHeight - 1;
-
-    setScrollUpArrowVisible(!isScrolledToTop);
-    setScrollDownArrowVisible(!isScrolledToBottom);
+    handleScrollArrowVisibility();
 
     setTimeout(() => {
       initialPlacedRef.current = true;
@@ -149,6 +158,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     popupRef,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
+    handleScrollArrowVisibility,
   ]);
 
   React.useEffect(() => {
@@ -227,6 +237,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
               }
             }
           }
+
+          handleScrollArrowVisibility();
         },
         style: {
           ...(alignOptionToTrigger && {
@@ -238,7 +250,14 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         },
       });
     },
-    [id, alignOptionToTrigger, getRootPositionerProps, popupRef, positionerElement],
+    [
+      getRootPositionerProps,
+      id,
+      alignOptionToTrigger,
+      positionerElement,
+      popupRef,
+      handleScrollArrowVisibility,
+    ],
   );
 
   return React.useMemo(

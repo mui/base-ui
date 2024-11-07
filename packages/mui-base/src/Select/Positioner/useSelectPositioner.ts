@@ -14,7 +14,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { MAX_Z_INDEX } from '../../utils/constants';
-import { getInertValue } from '../../utils/getInertValue';
 
 /**
  *
@@ -65,7 +64,6 @@ export function useSelectPositioner(
         return mergeReactProps(externalProps, {
           tabIndex: -1,
           hidden: mounted ? undefined : 'hidden',
-          inert: getInertValue(!open),
           style: {
             ...positionerStyles,
             ...hiddenStyles,

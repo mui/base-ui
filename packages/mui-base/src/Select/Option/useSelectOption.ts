@@ -42,7 +42,6 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
 
   const prevPopupHeightRef = React.useRef(0);
-  const hasFocusedItemRef = React.useRef(false);
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
@@ -55,8 +54,6 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
           },
           onMouseMove() {
             setActiveIndex(indexRef.current);
-            hasFocusedItemRef.current = true;
-
             if (popupRef.current) {
               prevPopupHeightRef.current = popupRef.current.offsetHeight;
             }
@@ -71,11 +68,8 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             // firing and causing a performance issue when expanding the popup.
             if (popup.offsetHeight === prevPopupHeightRef.current) {
               setActiveIndex(null);
-              hasFocusedItemRef.current = false;
               requestAnimationFrame(() => {
-                if (!hasFocusedItemRef.current) {
-                  popup.focus({ preventScroll: true });
-                }
+                popup.focus({ preventScroll: true });
               });
             }
           },

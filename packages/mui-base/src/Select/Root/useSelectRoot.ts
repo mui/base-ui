@@ -261,7 +261,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       selectedIndex,
       setSelectedIndex,
     }),
-    [activeIndex, selectedIndex],
+    [activeIndex, selectedIndex, setActiveIndex],
   );
 
   return React.useMemo(
