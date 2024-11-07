@@ -40,6 +40,17 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { hiddenUntilFound, keepMounted } = useAccordionRootContext();
 
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (keepMountedProp === false && (hiddenUntilFoundProp ?? hiddenUntilFound)) {
+        console.warn(
+          'Base UI: The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `hiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
+        );
+      }
+    }, [hiddenUntilFoundProp, hiddenUntilFound, keepMountedProp]);
+  }
+
   const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
     hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
@@ -72,7 +83,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
-  if (!(keepMountedProp || keepMounted) && !isOpen) {
+  if (!(keepMountedProp ?? keepMounted) && !isOpen) {
     return null;
   }
 
@@ -101,8 +112,8 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, sets `hidden="until-found"` when closed.
-   * Requires setting `keepMounted` to `true`.
+   * If `true`, sets `hidden="until-found"` when closed. Accordion panels
+   * will remain mounted in the DOM when closed and overrides `keepMounted`.
    * If `false`, sets `hidden` when closed.
    * @default false
    */

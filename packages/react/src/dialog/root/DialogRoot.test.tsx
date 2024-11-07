@@ -46,7 +46,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  // toWarnDev doesn't work reliably with async rendering. To re-eanble after it's fixed in the test-utils.
+  // toWarnDev doesn't work reliably with async rendering. To re-enable after it's fixed in the test-utils.
   // eslint-disable-next-line mocha/no-skipped-tests
   describe.skip('prop: modal', () => {
     it('warns when the dialog is modal but no backdrop is present', async () => {

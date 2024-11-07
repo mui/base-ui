@@ -22,7 +22,26 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, hiddenUntilFound, keepMounted = false, render, ...otherProps } = props;
+  const {
+    className,
+    hiddenUntilFound,
+    keepMounted: keepMountedProp,
+    render,
+    ...otherProps
+  } = props;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (hiddenUntilFound && keepMountedProp === false) {
+        console.warn(
+          'Base UI: The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
+        );
+      }
+    }, [hiddenUntilFound, keepMountedProp]);
+  }
+
+  const keepMounted = keepMountedProp ?? false;
 
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();
@@ -55,7 +74,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!keepMounted && !isOpen) {
+  if (!keepMounted && !isOpen && !hiddenUntilFound) {
     return null;
   }
 
@@ -72,6 +91,8 @@ namespace CollapsiblePanel {
      * If `true`, the panel remains mounted when closed and is instead
      * hidden using the `hidden` attribute
      * If `false`, the panel is unmounted when closed.
+     * If the `hiddenUntilFound` prop is used, the panel overrides this prop and
+     * is remains mounted when closed.
      * @default false
      */
     keepMounted?: boolean;
@@ -92,9 +113,9 @@ CollapsiblePanel.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, sets `hidden="until-found"` when closed.
-   * Requires setting `keepMounted` to `true`.
-   * If `false`, sets `hidden` when closed.
+   * If `true`, sets the hidden state using `hidden="until-found"`. The panel
+   * remains mounted in the DOM when closed and overrides `keepMounted`.
+   * If `false`, sets the hidden state using `hidden`.
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,
@@ -102,6 +123,8 @@ CollapsiblePanel.propTypes /* remove-proptypes */ = {
    * If `true`, the panel remains mounted when closed and is instead
    * hidden using the `hidden` attribute
    * If `false`, the panel is unmounted when closed.
+   * If the `hiddenUntilFound` prop is used, the panel overrides this prop and
+   * is remains mounted when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,

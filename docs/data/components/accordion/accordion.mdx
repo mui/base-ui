@@ -205,12 +205,10 @@ Alternatively `keepMounted` can be passed to `Accordion.Panel`s directly to enab
 Content hidden by `Accordion.Panel` components can be made accessible only to a browser's find-in-page functionality with the `hiddenUntilFound` prop to improve searchability:
 
 ```jsx
-<Accordion.Root hiddenUntilFound keepMounted>
-  {/* accordion items */}
-</Accordion.Root>
+<Accordion.Root hiddenUntilFound>{/* accordion items */}</Accordion.Root>
 ```
 
-Be aware that this must be used together with `keepMounted`.
+When `hiddenUntilFound` is used, `Accordion.Panel`s will remain mounted even when closed, overriding the `keepMounted` prop on the root or the panel.
 
 Alternatively `hiddenUntilFound` can be passed to `Accordion.Panel`s directly to enable this for only one `Item` instead of the whole accordion.
 

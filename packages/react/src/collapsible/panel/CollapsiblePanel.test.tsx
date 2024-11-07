@@ -95,9 +95,7 @@ describe('<Collapsible.Panel />', () => {
       const { queryByText } = await render(
         <Collapsible.Root defaultOpen={false} animated={false} onOpenChange={handleOpenChange}>
           <Collapsible.Trigger />
-          <Collapsible.Panel hiddenUntilFound keepMounted>
-            This is panel content
-          </Collapsible.Panel>
+          <Collapsible.Panel hiddenUntilFound>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
@@ -113,6 +111,24 @@ describe('<Collapsible.Panel />', () => {
 
       expect(handleOpenChange.callCount).to.equal(1);
       expect(panel).to.have.attribute('data-open');
+    });
+
+    // toWarnDev doesn't work reliably with async rendering. To re-enable after it's fixed in the test-utils.
+    // eslint-disable-next-line mocha/no-skipped-tests
+    it.skip('warns when setting both `hiddenUntilFound` and `keepMounted={false}`', async function test() {
+      await expect(() =>
+        render(
+          <Collapsible.Root animated={false}>
+            <Collapsible.Trigger />
+            <Collapsible.Panel hiddenUntilFound keepMounted={false}>
+              This is panel content
+            </Collapsible.Panel>
+          </Collapsible.Root>,
+        ),
+      ).toWarnDev([
+        'Base UI: The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
+        'Base UI: The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
+      ]);
     });
   });
 });

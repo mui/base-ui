@@ -300,9 +300,9 @@ export namespace useCollapsiblePanel {
      */
     animated?: boolean;
     /**
-     * If `true`, sets `hidden="until-found"` when closed.
-     * Requires setting `keepMounted` to `true`.
-     * If `false`, sets `hidden` when closed.
+     * If `true`, sets the hidden state using `hidden="until-found"`. The panel
+     * remains mounted in the DOM when closed and overrides `keepMounted`.
+     * If `false`, sets the hidden state using `hidden`.
      * @default false
      */
     hiddenUntilFound?: boolean;

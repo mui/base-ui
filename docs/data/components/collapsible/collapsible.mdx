@@ -57,14 +57,14 @@ Content hidden in the `Collapsible.Panel` component can be made accessible only 
 ```jsx
 <Collapsible.Root>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-  <Collapsible.Panel hiddenUntilFound keepMounted>
+  <Collapsible.Panel hiddenUntilFound>
     When this component is closed, this sentence will only be accessible to the browser's native
     find-in-page functionality
   </Collapsible.Panel>
 </Collapsible.Root>
 ```
 
-Be aware that this must be used together with `keepMounted`.
+When `hiddenUntilFound` is used, the `Panel` remains mounted even when closed, overriding the `keepMounted` prop.
 
 We recommend using [CSS animations](#css-animations) for animated collapsibles that use this feature. Currently there is browser bug that does not highlight the found text inside elements that have a [CSS transition](#css-transitions) applied.
 
