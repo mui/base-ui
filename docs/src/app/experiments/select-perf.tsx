@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Select as BaseSelect } from '@base_ui/react/Select';
-// @ts-ignore
 import * as Select from '@radix-ui/react-select';
 
 const options = [...Array(1000)].map((_, i) => `Item ${i + 1}`);
