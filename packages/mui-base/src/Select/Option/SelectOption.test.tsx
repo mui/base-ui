@@ -186,7 +186,7 @@ describe('<Select.Option />', () => {
   describe('style hooks', () => {
     it('should apply data-highlighted attribute when option is highlighted', async () => {
       const { user } = await render(
-        <Select.Root animated={false}>
+        <Select.Root animated={false} defaultValue="a">
           <Select.Trigger data-testid="trigger" />
           <Select.Positioner>
             <Select.Popup>
@@ -198,23 +198,20 @@ describe('<Select.Option />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
+      const attr = 'data-highlighted';
 
-      await user.click(trigger);
+      fireEvent.click(trigger);
 
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted', '');
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute(attr, '');
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(attr);
 
       await user.keyboard('{ArrowDown}');
-
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(
-        'data-highlighted',
-        '',
-      );
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute(attr);
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute(attr, '');
     });
 
     it('should apply data-selected attribute when option is selected', async () => {
@@ -231,19 +228,16 @@ describe('<Select.Option />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
+      const attr = 'data-selected';
 
       fireEvent.click(trigger);
 
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a', hidden: false })).not.to.have.attribute(
-        'data-selected',
-      );
-      expect(screen.getByRole('option', { name: 'b', hidden: false })).not.to.have.attribute(
-        'data-selected',
-      );
+      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute(attr);
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(attr);
 
-      fireEvent.click(screen.getByRole('option', { name: 'a', hidden: false }));
+      fireEvent.click(screen.getByRole('option', { name: 'a' }));
 
       await flushMicrotasks();
 
@@ -251,13 +245,8 @@ describe('<Select.Option />', () => {
 
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a', hidden: false })).to.have.attribute(
-        'data-selected',
-        '',
-      );
-      expect(screen.getByRole('option', { name: 'b', hidden: false })).not.to.have.attribute(
-        'data-selected',
-      );
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute(attr, '');
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(attr);
     });
   });
 });
