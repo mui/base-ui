@@ -40,7 +40,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     const isScrolledToTop = popupRef.current.scrollTop < 1;
     const isScrolledToBottom =
-      Math.ceil(popupRef.current.scrollTop + popupRef.current.clientHeight) >=
+      popupRef.current.scrollTop + popupRef.current.clientHeight >=
       popupRef.current.scrollHeight - 1;
 
     setScrollUpArrowVisible(!isScrolledToTop);
@@ -188,9 +188,13 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
             !alignOptionToTrigger ||
             !positionerElement ||
             !popupRef.current ||
-            reachedMaxHeightRef.current ||
             !initialPlacedRef.current
           ) {
+            return;
+          }
+
+          if (reachedMaxHeightRef.current) {
+            handleScrollArrowVisibility();
             return;
           }
 
