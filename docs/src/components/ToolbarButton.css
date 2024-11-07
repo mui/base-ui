@@ -1,6 +1,7 @@
 @layer components {
   .ToolbarButton {
     @apply text-xs;
+    color: var(--color-gray);
     cursor: default;
     position: relative;
     display: flex;
@@ -29,6 +30,17 @@
           &::before {
             background-color: oklch(90% 5% 264 / 8%);
           }
+        }
+      }
+    }
+
+    &[data-popup-open] {
+      &::before {
+        background-color: oklch(20% 12% 264 / 5%);
+      }
+      @media (prefers-color-scheme: dark) {
+        &::before {
+          background-color: oklch(90% 5% 264 / 8%);
         }
       }
     }

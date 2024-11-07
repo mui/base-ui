@@ -4,6 +4,60 @@
 
 <Demo path="./UnstyledDialogIntroduction" />
 
+## API reference
+
+Import the component and place its parts the following way.
+
+```jsx title="Anatomy"
+import { Dialog } from '@base_ui/react/Dialog';
+
+<Dialog.Root>
+  <Dialog.Trigger />
+  <Dialog.Backdrop />
+  <Dialog.Popup>
+    <Dialog.Title />
+    <Dialog.Description />
+    <Dialog.Close />
+  </Dialog.Popup>
+</Dialog.Root>;
+```
+
+### Root
+
+Groups all parts of the dialog. Doesn’t render its own HTML element.
+
+<ApiTable component="Dialog.Root" />
+
+### Trigger
+
+A button that opens the dialog. Renders a `<button>` element.
+
+<ApiTable component="Dialog.Trigger" />
+
+### Backdrop
+
+An overlay displayed beneath the popup. Renders a `<div>` element.
+
+<ApiTable component="Dialog.Backdrop" />
+
+### Popup
+
+A component that groups the dialog contents. Renders a `<div>` element.
+
+<ApiTable component="Dialog.Popup" />
+
+### Title
+
+A heading that labels the dialog. Renders an `<h2>` element.
+
+<ApiTable component="Dialog.Title" />
+
+### Description
+
+A paragraph with additional information about the dialog. Renders a `<p>` element.
+
+<ApiTable component="Dialog.Description" />
+
 ## Examples
 
 ### State
@@ -57,7 +111,3 @@ It’s also common to use `onOpenChange` if your app needs to do something when 
   }}
 >
 ```
-
-### Syntax
-
-The `<Dialog.Trigger>` part renders a native `<button>` element. Don’t take this paragraph too seriously though, I’m just testing the inline syntax highlighting.

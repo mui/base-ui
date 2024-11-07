@@ -1,5 +1,6 @@
 import { visitParents } from 'unist-util-visit-parents';
 
+/** Adds basic syntax highlighting to inline `<code>` elements */
 export function rehypeInlineCode() {
   return (tree) => {
     visitParents(tree, (node, ancestors) => {
@@ -14,15 +15,15 @@ export function rehypeInlineCode() {
       }
 
       // HTML tags
-      if (child.value.match(/^<[a-z].+>$/)) {
+      if (child.value.match(/^<[a-z].*>$/)) {
         node.properties ??= {};
-        node.properties.style = { color: 'var(--syntax-tag)' };
+        node.properties.className = 'syntax-tag';
         return;
       }
 
       // Everything else
       node.properties ??= {};
-      node.properties.style = { color: 'var(--syntax-constant)' };
+      node.properties.className = 'syntax-constant';
     });
   };
 }

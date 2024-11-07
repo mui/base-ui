@@ -3,7 +3,9 @@
 @import './syntax-highlighting/index.css';
 @import './components/demo/index.css';
 @import './components/quick-nav/QuickNav.css';
+@import './components/Code.css';
 @import './components/CodeBlock.css';
+@import './components/Popup.css';
 @import './components/Table.css';
 @import './components/ToolbarButton.css';
 
@@ -11,8 +13,6 @@
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
 
 @theme {
-  /* --container-content: 768px; */
-
   --font-family-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-family-sans: 'Unica 77', system-ui, sans-serif;
 
@@ -21,11 +21,14 @@
   --color-border: oklch(20% 12% 264 / 10%);
   --color-content: #fff;
   --color-gridline: oklch(91.6% 1% 264);
+  --color-popup: #fff;
+  --color-popup-border: rgba(19, 28, 58, 0.08);
   --color-panel: oklch(98% 0.25% 264);
   --color-selection: oklch(80% 0.2 264 / 25%);
 
   --color-blue: oklch(45% 50% 264);
   --color-gray: oklch(12.7% 6% 264 / 67%);
+  --color-pale: oklch(12.7% 6% 264 / 45%);
   --color-green: oklch(46% 30% 150);
   --color-navy: oklch(31% 25% 264);
   --color-purple: oklch(40% 45% 360);
@@ -79,11 +82,14 @@
     --color-border: oklch(90% 12% 264 / 20%);
     --color-content: #000;
     --color-gridline: oklch(24% 1% 264);
+    --color-popup: oklch(15% 1% 264);
+    --color-popup-border: oklch(90% 12% 264 / 16%);
     --color-panel: oklch(15% 1% 264);
     --color-selection: oklch(50% 0.2 264 / 40%);
 
     --color-blue: oklch(69% 50% 264);
     --color-gray: oklch(90% 6% 264 / 70%);
+    --color-pale: oklch(90% 6% 264 / 45%);
     --color-green: oklch(75% 25% 150);
     --color-navy: oklch(85% 25% 264);
     --color-purple: oklch(85% 30% 360);
