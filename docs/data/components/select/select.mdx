@@ -110,18 +110,6 @@ The `Select.OptionIndicator` subcomponent renders an indicator inside an option 
 </Select.OptionIndicator>
 ```
 
-The `[data-selected]` attribute is added to the subcomponent when its owning option is selected. This is necessary to hide the indicator when the option is not selected:
-
-```css
-.SelectOptionIndicator {
-  visibility: hidden;
-}
-
-.SelectOptionIndicator[data-selected] {
-  visibility: visible;
-}
-```
-
 ## Grouped options
 
 `Select.Group` can be used to group options together with a label. The `Select.GroupLabel` subcomponent renders the label:
@@ -149,7 +137,7 @@ By default, the selected option inside the popup is aligned to the trigger eleme
 
 <Callout type="warning">This option is always `false` on touch devices or touch input.</Callout>
 
-{/* <Demo demo="SelectAlign" defaultCodeOpen="false" /> */}
+<Demo demo="SelectAlign" defaultCodeOpen="false" />
 
 ### Scrollable popup
 

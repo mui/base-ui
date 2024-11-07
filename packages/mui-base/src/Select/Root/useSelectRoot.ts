@@ -44,13 +44,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const { setDirty, validityData, validationMode } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
-  const [label, setLabel] = React.useState('');
-  const [touchModality, setTouchModality] = React.useState(false);
-
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
@@ -77,6 +70,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     allowUnselectedMouseUp: false,
     allowSelect: false,
   });
+
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+  const [label, setLabel] = React.useState('');
+  const [touchModality, setTouchModality] = React.useState(false);
 
   const liveValueRef = useLatestRef(value);
 
@@ -158,6 +158,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     selectedIndex,
     loop,
     onNavigate: setActiveIndex,
+    // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
+    // the `alignOptionToTrigger` prop enabled, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 

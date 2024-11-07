@@ -15,6 +15,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
     mounted,
     id,
+    setOpen,
     getRootPositionerProps,
     alignOptionToTrigger,
     triggerElement,
@@ -137,6 +138,24 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     selectedOptionTextRef,
     popupRef,
   ]);
+
+  React.useEffect(() => {
+    if (!alignOptionToTrigger || !positionerElement || !mounted) {
+      return undefined;
+    }
+
+    const win = ownerDocument(positionerElement).defaultView || window;
+
+    function handleResize() {
+      setOpen(false);
+    }
+
+    win.addEventListener('resize', handleResize);
+
+    return () => {
+      win.removeEventListener('resize', handleResize);
+    };
+  }, [setOpen, alignOptionToTrigger, positionerElement, mounted]);
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {

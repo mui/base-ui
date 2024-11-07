@@ -29,6 +29,7 @@ export function useSelectTrigger(
     fieldControlValidation,
     setTouchModality,
     positionerElement,
+    alignOptionToTrigger,
   } = useSelectRootContext();
 
   const { labelId, setTouched } = useFieldRootContext();
@@ -82,6 +83,12 @@ export function useSelectTrigger(
           'aria-labelledby': labelId,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
+          onFocus() {
+            // The popup element shouldn't obscure the focused trigger.
+            if (open && alignOptionToTrigger) {
+              setOpen(false);
+            }
+          },
           onBlur() {
             setTouched(true);
             fieldControlValidation.commitValidation(value);
@@ -139,12 +146,13 @@ export function useSelectTrigger(
       labelId,
       handleRef,
       getButtonProps,
+      open,
+      alignOptionToTrigger,
+      setOpen,
       setTouched,
       value,
       setTouchModality,
-      open,
       positionerElement,
-      setOpen,
     ],
   );
 

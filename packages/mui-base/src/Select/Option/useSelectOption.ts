@@ -4,6 +4,7 @@ import { useButton } from '../../useButton';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { SelectRootContext } from '../Root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { SelectIndexContext } from '../Root/SelectIndexContext';
 
 /**
  *
@@ -16,12 +17,14 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
     disabled = false,
     highlighted,
     selected,
-    id,
     ref: externalRef,
     setOpen,
     typingRef,
     handleSelect,
     selectionRef,
+    indexRef,
+    setActiveIndex,
+    popupRef,
   } = params;
 
   const { getButtonProps, buttonRef } = useButton({
@@ -38,15 +41,43 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   const lastKeyRef = React.useRef<string | null>(null);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
 
+  const prevPopupHeightRef = React.useRef(0);
+  const hasFocusedItemRef = React.useRef(false);
+
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
-          id,
           tabIndex: highlighted ? 0 : -1,
           style: {
             pointerEvents: disabled ? 'none' : undefined,
+          },
+          onMouseMove() {
+            setActiveIndex(indexRef.current);
+            hasFocusedItemRef.current = true;
+
+            if (popupRef.current) {
+              prevPopupHeightRef.current = popupRef.current.offsetHeight;
+            }
+          },
+          onMouseLeave() {
+            const popup = popupRef.current;
+            if (!popup) {
+              return;
+            }
+
+            // With `alignOptionToTrigger`, avoid re-rendering the root due to `onMouseLeave`
+            // firing and causing a performance issue when expanding the popup.
+            if (popup.offsetHeight === prevPopupHeightRef.current) {
+              setActiveIndex(null);
+              hasFocusedItemRef.current = false;
+              requestAnimationFrame(() => {
+                if (!hasFocusedItemRef.current) {
+                  popup.focus({ preventScroll: true });
+                }
+              });
+            }
           },
           onTouchStart() {
             selectionRef.current = {
@@ -100,7 +131,18 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
         }),
       );
     },
-    [commitSelection, disabled, getButtonProps, highlighted, id, selected, selectionRef, typingRef],
+    [
+      commitSelection,
+      disabled,
+      getButtonProps,
+      highlighted,
+      indexRef,
+      popupRef,
+      selected,
+      selectionRef,
+      setActiveIndex,
+      typingRef,
+    ],
   );
 
   return React.useMemo(
@@ -126,10 +168,6 @@ export namespace useSelectOption {
      * Determines if the select item is selected.
      */
     selected: boolean;
-    /**
-     * The id of the select item.
-     */
-    id: string | undefined;
     /**
      * The ref of the trigger element.
      */
@@ -162,6 +200,8 @@ export namespace useSelectOption {
      * A ref to the index of the item.
      */
     indexRef: React.RefObject<number>;
+    setActiveIndex: SelectIndexContext['setActiveIndex'];
+    popupRef: React.RefObject<HTMLDivElement | null>;
   }
 
   export interface ReturnValue {

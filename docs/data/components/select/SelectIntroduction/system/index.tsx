@@ -6,19 +6,17 @@ import { css, styled } from '@mui/system';
 
 export default function SelectIntroduction() {
   return (
-    <Select.Root defaultValue="system" onValueChange={(v) => console.log(v)}>
+    <Select.Root
+      defaultValue="system"
+      onValueChange={(v) => console.log(v)}
+      alignOptionToTrigger={false}
+    >
       <SelectTrigger aria-label="Select font">
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Positioner sideOffset={5}>
-        <SelectScrollUpArrow
-          render={(props) => (
-            <div {...props}>
-              <div>{props.children}</div>
-            </div>
-          )}
-        />
+        <SelectScrollUpArrow />
         <SelectPopup>
           <SelectOption value="system">
             <SelectOptionIndicator render={<CheckIcon />} />
@@ -33,13 +31,7 @@ export default function SelectIntroduction() {
             <Select.OptionText>Roboto</Select.OptionText>
           </SelectOption>
         </SelectPopup>
-        <SelectScrollDownArrow
-          render={(props) => (
-            <div {...props}>
-              <div>{props.children}</div>
-            </div>
-          )}
-        />
+        <SelectScrollDownArrow />
       </Select.Positioner>
     </Select.Root>
   );
@@ -106,7 +98,6 @@ const SelectPopup = styled(Select.Popup)`
     0 2px 4px rgb(0 0 0 / 0.1),
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
-  outline: 0;
   min-width: min(
     calc(var(--available-width) - ${popupPadding * 2}px),
     calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
@@ -114,7 +105,10 @@ const SelectPopup = styled(Select.Popup)`
 `;
 
 const SelectOption = styled(Select.Option)`
-  padding: 6px 16px 6px 4px;
+  --padding: 6px;
+  --icon-size: 16px;
+  --icon-margin: 4px;
+
   outline: 0;
   cursor: default;
   border-radius: 4px;
@@ -122,8 +116,14 @@ const SelectOption = styled(Select.Option)`
   display: flex;
   align-items: center;
   line-height: 1.5;
+  padding-block: var(--padding);
+  padding-inline: calc(var(--padding) + var(--icon-margin) + var(--icon-size));
 
-  &[data-side='none'] {
+  &[data-selected] {
+    padding-left: var(--padding);
+  }
+
+  &[data-trigger-aligned] {
     scroll-margin: 15px;
   }
 
@@ -139,10 +139,10 @@ const SelectOption = styled(Select.Option)`
 `;
 
 const SelectOptionIndicator = styled(Select.OptionIndicator)`
-  margin-right: 4px;
+  margin-right: var(--icon-margin);
   visibility: hidden;
-  width: 16px;
-  height: 16px;
+  width: var(--icon-size);
+  height: var(--icon-size);
 
   &[data-selected] {
     visibility: visible;
@@ -150,36 +150,31 @@ const SelectOptionIndicator = styled(Select.OptionIndicator)`
 `;
 
 const scrollArrowStyles = css`
+  position: relative;
   width: 100%;
   height: 15px;
   font-size: 10px;
   cursor: default;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
 
-  &[data-side='none'] {
-    height: 25px;
-  }
-
-  > div {
+  &::before {
+    content: '';
+    display: block;
     position: absolute;
-    background: white;
     width: 100%;
-    height: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
+    height: calc(100% + 10px);
   }
 `;
 
 const SelectScrollUpArrow = styled(Select.ScrollUpArrow)`
   ${scrollArrowStyles}
 
-  &[data-side='none'] {
+  &::before {
     top: -10px;
-
-    > div {
-      top: 10px;
-    }
   }
 `;
 
@@ -187,11 +182,7 @@ const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
   ${scrollArrowStyles}
   bottom: 0;
 
-  &[data-side='none'] {
-    bottom: -10px;
-
-    > div {
-      bottom: 10px;
-    }
+  &::before {
+    top: 0;
   }
 `;

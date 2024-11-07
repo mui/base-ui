@@ -74,6 +74,7 @@ export function useAnchorPositioning(
   params: UseAnchorPositioningParameters = {},
 ): UseAnchorPositioningReturnValue {
   const {
+    enabled = true,
     anchor,
     floatingRootContext,
     positionMethod = 'absolute',
@@ -192,6 +193,14 @@ export function useAnchorPositioning(
     },
   );
 
+  let rootContext = floatingRootContext;
+  if (!enabled && floatingRootContext) {
+    rootContext = {
+      ...floatingRootContext,
+      elements: { reference: null, floating: null, domReference: null },
+    };
+  }
+
   const {
     refs,
     elements,
@@ -202,7 +211,7 @@ export function useAnchorPositioning(
     context: positionerContext,
     isPositioned,
   } = useFloating({
-    rootContext: floatingRootContext,
+    rootContext,
     open,
     placement,
     middleware,
@@ -223,6 +232,10 @@ export function useAnchorPositioning(
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
   useEnhancedEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
 
     if (resolvedAnchor) {
@@ -230,9 +243,13 @@ export function useAnchorPositioning(
       refs.setPositionReference(unwrappedElement);
       registeredPositionReferenceRef.current = unwrappedElement;
     }
-  }, [refs, anchor]);
+  }, [enabled, refs, anchor]);
 
   React.useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
     // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
     if (typeof anchor === 'function') {
@@ -243,14 +260,14 @@ export function useAnchorPositioning(
       refs.setPositionReference(anchor.current);
       registeredPositionReferenceRef.current = anchor.current;
     }
-  }, [refs, anchor]);
+  }, [enabled, refs, anchor]);
 
   React.useEffect(() => {
-    if (keepMounted && mounted && elements.domReference && elements.floating) {
+    if (enabled && keepMounted && mounted && elements.domReference && elements.floating) {
       return autoUpdate(elements.domReference, elements.floating, update);
     }
     return undefined;
-  }, [keepMounted, mounted, elements, update]);
+  }, [enabled, keepMounted, mounted, elements, update]);
 
   const renderedSide = getSide(renderedPlacement);
   const renderedAlignment = getAlignment(renderedPlacement) || 'center';

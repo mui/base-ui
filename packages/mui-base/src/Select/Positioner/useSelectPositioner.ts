@@ -43,6 +43,8 @@ export function useSelectPositioner(
     isPositioned,
   } = useAnchorPositioning({
     ...params,
+    keepMounted: true,
+    enabled: mounted,
     trackAnchor: !alignOptionToTrigger,
   });
 

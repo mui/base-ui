@@ -3,17 +3,16 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { UseInteractionsReturn } from '@floating-ui/react';
 import { SelectRootContext, useSelectRootContext } from '../Root/SelectRootContext';
-import { useSelectIndexContext } from '../Root/SelectIndexContext';
+import { SelectIndexContext, useSelectIndexContext } from '../Root/SelectIndexContext';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectOption } from './useSelectOption';
-import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { SelectOptionContext } from './SelectOptionContext';
-import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   highlighted: boolean;
@@ -31,8 +30,21 @@ interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   setValue: SelectRootContext['setValue'];
   selectedIndexRef: React.RefObject<number | null>;
   indexRef: React.RefObject<number>;
-  side: ReturnType<typeof useSelectPositionerContext>['side'];
+  alignOptionToTrigger: boolean;
+  setActiveIndex: SelectIndexContext['setActiveIndex'];
+  popupRef: React.RefObject<HTMLDivElement | null>;
 }
+
+const customStyleHookMapping: CustomStyleHookMapping<SelectOption.OwnerState> = {
+  triggerAligned(value) {
+    if (value) {
+      return {
+        'data-trigger-aligned': '',
+      };
+    }
+    return null;
+  },
+};
 
 const InnerSelectOption = React.forwardRef(function InnerSelectOption(
   props: InnerSelectOptionProps,
@@ -43,7 +55,6 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     disabled = false,
     highlighted,
     selected,
-    id,
     getRootItemProps,
     render,
     setOpen,
@@ -54,19 +65,21 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     setValue,
     selectedIndexRef,
     indexRef,
-    side,
+    alignOptionToTrigger,
+    setActiveIndex,
+    popupRef,
     ...otherProps
   } = props;
 
-  const ownerState = React.useMemo(
+  const ownerState: SelectOption.OwnerState = React.useMemo(
     () => ({
       disabled,
       open,
       highlighted,
       selected,
-      side,
+      triggerAligned: alignOptionToTrigger,
     }),
-    [disabled, open, highlighted, selected, side],
+    [disabled, open, highlighted, selected, alignOptionToTrigger],
   );
 
   const { getItemProps } = useSelectOption({
@@ -74,13 +87,14 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     disabled,
     highlighted,
     selected,
-    id,
     ref: forwardedRef,
     typingRef,
     handleSelect: () => setValue(value),
     selectionRef,
     selectedIndexRef,
     indexRef,
+    setActiveIndex,
+    popupRef,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -98,6 +112,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     className,
     ownerState,
     extraProps: otherProps,
+    customStyleHookMapping,
   });
 
   return renderElement();
@@ -211,15 +226,22 @@ const SelectOption = React.forwardRef(function SelectOption(
   props: SelectOption.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { value: valueProp = null, id: idProp, label, ...otherProps } = props;
+  const { value: valueProp = null, label, ...otherProps } = props;
 
   const listItem = useCompositeListItem({ label });
-  const { activeIndex, selectedIndex } = useSelectIndexContext();
-  const { getItemProps, setOpen, setValue, open, selectionRef, typingRef, valuesRef } =
-    useSelectRootContext();
-  const { side } = useSelectPositionerContext();
+  const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
+  const {
+    getItemProps,
+    setOpen,
+    setValue,
+    open,
+    selectionRef,
+    typingRef,
+    valuesRef,
+    alignOptionToTrigger,
+    popupRef,
+  } = useSelectRootContext();
 
-  const id = useId(idProp);
   const selectedIndexRef = useLatestRef(selectedIndex);
   const indexRef = useLatestRef(listItem.index);
 
@@ -257,7 +279,6 @@ const SelectOption = React.forwardRef(function SelectOption(
         selected={isSelected}
         getRootItemProps={getItemProps}
         setOpen={setOpen}
-        id={id}
         open={open}
         selectionRef={selectionRef}
         typingRef={typingRef}
@@ -265,7 +286,9 @@ const SelectOption = React.forwardRef(function SelectOption(
         setValue={setValue}
         selectedIndexRef={selectedIndexRef}
         indexRef={indexRef}
-        side={side}
+        alignOptionToTrigger={alignOptionToTrigger}
+        setActiveIndex={setActiveIndex}
+        popupRef={popupRef}
         {...otherProps}
       />
     </SelectOptionContext.Provider>
@@ -314,9 +337,10 @@ namespace SelectOption {
     highlighted: boolean;
     selected: boolean;
     open: boolean;
+    triggerAligned: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'id'> {
     children?: React.ReactNode;
     /**
      * The value of the select option.
