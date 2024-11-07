@@ -5,10 +5,8 @@ import { Select } from '@base_ui/react/Select';
 import { css, styled } from '@mui/system';
 
 export default function SelectIntroduction() {
-  const [value, setValue] = React.useState('system');
-
   return (
-    <Select.Root value={value} onValueChange={setValue}>
+    <Select.Root defaultValue="system">
       <SelectTrigger aria-label="Select font">
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
