@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
-import { ExpandMoreIcon } from './accordion';
 import classes from './accordion.module.css';
 
 function classNames(...c: Array<string | undefined | null | false>) {
@@ -11,11 +10,14 @@ function classNames(...c: Array<string | undefined | null | false>) {
 export default function App() {
   return (
     <div className={classes.wrapper}>
-      <h3>CSS @keyframe animations + `hidden=&quot;until-found&quot;`</h3>
+      <h3>
+        CSS @keyframe animations + `hidden=&quot;until-found&quot;` + keepMounted
+      </h3>
       <Accordion.Root
+        hiddenUntilFound
+        keepMounted
         className={classes.root}
         aria-label="Uncontrolled Material UI Accordion"
-        hiddenUntilFound
       >
         {[0, 1, 2].map((index) => (
           <Accordion.Item className={classes.item} key={index}>
@@ -64,5 +66,20 @@ export default function App() {
         ))}
       </Accordion.Root>
     </div>
+  );
+}
+
+function ExpandMoreIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" fill="currentColor" />
+    </svg>
   );
 }

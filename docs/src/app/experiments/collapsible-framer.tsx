@@ -19,6 +19,7 @@ export default function CollapsibleFramer() {
         </Collapsible.Trigger>
         <Collapsible.Panel
           className={classNames(classes.panel, classes.framer)}
+          keepMounted
           render={
             <motion.div
               key="CollapsiblePanel"

@@ -118,9 +118,9 @@ export namespace AccordionRoot {
      */
     hiddenUntilFound?: boolean;
     /**
-     * If `true`, accordion items remains mounted when closed and is instead
+     * If `true`, accordion panels remains mounted when closed and is instead
      * hidden using the `hidden` attribute.
-     * If `false`, accordion items are unmounted when closed.
+     * If `false`, accordion panels are unmounted when closed.
      * @default false
      */
     keepMounted?: boolean;
@@ -172,9 +172,9 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   hiddenUntilFound: PropTypes.bool,
   /**
-   * If `true`, accordion items remains mounted when closed and is instead
+   * If `true`, accordion panels remains mounted when closed and is instead
    * hidden using the `hidden` attribute.
-   * If `false`, accordion items are unmounted when closed.
+   * If `false`, accordion panels are unmounted when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
