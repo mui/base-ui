@@ -101,6 +101,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
             name: rootContext.name,
             disabled: rootContext.disabled,
             required: rootContext.required,
+            readOnly: rootContext.readOnly,
             value: serializedValue,
             ref: rootContext.fieldControlValidation.inputRef,
             style: visuallyHidden,

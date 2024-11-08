@@ -41,7 +41,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const reachedMaxHeightRef = React.useRef(false);
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
-  const originalPositionerStyles = React.useRef<React.CSSProperties>({});
+  const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
     if (!alignOptionToTriggerRaw || !popupRef.current) {
@@ -58,11 +58,15 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   });
 
   useEnhancedEffect(() => {
-    if (!mounted || !positionerElement || Object.keys(originalPositionerStyles.current).length) {
+    if (
+      alignOptionToTrigger ||
+      !positionerElement ||
+      Object.keys(originalPositionerStylesRef.current).length
+    ) {
       return;
     }
 
-    originalPositionerStyles.current = {
+    originalPositionerStylesRef.current = {
       top: positionerElement.style.top || '0',
       left: positionerElement.style.left || '0',
       right: positionerElement.style.right,
@@ -73,7 +77,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       marginTop: positionerElement.style.marginTop,
       marginBottom: positionerElement.style.marginBottom,
     };
-  }, [mounted, positionerElement]);
+  }, [alignOptionToTrigger, positionerElement]);
 
   useEnhancedEffect(() => {
     if (mounted || alignOptionToTrigger) {
@@ -86,18 +90,24 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     maxHeightRef.current = 0;
 
     if (positionerElement) {
-      clearPositionerStyles(positionerElement, originalPositionerStyles.current);
+      clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
     }
   }, [mounted, alignOptionToTrigger, positionerElement]);
 
   useEnhancedEffect(() => {
     if (mounted && !alignOptionToTrigger && alignOptionToTriggerRaw) {
-      requestAnimationFrame(handleScrollArrowVisibility);
+      handleScrollArrowVisibility();
     }
   }, [mounted, alignOptionToTrigger, alignOptionToTriggerRaw, handleScrollArrowVisibility]);
 
   useEnhancedEffect(() => {
-    if (!alignOptionToTrigger || !triggerElement || !positionerElement || !popupRef.current) {
+    if (
+      !mounted ||
+      !alignOptionToTrigger ||
+      !triggerElement ||
+      !positionerElement ||
+      !popupRef.current
+    ) {
       return;
     }
 
@@ -164,7 +174,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     if (fallbackToAlignPopupToTrigger) {
       initialPlacedRef.current = true;
-      clearPositionerStyles(positionerElement, originalPositionerStyles.current);
+      clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
       setControlledAlignOptionToTrigger(false);
       return;
     }
@@ -192,6 +202,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       initialPlacedRef.current = true;
     });
   }, [
+    mounted,
     alignOptionToTrigger,
     positionerElement,
     triggerElement,

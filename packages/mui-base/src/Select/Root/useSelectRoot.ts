@@ -151,6 +151,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const click = useClick(floatingRootContext, {
+    enabled: !readOnly,
     event: 'mousedown',
   });
 
@@ -161,6 +162,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
+    enabled: !readOnly,
     listRef,
     activeIndex,
     selectedIndex,
@@ -172,6 +174,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const typehaead = useTypeahead(floatingRootContext, {
+    enabled: !readOnly,
     listRef: labelsRef,
     activeIndex,
     selectedIndex,

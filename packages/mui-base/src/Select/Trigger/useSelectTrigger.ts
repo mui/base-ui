@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../useButton/useButton';
@@ -30,6 +29,7 @@ export function useSelectTrigger(
     setTouchModality,
     positionerElement,
     alignOptionToTrigger,
+    readOnly,
   } = useSelectRootContext();
 
   const { labelId, setTouched } = useFieldRootContext();
@@ -81,6 +81,7 @@ export function useSelectTrigger(
         fieldControlValidation.getValidationProps(externalProps),
         {
           'aria-labelledby': labelId,
+          'aria-readonly': readOnly || undefined,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onFocus() {
@@ -145,6 +146,7 @@ export function useSelectTrigger(
       fieldControlValidation,
       labelId,
       handleRef,
+      readOnly,
       getButtonProps,
       open,
       alignOptionToTrigger,
