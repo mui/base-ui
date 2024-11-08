@@ -41,7 +41,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
+  const {
+    className,
+    container,
+    id,
+    keepMounted = false,
+    render,
+    initialFocus,
+    finalFocus,
+    ...other
+  } = props;
 
   const {
     descriptionElementId,
@@ -111,6 +120,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         modal
         disabled={!mounted}
         initialFocus={resolvedInitialFocus}
+        returnFocus={finalFocus}
       >
         {renderElement()}
       </FloatingFocusManager>
@@ -138,6 +148,11 @@ namespace AlertDialogPopup {
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+    /**
+     * Determines an element to focus after the dialog is closed.
+     * If not provided, the focus returns to the trigger.
+     */
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export interface OwnerState {
@@ -164,6 +179,11 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    * The container element to which the popup is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
+  /**
+   * Determines an element to focus after the dialog is closed.
+   * If not provided, the focus returns to the trigger.
+   */
+  finalFocus: refType,
   /**
    * @ignore
    */
