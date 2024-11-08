@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogTrigger } from '../../Dialog/Trigger/useDialogTrigger';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
@@ -22,24 +22,23 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, onOpenChange, popupElementId } = useAlertDialogRootContext();
+  const { open, setTriggerElement, getTriggerProps, modal } = useAlertDialogRootContext();
 
-  const { getRootProps } = useDialogTrigger({
-    open,
-    onOpenChange,
-    popupElementId,
-  });
+  const ownerState: AlertDialogTrigger.OwnerState = React.useMemo(
+    () => ({ open, modal }),
+    [open, modal],
+  );
 
-  const ownerState: AlertDialogTrigger.OwnerState = { open };
+  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
     ownerState,
-    propGetter: getRootProps,
+    propGetter: getTriggerProps,
     extraProps: other,
     customStyleHookMapping: triggerOpenStateMapping,
-    ref: forwardedRef,
+    ref: mergedRef,
   });
 
   return renderElement();

@@ -24,8 +24,9 @@
       &:hover {
         &::before {
           background-color: oklch(20% 12% 264 / 5%);
-
-          @media (prefers-color-scheme: dark) {
+        }
+        @media (prefers-color-scheme: dark) {
+          &::before {
             background-color: oklch(90% 5% 264 / 8%);
           }
         }
@@ -35,8 +36,9 @@
     &:active {
       &::before {
         background-color: oklch(20% 12% 264 / 9%);
-
-        @media (prefers-color-scheme: dark) {
+      }
+      @media (prefers-color-scheme: dark) {
+        &::before {
           background-color: oklch(90% 5% 264 / 11%);
         }
       }

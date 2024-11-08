@@ -73,6 +73,10 @@
       "allowedVersions": "< 19.0.0"
     },
     {
+      "groupName": "Vitest",
+      "matchPackagePatterns": ["^vitest$", "^@vitest/"]
+    },
+    {
       "matchDepTypes": ["engines"],
       "matchFileNames": ["packages/*/package.json"],
       "enabled": false

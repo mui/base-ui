@@ -161,7 +161,7 @@ Menu items can be used as radio buttons. To group them together, use the `Menu.R
 <Demo demo="RadioItems" />
 
 <Callout type="warning">
-  If you rely on the RadioItem to manage its state (e.g., you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
+  If you rely on the RadioItem to manage its state (for example, you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
   Unmounting the component resets its state.
 
 To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox item is in (and all parent positioners, in the case of a nested menu):
@@ -194,7 +194,7 @@ Menu items can act as checkboxes.
 <Demo demo="CheckboxItems" />
 
 <Callout type="warning">
-  If you rely on the CheckboxItem to manage its state (e.g., you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
+  If you rely on the CheckboxItem to manage its state (for example, you use the `defaultChecked` and `onCheckedChange` props), ensure that the item is not unmounted when its parent menu is closed.
   Unmounting the component resets its state.
 
 To do this, add the `keepMounted` prop to the `Menu.Positioner` the checkbox item is in (and all parent positioners, in the case of a nested menu):
