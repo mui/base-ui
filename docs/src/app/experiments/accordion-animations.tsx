@@ -10,12 +10,9 @@ function classNames(...c: Array<string | undefined | null | false>) {
 export default function App() {
   return (
     <div className={classes.wrapper}>
-      <h3>
-        CSS @keyframe animations + `hidden=&quot;until-found&quot;` + keepMounted
-      </h3>
+      <h3>CSS @keyframe animations + `hidden=&quot;until-found&quot;`</h3>
       <Accordion.Root
         hiddenUntilFound
-        keepMounted
         className={classes.root}
         aria-label="Uncontrolled Material UI Accordion"
       >
