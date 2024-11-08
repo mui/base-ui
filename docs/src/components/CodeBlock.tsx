@@ -61,14 +61,12 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
 export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
   const { codeId } = React.useContext(CodeBlockContext);
   return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <pre
-      {...props}
-      id={codeId}
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      // Select code block contents on Ctrl/Cmd + A
       tabIndex={-1}
-      className={clsx('CodeBlockPre', className)}
+      className="CodeBlockPreContainer"
       onKeyDown={(event) => {
-        // Select code block contents on Ctrl/Cmd + A
         if (
           event.key === 'a' &&
           (event.metaKey || event.ctrlKey) &&
@@ -79,6 +77,8 @@ export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
           window.getSelection()?.selectAllChildren(event.currentTarget);
         }
       }}
-    />
+    >
+      <pre {...props} id={codeId} className={clsx('CodeBlockPre', className)} />
+    </div>
   );
 }
