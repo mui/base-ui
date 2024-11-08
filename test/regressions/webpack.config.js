@@ -88,6 +88,11 @@ module.exports = {
       // Exclude polyfill and treat 'zlib' as an empty module since it is not required. next -> gzip-size relies on it.
       zlib: false,
     },
+    extensionAlias: {
+      '.js': ['.js', '.jsx', '.ts', '.tsx'],
+      '.mjs': ['.mjs', '.mts'],
+      '.cjs': ['.cjs', '.cts'],
+    },
   },
   // TODO: 'browserslist:modern'
   // See https://github.com/webpack/webpack/issues/14203
