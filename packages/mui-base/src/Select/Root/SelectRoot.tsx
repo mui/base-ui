@@ -29,7 +29,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     onOpenChange,
     alignOptionToTrigger = true,
     loop = true,
-    animated = false,
+    animated = true,
     name,
     disabled = false,
     readOnly = false,
@@ -119,9 +119,74 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * Determines if the selected option inside the popup should align to the trigger element.
+   * @default true
+   */
+  alignOptionToTrigger: PropTypes.bool,
+  /**
+   * If `true`, the Select supports CSS-based animations and transitions.
+   * It is kept in the DOM until the animation completes.
+   *
+   * @default true
+   */
+  animated: PropTypes.bool,
+  /**
    * @ignore
    */
   children: PropTypes.node,
+  /**
+   * If `true`, the Select is initially open.
+   *
+   * @default false
+   */
+  defaultOpen: PropTypes.bool,
+  /**
+   * The default value of the select.
+   * @default null
+   */
+  defaultValue: PropTypes.any,
+  /**
+   * If `true`, the Select is disabled.
+   *
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   * @default true
+   */
+  loop: PropTypes.bool,
+  /**
+   * The name of the Select in the owning form.
+   */
+  name: PropTypes.string,
+  /**
+   * Callback fired when the component requests to be opened or closed.
+   */
+  onOpenChange: PropTypes.func,
+  /**
+   * Callback fired when the value of the select changes. Use when controlled.
+   */
+  onValueChange: PropTypes.func,
+  /**
+   * Allows to control whether the dropdown is open.
+   * This is a controlled counterpart of `defaultOpen`.
+   */
+  open: PropTypes.bool,
+  /**
+   * If `true`, the Select is read-only.
+   * @default false
+   */
+  readOnly: PropTypes.bool,
+  /**
+   * If `true`, the Select is required.
+   * @default false
+   */
+  required: PropTypes.bool,
+  /**
+   * The value of the select.
+   */
+  value: PropTypes.any,
 } as any;
 
 export { SelectRoot };

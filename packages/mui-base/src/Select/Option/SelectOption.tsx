@@ -12,7 +12,6 @@ import { useSelectOption } from './useSelectOption';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { SelectOptionContext } from './SelectOptionContext';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   highlighted: boolean;
@@ -30,21 +29,9 @@ interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   setValue: SelectRootContext['setValue'];
   selectedIndexRef: React.RefObject<number | null>;
   indexRef: React.RefObject<number>;
-  alignOptionToTrigger: boolean;
   setActiveIndex: SelectIndexContext['setActiveIndex'];
   popupRef: React.RefObject<HTMLDivElement | null>;
 }
-
-const customStyleHookMapping: CustomStyleHookMapping<SelectOption.OwnerState> = {
-  triggerAligned(value) {
-    if (value) {
-      return {
-        'data-trigger-aligned': '',
-      };
-    }
-    return null;
-  },
-};
 
 const InnerSelectOption = React.forwardRef(function InnerSelectOption(
   props: InnerSelectOptionProps,
@@ -65,7 +52,6 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     setValue,
     selectedIndexRef,
     indexRef,
-    alignOptionToTrigger,
     setActiveIndex,
     popupRef,
     ...otherProps
@@ -77,9 +63,8 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
       open,
       highlighted,
       selected,
-      triggerAligned: alignOptionToTrigger,
     }),
-    [disabled, open, highlighted, selected, alignOptionToTrigger],
+    [disabled, open, highlighted, selected],
   );
 
   const { getItemProps, rootRef } = useSelectOption({
@@ -117,7 +102,6 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     className,
     ownerState,
     extraProps: otherProps,
-    customStyleHookMapping,
   });
 
   return renderElement();
@@ -128,10 +112,6 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  alignOptionToTrigger: PropTypes.bool.isRequired,
   /**
    * @ignore
    */
@@ -246,17 +226,8 @@ const SelectOption = React.forwardRef(function SelectOption(
 
   const listItem = useCompositeListItem({ label });
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
-  const {
-    getItemProps,
-    setOpen,
-    setValue,
-    open,
-    selectionRef,
-    typingRef,
-    valuesRef,
-    alignOptionToTrigger,
-    popupRef,
-  } = useSelectRootContext();
+  const { getItemProps, setOpen, setValue, open, selectionRef, typingRef, valuesRef, popupRef } =
+    useSelectRootContext();
 
   const selectedIndexRef = useLatestRef(selectedIndex);
   const indexRef = useLatestRef(listItem.index);
@@ -302,7 +273,6 @@ const SelectOption = React.forwardRef(function SelectOption(
         setValue={setValue}
         selectedIndexRef={selectedIndexRef}
         indexRef={indexRef}
-        alignOptionToTrigger={alignOptionToTrigger}
         setActiveIndex={setActiveIndex}
         popupRef={popupRef}
         {...otherProps}
@@ -349,7 +319,6 @@ namespace SelectOption {
     highlighted: boolean;
     selected: boolean;
     open: boolean;
-    triggerAligned: boolean;
   }
 
   export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'id'> {

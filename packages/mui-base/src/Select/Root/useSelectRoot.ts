@@ -22,6 +22,13 @@ import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
+  const {
+    disabled = false,
+    readOnly = false,
+    required = false,
+    alignOptionToTrigger: alignOptionToTriggerParam = true,
+  } = params;
+
   const id = useId();
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
@@ -40,6 +47,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     name: 'Select',
     state: 'open',
   });
+
+  const [controlledAlignOptionToTrigger, setControlledAlignOptionToTrigger] =
+    React.useState(alignOptionToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -67,7 +77,20 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
-  const alignOptionToTrigger = Boolean(mounted && params.alignOptionToTrigger && !touchModality);
+  const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
+
+  if (!mounted && controlledAlignOptionToTrigger !== alignOptionToTriggerParam) {
+    setControlledAlignOptionToTrigger(alignOptionToTriggerParam);
+  }
+
+  if (!alignOptionToTriggerParam || !mounted) {
+    if (scrollUpArrowVisible) {
+      setScrollUpArrowVisible(false);
+    }
+    if (scrollDownArrowVisible) {
+      setScrollDownArrowVisible(false);
+    }
+  }
 
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     params.onOpenChange?.(nextOpen, event);
@@ -133,7 +156,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const dismiss = useDismiss(floatingRootContext);
 
-  const role = useRole(floatingRootContext, { role: 'select' });
+  const role = useRole(floatingRootContext, {
+    role: 'select',
+  });
 
   const listNavigation = useListNavigation(floatingRootContext, {
     listRef,
@@ -159,6 +184,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       }
     },
     onTypingChange(typing) {
+      // FIXME: Floating UI doesn't support allowing space to select an item while the popup is
+      // closed and the trigger isn't a native <button>.
       typingRef.current = typing;
     },
   });
@@ -173,9 +200,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     () => ({
       id,
       name: params.name,
-      required: params.required,
-      disabled: params.disabled,
-      readOnly: params.readOnly,
+      required,
+      disabled,
+      readOnly,
       triggerElement,
       setTriggerElement,
       positionerElement,
@@ -184,6 +211,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
+      setControlledAlignOptionToTrigger,
       value,
       setValue,
       open,
@@ -207,15 +235,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       touchModality,
       setTouchModality,
       alignOptionToTrigger,
+      alignOptionToTriggerRaw: alignOptionToTriggerParam,
       transitionStatus,
       fieldControlValidation,
     }),
     [
       id,
       params.name,
-      params.required,
-      params.disabled,
-      params.readOnly,
+      required,
+      disabled,
+      readOnly,
       triggerElement,
       positionerElement,
       scrollUpArrowVisible,
@@ -233,6 +262,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       floatingRootContext,
       touchModality,
       alignOptionToTrigger,
+      alignOptionToTriggerParam,
       transitionStatus,
       fieldControlValidation,
     ],
@@ -278,18 +308,18 @@ export namespace useSelectRoot {
      * If `true`, the Select is required.
      * @default false
      */
-    required: boolean;
+    required?: boolean;
     /**
      * If `true`, the Select is read-only.
      * @default false
      */
-    readOnly: boolean;
+    readOnly?: boolean;
     /**
      * If `true`, the Select is disabled.
      *
      * @default false
      */
-    disabled: boolean;
+    disabled?: boolean;
     /**
      * The value of the select.
      */
@@ -300,6 +330,7 @@ export namespace useSelectRoot {
     onValueChange?: (value: Value, event?: Event) => void;
     /**
      * The default value of the select.
+     * @default null
      */
     defaultValue?: Value | null;
     /**

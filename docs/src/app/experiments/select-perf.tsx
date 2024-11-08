@@ -22,11 +22,16 @@ function BaseSelectExample() {
     <BaseSelect.Root>
       <BaseSelect.Trigger
         aria-label="Select"
-        style={{ fontSize: 16, border: 'none', lineHeight: 1, fontFamily: 'Arial' }}
+        style={{
+          fontSize: 16,
+          border: 'none',
+          lineHeight: 1,
+          fontFamily: 'Arial',
+        }}
       >
         <BaseSelect.Value placeholder="Select..." />
       </BaseSelect.Trigger>
-      <BaseSelect.Positioner style={{ margin: '10px 0' }}>
+      <BaseSelect.Positioner>
         <BaseSelect.ScrollUpArrow
           style={{
             ...arrowStyles,
@@ -41,14 +46,11 @@ function BaseSelectExample() {
             background: 'white',
             fontSize: 16,
             fontFamily: 'Arial',
+            scrollPadding: 15,
           }}
         >
           {options.map((item) => (
-            <BaseSelect.Option
-              key={item}
-              value={item}
-              style={{ scrollMargin: 15, lineHeight: 1 }}
-            >
+            <BaseSelect.Option key={item} value={item} style={{ lineHeight: 1 }}>
               <BaseSelect.OptionText>{item}</BaseSelect.OptionText>
             </BaseSelect.Option>
           ))}

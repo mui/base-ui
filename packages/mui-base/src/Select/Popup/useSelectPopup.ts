@@ -6,6 +6,13 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 
+function clearPositionerStyles(
+  positionerElement: HTMLElement,
+  originalPositionerStyles: React.CSSProperties,
+) {
+  Object.assign(positionerElement.style, originalPositionerStyles);
+}
+
 /**
  *
  * API:
@@ -19,6 +26,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setOpen,
     getRootPositionerProps,
     alignOptionToTrigger,
+    alignOptionToTriggerRaw,
     triggerElement,
     positionerElement,
     valueRef,
@@ -26,15 +34,17 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     popupRef,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
+    setControlledAlignOptionToTrigger,
   } = useSelectRootContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
+  const originalPositionerStyles = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignOptionToTrigger || !popupRef.current) {
+    if (!alignOptionToTriggerRaw || !popupRef.current) {
       return;
     }
 
@@ -48,7 +58,25 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   });
 
   useEnhancedEffect(() => {
-    if (mounted) {
+    if (!mounted || !positionerElement || Object.keys(originalPositionerStyles.current).length) {
+      return;
+    }
+
+    originalPositionerStyles.current = {
+      top: positionerElement.style.top || '0',
+      left: positionerElement.style.left || '0',
+      right: positionerElement.style.right,
+      height: positionerElement.style.height,
+      bottom: positionerElement.style.bottom,
+      minHeight: positionerElement.style.minHeight,
+      maxHeight: positionerElement.style.maxHeight,
+      marginTop: positionerElement.style.marginTop,
+      marginBottom: positionerElement.style.marginBottom,
+    };
+  }, [mounted, positionerElement]);
+
+  useEnhancedEffect(() => {
+    if (mounted || alignOptionToTrigger) {
       return;
     }
 
@@ -58,16 +86,15 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     maxHeightRef.current = 0;
 
     if (positionerElement) {
-      Object.assign(positionerElement.style, {
-        top: '0',
-        left: '0',
-        right: '',
-        height: '',
-        bottom: '',
-        minHeight: '',
-      });
+      clearPositionerStyles(positionerElement, originalPositionerStyles.current);
     }
-  }, [mounted, positionerElement, alignOptionToTrigger]);
+  }, [mounted, alignOptionToTrigger, positionerElement]);
+
+  useEnhancedEffect(() => {
+    if (mounted && !alignOptionToTrigger && alignOptionToTriggerRaw) {
+      requestAnimationFrame(handleScrollArrowVisibility);
+    }
+  }, [mounted, alignOptionToTrigger, alignOptionToTriggerRaw, handleScrollArrowVisibility]);
 
   useEnhancedEffect(() => {
     if (!alignOptionToTrigger || !triggerElement || !positionerElement || !popupRef.current) {
@@ -77,9 +104,9 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const positionerStyles = getComputedStyle(positionerElement);
     const popupStyles = getComputedStyle(popupRef.current);
 
-    const marginTop = parseFloat(positionerStyles.marginTop);
-    const marginBottom = parseFloat(positionerStyles.marginBottom);
     const borderBottom = parseFloat(popupStyles.borderBottomWidth);
+    const marginTop = parseFloat(positionerStyles.marginTop) || 10;
+    const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
     const minHeight = parseFloat(positionerStyles.minHeight) || 100;
 
     const doc = ownerDocument(triggerElement);
@@ -108,29 +135,46 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     }
 
     const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
-    const height = Math.min(viewportHeight, idealHeight);
+    let height = Math.min(viewportHeight, idealHeight);
     const maxHeight = viewportHeight - marginTop - marginBottom;
     const scrollTop = idealHeight - height;
 
     const left = Math.max(10, triggerX + offsetX);
     const maxRight = viewportWidth - 10;
-    const rightOverflow = left + positionerRect.width - maxRight;
+    const rightOverflow = Math.max(0, left + positionerRect.width - maxRight);
 
     positionerElement.style.left = `${left - rightOverflow}px`;
     positionerElement.style.height = `${height}px`;
     positionerElement.style.minHeight = `${minHeight}px`;
+    positionerElement.style.maxHeight = 'auto';
+    positionerElement.style.marginTop = `${marginTop}px`;
+    positionerElement.style.marginBottom = `${marginBottom}px`;
 
     const maxScrollTop = popupRef.current.scrollHeight - popupRef.current.clientHeight;
     const isTopPositioned = scrollTop >= maxScrollTop;
 
     if (isTopPositioned) {
+      height = Math.min(viewportHeight, positionerRect.height) - (scrollTop - maxScrollTop);
+    }
+
+    // When the reference is too close to the top or bottom of the viewport, or the minHeight is
+    // reached, we fallback to aligning the popup to the trigger as the UX is poor otherwise.
+    const fallbackToAlignPopupToTrigger =
+      triggerRect.top < 30 || triggerRect.bottom > viewportHeight - 30 || height < minHeight;
+
+    if (fallbackToAlignPopupToTrigger) {
+      initialPlacedRef.current = true;
+      clearPositionerStyles(positionerElement, originalPositionerStyles.current);
+      setControlledAlignOptionToTrigger(false);
+      return;
+    }
+
+    if (isTopPositioned) {
       const topOffset = Math.max(0, viewportHeight - idealHeight);
-      const topHeight =
-        Math.min(viewportHeight, positionerRect.height) - (scrollTop - maxScrollTop);
       positionerElement.style.top = positionerRect.height >= maxHeight ? '0' : `${topOffset}px`;
-      positionerElement.style.height = `${topHeight}px`;
+      positionerElement.style.height = `${height}px`;
       popupRef.current.scrollTop = popupRef.current.scrollHeight - popupRef.current.clientHeight;
-      initialHeightRef.current = Math.max(minHeight, topHeight);
+      initialHeightRef.current = Math.max(minHeight, height);
     } else {
       positionerElement.style.bottom = '0';
       initialHeightRef.current = Math.max(minHeight, height);
@@ -143,6 +187,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     handleScrollArrowVisibility();
 
+    // Avoid the `onScroll` event logic from triggering before the popup is placed.
     setTimeout(() => {
       initialPlacedRef.current = true;
     });
@@ -156,6 +201,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     handleScrollArrowVisibility,
+    setControlledAlignOptionToTrigger,
   ]);
 
   React.useEffect(() => {
@@ -182,7 +228,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         ['data-id' as string]: `${id}-popup`,
         onScroll(event) {
           if (
-            !alignOptionToTrigger ||
+            !alignOptionToTriggerRaw ||
             !positionerElement ||
             !popupRef.current ||
             !initialPlacedRef.current
@@ -190,7 +236,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
             return;
           }
 
-          if (reachedMaxHeightRef.current) {
+          if (reachedMaxHeightRef.current || !alignOptionToTrigger) {
             handleScrollArrowVisibility();
             return;
           }
@@ -245,7 +291,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           ...(alignOptionToTrigger && {
             position: 'relative',
             maxHeight: '100%',
-            overflow: 'hidden auto',
+            overflowX: 'hidden',
+            overflowY: 'auto',
           }),
           outline: '0',
         },
@@ -255,6 +302,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       getRootPositionerProps,
       id,
       alignOptionToTrigger,
+      alignOptionToTriggerRaw,
       positionerElement,
       popupRef,
       handleScrollArrowVisibility,

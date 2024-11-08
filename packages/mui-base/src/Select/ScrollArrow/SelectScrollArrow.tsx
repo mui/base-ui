@@ -6,6 +6,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { MAX_Z_INDEX } from '../../utils/constants';
+import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
+import { Side } from '../../utils/useAnchorPositioning';
 
 /**
  * @ignore - internal component.
@@ -17,13 +19,14 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
   const {
-    alignOptionToTrigger,
+    alignOptionToTriggerRaw,
     popupRef,
     scrollUpArrowVisible,
     scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
   } = useSelectRootContext();
+  const { side } = useSelectPositionerContext();
 
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
 
@@ -33,8 +36,9 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     () => ({
       direction,
       visible,
+      side,
     }),
-    [direction, visible],
+    [direction, visible, side],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -47,7 +51,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           zIndex: MAX_Z_INDEX,
         },
         onMouseEnter() {
-          if (!alignOptionToTrigger) {
+          if (!alignOptionToTriggerRaw) {
             return;
           }
 
@@ -104,7 +108,13 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           cancelAnimationFrame(frameRef.current);
         },
       }),
-    [direction, alignOptionToTrigger, popupRef, setScrollUpArrowVisible, setScrollDownArrowVisible],
+    [
+      direction,
+      alignOptionToTriggerRaw,
+      popupRef,
+      setScrollUpArrowVisible,
+      setScrollDownArrowVisible,
+    ],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -128,6 +138,7 @@ namespace SelectScrollArrow {
   export interface OwnerState {
     direction: 'up' | 'down';
     visible: boolean;
+    side: Side | 'none';
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {

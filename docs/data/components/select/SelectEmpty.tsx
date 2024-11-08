@@ -114,6 +114,7 @@ const SelectPopup = styled(Select.Popup)`
     calc(var(--available-width) - ${popupPadding * 2}px),
     calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
   );
+  scroll-padding: 15px;
 `;
 
 const SelectOption = styled(Select.Option)`
@@ -133,10 +134,6 @@ const SelectOption = styled(Select.Option)`
 
   &[data-selected] {
     padding-left: var(--padding);
-  }
-
-  &[data-trigger-aligned] {
-    scroll-margin: 15px;
   }
 
   &[data-disabled] {
@@ -173,12 +170,14 @@ const scrollArrowStyles = css`
   justify-content: center;
   border-radius: 5px;
 
-  &::before {
-    content: '';
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: calc(100% + 10px);
+  &[data-side='none'] {
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: calc(100% + 10px);
+    }
   }
 `;
 
