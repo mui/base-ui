@@ -72,6 +72,11 @@ const nextConfig = {
           ...config.resolve.alias,
           docs: path.resolve(workspaceRoot, 'docs'),
         },
+        extensionAlias: {
+          '.js': ['.js', '.jsx', '.ts', '.tsx'],
+          '.mjs': ['.mjs', '.mts'],
+          '.cjs': ['.cjs', '.cts'],
+        },
       },
       module: {
         ...config.module,
