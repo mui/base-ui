@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import { TabsListContext } from './TabsListContext.js';
 import { TabMetadata } from '../Root/useTabsRoot.js';
 import { ListContext, ListContextValue } from '../../useList/ListContext.js';
-import { CompoundComponentContext, CompoundComponentContextValue } from '../../useCompound/index.js';
+import {
+  CompoundComponentContext,
+  CompoundComponentContextValue,
+} from '../../useCompound/index.js';
 import { refType } from '../../utils/proptypes.js';
 
 export type TabsListProviderValue = CompoundComponentContextValue<any, TabMetadata> &
