@@ -21,8 +21,21 @@
       border-radius: 0.25rem;
     }
 
-    @media (hover: hover) {
-      &:hover {
+    &:not(:focus-visible) {
+      @media (hover: hover) {
+        &:hover {
+          &::before {
+            background-color: oklch(20% 12% 264 / 5%);
+          }
+          @media (prefers-color-scheme: dark) {
+            &::before {
+              background-color: oklch(90% 5% 264 / 8%);
+            }
+          }
+        }
+      }
+
+      &[data-popup-open] {
         &::before {
           background-color: oklch(20% 12% 264 / 5%);
         }
@@ -32,26 +45,15 @@
           }
         }
       }
-    }
 
-    &[data-popup-open] {
-      &::before {
-        background-color: oklch(20% 12% 264 / 5%);
-      }
-      @media (prefers-color-scheme: dark) {
+      &:active {
         &::before {
-          background-color: oklch(90% 5% 264 / 8%);
+          background-color: oklch(20% 12% 264 / 9%);
         }
-      }
-    }
-
-    &:active {
-      &::before {
-        background-color: oklch(20% 12% 264 / 9%);
-      }
-      @media (prefers-color-scheme: dark) {
-        &::before {
-          background-color: oklch(90% 5% 264 / 11%);
+        @media (prefers-color-scheme: dark) {
+          &::before {
+            background-color: oklch(90% 5% 264 / 11%);
+          }
         }
       }
     }

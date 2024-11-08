@@ -19,7 +19,7 @@ export function Row({ className, ...props }: React.ComponentProps<'tr'>) {
 }
 
 export function HeaderCell({ className, ...props }: React.ComponentProps<'th'>) {
-  return <th className={clsx('TableHeaderCell', className)} {...props} />;
+  return <th scope="col" className={clsx('TableHeaderCell', className)} {...props} />;
 }
 
 export function Cell({ className, ...props }: React.ComponentProps<'td'>) {

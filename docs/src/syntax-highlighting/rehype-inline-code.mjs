@@ -4,7 +4,8 @@ import { visitParents } from 'unist-util-visit-parents';
 export function rehypeInlineCode() {
   return (tree) => {
     visitParents(tree, (node, ancestors) => {
-      if (node.tagName !== 'code' || ancestors.find(({ tagName }) => tagName === 'pre')) {
+      const name = node.tagName || node.name;
+      if (name !== 'code' || ancestors.find(({ tagName }) => tagName === 'pre')) {
         return;
       }
 
@@ -14,16 +15,25 @@ export function rehypeInlineCode() {
         return;
       }
 
+      // Default class
+      let className = 'syntax-constant';
+
       // HTML tags
       if (child.value.match(/^<[a-z].*>$/)) {
-        node.properties ??= {};
-        node.properties.className = 'syntax-tag';
-        return;
+        className = 'syntax-tag';
       }
 
-      // Everything else
-      node.properties ??= {};
-      node.properties.className = 'syntax-constant';
+      if (node.type === 'element') {
+        node.properties ??= {};
+        node.properties.className = className;
+      } else if (node.type === 'mdxJsxTextElement') {
+        node.attributes ??= [];
+        node.attributes.push({
+          type: 'mdxJsxAttribute',
+          name: 'className',
+          value: className,
+        });
+      }
     });
   };
 }

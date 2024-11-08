@@ -3,7 +3,7 @@ import { DemoLoader } from './components/demo/NewDemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/quick-nav/QuickNav';
-import { ApiTable } from './components/ApiTable';
+import { PropsTable } from './components/PropsTable';
 import { Code } from './components/Code';
 
 interface MDXComponents {
@@ -50,7 +50,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     td: Table.Cell,
 
     // Custom components
-    ApiTable,
+    PropsTable,
     Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
     QuickNav,
     Subtitle: (props) => <p className="text-gray -mt-2 mb-5 text-lg" {...props} />,
