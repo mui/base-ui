@@ -98,7 +98,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             frameRef.current = requestAnimationFrame(handleFrame);
           }
 
-          requestAnimationFrame(handleFrame);
+          frameRef.current = requestAnimationFrame(handleFrame);
         },
         onMouseLeave() {
           cancelAnimationFrame(frameRef.current);

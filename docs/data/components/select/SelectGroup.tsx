@@ -145,13 +145,13 @@ const SelectPopup = styled(Select.Popup)`
     calc(var(--available-width) - ${popupPadding * 2}px),
     calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
   );
-`;
 
-const SelectOption = styled(Select.Option)`
   --padding: 6px;
   --icon-size: 16px;
   --icon-margin: 4px;
+`;
 
+const SelectOption = styled(Select.Option)`
   outline: 0;
   cursor: default;
   border-radius: 4px;
@@ -232,10 +232,10 @@ const SelectScrollDownArrow = styled(Select.ScrollDownArrow)`
 
 const SelectGroupLabel = styled(Select.GroupLabel)`
   font-weight: bold;
-  padding: 4px 24px;
+  padding: var(--padding)
+    calc(var(--padding) + var(--icon-margin) + var(--icon-size));
   cursor: default;
   user-select: none;
-  height: 30px;
 `;
 
 const SelectSeparator = styled(Select.Separator)`

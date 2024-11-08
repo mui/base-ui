@@ -114,14 +114,11 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     const left = Math.max(10, triggerX + offsetX);
     const maxRight = viewportWidth - 10;
+    const rightOverflow = left + positionerRect.width - maxRight;
 
-    positionerElement.style.left = `${left}px`;
+    positionerElement.style.left = `${left - rightOverflow}px`;
     positionerElement.style.height = `${height}px`;
     positionerElement.style.minHeight = `${minHeight}px`;
-
-    if (left + positionerRect.width > maxRight) {
-      positionerElement.style.right = '10px';
-    }
 
     const maxScrollTop = popupRef.current.scrollHeight - popupRef.current.clientHeight;
     const isTopPositioned = scrollTop >= maxScrollTop;

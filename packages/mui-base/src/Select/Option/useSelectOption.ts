@@ -68,6 +68,9 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
           style: {
             pointerEvents: disabled ? 'none' : undefined,
           },
+          onFocus() {
+            setActiveIndex(indexRef.current);
+          },
           onMouseMove() {
             setActiveIndex(indexRef.current);
             if (popupRef.current) {
