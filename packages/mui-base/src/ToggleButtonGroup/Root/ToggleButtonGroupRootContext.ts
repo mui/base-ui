@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export interface ToggleButtonGroupRootContext {
-  value: unknown[];
-  setGroupValue: (newValue: unknown, nextPressed: boolean, event: Event) => void;
+  value: readonly string[];
+  setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
   disabled: boolean;
 }
 

@@ -138,8 +138,8 @@ ToggleButtonGroupItem.propTypes /* remove-proptypes */ = {
    */
   type: PropTypes.oneOf(['button', 'reset', 'submit']),
   /**
-   * A unique value that identifies the component when used
+   * A unique string that identifies the component when used
    * inside a ToggleButtonGroup
    */
-  value: PropTypes.any.isRequired,
+  value: PropTypes.string.isRequired,
 } as any;

@@ -57,19 +57,19 @@ export namespace useToggleButtonGroupItem {
     extends Pick<useToggleButtonRoot.Parameters, 'disabled' | 'onPressedChange'> {
     itemRef?: React.Ref<HTMLElement>;
     /**
-     * A unique value that identifies the component when used
+     * A unique string that identifies the component when used
      * inside a ToggleButtonGroup
      */
-    value: unknown;
+    value: string;
     /**
      * The value of the ToggleButtonGroup represented by an array of values
      * of the items that are pressed
      */
-    groupValue: unknown[];
+    groupValue: readonly string[];
     /**
      *
      */
-    setGroupValue: (newValue: unknown, nextPressed: boolean, event: Event) => void;
+    setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
   }
 
   export interface ReturnValue extends useToggleButtonRoot.ReturnValue {}

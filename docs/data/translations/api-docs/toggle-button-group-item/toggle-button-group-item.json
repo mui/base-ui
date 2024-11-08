@@ -17,7 +17,7 @@
     },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
-      "description": "A unique value that identifies the component when used inside a ToggleButtonGroup"
+      "description": "A unique string that identifies the component when used inside a ToggleButtonGroup"
     }
   },
   "classDescriptions": {}

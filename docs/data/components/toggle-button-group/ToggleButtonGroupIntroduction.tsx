@@ -11,7 +11,7 @@ export default function ToggleButtonGroupIntroduction() {
       value={value}
       onValueChange={(newValue) => {
         if (newValue.length > 0) {
-          setValue(newValue as string[]);
+          setValue(newValue);
         }
       }}
       aria-label="Text alignment"

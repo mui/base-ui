@@ -129,7 +129,7 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  defaultValue: PropTypes.array,
+  defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
    * Text direction
    * @default 'ltr'
@@ -156,5 +156,5 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  value: PropTypes.array,
+  value: PropTypes.arrayOf(PropTypes.string),
 } as any;

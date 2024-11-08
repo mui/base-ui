@@ -1,6 +1,6 @@
 {
   "props": {
-    "value": { "type": { "name": "any" }, "required": true },
+    "value": { "type": { "name": "string" }, "required": true },
     "aria-label": { "type": { "name": "string" } },
     "aria-labelledby": { "type": { "name": "string" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },

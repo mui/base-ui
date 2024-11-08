@@ -24,25 +24,23 @@ export function useToggleButtonGroupRoot(
     state: 'value',
   });
 
-  const setGroupValue = useEventCallback(
-    (newValue: unknown, nextPressed: boolean, event: Event) => {
-      let newGroupValue: unknown[] | undefined;
-      if (toggleMultiple) {
-        newGroupValue = groupValue.slice();
-        if (nextPressed) {
-          newGroupValue.push(newValue);
-        } else {
-          newGroupValue.splice(groupValue.indexOf(newValue), 1);
-        }
+  const setGroupValue = useEventCallback((newValue: string, nextPressed: boolean, event: Event) => {
+    let newGroupValue: string[] | undefined;
+    if (toggleMultiple) {
+      newGroupValue = groupValue.slice();
+      if (nextPressed) {
+        newGroupValue.push(newValue);
       } else {
-        newGroupValue = nextPressed ? [newValue] : [];
+        newGroupValue.splice(groupValue.indexOf(newValue), 1);
       }
-      if (Array.isArray(newGroupValue)) {
-        setValueState(newGroupValue);
-        onValueChange?.(newGroupValue, event);
-      }
-    },
-  );
+    } else {
+      newGroupValue = nextPressed ? [newValue] : [];
+    }
+    if (Array.isArray(newGroupValue)) {
+      setValueState(newGroupValue);
+      onValueChange?.(newGroupValue, event);
+    }
+  });
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
@@ -68,9 +66,9 @@ export namespace UseToggleButtonGroupRoot {
   export type Direction = 'ltr' | 'rtl';
 
   export interface Parameters {
-    value?: unknown[];
-    defaultValue?: unknown[];
-    onValueChange?: (groupValue: unknown[], event: Event) => void;
+    value?: readonly string[];
+    defaultValue?: readonly string[];
+    onValueChange?: (groupValue: string[], event: Event) => void;
     /**
      * When `true` the component is disabled
      * @false
@@ -99,11 +97,11 @@ export namespace UseToggleButtonGroupRoot {
     /**
      *
      */
-    setGroupValue: (newValue: unknown, nextPressed: boolean, event: Event) => void;
+    setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
     /**
      * The value of the ToggleButtonGroup represented by an array of values
      * of the items that are pressed
      */
-    value: unknown[];
+    value: readonly string[];
   }
 }
