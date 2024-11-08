@@ -127,7 +127,9 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * The open state of the ToggleButtonGroup represented by an array of
+   * the values of all pressed `<ToggleButtonGroup.Item/>`s
+   * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
@@ -140,7 +142,10 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * @ignore
+   * Callback fired when the pressed states of the ToggleButtonGroup changes.
+   *
+   * @param {string[]} groupValue An array of the `value`s of all the pressed items.
+   * @param {Event} event The event source of the callback.
    */
   onValueChange: PropTypes.func,
   /**
@@ -148,13 +153,16 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * When `false` only one ToggleButton in the group can be pressed.
-   * When a ToggleButton is pressed, the others in the group will become unpressed
+   * When `false` only one item in the group can be pressed. If any item in
+   * the group becomes pressed, the others will become unpressed.
+   * When `true` multiple items can be pressed.
    * @default false
    */
   toggleMultiple: PropTypes.bool,
   /**
-   * @ignore
+   * The open state of the ToggleButtonGroup represented by an array of
+   * the values of all pressed `<ToggleButtonGroup.Item/>`s
+   * This is the controlled counterpart of `defaultValue`.
    */
   value: PropTypes.arrayOf(PropTypes.string),
 } as any;
