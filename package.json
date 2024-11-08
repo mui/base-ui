@@ -69,7 +69,7 @@
     "inline-scripts": "tsx ./scripts/inlineScripts.mts"
   },
   "devDependencies": {
-    "@argos-ci/core": "^2.8.1",
+    "@argos-ci/core": "^2.10.0",
     "@babel/cli": "^7.25.9",
     "@babel/core": "^7.26.0",
     "@babel/node": "^7.26.0",
