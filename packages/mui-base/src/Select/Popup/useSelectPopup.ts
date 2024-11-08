@@ -32,6 +32,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     valueRef,
     selectedOptionTextRef,
     popupRef,
+    scrollUpArrowVisible,
+    scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     setControlledAlignOptionToTrigger,
@@ -53,8 +55,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       popupRef.current.scrollTop + popupRef.current.clientHeight >=
       popupRef.current.scrollHeight - 1;
 
-    setScrollUpArrowVisible(!isScrolledToTop);
-    setScrollDownArrowVisible(!isScrolledToBottom);
+    if (scrollUpArrowVisible !== !isScrolledToTop) {
+      setScrollUpArrowVisible(!isScrolledToTop);
+    }
+    if (scrollDownArrowVisible !== !isScrolledToBottom) {
+      setScrollDownArrowVisible(!isScrolledToBottom);
+    }
   });
 
   useEnhancedEffect(() => {
