@@ -1,1 +1,1 @@
-export * as Popover from './index.parts';
+export * as Popover from './index.parts.js';

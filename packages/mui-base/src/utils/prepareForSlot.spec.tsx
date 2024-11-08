@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { prepareForSlot } from './prepareForSlot';
+import { prepareForSlot } from './prepareForSlot.js';
 
 interface Props {
   a: string;

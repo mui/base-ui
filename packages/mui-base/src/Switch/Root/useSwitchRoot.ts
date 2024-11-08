@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '../../utils/useControlled';
-import { useForkRef } from '../../utils/useForkRef';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useField } from '../../Field/useField';
+import { useControlled } from '../../utils/useControlled.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { visuallyHidden } from '../../utils/visuallyHidden.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useId } from '../../utils/useId.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
+import { useField } from '../../Field/useField.js';
 
 export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.ReturnValue {
   const {

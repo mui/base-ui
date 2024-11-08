@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
-import { useMenuRadioItem } from './useMenuRadioItem';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
-import { MenuRadioItemContext } from './MenuRadioItemContext';
-import { itemMapping } from '../utils/styleHookMapping';
+import { useMenuRadioItem } from './useMenuRadioItem.js';
+import { useMenuRootContext } from '../Root/MenuRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useId } from '../../utils/useId.js';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useMenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext.js';
+import { MenuRadioItemContext } from './MenuRadioItemContext.js';
+import { itemMapping } from '../utils/styleHookMapping.js';
 
 const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuRadioItemProps,

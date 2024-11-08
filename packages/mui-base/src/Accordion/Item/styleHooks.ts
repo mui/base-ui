@@ -1,6 +1,6 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
-import type { AccordionItem } from './AccordionItem';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping.js';
+import type { AccordionItem } from './AccordionItem.js';
 
 export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.OwnerState> = {
   ...baseMapping,

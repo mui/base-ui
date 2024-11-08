@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 export function useTooltipArrow(params: useTooltipArrow.Parameters): useTooltipArrow.ReturnValue {
   const { arrowStyles, hidden } = params;

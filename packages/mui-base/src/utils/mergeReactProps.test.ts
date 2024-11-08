@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { mergeReactProps } from './mergeReactProps';
+import { mergeReactProps } from './mergeReactProps.js';
 
 describe('mergeReactProps', () => {
   it('merges event handlers', () => {

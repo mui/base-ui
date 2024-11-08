@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
 
 export function usePopoverClose(
   params: usePopoverDescription.Parameters,

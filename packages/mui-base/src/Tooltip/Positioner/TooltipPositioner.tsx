@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
-import { useForkRef } from '../../utils/useForkRef';
-import { useTooltipRootContext } from '../Root/TooltipRootContext';
-import { TooltipPositionerContext } from './TooltipPositionerContext';
-import { useTooltipPositioner } from './useTooltipPositioner';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { HTMLElementType } from '../../utils/proptypes.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useTooltipRootContext } from '../Root/TooltipRootContext.js';
+import { TooltipPositionerContext } from './TooltipPositionerContext.js';
+import { useTooltipPositioner } from './useTooltipPositioner.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning.js';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  * The tooltip positioner element.

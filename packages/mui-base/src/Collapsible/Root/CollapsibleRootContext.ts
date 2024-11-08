@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { useCollapsibleRoot } from './useCollapsibleRoot';
-import type { CollapsibleRoot } from './CollapsibleRoot';
+import type { useCollapsibleRoot } from './useCollapsibleRoot.js';
+import type { CollapsibleRoot } from './CollapsibleRoot.js';
 
 export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
   ownerState: CollapsibleRoot.OwnerState;

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useRadioRootContext } from '../Root/RadioRootContext';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useRadioRootContext } from '../Root/RadioRootContext.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.OwnerState> = {
   checked(value) {

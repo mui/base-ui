@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getStyleHookProps } from './getStyleHookProps';
+import { getStyleHookProps } from './getStyleHookProps.js';
 
 describe('getStyleHookProps', () => {
   it('converts the state fields to data attributes', () => {

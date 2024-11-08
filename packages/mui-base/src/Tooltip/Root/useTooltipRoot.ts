@@ -12,13 +12,13 @@ import {
   type OpenChangeReason,
   type FloatingRootContext,
 } from '@floating-ui/react';
-import { useControlled } from '../../utils/useControlled';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { OPEN_DELAY } from '../utils/constants';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
+import { useControlled } from '../../utils/useControlled.js';
+import { useTransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { OPEN_DELAY } from '../utils/constants.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {

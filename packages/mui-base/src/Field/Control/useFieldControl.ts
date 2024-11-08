@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldControlValidation } from './useFieldControlValidation';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import { useField } from '../useField';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useId } from '../../utils/useId.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
+import { useFieldControlValidation } from './useFieldControlValidation.js';
+import { useFormRootContext } from '../../Form/Root/FormRootContext.js';
+import { useField } from '../useField.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
 
 export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;

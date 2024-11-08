@@ -2,16 +2,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
-import { useDialogPopup } from './useDialogPopup';
-import { useDialogRootContext } from '../Root/DialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { refType, HTMLElementType } from '../../utils/proptypes';
-import { type BaseUIComponentProps } from '../../utils/types';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
-import { useForkRef } from '../../utils/useForkRef';
-import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { useDialogPopup } from './useDialogPopup.js';
+import { useDialogRootContext } from '../Root/DialogRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { refType, HTMLElementType } from '../../utils/proptypes.js';
+import { type BaseUIComponentProps } from '../../utils/types.js';
+import { type TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { InteractionType } from '../../utils/useEnhancedClickHandler.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
   ...baseMapping,

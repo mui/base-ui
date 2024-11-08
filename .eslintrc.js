@@ -94,5 +94,11 @@ module.exports = {
         'filenames/match-exported': ['error'],
       },
     },
+    {
+      files: ['packages/**/*'],
+      rules: {
+        'import/extensions': ['error', 'ignorePackages'],
+      },
+    },
   ],
 };

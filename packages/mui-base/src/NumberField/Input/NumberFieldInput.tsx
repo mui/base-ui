@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * The input element for the number field.

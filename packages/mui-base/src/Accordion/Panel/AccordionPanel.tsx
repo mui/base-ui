@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { useCollapsiblePanel } from '../../Collapsible/Panel/useCollapsiblePanel';
-import { useAccordionRootContext } from '../Root/AccordionRootContext';
-import type { AccordionItem } from '../Item/AccordionItem';
-import { useAccordionItemContext } from '../Item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../Item/styleHooks';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext.js';
+import { useCollapsiblePanel } from '../../Collapsible/Panel/useCollapsiblePanel.js';
+import { useAccordionRootContext } from '../Root/AccordionRootContext.js';
+import type { AccordionItem } from '../Item/AccordionItem.js';
+import { useAccordionItemContext } from '../Item/AccordionItemContext.js';
+import { accordionStyleHookMapping } from '../Item/styleHooks.js';
 
 /**
  *

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { AccordionItem } from './AccordionItem';
+import type { AccordionItem } from './AccordionItem.js';
 
 export interface AccordionItemContext {
   open: boolean;

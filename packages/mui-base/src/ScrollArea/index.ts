@@ -1,1 +1,1 @@
-export * as ScrollArea from './index.parts';
+export * as ScrollArea from './index.parts.js';

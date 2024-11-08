@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { listReducer } from './listReducer';
-import { ListReducerAction, ListState } from './useList.types';
-import { ListActionTypes } from './listActions.types';
+import { listReducer } from './listReducer.js';
+import { ListReducerAction, ListState } from './useList.types.js';
+import { ListActionTypes } from './listActions.types.js';
 
 describe('listReducer', () => {
   describe('action: blur', () => {

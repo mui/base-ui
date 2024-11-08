@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { MIN_THUMB_SIZE } from '../constants';
+import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { MIN_THUMB_SIZE } from '../constants.js';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;

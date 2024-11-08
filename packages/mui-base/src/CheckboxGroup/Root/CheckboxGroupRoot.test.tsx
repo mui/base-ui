@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';
 import { Checkbox } from '@base_ui/react/Checkbox';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<CheckboxGroup.Root />', () => {
   const { render } = createRenderer();

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useEnhancedEffect } from './useEnhancedEffect.js';
 
 /**
  * @ignore - internal hook.

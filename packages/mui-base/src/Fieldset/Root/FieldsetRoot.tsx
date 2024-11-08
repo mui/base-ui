@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldsetRootContext } from './FieldsetRootContext';
-import { useFieldsetRoot } from './useFieldsetRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { FieldsetRootContext } from './FieldsetRootContext.js';
+import { useFieldsetRoot } from './useFieldsetRoot.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * The foundation for building custom-styled fieldsets.

@@ -2,8 +2,7 @@ import * as React from 'react';
 import { ScrollArea } from '@base_ui/react/ScrollArea';
 import { expect } from 'chai';
 import { screen, describeSkipIf } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 

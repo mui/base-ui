@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { UseNumberFieldRoot } from './useNumberFieldRoot';
-import type { NumberFieldRoot } from './NumberFieldRoot';
+import type { UseNumberFieldRoot } from './useNumberFieldRoot.js';
+import type { NumberFieldRoot } from './NumberFieldRoot.js';
 
 export interface NumberFieldRootContext extends UseNumberFieldRoot.ReturnValue {
   ownerState: NumberFieldRoot.OwnerState;

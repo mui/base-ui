@@ -5,10 +5,10 @@ import {
   RenderOptions,
   createDescribe,
 } from '@mui/internal-test-utils';
-import { testPropForwarding } from './conformanceTests/propForwarding';
-import { testRefForwarding } from './conformanceTests/refForwarding';
-import { testRenderProp } from './conformanceTests/renderProp';
-import { testClassName } from './conformanceTests/className';
+import { testPropForwarding } from './conformanceTests/propForwarding.js';
+import { testRefForwarding } from './conformanceTests/refForwarding.js';
+import { testRenderProp } from './conformanceTests/renderProp.js';
+import { testClassName } from './conformanceTests/className.js';
 
 export type ConformantComponentProps = {
   render?: React.ReactElement<unknown> | ((props: Record<string, unknown>) => React.ReactNode);

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * The decrement stepper button.

@@ -1,20 +1,20 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useForkRef } from '../../utils/useForkRef';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useId } from '../../utils/useId';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useCollapsibleRoot } from '../../Collapsible/Root/useCollapsibleRoot';
-import type { CollapsibleRoot } from '../../Collapsible/Root/CollapsibleRoot';
-import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
-import type { AccordionRoot } from '../Root/AccordionRoot';
-import { useAccordionRootContext } from '../Root/AccordionRootContext';
-import { AccordionItemContext } from './AccordionItemContext';
-import { accordionStyleHookMapping } from './styleHooks';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useId } from '../../utils/useId.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useCollapsibleRoot } from '../../Collapsible/Root/useCollapsibleRoot.js';
+import type { CollapsibleRoot } from '../../Collapsible/Root/CollapsibleRoot.js';
+import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext.js';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem.js';
+import type { AccordionRoot } from '../Root/AccordionRoot.js';
+import { useAccordionRootContext } from '../Root/AccordionRootContext.js';
+import { AccordionItemContext } from './AccordionItemContext.js';
+import { accordionStyleHookMapping } from './styleHooks.js';
 
 /**
  *

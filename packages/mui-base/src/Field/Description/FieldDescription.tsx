@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../Root/FieldRoot';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldDescription } from './useFieldDescription';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { FieldRoot } from '../Root/FieldRoot.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
+import { useFieldDescription } from './useFieldDescription.js';
+import { STYLE_HOOK_MAPPING } from '../utils/constants.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * A description message for the field's control.

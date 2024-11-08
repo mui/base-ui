@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useTooltipRootContext } from '../Root/TooltipRootContext';
-import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useTooltipRootContext } from '../Root/TooltipRootContext.js';
+import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.OwnerState> = {
   ...baseMapping,

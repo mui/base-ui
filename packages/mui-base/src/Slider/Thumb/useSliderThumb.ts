@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { getSliderValue } from '../utils/getSliderValue';
-import type { useSliderRoot } from '../Root/useSliderRoot';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useId } from '../../utils/useId.js';
+import { visuallyHidden } from '../../utils/visuallyHidden.js';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { getSliderValue } from '../utils/getSliderValue.js';
+import type { useSliderRoot } from '../Root/useSliderRoot.js';
 
 function getNewValue(
   thumbValue: number,

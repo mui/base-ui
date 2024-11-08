@@ -1,4 +1,4 @@
-import { isReactVersionAtLeast } from './reactVersion';
+import { isReactVersionAtLeast } from './reactVersion.js';
 
 /**
  * Return the inert attribute taking into consideration the React version.

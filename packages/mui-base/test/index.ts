@@ -1,2 +1,2 @@
-export { createRenderer } from './createRenderer';
-export { describeConformance } from './describeConformance';
+export { createRenderer } from './createRenderer.js';
+export { describeConformance } from './describeConformance.js';

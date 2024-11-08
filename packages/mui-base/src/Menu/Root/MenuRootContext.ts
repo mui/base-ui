@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { useMenuRoot } from './useMenuRoot';
+import type { useMenuRoot } from './useMenuRoot.js';
 
 export interface MenuRootContext extends useMenuRoot.ReturnValue {
   clickAndDragEnabled: boolean;

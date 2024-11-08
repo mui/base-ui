@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { ScrollAreaRootContext } from './ScrollAreaRootContext';
-import { useScrollAreaRoot } from './useScrollAreaRoot';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { ScrollAreaRootContext } from './ScrollAreaRootContext.js';
+import { useScrollAreaRoot } from './useScrollAreaRoot.js';
 
 const ownerState = {};
 

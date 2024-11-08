@@ -2,14 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
-import { HTMLElementType } from '../../utils/proptypes';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext.js';
+import { usePreviewCardBackdrop } from './usePreviewCardBackdrop.js';
+import { HTMLElementType } from '../../utils/proptypes.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerState> = {
   ...baseMapping,

@@ -2,13 +2,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
-import { isWebKit } from '../../utils/detectBrowser';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
-import { ownerDocument } from '../../utils/owner';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
+import { isWebKit } from '../../utils/detectBrowser.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot.js';
+import { ownerDocument } from '../../utils/owner.js';
 
 /**
  * The scrub area cursor element.

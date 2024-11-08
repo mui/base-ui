@@ -1,6 +1,6 @@
-import { isIOS } from './detectBrowser';
-import { ownerDocument } from './owner';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { isIOS } from './detectBrowser.js';
+import { ownerDocument } from './owner.js';
+import { useEnhancedEffect } from './useEnhancedEffect.js';
 
 let originalHtmlStyles = {};
 let originalBodyStyles = {};

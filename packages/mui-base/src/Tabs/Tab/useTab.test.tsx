@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { Tabs } from '@base_ui/react/Tabs';
-import { useTab } from './useTab';
+import { useTab } from './useTab.js';
 
 describe('useTab', () => {
   const { render } = createRenderer();

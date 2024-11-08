@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
-import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants.js';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
 
 const testContext = {
   getDecrementButtonProps: (externalProps) => externalProps,

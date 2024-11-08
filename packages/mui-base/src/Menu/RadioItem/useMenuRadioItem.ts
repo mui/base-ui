@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useMenuItem } from '../Item/useMenuItem';
-import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useMenuItem } from '../Item/useMenuItem.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 
 /**
  *

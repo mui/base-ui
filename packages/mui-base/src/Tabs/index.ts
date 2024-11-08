@@ -1,1 +1,1 @@
-export * as Tabs from './index.parts';
+export * as Tabs from './index.parts.js';

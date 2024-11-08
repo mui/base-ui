@@ -1,4 +1,4 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
 
 export const itemMapping: CustomStyleHookMapping<{ checked: boolean }> = {
   checked(value): Record<string, string> {

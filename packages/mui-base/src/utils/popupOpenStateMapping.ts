@@ -1,4 +1,4 @@
-import type { CustomStyleHookMapping } from './getStyleHookProps';
+import type { CustomStyleHookMapping } from './getStyleHookProps.js';
 
 export const triggerOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
   open(value) {

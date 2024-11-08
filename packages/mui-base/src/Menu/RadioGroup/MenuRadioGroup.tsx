@@ -1,10 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { MenuRadioGroupContext } from './MenuRadioGroupContext';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { MenuRadioGroupContext } from './MenuRadioGroupContext.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
 
 const EMPTY_OBJECT = {};
 const NOOP = () => {};

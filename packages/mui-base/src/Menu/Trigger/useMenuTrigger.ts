@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { FloatingEvents } from '@floating-ui/react';
-import { useButton } from '../../useButton/useButton';
-import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerDocument } from '../../utils/owner';
+import { useButton } from '../../useButton/useButton.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { ownerDocument } from '../../utils/owner.js';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const {

@@ -8,22 +8,22 @@ import {
   ListState,
   ListActionContext,
   UseListReturnValue,
-} from './useList.types';
-import { ListActionTypes, ListAction } from './listActions.types';
-import { ListContextValue } from './ListContext';
-import { listReducer as defaultReducer } from './listReducer';
+} from './useList.types.js';
+import { ListActionTypes, ListAction } from './listActions.types.js';
+import { ListContextValue } from './ListContext.js';
+import { listReducer as defaultReducer } from './listReducer.js';
 
-import { useControllableReducer } from '../utils/useControllableReducer';
+import { useControllableReducer } from '../utils/useControllableReducer.js';
 import {
   ControllableReducerAction,
   StateChangeCallback,
   StateComparers,
-} from '../utils/useControllableReducer.types';
-import { areArraysEqual } from '../utils/areArraysEqual';
-import { useTextNavigation } from '../utils/useTextNavigation';
-import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
-import { EventHandlers } from '../utils/types';
+} from '../utils/useControllableReducer.types.js';
+import { areArraysEqual } from '../utils/areArraysEqual.js';
+import { useTextNavigation } from '../utils/useTextNavigation.js';
+import { MuiCancellableEvent } from '../utils/MuiCancellableEvent.js';
+import { extractEventHandlers } from '../utils/extractEventHandlers.js';
+import { EventHandlers } from '../utils/types.js';
 
 const EMPTY_OBJECT = {};
 const NOOP = () => {};

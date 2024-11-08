@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './types';
+import type { BaseUIEvent, WithBaseUIEvent } from './types.js';
 
 /**
  * Merges multiple sets of React props such that their event handlers are called in sequence (the user's

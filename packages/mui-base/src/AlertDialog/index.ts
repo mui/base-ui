@@ -1,1 +1,1 @@
-export * as AlertDialog from './index.parts';
+export * as AlertDialog from './index.parts.js';

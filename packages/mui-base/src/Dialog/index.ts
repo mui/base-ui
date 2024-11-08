@@ -1,1 +1,1 @@
-export * as Dialog from './index.parts';
+export * as Dialog from './index.parts.js';

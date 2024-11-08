@@ -1,1 +1,1 @@
-export * as NumberField from './index.parts';
+export * as NumberField from './index.parts.js';

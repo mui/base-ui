@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Accordion } from '@base_ui/react/Accordion';
 import { describeConformance, createRenderer } from '#test-utils';
-import { NOOP } from '../../utils/noop';
-import { AccordionRootContext } from '../Root/AccordionRootContext';
+import { NOOP } from '../../utils/noop.js';
+import { AccordionRootContext } from '../Root/AccordionRootContext.js';
 
 const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },

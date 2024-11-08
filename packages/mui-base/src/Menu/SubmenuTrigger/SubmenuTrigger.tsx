@@ -2,13 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFloatingTree, useListItem } from '@floating-ui/react';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { useId } from '../../utils/useId';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSubmenuTrigger } from './useSubmenuTrigger';
-import { useForkRef } from '../../utils/useForkRef';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types.js';
+import { useMenuRootContext } from '../Root/MenuRootContext.js';
+import { useId } from '../../utils/useId.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useSubmenuTrigger } from './useSubmenuTrigger.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  *

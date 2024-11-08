@@ -2,13 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
-import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext.js';
+import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.OwnerState> = {
   ...baseMapping,

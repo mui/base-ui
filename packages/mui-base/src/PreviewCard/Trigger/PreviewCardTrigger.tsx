@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  *

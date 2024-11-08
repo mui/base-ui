@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Accordion } from '@base_ui/react/Accordion';
 import { describeConformance, createRenderer } from '#test-utils';
-import { NOOP } from '../../utils/noop';
-import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { AccordionRootContext } from '../Root/AccordionRootContext';
-import { AccordionItemContext } from '../Item/AccordionItemContext';
+import { NOOP } from '../../utils/noop.js';
+import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext.js';
+import { AccordionRootContext } from '../Root/AccordionRootContext.js';
+import { AccordionItemContext } from '../Item/AccordionItemContext.js';
 
 const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },

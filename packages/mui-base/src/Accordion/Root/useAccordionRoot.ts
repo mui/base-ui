@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { NOOP } from '../../utils/noop';
-import { useControlled } from '../../utils/useControlled';
-import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../Composite/composite';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { NOOP } from '../../utils/noop.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../Composite/composite.js';
 
 const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, 'Home', 'End'];
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 
 export function usePreviewCardArrow(
   params: usePreviewCardArrow.Parameters,

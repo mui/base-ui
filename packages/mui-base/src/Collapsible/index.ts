@@ -1,1 +1,1 @@
-export * as Collapsible from './index.parts';
+export * as Collapsible from './index.parts.js';

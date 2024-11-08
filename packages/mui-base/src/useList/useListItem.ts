@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
-import { EventHandlers } from '../utils/types';
-import { UseListItemParameters, UseListItemReturnValue } from './useListItem.types';
-import { ListActionTypes } from './listActions.types';
-import { ListContext } from './ListContext';
+import { extractEventHandlers } from '../utils/extractEventHandlers.js';
+import { EventHandlers } from '../utils/types.js';
+import { UseListItemParameters, UseListItemReturnValue } from './useListItem.types.js';
+import { ListActionTypes } from './listActions.types.js';
+import { ListContext } from './ListContext.js';
 
 /**
  * Contains the logic for an item of a list-like component (for example Select, Menu, etc.).

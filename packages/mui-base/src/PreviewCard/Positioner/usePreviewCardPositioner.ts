@@ -6,9 +6,9 @@ import type {
   VirtualElement,
   FloatingRootContext,
 } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useId } from '../../utils/useId.js';
 
 export function usePopoverDescription(
   params: usePopoverDescription.Parameters,

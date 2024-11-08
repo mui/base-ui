@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  *

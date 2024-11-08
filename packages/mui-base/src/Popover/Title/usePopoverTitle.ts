@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useId } from '../../utils/useId.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverTitle.ReturnValue {
   const { titleId, setTitleId } = params;

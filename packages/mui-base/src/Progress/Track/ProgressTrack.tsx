@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useProgressRootContext } from '../Root/ProgressRootContext';
-import { progressStyleHookMapping } from '../Root/styleHooks';
-import { ProgressRoot } from '../Root/ProgressRoot';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useProgressRootContext } from '../Root/ProgressRootContext.js';
+import { progressStyleHookMapping } from '../Root/styleHooks.js';
+import { ProgressRoot } from '../Root/ProgressRoot.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  *

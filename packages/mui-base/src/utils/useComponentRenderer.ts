@@ -1,10 +1,10 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
-import { resolveClassName } from './resolveClassName';
-import { evaluateRenderProp } from './evaluateRenderProp';
-import { useRenderPropForkRef } from './useRenderPropForkRef';
-import { defaultRenderFunctions } from './defaultRenderFunctions';
+import type { ComponentRenderFn } from './types.js';
+import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps.js';
+import { resolveClassName } from './resolveClassName.js';
+import { evaluateRenderProp } from './evaluateRenderProp.js';
+import { useRenderPropForkRef } from './useRenderPropForkRef.js';
+import { defaultRenderFunctions } from './defaultRenderFunctions.js';
 
 export interface ComponentRendererSettings<OwnerState, RenderedElementType extends Element> {
   /**

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ListAction } from './listActions.types';
-import { ListItemState } from './useList.types';
+import { ListAction } from './listActions.types.js';
+import { ListItemState } from './useList.types.js';
 
 export interface ListContextValue<ItemValue> {
   dispatch: (action: ListAction<ItemValue>) => void;

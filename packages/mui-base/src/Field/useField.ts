@@ -1,9 +1,9 @@
 import * as ReactDOM from 'react-dom';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
-import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
-import { useFormRootContext } from '../Form/Root/FormRootContext';
-import { useFieldRootContext } from './Root/FieldRootContext';
-import { useLatestRef } from '../utils/useLatestRef';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect.js';
+import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData.js';
+import { useFormRootContext } from '../Form/Root/FormRootContext.js';
+import { useFieldRootContext } from './Root/FieldRootContext.js';
+import { useLatestRef } from '../utils/useLatestRef.js';
 
 export function useField(params: useField.Parameters) {
   const { formRef } = useFormRootContext();

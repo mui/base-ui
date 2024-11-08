@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base_ui/react/Menu';
-import { describeConformance, createRenderer } from '../../../test';
-import { MenuRootContext } from '../Root/MenuRootContext';
+import { describeConformance, createRenderer } from '#test-utils';
+import { MenuRootContext } from '../Root/MenuRootContext.js';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,

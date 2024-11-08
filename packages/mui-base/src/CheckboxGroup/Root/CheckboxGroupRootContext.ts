@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { UseCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
+import { UseCheckboxGroupParent } from '../Parent/useCheckboxGroupParent.js';
 
 export interface CheckboxGroupRootContext {
   value: string[];

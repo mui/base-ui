@@ -2,8 +2,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { CompositeListContext } from './CompositeListContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { CompositeListContext } from './CompositeListContext.js';
 
 function sortByDocumentPosition(a: Node, b: Node) {
   const position = a.compareDocumentPosition(b);

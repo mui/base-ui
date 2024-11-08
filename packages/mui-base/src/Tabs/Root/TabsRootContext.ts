@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type TabActivationDirection } from './TabsRoot';
+import { type TabActivationDirection } from './TabsRoot.js';
 
 export interface TabsRootContext {
   /**

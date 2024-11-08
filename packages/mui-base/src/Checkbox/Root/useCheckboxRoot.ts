@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '../../utils/useControlled';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useField } from '../../Field/useField';
-import { getInertValue } from '../../utils/getInertValue';
+import { useControlled } from '../../utils/useControlled.js';
+import { visuallyHidden } from '../../utils/visuallyHidden.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useId } from '../../utils/useId.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
+import { useField } from '../../Field/useField.js';
+import { getInertValue } from '../../utils/getInertValue.js';
 
 export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
   const {

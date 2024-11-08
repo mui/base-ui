@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { InteractionType, useEnhancedClickHandler } from './useEnhancedClickHandler';
+import { InteractionType, useEnhancedClickHandler } from './useEnhancedClickHandler.js';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.

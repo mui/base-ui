@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../utils/types';
-import { Field } from '../Field';
+import type { BaseUIComponentProps } from '../utils/types.js';
+import { Field } from '../Field/index.js';
 
 /**
  *

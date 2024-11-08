@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { type FloatingRootContext, useFloating, type FloatingContext } from '@floating-ui/react';
-import { useId } from '../../utils/useId';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useScrollLock } from '../../utils/useScrollLock';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { GenericHTMLProps } from '../../utils/types';
+import { useId } from '../../utils/useId.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useScrollLock } from '../../utils/useScrollLock.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { type InteractionType } from '../../utils/useEnhancedClickHandler.js';
+import { GenericHTMLProps } from '../../utils/types.js';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {

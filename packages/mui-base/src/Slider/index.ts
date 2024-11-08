@@ -1,1 +1,1 @@
-export * as Slider from './index.parts';
+export * as Slider from './index.parts.js';

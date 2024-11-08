@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { useCompositeRootContext } from '../Root/CompositeRootContext';
-import { useCompositeItem } from './useCompositeItem';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useCompositeRootContext } from '../Root/CompositeRootContext.js';
+import { useCompositeItem } from './useCompositeItem.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * @ignore - internal component.

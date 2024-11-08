@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toValidatedNumber, removeFloatingPointErrors } from './validate';
+import { toValidatedNumber, removeFloatingPointErrors } from './validate.js';
 
 const min = Number.MIN_SAFE_INTEGER;
 const max = Number.MAX_SAFE_INTEGER;

@@ -2,14 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
-import { useMenuCheckboxItem } from './useMenuCheckboxItem';
-import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { itemMapping } from '../utils/styleHookMapping';
+import { useMenuCheckboxItem } from './useMenuCheckboxItem.js';
+import { MenuCheckboxItemContext } from './MenuCheckboxItemContext.js';
+import { useMenuRootContext } from '../Root/MenuRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useId } from '../../utils/useId.js';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { itemMapping } from '../utils/styleHookMapping.js';
 
 const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuCheckboxItemProps,

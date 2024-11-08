@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useControlled } from '../../utils/useControlled';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useField } from '../../Field/useField';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useId } from '../../utils/useId.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
+import { useField } from '../../Field/useField.js';
 
 /**
  *

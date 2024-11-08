@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { ProgressRoot } from './ProgressRoot';
-import type { useProgressRoot } from './useProgressRoot';
+import type { ProgressRoot } from './ProgressRoot.js';
+import type { useProgressRoot } from './useProgressRoot.js';
 
 export type ProgressRootContext = Omit<useProgressRoot.ReturnValue, 'getRootProps'> & {
   ownerState: ProgressRoot.OwnerState;

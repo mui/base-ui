@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { usePopoverDescription } from './usePopoverDescription';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePopoverRootContext } from '../Root/PopoverRootContext.js';
+import { usePopoverDescription } from './usePopoverDescription.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 const ownerState = {};
 

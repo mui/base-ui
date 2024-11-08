@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { Slider } from '@base_ui/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SliderRootContext } from '../Root/SliderRootContext';
-import { NOOP } from '../../utils/noop';
+import { SliderRootContext } from '../Root/SliderRootContext.js';
+import { NOOP } from '../../utils/noop.js';
 
 const testRootContext: SliderRootContext = {
   active: -1,

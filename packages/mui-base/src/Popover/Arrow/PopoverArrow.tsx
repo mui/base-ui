@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { usePopoverArrow } from './usePopoverArrow';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext.js';
+import { usePopoverRootContext } from '../Root/PopoverRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { usePopoverArrow } from './usePopoverArrow.js';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  * Renders an arrow that points to the center of the anchor element.

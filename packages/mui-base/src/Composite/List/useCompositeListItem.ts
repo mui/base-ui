@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useCompositeListContext } from './CompositeListContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useCompositeListContext } from './CompositeListContext.js';
 
 export interface UseCompositeListItemParameters {
   label?: string | null;

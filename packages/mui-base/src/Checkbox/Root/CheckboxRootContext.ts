@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { CheckboxRoot } from './CheckboxRoot';
+import type { CheckboxRoot } from './CheckboxRoot.js';
 
 export type CheckboxRootContext = CheckboxRoot.OwnerState;
 

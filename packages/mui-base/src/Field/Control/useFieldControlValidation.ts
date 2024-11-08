@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { DEFAULT_VALIDITY_STATE } from '../utils/constants.js';
+import { useFormRootContext } from '../../Form/Root/FormRootContext.js';
+import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData.js';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 

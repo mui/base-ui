@@ -5,7 +5,7 @@ import {
   CompoundComponentContext,
   CompoundComponentContextValue,
   KeyGenerator,
-} from './useCompoundParent';
+} from './useCompoundParent.js';
 
 export interface UseCompoundItemReturnValue<Key> {
   /**

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import { Radio } from '@base_ui/react/Radio';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<Radio.Indicator />', () => {
   const { render } = createRenderer();

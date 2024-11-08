@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRootContext } from './FieldRootContext';
-import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { FieldRootContext } from './FieldRootContext.js';
+import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants.js';
+import { useFieldsetRootContext } from '../../Fieldset/Root/FieldsetRootContext.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useFormRootContext } from '../../Form/Root/FormRootContext.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * The foundation for building custom-styled fields.

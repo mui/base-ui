@@ -6,8 +6,8 @@ import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base_ui/react/Menu';
 import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext';
-import { MenuRootContext } from '../Root/MenuRootContext';
+import { MenuRadioGroupContext } from '../RadioGroup/MenuRadioGroupContext.js';
+import { MenuRootContext } from '../Root/MenuRootContext.js';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,

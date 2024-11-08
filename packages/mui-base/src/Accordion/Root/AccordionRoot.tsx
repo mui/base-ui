@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeList } from '../../Composite/List/CompositeList';
-import { useAccordionRoot } from './useAccordionRoot';
-import { AccordionRootContext } from './AccordionRootContext';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { CompositeList } from '../../Composite/List/CompositeList.js';
+import { useAccordionRoot } from './useAccordionRoot.js';
+import { AccordionRootContext } from './AccordionRootContext.js';
 
 const rootStyleHookMapping = {
   value: () => null,

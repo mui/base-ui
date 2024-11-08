@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
-import { useId } from '../../utils/useId';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useId } from '../../utils/useId.js';
 
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,

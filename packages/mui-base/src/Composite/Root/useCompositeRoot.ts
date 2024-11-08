@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -20,7 +20,7 @@ import {
   isIndexOutOfBounds,
   VERTICAL_KEYS,
   type Dimensions,
-} from '../composite';
+} from '../composite.js';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';

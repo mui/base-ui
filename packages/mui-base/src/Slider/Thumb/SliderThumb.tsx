@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { resolveClassName } from '../../utils/resolveClassName';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import type { SliderRoot } from '../Root/SliderRoot';
-import { useSliderRootContext } from '../Root/SliderRootContext';
-import { useSliderThumb } from './useSliderThumb';
-import { isReactVersionAtLeast } from '../../utils/reactVersion';
+import { getStyleHookProps } from '../../utils/getStyleHookProps.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { resolveClassName } from '../../utils/resolveClassName.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { SliderRoot } from '../Root/SliderRoot.js';
+import { useSliderRootContext } from '../Root/SliderRootContext.js';
+import { useSliderThumb } from './useSliderThumb.js';
+import { isReactVersionAtLeast } from '../../utils/reactVersion.js';
 
 function defaultRender(
   props: React.ComponentPropsWithRef<'span'>,

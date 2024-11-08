@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogRootContext } from '../Root/DialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
-import { type BaseUIComponentProps } from '../../utils/types';
+import { useDialogRootContext } from '../Root/DialogRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useId } from '../../utils/useId.js';
+import { type BaseUIComponentProps } from '../../utils/types.js';
 
 const ownerState = {};
 

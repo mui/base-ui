@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
-import { CheckboxRootContext } from './CheckboxRootContext';
+import { useCheckboxGroupRootContext } from '../../CheckboxGroup/Root/CheckboxGroupRootContext.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping.js';
+import type { FieldRoot } from '../../Field/Root/FieldRoot.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot.js';
+import { CheckboxRootContext } from './CheckboxRootContext.js';
 
 /**
  * The foundation for building custom-styled checkboxes.

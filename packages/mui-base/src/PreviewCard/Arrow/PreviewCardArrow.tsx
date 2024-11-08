@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
-import { usePreviewCardArrow } from './usePreviewCardArrow';
-import { useForkRef } from '../../utils/useForkRef';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext.js';
+import { usePreviewCardArrow } from './usePreviewCardArrow.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning.js';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  *

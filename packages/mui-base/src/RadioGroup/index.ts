@@ -1,1 +1,1 @@
-export * as RadioGroup from './index.parts';
+export * as RadioGroup from './index.parts.js';

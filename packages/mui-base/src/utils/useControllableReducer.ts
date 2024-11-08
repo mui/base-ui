@@ -6,7 +6,7 @@ import {
   ControllableReducerParameters,
   StateChangeCallback,
   StateComparers,
-} from './useControllableReducer.types';
+} from './useControllableReducer.types.js';
 
 function areEqual(a: any, b: any): boolean {
   return a === b;

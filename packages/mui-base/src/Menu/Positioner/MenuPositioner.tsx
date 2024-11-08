@@ -9,14 +9,14 @@ import {
   Side,
   useFloatingNodeId,
 } from '@floating-ui/react';
-import { MenuPositionerContext } from './MenuPositionerContext';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { useMenuPositioner } from './useMenuPositioner';
-import { HTMLElementType } from '../../utils/proptypes';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { MenuPositionerContext } from './MenuPositionerContext.js';
+import { useMenuRootContext } from '../Root/MenuRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useMenuPositioner } from './useMenuPositioner.js';
+import { HTMLElementType } from '../../utils/proptypes.js';
+import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types.js';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  * Renders the element that positions the Menu popup.

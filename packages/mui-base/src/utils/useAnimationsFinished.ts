@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from './useEventCallback';
+import { useEventCallback } from './useEventCallback.js';
 
 /**
  * Executes a function once all animations have finished on the provided element.

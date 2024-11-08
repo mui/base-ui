@@ -2,14 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
-import { usePopoverBackdrop } from './usePopoverBackdrop';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { usePopoverRootContext } from '../Root/PopoverRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { HTMLElementType } from '../../utils/proptypes.js';
+import { usePopoverBackdrop } from './usePopoverBackdrop.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.OwnerState> = {
   ...baseMapping,

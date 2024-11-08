@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { useDialogRoot } from './useDialogRoot';
+import type { useDialogRoot } from './useDialogRoot.js';
 
 export interface DialogRootContext extends useDialogRoot.ReturnValue {
   /**

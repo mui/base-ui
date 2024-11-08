@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { visuallyHidden } from '../../utils/visuallyHidden.js';
+import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
 
 /**
  *

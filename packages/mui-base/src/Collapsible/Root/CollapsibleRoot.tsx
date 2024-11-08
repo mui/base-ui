@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleRoot } from './useCollapsibleRoot';
-import { CollapsibleRootContext } from './CollapsibleRootContext';
-import { collapsibleStyleHookMapping } from './styleHooks';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useCollapsibleRoot } from './useCollapsibleRoot.js';
+import { CollapsibleRootContext } from './CollapsibleRootContext.js';
+import { collapsibleStyleHookMapping } from './styleHooks.js';
 
 /**
  *

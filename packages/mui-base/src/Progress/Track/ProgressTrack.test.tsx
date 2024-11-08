@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Progress } from '@base_ui/react/Progress';
 import { createRenderer, describeConformance } from '#test-utils';
-import { ProgressRootContext } from '../Root/ProgressRootContext';
+import { ProgressRootContext } from '../Root/ProgressRootContext.js';
 
 const contextValue: ProgressRootContext = {
   direction: 'ltr',

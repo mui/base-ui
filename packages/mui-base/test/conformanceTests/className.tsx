@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
-} from '../describeConformance';
-import { throwMissingPropError } from './utils';
+} from '../describeConformance.js';
+import { throwMissingPropError } from './utils.js';
 
 export function testClassName(
   element: React.ReactElement<ConformantComponentProps>,

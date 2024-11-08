@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { SwitchRoot } from './SwitchRoot';
+import type { SwitchRoot } from './SwitchRoot.js';
 
 export type SwitchRootContext = SwitchRoot.OwnerState;
 

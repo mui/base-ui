@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import { CompositeList } from '../../Composite/List/CompositeList';
-import { sliderStyleHookMapping } from './styleHooks';
-import { useSliderRoot } from './useSliderRoot';
-import { SliderRootContext } from './SliderRootContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { FieldRoot } from '../../Field/Root/FieldRoot.js';
+import { CompositeList } from '../../Composite/List/CompositeList.js';
+import { sliderStyleHookMapping } from './styleHooks.js';
+import { useSliderRoot } from './useSliderRoot.js';
+import { SliderRootContext } from './SliderRootContext.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
 
 /**
  *

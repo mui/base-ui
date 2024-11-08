@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnimatedElement } from '../../utils/useAnimatedElement';
-import { useForkRef } from '../../utils/useForkRef';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useAnimatedElement } from '../../utils/useAnimatedElement.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { type TransitionStatus } from '../../utils/useTransitionStatus.js';
 
 export function useDialogBackdrop(
   params: useDialogBackdrop.Parameters,

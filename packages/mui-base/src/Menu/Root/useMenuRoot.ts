@@ -12,12 +12,12 @@ import {
   useTypeahead,
   FloatingRootContext,
 } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useControlled } from '../../utils/useControlled';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { useTransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished.js';
+import { useControlled } from '../../utils/useControlled.js';
 
 const EMPTY_ARRAY: never[] = [];
 

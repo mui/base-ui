@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { createRenderer } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 import { ScrollArea } from '@base_ui/react/ScrollArea';
-import { describeConformance } from '../../../test/describeConformance';
 
 describe('<ScrollArea.Thumb />', () => {
   const { render } = createRenderer();

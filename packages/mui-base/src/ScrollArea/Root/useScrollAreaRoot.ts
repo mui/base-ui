@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
-import { SCROLL_TIMEOUT } from '../constants';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useId } from '../../utils/useId.js';
+import { SCROLL_TIMEOUT } from '../constants.js';
 
 interface Size {
   width: number;

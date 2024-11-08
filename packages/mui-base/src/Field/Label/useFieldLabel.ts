@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
 
 export function useFieldLabel(params: useFieldLabel.Parameters) {
   const { customTag } = params;

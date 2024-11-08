@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { AccordionRoot } from './AccordionRoot';
-import type { useAccordionRoot } from './useAccordionRoot';
+import type { AccordionRoot } from './AccordionRoot.js';
+import type { useAccordionRoot } from './useAccordionRoot.js';
 
 export interface AccordionRootContext extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
   ownerState: AccordionRoot.OwnerState;

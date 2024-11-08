@@ -1,1 +1,1 @@
-export * as Radio from './index.parts';
+export * as Radio from './index.parts.js';

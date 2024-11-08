@@ -7,14 +7,14 @@ import {
   useFloatingRootContext,
   useInteractions,
 } from '@floating-ui/react';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { type GenericHTMLProps } from '../../utils/types';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished.js';
+import { type InteractionType } from '../../utils/useEnhancedClickHandler.js';
+import { type GenericHTMLProps } from '../../utils/types.js';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {

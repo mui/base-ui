@@ -1,6 +1,6 @@
-export { SliderRoot as Root } from './Root/SliderRoot';
-export { SliderOutput as Output } from './Output/SliderOutput';
-export { SliderControl as Control } from './Control/SliderControl';
-export { SliderTrack as Track } from './Track/SliderTrack';
-export { SliderThumb as Thumb } from './Thumb/SliderThumb';
-export { SliderIndicator as Indicator } from './Indicator/SliderIndicator';
+export { SliderRoot as Root } from './Root/SliderRoot.js';
+export { SliderOutput as Output } from './Output/SliderOutput.js';
+export { SliderControl as Control } from './Control/SliderControl.js';
+export { SliderTrack as Track } from './Track/SliderTrack.js';
+export { SliderThumb as Thumb } from './Thumb/SliderThumb.js';
+export { SliderIndicator as Indicator } from './Indicator/SliderIndicator.js';

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NumberFieldRootContext } from './NumberFieldRootContext';
-import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
+import { NumberFieldRootContext } from './NumberFieldRootContext.js';
+import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { FieldRoot } from '../../Field/Root/FieldRoot.js';
 
 /**
  * The foundation for building custom-styled number fields.

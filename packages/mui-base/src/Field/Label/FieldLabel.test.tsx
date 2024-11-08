@@ -8,7 +8,7 @@ import { RadioGroup } from '@base_ui/react/RadioGroup';
 import { Radio } from '@base_ui/react/Radio';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
   const { render } = createRenderer();

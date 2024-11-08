@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import type { UseCheckboxGroupParent } from '../Parent/useCheckboxGroupParent';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useCheckboxGroupParent } from '../Parent/useCheckboxGroupParent.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import type { UseCheckboxGroupParent } from '../Parent/useCheckboxGroupParent.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 /**
  *

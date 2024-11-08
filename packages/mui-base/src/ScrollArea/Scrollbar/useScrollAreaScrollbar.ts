@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 
 export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters) {
   const { orientation } = params;

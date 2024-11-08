@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { AccordionItem } from '../Item/AccordionItem';
-import { useAccordionItemContext } from '../Item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../Item/styleHooks';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { AccordionItem } from '../Item/AccordionItem.js';
+import { useAccordionItemContext } from '../Item/AccordionItemContext.js';
+import { accordionStyleHookMapping } from '../Item/styleHooks.js';
 
 /**
  *

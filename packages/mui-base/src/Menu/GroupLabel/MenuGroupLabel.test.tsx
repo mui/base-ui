@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Menu } from '@base_ui/react/Menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { MenuGroupContext } from '../Group/MenuGroupContext';
+import { MenuGroupContext } from '../Group/MenuGroupContext.js';
 
 const testContext: MenuGroupContext = {
   setLabelId: () => {},

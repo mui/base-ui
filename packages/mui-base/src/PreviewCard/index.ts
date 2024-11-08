@@ -1,1 +1,1 @@
-export * as PreviewCard from './index.parts';
+export * as PreviewCard from './index.parts.js';

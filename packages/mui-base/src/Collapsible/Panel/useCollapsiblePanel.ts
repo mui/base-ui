@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerWindow } from '../../utils/owner';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { ownerWindow } from '../../utils/owner.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useId } from '../../utils/useId.js';
 
 let cachedSupportsComputedStyleMap: boolean | undefined;
 

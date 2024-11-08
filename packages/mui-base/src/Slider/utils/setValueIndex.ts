@@ -1,4 +1,4 @@
-import { asc } from './asc';
+import { asc } from './asc.js';
 
 export function setValueIndex({
   values,

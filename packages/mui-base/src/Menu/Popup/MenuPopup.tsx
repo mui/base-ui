@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Side, useFloatingTree } from '@floating-ui/react';
-import { useMenuPopup } from './useMenuPopup';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { useMenuPopup } from './useMenuPopup.js';
+import { useMenuRootContext } from '../Root/MenuRootContext.js';
+import { useMenuPositionerContext } from '../Positioner/MenuPositionerContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
   ...baseMapping,

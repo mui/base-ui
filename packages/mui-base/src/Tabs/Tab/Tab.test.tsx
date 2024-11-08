@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Tabs } from '@base_ui/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
-import { TabsListProviderValue, TabsListProvider } from '../TabsList/TabsListProvider';
-import { TabsRootContext } from '../Root/TabsRootContext';
+import { TabsListProviderValue, TabsListProvider } from '../TabsList/TabsListProvider.js';
+import { TabsRootContext } from '../Root/TabsRootContext.js';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();

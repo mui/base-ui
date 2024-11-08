@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 

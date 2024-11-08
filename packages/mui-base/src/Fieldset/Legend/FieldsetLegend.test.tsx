@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { Fieldset } from '@base_ui/react/Fieldset';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<Fieldset.Legend />', () => {
   const { render } = createRenderer();

@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy } from 'sinon';
 import { createRenderer } from '@mui/internal-test-utils';
-import { useControllableReducer } from './useControllableReducer';
-import { ControllableReducerParameters } from './useControllableReducer.types';
+import { useControllableReducer } from './useControllableReducer.js';
+import { ControllableReducerParameters } from './useControllableReducer.types.js';
 
 interface TestState {
   make: string;

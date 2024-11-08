@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../Root/FieldRoot';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldError } from './useFieldError';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { FieldRoot } from '../Root/FieldRoot.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
+import { useFieldError } from './useFieldError.js';
+import { STYLE_HOOK_MAPPING } from '../utils/constants.js';
+import { useFormRootContext } from '../../Form/Root/FormRootContext.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * Displays error messages for the field's control.

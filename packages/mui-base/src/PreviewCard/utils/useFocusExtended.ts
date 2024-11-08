@@ -3,7 +3,7 @@ import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
 import type { FloatingRootContext, ElementProps } from '@floating-ui/react';
 import { activeElement, contains, getDocument } from '@floating-ui/react/utils';
-import { OPEN_DELAY } from './constants';
+import { OPEN_DELAY } from './constants.js';
 
 interface UseFocusExtendedProps {
   delay?: number;

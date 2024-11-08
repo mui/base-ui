@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { ScrollArea } from '@base_ui/react/ScrollArea';
 import { screen, fireEvent } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
-import { SCROLL_TIMEOUT } from '../constants';
+import { SCROLL_TIMEOUT } from '../constants.js';
 
 describe('<ScrollArea.Scrollbar />', () => {
   const { render, clock } = createRenderer();

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogRootContext } from './DialogRootContext';
-import { type CommonParameters, useDialogRoot } from './useDialogRoot';
+import { DialogRootContext } from './DialogRootContext.js';
+import { type CommonParameters, useDialogRoot } from './useDialogRoot.js';
 
 /**
  *

@@ -1,5 +1,5 @@
-import { clamp } from '../../utils/clamp';
-import { setValueIndex } from './setValueIndex';
+import { clamp } from '../../utils/clamp.js';
+import { setValueIndex } from './setValueIndex.js';
 
 interface GetSliderValueParameters {
   valueInput: number;

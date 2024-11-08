@@ -4,7 +4,7 @@ import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-util
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
-import { OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants.js';
 
 function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root animated={false} {...props} />;

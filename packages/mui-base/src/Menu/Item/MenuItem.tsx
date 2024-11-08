@@ -2,12 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
-import { useMenuItem } from './useMenuItem';
-import { useMenuRootContext } from '../Root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
+import { useMenuItem } from './useMenuItem.js';
+import { useMenuRootContext } from '../Root/MenuRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useId } from '../../utils/useId.js';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types.js';
+import { useForkRef } from '../../utils/useForkRef.js';
 
 const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuItemProps,

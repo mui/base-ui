@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { FormRootContext } from './FormRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { FormRootContext } from './FormRootContext.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
 
 /**
  *

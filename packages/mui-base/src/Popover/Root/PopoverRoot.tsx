@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PopoverRootContext } from './PopoverRootContext';
-import { usePopoverRoot } from './usePopoverRoot';
-import { OPEN_DELAY } from '../utils/constants';
+import { PopoverRootContext } from './PopoverRootContext.js';
+import { usePopoverRoot } from './usePopoverRoot.js';
+import { OPEN_DELAY } from '../utils/constants.js';
 
 /**
  * The foundation for building custom-styled popovers.

@@ -1,4 +1,4 @@
-import { FieldValidityData } from '../Root/FieldRoot';
+import { FieldValidityData } from '../Root/FieldRoot.js';
 
 /**
  * Combines the field's client-side, stateful validity data with the external invalid state to

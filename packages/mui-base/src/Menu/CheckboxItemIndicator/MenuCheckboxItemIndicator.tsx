@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useMenuCheckboxItemContext } from '../CheckboxItem/MenuCheckboxItemContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
-import { itemMapping } from '../utils/styleHookMapping';
+import { useMenuCheckboxItemContext } from '../CheckboxItem/MenuCheckboxItemContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { itemMapping } from '../utils/styleHookMapping.js';
 
 /**
  *

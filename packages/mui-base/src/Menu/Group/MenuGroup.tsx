@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { MenuGroupContext } from './MenuGroupContext';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { MenuGroupContext } from './MenuGroupContext.js';
 
 const ownerState = {};
 

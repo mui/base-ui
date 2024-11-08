@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning.js';
 
 export interface PreviewCardPositionerContext {
   side: Side;

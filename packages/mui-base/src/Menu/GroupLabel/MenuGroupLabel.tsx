@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
-import { useMenuGroupRootContext } from '../Group/MenuGroupContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useId } from '../../utils/useId.js';
+import { useMenuGroupRootContext } from '../Group/MenuGroupContext.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
 
 const ownerState = {};
 

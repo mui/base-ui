@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { act } from '@mui/internal-test-utils';
 import { Tabs } from '@base_ui/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
-import { TabsRootContext } from '../Root/TabsRootContext';
+import { TabsRootContext } from '../Root/TabsRootContext.js';
 
 describe('<Tabs.List />', () => {
   const { render } = createRenderer();

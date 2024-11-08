@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
-import { useRadioRoot } from './useRadioRoot';
-import { RadioRootContext } from './RadioRootContext';
-import { CompositeItem } from '../../Composite/Item/CompositeItem';
-import { NOOP } from '../../utils/noop';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext.js';
+import { useRadioRoot } from './useRadioRoot.js';
+import { RadioRootContext } from './RadioRootContext.js';
+import { CompositeItem } from '../../Composite/Item/CompositeItem.js';
+import { NOOP } from '../../utils/noop.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.OwnerState> = {
   checked(value) {

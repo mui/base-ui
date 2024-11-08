@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useMenuItem } from '../Item/useMenuItem';
-import { useControlled } from '../../utils/useControlled';
-import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useMenuItem } from '../Item/useMenuItem.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 
 /**
  *

@@ -1,1 +1,1 @@
-export * as Form from './index.parts';
+export * as Form from './index.parts.js';

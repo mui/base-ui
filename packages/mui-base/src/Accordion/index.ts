@@ -1,1 +1,1 @@
-export * as Accordion from './index.parts';
+export * as Accordion from './index.parts.js';

@@ -1,1 +1,1 @@
-export { CheckboxGroupRoot as Root } from './Root/CheckboxGroupRoot';
+export { CheckboxGroupRoot as Root } from './Root/CheckboxGroupRoot.js';

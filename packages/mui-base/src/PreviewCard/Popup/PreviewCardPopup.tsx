@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
-import { usePreviewCardPopup } from './usePreviewCardPopup';
-import { useForkRef } from '../../utils/useForkRef';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext.js';
+import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext.js';
+import { usePreviewCardPopup } from './usePreviewCardPopup.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState> = {
   ...baseMapping,

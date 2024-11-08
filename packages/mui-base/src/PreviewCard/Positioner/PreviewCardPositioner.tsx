@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import { usePreviewCardPositioner } from './usePreviewCardPositioner';
-import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
-import { HTMLElementType } from '../../utils/proptypes';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext.js';
+import { usePreviewCardPositioner } from './usePreviewCardPositioner.js';
+import { PreviewCardPositionerContext } from './PreviewCardPositionerContext.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { HTMLElementType } from '../../utils/proptypes.js';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  *

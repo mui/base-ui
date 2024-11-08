@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { SliderRoot } from './SliderRoot';
-import type { useSliderRoot } from './useSliderRoot';
+import type { SliderRoot } from './SliderRoot.js';
+import type { useSliderRoot } from './useSliderRoot.js';
 
 export interface SliderRootContext extends Omit<useSliderRoot.ReturnValue, 'getRootProps'> {
   ownerState: SliderRoot.OwnerState;

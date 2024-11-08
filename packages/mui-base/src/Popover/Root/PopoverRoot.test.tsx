@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
-import { OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants.js';
 
 const user = userEvent.setup();
 

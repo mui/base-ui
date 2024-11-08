@@ -1,1 +1,1 @@
-export * as Progress from './index.parts';
+export * as Progress from './index.parts.js';

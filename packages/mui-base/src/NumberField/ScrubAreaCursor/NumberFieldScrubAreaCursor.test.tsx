@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import { NumberField } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
-import { isWebKit } from '../../utils/detectBrowser';
-import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { isWebKit } from '../../utils/detectBrowser.js';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
 
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,

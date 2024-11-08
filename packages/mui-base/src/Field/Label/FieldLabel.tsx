@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../Root/FieldRoot';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { useFieldLabel } from './useFieldLabel';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { FieldRoot } from '../Root/FieldRoot.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
+import { useFieldLabel } from './useFieldLabel.js';
+import { STYLE_HOOK_MAPPING } from '../utils/constants.js';
+import { useId } from '../../utils/useId.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * A label for the field's control.

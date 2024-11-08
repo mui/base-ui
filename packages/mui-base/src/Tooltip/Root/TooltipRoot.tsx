@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TooltipRootContext } from './TooltipRootContext';
-import { useTooltipRoot } from './useTooltipRoot';
-import { OPEN_DELAY } from '../utils/constants';
+import { TooltipRootContext } from './TooltipRootContext.js';
+import { useTooltipRoot } from './useTooltipRoot.js';
+import { OPEN_DELAY } from '../utils/constants.js';
 
 /**
  * The foundation for building custom-styled tooltips.

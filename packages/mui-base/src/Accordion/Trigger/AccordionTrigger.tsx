@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
-import type { AccordionItem } from '../Item/AccordionItem';
-import { useAccordionItemContext } from '../Item/AccordionItemContext';
+import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext.js';
+import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger.js';
+import type { AccordionItem } from '../Item/AccordionItem.js';
+import { useAccordionItemContext } from '../Item/AccordionItemContext.js';
 
 /**
  *

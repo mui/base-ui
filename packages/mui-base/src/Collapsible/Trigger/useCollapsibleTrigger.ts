@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useForkRef } from '../../utils/useForkRef';
-import { GenericHTMLProps } from '../../utils/types';
-import { useButton } from '../../useButton';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { useButton } from '../../useButton/index.js';
 
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,

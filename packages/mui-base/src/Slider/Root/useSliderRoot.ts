@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
 import { activeElement } from '@floating-ui/react/utils';
-import { areArraysEqual } from '../../utils/areArraysEqual';
-import { clamp } from '../../utils/clamp';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerDocument } from '../../utils/owner';
-import { useControlled } from '../../utils/useControlled';
-import { useForkRef } from '../../utils/useForkRef';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useId } from '../../utils/useId';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { asc } from '../utils/asc';
-import { setValueIndex } from '../utils/setValueIndex';
-import { getSliderValue } from '../utils/getSliderValue';
-import { useField } from '../../Field/useField';
+import { areArraysEqual } from '../../utils/areArraysEqual.js';
+import { clamp } from '../../utils/clamp.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { ownerDocument } from '../../utils/owner.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { percentToValue, roundValueToStep, valueToPercent } from '../utils.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useId } from '../../utils/useId.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
+import { asc } from '../utils/asc.js';
+import { setValueIndex } from '../utils/setValueIndex.js';
+import { getSliderValue } from '../utils/getSliderValue.js';
+import { useField } from '../../Field/useField.js';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =

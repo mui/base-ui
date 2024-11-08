@@ -11,16 +11,16 @@ import {
   type OpenChangeReason,
   type FloatingRootContext,
 } from '@floating-ui/react';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { OPEN_DELAY } from '../utils/constants';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useTransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished.js';
+import { OPEN_DELAY } from '../utils/constants.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { type InteractionType } from '../../utils/useEnhancedClickHandler.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType.js';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {

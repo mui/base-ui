@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { TabMetadata } from '../Root/useTabsRoot';
-import { useCompoundItem } from '../../useCompound';
-import { useListItem } from '../../useList';
-import { useButton } from '../../useButton';
-import { useId } from '../../utils/useId';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { TabsOrientation } from '../Root/TabsRoot';
+import { useTabsRootContext } from '../Root/TabsRootContext.js';
+import { TabMetadata } from '../Root/useTabsRoot.js';
+import { useCompoundItem } from '../../useCompound/index.js';
+import { useListItem } from '../../useList/index.js';
+import { useButton } from '../../useButton/index.js';
+import { useId } from '../../utils/useId.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { TabsOrientation } from '../Root/TabsRoot.js';
 
 function tabValueGenerator(otherTabValues: Set<any>) {
   return otherTabValues.size;

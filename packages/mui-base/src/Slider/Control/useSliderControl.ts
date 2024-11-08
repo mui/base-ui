@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerDocument } from '../../utils/owner';
-import type { GenericHTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { ownerDocument } from '../../utils/owner.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
 import {
   focusThumb,
   trackFinger,
   type useSliderRoot,
   validateMinimumDistance,
-} from '../Root/useSliderRoot';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+} from '../Root/useSliderRoot.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 

@@ -19,7 +19,7 @@ import {
   type FloatingContext,
 } from '@floating-ui/react';
 import { getSide, getAlignment } from '@floating-ui/utils';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useEnhancedEffect } from './useEnhancedEffect.js';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';

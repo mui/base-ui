@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { TabsListActionTypes, tabsListReducer, ValueChangeAction } from './tabsListReducer';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { type TabMetadata } from '../Root/useTabsRoot';
-import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot';
-import { useCompoundParent } from '../../useCompound';
-import { useList, ListState, UseListParameters, ListAction } from '../../useList';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { TabsDirection } from '../Root/TabsRoot';
-import { TabsListProviderValue } from './TabsListProvider';
+import { TabsListActionTypes, tabsListReducer, ValueChangeAction } from './tabsListReducer.js';
+import { useTabsRootContext } from '../Root/TabsRootContext.js';
+import { type TabMetadata } from '../Root/useTabsRoot.js';
+import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot.js';
+import { useCompoundParent } from '../../useCompound/index.js';
+import { useList, ListState, UseListParameters, ListAction } from '../../useList/index.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { TabsDirection } from '../Root/TabsRoot.js';
+import { TabsListProviderValue } from './TabsListProvider.js';
 
 function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
   const { rootRef: externalRef, loop, activateOnFocus } = parameters;

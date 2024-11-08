@@ -16,7 +16,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();

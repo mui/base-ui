@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { PreviewCardRootContext } from './PreviewCardContext';
-import { usePreviewCardRoot } from './usePreviewCardRoot';
-import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { PreviewCardRootContext } from './PreviewCardContext.js';
+import { usePreviewCardRoot } from './usePreviewCardRoot.js';
+import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants.js';
 
 /**
  *

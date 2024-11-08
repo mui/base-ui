@@ -3,7 +3,7 @@ import { Form } from '@base_ui/react/Form';
 import { Field } from '@base_ui/react/Field';
 import { expect } from 'chai';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<Form.Root />', () => {
   const { render } = createRenderer();

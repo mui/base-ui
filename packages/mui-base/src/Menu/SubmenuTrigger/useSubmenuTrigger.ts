@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
-import { useMenuItem } from '../Item/useMenuItem';
-import { useForkRef } from '../../utils/useForkRef';
-import { GenericHTMLProps } from '../../utils/types';
+import { useMenuItem } from '../Item/useMenuItem.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { GenericHTMLProps } from '../../utils/types.js';
 
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,

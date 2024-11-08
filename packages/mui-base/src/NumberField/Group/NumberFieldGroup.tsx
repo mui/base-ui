@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { NumberFieldRoot } from '../Root/NumberFieldRoot.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * Groups interactive `NumberField` components together.

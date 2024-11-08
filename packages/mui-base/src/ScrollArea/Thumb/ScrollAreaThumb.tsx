@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useScrollAreaScrollbarContext } from '../Scrollbar/ScrollAreaScrollbarContext';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useScrollAreaScrollbarContext } from '../Scrollbar/ScrollAreaScrollbarContext.js';
 
 /**
  *

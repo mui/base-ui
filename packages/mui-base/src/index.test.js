@@ -4,7 +4,8 @@
  * import the entire lib for coverage reporting
  */
 import { expect } from 'chai';
-import * as BaseUI from './index';
+// eslint-disable-next-line import/no-unresolved
+import * as BaseUI from './index.js';
 
 describe('@base_ui/react', () => {
   it('should have exports', () => {

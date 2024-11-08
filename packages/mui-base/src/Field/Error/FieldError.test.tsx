@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base_ui/react/Field';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '#test-utils';
 
 describe('<Field.Error />', () => {
   const { render } = createRenderer();

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Tabs } from '@base_ui/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
-import { TabsProvider, TabsProviderValue } from '../Root/TabsProvider';
+import { TabsProvider, TabsProviderValue } from '../Root/TabsProvider.js';
 
 describe('<Tabs.Panel />', () => {
   const { render } = createRenderer();

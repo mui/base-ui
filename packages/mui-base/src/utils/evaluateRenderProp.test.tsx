@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { evaluateRenderProp } from './evaluateRenderProp';
+import { evaluateRenderProp } from './evaluateRenderProp.js';
 
 describe('evaluateRenderProp', () => {
   describe('function', () => {

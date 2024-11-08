@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
-import { usePopoverPopup } from './usePopoverPopup';
-import { useForkRef } from '../../utils/useForkRef';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { usePopoverRootContext } from '../Root/PopoverRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext.js';
+import { usePopoverPopup } from './usePopoverPopup.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
+import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping.js';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
   ...baseMapping,

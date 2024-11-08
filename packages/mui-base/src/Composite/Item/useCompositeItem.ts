@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useCompositeRootContext } from '../Root/CompositeRootContext';
-import { useCompositeListItem } from '../List/useCompositeListItem';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useCompositeRootContext } from '../Root/CompositeRootContext.js';
+import { useCompositeListItem } from '../List/useCompositeListItem.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
 
 /**
  *

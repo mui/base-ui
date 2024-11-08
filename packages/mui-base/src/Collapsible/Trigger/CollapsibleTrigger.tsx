@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
-import { CollapsibleRoot } from '../Root/CollapsibleRoot';
-import { useCollapsibleTrigger } from './useCollapsibleTrigger';
+import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
+import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext.js';
+import { CollapsibleRoot } from '../Root/CollapsibleRoot.js';
+import { useCollapsibleTrigger } from './useCollapsibleTrigger.js';
 
 /**
  *

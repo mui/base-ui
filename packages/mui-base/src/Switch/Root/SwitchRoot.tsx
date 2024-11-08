@@ -2,13 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import refType from '@mui/utils/refType';
-import { useSwitchRoot } from './useSwitchRoot';
-import { SwitchRootContext } from './SwitchRootContext';
-import { styleHookMapping } from '../styleHooks';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useSwitchRoot } from './useSwitchRoot.js';
+import { SwitchRootContext } from './SwitchRootContext.js';
+import { styleHookMapping } from '../styleHooks.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { FieldRoot } from '../../Field/Root/FieldRoot.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * The foundation for building custom-styled switches.

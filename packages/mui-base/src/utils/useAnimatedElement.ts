@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useAnimationsFinished } from './useAnimationsFinished';
-import { useTransitionStatus } from './useTransitionStatus';
+import { useAnimationsFinished } from './useAnimationsFinished.js';
+import { useTransitionStatus } from './useTransitionStatus.js';
 
 interface UseAnimatedElementParameters {
   open: boolean;

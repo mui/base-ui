@@ -9,14 +9,14 @@ import {
   type OpenChangeReason,
   type FloatingRootContext,
 } from '@floating-ui/react';
-import { useControlled } from '../../utils/useControlled';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useFocusExtended } from '../utils/useFocusExtended';
-import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useControlled } from '../../utils/useControlled.js';
+import { useTransitionStatus } from '../../utils/useTransitionStatus.js';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useFocusExtended } from '../utils/useFocusExtended.js';
+import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
+import type { TransitionStatus } from '../../utils/useTransitionStatus.js';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,

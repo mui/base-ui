@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import { NumberField } from '@base_ui/react/NumberField';
 import { createRenderer, describeConformance } from '#test-utils';
-import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { NumberFieldRootContext } from '../Root/NumberFieldRootContext.js';
 
 const testContext = {
   getGroupProps: (externalProps) => ({ role: 'group', ...externalProps }),

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../utils/useForkRef';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
-import { useRootElementName } from '../utils/useRootElementName';
-import { EventHandlers } from '../utils/types';
-import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
+import { useForkRef } from '../utils/useForkRef.js';
+import { extractEventHandlers } from '../utils/extractEventHandlers.js';
+import { useRootElementName } from '../utils/useRootElementName.js';
+import { EventHandlers } from '../utils/types.js';
+import { MuiCancellableEvent } from '../utils/MuiCancellableEvent.js';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {

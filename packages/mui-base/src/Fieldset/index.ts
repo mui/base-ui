@@ -1,1 +1,1 @@
-export * as Fieldset from './index.parts';
+export * as Fieldset from './index.parts.js';

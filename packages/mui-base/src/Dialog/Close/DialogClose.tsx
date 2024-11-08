@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogClose } from './useDialogClose';
-import { useDialogRootContext } from '../Root/DialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useDialogClose } from './useDialogClose.js';
+import { useDialogRootContext } from '../Root/DialogRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 const ownerState = {};
 

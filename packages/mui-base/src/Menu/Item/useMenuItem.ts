@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
-import { useButton } from '../../useButton';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
-import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { useButton } from '../../useButton/index.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { GenericHTMLProps } from '../../utils/types.js';
+import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent.js';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {

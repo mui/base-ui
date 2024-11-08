@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeList } from '../List/CompositeList';
-import { useCompositeRoot } from './useCompositeRoot';
-import { CompositeRootContext } from './CompositeRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Dimensions } from '../composite';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { CompositeList } from '../List/CompositeList.js';
+import { useCompositeRoot } from './useCompositeRoot.js';
+import { CompositeRootContext } from './CompositeRootContext.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { Dimensions } from '../composite.js';
 
 /**
  * @ignore - internal component.

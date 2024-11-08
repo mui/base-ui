@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { Checkbox } from '@base_ui/react/Checkbox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { CheckboxRootContext } from '../Root/CheckboxRootContext';
+import { CheckboxRootContext } from '../Root/CheckboxRootContext.js';
 
 const testContext = {
   checked: true,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 export function useMenuArrow(params: useMenuArrow.Parameters): useMenuArrow.ReturnValue {
   const { arrowStyles } = params;

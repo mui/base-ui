@@ -1,7 +1,7 @@
 import * as React from 'react';
-import type { BaseUIComponentProps } from './types';
-import { useForkRef } from './useForkRef';
-import { isReactVersionAtLeast } from './reactVersion';
+import type { BaseUIComponentProps } from './types.js';
+import { useForkRef } from './useForkRef.js';
+import { isReactVersionAtLeast } from './reactVersion.js';
 
 /**
  * Merges the rendering element's `ref` in addition to the other `ref`s.

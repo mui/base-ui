@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getNumberLocaleDetails, parseNumber } from './parse';
+import { getNumberLocaleDetails, parseNumber } from './parse.js';
 
 describe('NumberField parse', () => {
   describe('getNumberLocaleDetails', () => {

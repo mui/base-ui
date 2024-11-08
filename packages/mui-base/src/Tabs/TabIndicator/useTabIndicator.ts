@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useTabsListContext } from '../TabsList/TabsListContext';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import type { TabsDirection, TabsOrientation, TabActivationDirection } from '../Root/TabsRoot';
+import { useTabsListContext } from '../TabsList/TabsListContext.js';
+import { useTabsRootContext } from '../Root/TabsRootContext.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useForcedRerendering } from '../../utils/useForcedRerendering.js';
+import type { TabsDirection, TabsOrientation, TabActivationDirection } from '../Root/TabsRoot.js';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;

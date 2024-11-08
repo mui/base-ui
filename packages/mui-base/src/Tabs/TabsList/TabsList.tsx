@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabsList } from './useTabsList';
-import { TabsListProvider } from './TabsListProvider';
-import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { TabsRoot } from '../Root/TabsRoot';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useTabsList } from './useTabsList.js';
+import { TabsListProvider } from './TabsListProvider.js';
+import { tabsStyleHookMapping } from '../Root/styleHooks.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { TabsRoot } from '../Root/TabsRoot.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  *

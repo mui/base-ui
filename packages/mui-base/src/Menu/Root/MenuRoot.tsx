@@ -2,8 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
-import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
+import { MenuRootContext, useMenuRootContext } from './MenuRootContext.js';
+import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot.js';
 
 /**
  *

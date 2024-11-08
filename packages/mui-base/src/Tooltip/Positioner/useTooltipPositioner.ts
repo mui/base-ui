@@ -1,8 +1,8 @@
 import * as React from 'react';
 import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useAnchorPositioning } from '../../utils/useAnchorPositioning.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,

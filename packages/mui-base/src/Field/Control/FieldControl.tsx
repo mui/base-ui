@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useFieldControl } from './useFieldControl';
-import { FieldRoot } from '../Root/FieldRoot';
-import { useFieldRootContext } from '../Root/FieldRootContext';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useFieldControl } from './useFieldControl.js';
+import { FieldRoot } from '../Root/FieldRoot.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
+import { STYLE_HOOK_MAPPING } from '../utils/constants.js';
+import { BaseUIComponentProps } from '../../utils/types.js';
 
 export type FieldControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 

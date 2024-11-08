@@ -6,11 +6,11 @@ import type {
   FloatingContext,
   FloatingRootContext,
 } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
-import { getInertValue } from '../../utils/getInertValue';
-import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useAnchorPositioning } from '../../utils/useAnchorPositioning.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
+import { getInertValue } from '../../utils/getInertValue.js';
+import { InteractionType } from '../../utils/useEnhancedClickHandler.js';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,

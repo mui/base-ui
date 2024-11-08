@@ -4,8 +4,8 @@ import { randomStringValue } from '@mui/internal-test-utils';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
-} from '../describeConformance';
-import { throwMissingPropError } from './utils';
+} from '../describeConformance.js';
+import { throwMissingPropError } from './utils.js';
 
 export function testRenderProp(
   element: React.ReactElement<ConformantComponentProps>,

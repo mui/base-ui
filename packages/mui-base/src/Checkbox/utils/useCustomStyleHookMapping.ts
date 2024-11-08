@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { CheckboxRoot } from '../Root/CheckboxRoot';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps.js';
+import type { CheckboxRoot } from '../Root/CheckboxRoot.js';
 
 export function useCustomStyleHookMapping(ownerState: CheckboxRoot.OwnerState) {
   return React.useMemo<CustomStyleHookMapping<typeof ownerState>>(

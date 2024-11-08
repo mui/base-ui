@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { DialogRoot } from '../../Dialog/Root/DialogRoot';
-import { AlertDialogRootContext } from './AlertDialogRootContext';
-import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
+import type { DialogRoot } from '../../Dialog/Root/DialogRoot.js';
+import { AlertDialogRootContext } from './AlertDialogRootContext.js';
+import { useDialogRoot } from '../../Dialog/Root/useDialogRoot.js';
 
 /**
  *

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { SwitchRoot } from '../Root/SwitchRoot';
-import { useSwitchRootContext } from '../Root/SwitchRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { styleHookMapping } from '../styleHooks';
+import type { SwitchRoot } from '../Root/SwitchRoot.js';
+import { useSwitchRootContext } from '../Root/SwitchRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { styleHookMapping } from '../styleHooks.js';
 
 /**
  *

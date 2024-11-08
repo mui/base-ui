@@ -1,2 +1,2 @@
-export * from './useCompoundParent';
-export * from './useCompoundItem';
+export * from './useCompoundParent.js';
+export * from './useCompoundItem.js';

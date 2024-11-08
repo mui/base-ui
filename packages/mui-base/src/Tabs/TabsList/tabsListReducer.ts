@@ -5,8 +5,8 @@ import {
   listReducer,
   ListActionTypes,
   moveHighlight,
-} from '../../useList';
-import { ActionWithContext } from '../../utils/useControllableReducer.types';
+} from '../../useList/index.js';
+import { ActionWithContext } from '../../utils/useControllableReducer.types.js';
 
 export type TabsListActionContext = ListActionContext<any> & {
   activateOnFocus: boolean;

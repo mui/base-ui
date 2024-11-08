@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../utils/noop.js';
 
 export interface RadioGroupRootContext {
   disabled: boolean | undefined;

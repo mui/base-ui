@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useCheckboxRootContext } from '../Root/CheckboxRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
-import type { CheckboxRoot } from '../Root/CheckboxRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useCheckboxRootContext } from '../Root/CheckboxRootContext.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping.js';
+import type { CheckboxRoot } from '../Root/CheckboxRoot.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 /**
  * The indicator part of the Checkbox.

@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
-import { script as prehydrationScript } from './prehydrationScript.min';
-import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { ActiveTabPosition, useTabIndicator } from './useTabIndicator.js';
+import { script as prehydrationScript } from './prehydrationScript.min.js';
+import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot.js';
+import { useTabsRootContext } from '../Root/TabsRootContext.js';
+import { tabsStyleHookMapping } from '../Root/styleHooks.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
 
 const noop = () => null;
 

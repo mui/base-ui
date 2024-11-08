@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { usePopoverPositioner } from './usePopoverPositioner';
-import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { HTMLElementType, refType } from '../../utils/proptypes';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { usePopoverRootContext } from '../Root/PopoverRootContext.js';
+import { usePopoverPositioner } from './usePopoverPositioner.js';
+import { PopoverPositionerContext } from './PopoverPositionerContext.js';
+import { HTMLElementType, refType } from '../../utils/proptypes.js';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import type { Side, Alignment } from '../../utils/useAnchorPositioning.js';
+import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping.js';
 
 /**
  * The popover positioner element.

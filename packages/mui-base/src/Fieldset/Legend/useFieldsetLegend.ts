@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useFieldsetRootContext } from '../Root/FieldsetRootContext';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useId } from '../../utils/useId.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useFieldsetRootContext } from '../Root/FieldsetRootContext.js';
 
 export function useFieldsetLegend(params: useFieldsetLegend.Parameters) {
   const { id: idProp } = params;

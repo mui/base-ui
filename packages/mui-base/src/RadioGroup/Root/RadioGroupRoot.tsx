@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useRadioGroupRoot } from './useRadioGroupRoot';
-import { RadioGroupRootContext } from './RadioGroupRootContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { CompositeRoot } from '../../Composite/Root/CompositeRoot.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useRadioGroupRoot } from './useRadioGroupRoot.js';
+import { RadioGroupRootContext } from './RadioGroupRootContext.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
 /**
  *
  * Demos:

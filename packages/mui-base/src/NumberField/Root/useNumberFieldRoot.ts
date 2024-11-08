@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useScrub } from './useScrub';
-import { formatNumber } from '../utils/format';
-import { toValidatedNumber } from '../utils/validate';
+import { useScrub } from './useScrub.js';
+import { formatNumber } from '../utils/format.js';
+import { toValidatedNumber } from '../utils/validate.js';
 import {
   ARABIC_RE,
   HAN_RE,
   PERCENTAGES,
   getNumberLocaleDetails,
   parseNumber,
-} from '../utils/parse';
+} from '../utils/parse.js';
 import {
   CHANGE_VALUE_TICK_DELAY,
   DEFAULT_STEP,
@@ -17,21 +17,21 @@ import {
   SCROLLING_POINTER_MOVE_DISTANCE,
   START_AUTO_CHANGE_DELAY,
   TOUCH_TIMEOUT,
-} from '../utils/constants';
-import { isIOS } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { useControlled } from '../../utils/useControlled';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import { useId } from '../../utils/useId';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useForkRef } from '../../utils/useForkRef';
-import { useField } from '../../Field/useField';
-import type { ScrubHandle } from './useScrub.types';
+} from '../utils/constants.js';
+import { isIOS } from '../../utils/detectBrowser.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { ownerDocument, ownerWindow } from '../../utils/owner.js';
+import { useControlled } from '../../utils/useControlled.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useEventCallback } from '../../utils/useEventCallback.js';
+import { useForcedRerendering } from '../../utils/useForcedRerendering.js';
+import { useId } from '../../utils/useId.js';
+import { useLatestRef } from '../../utils/useLatestRef.js';
+import { useFieldRootContext } from '../../Field/Root/FieldRootContext.js';
+import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation.js';
+import { useForkRef } from '../../utils/useForkRef.js';
+import { useField } from '../../Field/useField.js';
+import type { ScrubHandle } from './useScrub.types.js';
 
 export function useNumberFieldRoot(
   params: UseNumberFieldRoot.Parameters,

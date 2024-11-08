@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useId } from '../../utils/useId.js';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect.js';
+import { useFieldRootContext } from '../Root/FieldRootContext.js';
 
 export function useFieldError(params: useFieldError.Parameters) {
   const { id: idProp, rendered, formError } = params;

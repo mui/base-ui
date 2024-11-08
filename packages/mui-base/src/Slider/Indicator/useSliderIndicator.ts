@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { useSliderRoot } from '../Root/useSliderRoot';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import type { GenericHTMLProps } from '../../utils/types.js';
+import type { useSliderRoot } from '../Root/useSliderRoot.js';
 
 const axisProps = {
   horizontal: {

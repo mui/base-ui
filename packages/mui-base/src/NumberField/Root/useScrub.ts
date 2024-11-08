@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ScrubHandle, ScrubParams } from './useScrub.types';
-import { DEFAULT_STEP } from '../utils/constants';
-import { getViewportRect } from '../utils/getViewportRect';
-import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { isWebKit } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UseNumberFieldRoot } from './useNumberFieldRoot';
+import { ScrubHandle, ScrubParams } from './useScrub.types.js';
+import { DEFAULT_STEP } from '../utils/constants.js';
+import { getViewportRect } from '../utils/getViewportRect.js';
+import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize.js';
+import { ownerDocument, ownerWindow } from '../../utils/owner.js';
+import { useLatestRef } from '../../utils/useLatestRef.js';
+import { isWebKit } from '../../utils/detectBrowser.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import type { UseNumberFieldRoot } from './useNumberFieldRoot.js';
 
 /**
  * @ignore - internal hook.

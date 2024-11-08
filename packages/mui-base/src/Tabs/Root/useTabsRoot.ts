@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { TabActivationDirection } from './TabsRoot';
-import type { TabsProviderValue, TabPanelMetadata } from './TabsProvider';
-import { useCompoundParent } from '../../useCompound';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useControlled } from '../../utils/useControlled';
+import type { TabActivationDirection } from './TabsRoot.js';
+import type { TabsProviderValue, TabPanelMetadata } from './TabsProvider.js';
+import { useCompoundParent } from '../../useCompound/index.js';
+import { mergeReactProps } from '../../utils/mergeReactProps.js';
+import { useControlled } from '../../utils/useControlled.js';
 
 export interface TabMetadata {
   disabled: boolean;

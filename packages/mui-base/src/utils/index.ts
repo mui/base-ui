@@ -1,7 +1,7 @@
 // Public utils
 
-export * from './prepareForSlot';
-export * from './MuiCancellableEvent';
-export * from './useScrollLock';
-export * from './useTransitionStatus';
-export * from './visuallyHidden';
+export * from './prepareForSlot.js';
+export * from './MuiCancellableEvent.js';
+export * from './useScrollLock.js';
+export * from './useTransitionStatus.js';
+export * from './visuallyHidden.js';

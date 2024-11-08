@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderRootContext } from '../Root/SliderRootContext';
-import { sliderStyleHookMapping } from '../Root/styleHooks';
-import type { SliderRoot } from '../Root/SliderRoot';
-import { useSliderOutput } from './useSliderOutput';
+import type { BaseUIComponentProps } from '../../utils/types.js';
+import { useComponentRenderer } from '../../utils/useComponentRenderer.js';
+import { useSliderRootContext } from '../Root/SliderRootContext.js';
+import { sliderStyleHookMapping } from '../Root/styleHooks.js';
+import type { SliderRoot } from '../Root/SliderRoot.js';
+import { useSliderOutput } from './useSliderOutput.js';
 /**
  *
  * Demos:
