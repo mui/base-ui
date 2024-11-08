@@ -43,6 +43,9 @@ module.exports = {
     'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
     'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
     'material-ui/straight-quotes': 'off',
+    // This prevents us from creating components like `<h1 {...props} />`
+    'jsx-a11y/heading-has-content': 'off',
+    'jsx-a11y/anchor-has-content': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(

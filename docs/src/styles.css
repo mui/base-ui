@@ -2,6 +2,7 @@
 @import './fonts/index.css';
 @import './syntax-highlighting/index.css';
 @import './components/demo/index.css';
+@import './components/quick-nav/QuickNav.css';
 @import './components/CodeBlock.css';
 @import './components/ToolbarButton.css';
 
@@ -9,6 +10,8 @@
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
 
 @theme {
+  /* --container-content: 768px; */
+
   --font-family-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-family-sans: 'Unica 77', system-ui, sans-serif;
 
@@ -30,7 +33,7 @@
 
   --font-size-xs: 0.8125rem;
   --font-size-xs--line-height: 1rem;
-  --font-size-xs--letter-spacing: 0.00125em;
+  --font-size-xs--letter-spacing: 0.0015em;
 
   --font-size-sm: 0.9375rem;
   --font-size-sm--line-height: 1.25rem;
@@ -41,9 +44,11 @@
 
   --font-size-lg: 1.1875rem;
   --font-size-lg--line-height: 1.75rem;
+  --font-size-lg--letter-spacing: -0.0025em;
 
   --font-size-xl: 1.3125rem;
   --font-size-xl--line-height: 1.75rem;
+  --font-size-lg--letter-spacing: -0.005em;
 
   --font-size-2xl: 1.5rem;
   --font-size-2xl--line-height: 1.25;

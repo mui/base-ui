@@ -18,6 +18,14 @@
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
 
+    /* Scroll containers may be focusable */
+    &:focus-visible {
+      position: relative;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+      z-index: 1;
+    }
+
     /* Center the contents */
     display: grid;
     & > * {
@@ -49,6 +57,14 @@
     &::-webkit-scrollbar {
       display: none;
     }
+
+    /* Scroll containers may be focusable */
+    &:focus-visible {
+      position: relative;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+      z-index: 1;
+    }
   }
 
   .DemoFilename {
@@ -79,8 +95,9 @@
       &:hover {
         &::before {
           background-color: oklch(20% 12% 264 / 5%);
-
-          @media (prefers-color-scheme: dark) {
+        }
+        @media (prefers-color-scheme: dark) {
+          &::before {
             background-color: oklch(90% 5% 264 / 8%);
           }
         }
@@ -117,8 +134,9 @@
         box-shadow:
           0px 2px 3px -2px oklch(20% 12% 264 / 10%),
           inset 0px -1px 1px oklch(20% 12% 264 / 10%);
-
-        @media (prefers-color-scheme: dark) {
+      }
+      @media (prefers-color-scheme: dark) {
+        &::before {
           background-color: oklch(22% 2% 264);
           outline: 1px solid oklch(90% 12% 264 / 15%);
           box-shadow: none;
@@ -126,8 +144,8 @@
       }
 
       &:focus-visible {
-        &::before {
-          @media (prefers-color-scheme: dark) {
+        @media (prefers-color-scheme: dark) {
+          &::before {
             background-color: black;
           }
         }
@@ -167,10 +185,12 @@
       max-height: 12.5rem;
     }
 
+    /* Scroll containers may be focusable */
     & pre:focus-visible {
-      z-index: 1;
+      position: relative;
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
+      z-index: 1;
     }
 
     &::before {
@@ -182,8 +202,9 @@
       left: 0;
       right: 0;
       background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 60%));
-
-      @media (prefers-color-scheme: dark) {
+    }
+    @media (prefers-color-scheme: dark) {
+      &::before {
         background: linear-gradient(to bottom, rgb(0 0 0 / 0), rgb(0 0 0 / 60%));
       }
     }
@@ -197,6 +218,14 @@
         overflow: auto;
         overscroll-behavior-x: contain;
         scrollbar-width: thin;
+
+        /* Scroll containers may be focusable */
+        &:focus-visible {
+          position: relative;
+          outline: 2px solid var(--color-blue);
+          outline-offset: -1px;
+          z-index: 1;
+        }
       }
       &::before {
         content: none;

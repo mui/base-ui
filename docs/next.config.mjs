@@ -6,8 +6,12 @@ import * as fs from 'fs';
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
 import nextMdx from '@next/mdx';
 import rehypePrettyCode from 'rehype-pretty-code';
+import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import { rehypeDemos } from './src/components/demo/rehypeDemos.mjs';
 import { highlighter } from './src/syntax-highlighting/index.mjs';
+import { rehypeInlineCode } from './src/syntax-highlighting/rehype-inline-code.mjs';
+import { rehypeQuickNav } from './src/components/quick-nav/rehype-quick-nav.mjs';
+import { rehypeSlug } from './src/components/quick-nav/rehype-slug.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
@@ -17,6 +21,7 @@ const withMdx = nextMdx({
   options: {
     rehypePlugins: [
       rehypeDemos,
+      rehypeInlineCode,
       [
         rehypePrettyCode,
         {
@@ -26,6 +31,9 @@ const withMdx = nextMdx({
           grid: false,
         },
       ],
+      rehypeSlug,
+      rehypeExtractToc,
+      rehypeQuickNav,
     ],
   },
 });
