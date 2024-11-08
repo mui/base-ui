@@ -4,7 +4,6 @@
  * import the entire lib for coverage reporting
  */
 import { expect } from 'chai';
-// eslint-disable-next-line import/no-unresolved
 import * as BaseUI from './index.js';
 
 describe('@base_ui/react', () => {
@@ -14,7 +13,7 @@ describe('@base_ui/react', () => {
 
   it('should not have undefined exports', () => {
     Object.keys(BaseUI).forEach((exportKey) => {
-      expect(Boolean(BaseUI[exportKey])).to.equal(true);
+      expect(Boolean((BaseUI as Record<string, unknown>)[exportKey])).to.equal(true);
     });
   });
 });
