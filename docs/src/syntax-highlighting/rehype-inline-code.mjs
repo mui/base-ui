@@ -1,6 +1,9 @@
 import { visitParents } from 'unist-util-visit-parents';
 
-/** Adds basic syntax highlighting to inline `<code>` elements */
+/**
+ * - Adds a `data-inline-code` attribute to distinguish inline code from code blocks
+ * - Tweaks how syntax highlighting works for tags
+ */
 export function rehypeInlineCode() {
   return (tree) => {
     visitParents(tree, (node, ancestors) => {
@@ -9,31 +12,19 @@ export function rehypeInlineCode() {
         return;
       }
 
-      const [child] = node.children;
-
-      if (child?.type !== 'text') {
-        return;
-      }
-
-      // Default class
-      let className = 'syntax-constant';
-
-      // HTML tags
-      if (child.value.match(/^<[a-z].*>$/)) {
-        className = 'syntax-tag';
-      }
-
       if (node.type === 'element') {
         node.properties ??= {};
-        node.properties.className = className;
+        node.properties['data-inline-code'] = '';
       } else if (node.type === 'mdxJsxTextElement') {
         node.attributes ??= [];
         node.attributes.push({
           type: 'mdxJsxAttribute',
-          name: 'className',
-          value: className,
+          name: 'data-inline-code',
+          value: '',
         });
       }
+
+      // TODO Tweak how syntax highlighting works for tags
     });
   };
 }

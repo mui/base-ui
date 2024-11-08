@@ -23,16 +23,16 @@ const withMdx = nextMdx({
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeDemos,
-      rehypeInlineCode,
       [
         rehypePrettyCode,
         {
           getHighlighter,
-          theme: 'base-ui-theme',
-          bypassInlineCode: true,
           grid: false,
+          theme: 'base-ui',
+          defaultLang: 'jsx',
         },
       ],
+      rehypeInlineCode,
       rehypeSlug,
       rehypeExtractToc,
       rehypeQuickNav,

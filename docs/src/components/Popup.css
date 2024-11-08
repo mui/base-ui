@@ -31,5 +31,9 @@
       opacity: 0;
       transform: scale(0.98);
     }
+
+    &[data-instant] {
+      transition-duration: 0s;
+    }
   }
 }

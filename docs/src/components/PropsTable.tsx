@@ -1,11 +1,14 @@
 import * as React from 'react';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate, EvaluateOptions } from '@mdx-js/mdx';
+import rehypePrettyCode from 'rehype-pretty-code';
+import { highlighter } from 'docs/src/syntax-highlighting';
+import { getApiReferenceData } from 'docs/src/app/(content)/components/[slug]/getApiReferenceData';
+import { rehypeInlineCode } from 'docs/src/syntax-highlighting/rehype-inline-code.mjs';
 import * as Table from './Table';
-import { getApiReferenceData } from '../app/(content)/components/[slug]/getApiReferenceData';
 import { PropsTableTooltip } from './PropsTableTooltip';
-// eslint-disable-next-line import/extensions
-import { rehypeInlineCode } from '../syntax-highlighting/rehype-inline-code.mjs';
+
+const getHighlighter = () => highlighter;
 
 interface PropsTableProps extends React.ComponentProps<typeof Table.Root> {
   component: string;
@@ -26,10 +29,24 @@ export async function PropsTable({ component, ...props }: PropsTableProps) {
       </Table.Head>
       <Table.Body>
         {data.props.map(async (prop) => {
+          // TODO this is because rehypePrettyCode can't parse `<code>`
+          // written verbatim; I plan to figure out how to get the real markdown source in here.
+          prop.description = prop.description.replace('<code>', '`').replace('</code>', '`');
           const { default: Description } = await evaluate(prop.description, {
-            ...(jsxRuntime as EvaluateOptions),
-            rehypePlugins: [rehypeInlineCode],
-          });
+            ...jsxRuntime,
+            rehypePlugins: [
+              rehypeInlineCode,
+              [
+                rehypePrettyCode,
+                {
+                  getHighlighter,
+                  grid: false,
+                  theme: 'base-ui',
+                  defaultLang: 'jsx',
+                },
+              ],
+            ],
+          } as unknown as EvaluateOptions);
 
           return (
             <Table.Row key={prop.name}>

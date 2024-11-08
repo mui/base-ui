@@ -8,6 +8,7 @@ export function PropsTableTooltip({ children }: React.PropsWithChildren) {
   const [open, setOpen] = React.useState(false);
 
   return (
+    // TODO: this was more effort than I expected, we need to chat about popovers that open on hover
     <Tooltip.Root
       delay={0}
       closeDelay={50}

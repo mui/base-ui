@@ -12,7 +12,7 @@ interface MDXComponents {
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
-    code: (props) => ('data-theme' in props ? <code {...props} /> : <Code {...props} />),
+    code: (props) => ('data-inline-code' in props ? <Code {...props} /> : <code {...props} />),
     h1: (props) => <h1 className="mb-4 text-3xl font-bold" {...props} />,
     h2: (props) => (
       <div className="mt-10 mb-6">

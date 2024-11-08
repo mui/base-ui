@@ -16,42 +16,7 @@
   --syntax-constant: var(--color-foreground);
 }
 
-.syntax-default {
-  color: var(--syntax-default);
-}
-
-.syntax-comment {
-  color: var(--syntax-comment);
-}
-
-.syntax-constant {
-  color: var(--syntax-constant);
-}
-
-.syntax-entity {
-  color: var(--syntax-entity);
-}
-
-.syntax-parameter {
-  color: var(--syntax-parameter);
-}
-
-.syntax-tag {
-  color: var(--syntax-tag);
-}
-
-.syntax-keyword {
-  color: var(--syntax-keyword);
-}
-
-.syntax-string {
-  color: var(--syntax-string);
-}
-
-.syntax-variable {
-  color: var(--syntax-variable);
-}
-
-.syntax-invalid {
-  color: var(--syntax-invalid);
+[data-inline-code] {
+  --syntax-entity: var(--color-blue);
+  --syntax-parameter: var(--color-blue);
 }
