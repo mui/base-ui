@@ -130,4 +130,67 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
   });
+
+  describe('prop: final focus', () => {
+    it('should focus the trigger by default when closed', async () => {
+      const { getByText, user } = await render(
+        <div>
+          <input />
+          <AlertDialog.Root animated={false}>
+            <AlertDialog.Backdrop />
+            <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Root>
+          <input />
+        </div>,
+      );
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      const closeButton = getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should focus the element provided to the prop when closed', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <div>
+            <input />
+            <AlertDialog.Root animated={false}>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Popup finalFocus={inputRef}>
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Root>
+            <input />
+            <input data-testid="input-to-focus" ref={inputRef} />
+            <input />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      const closeButton = getByText('Close');
+      await user.click(closeButton);
+
+      const inputToFocus = getByTestId('input-to-focus');
+
+      await waitFor(() => {
+        expect(inputToFocus).toHaveFocus();
+      });
+    });
+  });
 });
