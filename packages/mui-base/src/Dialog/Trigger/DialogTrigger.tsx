@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogTrigger } from './useDialogTrigger';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
+ * Renders a trigger element that opens the Dialog.
  *
  * Demos:
  *
@@ -22,28 +23,23 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, onOpenChange, onTriggerClick, modal, popupElementId } = useDialogRootContext();
-
-  const { getRootProps } = useDialogTrigger({
-    open,
-    onOpenChange,
-    onTriggerClick,
-    popupElementId,
-  });
+  const { open, setTriggerElement, getTriggerProps, modal } = useDialogRootContext();
 
   const ownerState: DialogTrigger.OwnerState = React.useMemo(
     () => ({ open, modal }),
     [open, modal],
   );
 
+  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
     ownerState,
-    propGetter: getRootProps,
+    propGetter: getTriggerProps,
     extraProps: other,
     customStyleHookMapping: triggerOpenStateMapping,
-    ref: forwardedRef,
+    ref: mergedRef,
   });
 
   return renderElement();

@@ -45,7 +45,7 @@ A big thanks to the 7 contributors who made this release possible. Here are some
 - [docs] Avoid dead links in demos (#610) @oliviertassinari
 - [docs] Fix rel attribute on edit GitHub links (#614) @oliviertassinari
 - [docs] Fix pnpm docs:link-check script (#552) @oliviertassinari
-- [docs] Fix Stack Overflow issue canned response @oliviertassinari
+- [docs] Fix Stack Overflow issue canned response @oliviertassinari
 - [docs] Fix outdated link to support page @oliviertassinari
 - [docs] Clarify contribution guide references @oliviertassinari
 
@@ -54,19 +54,19 @@ A big thanks to the 7 contributors who made this release possible. Here are some
 - [code-infra] Remove custom playwright installation steps (#646) @Janpot
 - [core] Fix 301 link to Next.js and git diff @oliviertassinari
 - [core] Fix package.json repository rule @oliviertassinari
-- [core] MUI X repository moved to a new location @oliviertassinari
+- [core] MUI X repository moved to a new location @oliviertassinari
 - [core] React 19 compatibility (#605) @michaldudak
 - [core] Reference `ownerDocument` (#660) @atomiks
 - [core] Remove 'use client' from index files (#331) @michaldudak
 - [core] Remove /.yarn (#596) @oliviertassinari
-- [core] Remove Material UI dependency (#585) @michaldudak
+- [core] Remove Material UI dependency (#585) @michaldudak
 - [core] Remove the legacy components from the repo (#584) @michaldudak
 - [core] Rename positionStrategy to positionMethod (#704) @michaldudak
 - [docs-infra] Fix double // (#613) @oliviertassinari
 - [docs-infra] Strengthen CSP (#595) @oliviertassinari
 - [infra] Adds reusable workflow for closing message on issues (#598) @michelengelen
 - [infra] Adds reusable workflow for issue cleanup (#597) @michelengelen
-- [infra] Fix line break in Stack Overflow message @oliviertassinari
+- [infra] Fix line break in Stack Overflow message @oliviertassinari
 - [test] Fix tests on Safari (#546) @michaldudak
 - [test] Fix the test_types_next CI job (#703) @michaldudak
 - [test] Improve visual screenshot canva (#708)
@@ -74,7 +74,7 @@ A big thanks to the 7 contributors who made this release possible. Here are some
 - [test] Run Browserstack tests on master only (#578) @michaldudak
 - [test] Use `waitFor` instead of fixed timeout in tests (#632) @michaldudak
 - [website] Improve utm_source strategy @oliviertassinari
-- [website] Modernize the Base UI website (#538) @michaldudak
+- [website] Modernize the Base UI website (#538) @michaldudak
 
 All contributors of this release in alphabetical order: @atomiks, @Janpot, @michaldudak, @michelengelen, @mj12albert, @oliviertassinari, @sai6855
 
@@ -110,7 +110,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 
 ### Docs
 
-- [docs] Add badges like in Material UI @oliviertassinari
+- [docs] Add badges like in Material UI @oliviertassinari
 - [docs] Add the logo to the README (#448) @danilo-leal
 - [docs] Convert alpha component docs to new docs template (#392) @colmtuite
 - [docs] Correct Bundlephobia links (#419) @michaldudak

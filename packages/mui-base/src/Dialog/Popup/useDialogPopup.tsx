@@ -1,54 +1,42 @@
 'use client';
 import * as React from 'react';
-import { useFloating, useInteractions, useDismiss, type FloatingContext } from '@floating-ui/react';
+import { type FloatingRootContext, useFloating, type FloatingContext } from '@floating-ui/react';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
+import { GenericHTMLProps } from '../../utils/types';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
-    animated,
     descriptionElementId,
+    floatingRootContext,
+    getPopupProps,
     id: idParam,
+    initialFocus,
     modal,
+    mounted,
     onOpenChange,
     open,
+    openMethod,
     ref,
     setPopupElementId,
-    dismissible,
+    setPopupElement,
     titleElementId,
-    isTopmost,
-    initialFocus,
-    openMethod,
   } = parameters;
 
-  const { refs, context, elements } = useFloating({
+  const { context, elements } = useFloating({
     open,
     onOpenChange,
+    rootContext: floatingRootContext,
   });
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const dismiss = useDismiss(context, {
-    outsidePressEvent: 'mousedown',
-    outsidePress: isTopmost && dismissible,
-    escapeKey: isTopmost,
-  });
-  const { getFloatingProps } = useInteractions([dismiss]);
-
   const id = useId(idParam);
-  const handleRef = useForkRef(ref, popupRef, refs.setFloating);
-
-  const { mounted, transitionStatus } = useAnimatedElement({
-    open,
-    ref: popupRef,
-    enabled: animated,
-  });
+  const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
   useScrollLock(modal && mounted, elements.floating);
 
@@ -90,7 +78,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
       'aria-modal': open && modal ? true : undefined,
       role: 'dialog',
       tabIndex: -1,
-      ...getFloatingProps(),
+      ...getPopupProps(),
       id,
       ref: handleRef,
     });
@@ -98,19 +86,12 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   return {
     floatingContext: context,
     getRootProps,
-    mounted,
-    transitionStatus,
     resolvedInitialFocus,
   };
 }
 
 export namespace useDialogPopup {
   export interface Parameters {
-    /**
-     * If `true`, the dialog supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     */
-    animated: boolean;
     /**
      * The id of the dialog element.
      */
@@ -145,15 +126,6 @@ export namespace useDialogPopup {
      */
     setPopupElementId: (id: string | undefined) => void;
     /**
-     * Determines whether the dialog should close when clicking outside of it.
-     * @default true
-     */
-    dismissible?: boolean;
-    /**
-     * Determines if the dialog is the top-most one.
-     */
-    isTopmost: boolean;
-    /**
      * Determines an element to focus when the dialog is opened.
      * It can be either a ref to the element or a function that returns such a ref.
      * If not provided, the first focusable element is focused.
@@ -161,6 +133,22 @@ export namespace useDialogPopup {
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+    /**
+     * The Floating UI root context.
+     */
+    floatingRootContext: FloatingRootContext;
+    /**
+     * Determines if the dialog should be mounted.
+     */
+    mounted: boolean;
+    /**
+     * The resolver for the popup element props.
+     */
+    getPopupProps: () => GenericHTMLProps;
+    /**
+     * Callback to register the popup element.
+     */
+    setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   }
 
   export interface ReturnValue {
@@ -174,14 +162,6 @@ export namespace useDialogPopup {
     getRootProps: (
       externalProps: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
-    /**
-     * Determines if the dialog should be mounted even if closed (as the exit animation is still in progress).
-     */
-    mounted: boolean;
-    /**
-     * The current transition status of the dialog.
-     */
-    transitionStatus: TransitionStatus;
     resolvedInitialFocus: React.RefObject<HTMLElement | null> | number;
   }
 }

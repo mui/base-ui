@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/heading-has-content */
 import * as React from 'react';
 import * as CodeBlock from 'docs/src/components/CodeBlock';
 import { ComponentLinkHeader } from './ComponentLinkHeader';
@@ -47,7 +46,9 @@ export const components = {
 
     return <figcaption {...props} />;
   },
-  pre: CodeBlock.Pre,
+  // Don't pass the tabindex prop from shiki, most browsers
+  // now handle scroll containers focus out of the box
+  pre: ({ tabIndex, ...props }: React.ComponentProps<'pre'>) => <CodeBlock.Pre {...props} />,
   Callout,
   ComponentLinkHeader,
   InstallationInstructions,
