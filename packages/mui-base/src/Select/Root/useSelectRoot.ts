@@ -22,37 +22,21 @@ import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
-  const {
-    value: valueProp,
-    defaultValue = null,
-    onValueChange,
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    alignOptionToTrigger: alignOptionToTriggerParam = true,
-    loop = true,
-    animated = false,
-    name,
-    disabled = false,
-    readOnly = false,
-    required = false,
-  } = params;
-
   const id = useId();
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const [value, setValueUnwrapped] = useControlled({
-    controlled: valueProp,
-    default: defaultValue,
+    controlled: params.value,
+    default: params.defaultValue,
     name: 'Select',
     state: 'value',
   });
 
   const [open, setOpenUnwrapped] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
+    controlled: params.open,
+    default: params.defaultOpen,
     name: 'Select',
     state: 'open',
   });
@@ -79,14 +63,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, params.animated);
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
-  const alignOptionToTrigger = Boolean(mounted && alignOptionToTriggerParam && !touchModality);
+  const alignOptionToTrigger = Boolean(mounted && params.alignOptionToTrigger && !touchModality);
 
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    onOpenChange?.(nextOpen, event);
+    params.onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
 
     function handleUnmounted() {
@@ -96,7 +80,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
 
     if (!nextOpen) {
-      if (animated) {
+      if (params.animated) {
         runOnceAnimationsFinish(handleUnmounted);
       } else {
         handleUnmounted();
@@ -105,7 +89,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
-    onValueChange?.(nextValue, event);
+    params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
 
     setDirty(nextValue !== validityData.initialValue);
@@ -155,7 +139,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    loop,
+    loop: params.loop,
     onNavigate: setActiveIndex,
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignOptionToTrigger` prop enabled, causing a performance issue on Chrome.
@@ -188,10 +172,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const rootContext = React.useMemo(
     () => ({
       id,
-      name,
-      required,
-      disabled,
-      readOnly,
+      name: params.name,
+      required: params.required,
+      disabled: params.disabled,
+      readOnly: params.readOnly,
       triggerElement,
       setTriggerElement,
       positionerElement,
@@ -228,10 +212,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }),
     [
       id,
-      name,
-      required,
-      disabled,
-      readOnly,
+      params.name,
+      params.required,
+      params.disabled,
+      params.readOnly,
       triggerElement,
       positionerElement,
       scrollUpArrowVisible,
@@ -282,7 +266,6 @@ export namespace useSelectRoot {
      * @default true
      */
     animated?: boolean;
-    children: React.ReactNode;
     /**
      * The name of the Select in the owning form.
      */
@@ -295,22 +278,22 @@ export namespace useSelectRoot {
      * If `true`, the Select is required.
      * @default false
      */
-    required?: boolean;
+    required: boolean;
     /**
      * If `true`, the Select is read-only.
      * @default false
      */
-    readOnly?: boolean;
+    readOnly: boolean;
     /**
      * If `true`, the Select is disabled.
      *
      * @default false
      */
-    disabled?: boolean;
+    disabled: boolean;
     /**
      * The value of the select.
      */
-    value?: Value;
+    value?: Value | null;
     /**
      * Callback fired when the value of the select changes. Use when controlled.
      */
@@ -318,7 +301,7 @@ export namespace useSelectRoot {
     /**
      * The default value of the select.
      */
-    defaultValue?: Value;
+    defaultValue?: Value | null;
     /**
      * If `true`, the Select is initially open.
      *

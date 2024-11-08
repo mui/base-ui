@@ -20,9 +20,40 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,
 ): React.JSX.Element {
-  const selectRoot = useSelectRoot<Value>(props);
+  const {
+    value: valueProp,
+    defaultValue = null,
+    onValueChange,
+    open,
+    defaultOpen = false,
+    onOpenChange,
+    alignOptionToTrigger = true,
+    loop = true,
+    animated = false,
+    name,
+    disabled = false,
+    readOnly = false,
+    required = false,
+  } = props;
+
+  const selectRoot = useSelectRoot<Value>({
+    value: valueProp,
+    defaultValue,
+    onValueChange,
+    open,
+    defaultOpen,
+    onOpenChange,
+    alignOptionToTrigger,
+    loop,
+    animated,
+    name,
+    disabled,
+    readOnly,
+    required,
+  });
 
   const { setDirty, validityData } = useFieldRootContext();
+
   const { rootContext } = selectRoot;
   const value = rootContext.value;
 
@@ -96,7 +127,9 @@ SelectRoot.propTypes /* remove-proptypes */ = {
 export { SelectRoot };
 
 namespace SelectRoot {
-  export type Props<Value> = useSelectRoot.Parameters<Value>;
+  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+    children?: React.ReactNode;
+  }
 
   export interface OwnerState {}
 }
