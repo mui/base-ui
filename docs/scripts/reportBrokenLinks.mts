@@ -6,9 +6,9 @@ import glob from 'fast-glob';
 
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate } from '@mdx-js/mdx';
-import rehypeSlug from 'rehype-slug';
 import extractToc, { Toc, TocEntry } from '@stefanprobst/rehype-extract-toc';
 import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
+import { rehypeSlug } from 'docs/src/components/quick-nav/rehype-slug.mjs';
 import { rehypeExtractLinkUrls } from './rehypeExtractLinkUrls.mts';
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));

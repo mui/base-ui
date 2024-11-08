@@ -13,6 +13,7 @@ export * from './Popover';
 export * from './PreviewCard';
 export * from './Progress';
 export * from './RadioGroup';
+export * from './ScrollArea';
 export * from './Separator';
 export * from './Slider';
 export * from './Switch';

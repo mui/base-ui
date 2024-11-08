@@ -3,14 +3,12 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useForkRef } from '../../utils/useForkRef';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 
 export function useDialogBackdrop(
   params: useDialogBackdrop.Parameters,
 ): useDialogBackdrop.ReturnValue {
-  const { animated, open, ref, onMount: onMountParam, onUnmount: onUnmountParam } = params;
+  const { animated, open, ref } = params;
 
   const backdropRef = React.useRef<HTMLElement | null>(null);
   const handleRef = useForkRef(ref, backdropRef);
@@ -20,15 +18,6 @@ export function useDialogBackdrop(
     ref: backdropRef,
     enabled: animated,
   });
-
-  const onMount = useEventCallback(onMountParam);
-  const onUnmount = useEventCallback(onUnmountParam);
-
-  useEnhancedEffect(() => {
-    onMount();
-
-    return onUnmount;
-  }, [onMount, onUnmount]);
 
   const getRootProps = React.useCallback(
     (externalProps: React.ComponentPropsWithRef<any>) =>
@@ -61,14 +50,6 @@ export namespace useDialogBackdrop {
      * The ref to the background element.
      */
     ref: React.Ref<HTMLElement>;
-    /**
-     * Callback to invoke when the backdrop is mounted.
-     */
-    onMount: () => void;
-    /**
-     * Callback to invoke when the backdrop is unmounted.
-     */
-    onUnmount: () => void;
   }
 
   export interface ReturnValue {
