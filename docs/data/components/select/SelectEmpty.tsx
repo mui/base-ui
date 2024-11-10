@@ -12,13 +12,7 @@ export default function SelectEmpty() {
         <SelectDropdownArrow />
       </SelectTrigger>
       <Select.Positioner sideOffset={5}>
-        <SelectScrollUpArrow
-          render={(props) => (
-            <div {...props}>
-              <div>{props.children}</div>
-            </div>
-          )}
-        />
+        <SelectScrollUpArrow />
         <SelectPopup>
           <SelectOption>
             <SelectOptionIndicator render={<CheckIcon />} />
@@ -37,13 +31,7 @@ export default function SelectEmpty() {
             <Select.OptionText>Roboto</Select.OptionText>
           </SelectOption>
         </SelectPopup>
-        <SelectScrollDownArrow
-          render={(props) => (
-            <div {...props}>
-              <div>{props.children}</div>
-            </div>
-          )}
-        />
+        <SelectScrollDownArrow />
       </Select.Positioner>
     </Select.Root>
   );

@@ -24,8 +24,6 @@ import { MAX_Z_INDEX } from '../../utils/constants';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { keepMounted } = params;
-
   const { open, alignOptionToTrigger, mounted, triggerElement } = useSelectRootContext();
 
   useScrollLock(alignOptionToTrigger && mounted, triggerElement);
@@ -47,7 +45,7 @@ export function useSelectPositioner(
     trackAnchor: !alignOptionToTrigger,
   });
 
-  const positionerStyles = React.useMemo(
+  const positionerStyles: React.CSSProperties = React.useMemo(
     () => (alignOptionToTrigger ? { position: 'fixed' } : enabledPositionerStyles),
     [alignOptionToTrigger, enabledPositionerStyles],
   );
@@ -57,22 +55,20 @@ export function useSelectPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if (!open || hidden) {
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(externalProps, {
-          tabIndex: -1,
-          hidden: mounted ? undefined : 'hidden',
+        return mergeReactProps<'div'>(externalProps, {
+          hidden: !mounted,
           style: {
+            zIndex: MAX_Z_INDEX,
             ...positionerStyles,
             ...hiddenStyles,
-            zIndex: MAX_Z_INDEX,
-            ...(alignOptionToTrigger && { margin: '10px 0' }),
           },
         });
       },
-      [keepMounted, open, hidden, mounted, positionerStyles, alignOptionToTrigger],
+      [open, hidden, mounted, positionerStyles],
     );
 
   const positioner = React.useMemo(
