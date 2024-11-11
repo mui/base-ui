@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Select as BaseSelect } from '@base_ui/react/Select';
-import * as Select from '@radix-ui/react-select';
 
 const options = [...Array(1000)].map((_, i) => `Item ${i + 1}`);
 
@@ -67,48 +66,11 @@ function BaseSelectExample() {
   );
 }
 
-function RadixSelectExample() {
-  return (
-    <Select.Root>
-      <Select.Trigger aria-label="Food">
-        <Select.Value placeholder="Select a fruit…" />
-        <Select.Icon />
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Content>
-          <Select.ScrollUpButton />
-          <Select.Viewport>
-            {options.map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
-              </SelectItem>
-            ))}
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
-  );
-}
-
-const SelectItem = React.forwardRef(function SelectItem(
-  { children, className, ...props }: any,
-  forwardedRef,
-) {
-  return (
-    <Select.Item {...props} ref={forwardedRef}>
-      <Select.ItemText>{children}</Select.ItemText>
-      <Select.ItemIndicator />
-    </Select.Item>
-  );
-});
-
 export default function SelectPerf() {
   return (
     <React.Fragment>
-      <h2>Base UI Select 2</h2>
+      <h2>Base UI Select </h2>
       <BaseSelectExample />
-      <h2>Radix UI Select</h2>
-      <RadixSelectExample />
     </React.Fragment>
   );
 }
