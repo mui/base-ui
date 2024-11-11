@@ -19,7 +19,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...otherProps } = props;
 
   const {
-    alignOptionToTriggerRaw,
+    alignOptionToTrigger,
     popupRef,
     scrollUpArrowVisible,
     scrollDownArrowVisible,
@@ -51,7 +51,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           zIndex: MAX_Z_INDEX,
         },
         onMouseEnter() {
-          if (!alignOptionToTriggerRaw) {
+          if (!alignOptionToTrigger) {
             return;
           }
 
@@ -108,13 +108,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           cancelAnimationFrame(frameRef.current);
         },
       }),
-    [
-      direction,
-      alignOptionToTriggerRaw,
-      popupRef,
-      setScrollUpArrowVisible,
-      setScrollDownArrowVisible,
-    ],
+    [direction, alignOptionToTrigger, popupRef, setScrollUpArrowVisible, setScrollDownArrowVisible],
   );
 
   const { renderElement } = useComponentRenderer({

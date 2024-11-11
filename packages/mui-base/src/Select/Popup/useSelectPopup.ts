@@ -20,7 +20,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setOpen,
     getRootPositionerProps,
     alignOptionToTrigger,
-    alignOptionToTriggerRaw,
     triggerElement,
     positionerElement,
     valueRef,
@@ -40,7 +39,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignOptionToTriggerRaw || !popupRef.current) {
+    if (!alignOptionToTrigger || !popupRef.current) {
       return;
     }
 
@@ -93,12 +92,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
     }
   }, [mounted, alignOptionToTrigger, positionerElement]);
-
-  useEnhancedEffect(() => {
-    if (mounted && !alignOptionToTrigger && alignOptionToTriggerRaw) {
-      handleScrollArrowVisibility();
-    }
-  }, [mounted, alignOptionToTrigger, alignOptionToTriggerRaw, handleScrollArrowVisibility]);
 
   useEnhancedEffect(() => {
     if (
@@ -172,7 +165,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     // When the reference is too close to the top or bottom of the viewport, or the minHeight is
     // reached, we fallback to aligning the popup to the trigger as the UX is poor otherwise.
     const fallbackToAlignPopupToTrigger =
-      triggerRect.top < 30 || triggerRect.bottom > viewportHeight - 30 || height < minHeight;
+      triggerRect.top < 20 || triggerRect.bottom > viewportHeight - 20 || height < minHeight;
 
     if (fallbackToAlignPopupToTrigger) {
       initialPlacedRef.current = true;
@@ -241,7 +234,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         ['data-id' as string]: `${id}-popup`,
         onScroll(event) {
           if (
-            !alignOptionToTriggerRaw ||
+            !alignOptionToTrigger ||
             !positionerElement ||
             !popupRef.current ||
             !initialPlacedRef.current
@@ -315,7 +308,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       getRootPositionerProps,
       id,
       alignOptionToTrigger,
-      alignOptionToTriggerRaw,
       positionerElement,
       popupRef,
       handleScrollArrowVisibility,
