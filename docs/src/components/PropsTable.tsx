@@ -6,7 +6,7 @@ import { highlighter } from 'docs/src/syntax-highlighting';
 import { getApiReferenceData } from 'docs/src/app/(content)/components/[slug]/getApiReferenceData';
 import { rehypeInlineCode } from 'docs/src/syntax-highlighting/rehype-inline-code.mjs';
 import * as Table from './Table';
-import { PropsTableTooltip } from './PropsTableTooltip';
+import { PropsTablePopover } from './PropsTablePopover';
 
 const getHighlighter = () => highlighter;
 
@@ -64,9 +64,12 @@ export async function PropsTable({ component, ...props }: PropsTableProps) {
                 )}
               </Table.Cell>
               <Table.Cell>
-                <PropsTableTooltip>
+                {/* <PropsTableTooltip>
                   <Description />
-                </PropsTableTooltip>
+                </PropsTableTooltip> */}
+                <PropsTablePopover>
+                  <Description />
+                </PropsTablePopover>
               </Table.Cell>
             </Table.Row>
           );
