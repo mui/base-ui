@@ -41,23 +41,51 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, container, id, keepMounted = false, render, initialFocus, ...other } = props;
+  const {
+    className,
+    container,
+    id,
+    keepMounted = false,
+    render,
+    initialFocus,
+    finalFocus,
+    ...other
+  } = props;
 
-  const rootContext = useAlertDialogRootContext();
-  const { open, nestedOpenDialogCount } = rootContext;
+  const {
+    descriptionElementId,
+    floatingRootContext,
+    getPopupProps,
+    mounted,
+    nestedOpenDialogCount,
+    onOpenChange,
+    open,
+    openMethod,
+    popupRef,
+    setPopupElement,
+    setPopupElementId,
+    titleElementId,
+    transitionStatus,
+  } = useAlertDialogRootContext();
 
-  const popupRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, mounted, transitionStatus, resolvedInitialFocus } =
-    useDialogPopup({
-      id,
-      ref: mergedRef,
-      isTopmost: nestedOpenDialogCount === 0,
-      dismissible: false,
-      initialFocus,
-      ...rootContext,
-    });
+  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+    descriptionElementId,
+    floatingRootContext,
+    getPopupProps,
+    id,
+    initialFocus,
+    modal: true,
+    mounted,
+    onOpenChange,
+    open,
+    openMethod,
+    ref: mergedRef,
+    setPopupElement,
+    setPopupElementId,
+    titleElementId,
+  });
 
   const ownerState: AlertDialogPopup.OwnerState = React.useMemo(
     () => ({
@@ -92,6 +120,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         modal
         disabled={!mounted}
         initialFocus={resolvedInitialFocus}
+        returnFocus={finalFocus}
       >
         {renderElement()}
       </FloatingFocusManager>
@@ -119,6 +148,11 @@ namespace AlertDialogPopup {
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+    /**
+     * Determines an element to focus after the dialog is closed.
+     * If not provided, the focus returns to the trigger.
+     */
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export interface OwnerState {
@@ -145,6 +179,11 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    * The container element to which the popup is appended to.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
+  /**
+   * Determines an element to focus after the dialog is closed.
+   * If not provided, the focus returns to the trigger.
+   */
+  finalFocus: refType,
   /**
    * @ignore
    */

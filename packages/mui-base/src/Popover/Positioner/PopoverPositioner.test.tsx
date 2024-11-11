@@ -142,4 +142,77 @@ describe('<Popover.Positioner />', () => {
       });
     });
   });
+
+  describe('prop: final focus', () => {
+    it('should focus the trigger by default when closed', async () => {
+      const { getByText } = await render(
+        <div>
+          <input />
+          <Popover.Root animated={false}>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Root>
+          <input />
+        </div>,
+      );
+
+      const trigger = getByText('Open');
+      await act(async () => {
+        trigger.click();
+      });
+
+      const closeButton = getByText('Close');
+      await act(async () => {
+        closeButton.click();
+      });
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should focus the element provided to the prop when closed', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement | null>(null);
+        return (
+          <div>
+            <input />
+            <Popover.Root animated={false}>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Positioner finalFocus={inputRef}>
+                <Popover.Popup>
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Root>
+            <input />
+            <input data-testid="input-to-focus" ref={inputRef} />
+            <input />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await act(async () => {
+        trigger.click();
+      });
+
+      const closeButton = getByText('Close');
+      await act(async () => {
+        closeButton.click();
+      });
+
+      const inputToFocus = getByTestId('input-to-focus');
+
+      await waitFor(() => {
+        expect(inputToFocus).toHaveFocus();
+      });
+    });
+  });
 });
