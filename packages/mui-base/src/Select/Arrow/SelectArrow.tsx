@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
+import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';

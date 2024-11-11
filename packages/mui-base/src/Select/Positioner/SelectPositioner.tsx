@@ -10,18 +10,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
-
-type SelectPositionerContext = ReturnType<typeof useSelectPositioner>['positioner'];
-
-const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
-
-export function useSelectPositionerContext() {
-  const context = React.useContext(SelectPositionerContext);
-  if (context === null) {
-    throw new Error('useSelectPositionerContext must be used within a SelectPositioner');
-  }
-  return context;
-}
+import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
  *

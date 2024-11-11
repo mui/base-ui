@@ -12,7 +12,9 @@ export const SelectIndexContext = React.createContext<SelectIndexContext | undef
 export function useSelectIndexContext() {
   const context = React.useContext(SelectIndexContext);
   if (context === undefined) {
-    throw new Error('useSelectIndexContext must be used within a SelectIndexContext');
+    throw new Error(
+      'Base UI: SelectIndexContext is missing. Select parts must be placed within <Select.Root>.',
+    );
   }
   return context;
 }

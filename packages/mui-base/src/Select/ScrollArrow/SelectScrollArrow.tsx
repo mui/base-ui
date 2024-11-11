@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { MAX_Z_INDEX } from '../../utils/constants';
-import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
+import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
 
 /**

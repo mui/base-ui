@@ -10,7 +10,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useSelectPositionerContext } from '../Positioner/SelectPositioner';
+import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
   ...popupOpenStateMapping,
