@@ -50,7 +50,8 @@
       "default": "'bottom'"
     },
     "sideOffset": { "type": { "name": "number" }, "default": "0" },
-    "sticky": { "type": { "name": "bool" }, "default": "false" }
+    "sticky": { "type": { "name": "bool" }, "default": "false" },
+    "trackAnchor": { "type": { "name": "bool" }, "default": "true" }
   },
   "name": "SelectPositioner",
   "imports": [

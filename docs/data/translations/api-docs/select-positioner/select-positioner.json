@@ -34,6 +34,9 @@
     "sideOffset": { "description": "The gap between the anchor element and the Select element." },
     "sticky": {
       "description": "If <code>true</code>, allow the Select to remain in stuck view while the anchor element is scrolled out of view."
+    },
+    "trackAnchor": {
+      "description": "Whether the select popup continuously tracks its anchor after the initial positioning upon mount."
     }
   },
   "classDescriptions": {}

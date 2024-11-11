@@ -281,38 +281,6 @@ const SelectOption = React.forwardRef(function SelectOption(
   );
 });
 
-SelectOption.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * If `true`, the select option will be disabled.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * A text representation of the select option's content.
-   * Used for keyboard text navigation matching.
-   */
-  label: PropTypes.string,
-  /**
-   * The click handler for the select option.
-   */
-  onClick: PropTypes.func,
-  /**
-   * The value of the select option.
-   * @default null
-   */
-  value: PropTypes.any,
-} as any;
-
-export { SelectOption };
-
 namespace SelectOption {
   export interface OwnerState {
     disabled: boolean;
@@ -344,3 +312,35 @@ namespace SelectOption {
     label?: string;
   }
 }
+
+SelectOption.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * If `true`, the select option will be disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * A text representation of the select option's content.
+   * Used for keyboard text navigation matching.
+   */
+  label: PropTypes.string,
+  /**
+   * The click handler for the select option.
+   */
+  onClick: PropTypes.func,
+  /**
+   * The value of the select option.
+   * @default null
+   */
+  value: PropTypes.any,
+} as any;
+
+export { SelectOption };

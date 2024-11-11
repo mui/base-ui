@@ -201,6 +201,17 @@ export function useAnchorPositioning(
     };
   }
 
+  const autoUpdateOptions = React.useMemo(
+    () => ({
+      // Keep `ancestorResize` for window resizing. TODO: determine the best configuration, or
+      // if we need to allow options.
+      ancestorScroll: trackAnchor,
+      elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
+      layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
+    }),
+    [trackAnchor],
+  );
+
   const {
     refs,
     elements,
@@ -218,14 +229,7 @@ export function useAnchorPositioning(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) =>
-          autoUpdate(...args, {
-            // Keep `ancestorResize` for window resizing. TODO: determine the best configuration, or
-            // if we need to allow options.
-            ancestorScroll: trackAnchor,
-            elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
-            layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
-          }),
+      : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
   });
 
@@ -264,10 +268,10 @@ export function useAnchorPositioning(
 
   React.useEffect(() => {
     if (enabled && keepMounted && mounted && elements.domReference && elements.floating) {
-      return autoUpdate(elements.domReference, elements.floating, update);
+      return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
-  }, [enabled, keepMounted, mounted, elements, update]);
+  }, [enabled, keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
   const renderedAlignment = getAlignment(renderedPlacement) || 'center';

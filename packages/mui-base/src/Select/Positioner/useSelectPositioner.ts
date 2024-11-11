@@ -42,7 +42,7 @@ export function useSelectPositioner(
     ...params,
     keepMounted: true,
     enabled: mounted,
-    trackAnchor: !alignOptionToTrigger,
+    trackAnchor: params.trackAnchor ?? !alignOptionToTrigger,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
@@ -176,6 +176,11 @@ export namespace useSelectPositioner {
      * @default 5
      */
     arrowPadding?: number;
+    /**
+     * Whether the select popup continuously tracks its anchor after the initial positioning upon mount.
+     * @default true
+     */
+    trackAnchor?: boolean;
   }
 
   export interface Parameters extends SharedParameters {

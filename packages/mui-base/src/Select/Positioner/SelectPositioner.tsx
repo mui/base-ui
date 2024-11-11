@@ -9,6 +9,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning';
 
 type SelectPositionerContext = ReturnType<typeof useSelectPositioner>['positioner'];
 
@@ -50,11 +51,12 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     hideWhenDetached = false,
     sticky = false,
+    trackAnchor = true,
     container,
     ...otherProps
   } = props;
 
-  const { mounted, setPositionerElement, listRef, labelsRef, floatingRootContext } =
+  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext } =
     useSelectRootContext();
 
   const { getPositionerProps, positioner } = useSelectPositioner({
@@ -72,12 +74,20 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     hideWhenDetached,
     sticky,
+    trackAnchor,
     allowAxisFlip: false,
   });
 
   const mergedRef = useForkRef(ref, setPositionerElement);
 
-  const ownerState: SelectPositioner.OwnerState = React.useMemo(() => ({}), []);
+  const ownerState: SelectPositioner.OwnerState = React.useMemo(
+    () => ({
+      open,
+      side: positioner.side,
+      alignment: positioner.alignment,
+    }),
+    [open, positioner.side, positioner.alignment],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getPositionerProps,
@@ -105,6 +115,18 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     </CompositeList>
   );
 });
+
+namespace SelectPositioner {
+  export interface OwnerState {
+    open: boolean;
+    side: Side | 'none';
+    alignment: Alignment;
+  }
+
+  export interface Props
+    extends useSelectPositioner.SharedParameters,
+      BaseUIComponentProps<'div', OwnerState> {}
+}
 
 SelectPositioner.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -274,14 +296,11 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the select popup continuously tracks its anchor after the initial positioning upon mount.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { SelectPositioner };
-
-namespace SelectPositioner {
-  export interface OwnerState {}
-
-  export interface Props
-    extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
-}

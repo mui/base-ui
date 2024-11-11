@@ -123,6 +123,12 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
   );
 });
 
+namespace SelectOptionText {
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+
+  export interface OwnerState {}
+}
+
 SelectOptionText.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -133,11 +139,5 @@ SelectOptionText.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
 } as any;
-
-namespace SelectOptionText {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
-
-  export interface OwnerState {}
-}
 
 export { SelectOptionText };
