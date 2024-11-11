@@ -132,7 +132,11 @@ const SelectPopup = styled(Select.Popup)`
     calc(var(--available-width) - ${popupPadding * 2}px),
     calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
   );
-  scroll-padding: 15px;
+  scroll-padding: ${popupPadding}px;
+
+  &[data-side='none'] {
+    scroll-padding: 15px;
+  }
 
   --padding: 6px;
   --icon-size: 16px;

@@ -3,15 +3,9 @@ import type { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
-
-function clearPositionerStyles(
-  positionerElement: HTMLElement,
-  originalPositionerStyles: React.CSSProperties,
-) {
-  Object.assign(positionerElement.style, originalPositionerStyles);
-}
+import { clearPositionerStyles } from './utils';
 
 /**
  *
@@ -124,6 +118,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const marginTop = parseFloat(positionerStyles.marginTop) || 10;
     const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
     const minHeight = parseFloat(positionerStyles.minHeight) || 100;
+    const paddingLeft = 10;
+    const paddingRight = 10;
 
     const doc = ownerDocument(triggerElement);
     const triggerRect = triggerElement.getBoundingClientRect();
@@ -155,8 +151,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const maxHeight = viewportHeight - marginTop - marginBottom;
     const scrollTop = idealHeight - height;
 
-    const left = Math.max(10, triggerX + offsetX);
-    const maxRight = viewportWidth - 10;
+    const left = Math.max(paddingLeft, triggerX + offsetX);
+    const maxRight = viewportWidth - paddingRight;
     const rightOverflow = Math.max(0, left + positionerRect.width - maxRight);
 
     positionerElement.style.left = `${left - rightOverflow}px`;
@@ -226,7 +222,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       return undefined;
     }
 
-    const win = ownerDocument(positionerElement).defaultView || window;
+    const win = ownerWindow(positionerElement);
 
     function handleResize() {
       setOpen(false);

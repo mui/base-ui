@@ -60,6 +60,7 @@ export function useSelectPositioner(
         }
 
         return mergeReactProps<'div'>(externalProps, {
+          role: 'presentation',
           hidden: !mounted,
           style: {
             zIndex: MAX_Z_INDEX,

@@ -101,14 +101,18 @@ const SelectPopup = styled(Select.Popup)`
     calc(var(--available-width) - ${popupPadding * 2}px),
     calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
   );
-  scroll-padding: 15px;
-`;
+  scroll-padding: ${popupPadding}px;
 
-const SelectOption = styled(Select.Option)`
+  &[data-side='none'] {
+    scroll-padding: 15px;
+  }
+
   --padding: 6px;
   --icon-size: 16px;
   --icon-margin: 4px;
+`;
 
+const SelectOption = styled(Select.Option)`
   outline: 0;
   cursor: default;
   border-radius: 4px;
