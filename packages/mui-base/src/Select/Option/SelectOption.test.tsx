@@ -184,7 +184,7 @@ describe('<Select.Option />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when option is highlighted', async (t = {}) => {
+    it('should apply data-highlighted attribute when option is highlighted', async function test(t = {}) {
       if (!/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
