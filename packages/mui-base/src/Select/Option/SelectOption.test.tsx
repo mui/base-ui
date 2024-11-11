@@ -184,7 +184,13 @@ describe('<Select.Option />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when option is highlighted', async () => {
+    it('should apply data-highlighted attribute when option is highlighted', async (t = {}) => {
+      if (!/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
       const { user } = await render(
         <Select.Root animated={false} defaultValue="a">
           <Select.Trigger data-testid="trigger" />
