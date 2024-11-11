@@ -25,8 +25,8 @@ import {
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  // isRtl not yet supported for grids (cols > 1)
-  isRtl?: boolean;
+  // rtl not yet supported for grids (cols > 1)
+  rtl?: boolean;
   loop?: boolean;
   activeIndex?: number;
   onActiveIndexChange?: (index: number) => void;
@@ -44,7 +44,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    isRtl = false,
+    rtl = false,
     loop = true,
     dense = false,
     orientation = 'both',
@@ -138,7 +138,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             ] as number; // navigated cell will never be nullish
           }
 
-          const toEndKeys = isRtl
+          const toEndKeys = rtl
             ? {
                 horizontal: [ARROW_LEFT],
                 vertical: [ARROW_DOWN],
@@ -150,7 +150,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                 both: [ARROW_RIGHT, ARROW_DOWN],
               }[orientation];
 
-          const toStartKeys = isRtl
+          const toStartKeys = rtl
             ? {
                 horizontal: [ARROW_RIGHT],
                 vertical: [ARROW_UP],
@@ -206,7 +206,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       dense,
       elementsRef,
       isGrid,
-      isRtl,
+      rtl,
       itemSizes,
       loop,
       onActiveIndexChange,

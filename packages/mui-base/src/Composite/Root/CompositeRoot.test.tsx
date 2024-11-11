@@ -97,10 +97,10 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
-    describe('prop: isRtl', () => {
+    describe('prop: rtl', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
-          <CompositeRoot isRtl orientation="horizontal">
+          <CompositeRoot rtl orientation="horizontal">
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
             <CompositeItem data-testid="3">3</CompositeItem>
@@ -153,7 +153,7 @@ describe('Composite', () => {
 
       it('both horizontal and vertical orientation', async () => {
         const { getByTestId } = render(
-          <CompositeRoot isRtl orientation="both">
+          <CompositeRoot rtl orientation="both">
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
             <CompositeItem data-testid="3">3</CompositeItem>
