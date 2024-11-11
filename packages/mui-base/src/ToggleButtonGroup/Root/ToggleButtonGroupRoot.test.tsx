@@ -212,31 +212,31 @@ describe('<ToggleButtonGroup.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('data-highlighted');
       expect(button1).to.have.attribute('tabindex', '0');
       expect(button1).toHaveFocus();
 
       await user.keyboard('[ArrowRight]');
 
-      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('data-highlighted');
       expect(button2).to.have.attribute('tabindex', '0');
       expect(button2).toHaveFocus();
 
       await user.keyboard('[ArrowRight]');
 
-      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('data-highlighted');
       expect(button1).to.have.attribute('tabindex', '0');
       expect(button1).toHaveFocus();
 
       await user.keyboard('[ArrowDown]');
 
-      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('data-highlighted');
       expect(button2).to.have.attribute('tabindex', '0');
       expect(button2).toHaveFocus();
 
       await user.keyboard('[ArrowDown]');
 
-      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('data-highlighted');
       expect(button1).to.have.attribute('tabindex', '0');
       expect(button1).toHaveFocus();
     });
@@ -253,31 +253,31 @@ describe('<ToggleButtonGroup.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('data-highlighted');
       expect(button1).to.have.attribute('tabindex', '0');
       expect(button1).toHaveFocus();
 
       await user.keyboard('[ArrowLeft]');
 
-      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('data-highlighted');
       expect(button2).to.have.attribute('tabindex', '0');
       expect(button2).toHaveFocus();
 
       await user.keyboard('[ArrowLeft]');
 
-      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('data-highlighted');
       expect(button1).to.have.attribute('tabindex', '0');
       expect(button1).toHaveFocus();
 
       await user.keyboard('[ArrowDown]');
 
-      expect(button2).to.have.attribute('data-active');
+      expect(button2).to.have.attribute('data-highlighted');
       expect(button2).to.have.attribute('tabindex', '0');
       expect(button2).toHaveFocus();
 
       await user.keyboard('[ArrowDown]');
 
-      expect(button1).to.have.attribute('data-active');
+      expect(button1).to.have.attribute('data-highlighted');
       expect(button1).to.have.attribute('tabindex', '0');
       expect(button1).toHaveFocus();
     });

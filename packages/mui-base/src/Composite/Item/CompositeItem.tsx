@@ -21,7 +21,7 @@ const CompositeItem = React.forwardRef(function CompositeItem(
 
   const ownerState: CompositeItem.OwnerState = React.useMemo(
     () => ({
-      active: index === activeIndex,
+      highlighted: index === activeIndex,
     }),
     [index, activeIndex],
   );
@@ -42,7 +42,7 @@ const CompositeItem = React.forwardRef(function CompositeItem(
 
 namespace CompositeItem {
   export interface OwnerState {
-    active: boolean;
+    highlighted: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
