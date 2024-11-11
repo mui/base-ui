@@ -145,10 +145,6 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * The click handler for the select option.
-   */
-  onClick: PropTypes.func,
-  /**
    * @ignore
    */
   open: PropTypes.bool.isRequired,
@@ -297,10 +293,6 @@ namespace SelectOption {
      */
     value?: any;
     /**
-     * The click handler for the select option.
-     */
-    onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
      * If `true`, the select option will be disabled.
      * @default false
      */
@@ -332,10 +324,6 @@ SelectOption.propTypes /* remove-proptypes */ = {
    * Used for keyboard text navigation matching.
    */
   label: PropTypes.string,
-  /**
-   * The click handler for the select option.
-   */
-  onClick: PropTypes.func,
   /**
    * The value of the select option.
    * @default null

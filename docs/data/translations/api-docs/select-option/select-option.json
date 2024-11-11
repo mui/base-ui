@@ -5,7 +5,6 @@
     "label": {
       "description": "A text representation of the select option&#39;s content. Used for keyboard text navigation matching."
     },
-    "onClick": { "description": "The click handler for the select option." },
     "value": { "description": "The value of the select option." }
   },
   "classDescriptions": {}
