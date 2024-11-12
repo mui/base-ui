@@ -13,6 +13,7 @@
     "noErrorTruncation": false,
     "allowJs": true,
     "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
     "paths": {
       "@base_ui/react": ["./packages/mui-base/src"],
       "@base_ui/react/*": ["./packages/mui-base/src/*"],
