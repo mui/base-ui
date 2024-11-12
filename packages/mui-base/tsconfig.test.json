@@ -8,7 +8,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "rootDir": ".",
-    "outDir": "build-tests",
+    "outDir": "build-tests"
   },
   "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "test"],
   "references": [{ "path": "./tsconfig.build.json" }]
