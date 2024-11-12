@@ -19,14 +19,14 @@ describe('<Popover.Positioner />', () => {
   }));
 
   describe('prop: keepMounted', () => {
-    it('has inert attribute when closed', async () => {
+    it('has hidden attribute when closed', async () => {
       await render(
         <Popover.Root animated={false}>
           <Popover.Positioner keepMounted data-testid="positioner" />
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner')).to.have.attribute('inert');
+      expect(screen.getByTestId('positioner')).to.have.attribute('hidden');
     });
 
     it('does not have inert attribute when open', async () => {
