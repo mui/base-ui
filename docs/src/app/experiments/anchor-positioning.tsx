@@ -50,6 +50,7 @@ export default function AnchorPositioning() {
     sticky,
     arrowPadding,
     trackAnchor,
+    mounted: true,
   });
 
   const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {
