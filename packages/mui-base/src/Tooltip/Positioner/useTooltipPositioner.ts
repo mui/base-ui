@@ -3,11 +3,14 @@ import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@fl
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { open = false, keepMounted = false, trackCursorAxis = 'none' } = params;
+  const { keepMounted } = params;
+
+  const { open, mounted, trackCursorAxis } = useTooltipRootContext();
 
   const {
     positionerStyles,
@@ -17,7 +20,7 @@ export function useTooltipPositioner(
     arrowUncentered,
     renderedSide,
     renderedAlignment,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({ ...params, mounted });
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -34,6 +37,7 @@ export function useTooltipPositioner(
 
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
+          hidden: !mounted,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
@@ -42,7 +46,7 @@ export function useTooltipPositioner(
           },
         });
       },
-      [positionerStyles, hidden, trackCursorAxis, open, keepMounted],
+      [keepMounted, open, hidden, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(

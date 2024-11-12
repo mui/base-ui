@@ -11,12 +11,14 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
-import { getInertValue } from '../../utils/getInertValue';
+import { useMenuRootContext } from '../Root/MenuRootContext';
 
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { open = false, keepMounted } = params;
+  const { keepMounted } = params;
+
+  const { open, mounted } = useMenuRootContext();
 
   const {
     positionerStyles,
@@ -27,7 +29,7 @@ export function useMenuPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext: floatingContext,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({ ...params, mounted });
 
   const getPositionerProps: useMenuPositioner.ReturnValue['getPositionerProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -37,16 +39,15 @@ export function useMenuPositioner(
         hiddenStyles.pointerEvents = 'none';
       }
 
-      return mergeReactProps(externalProps, {
+      return mergeReactProps<'div'>(externalProps, {
+        hidden: !mounted,
         style: {
           ...positionerStyles,
           ...hiddenStyles,
         },
-        'aria-hidden': !open || undefined,
-        inert: getInertValue(!open),
       });
     },
-    [positionerStyles, open, keepMounted, hidden],
+    [keepMounted, open, hidden, positionerStyles, mounted],
   );
 
   return React.useMemo(

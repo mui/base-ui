@@ -9,11 +9,14 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,
 ): usePreviewCardPositioner.ReturnValue {
-  const { open = false, keepMounted = false } = params;
+  const { keepMounted } = params;
+
+  const { open, mounted } = usePreviewCardRootContext();
 
   const {
     positionerStyles,
@@ -24,7 +27,7 @@ export function usePreviewCardPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({ ...params, mounted });
 
   const getPositionerProps: usePreviewCardPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -35,7 +38,7 @@ export function usePreviewCardPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(externalProps, {
+        return mergeReactProps<'div'>(externalProps, {
           style: {
             ...positionerStyles,
             ...hiddenStyles,
