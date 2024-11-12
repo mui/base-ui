@@ -25,9 +25,6 @@
     "type": "opencollective",
     "url": "https://opencollective.com/mui-org"
   },
-  "main": "./build/cjs/index.js",
-  "module": "./build/esm/index.js",
-  "types": "./build/types/index.d.ts",
   "exports": {
     ".": {
       "import": "./src/index.ts"
@@ -39,14 +36,14 @@
   "imports": {
     "#test-utils": "./test/index.ts"
   },
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
-    "build:types": "tsc -b tsconfig.build.json",
-    "test:package": "attw --pack ./build",
+    "build:types": "tsc -b tsconfig.build.json && tsc -b tsconfig.build.cjs.json",
+    "test:package-types": "attw --pack ./build --include-entrypoints ./Accordion ./Menu ./Tooltip",
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/mui-base/**/*.test.{js,ts,tsx}'",

@@ -386,7 +386,7 @@ jobs:
           command: pnpm release:build
       - run:
           name: Are the types wrong?
-          command: pnpm -r test:package
+          command: pnpm -r test:package-types
 
 workflows:
   version: 2

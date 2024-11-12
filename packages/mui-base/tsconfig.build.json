@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build/types"
+    "outDir": "build/esm"
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
