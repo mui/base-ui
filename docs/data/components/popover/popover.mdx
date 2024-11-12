@@ -185,11 +185,10 @@ When combining `openOnHover` with the Backdrop component, ensure the Backdrop do
 
 This will prevent the Popup from closing unexpectedly.
 
-If the Backdrop is colored, then you may want to ensure the trigger element can appear over the top of it, so it acts more like a mask. To do so, ensure their z-index layering is correct:
+If the Backdrop is colored, then you may want to ensure the trigger element can appear over the top of it, so it acts more like a mask. To do so, ensure the z-index layering is correct:
 
 ```jsx
-<Popover.Trigger style={{ position: 'relative', zIndex: 2 ** 31 - 1 }} />
-<Popover.Backdrop style={{ zIndex: 2 ** 31 - 2 }} />
+<Popover.Trigger style={{ position: 'relative', zIndex: 1 }} />
 ```
 
 <Callout type="info">

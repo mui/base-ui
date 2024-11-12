@@ -39,7 +39,6 @@ export function usePreviewCardPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            zIndex: 2147483647, // max z-index
           },
         });
       },
