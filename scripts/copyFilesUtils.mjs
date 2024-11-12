@@ -101,18 +101,33 @@ export async function createPackageFile() {
     private: false,
     main: './cjs/index.js',
     module: './esm/index.js',
-    types: './types/index.d.ts',
-    type: 'commonjs',
+    types: 'index',
+    typesVersions: {
+      '*': {
+        index: ['./cjs/index.d.ts'],
+        '*': ['./cjs/*/index.d.ts'],
+      },
+    },
     exports: {
       '.': {
-        types: './types/index.d.ts',
-        import: './esm/index.js',
-        require: './cjs/index.js',
+        require: {
+          types: './cjs/index.d.ts',
+          default: './cjs/index.js',
+        },
+        import: {
+          types: './esm/index.d.js',
+          default: './esm/index.js',
+        },
       },
       './*': {
-        types: './types/*/index.d.ts',
-        import: './esm/*/index.js',
-        require: './cjs/*/index.js',
+        require: {
+          types: './cjs/*/index.d.ts',
+          default: './cjs/*/index.js',
+        },
+        import: {
+          types: './esm/*/index.d.js',
+          default: './esm/*/index.js',
+        },
       },
     },
   };
