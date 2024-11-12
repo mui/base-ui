@@ -74,7 +74,6 @@ module.exports = function getBabelConfig(api) {
         alias: defaultAlias,
       },
     ],
-    'babel-plugin-add-import-extension',
   ];
 
   return {
@@ -109,9 +108,6 @@ module.exports = function getBabelConfig(api) {
       test: {
         sourceMaps: 'both',
         plugins: devPlugins,
-      },
-      production: {
-        plugins: ['babel-plugin-add-import-extension'],
       },
     },
   };
