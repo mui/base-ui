@@ -1,28 +1,30 @@
 import { visitParents } from 'unist-util-visit-parents';
 
+/**
+ * - Adds a `data-inline-code` attribute to distinguish inline code from code blocks
+ * - Tweaks how syntax highlighting works for tags
+ */
 export function rehypeInlineCode() {
   return (tree) => {
     visitParents(tree, (node, ancestors) => {
-      if (node.tagName !== 'code' || ancestors.find(({ tagName }) => tagName === 'pre')) {
+      const name = node.tagName || node.name;
+      if (name !== 'code' || ancestors.find(({ tagName }) => tagName === 'pre')) {
         return;
       }
 
-      const [child] = node.children;
-
-      if (child?.type !== 'text') {
-        return;
-      }
-
-      // HTML tags
-      if (child.value.match(/^<[a-z].+>$/)) {
+      if (node.type === 'element') {
         node.properties ??= {};
-        node.properties.style = { color: 'var(--syntax-tag)' };
-        return;
+        node.properties['data-inline-code'] = '';
+      } else if (node.type === 'mdxJsxTextElement') {
+        node.attributes ??= [];
+        node.attributes.push({
+          type: 'mdxJsxAttribute',
+          name: 'data-inline-code',
+          value: '',
+        });
       }
 
-      // Everything else
-      node.properties ??= {};
-      node.properties.style = { color: 'var(--syntax-constant)' };
+      // TODO Tweak how syntax highlighting works for tags
     });
   };
 }

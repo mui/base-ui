@@ -15,3 +15,8 @@
 [data-language='css'] [style='color:var(--syntax-constant)']:first-child {
   --syntax-constant: var(--color-foreground);
 }
+
+[data-inline-code] {
+  --syntax-entity: var(--color-blue);
+  --syntax-parameter: var(--color-blue);
+}
