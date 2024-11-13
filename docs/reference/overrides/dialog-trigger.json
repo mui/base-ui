@@ -2,7 +2,7 @@
   "name": "DialogTrigger",
   "attributes": {
     "[data-popup-open]": {
-      "description": "Present when a corresponding dialog is open."
+      "description": "Present when the corresponding dialog is open."
     }
   }
 }
