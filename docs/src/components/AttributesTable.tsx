@@ -12,12 +12,6 @@ interface AttributesTableProps extends React.ComponentProps<typeof Table.Root> {
 export async function AttributesTable({ data, ...props }: AttributesTableProps) {
   return (
     <Table.Root {...props}>
-      <Table.Head>
-        <Table.Row>
-          <Table.HeaderCell className="w-[172px]">Attribute</Table.HeaderCell>
-          <Table.HeaderCell className="w-full">State</Table.HeaderCell>
-        </Table.Row>
-      </Table.Head>
       <Table.Body>
         {Object.keys(data).map(async (name) => {
           const attribute = data[name];
@@ -29,8 +23,8 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
 
           return (
             <Table.Row key={name}>
-              <Table.HeaderCell scope="row">
-                <code>{name}</code>
+              <Table.HeaderCell className="w-[172px]" scope="row">
+                <code style={{ color: 'var(--color-green)' }}>{name}</code>
               </Table.HeaderCell>
               <Table.Cell>
                 <AttributeDescription />

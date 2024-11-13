@@ -53,7 +53,7 @@ export function Reference({ component, parts }: ReferenceProps) {
 
           {def.attributes && (
             <React.Fragment>
-              <p className="mt-7 mb-4">Use the following data attributes for styling.</p>
+              <p className="mt-7 mb-3">Use the following data attributes for styling:</p>
               <AttributesTable data={def.attributes} />
             </React.Fragment>
           )}

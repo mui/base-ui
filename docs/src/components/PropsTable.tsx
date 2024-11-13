@@ -43,7 +43,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <code>{name}</code>
+                <code style={{ color: 'var(--color-navy)' }}>{name}</code>
               </Table.HeaderCell>
               <Table.Cell>
                 <PropType />

@@ -1,8 +1,8 @@
 {
   "name": "DialogTrigger",
-  "data-attributes": {
+  "attributes": {
     "[data-popup-open]": {
-      "description": "Trigger has opened a corresponding dialog."
+      "description": "Present when a corresponding dialog is open."
     }
   }
 }

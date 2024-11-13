@@ -18,16 +18,16 @@
   },
   "attributes": {
     "[data-open]": {
-      "description": "Dialog is open."
+      "description": "Present when the dialog is open."
     },
     "[data-closed]": {
-      "description": "Dialog is closed."
+      "description": "Present when the dialog is closed."
     },
     "[data-entering]": {
-      "description": "Dialog is animating in."
+      "description": "Present when the dialog is animating in."
     },
     "[data-exiting]": {
-      "description": "Dialog is animating out."
+      "description": "Present when the dialog is animating out."
     }
   }
 }
