@@ -104,7 +104,19 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     extraProps: otherProps,
   });
 
-  return renderElement();
+  const contextValue = React.useMemo(
+    () => ({
+      selected,
+      indexRef,
+    }),
+    [selected, indexRef],
+  );
+
+  return (
+    <SelectOptionContext.Provider value={contextValue}>
+      {renderElement()}
+    </SelectOptionContext.Provider>
+  );
 });
 
 InnerSelectOption.propTypes /* remove-proptypes */ = {
@@ -221,6 +233,7 @@ const SelectOption = React.forwardRef(function SelectOption(
   const { value: valueProp = null, label, ...otherProps } = props;
 
   const listItem = useCompositeListItem({ label });
+
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
   const { getItemProps, setOpen, setValue, open, selectionRef, typingRef, valuesRef, popupRef } =
     useSelectRootContext();
@@ -243,37 +256,27 @@ const SelectOption = React.forwardRef(function SelectOption(
     };
   }, [listItem.index, valueProp, valuesRef]);
 
-  const isHighlighted = activeIndex === listItem.index;
-  const isSelected = selectedIndex === listItem.index;
-
-  const contextValue = React.useMemo(
-    () => ({
-      selected: isSelected,
-      indexRef,
-    }),
-    [isSelected, indexRef],
-  );
+  const highlighted = activeIndex === listItem.index;
+  const selected = selectedIndex === listItem.index;
 
   return (
-    <SelectOptionContext.Provider value={contextValue}>
-      <MemoizedInnerSelectOption
-        ref={mergedRef}
-        highlighted={isHighlighted}
-        selected={isSelected}
-        getRootItemProps={getItemProps}
-        setOpen={setOpen}
-        open={open}
-        selectionRef={selectionRef}
-        typingRef={typingRef}
-        value={valueProp}
-        setValue={setValue}
-        selectedIndexRef={selectedIndexRef}
-        indexRef={indexRef}
-        setActiveIndex={setActiveIndex}
-        popupRef={popupRef}
-        {...otherProps}
-      />
-    </SelectOptionContext.Provider>
+    <MemoizedInnerSelectOption
+      ref={mergedRef}
+      highlighted={highlighted}
+      selected={selected}
+      getRootItemProps={getItemProps}
+      setOpen={setOpen}
+      open={open}
+      selectionRef={selectionRef}
+      typingRef={typingRef}
+      value={valueProp}
+      setValue={setValue}
+      selectedIndexRef={selectedIndexRef}
+      indexRef={indexRef}
+      setActiveIndex={setActiveIndex}
+      popupRef={popupRef}
+      {...otherProps}
+    />
   );
 });
 

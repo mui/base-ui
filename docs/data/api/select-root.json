@@ -5,7 +5,6 @@
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "defaultValue": { "type": { "name": "any" }, "default": "null" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "loop": { "type": { "name": "bool" }, "default": "true" },
     "name": { "type": { "name": "string" } },
     "onOpenChange": { "type": { "name": "func" } },
     "onValueChange": { "type": { "name": "func" } },

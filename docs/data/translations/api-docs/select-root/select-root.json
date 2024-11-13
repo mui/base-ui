@@ -10,9 +10,6 @@
     "defaultOpen": { "description": "If <code>true</code>, the Select is initially open." },
     "defaultValue": { "description": "The default value of the select." },
     "disabled": { "description": "If <code>true</code>, the Select is disabled." },
-    "loop": {
-      "description": "If <code>true</code>, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
-    },
     "name": { "description": "The name of the Select in the owning form." },
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."

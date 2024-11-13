@@ -166,7 +166,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    loop: params.loop,
     onNavigate: setActiveIndex,
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignOptionToTrigger` prop enabled, causing a performance issue on Chrome.
@@ -340,11 +339,6 @@ export namespace useSelectRoot {
      * @default false
      */
     defaultOpen?: boolean;
-    /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-     * @default true
-     */
-    loop?: boolean;
     /**
      * Callback fired when the component requests to be opened or closed.
      */

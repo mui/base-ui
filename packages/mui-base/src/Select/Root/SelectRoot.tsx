@@ -28,7 +28,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     defaultOpen = false,
     onOpenChange,
     alignOptionToTrigger = true,
-    loop = true,
     animated = true,
     name,
     disabled = false,
@@ -44,7 +43,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     defaultOpen,
     onOpenChange,
     alignOptionToTrigger,
-    loop,
     animated,
     name,
     disabled,
@@ -152,11 +150,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-   * @default true
-   */
-  loop: PropTypes.bool,
   /**
    * The name of the Select in the owning form.
    */
