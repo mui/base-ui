@@ -1,0 +1,45 @@
+{
+  "name": "TooltipRoot",
+  "description": "The foundation for building custom-styled tooltips.",
+  "props": {
+    "animated": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the tooltip can animate, adding animation-related attributes and allowing for exit\nanimations to play. Useful to disable in tests to remove async behavior."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "0",
+      "description": "The delay in milliseconds until the tooltip popup is closed."
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the tooltip popup is open by default. Use when uncontrolled."
+    },
+    "delay": {
+      "type": "number",
+      "default": "600",
+      "description": "The delay in milliseconds until the tooltip popup is opened."
+    },
+    "hoverable": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the user can move their cursor from the trigger element toward the tooltip popup element\nwithout it closing using a \"safe polygon\" technique."
+    },
+    "onOpenChange": {
+      "type": "(open, event, reason) => void",
+      "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."
+    },
+    "open": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the tooltip popup is open. Use when controlled."
+    },
+    "trackCursorAxis": {
+      "type": "'none' | 'x' | 'y' | 'both'",
+      "default": "'none'",
+      "description": "Determines which axis the tooltip should track the cursor on."
+    }
+  }
+}

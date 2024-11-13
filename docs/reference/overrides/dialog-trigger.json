@@ -1,0 +1,8 @@
+{
+  "name": "DialogTrigger",
+  "data-attributes": {
+    "[data-popup-open]": {
+      "description": "Trigger has opened a corresponding dialog."
+    }
+  }
+}

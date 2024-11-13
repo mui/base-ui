@@ -1,0 +1,17 @@
+{
+  "name": "DialogPopup",
+  "attributes": {
+    "[data-open]": {
+      "description": "Dialog is open."
+    },
+    "[data-closed]": {
+      "description": "Dialog is closed."
+    },
+    "[data-entering]": {
+      "description": "Dialog is animating in."
+    },
+    "[data-exiting]": {
+      "description": "Dialog is animating out."
+    }
+  }
+}

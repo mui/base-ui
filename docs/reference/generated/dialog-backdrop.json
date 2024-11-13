@@ -1,0 +1,33 @@
+{
+  "name": "DialogBackdrop",
+  "description": "An overlay displayed beneath the popup. Renders a `<div>` element.",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the backdrop element is kept in the DOM when closed."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    }
+  },
+  "attributes": {
+    "[data-open]": {
+      "description": "Dialog is open."
+    },
+    "[data-closed]": {
+      "description": "Dialog is closed."
+    },
+    "[data-entering]": {
+      "description": "Dialog is animating in."
+    },
+    "[data-exiting]": {
+      "description": "Dialog is animating out."
+    }
+  }
+}

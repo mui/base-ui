@@ -3,6 +3,12 @@
     @apply text-sm;
     table-layout: fixed;
     width: 100%;
+    vertical-align: top;
+  }
+
+  .TableHead,
+  .TableBody {
+    vertical-align: inherit;
   }
 
   .TableHeaderCell {

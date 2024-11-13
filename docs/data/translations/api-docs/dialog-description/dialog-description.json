@@ -1,5 +1,5 @@
 {
-  "componentDescription": "",
+  "componentDescription": "A paragraph with additional information about the dialog. Renders a `<p>` element.",
   "propDescriptions": {
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."

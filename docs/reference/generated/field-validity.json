@@ -1,0 +1,10 @@
+{
+  "name": "FieldValidity",
+  "description": "Render prop component that provides the field's validity state and value to its children.",
+  "props": {
+    "children": {
+      "type": "(validity) => React.ReactNode",
+      "required": true
+    }
+  }
+}

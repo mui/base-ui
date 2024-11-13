@@ -10,6 +10,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const ownerState = {};
 
 /**
+ * A paragraph with additional information about the dialog. Renders a `<p>` element.
  *
  * Demos:
  *

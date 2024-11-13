@@ -1,0 +1,8 @@
+{
+  "name": "MenuRoot",
+  "props": {
+    "onOpenChange": {
+      "type": "(open, event) => void"
+    }
+  }
+}

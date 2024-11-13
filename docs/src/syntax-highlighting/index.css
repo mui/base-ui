@@ -19,4 +19,5 @@
 [data-inline-code] {
   --syntax-entity: var(--color-blue);
   --syntax-parameter: var(--color-blue);
+  --syntax-variable: var(--color-blue);
 }

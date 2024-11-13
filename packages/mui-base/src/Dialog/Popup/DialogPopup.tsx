@@ -28,6 +28,7 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
 };
 
 /**
+ * A component that groups the dialog contents. Renders a `<div>` element.
  *
  * Demos:
  *

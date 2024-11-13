@@ -40,9 +40,9 @@ export function PropsTablePopover({ children }: PropsTablePopoverProps) {
         sideOffset={4}
         collisionPadding={16}
       >
-        <Popover.Popup render={<Popup className="p-4 text-sm" />}>
+        <Popover.Popup render={<Popup className="px-4 py-3.5 text-sm" />}>
           <div className="max-w-[300px]">
-            <Popover.Description render={children} />
+            <Popover.Description>{children}</Popover.Description>
           </div>
         </Popover.Popup>
       </Popover.Positioner>
