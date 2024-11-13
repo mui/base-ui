@@ -42,11 +42,11 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
-    "@floating-ui/react": "^0.26.26",
+    "@floating-ui/react": "^0.26.27",
     "@floating-ui/react-dom": "^2.1.2",
     "@floating-ui/utils": "^0.2.8",
     "@mui/types": "^7.2.19",
-    "@mui/utils": "^6.1.6",
+    "@mui/utils": "^6.1.7",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1",
     "use-sync-external-store": "^1.2.2"
@@ -59,7 +59,7 @@
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.13",
     "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0",
     "@types/sinon": "^17.0.3",
     "@types/use-sync-external-store": "^0.0.6",
     "chai": "^4.5.0",
