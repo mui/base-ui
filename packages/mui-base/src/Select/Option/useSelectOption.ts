@@ -37,11 +37,11 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
   // option upon close when tabbing out: https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
   React.useEffect(() => {
-    if (!open || !ref.current) {
+    if (!ref.current) {
       return;
     }
 
-    ref.current.setAttribute('tabindex', highlighted ? '0' : '-1');
+    ref.current.setAttribute('tabindex', highlighted || !open ? '0' : '-1');
   }, [open, highlighted]);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -59,6 +59,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
 
   const prevPopupHeightRef = React.useRef(0);
+  const allowFocusSyncRef = React.useRef(true);
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
@@ -69,7 +70,9 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             pointerEvents: disabled ? 'none' : undefined,
           },
           onFocus() {
-            setActiveIndex(indexRef.current);
+            if (allowFocusSyncRef.current) {
+              setActiveIndex(indexRef.current);
+            }
           },
           onMouseMove() {
             setActiveIndex(indexRef.current);
@@ -86,9 +89,13 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
             // With `alignOptionToTrigger`, avoid re-rendering the root due to `onMouseLeave`
             // firing and causing a performance issue when expanding the popup.
             if (popup.offsetHeight === prevPopupHeightRef.current) {
+              // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
+              // the mouse out of the popup.
+              allowFocusSyncRef.current = false;
               setActiveIndex(null);
               requestAnimationFrame(() => {
                 popup.focus({ preventScroll: true });
+                allowFocusSyncRef.current = true;
               });
             }
           },

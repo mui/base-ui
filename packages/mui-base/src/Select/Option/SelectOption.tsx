@@ -94,7 +94,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
       });
       // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
       // cause the index state to be stuck when leaving the select popup.
-      rootProps.onFocus = undefined;
+      delete rootProps.onFocus;
       return getItemProps(rootProps);
     },
     render: render ?? 'div',

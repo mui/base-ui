@@ -131,8 +131,7 @@ const SelectOption = styled(Select.Option)`
     opacity: 0.5;
   }
 
-  &[data-highlighted],
-  &:focus {
+  &[data-highlighted] {
     background-color: black;
     color: white;
   }
