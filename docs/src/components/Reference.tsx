@@ -5,8 +5,8 @@ import { join } from 'path';
 import { readFileSync } from 'node:fs';
 import { evaluateMdx } from 'docs/src/evaluate-mdx';
 import { useMDXComponents } from 'docs/src/mdx-components';
+import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { PropsTable } from './PropsTable';
-import { mdxPlugins } from '../mdx-plugins';
 import { AttributesTable } from './AttributesTable';
 
 interface ReferenceProps {
@@ -71,7 +71,7 @@ interface CreateMDXOptions {
 async function renderComponentInfo({ heading, description = '' }: CreateMDXOptions) {
   const mdx = `### ${heading}\n${description}`;
   const Component = await evaluateMdx(mdx, {
-    ...mdxPlugins,
+    rehypePlugins: rehypeSyntaxHighlighting,
     useMDXComponents,
   });
   return <Component />;

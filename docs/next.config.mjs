@@ -5,34 +5,22 @@ import * as fs from 'fs';
 // eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
 import nextMdx from '@next/mdx';
-import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
 import { rehypeDemos } from './src/components/demo/rehypeDemos.mjs';
-import { highlighter } from './src/syntax-highlighting/index.mjs';
-import { rehypeInlineCode } from './src/syntax-highlighting/rehype-inline-code.mjs';
+import { rehypeSyntaxHighlighting } from './src/syntax-highlighting/index.mjs';
 import { rehypeQuickNav } from './src/components/quick-nav/rehype-quick-nav.mjs';
 import { rehypeSlug } from './src/components/quick-nav/rehype-slug.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
-const getHighlighter = () => highlighter;
 
 const withMdx = nextMdx({
   options: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeDemos,
-      [
-        rehypePrettyCode,
-        {
-          getHighlighter,
-          grid: false,
-          theme: 'base-ui',
-          defaultLang: 'jsx',
-        },
-      ],
-      rehypeInlineCode,
+      ...rehypeSyntaxHighlighting,
       rehypeSlug,
       rehypeExtractToc,
       rehypeQuickNav,

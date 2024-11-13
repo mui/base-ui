@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { evaluateMdx } from 'docs/src/evaluate-mdx';
+import { inlineMdxComponents, tableMdxComponents } from 'docs/src/mdx-components';
+import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { PropsTablePopover } from './PropsTablePopover';
 import * as Table from './Table';
 import type { PropDef } from './Reference';
-import { evaluateMdx } from '../evaluate-mdx';
-import { mdxPlugins } from '../mdx-plugins';
-import { inlineMdxComponents, tableMdxComponents } from '../mdx-components';
 
 interface PropsTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, PropDef>;
@@ -26,17 +26,17 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
           const prop = data[name];
 
           const PropDescription = await evaluateMdx(prop.description, {
-            ...mdxPlugins,
+            rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => inlineMdxComponents,
           });
 
           const PropType = await evaluateMdx(`\`${prop.type}\``, {
-            ...mdxPlugins,
+            rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => tableMdxComponents,
           });
 
           const PropDefault = await evaluateMdx(`\`${prop.default}\``, {
-            ...mdxPlugins,
+            rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => tableMdxComponents,
           });
 
