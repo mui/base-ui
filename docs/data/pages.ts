@@ -39,6 +39,7 @@ const pages: readonly RouteMetadata[] = [
       { pathname: '/components/react-radio-group', title: 'Radio Group' },
       { pathname: '/components/react-scroll-area', title: 'Scroll Area' },
       { pathname: '/components/react-separator', title: 'Separator' },
+      { pathname: '/components/react-select', title: 'Select' },
       { pathname: '/components/react-slider', title: 'Slider' },
       { pathname: '/components/react-switch', title: 'Switch' },
       { pathname: '/components/react-tabs', title: 'Tabs' },

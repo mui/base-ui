@@ -19,6 +19,9 @@ export function useTransitionStatus(open: boolean, enabled = true) {
   if (enabled) {
     if (open && !mounted) {
       setMounted(true);
+      if (transitionStatus !== 'entering') {
+        setTransitionStatus('entering');
+      }
     }
 
     if (!open && mounted && transitionStatus !== 'exiting') {
@@ -34,8 +37,6 @@ export function useTransitionStatus(open: boolean, enabled = true) {
     if (!enabled || !open) {
       return undefined;
     }
-
-    setTransitionStatus('entering');
 
     const frame = requestAnimationFrame(() => {
       setTransitionStatus(undefined);

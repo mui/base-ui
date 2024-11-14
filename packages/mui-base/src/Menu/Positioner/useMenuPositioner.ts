@@ -41,7 +41,6 @@ export function useMenuPositioner(
         style: {
           ...positionerStyles,
           ...hiddenStyles,
-          zIndex: 2147483647, // max z-index
         },
         'aria-hidden': !open || undefined,
         inert: getInertValue(!open),

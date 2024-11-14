@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "focusableWhenDisabled": { "type": { "name": "bool" }, "default": "false" },
+    "label": { "type": { "name": "string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "SelectTrigger",
+  "imports": [
+    "import { Select } from '@base_ui/react/Select';\nconst SelectTrigger = Select.Trigger;"
+  ],
+  "classes": [],
+  "muiName": "SelectTrigger",
+  "filename": "/packages/mui-base/src/Select/Trigger/SelectTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

@@ -173,7 +173,6 @@ export function useScrub(params: ScrubParams) {
               top: 0,
               left: 0,
               pointerEvents: 'none',
-              zIndex: 2147483647, // max z-index
             },
           },
         ),

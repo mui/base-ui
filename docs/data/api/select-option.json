@@ -1,0 +1,20 @@
+{
+  "props": {
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "label": { "type": { "name": "string" } },
+    "value": { "type": { "name": "any" }, "default": "null" }
+  },
+  "name": "SelectOption",
+  "imports": [
+    "import { Select } from '@base_ui/react/Select';\nconst SelectOption = Select.Option;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectOption",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/mui-base/src/Select/Option/SelectOption.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

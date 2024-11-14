@@ -6,7 +6,6 @@ export function usePreviewCardBackdrop(): usePreviewCardBackdrop.ReturnValue {
   const getBackdropProps = React.useCallback((externalProps = {}) => {
     return mergeReactProps<'div'>(externalProps, {
       style: {
-        zIndex: 2147483647, // max z-index
         overflow: 'auto',
         position: 'fixed',
         inset: 0,

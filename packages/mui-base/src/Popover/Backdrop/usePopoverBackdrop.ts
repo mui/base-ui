@@ -7,7 +7,6 @@ export function usePopoverBackdrop(): usePopoverBackdrop.ReturnValue {
     return mergeReactProps<'div'>(externalProps, {
       role: 'presentation',
       style: {
-        zIndex: 2147483647, // max z-index
         overflow: 'auto',
         position: 'fixed',
         inset: 0,
