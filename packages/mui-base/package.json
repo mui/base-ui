@@ -42,7 +42,7 @@
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
-    "build:types": "tsc -b tsconfig.build.json && tsc -b tsconfig.build.cjs.json",
+    "build:types": "tsc -b tsconfig.build.json && tsc -b tsconfig.build.cjs.json && tsc-alias -p tsconfig.build.json",
     "test:package-types": "attw --pack ./build --include-entrypoints ./Accordion ./Menu ./Tooltip",
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
@@ -78,6 +78,7 @@
     "react": "19.0.0-rc-fb9a90fa48-20240614",
     "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
     "sinon": "^19.0.2",
+    "tsc-alias": "^1.8.10",
     "typescript": "^5.6.3"
   },
   "peerDependencies": {
