@@ -111,8 +111,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const marginTop = parseFloat(positionerStyles.marginTop) || 10;
     const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
     const minHeight = parseFloat(positionerStyles.minHeight) || 100;
-    const paddingLeft = 10;
-    const paddingRight = 10;
+    const paddingLeft = 5;
+    const paddingRight = 5;
 
     const doc = ownerDocument(triggerElement);
     const triggerRect = triggerElement.getBoundingClientRect();
