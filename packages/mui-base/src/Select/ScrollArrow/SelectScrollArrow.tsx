@@ -5,7 +5,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-import { MAX_Z_INDEX } from '../../utils/constants';
 import { useSelectPositionerContext } from '../Positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
 
@@ -48,7 +47,6 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         children: direction === 'down' ? '▼' : '▲',
         style: {
           position: 'absolute',
-          zIndex: MAX_Z_INDEX,
         },
         onMouseEnter() {
           if (!alignOptionToTrigger) {
