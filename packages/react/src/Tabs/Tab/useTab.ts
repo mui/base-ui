@@ -1,50 +1,51 @@
 'use client';
 import * as React from 'react';
-import type { TabsRootContext } from '../Root/TabsRootContext';
-import { TabMetadata } from '../Root/useTabsRoot';
-import { useCompoundItem } from '../../useCompound';
-import { useListItem } from '../../useList';
-import { useButton } from '../../useButton';
-import { useId } from '../../utils/useId';
-import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForkRef } from '../../utils/useForkRef';
+import { useId } from '../../utils/useId';
+import { useButton } from '../../useButton';
+import { useCompositeItem } from '../../Composite/Item/useCompositeItem';
+import type { TabsRootContext } from '../Root/TabsRootContext';
+import type { useTabsList } from '../TabsList/useTabsList';
 
-function tabValueGenerator(otherTabValues: Set<any>) {
-  return otherTabValues.size;
+export interface TabMetadata {
+  disabled: boolean;
+  id: string | undefined;
 }
 
 function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
   const {
-    value: valueParam,
-    rootRef: externalRef,
     disabled = false,
     getTabPanelIdByTabValueOrIndex,
     id: idParam,
     isSelected,
+    onTabActivation,
+    rootRef: externalRef,
+    value: valueParam,
   } = parameters;
 
-  const tabRef = React.useRef<HTMLElement>(null);
   const id = useId(idParam);
 
-  const tabMetadata = React.useMemo(() => ({ disabled, ref: tabRef, id }), [disabled, tabRef, id]);
+  const tabMetadata = React.useMemo(
+    () => ({ disabled, id, value: valueParam }),
+    [disabled, id, valueParam],
+  );
 
   const {
-    id: value,
+    getItemProps,
+    ref: compositeItemRef,
     index,
-    totalItemCount: totalTabsCount,
-  } = useCompoundItem<any, TabMetadata>(valueParam ?? tabValueGenerator, tabMetadata);
+  } = useCompositeItem<TabMetadata>({ metadata: tabMetadata });
 
-  const { getRootProps: getListItemProps, selected } = useListItem({
-    item: value,
-  });
+  const tabValue = valueParam ?? index;
 
-  const { getButtonProps, buttonRef: buttonRefHandler } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
     type: 'button',
   });
 
-  const handleRef = useForkRef(tabRef, externalRef, buttonRefHandler);
+  const handleRef = useForkRef(compositeItemRef, buttonRef, externalRef);
 
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueParam, index) : undefined;
 
@@ -56,15 +57,18 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
           {
             role: 'tab',
             'aria-controls': tabPanelId,
-            'aria-selected': selected,
+            'aria-selected': false,
             id,
             ref: handleRef,
+            onClick(event) {
+              onTabActivation(tabValue, event.nativeEvent);
+            },
           },
-          mergeReactProps(getListItemProps(), getButtonProps()),
+          mergeReactProps(getItemProps(), getButtonProps()),
         ),
       );
     },
-    [getButtonProps, getListItemProps, handleRef, id, selected, tabPanelId],
+    [getButtonProps, getItemProps, handleRef, id, onTabActivation, tabPanelId, tabValue],
   );
 
   return {
@@ -73,13 +77,16 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     rootRef: handleRef,
     // the `selected` state isn't set on the server (it relies on effects to be calculated),
     // so we fall back to checking the `value` prop with the selectedValue from the TabsContext
-    selected: selected || isSelected,
-    totalTabsCount,
+    selected: /* selected || */ isSelected,
+    // TODO: recalculate this using Composite stuff, but is it really needed?
+    totalTabsCount: -1,
   };
 }
 
 namespace useTab {
-  export interface Parameters extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'> {
+  export interface Parameters
+    extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'>,
+      Pick<useTabsList.ReturnValue, 'onTabActivation'> {
     /**
      * The value of the tab.
      * It's used to associate the tab with a tab panel(s) with the same value.

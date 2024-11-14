@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { type TabMetadata } from '../Tab/useTab';
 import { type TabActivationDirection } from './TabsRoot';
 
 export interface TabsRootContext {
@@ -10,10 +11,10 @@ export interface TabsRootContext {
   /**
    * Callback for setting new value.
    */
-  onSelected: (
-    event: Event | undefined,
+  onValueChange: (
     value: any | null,
     activationDirection: TabActivationDirection,
+    event: Event,
   ) => void;
   /**
    * The component orientation (layout flow direction).
@@ -26,17 +27,18 @@ export interface TabsRootContext {
   /**
    * Registers a function that returns the id of the tab with the given value.
    */
-  registerTabIdLookup: (lookupFunction: (id: any) => string | undefined) => void;
+  // registerGetTabIdByPanelValueOrIndexFn?: (lookupFunction: (id: any) => string | undefined) => void;
   /**
    * Gets the id of the tab with the given value.
-   * @param value Value to find the tab for.
+   * @param {any | undefined} value Value to find the tab for.
    */
-  getTabId: (value: any) => string | undefined;
+  getTabIdByPanelValueOrIndex: (panelValue: any | undefined, index: number) => string | undefined;
   /**
    * Gets the id of the tab panel with the given value.
-   * @param value Value to find the tab panel for.
+   * @param {any | undefined} value Value to find the tab panel for.
    */
   getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
+  setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */

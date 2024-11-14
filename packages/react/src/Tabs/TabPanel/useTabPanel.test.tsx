@@ -13,7 +13,7 @@ describe('useTabPanel', () => {
       const rootRef = React.createRef<HTMLDivElement>();
       function TestTabPanel() {
         const { getRootProps } = useTabPanel({
-          getTabId: () => undefined,
+          getTabIdByPanelValueOrIndex: () => undefined,
           id: 'test-tabpanel',
           rootRef,
           selectedValue: 0,
@@ -42,7 +42,7 @@ describe('useTabPanel', () => {
 
       function TestTabPanel() {
         const { getRootProps } = useTabPanel({
-          getTabId: () => undefined,
+          getTabIdByPanelValueOrIndex: () => undefined,
           id: 'test-tabpanel',
           rootRef,
           selectedValue: 0,

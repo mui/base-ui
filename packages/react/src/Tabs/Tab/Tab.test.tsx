@@ -1,22 +1,17 @@
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
-import { TabsListProviderValue, TabsListProvider } from '../TabsList/TabsListProvider';
+import { NOOP } from '../../utils/noop';
 import { TabsRootContext } from '../Root/TabsRootContext';
+import { TabsListContext } from '../TabsList/TabsListContext';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
 
-  const testTabsListContext: TabsListProviderValue = {
-    dispatch: () => {},
-    registerItem: () => ({ id: 0, deregister: () => {} }),
-    getItemIndex: () => 0,
-    totalSubitemCount: 1,
-    getItemState() {
-      return { disabled: false, highlighted: false, selected: false, focusable: true, index: 0 };
-    },
+  const testTabsListContext: TabsListContext = {
     activateOnFocus: true,
     getTabElement: () => null,
+    onTabActivation: NOOP,
     tabsListRef: {
       current: null,
     },
@@ -24,9 +19,9 @@ describe('<Tabs.Tab />', () => {
 
   const testTabsContext: TabsRootContext = {
     value: 0,
-    onSelected() {},
-    registerTabIdLookup() {},
-    getTabId: () => '',
+    onValueChange() {},
+    setTabMap() {},
+    getTabIdByPanelValueOrIndex: () => '',
     getTabPanelIdByTabValueOrIndex: () => '',
     orientation: 'horizontal',
     direction: 'ltr',
@@ -37,7 +32,7 @@ describe('<Tabs.Tab />', () => {
     render: (node) => {
       return render(
         <TabsRootContext.Provider value={testTabsContext}>
-          <TabsListProvider value={testTabsListContext}>{node}</TabsListProvider>
+          <TabsListContext.Provider value={testTabsListContext}>{node}</TabsListContext.Provider>
         </TabsRootContext.Provider>,
       );
     },

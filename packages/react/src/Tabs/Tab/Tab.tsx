@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useCompositeRootContext } from '../../Composite/Root/CompositeRootContext';
 import type { TabsOrientation } from '../Root/TabsRoot';
 import { useTabsRootContext } from '../Root/TabsRootContext';
+import { useTabsListContext } from '../TabsList/TabsListContext';
 
 /**
  *
@@ -21,7 +22,7 @@ const Tab = React.forwardRef(function Tab(
   props: Tab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { className, disabled = false, render, value: valueProp, ...other } = props;
+  const { className, disabled = false, render, value: valueProp, id: idProp, ...other } = props;
 
   const {
     value: selectedValue,
@@ -29,20 +30,32 @@ const Tab = React.forwardRef(function Tab(
     orientation,
   } = useTabsRootContext();
 
-  const { selected, getRootProps } = useTab({
-    ...props,
+  const { activateOnFocus, onTabActivation } = useTabsListContext();
+
+  // this is the context of TabsList
+  const { activeIndex } = useCompositeRootContext();
+  // console.log('activeIndex', activeIndex);
+
+  const { getRootProps, index, selected } = useTab({
+    disabled,
     getTabPanelIdByTabValueOrIndex,
+    id: idProp,
     isSelected: valueProp === selectedValue,
+    onTabActivation,
     rootRef: forwardedRef,
+    value: valueProp,
   });
+
+  const highlighted = index > -1 && index === activeIndex;
 
   const ownerState: Tab.OwnerState = React.useMemo(
     () => ({
       disabled,
+      highlighted,
       selected,
       orientation,
     }),
-    [disabled, selected, orientation],
+    [disabled, highlighted, selected, orientation],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -55,6 +68,8 @@ const Tab = React.forwardRef(function Tab(
 
   return renderElement();
 });
+
+export { Tab };
 
 namespace Tab {
   export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
@@ -70,32 +85,3 @@ namespace Tab {
     orientation: TabsOrientation;
   }
 }
-
-Tab.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * You can provide your own value. Otherwise, it falls back to the child position index.
-   */
-  value: PropTypes.any,
-} as any;
-
-export { Tab };

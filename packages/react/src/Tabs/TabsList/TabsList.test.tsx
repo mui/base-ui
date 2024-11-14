@@ -14,9 +14,9 @@ describe('<Tabs.List />', () => {
         <TabsRootContext.Provider
           value={{
             value: '1',
-            onSelected: () => {},
-            registerTabIdLookup() {},
-            getTabId: () => '',
+            onValueChange: () => {},
+            setTabMap() {},
+            getTabIdByPanelValueOrIndex: () => '',
             getTabPanelIdByTabValueOrIndex: () => '',
             orientation: 'horizontal',
             direction: 'ltr',

@@ -3,21 +3,21 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
 import type { TabPanelMetadata } from '../TabPanel/useTabPanel';
+import type { TabMetadata } from '../Tab/useTab';
 import type { TabActivationDirection } from './TabsRoot';
-
-export interface TabMetadata {
-  disabled: boolean;
-  id: string | undefined;
-  ref: React.RefObject<HTMLElement | null>;
-}
 
 type IdLookupFunction = (id: any) => string | undefined;
 
 function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
-  const { value: valueProp, defaultValue, onValueChange, direction = 'ltr' } = parameters;
+  const {
+    value: valueProp,
+    defaultValue,
+    onValueChange: onValueChangeProp,
+    direction = 'ltr',
+  } = parameters;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const getTabIdByPanelValueRef = React.useRef<IdLookupFunction>(() => undefined);
+  const getTabIdByPanelValueOrIndexRef = React.useRef<IdLookupFunction>(() => undefined);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -29,23 +29,27 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   const [tabPanelMap, setTabPanelMap] = React.useState(
     () => new Map<Node, (TabPanelMetadata & { index?: number | null }) | null>(),
   );
+  const [tabMap, setTabMap] = React.useState(
+    () => new Map<Node, (TabMetadata & { index?: number | null }) | null>(),
+  );
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabActivationDirection>('none');
 
-  const onSelected = React.useCallback(
+  const onValueChange = React.useCallback(
     (
-      event: Event | undefined,
       newValue: any | null,
       activationDirection: TabActivationDirection,
+      event: Event | undefined,
     ) => {
       setValue(newValue);
       setTabActivationDirection(activationDirection);
-      onValueChange?.(newValue, event ?? undefined);
+      onValueChangeProp?.(newValue, event);
     },
-    [onValueChange, setValue],
+    [onValueChangeProp, setValue],
   );
 
+  // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
   const getTabPanelIdByTabValueOrIndex = React.useCallback(
     (tabValue: any | undefined, index: number) => {
       if (tabValue === undefined && index < 0) {
@@ -73,13 +77,33 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
     [tabPanelMap],
   );
 
-  const getTabIdByPanelValue = React.useCallback((tabPanelValue: any) => {
-    return getTabIdByPanelValueRef.current(tabPanelValue);
-  }, []);
+  // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
+  const getTabIdByPanelValueOrIndex = React.useCallback(
+    (tabPanelValue: any | undefined, index: number) => {
+      // return getTabIdByPanelValueOrIndexRef.current(tabPanelValue);
+      for (const tabMetadata of tabMap.values()) {
+        console.log(tabPanelValue, index, tabMetadata);
+      }
+      return undefined;
+    },
+    [tabMap],
+  );
 
-  const registerTabIdLookup = React.useCallback((lookupFunction: IdLookupFunction) => {
-    getTabIdByPanelValueRef.current = lookupFunction;
-  }, []);
+  // used as a param for `useActivationDirectionDetector`
+  const getTabElementByPanelValueOrIndex = React.useCallback(
+    (tabPanelValue: any | undefined, index: number) => {
+      // return getTabIdByPanelValueOrIndexRef.current(tabPanelValue);
+      return null;
+    },
+    [],
+  );
+
+  const registerGetTabIdByPanelValueOrIndexFn = React.useCallback(
+    (lookupFunction: IdLookupFunction) => {
+      getTabIdByPanelValueOrIndexRef.current = lookupFunction;
+    },
+    [],
+  );
 
   const getRootProps: useTabsRoot.ReturnValue['getRootProps'] = React.useCallback(
     (otherProps = {}) =>
@@ -92,10 +116,12 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   return {
     getRootProps,
     direction,
-    getTabId: getTabIdByPanelValue,
+    getTabElementByPanelValueOrIndex,
+    getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
-    onSelected,
-    registerTabIdLookup,
+    onValueChange,
+    registerGetTabIdByPanelValueOrIndexFn,
+    setTabMap,
     setTabPanelMap,
     tabActivationDirection,
     tabPanelRefs,
@@ -133,32 +159,38 @@ namespace useTabsRoot {
      * The direction of the text.
      */
     direction: 'ltr' | 'rtl';
+    getTabElementByPanelValueOrIndex: (
+      panelValue: any | undefined,
+      index: number,
+    ) => HTMLElement | null;
     /**
      * Gets the id of the tab with the given value.
      * @param value Value to find the tab for.
      */
-    getTabId: (value: any) => string | undefined;
+    getTabIdByPanelValueOrIndex: (panelValue: any | undefined, index: number) => string | undefined;
     /**
      * Gets the id of the tab panel with the given value.
      * @param value Value to find the tab panel for.
      */
     getTabPanelIdByTabValueOrIndex: (
       tabValue: any | undefined,
-      tabIndex: number,
+      index: number,
     ) => string | undefined;
-
     /**
      * Callback for setting new value.
      */
-    onSelected: (
-      event: React.SyntheticEvent | null,
+    onValueChange: (
       value: any | null,
       activationDirection: TabActivationDirection,
+      event: Event,
     ) => void;
     /**
      * Registers a function that returns the id of the tab with the given value.
      */
-    registerTabIdLookup: (lookupFunction: (id: any) => string | undefined) => void;
+    registerGetTabIdByPanelValueOrIndexFn: (
+      lookupFunction: (id: any) => string | undefined,
+    ) => void;
+    setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;
     setTabPanelMap: (map: Map<Node, (TabPanelMetadata & { index?: number | null }) | null>) => void;
     /**
      * The position of the active tab relative to the previously active tab.
@@ -172,4 +204,4 @@ namespace useTabsRoot {
   }
 }
 
-export { useTabsRoot };
+export { useTabsRoot, TabMetadata };

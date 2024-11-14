@@ -1,67 +1,70 @@
 'use client';
 import * as React from 'react';
-import { TabsListActionTypes, tabsListReducer, ValueChangeAction } from './tabsListReducer';
 import type { TabsRootContext } from '../Root/TabsRootContext';
-import { type TabMetadata } from '../Root/useTabsRoot';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot';
-import { useCompoundParent } from '../../useCompound';
-import { useList, ListState, UseListParameters, ListAction } from '../../useList';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { TabsListProviderValue } from './TabsListProvider';
+import { useEventCallback } from '../../utils/useEventCallback';
+// import { TabsListContext } from './TabsListContext';
 
 function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
   const {
-    activateOnFocus,
-    direction,
-    loop,
-    onSelected,
+    onValueChange,
     orientation,
-    registerTabIdLookup,
+    // registerGetTabIdByPanelValueOrIndexFn,
     rootRef: externalRef,
+    tabsListRef,
     value,
   } = parameters;
 
-  const { subitems, contextValue: compoundComponentContextValue } = useCompoundParent<
-    any,
-    TabMetadata
-  >();
+  // subitems are <Tab>s, their Composite parent is <Tabs.List>
+  // const { subitems } = useCompoundParent<any, TabMetadata>();
 
+  // DON"T NEED THIS ANYMORE
+  //
   // get id attribute of a Tab by tab value
   // for binding aria attributes
   // this function needs to be registered to the context
-  const tabIdLookup = React.useCallback(
-    (tabValue: any) => {
-      return subitems.get(tabValue)?.id;
-    },
-    [subitems],
-  );
+  //
+  // const tabIdLookup = React.useCallback(
+  //   (tabValue: any) => {
+  //     return subitems.get(tabValue)?.id;
+  //   },
+  //   [subitems],
+  // );
 
-  registerTabIdLookup(tabIdLookup);
+  // registerGetTabIdByPanelValueOrIndexFn(tabIdLookup);
 
-  const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
+  // this is a param for useList
+  // const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
 
   // get the element/node of a tab by tab value
+  // used as a param for `useActivationDirectionDetector`
+  // TODO: move this to useTabsRoot since tabMap is there
   const getTabElement = React.useCallback(
     (tabValue: any) => {
       if (tabValue == null) {
         return null;
       }
 
-      return subitems.get(tabValue)?.ref.current ?? null;
+      // subitems are <Tab>s, their Composite parent is <Tabs.List>
+      // return subitems.get(tabValue)?.ref.current ?? null;
+      return null;
     },
-    [subitems],
+    [
+      /* subitems */
+    ],
   );
 
-  let listOrientation: UseListParameters<any, any>['orientation'];
-  if (orientation === 'vertical') {
-    listOrientation = 'vertical';
-  } else {
-    listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
-  }
+  // let listOrientation: UseListParameters<any, any>['orientation'];
+  // if (orientation === 'vertical') {
+  //   listOrientation = 'vertical';
+  // } else {
+  //   listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
+  // }
 
-  const tabsListRef = React.useRef<HTMLElement>(null);
+  // const tabsListRef = React.useRef<HTMLElement>(null);
   const detectActivationDirection = useActivationDirectionDetector(
     value,
     orientation,
@@ -69,111 +72,52 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
     getTabElement,
   );
 
-  const handleChange = React.useCallback(
-    (
-      event:
-        | React.FocusEvent<Element, Element>
-        | React.KeyboardEvent<Element>
-        | React.MouseEvent<Element, MouseEvent>
-        | null,
-      newValue: any[],
-    ) => {
-      const newSelectedValue = newValue[0] ?? null;
-      const activationDirection = detectActivationDirection(newSelectedValue);
-      onSelected(event?.nativeEvent, newValue[0] ?? null, activationDirection);
-    },
-    [onSelected, detectActivationDirection],
-  );
-
-  const controlledProps = React.useMemo(() => {
-    return value != null ? { selectedValues: [value] } : { selectedValues: [] };
-  }, [value]);
-
-  const isItemDisabled = React.useCallback(
-    (item: any) => subitems.get(item)?.disabled ?? false,
-    [subitems],
-  );
-
-  const {
-    contextValue: listContextValue,
-    dispatch,
-    getRootProps: getListboxRootProps,
-    state: { highlightedValue, selectedValues },
-    rootRef: mergedRootRef,
-  } = useList<any, ListState<any>, ValueChangeAction, { activateOnFocus: boolean }>({
-    controlledProps,
-    disabledItemsFocusable: !activateOnFocus,
-    focusManagement: 'DOM',
-    getItemDomElement: getTabElement,
-    isItemDisabled,
-    items: subitemKeys,
-    rootRef: externalRef,
-    onChange: handleChange,
-    orientation: listOrientation,
-    reducerActionContext: React.useMemo(() => ({ activateOnFocus }), [activateOnFocus]),
-    selectionMode: 'single',
-    stateReducer: tabsListReducer,
-    disableListWrap: !loop,
+  const onTabActivation = useEventCallback((newValue: any, event: Event) => {
+    // console.log('onTabActivation()', newValue, event.target);
+    const activationDirection = detectActivationDirection(newValue);
+    onValueChange(newValue, activationDirection, event);
   });
 
-  React.useEffect(() => {
-    if (value === undefined) {
-      return;
-    }
+  // const controlledProps = React.useMemo(() => {
+  //   return value != null ? { selectedValues: [value] } : { selectedValues: [] };
+  // }, [value]);
 
-    // when a value changes externally, the highlighted value should be synced to it
-    if (value != null) {
-      dispatch({
-        type: TabsListActionTypes.valueChange,
-        value,
-      });
-    }
-  }, [dispatch, value]);
+  // const isItemDisabled = React.useCallback(
+  //   (item: any) => subitems.get(item)?.disabled ?? false,
+  //   [subitems],
+  // );
 
-  const handleRef = useForkRef(mergedRootRef, tabsListRef);
+  // React.useEffect(() => {
+  //   if (value === undefined) {
+  //     return;
+  //   }
+
+  //   // when a value changes externally, the highlighted value should be synced to it
+  //   if (value != null) {
+  //     dispatch({
+  //       type: TabsListActionTypes.valueChange,
+  //       value,
+  //     });
+  //   }
+  // }, [dispatch, value]);
+
+  const handleRef = useForkRef(tabsListRef, externalRef);
 
   const getRootProps = (
     externalProps: React.ComponentPropsWithoutRef<'div'> = {},
   ): React.ComponentPropsWithRef<'div'> => {
-    return mergeReactProps(
-      externalProps,
-      mergeReactProps(
-        {
-          'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
-          role: 'tablist',
-          ref: handleRef,
-        },
-        getListboxRootProps(),
-      ),
-    );
+    return mergeReactProps(externalProps, {
+      'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+      ref: handleRef,
+      role: 'tablist',
+    });
   };
 
-  const contextValue = React.useMemo(
-    () => ({
-      ...compoundComponentContextValue,
-      ...listContextValue,
-      activateOnFocus,
-      getTabElement,
-      value,
-      tabsListRef,
-    }),
-    [
-      compoundComponentContextValue,
-      listContextValue,
-      activateOnFocus,
-      getTabElement,
-      value,
-      tabsListRef,
-    ],
-  );
-
   return {
-    contextValue,
-    dispatch,
     getRootProps,
-    highlightedValue,
+    onTabActivation,
     rootRef: handleRef,
-    selectedValue: selectedValues[0] ?? null,
+    tabsListRef,
   };
 }
 
@@ -261,35 +205,15 @@ function useActivationDirectionDetector(
 
 namespace useTabsList {
   export interface Parameters
-    extends Pick<
-      TabsRootContext,
-      'direction' | 'onSelected' | 'orientation' | 'registerTabIdLookup' | 'value'
-    > {
-    /**
-     * If `true`, the tab will be activated whenever it is focused.
-     * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-     */
-    activateOnFocus: boolean;
-    /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-     */
-    loop: boolean;
+    extends Pick<TabsRootContext, 'onValueChange' | 'orientation' | 'setTabMap' | 'value'> {
     /**
      * Ref to the root element.
      */
     rootRef: React.Ref<Element>;
+    tabsListRef: React.RefObject<HTMLElement | null>;
   }
 
   export interface ReturnValue {
-    /**
-     * The value to be passed to the TabListProvider above all the tabs.
-     */
-    contextValue: TabsListProviderValue;
-    /**
-     * Action dispatcher for the tabs list component.
-     * Allows to programmatically control the tabs list.
-     */
-    dispatch: (action: ListAction<any>) => void;
     /**
      * Resolver for the root slot's props.
      * @param externalProps props for the root slot
@@ -299,14 +223,13 @@ namespace useTabsList {
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
     /**
-     * The value of the currently highlighted tab.
+     * Callback when a Tab is activated
+     * @param {any | null} newValue The value of the newly activated tab.
+     * @param {Event} event The event that activated the Tab.
      */
-    highlightedValue: any | null;
+    onTabActivation: (newValue: any, event: Event) => void;
     rootRef: React.RefCallback<Element> | null;
-    /**
-     * The value of the currently selected tab.
-     */
-    selectedValue: any | null;
+    tabsListRef: React.RefObject<HTMLElement | null>;
   }
 }
 

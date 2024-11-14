@@ -15,9 +15,9 @@ describe('<Tabs.Panel />', () => {
 
   const tabsContextDefaultValue: TabsRootContext = {
     value: '1',
-    onSelected: () => {},
-    registerTabIdLookup() {},
-    getTabId: () => '',
+    onValueChange: () => {},
+    setTabMap() {},
+    getTabIdByPanelValueOrIndex: () => '',
     getTabPanelIdByTabValueOrIndex: () => '',
     direction: 'ltr',
     orientation: 'horizontal',

@@ -81,7 +81,7 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
 }
 
 namespace useTabPanel {
-  export interface Parameters extends Pick<TabsRootContext, 'getTabId'> {
+  export interface Parameters extends Pick<TabsRootContext, 'getTabIdByPanelValueOrIndex'> {
     /**
      * The id of the TabPanel.
      */

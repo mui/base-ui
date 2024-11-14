@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useTabPanel } from './useTabPanel';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useTabsRootContext } from '../Root/TabsRootContext';
@@ -26,14 +25,14 @@ const TabPanel = React.forwardRef(function TabPanel(
 
   const {
     value: selectedValue,
-    getTabId,
+    getTabIdByPanelValueOrIndex,
     orientation,
     direction,
     tabActivationDirection,
   } = useTabsRootContext();
 
   const { hidden, getRootProps } = useTabPanel({
-    getTabId,
+    getTabIdByPanelValueOrIndex,
     rootRef: forwardedRef,
     selectedValue,
     value: valueProp,
@@ -61,6 +60,8 @@ const TabPanel = React.forwardRef(function TabPanel(
   return renderElement();
 });
 
+export { TabPanel };
+
 namespace TabPanel {
   export interface OwnerState extends TabsRoot.OwnerState {
     hidden: boolean;
@@ -80,35 +81,3 @@ namespace TabPanel {
     keepMounted?: boolean;
   }
 }
-
-TabPanel.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, keeps the contents of the hidden TabPanel in the DOM.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
-   * If not provided, it will fall back to the index of the panel.
-   * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
-   */
-  value: PropTypes.any,
-} as any;
-
-export { TabPanel };

@@ -13,14 +13,13 @@ describe('useTabsList', () => {
     it('returns props for root slot', () => {
       function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
+        const tabsListRef = React.createRef<HTMLDivElement>();
         const { getRootProps } = useTabsList({
-          activateOnFocus: true,
-          direction: 'ltr',
-          loop: true,
-          onSelected: NOOP,
+          onValueChange: NOOP,
           orientation: 'horizontal',
-          registerTabIdLookup: NOOP,
           rootRef,
+          tabsListRef,
+          setTabMap: NOOP,
           value: 0,
         });
         return <div {...getRootProps()} />;
@@ -45,14 +44,13 @@ describe('useTabsList', () => {
 
       function TestTabsList() {
         const rootRef = React.createRef<HTMLDivElement>();
+        const tabsListRef = React.createRef<HTMLDivElement>();
         const { getRootProps } = useTabsList({
-          activateOnFocus: true,
-          direction: 'ltr',
-          loop: true,
-          onSelected: NOOP,
+          onValueChange: NOOP,
           orientation: 'horizontal',
-          registerTabIdLookup: NOOP,
           rootRef,
+          tabsListRef,
+          setTabMap: NOOP,
           value: 0,
         });
         return (

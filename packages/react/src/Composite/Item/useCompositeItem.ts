@@ -4,15 +4,19 @@ import { useCompositeRootContext } from '../Root/CompositeRootContext';
 import { useCompositeListItem } from '../List/useCompositeListItem';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
+export interface UseCompositeItemParameters<Metadata> {
+  metadata?: Metadata;
+}
+
 /**
  *
  * API:
  *
  * - [useCompositeItem API](https://mui.com/base-ui/api/use-composite-item/)
  */
-export function useCompositeItem() {
+export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
   const { activeIndex, onActiveIndexChange } = useCompositeRootContext();
-  const { ref, index } = useCompositeListItem();
+  const { ref, index } = useCompositeListItem(params);
   const isActive = activeIndex === index;
 
   const getItemProps = React.useCallback(

@@ -41,7 +41,7 @@ export function useTabIndicator(
   let isTabSelected = false;
 
   if (value != null && tabsListRef.current != null) {
-    const selectedTabElement = getTabElement(value);
+    const selectedTabElement = null; /*getTabElement(value)*/
     isTabSelected = true;
 
     if (selectedTabElement != null) {

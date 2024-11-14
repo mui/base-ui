@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeList } from '../../Composite/List/CompositeList';
@@ -27,7 +26,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     className,
     defaultValue,
     direction: directionProp = 'ltr',
-    onValueChange,
+    onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
     value: valueProp,
@@ -37,10 +36,11 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   const {
     getRootProps,
     direction,
-    getTabId,
+    getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
-    onSelected,
-    registerTabIdLookup,
+    onValueChange,
+    registerGetTabIdByPanelValueOrIndexFn,
+    setTabMap,
     setTabPanelMap,
     tabActivationDirection,
     tabPanelRefs,
@@ -48,28 +48,30 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   } = useTabsRoot({
     value: valueProp,
     defaultValue,
-    onValueChange,
+    onValueChange: onValueChangeProp,
     direction: directionProp,
   });
 
   const tabsContextValue = React.useMemo(
     () => ({
       direction,
-      getTabId,
+      getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
-      onSelected,
+      onValueChange,
       orientation,
-      registerTabIdLookup,
+      registerGetTabIdByPanelValueOrIndexFn,
+      setTabMap,
       tabActivationDirection,
       value,
     }),
     [
       direction,
-      getTabId,
+      getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
-      onSelected,
+      onValueChange,
       orientation,
-      registerTabIdLookup,
+      registerGetTabIdByPanelValueOrIndexFn,
+      setTabMap,
       tabActivationDirection,
       value,
     ],
@@ -99,6 +101,8 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     </TabsRootContext.Provider>
   );
 });
+
+export { TabsRoot };
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabsDirection = 'ltr' | 'rtl';
@@ -137,47 +141,3 @@ namespace TabsRoot {
     onValueChange?: (value: any | null, event?: Event) => void;
   }
 }
-
-TabsRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The default value. Use when the component is not controlled.
-   */
-  defaultValue: PropTypes.any,
-  /**
-   * The direction of the text.
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
-  /**
-   * Callback invoked when new value is being set.
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * The component orientation (layout flow direction).
-   * @default 'horizontal'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * The value of the currently selected `Tab`.
-   * If you don't want any selected `Tab`, you can set this prop to `null`.
-   */
-  value: PropTypes.any,
-} as any;
-
-export { TabsRoot };

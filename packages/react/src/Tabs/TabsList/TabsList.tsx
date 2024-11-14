@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useTabsList } from './useTabsList';
-import { TabsListProvider } from './TabsListProvider';
+import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useTabsRootContext } from '../Root/TabsRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { TabsRoot } from '../Root/TabsRoot';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useTabsList } from './useTabsList';
+import { TabsListContext } from './TabsListContext';
 
 /**
  *
@@ -27,21 +27,21 @@ const TabsList = React.forwardRef(function TabsList(
 
   const {
     direction = 'ltr',
-    onSelected,
+    onValueChange,
     orientation = 'horizontal',
     value,
-    registerTabIdLookup,
+    setTabMap,
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const { getRootProps, contextValue } = useTabsList({
-    activateOnFocus,
-    direction,
-    loop,
-    onSelected,
+  const tabsListRef = React.useRef<HTMLElement>(null);
+
+  const { getRootProps, onTabActivation } = useTabsList({
+    onValueChange,
     orientation,
-    registerTabIdLookup,
     rootRef: forwardedRef,
+    setTabMap,
+    tabsListRef,
     value,
   });
 
@@ -63,8 +63,35 @@ const TabsList = React.forwardRef(function TabsList(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return <TabsListProvider value={contextValue}>{renderElement()}</TabsListProvider>;
+  const tabsListContextValue = React.useMemo(
+    () => ({
+      activateOnFocus,
+      onTabActivation,
+      // getTabElement,
+      value,
+      tabsListRef,
+    }),
+    [
+      activateOnFocus,
+      onTabActivation,
+      // getTabElement,
+      value,
+      tabsListRef,
+    ],
+  );
+
+  return (
+    <TabsListContext.Provider value={tabsListContextValue}>
+      {/*
+        TODO: pass `direction` prop to `rtl` prop of CompositeRoot when
+        https://github.com/mui/base-ui/pull/763 is merged
+       */}
+      <CompositeRoot loop={loop} onMapChange={setTabMap} render={renderElement()} />
+    </TabsListContext.Provider>
+  );
 });
+
+export { TabsList };
 
 namespace TabsList {
   export type OwnerState = TabsRoot.OwnerState;
@@ -85,37 +112,3 @@ namespace TabsList {
     loop?: boolean;
   }
 }
-
-TabsList.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the tab will be activated whenever it is focused.
-   * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-   *
-   * @default true
-   */
-  activateOnFocus: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-   *
-   * @default true
-   */
-  loop: PropTypes.bool,
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { TabsList };

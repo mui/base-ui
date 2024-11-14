@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui-components/react/Tabs';
+import { NOOP } from '../../utils/noop';
 import { useTab } from './useTab';
 
 describe('useTab', () => {
@@ -15,6 +16,7 @@ describe('useTab', () => {
         const { getRootProps } = useTab({
           rootRef,
           isSelected: true,
+          onTabActivation: NOOP,
           getTabPanelIdByTabValueOrIndex: () => undefined,
         });
         return <button {...getRootProps()} />;
@@ -44,6 +46,7 @@ describe('useTab', () => {
         const { getRootProps } = useTab({
           rootRef,
           isSelected: true,
+          onTabActivation: NOOP,
           getTabPanelIdByTabValueOrIndex: () => undefined,
         });
         return (

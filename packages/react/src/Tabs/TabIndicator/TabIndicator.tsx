@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot';
@@ -88,6 +87,8 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
   },
 );
 
+export { TabIndicator };
+
 namespace TabIndicator {
   export interface OwnerState extends TabsRoot.OwnerState {
     selectedTabPosition: ActiveTabPosition | null;
@@ -105,31 +106,3 @@ namespace TabIndicator {
     renderBeforeHydration?: boolean;
   }
 }
-
-TabIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Class names applied to the element or a function that returns them based on the component's state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * A function to customize rendering of the component.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * If `true`, the indicator will include code to render itself before React hydrates.
-   * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
-   *
-   * @default false
-   */
-  renderBeforeHydration: PropTypes.bool,
-} as any;
-
-export { TabIndicator };

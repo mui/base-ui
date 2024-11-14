@@ -26,6 +26,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     loop,
     cols,
     enableHomeAndEndKeys,
+    onMapChange,
     ...otherProps
   } = props;
 
@@ -57,7 +58,9 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={elementsRef}>{renderElement()}</CompositeList>
+      <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
+        {renderElement()}
+      </CompositeList>
     </CompositeRootContext.Provider>
   );
 });
@@ -74,6 +77,8 @@ namespace CompositeRoot {
     itemSizes?: Dimensions[];
     dense?: boolean;
     enableHomeAndEndKeys?: boolean;
+    // TODO: can't pass a generic <CustomMetadata> into forwardRef?
+    onMapChange?: (newMap: Map<Node, any>) => void;
   }
 }
 
