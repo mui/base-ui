@@ -1,6 +1,6 @@
 import { createHighlighter } from 'shiki';
 import rehypePrettyCode from 'rehype-pretty-code';
-import { rehypeInlineCode } from './rehype-inline-code.mjs';
+import { rehypeInlineCode } from './rehypeInlineCode.mjs';
 
 /** @type {Parameters<typeof import('shiki').createHighlighter>[0]['themes'][number] } */
 export const theme = {

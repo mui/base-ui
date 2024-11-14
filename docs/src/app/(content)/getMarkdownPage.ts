@@ -12,7 +12,7 @@ import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
 import { read as readVFile } from 'to-vfile';
 import { matter } from 'vfile-matter';
 import { highlighter } from 'docs/src/syntax-highlighting';
-import { rehypeSlug } from 'docs/src/components/quick-nav/rehype-slug.mjs';
+import { rehypeSlug } from 'docs/src/components/quick-nav/rehypeSlug.mjs';
 
 export const DATA_PATH = path.join(process.cwd(), 'data');
 

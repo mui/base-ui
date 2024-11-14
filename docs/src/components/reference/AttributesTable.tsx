@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { evaluateMdx } from 'docs/src/evaluate-mdx';
+import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import type { AttributeDef } from './Reference';
-import * as Table from './Table';
+import * as Table from '../Table';
 
 interface AttributesTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, AttributeDef>;
@@ -22,7 +22,7 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
         {Object.keys(data).map(async (name) => {
           const attribute = data[name];
 
-          const AttributeDescription = await evaluateMdx(attribute.description, {
+          const AttributeDescription = await createMdxComponent(attribute.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => inlineMdxComponents,
           });

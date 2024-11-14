@@ -1,8 +1,8 @@
 'use client';
 import { Popover } from '@base_ui/react/Popover';
 import * as React from 'react';
-import { ToolbarButton } from './ToolbarButton';
-import { Popup } from './Popup';
+import { ToolbarButton } from '../ToolbarButton';
+import { Popup } from '../Popup';
 
 interface PropsTablePopoverProps {
   children: React.ReactElement<any>;

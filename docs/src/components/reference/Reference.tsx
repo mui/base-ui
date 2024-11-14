@@ -3,7 +3,7 @@ import kebabCase from 'lodash/kebabCase';
 import startCase from 'lodash/startCase';
 import { join } from 'path';
 import { readFileSync } from 'node:fs';
-import { evaluateMdx } from 'docs/src/evaluate-mdx';
+import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { useMDXComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { PropsTable } from './PropsTable';
@@ -75,7 +75,7 @@ interface CreateMDXOptions {
 
 async function renderComponentInfo({ heading, description = '' }: CreateMDXOptions) {
   const mdx = `### ${heading}\n${description}`;
-  const Component = await evaluateMdx(mdx, {
+  const Component = await createMdxComponent(mdx, {
     rehypePlugins: rehypeSyntaxHighlighting,
     useMDXComponents,
   });

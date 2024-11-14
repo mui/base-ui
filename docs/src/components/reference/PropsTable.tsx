@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { evaluateMdx } from 'docs/src/evaluate-mdx';
+import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents, tableMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { PropsTablePopover } from './PropsTablePopover';
-import * as Table from './Table';
+import * as Table from '../Table';
 import type { PropDef } from './Reference';
 
 interface PropsTableProps extends React.ComponentProps<typeof Table.Root> {
@@ -25,17 +25,17 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
         {Object.keys(data).map(async (name) => {
           const prop = data[name];
 
-          const PropDescription = await evaluateMdx(prop.description, {
+          const PropDescription = await createMdxComponent(prop.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => inlineMdxComponents,
           });
 
-          const PropType = await evaluateMdx(`\`${prop.type}\``, {
+          const PropType = await createMdxComponent(`\`${prop.type}\``, {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => tableMdxComponents,
           });
 
-          const PropDefault = await evaluateMdx(`\`${prop.default}\``, {
+          const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => tableMdxComponents,
           });
@@ -52,9 +52,11 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
                 <PropDefault />
               </Table.Cell>
               <Table.Cell>
-                <PropsTablePopover>
-                  <PropDescription />
-                </PropsTablePopover>
+                <div className="mt-[0.1875rem]">
+                  <PropsTablePopover>
+                    <PropDescription />
+                  </PropsTablePopover>
+                </div>
               </Table.Cell>
             </Table.Row>
           );

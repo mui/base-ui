@@ -3,8 +3,9 @@ import { DemoLoader } from './components/demo/NewDemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/quick-nav/QuickNav';
-import { Reference } from './components/Reference';
 import { Code } from './components/Code';
+import { PropsTable } from './components/reference/PropsTable';
+import { AttributesTable } from './components/reference/AttributesTable';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -20,9 +21,9 @@ export const mdxComponents: MDXComponents = {
     </div>
   ),
   h3: (props) => <h3 className="mt-8 mb-2 scroll-mt-6 text-lg font-medium" {...props} />,
-  h4: (props) => <h4 className="mt-8 mb-2 scroll-mt-6 text-lg font-medium" {...props} />,
-  h5: (props) => <h5 className="mt-8 mb-2 scroll-mt-6 text-lg font-medium" {...props} />,
-  h6: (props) => <h6 className="mt-8 mb-2 scroll-mt-6 text-lg font-medium" {...props} />,
+  h4: (props) => <h4 className="mt-8 mb-2 scroll-mt-6 font-medium" {...props} />,
+  h5: (props) => <h5 className="mt-8 mb-2 scroll-mt-6 font-medium" {...props} />,
+  h6: (props) => <h6 className="mt-8 mb-2 scroll-mt-6 font-medium" {...props} />,
   p: (props) => <p className="mb-4" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
@@ -51,7 +52,17 @@ export const mdxComponents: MDXComponents = {
   // Custom components
   Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
   QuickNav,
-  Reference,
+  AttributesTable: (props) => (
+    <div className="mt-2 mb-8">
+      <AttributesTable {...props} />
+    </div>
+  ),
+  PropsTable: (props) => (
+    <div className="mt-2 mb-8">
+      <PropsTable {...props} />
+    </div>
+  ),
+  // Reference,
   Subtitle: (props) => <p className="text-gray -mt-2 mb-5 text-lg" {...props} />,
 };
 
