@@ -1,0 +1,8 @@
+{
+  "name": "AlertDialogRoot",
+  "props": {
+    "onOpenChange": {
+      "type": "(open, event) => void"
+    }
+  }
+}

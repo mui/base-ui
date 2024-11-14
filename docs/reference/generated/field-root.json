@@ -1,0 +1,41 @@
+{
+  "name": "FieldRoot",
+  "description": "The foundation for building custom-styled fields.",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`\ncomponent."
+    },
+    "invalid": {
+      "type": "boolean",
+      "description": "Determines if the field is forcefully marked as invalid."
+    },
+    "name": {
+      "type": "string",
+      "description": "The field's name. Takes precedence over the `name` prop of the `Field.Control` component."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "validate": {
+      "type": "function",
+      "description": "Function to custom-validate the field's value. Return a string or array of strings with error\nmessages if the value is invalid, or `null` if the value is valid. The function can also return\na promise that resolves to a string, array of strings, or `null`."
+    },
+    "validationDebounceTime": {
+      "type": "number",
+      "default": "0",
+      "description": "The debounce time in milliseconds for the `validate` function in `onChange` phase."
+    },
+    "validationMode": {
+      "type": "'onBlur' | 'onChange'",
+      "default": "'onBlur'",
+      "description": "Determines when validation should be triggered."
+    }
+  }
+}

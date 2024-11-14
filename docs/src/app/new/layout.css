@@ -5,7 +5,7 @@ html {
 
 body {
   min-width: 360px;
-  font-size: 1.0625rem;
+  font-size: 1rem;
   line-height: 1.5rem;
   background-color: var(--color-background);
   color: var(--color-foreground);

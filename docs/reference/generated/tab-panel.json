@@ -1,0 +1,23 @@
+{
+  "name": "TabPanel",
+  "description": "",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, keeps the contents of the hidden TabPanel in the DOM."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "any",
+      "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.\nIf not provided, it will fall back to the index of the panel.\nIt is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server."
+    }
+  }
+}

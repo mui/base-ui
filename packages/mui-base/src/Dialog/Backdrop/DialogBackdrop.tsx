@@ -24,6 +24,7 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.OwnerState> 
 };
 
 /**
+ * An overlay displayed beneath the popup. Renders a `<div>` element.
  *
  * Demos:
  *

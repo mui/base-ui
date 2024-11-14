@@ -1,4 +1,6 @@
 import { createHighlighter } from 'shiki';
+import rehypePrettyCode from 'rehype-pretty-code';
+import { rehypeInlineCode } from './rehypeInlineCode.mjs';
 
 /** @type {Parameters<typeof import('shiki').createHighlighter>[0]['themes'][number] } */
 export const theme = {
@@ -332,3 +334,17 @@ globalThis.highlighter ??= await createHighlighter({
 /** @type {Awaited<ReturnType<typeof import('shiki').createHighlighter>> } */
 // eslint-disable-next-line no-undef
 export const highlighter = globalThis.highlighter;
+
+/** @type {import('unified').PluggableList} */
+export const rehypeSyntaxHighlighting = [
+  [
+    rehypePrettyCode,
+    {
+      getHighlighter: () => globalThis.highlighter,
+      grid: false,
+      theme: 'base-ui',
+      defaultLang: 'tsx',
+    },
+  ],
+  rehypeInlineCode,
+];

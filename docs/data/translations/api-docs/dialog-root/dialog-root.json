@@ -1,5 +1,5 @@
 {
-  "componentDescription": "",
+  "componentDescription": "Groups all parts of the dialog. Doesn’t render its own HTML element.",
   "propDescriptions": {
     "animated": {
       "description": "If <code>true</code>, the dialog supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."

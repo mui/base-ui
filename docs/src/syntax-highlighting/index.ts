@@ -1,1 +1,1 @@
-export { highlighter } from './index.mjs';
+export { highlighter, rehypeSyntaxHighlighting } from './index.mjs';

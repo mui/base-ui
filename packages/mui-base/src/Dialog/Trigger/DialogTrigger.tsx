@@ -8,7 +8,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
- * Renders a trigger element that opens the Dialog.
+ * A button that opens the dialog. Renders a `<button>` element.
  *
  * Demos:
  *

@@ -1,0 +1,11 @@
+{
+  "name": "ProgressRoot",
+  "props": {
+    "getAriaLabel": {
+      "type": "(value) => string"
+    },
+    "getAriaValueText": {
+      "type": "(value) => string"
+    }
+  }
+}

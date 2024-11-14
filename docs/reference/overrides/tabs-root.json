@@ -1,0 +1,8 @@
+{
+  "name": "TabsRoot",
+  "props": {
+    "onValueChange": {
+      "type": "(value, event) => void"
+    }
+  }
+}
