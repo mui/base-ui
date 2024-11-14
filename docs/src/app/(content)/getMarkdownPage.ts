@@ -54,7 +54,7 @@ export const getMarkdownPage = async (basePath: string, slug: string) => {
         rehypePrettyCode,
         {
           getHighlighter: () => highlighter,
-          theme: 'base-ui-theme',
+          theme: 'base-ui',
           bypassInlineCode: true,
           grid: false,
         },

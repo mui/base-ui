@@ -65,7 +65,7 @@ async function getThemeFile(): Promise<DemoFile> {
   const content = await readFile(path, 'utf-8');
   const prettyContent = highlighter.codeToHtml(content, {
     lang: 'css',
-    theme: 'base-ui-theme',
+    theme: 'base-ui',
   });
 
   return {
@@ -100,7 +100,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   const mainContent = await readFile(mainFilePath, 'utf-8');
   const mainPrettyContent = highlighter.codeToHtml(mainContent, {
     lang: `${mainFileLanguage}x`,
-    theme: 'base-ui-theme',
+    theme: 'base-ui',
   });
 
   const localImports = getLocalImports(mainContent, dirname(mainFilePath));
@@ -128,7 +128,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
     const jsContent = await readFile(jsFilePath, 'utf-8');
     const jsPrettyContent = highlighter.codeToHtml(jsContent, {
       lang: 'jsx',
-      theme: 'base-ui-theme',
+      theme: 'base-ui',
     });
 
     const jsLocalImports = getLocalImports(mainContent, dirname(jsFilePath));
@@ -201,7 +201,7 @@ async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<D
       const content = await readFile(path, 'utf-8');
       const prettyContent = highlighter.codeToHtml(content, {
         lang: extension.slice(1),
-        theme: 'base-ui-theme',
+        theme: 'base-ui',
       });
 
       const canHaveDependencies = type === 'ts' || type === 'js';

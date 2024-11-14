@@ -1,0 +1,39 @@
+@layer components {
+  .Popup {
+    max-width: var(--available-width);
+    max-height: var(--available-height);
+    border-radius: 0.375rem;
+    background-color: var(--color-popup);
+    overflow: hidden;
+    box-shadow:
+      0px 154px 62px 0px rgba(35, 39, 52, 0.01),
+      0px 87px 52px 0px rgba(35, 39, 52, 0.03),
+      0px 39px 39px 0px rgba(35, 39, 52, 0.04),
+      0px 10px 21px 0px rgba(35, 39, 52, 0.05);
+
+    outline: 1px solid var(--color-popup-border);
+    @media (prefers-color-scheme: dark) {
+      outline-offset: -1px;
+    }
+
+    transform-origin: var(--transform-origin);
+    transition-property: opacity, transform;
+    transition-timing-function: cubic-bezier(0.3, 1.065, 0.01, 0.975);
+    transition-duration: 220ms;
+
+    &[data-open] {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    &,
+    &[data-entering] {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+    &[data-instant] {
+      transition-duration: 0s;
+    }
+  }
+}

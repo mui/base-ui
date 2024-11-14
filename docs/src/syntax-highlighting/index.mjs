@@ -2,7 +2,7 @@ import { createHighlighter } from 'shiki';
 
 /** @type {Parameters<typeof import('shiki').createHighlighter>[0]['themes'][number] } */
 export const theme = {
-  name: 'base-ui-theme',
+  name: 'base-ui',
   bg: 'var(--color-content)',
   fg: 'var(--syntax-default)',
   settings: [
