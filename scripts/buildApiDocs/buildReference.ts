@@ -2,7 +2,7 @@
 import { globSync } from 'fast-glob';
 import { basename, join } from 'path';
 import { existsSync, rmSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { PropDef, ComponentDef } from 'docs/src/components/Reference';
+import { PropDef, ComponentDef } from 'docs/src/components/reference/types';
 import { ComponentApiContent, PropsTranslations } from '@mui/monorepo/packages/api-docs-builder';
 
 const TEMP_DIR = join(process.cwd(), 'docs/reference/temp');
@@ -82,12 +82,14 @@ export async function buildReference() {
     }
 
     const attributes = componentOverrides?.attributes;
+    const cssVariables = componentOverrides?.cssVariables;
 
     const json: ComponentDef = {
       name: componentData.name,
       description: descriptionData.componentDescription,
       props,
       attributes,
+      cssVariables,
     };
 
     const newPathname = join(FINAL_DIR, fileName);

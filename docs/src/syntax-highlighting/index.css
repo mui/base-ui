@@ -11,9 +11,13 @@
   --syntax-invalid: var(--color-red);
 }
 
-/* Target CSS property names, ugly but works */
-[data-language='css'] [style='color:var(--syntax-constant)']:first-child {
-  --syntax-constant: var(--color-foreground);
+[data-language='css'] {
+  --syntax-variable: var(--color-navy);
+
+  /* Target CSS property names – ugly but works */
+  & [style='color:var(--syntax-constant)']:first-child {
+    --syntax-constant: var(--color-foreground);
+  }
 }
 
 [data-inline-code] {

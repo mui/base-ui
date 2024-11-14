@@ -41,7 +41,7 @@ export function ReferenceTablePopover({ children }: ReferenceTablePopoverProps) 
         collisionPadding={16}
       >
         <Popover.Popup render={<Popup className="px-4 py-3.5 text-sm" />}>
-          <div className="max-w-[300px]">
+          <div className="max-w-[320px]">
             <Popover.Description>{children}</Popover.Description>
           </div>
         </Popover.Popup>
