@@ -16,15 +16,15 @@ export const mdxComponents: MDXComponents = {
   code: (props) => ('data-inline-code' in props ? <Code {...props} /> : <code {...props} />),
   h1: (props) => <h1 className="mb-4 text-3xl font-bold" {...props} />,
   h2: (props) => (
-    <div className="mt-10 mb-6">
+    <div className="mt-10 mb-5">
       <h2 className="mb-4 scroll-mt-6 text-xl font-medium" {...props} />
       <div className="border-border border-t" />
     </div>
   ),
-  h3: (props) => <h3 className="mt-8 mb-2 scroll-mt-6 text-lg font-medium" {...props} />,
-  h4: (props) => <h4 className="mt-8 mb-2 scroll-mt-6 font-medium" {...props} />,
-  h5: (props) => <h5 className="mt-8 mb-2 scroll-mt-6 font-medium" {...props} />,
-  h6: (props) => <h6 className="mt-8 mb-2 scroll-mt-6 font-medium" {...props} />,
+  h3: (props) => <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium" {...props} />,
+  h4: (props) => <h4 className="mt-8 mb-1.5 scroll-mt-6 font-medium" {...props} />,
+  h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium" {...props} />,
+  h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium" {...props} />,
   p: (props) => <p className="mb-4" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
@@ -53,9 +53,9 @@ export const mdxComponents: MDXComponents = {
   // Custom components
   Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
   QuickNav,
-  AttributesTable: (props) => <AttributesTable className="mb-6" {...props} />,
-  CssVariablesTable: (props) => <CssVariablesTable className="mb-6" {...props} />,
-  PropsTable: (props) => <PropsTable className="mb-6" {...props} />,
+  AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
+  CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,
+  PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
   Subtitle: (props) => <p className="text-gray -mt-2 mb-5 text-lg" {...props} />,
 };
 
@@ -69,7 +69,7 @@ export const tableMdxComponents: MDXComponents = {
   ...mdxComponents,
   // eslint-disable-next-line react/jsx-no-useless-fragment
   p: (props) => <React.Fragment {...props} />,
-  code: (props) => <code className="text-xs" {...props} />,
+  code: (props) => <code {...props} />,
 };
 
 export function useMDXComponents(): MDXComponents {
