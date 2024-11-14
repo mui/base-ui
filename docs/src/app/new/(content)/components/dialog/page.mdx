@@ -6,7 +6,7 @@
 
 ## API reference
 
-Import the component and place its parts the following way.
+Import the component and place its parts the following way:
 
 ```jsx title="Anatomy"
 import { Dialog } from '@base_ui/react/Dialog';
@@ -28,7 +28,7 @@ import { Dialog } from '@base_ui/react/Dialog';
 
 ### State
 
-By default, Dialog is an uncontrolled component that manages its own state. Use `<Dialog.Trigger>` and `<Dialog.Close>` to open and close the dialog.
+By default, Dialog is an uncontrolled component that manages its own state.
 
 ```tsx title="Uncontrolled dialog"
 <Dialog.Root>
@@ -49,7 +49,7 @@ return (
     <Dialog.Trigger>Open</Dialog.Trigger>
     <Dialog.Popup>
       <form
-        // Close the dialog once data is submitted
+        // Close the dialog once the form data is submitted
         onSubmit={async () => {
           await submitData();
           setOpen(false);

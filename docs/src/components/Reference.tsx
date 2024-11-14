@@ -42,23 +42,28 @@ export function Reference({ component, parts }: ReferenceProps) {
 
   return (
     <div>
-      {componentDefs.map(async (def) => (
-        <div key={def.name}>
-          {await renderComponentInfo({
-            heading: startCase(def.name.substring(component.length)),
-            description: def.description,
-          })}
+      {componentDefs.map(async (def) => {
+        const name = startCase(def.name.substring(component.length));
+        return (
+          <div key={def.name}>
+            {await renderComponentInfo({
+              heading: name,
+              description: def.description,
+            })}
 
-          <PropsTable data={def.props} />
+            <PropsTable data={def.props} />
 
-          {def.attributes && (
-            <React.Fragment>
-              <p className="mt-7 mb-3">Use the following data attributes for styling:</p>
-              <AttributesTable data={def.attributes} />
-            </React.Fragment>
-          )}
-        </div>
-      ))}
+            {def.attributes && (
+              <React.Fragment>
+                <p className="mt-7 mb-4">
+                  Use the following data attributes for styling the {name} part:
+                </p>
+                <AttributesTable data={def.attributes} />
+              </React.Fragment>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

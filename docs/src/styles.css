@@ -36,7 +36,7 @@
   --color-violet: oklch(40% 60% 300);
 
   --font-size-xs: 0.8125rem;
-  --font-size-xs--line-height: 1rem;
+  --font-size-xs--line-height: 1.25rem;
   --font-size-xs--letter-spacing: 0.0015em;
 
   --font-size-sm: 0.9375rem;
@@ -94,7 +94,7 @@
     --color-navy: oklch(85% 25% 264);
     --color-purple: oklch(85% 30% 360);
     --color-red: oklch(80% 55% 31);
-    --color-violet: oklch(80% 60% 300);
+    --color-violet: oklch(80% 60% 280);
   }
 }
 

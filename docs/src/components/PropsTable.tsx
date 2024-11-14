@@ -15,7 +15,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-[172px]">Prop</Table.HeaderCell>
+          <Table.HeaderCell className="w-[188px]">Prop</Table.HeaderCell>
           <Table.HeaderCell className="w-full">Type</Table.HeaderCell>
           <Table.HeaderCell className="w-[172px]">Default</Table.HeaderCell>
           <Table.HeaderCell className="w-[36px]" aria-label="Description" />
@@ -43,7 +43,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <code style={{ color: 'var(--color-navy)' }}>{name}</code>
+                <code className="text-navy text-xs">{name}</code>
               </Table.HeaderCell>
               <Table.Cell>
                 <PropType />

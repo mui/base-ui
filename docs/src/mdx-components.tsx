@@ -65,7 +65,7 @@ export const tableMdxComponents: MDXComponents = {
   ...mdxComponents,
   // eslint-disable-next-line react/jsx-no-useless-fragment
   p: (props) => <React.Fragment {...props} />,
-  code: (props) => <code {...props} />,
+  code: (props) => <code className="text-xs" {...props} />,
 };
 
 export function useMDXComponents(): MDXComponents {
