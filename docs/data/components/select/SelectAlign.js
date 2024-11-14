@@ -10,7 +10,7 @@ function AlignOptionToTriggerTrue() {
         <Select.Value placeholder="Align option to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <Select.Positioner sideOffset={5}>
+      <SelectPositioner sideOffset={5}>
         <SelectScrollUpArrow />
         <SelectPopup>
           <SelectOption>
@@ -31,7 +31,7 @@ function AlignOptionToTriggerTrue() {
           </SelectOption>
         </SelectPopup>
         <SelectScrollDownArrow />
-      </Select.Positioner>
+      </SelectPositioner>
     </Select.Root>
   );
 }
@@ -43,7 +43,7 @@ function AlignOptionToTriggerFalse() {
         <Select.Value placeholder="Align popup to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <Select.Positioner sideOffset={5}>
+      <SelectPositioner sideOffset={5}>
         <SelectScrollUpArrow />
         <SelectPopup>
           <SelectOption>
@@ -64,7 +64,7 @@ function AlignOptionToTriggerFalse() {
           </SelectOption>
         </SelectPopup>
         <SelectScrollDownArrow />
-      </Select.Positioner>
+      </SelectPositioner>
     </Select.Root>
   );
 }
@@ -135,6 +135,12 @@ const SelectDropdownArrow = styled(Select.Icon)`
   font-size: 10px;
   line-height: 1;
   height: 6px;
+`;
+
+const SelectPositioner = styled(Select.Positioner)`
+  &[data-side='none'] {
+    z-index: 1;
+  }
 `;
 
 const SelectPopup = styled(Select.Popup)`
@@ -208,6 +214,7 @@ const scrollArrowStyles = css`
   align-items: center;
   justify-content: center;
   border-radius: 5px;
+  z-index: 1;
 
   &[data-side='none'] {
     &::before {
