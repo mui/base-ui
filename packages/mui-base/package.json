@@ -59,7 +59,7 @@
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.13",
     "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "@types/sinon": "^17.0.3",
     "@types/use-sync-external-store": "^0.0.6",
     "chai": "^4.5.0",
