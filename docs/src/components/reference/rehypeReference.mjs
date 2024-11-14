@@ -12,6 +12,7 @@ const REFERENCE = 'Reference';
 
 // The corresponding components exposed in "mdx-components.tsx"
 const ATTRIBUTES_TABLE = 'AttributesTable';
+const CSS_VARIABLES_TABLE = 'CssVariablesTable';
 const PROPS_TABLE = 'PropsTable';
 
 /**
@@ -46,7 +47,7 @@ export function rehypeReference() {
         throw new Error(`Missing "parts" prop on the "<Reference />" component.`);
       }
 
-      /** @type {import('./Reference').ComponentDef[]} */
+      /** @type {import('./types').ComponentDef[]} */
       const componentDefs = parts.split(/,\s*/).map((part) => {
         const filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
         const pathname = join(process.cwd(), 'reference/generated', filename);
@@ -73,8 +74,8 @@ export function rehypeReference() {
             }),
           );
 
+          // Parse component description as markdown
           if (def.description) {
-            // Parse component description as markdown
             subtree.push(...createHast(def.description).children);
           }
 
@@ -88,17 +89,17 @@ export function rehypeReference() {
           if (def.attributes) {
             subtree.push(
               createMdxElement({
-                name: 'p',
-                children: [
-                  {
-                    type: 'text',
-                    value: `Use the following data attributes for styling the ${name} part:`,
-                  },
-                ],
-              }),
-              createMdxElement({
                 name: ATTRIBUTES_TABLE,
                 props: { data: def.attributes },
+              }),
+            );
+          }
+
+          if (def.cssVariables) {
+            subtree.push(
+              createMdxElement({
+                name: CSS_VARIABLES_TABLE,
+                props: { data: def.cssVariables },
               }),
             );
           }

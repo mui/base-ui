@@ -11,17 +11,6 @@
     vertical-align: inherit;
   }
 
-  .TableHeaderCell {
-    text-align: initial;
-    font-weight: normal;
-
-    &[scope='col'],
-    &[scope='colgroup'] {
-      @apply text-xs;
-      color: var(--color-gray);
-    }
-  }
-
   .TableCell,
   .TableHeaderCell {
     padding-top: 0.625rem;
@@ -31,5 +20,19 @@
 
     /* Not `border` because Safari renders transparent borders with glitches */
     box-shadow: 0 1px var(--color-border);
+  }
+
+  .TableHeaderCell {
+    text-align: initial;
+    font-weight: normal;
+
+    &[scope='col'],
+    &[scope='colgroup'] {
+      @apply text-xs;
+      color: var(--color-gray);
+      line-height: var(--font-size-sm--line-height);
+      background-color: var(--color-panel);
+      box-shadow: 0 1px var(--color-border);
+    }
   }
 }

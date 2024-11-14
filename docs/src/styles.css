@@ -19,6 +19,7 @@
   --color-background: oklch(98% 0.25% 264);
   --color-foreground: oklch(21% 2% 264);
   --color-border: oklch(20% 12% 264 / 10%);
+  --color-border-strong: oklch(20% 12% 264 / 20%);
   --color-content: #fff;
   --color-gridline: oklch(91.6% 1% 264);
   --color-popup: #fff;
@@ -80,11 +81,12 @@
     --color-background: #000;
     --color-foreground: oklch(90% 2% 264);
     --color-border: oklch(90% 12% 264 / 20%);
+    --color-border-strong: oklch(90% 12% 264 / 30%);
     --color-content: #000;
     --color-gridline: oklch(24% 1% 264);
     --color-popup: oklch(15% 1% 264);
     --color-popup-border: oklch(90% 12% 264 / 16%);
-    --color-panel: oklch(15% 1% 264);
+    --color-panel: oklch(16.5% 1% 264);
     --color-selection: oklch(50% 0.2 264 / 40%);
 
     --color-blue: oklch(69% 50% 264);

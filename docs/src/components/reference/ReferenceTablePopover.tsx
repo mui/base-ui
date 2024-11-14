@@ -4,11 +4,11 @@ import * as React from 'react';
 import { ToolbarButton } from '../ToolbarButton';
 import { Popup } from '../Popup';
 
-interface PropsTablePopoverProps {
+interface ReferenceTablePopoverProps {
   children: React.ReactElement<any>;
 }
 
-export function PropsTablePopover({ children }: PropsTablePopoverProps) {
+export function ReferenceTablePopover({ children }: ReferenceTablePopoverProps) {
   return (
     <Popover.Root>
       <Popover.Trigger

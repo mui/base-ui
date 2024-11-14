@@ -12,6 +12,19 @@
     },
     "[data-exiting]": {
       "description": "Present when the dialog is animating out."
+    },
+    "[data-modal]": {
+      "description": "Present when the dialog is modal."
+    },
+    "[data-nested-dialogs]": {
+      "type": "number",
+      "description": "Indicates how many dialogs are nested within."
+    }
+  },
+  "cssVariables": {
+    "--nested-dialogs": {
+      "type": "number",
+      "description": "Indicates how many dialogs are nested within."
     }
   }
 }

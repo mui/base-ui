@@ -6,6 +6,7 @@ import * as QuickNav from './components/quick-nav/QuickNav';
 import { Code } from './components/Code';
 import { PropsTable } from './components/reference/PropsTable';
 import { AttributesTable } from './components/reference/AttributesTable';
+import { CssVariablesTable } from './components/reference/CssVariablesTable';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -52,16 +53,9 @@ export const mdxComponents: MDXComponents = {
   // Custom components
   Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
   QuickNav,
-  AttributesTable: (props) => (
-    <div className="mt-2 mb-8">
-      <AttributesTable {...props} />
-    </div>
-  ),
-  PropsTable: (props) => (
-    <div className="mt-2 mb-8">
-      <PropsTable {...props} />
-    </div>
-  ),
+  AttributesTable,
+  CssVariablesTable,
+  PropsTable,
   // Reference,
   Subtitle: (props) => <p className="text-gray -mt-2 mb-5 text-lg" {...props} />,
 };

@@ -26,10 +26,10 @@ export function rehypeInlineCode() {
       // We don't want a background-color and color on the inline <code> tags
       delete node.properties.style;
 
-      // Tweak how `undefined` and `null` are highlighted
+      // Tweak how `undefined`, `null`, and `""` are highlighted
       node.children?.forEach((part) => {
         const text = part.children[0]?.value;
-        if (text === 'undefined' || text === 'null') {
+        if (text === 'undefined' || text === 'null' || text === '""' || text === "''") {
           part.properties.style = 'color:var(--color-pale)';
         }
       });
