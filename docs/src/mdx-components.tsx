@@ -7,6 +7,7 @@ import { Code } from './components/Code';
 import { PropsTable } from './components/reference/PropsTable';
 import { AttributesTable } from './components/reference/AttributesTable';
 import { CssVariablesTable } from './components/reference/CssVariablesTable';
+import { TableCode } from './components/TableCode';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -69,7 +70,7 @@ export const tableMdxComponents: MDXComponents = {
   ...mdxComponents,
   // eslint-disable-next-line react/jsx-no-useless-fragment
   p: (props) => <React.Fragment {...props} />,
-  code: (props) => <code {...props} />,
+  code: TableCode,
 };
 
 export function useMDXComponents(): MDXComponents {
