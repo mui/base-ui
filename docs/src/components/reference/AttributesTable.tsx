@@ -23,12 +23,14 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
       <Table.Body>
         {Object.keys(data).map(async (name) => {
           const attribute = data[name];
-          attribute.type ??= '""';
 
-          const AttributeType = await createMdxComponent(`\`${attribute.type}\``, {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => tableMdxComponents,
-          });
+          let AttributeType: (props: any) => React.JSX.Element = EmptyAttribute;
+          if (attribute.type) {
+            AttributeType = await createMdxComponent(`\`${attribute.type}\``, {
+              rehypePlugins: rehypeSyntaxHighlighting,
+              useMDXComponents: () => tableMdxComponents,
+            });
+          }
 
           const AttributeDescription = await createMdxComponent(attribute.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
@@ -54,4 +56,8 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
       </Table.Body>
     </Table.Root>
   );
+}
+
+function EmptyAttribute() {
+  return <span className="text-pale text-xs">Empty attribute</span>;
 }
