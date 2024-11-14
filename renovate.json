@@ -36,6 +36,11 @@
       "automerge": true
     },
     {
+      "groupName": "React RC types - broken versions",
+      "matchPackageNames": ["@types/react-dom", "@types/react-is"],
+      "enabled": false
+    },
+    {
       "automerge": true,
       "matchPackageNames": ["@types/**"]
     },
