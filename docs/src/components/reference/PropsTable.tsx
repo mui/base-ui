@@ -52,11 +52,9 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
                 <PropDefault />
               </Table.Cell>
               <Table.Cell>
-                <div className="mt-0.5">
-                  <ReferenceTablePopover>
-                    <PropDescription />
-                  </ReferenceTablePopover>
-                </div>
+                <ReferenceTablePopover>
+                  <PropDescription />
+                </ReferenceTablePopover>
               </Table.Cell>
             </Table.Row>
           );

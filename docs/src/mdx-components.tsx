@@ -53,10 +53,9 @@ export const mdxComponents: MDXComponents = {
   // Custom components
   Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
   QuickNav,
-  AttributesTable,
-  CssVariablesTable,
-  PropsTable,
-  // Reference,
+  AttributesTable: (props) => <AttributesTable className="mb-6" {...props} />,
+  CssVariablesTable: (props) => <CssVariablesTable className="mb-6" {...props} />,
+  PropsTable: (props) => <PropsTable className="mb-6" {...props} />,
   Subtitle: (props) => <p className="text-gray -mt-2 mb-5 text-lg" {...props} />,
 };
 

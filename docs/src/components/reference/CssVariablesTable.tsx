@@ -43,11 +43,9 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
                 <CssVaribleType />
               </Table.Cell>
               <Table.Cell>
-                <div className="mt-0.5">
-                  <ReferenceTablePopover>
-                    <CssVaribleDescription />
-                  </ReferenceTablePopover>
-                </div>
+                <ReferenceTablePopover>
+                  <CssVaribleDescription />
+                </ReferenceTablePopover>
               </Table.Cell>
             </Table.Row>
           );

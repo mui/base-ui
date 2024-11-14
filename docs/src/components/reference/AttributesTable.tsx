@@ -38,17 +38,15 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <code className="text-green text-xs">{name}</code>
+                <code className="text-navy text-xs">{name}</code>
               </Table.HeaderCell>
               <Table.Cell>
                 <AttributeType />
               </Table.Cell>
               <Table.Cell>
-                <div className="mt-0.5">
-                  <ReferenceTablePopover>
-                    <AttributeDescription />
-                  </ReferenceTablePopover>
-                </div>
+                <ReferenceTablePopover>
+                  <AttributeDescription />
+                </ReferenceTablePopover>
               </Table.Cell>
             </Table.Row>
           );
