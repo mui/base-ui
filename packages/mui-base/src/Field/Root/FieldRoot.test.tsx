@@ -667,7 +667,7 @@ describe('<Field.Root />', () => {
 
         expect(trigger).not.to.have.attribute('data-dirty');
 
-        fireEvent.click(trigger);
+        await userEvent.click(trigger);
 
         await flushMicrotasks();
 
@@ -676,7 +676,7 @@ describe('<Field.Root />', () => {
         // Arrow Down to focus the Option 1
         await user.keyboard('{ArrowDown}');
 
-        fireEvent.click(option);
+        await userEvent.click(option);
 
         await flushMicrotasks();
 
