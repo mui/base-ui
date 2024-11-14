@@ -181,8 +181,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       if (open) {
         setActiveIndex(index);
       } else {
-        setSelectedIndex(index);
-        setLabel(labelsRef.current[index] ?? '');
+        setValue(valuesRef.current[index]);
       }
     },
     onTypingChange(typing) {
