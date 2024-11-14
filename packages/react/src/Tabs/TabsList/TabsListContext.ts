@@ -4,7 +4,9 @@ import * as React from 'react';
 export interface TabsListContext {
   activateOnFocus: boolean;
   getTabElement: (value: any) => HTMLElement | null;
+  highlightedTabIndex: number;
   onTabActivation: (newValue: any, event: Event) => void;
+  setHighlightedTabIndex: (index: number) => void;
   tabsListRef: React.RefObject<HTMLElement | null>;
 }
 

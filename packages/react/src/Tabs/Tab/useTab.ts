@@ -1,12 +1,14 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { useButton } from '../../useButton';
 import { useCompositeItem } from '../../Composite/Item/useCompositeItem';
 import type { TabsRootContext } from '../Root/TabsRootContext';
 import type { useTabsList } from '../TabsList/useTabsList';
+import type { TabsList } from '../TabsList/TabsList';
 
 export interface TabMetadata {
   disabled: boolean;
@@ -15,12 +17,15 @@ export interface TabMetadata {
 
 function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
   const {
+    activateOnFocus,
     disabled = false,
     getTabPanelIdByTabValueOrIndex,
+    highlightedTabIndex,
     id: idParam,
-    isSelected,
     onTabActivation,
     rootRef: externalRef,
+    selectedTabValue,
+    setHighlightedTabIndex,
     value: valueParam,
   } = parameters;
 
@@ -38,6 +43,25 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
   } = useCompositeItem<TabMetadata>({ metadata: tabMetadata });
 
   const tabValue = valueParam ?? index;
+
+  // the `selected` state isn't set on the server (it relies on effects to be calculated),
+  // so we fall back to checking the `value` param with the selectedValue from the TabsContext
+  const selected = React.useMemo(() => {
+    if (valueParam === undefined) {
+      return index < 0 ? false : index === selectedTabValue;
+    }
+
+    return valueParam === selectedTabValue;
+  }, [index, selectedTabValue, valueParam]);
+
+  // ensure the active item in Composite's roving focus group matches the selected Tab
+  // FIXME: something is wrong with this
+  useEnhancedEffect(() => {
+    if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
+      console.log('useEnhancedEffect update index', index);
+      setHighlightedTabIndex(index);
+    }
+  }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -57,27 +81,45 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
           {
             role: 'tab',
             'aria-controls': tabPanelId,
-            'aria-selected': false,
+            'aria-selected': selected,
             id,
             ref: handleRef,
             onClick(event) {
               onTabActivation(tabValue, event.nativeEvent);
+            },
+            onFocus(event) {
+              if (!activateOnFocus) {
+                return;
+              }
+
+              if (selectedTabValue !== tabValue) {
+                onTabActivation(tabValue, event.nativeEvent);
+              }
             },
           },
           mergeReactProps(getItemProps(), getButtonProps()),
         ),
       );
     },
-    [getButtonProps, getItemProps, handleRef, id, onTabActivation, tabPanelId, tabValue],
+    [
+      activateOnFocus,
+      getButtonProps,
+      getItemProps,
+      handleRef,
+      id,
+      onTabActivation,
+      selected,
+      selectedTabValue,
+      tabPanelId,
+      tabValue,
+    ],
   );
 
   return {
     getRootProps,
     index,
     rootRef: handleRef,
-    // the `selected` state isn't set on the server (it relies on effects to be calculated),
-    // so we fall back to checking the `value` prop with the selectedValue from the TabsContext
-    selected: /* selected || */ isSelected,
+    selected,
     // TODO: recalculate this using Composite stuff, but is it really needed?
     totalTabsCount: -1,
   };
@@ -86,6 +128,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
 namespace useTab {
   export interface Parameters
     extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'>,
+      Pick<TabsList.Props, 'activateOnFocus'>,
       Pick<useTabsList.ReturnValue, 'onTabActivation'> {
     /**
      * The value of the tab.
@@ -101,12 +144,14 @@ namespace useTab {
      * If `true`, the tab will be disabled.
      */
     disabled?: boolean;
+    highlightedTabIndex: number;
     /**
      * The id of the tab.
      * If not provided, it will be automatically generated.
      */
     id?: string;
-    isSelected: boolean;
+    selectedTabValue: TabsRootContext['value'];
+    setHighlightedTabIndex: (index: number) => void;
     /**
      * Ref to the root slot's DOM element.
      */

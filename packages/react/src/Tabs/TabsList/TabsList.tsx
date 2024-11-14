@@ -34,6 +34,8 @@ const TabsList = React.forwardRef(function TabsList(
     tabActivationDirection,
   } = useTabsRootContext();
 
+  const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+
   const tabsListRef = React.useRef<HTMLElement>(null);
 
   const { getRootProps, onTabActivation } = useTabsList({
@@ -66,17 +68,21 @@ const TabsList = React.forwardRef(function TabsList(
   const tabsListContextValue = React.useMemo(
     () => ({
       activateOnFocus,
+      highlightedTabIndex,
       onTabActivation,
       // getTabElement,
-      value,
+      setHighlightedTabIndex,
       tabsListRef,
+      value,
     }),
     [
       activateOnFocus,
+      highlightedTabIndex,
       onTabActivation,
       // getTabElement,
-      value,
+      setHighlightedTabIndex,
       tabsListRef,
+      value,
     ],
   );
 
@@ -86,7 +92,13 @@ const TabsList = React.forwardRef(function TabsList(
         TODO: pass `direction` prop to `rtl` prop of CompositeRoot when
         https://github.com/mui/base-ui/pull/763 is merged
        */}
-      <CompositeRoot loop={loop} onMapChange={setTabMap} render={renderElement()} />
+      <CompositeRoot
+        activeIndex={highlightedTabIndex}
+        loop={loop}
+        onActiveIndexChange={setHighlightedTabIndex}
+        onMapChange={setTabMap}
+        render={renderElement()}
+      />
     </TabsListContext.Provider>
   );
 });

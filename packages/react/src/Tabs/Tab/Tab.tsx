@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useCompositeRootContext } from '../../Composite/Root/CompositeRootContext';
 import type { TabsOrientation } from '../Root/TabsRoot';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { useTabsListContext } from '../TabsList/TabsListContext';
@@ -25,28 +24,28 @@ const Tab = React.forwardRef(function Tab(
   const { className, disabled = false, render, value: valueProp, id: idProp, ...other } = props;
 
   const {
-    value: selectedValue,
+    value: selectedTabValue,
     getTabPanelIdByTabValueOrIndex,
     orientation,
   } = useTabsRootContext();
 
-  const { activateOnFocus, onTabActivation } = useTabsListContext();
-
-  // this is the context of TabsList
-  const { activeIndex } = useCompositeRootContext();
-  // console.log('activeIndex', activeIndex);
+  const { activateOnFocus, highlightedTabIndex, onTabActivation, setHighlightedTabIndex } =
+    useTabsListContext();
 
   const { getRootProps, index, selected } = useTab({
+    activateOnFocus,
     disabled,
     getTabPanelIdByTabValueOrIndex,
+    highlightedTabIndex,
     id: idProp,
-    isSelected: valueProp === selectedValue,
     onTabActivation,
     rootRef: forwardedRef,
+    setHighlightedTabIndex,
+    selectedTabValue,
     value: valueProp,
   });
 
-  const highlighted = index > -1 && index === activeIndex;
+  const highlighted = index > -1 && index === highlightedTabIndex;
 
   const ownerState: Tab.OwnerState = React.useMemo(
     () => ({

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, describeSkipIf, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui-components/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -214,6 +214,7 @@ describe('<Tabs.Root />', () => {
       });
 
       fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
 
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(1);
@@ -301,6 +302,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(firstTab, { key: previousItemKey });
+              await flushMicrotasks();
 
               expect(lastTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(0);
@@ -332,6 +334,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(secondTab, { key: previousItemKey });
+              await flushMicrotasks();
 
               expect(firstTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(0);
@@ -365,6 +368,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(firstTab, { key: previousItemKey });
+              await flushMicrotasks();
 
               expect(lastTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
@@ -397,6 +401,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(secondTab, { key: previousItemKey });
+              await flushMicrotasks();
 
               expect(firstTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
@@ -428,6 +433,7 @@ describe('<Tabs.Root />', () => {
             });
 
             fireEvent.keyDown(lastTab, { key: previousItemKey });
+            await flushMicrotasks();
 
             expect(firstTab).toHaveFocus();
             expect(handleKeyDown.callCount).to.equal(1);
@@ -461,6 +467,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(lastTab, { key: nextItemKey });
+              await flushMicrotasks();
 
               expect(firstTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(0);
@@ -492,6 +499,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(secondTab, { key: nextItemKey });
+              await flushMicrotasks();
 
               expect(lastTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(0);
@@ -525,6 +533,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(lastTab, { key: nextItemKey });
+              await flushMicrotasks();
 
               expect(firstTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
@@ -557,6 +566,7 @@ describe('<Tabs.Root />', () => {
               });
 
               fireEvent.keyDown(secondTab, { key: nextItemKey });
+              await flushMicrotasks();
 
               expect(lastTab).toHaveFocus();
               expect(handleChange.callCount).to.equal(1);
@@ -588,6 +598,7 @@ describe('<Tabs.Root />', () => {
             });
 
             fireEvent.keyDown(firstTab, { key: nextItemKey });
+            await flushMicrotasks();
 
             expect(lastTab).toHaveFocus();
             expect(handleKeyDown.callCount).to.equal(1);

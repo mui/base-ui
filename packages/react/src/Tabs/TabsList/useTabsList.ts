@@ -15,7 +15,7 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
     // registerGetTabIdByPanelValueOrIndexFn,
     rootRef: externalRef,
     tabsListRef,
-    value,
+    value: selectedTabValue,
   } = parameters;
 
   // subitems are <Tab>s, their Composite parent is <Tabs.List>
@@ -66,7 +66,7 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
 
   // const tabsListRef = React.useRef<HTMLElement>(null);
   const detectActivationDirection = useActivationDirectionDetector(
-    value,
+    selectedTabValue,
     orientation,
     tabsListRef,
     getTabElement,
@@ -74,8 +74,10 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
 
   const onTabActivation = useEventCallback((newValue: any, event: Event) => {
     // console.log('onTabActivation()', newValue, event.target);
-    const activationDirection = detectActivationDirection(newValue);
-    onValueChange(newValue, activationDirection, event);
+    if (newValue !== selectedTabValue) {
+      const activationDirection = detectActivationDirection(newValue);
+      onValueChange(newValue, activationDirection, event);
+    }
   });
 
   // const controlledProps = React.useMemo(() => {
