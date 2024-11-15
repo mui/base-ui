@@ -662,7 +662,9 @@ export function useNumberFieldRoot(
 
           if (
             // Allow composition events (e.g., pinyin)
-            nativeEvent.isComposing ||
+            // event.nativeEvent.isComposing does not work in Safari:
+            // https://bugs.webkit.org/show_bug.cgi?id=165004
+            event.which === 229 ||
             event.altKey ||
             event.ctrlKey ||
             event.metaKey ||
