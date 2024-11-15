@@ -1,0 +1,11 @@
+{
+  "name": "SelectScrollDownArrow",
+  "description": "",
+  "props": {
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should be kept mounted when it is not rendered."
+    }
+  }
+}
