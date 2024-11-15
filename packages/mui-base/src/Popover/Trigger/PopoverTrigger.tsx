@@ -5,7 +5,10 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import {
+  triggerOpenStateMapping,
+  pressableTriggerOpenStateMapping,
+} from '../../utils/popupOpenStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 /**
@@ -35,7 +38,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     () => ({
       open(value) {
         if (value && openReason === 'click') {
-          return { ...triggerOpenStateMapping.open(value), 'data-pressed': '' };
+          return pressableTriggerOpenStateMapping.open(value);
         }
 
         return triggerOpenStateMapping.open(value);
