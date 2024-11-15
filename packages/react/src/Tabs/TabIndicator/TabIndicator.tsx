@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
-import { script as prehydrationScript } from './prehydrationScript.min';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useOnMount } from '../../utils/useOnMount';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useTabsListContext } from '../TabsList/TabsListContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useOnMount } from '../../utils/useOnMount';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
+import { script as prehydrationScript } from './prehydrationScript.min';
 
 const noop = () => null;
 
@@ -26,8 +26,10 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
   function TabIndicator(props, forwardedRef) {
     const { className, render, renderBeforeHydration = false, ...other } = props;
 
-    const { orientation, direction, value, tabActivationDirection } = useTabsRootContext();
-    const { tabsListRef, getTabElement } = useTabsListContext();
+    const { direction, getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
+      useTabsRootContext();
+
+    const { tabsListRef } = useTabsListContext();
 
     const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
     const [isMounted, setIsMounted] = React.useState(false);
@@ -36,7 +38,7 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
     useOnMount(() => setIsMounted(true));
 
     const { getRootProps, activeTabPosition: selectedTabPosition } = useTabIndicator({
-      getTabElement,
+      getTabElementBySelectedValue,
       tabsListRef,
       value,
     });

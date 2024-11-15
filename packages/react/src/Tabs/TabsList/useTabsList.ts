@@ -6,70 +6,23 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
-// import { TabsListContext } from './TabsListContext';
 
 function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
   const {
+    getTabElementBySelectedValue,
     onValueChange,
     orientation,
-    // registerGetTabIdByPanelValueOrIndexFn,
     rootRef: externalRef,
     tabsListRef,
     value: selectedTabValue,
   } = parameters;
 
-  // subitems are <Tab>s, their Composite parent is <Tabs.List>
-  // const { subitems } = useCompoundParent<any, TabMetadata>();
-
-  // DON"T NEED THIS ANYMORE
-  //
-  // get id attribute of a Tab by tab value
-  // for binding aria attributes
-  // this function needs to be registered to the context
-  //
-  // const tabIdLookup = React.useCallback(
-  //   (tabValue: any) => {
-  //     return subitems.get(tabValue)?.id;
-  //   },
-  //   [subitems],
-  // );
-
-  // registerGetTabIdByPanelValueOrIndexFn(tabIdLookup);
-
-  // this is a param for useList
-  // const subitemKeys = React.useMemo(() => Array.from(subitems.keys()), [subitems]);
-
-  // get the element/node of a tab by tab value
-  // used as a param for `useActivationDirectionDetector`
-  // TODO: move this to useTabsRoot since tabMap is there
-  const getTabElement = React.useCallback(
-    (tabValue: any) => {
-      if (tabValue == null) {
-        return null;
-      }
-
-      // subitems are <Tab>s, their Composite parent is <Tabs.List>
-      // return subitems.get(tabValue)?.ref.current ?? null;
-      return null;
-    },
-    [
-      /* subitems */
-    ],
-  );
-
-  // let listOrientation: UseListParameters<any, any>['orientation'];
-  // if (orientation === 'vertical') {
-  //   listOrientation = 'vertical';
-  // } else {
-  //   listOrientation = direction === 'rtl' ? 'horizontal-rtl' : 'horizontal-ltr';
-  // }
-
-  // const tabsListRef = React.useRef<HTMLElement>(null);
   const detectActivationDirection = useActivationDirectionDetector(
+    // the old value
     selectedTabValue,
     orientation,
     tabsListRef,
-    getTabElement,
+    getTabElementBySelectedValue,
   );
 
   const onTabActivation = useEventCallback((newValue: any, event: Event) => {
@@ -79,15 +32,6 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
       onValueChange(newValue, activationDirection, event);
     }
   });
-
-  // const controlledProps = React.useMemo(() => {
-  //   return value != null ? { selectedValues: [value] } : { selectedValues: [] };
-  // }, [value]);
-
-  // const isItemDisabled = React.useCallback(
-  //   (item: any) => subitems.get(item)?.disabled ?? false,
-  //   [subitems],
-  // );
 
   // React.useEffect(() => {
   //   if (value === undefined) {
@@ -134,21 +78,22 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
 }
 
 function useActivationDirectionDetector(
-  value: any,
+  // the old value
+  selectedTabValue: any,
   orientation: TabsOrientation,
   tabsListRef: React.RefObject<HTMLElement | null>,
-  getTabElement: (tabValue: any) => HTMLElement | null,
+  getTabElement: (selectedValue: any) => HTMLElement | null,
 ): (newValue: any) => TabActivationDirection {
   const previousTabEdge = React.useRef<number | null>(null);
 
   useEnhancedEffect(() => {
     // Whenever orientation changes, reset the state.
-    if (value == null || tabsListRef.current == null) {
+    if (selectedTabValue == null || tabsListRef.current == null) {
       previousTabEdge.current = null;
       return;
     }
 
-    const activeTab = getTabElement(value);
+    const activeTab = getTabElement(selectedTabValue);
     if (activeTab == null) {
       previousTabEdge.current = null;
       return;
@@ -156,11 +101,11 @@ function useActivationDirectionDetector(
 
     const { left, top } = getInset(activeTab, tabsListRef.current);
     previousTabEdge.current = orientation === 'horizontal' ? left : top;
-  }, [orientation, getTabElement, tabsListRef, value]);
+  }, [orientation, getTabElement, tabsListRef, selectedTabValue]);
 
   return React.useCallback(
     (newValue: any) => {
-      if (newValue === value) {
+      if (newValue === selectedTabValue) {
         return 'none';
       }
 
@@ -201,13 +146,16 @@ function useActivationDirectionDetector(
 
       return 'none';
     },
-    [getTabElement, orientation, previousTabEdge, tabsListRef, value],
+    [getTabElement, orientation, previousTabEdge, tabsListRef, selectedTabValue],
   );
 }
 
 namespace useTabsList {
   export interface Parameters
-    extends Pick<TabsRootContext, 'onValueChange' | 'orientation' | 'setTabMap' | 'value'> {
+    extends Pick<
+      TabsRootContext,
+      'getTabElementBySelectedValue' | 'onValueChange' | 'orientation' | 'setTabMap' | 'value'
+    > {
     /**
      * Ref to the root element.
      */

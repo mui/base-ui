@@ -28,6 +28,7 @@ export interface TabsRootContext {
    * Registers a function that returns the id of the tab with the given value.
    */
   // registerGetTabIdByPanelValueOrIndexFn?: (lookupFunction: (id: any) => string | undefined) => void;
+  getTabElementBySelectedValue: (selectedValue: any | undefined) => HTMLElement | null;
   /**
    * Gets the id of the tab with the given value.
    * @param {any | undefined} value Value to find the tab for.

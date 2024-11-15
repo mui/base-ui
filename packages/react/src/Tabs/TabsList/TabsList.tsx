@@ -27,6 +27,7 @@ const TabsList = React.forwardRef(function TabsList(
 
   const {
     direction = 'ltr',
+    getTabElementBySelectedValue,
     onValueChange,
     orientation = 'horizontal',
     value,
@@ -39,6 +40,7 @@ const TabsList = React.forwardRef(function TabsList(
   const tabsListRef = React.useRef<HTMLElement>(null);
 
   const { getRootProps, onTabActivation } = useTabsList({
+    getTabElementBySelectedValue,
     onValueChange,
     orientation,
     rootRef: forwardedRef,

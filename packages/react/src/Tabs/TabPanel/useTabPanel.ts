@@ -4,7 +4,6 @@ import type { TabsRootContext } from '../Root/TabsRootContext';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useCompositeListContext } from '../../Composite/List/CompositeListContext';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
 
 export interface TabPanelMetadata {
@@ -13,7 +12,12 @@ export interface TabPanelMetadata {
 }
 
 function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValue {
-  const { rootRef: externalRef, selectedValue, value: valueParam } = parameters;
+  const {
+    getTabIdByPanelValueOrIndex,
+    rootRef: externalRef,
+    selectedValue,
+    value: valueParam,
+  } = parameters;
 
   const id = useId();
 
@@ -24,9 +28,6 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
     }),
     [id, valueParam],
   );
-
-  // tabPanelCompositeMap
-  const { map: tabPanelCompositeMap } = useCompositeListContext();
 
   const { ref: listItemRef, index } = useCompositeListItem<TabPanelMetadata>({
     metadata,
@@ -39,29 +40,16 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
 
   const hidden = tabPanelValue !== selectedValue;
 
-  // const correspondingTabId = tabPanelValue !== undefined ? getTabId(tabPanelValue) : undefined;
-
-  const tabId = React.useMemo(() => {
-    if (index < 0) {
-      return undefined;
-    }
-
-    // TODO: this is incorrect, should be tabButtonMap
-    for (const value of tabPanelCompositeMap.values()) {
-      if (value.index > -1 && value.index === index) {
-        return value.id;
-      }
-    }
-
-    return undefined;
-  }, [index, tabPanelCompositeMap]);
+  const correspondingTabId = React.useMemo(() => {
+    return getTabIdByPanelValueOrIndex(valueParam, index);
+  }, [getTabIdByPanelValueOrIndex, index, valueParam]);
 
   const getRootProps = React.useCallback(
     (
       externalProps: React.ComponentPropsWithoutRef<'div'> = {},
     ): React.ComponentPropsWithRef<'div'> => {
       return mergeReactProps(externalProps, {
-        'aria-labelledby': undefined,
+        'aria-labelledby': correspondingTabId,
         hidden,
         id: id ?? undefined,
         role: 'tabpanel',
@@ -70,7 +58,7 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
         'data-index': index,
       });
     },
-    [handleRef, hidden, id, index],
+    [correspondingTabId, handleRef, hidden, id, index],
   );
 
   return {

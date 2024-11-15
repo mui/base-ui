@@ -16,6 +16,7 @@ describe('<Tabs.List />', () => {
             value: '1',
             onValueChange: () => {},
             setTabMap() {},
+            getTabElementBySelectedValue: () => null,
             getTabIdByPanelValueOrIndex: () => '',
             getTabPanelIdByTabValueOrIndex: () => '',
             orientation: 'horizontal',

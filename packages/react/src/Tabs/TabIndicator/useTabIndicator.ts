@@ -12,7 +12,7 @@ function round(value: number) {
 export function useTabIndicator(
   parameters: useTabIndicator.Parameters,
 ): useTabIndicator.ReturnValue {
-  const { value, tabsListRef, getTabElement } = parameters;
+  const { value, tabsListRef, getTabElementBySelectedValue } = parameters;
 
   const rerender = useForcedRerendering();
   React.useEffect(() => {
@@ -41,7 +41,7 @@ export function useTabIndicator(
   let isTabSelected = false;
 
   if (value != null && tabsListRef.current != null) {
-    const selectedTabElement = null; /*getTabElement(value)*/
+    const selectedTabElement = getTabElementBySelectedValue(value);
     isTabSelected = true;
 
     if (selectedTabElement != null) {
@@ -120,9 +120,9 @@ export interface ActiveTabPosition {
 }
 
 export namespace useTabIndicator {
-  export interface Parameters extends Pick<TabsListContext, 'getTabElement' | 'tabsListRef'> {
-    value: TabsRootContext['value'];
-  }
+  export interface Parameters
+    extends Pick<TabsRootContext, 'getTabElementBySelectedValue' | 'value'>,
+      Pick<TabsListContext, 'tabsListRef'> {}
 
   export interface ReturnValue {
     getRootProps: (

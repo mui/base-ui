@@ -13,6 +13,7 @@ import type { TabsList } from '../TabsList/TabsList';
 export interface TabMetadata {
   disabled: boolean;
   id: string | undefined;
+  value: any | undefined;
 }
 
 function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
@@ -45,7 +46,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
   const tabValue = valueParam ?? index;
 
   // the `selected` state isn't set on the server (it relies on effects to be calculated),
-  // so we fall back to checking the `value` param with the selectedValue from the TabsContext
+  // so we fall back to checking the `value` param with the selectedTabValue from the TabsContext
   const selected = React.useMemo(() => {
     if (valueParam === undefined) {
       return index < 0 ? false : index === selectedTabValue;

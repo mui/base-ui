@@ -80,24 +80,49 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValueOrIndex = React.useCallback(
     (tabPanelValue: any | undefined, index: number) => {
-      // return getTabIdByPanelValueOrIndexRef.current(tabPanelValue);
-      for (const tabMetadata of tabMap.values()) {
-        console.log(tabPanelValue, index, tabMetadata);
+      if (tabPanelValue === undefined && index < 0) {
+        return undefined;
       }
+
+      for (const tabMetadata of tabMap.values()) {
+        // console.log(tabPanelValue, index, tabMetadata);
+
+        // find by tabPanelValue
+        if (
+          tabPanelValue !== undefined &&
+          index > -1 &&
+          tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
+        ) {
+          // console.log('found by tabPanelValue', tabMetadata?.id);
+          return tabMetadata?.id;
+        }
+
+        // find by index
+        if (
+          tabPanelValue === undefined &&
+          index > -1 &&
+          index === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
+        ) {
+          // console.log('found by tabPanel index', tabMetadata?.id);
+          return tabMetadata?.id;
+        }
+      }
+
       return undefined;
     },
     [tabMap],
   );
 
+  // FIXME
   // used as a param for `useActivationDirectionDetector`
-  const getTabElementByPanelValueOrIndex = React.useCallback(
-    (tabPanelValue: any | undefined, index: number) => {
-      // return getTabIdByPanelValueOrIndexRef.current(tabPanelValue);
-      return null;
-    },
-    [],
-  );
+  // put this into TabsRootContext
+  // use it in useTabsList
+  const getTabElementBySelectedValue = React.useCallback((selectedValue: any | undefined) => {
+    console.log('getTabElementBySelectedValue', selectedValue);
+    return null;
+  }, []);
 
+  // TODO: no need to put this in a ref anymore?
   const registerGetTabIdByPanelValueOrIndexFn = React.useCallback(
     (lookupFunction: IdLookupFunction) => {
       getTabIdByPanelValueOrIndexRef.current = lookupFunction;
@@ -116,7 +141,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   return {
     getRootProps,
     direction,
-    getTabElementByPanelValueOrIndex,
+    getTabElementBySelectedValue,
     getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
     onValueChange,
@@ -124,6 +149,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
     setTabMap,
     setTabPanelMap,
     tabActivationDirection,
+    tabMap,
     tabPanelRefs,
     value,
   };
@@ -159,13 +185,15 @@ namespace useTabsRoot {
      * The direction of the text.
      */
     direction: 'ltr' | 'rtl';
-    getTabElementByPanelValueOrIndex: (
-      panelValue: any | undefined,
-      index: number,
-    ) => HTMLElement | null;
     /**
-     * Gets the id of the tab with the given value.
+     * Gets the underlying element of the Tab with the given value.
      * @param value Value to find the tab for.
+     */
+    getTabElementBySelectedValue: (panelValue: any | undefined) => HTMLElement | null;
+    /**
+     * Gets the `id` attribute of the Tab with the given value.
+     * @param (any | undefined) panelValue Value to find the Tab for.
+     * @param (number) index The index of the Tab to look for.
      */
     getTabIdByPanelValueOrIndex: (panelValue: any | undefined, index: number) => string | undefined;
     /**
@@ -196,6 +224,7 @@ namespace useTabsRoot {
      * The position of the active tab relative to the previously active tab.
      */
     tabActivationDirection: TabActivationDirection;
+    tabMap: Map<Node, (TabMetadata & { index?: number | null }) | null>;
     tabPanelRefs: React.RefObject<(HTMLElement | null)[]>;
     /**
      * The currently selected tab's value.

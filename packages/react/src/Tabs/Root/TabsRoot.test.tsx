@@ -275,7 +275,7 @@ describe('<Tabs.Root />', () => {
     ].forEach((entry) => {
       const [orientation, direction, previousItemKey, nextItemKey] = entry;
 
-      describe(`when focus is on a tab element in a ${orientation} ${direction} tablist`, () => {
+      describe(`when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`, () => {
         describe(previousItemKey ?? '', () => {
           describe('with `activateOnFocus = false`', () => {
             it('moves focus to the last tab without activating it if focus is on the first tab', async () => {

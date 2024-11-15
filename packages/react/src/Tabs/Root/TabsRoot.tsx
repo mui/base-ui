@@ -36,6 +36,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   const {
     getRootProps,
     direction,
+    getTabElementBySelectedValue,
     getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
     onValueChange,
@@ -55,6 +56,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   const tabsContextValue = React.useMemo(
     () => ({
       direction,
+      getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
       onValueChange,
@@ -66,6 +68,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     }),
     [
       direction,
+      getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
       onValueChange,

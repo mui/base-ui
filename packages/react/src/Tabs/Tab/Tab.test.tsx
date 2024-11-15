@@ -16,7 +16,6 @@ describe('<Tabs.Tab />', () => {
 
   const testTabsListContext: TabsListContext = {
     activateOnFocus: true,
-    getTabElement: () => null,
     highlightedTabIndex: 0,
     onTabActivation: NOOP,
     setHighlightedTabIndex: NOOP,
@@ -29,6 +28,7 @@ describe('<Tabs.Tab />', () => {
     value: 0,
     onValueChange() {},
     setTabMap() {},
+    getTabElementBySelectedValue: () => null,
     getTabIdByPanelValueOrIndex: () => '',
     getTabPanelIdByTabValueOrIndex: () => '',
     orientation: 'horizontal',
