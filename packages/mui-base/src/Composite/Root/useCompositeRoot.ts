@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useForkRef } from '../../utils/useForkRef';
+import { ownerWindow } from '../../utils/owner';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -25,13 +28,24 @@ import {
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  // isRtl not yet supported for grids (cols > 1)
-  isRtl?: boolean;
   loop?: boolean;
   activeIndex?: number;
   onActiveIndexChange?: (index: number) => void;
   dense?: boolean;
   itemSizes?: Array<Dimensions>;
+  rootRef?: React.Ref<Element>;
+}
+
+type TextDirection = 'ltr' | 'rtl';
+
+function getTextDirection(element: HTMLElement): TextDirection {
+  if (hasComputedStyleMapSupport()) {
+    const direction = element.computedStyleMap().get('direction');
+
+    return (direction as CSSKeywordValue)?.value as TextDirection;
+  }
+
+  return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
 }
 
 // Advanced options of Composite, to be implemented later if needed.
@@ -44,12 +58,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    isRtl = false,
     loop = true,
     dense = false,
     orientation = 'both',
     activeIndex: externalActiveIndex,
     onActiveIndexChange: externalSetActiveIndex,
+    rootRef: externalRef,
   } = params;
 
   const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
@@ -59,16 +73,35 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const activeIndex = externalActiveIndex ?? internalActiveIndex;
   const onActiveIndexChange = useEventCallback(externalSetActiveIndex ?? internalSetActiveIndex);
 
+  const textDirectionRef = React.useRef<TextDirection | null>(null);
+
+  const rootRef = React.useRef<HTMLElement | null>(null);
+  const handleRootRef = useEventCallback((element: HTMLElement) => {
+    if (!element) {
+      return;
+    }
+
+    rootRef.current = element;
+
+    textDirectionRef.current = getTextDirection(element);
+  });
+  const mergedRef = useForkRef(handleRootRef, externalRef);
+
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         'aria-orientation': orientation === 'both' ? undefined : orientation,
+        ref: mergedRef,
         onKeyDown(event) {
           if (!ALL_KEYS.includes(event.key)) {
             return;
           }
+
+          // isRtl not yet supported for grids (cols > 1)
+          const isRtl = textDirectionRef?.current === 'rtl';
+          // console.log('isRtl', isRtl);
 
           let nextIndex = activeIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
@@ -203,9 +236,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       dense,
       elementsRef,
       isGrid,
-      isRtl,
       itemSizes,
       loop,
+      mergedRef,
       onActiveIndexChange,
       orientation,
     ],

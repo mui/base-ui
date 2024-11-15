@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer, fireEvent } from '@mui/internal-test-utils';
+import { act, createRenderer, describeSkipIf, fireEvent } from '@mui/internal-test-utils';
 import { CompositeItem } from '../Item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('Composite', () => {
   const { render } = createRenderer();
@@ -89,14 +91,16 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
-    describe('prop: isRtl', () => {
+    describeSkipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
-          <CompositeRoot isRtl orientation="horizontal">
-            <CompositeItem data-testid="1">1</CompositeItem>
-            <CompositeItem data-testid="2">2</CompositeItem>
-            <CompositeItem data-testid="3">3</CompositeItem>
-          </CompositeRoot>,
+          <div dir="rtl">
+            <CompositeRoot orientation="horizontal">
+              <CompositeItem data-testid="1">1</CompositeItem>
+              <CompositeItem data-testid="2">2</CompositeItem>
+              <CompositeItem data-testid="3">3</CompositeItem>
+            </CompositeRoot>
+          </div>,
         );
 
         const item1 = getByTestId('1');
@@ -139,11 +143,13 @@ describe('Composite', () => {
 
       it('both horizontal and vertical orientation', async () => {
         const { getByTestId } = render(
-          <CompositeRoot isRtl orientation="both">
-            <CompositeItem data-testid="1">1</CompositeItem>
-            <CompositeItem data-testid="2">2</CompositeItem>
-            <CompositeItem data-testid="3">3</CompositeItem>
-          </CompositeRoot>,
+          <div dir="rtl">
+            <CompositeRoot orientation="both">
+              <CompositeItem data-testid="1">1</CompositeItem>
+              <CompositeItem data-testid="2">2</CompositeItem>
+              <CompositeItem data-testid="3">3</CompositeItem>
+            </CompositeRoot>
+          </div>,
         );
 
         const item1 = getByTestId('1');
