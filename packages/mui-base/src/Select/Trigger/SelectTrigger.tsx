@@ -6,7 +6,7 @@ import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -55,7 +55,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     className,
     ownerState,
     propGetter: (externalProps) => getTriggerProps(getRootTriggerProps(externalProps)),
-    customStyleHookMapping: triggerOpenStateMapping,
+    customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: otherProps,
   });
 
