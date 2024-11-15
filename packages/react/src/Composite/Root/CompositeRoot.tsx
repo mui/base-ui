@@ -27,6 +27,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     cols,
     enableHomeAndEndKeys,
     onMapChange,
+    alwaysPropagateEvents,
     ...otherProps
   } = props;
 
@@ -39,6 +40,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     activeIndex: activeIndexProp,
     onActiveIndexChange: onActiveIndexChangeProp,
     rootRef: forwardedRef,
+    alwaysPropagateEvents,
     enableHomeAndEndKeys,
   });
 
@@ -79,6 +81,7 @@ namespace CompositeRoot {
     enableHomeAndEndKeys?: boolean;
     // TODO: can't pass a generic <CustomMetadata> into forwardRef?
     onMapChange?: (newMap: Map<Node, any>) => void;
+    alwaysPropagateEvents?: boolean;
   }
 }
 

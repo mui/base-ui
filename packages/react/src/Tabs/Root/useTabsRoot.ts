@@ -117,10 +117,13 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   // used as a param for `useActivationDirectionDetector`
   // put this into TabsRootContext
   // use it in useTabsList
-  const getTabElementBySelectedValue = React.useCallback((selectedValue: any | undefined) => {
-    console.log('getTabElementBySelectedValue', selectedValue);
-    return null;
-  }, []);
+  const getTabElementBySelectedValue = React.useCallback(
+    (/* selectedValue: any | undefined */) => {
+      // console.log('getTabElementBySelectedValue', selectedValue);
+      return null;
+    },
+    [],
+  );
 
   // TODO: no need to put this in a ref anymore?
   const registerGetTabIdByPanelValueOrIndexFn = React.useCallback(

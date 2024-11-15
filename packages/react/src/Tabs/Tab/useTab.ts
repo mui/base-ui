@@ -59,7 +59,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
   // FIXME: something is wrong with this
   useEnhancedEffect(() => {
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
-      console.log('useEnhancedEffect update index', index);
+      // console.log('useEnhancedEffect update index', index);
       setHighlightedTabIndex(index);
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);

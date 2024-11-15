@@ -96,6 +96,7 @@ const TabsList = React.forwardRef(function TabsList(
        */}
       <CompositeRoot
         activeIndex={highlightedTabIndex}
+        alwaysPropagateEvents
         loop={loop}
         onActiveIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
