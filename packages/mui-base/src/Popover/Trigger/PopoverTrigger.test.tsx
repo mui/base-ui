@@ -50,5 +50,23 @@ describe('<Popover.Trigger />', () => {
       expect(trigger).to.have.attribute('data-popup-open');
       expect(trigger).not.to.have.attribute('data-pressed');
     });
+
+    it('should have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true`', async () => {
+      const { user } = await render(
+        <Popover.Root openOnHover delay={0} animated={false}>
+          <Popover.Trigger />
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      await user.hover(trigger);
+      await act(async () => {
+        trigger.click();
+      });
+
+      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).to.have.attribute('data-pressed');
+    });
   });
 });

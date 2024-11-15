@@ -25,7 +25,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { open, setTriggerElement, getRootTriggerProps, openOnHover } = usePopoverRootContext();
+  const { open, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
 
   const ownerState: PopoverTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
@@ -34,14 +34,14 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
-        if (value && !openOnHover) {
+        if (value && openReason === 'click') {
           return { ...triggerOpenStateMapping.open(value), 'data-pressed': '' };
         }
 
         return triggerOpenStateMapping.open(value);
       },
     }),
-    [openOnHover],
+    [openReason],
   );
 
   const { renderElement } = useComponentRenderer({
