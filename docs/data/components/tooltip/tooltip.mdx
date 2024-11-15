@@ -196,11 +196,11 @@ By default, the `Trigger` acts as the anchor, but this can be changed to another
 
 The `Tooltip.Positioner` element receives the following CSS variables, which can be used by `Tooltip.Popup`:
 
-- `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the tooltip with its anchor.
-- `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the tooltip with its anchor.
-- `--available-width`: Specifies the available width of the popup element before it overflows the viewport.
-- `--available-height`: Specifies the available height of the popup element before it overflows the viewport.
-- `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
+- `--tooltip-anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the tooltip with its anchor.
+- `--tooltip-anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the tooltip with its anchor.
+- `--tooltip-available-width`: Specifies the available width of the popup element before it overflows the viewport.
+- `--tooltip-available-height`: Specifies the available height of the popup element before it overflows the viewport.
+- `--tooltip-arrow-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center, where the arrow points. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
 By default, `maxWidth` and `maxHeight` are already specified on the positioner using `--available-{width,height}` to prevent the tooltip from being too big to fit on the screen.
 
@@ -222,7 +222,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 
 ```css
 .TooltipPopup {
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--tooltip-arrow-origin);
   transition-property: opacity, transform;
   transition-duration: 0.2s;
   /* Represents the final styles once exited */

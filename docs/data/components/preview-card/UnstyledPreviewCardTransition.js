@@ -48,11 +48,11 @@ export const PreviewCardPopup = styled(PreviewCard.Popup)`
   filter: drop-shadow(0 0.1rem 0.25rem rgb(0 10 20 / 0.25));
   outline: 0;
   padding: 12px 16px;
-  max-width: min(300px, var(--available-width));
+  max-width: min(300px, var(--preview-card-available-width));
   transition-property: opacity, transform;
   transition-duration: 0.2s;
   opacity: 0;
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--preview-card-arrow-origin);
 
   &[data-open] {
     opacity: 1;

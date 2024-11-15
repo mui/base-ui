@@ -50,6 +50,7 @@ export default function AnchorPositioning() {
     sticky,
     arrowPadding,
     trackAnchor,
+    name: 'test',
   });
 
   const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {
@@ -82,8 +83,8 @@ export default function AnchorPositioning() {
           boxSizing: 'border-box',
           padding: 10,
           ...(constrainSize && {
-            maxWidth: 'var(--available-width)',
-            maxHeight: 'var(--available-height)',
+            maxWidth: 'var(--test-available-width)',
+            maxHeight: 'var(--test-available-height)',
             overflow: 'auto',
           }),
         }}

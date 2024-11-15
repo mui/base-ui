@@ -47,7 +47,7 @@ export const PreviewCardPopup = styled(PreviewCard.Popup)`
   filter: drop-shadow(0 2px 4px rgb(0 10 20 / 0.25));
   outline: 0;
   padding: 12px 16px;
-  max-width: min(300px, var(--available-width));
+  max-width: min(300px, var(--preview-card-available-width));
 `;
 
 export const TriggerLink = styled(PreviewCard.Trigger)`

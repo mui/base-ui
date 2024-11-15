@@ -24,7 +24,10 @@ export function usePreviewCardPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({
+    ...params,
+    name: 'preview-card',
+  });
 
   const getPositionerProps: usePreviewCardPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(

@@ -27,7 +27,10 @@ export function useMenuPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext: floatingContext,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({
+    ...params,
+    name: 'menu',
+  });
 
   const getPositionerProps: useMenuPositioner.ReturnValue['getPositionerProps'] = React.useCallback(
     (externalProps = {}) => {

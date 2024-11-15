@@ -225,20 +225,20 @@ By default, the `Trigger` acts as the anchor, but this can be changed to another
 
 The `Popover.Positioner` element receives the following CSS variables, which can be used by `Popover.Popup`:
 
-- `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the popover with its anchor.
-- `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the popover with its anchor.
-- `--available-width`: Specifies the available width of the popup before it overflows the viewport.
-- `--available-height`: Specifies the available height of the popup before it overflows the viewport.
-- `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
+- `--popover-anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the popover with its anchor.
+- `--popover-anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the popover with its anchor.
+- `--popover-available-width`: Specifies the available width of the popup before it overflows the viewport.
+- `--popover-available-height`: Specifies the available height of the popup before it overflows the viewport.
+- `--popover-arrow-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center where the arrow points. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
 ### Large content
 
-If your popover is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--available-width` and `--available-height` properties are useful to constrain its size to prevent it from overflowing.
+If your popover is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--popover-available-width` and `--popover-available-height` properties are useful to constrain its size to prevent it from overflowing.
 
 ```css
 .PopoverPopup {
-  max-width: var(--available-width);
-  max-height: var(--available-height);
+  max-width: var(--popover-available-width);
+  max-height: var(--popover-available-height);
   overflow: auto;
 }
 ```
@@ -254,8 +254,8 @@ The `overflow: auto` property will prevent the `Arrow` from appearing, if specif
 
 ```css
 .PopoverPopup-content {
-  max-width: var(--available-width);
-  max-height: var(--available-height);
+  max-width: var(--popover-available-width);
+  max-height: var(--popover-available-height);
   overflow: auto;
 }
 ```
@@ -264,8 +264,8 @@ Absolute maximums can also be specified if the popover's size can be too large o
 
 ```css
 .PopoverPopup-content {
-  max-width: min(500px, var(--available-width));
-  max-height: min(500px, var(--available-height));
+  max-width: min(500px, var(--popover-available-width));
+  max-height: min(500px, var(--popover-available-height));
   overflow: auto;
 }
 ```
@@ -288,7 +288,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 
 ```css
 .PopoverPopup {
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--popover-arrow-origin);
   transition-property: opacity, transform;
   transition-duration: 0.2s;
   /* Represents the final styles once exited */

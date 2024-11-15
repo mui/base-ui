@@ -181,20 +181,20 @@ By default, the `Trigger` acts as the anchor, but this can be changed to another
 
 The `PreviewCard.Positioner` element receives the following CSS variables, which can be used by `PreviewCard.Popup`:
 
-- `--anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the Preview Card with its anchor.
-- `--anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the Preview Card with its anchor.
-- `--available-width`: Specifies the available width of the popup before it overflows the viewport.
-- `--available-height`: Specifies the available height of the popup before it overflows the viewport.
-- `--transform-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center. When animating scale, this allows it to correctly emanate from the center of the anchor.
+- `--preview-card-anchor-width`: Specifies the width of the anchor element. You can use this to match the width of the Preview Card with its anchor.
+- `--preview-card-anchor-height`: Specifies the height of the anchor element. You can use this to match the height of the Preview Card with its anchor.
+- `--preview-card-available-width`: Specifies the available width of the popup before it overflows the viewport.
+- `--preview-card-available-height`: Specifies the available height of the popup before it overflows the viewport.
+- `--preview-card-arrow-origin`: Specifies the origin of the popup element that represents the point of the anchor element's center, where the arrow points. When animating scale, this allows it to correctly emanate from the center of the anchor.
 
 ### Large content
 
-If your Preview Card is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--available-width` and `--available-height` properties are useful to constrain its size to prevent it from overflowing.
+If your Preview Card is large enough that it cannot fit inside the viewport (especially on small or narrow screens as on mobile devices), the `--preview-card-available-width` and `--preview-card-available-height` properties are useful to constrain its size to prevent it from overflowing.
 
 ```css
 .PreviewCardPopup {
-  max-width: var(--available-width);
-  max-height: var(--available-height);
+  max-width: var(--preview-card-available-width);
+  max-height: var(--preview-card-available-height);
   overflow: auto;
 }
 ```
@@ -210,8 +210,8 @@ The `overflow: auto` property will prevent the `Arrow` from appearing, if specif
 
 ```css
 .PreviewCardPopup-content {
-  max-width: var(--available-width);
-  max-height: var(--available-height);
+  max-width: var(--preview-card-available-width);
+  max-height: var(--preview-card-available-height);
   overflow: auto;
 }
 ```
@@ -220,8 +220,8 @@ Absolute maximums can also be specified if the Preview Card's size can be too la
 
 ```css
 .PreviewCardPopup-content {
-  max-width: min(500px, var(--available-width));
-  max-height: min(500px, var(--available-height));
+  max-width: min(500px, var(--preview-card-available-width));
+  max-height: min(500px, var(--preview-card-available-height));
   overflow: auto;
 }
 ```
@@ -244,7 +244,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 
 ```css
 .PreviewCardPopup {
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--preview-card-arrow-origin);
   transition-property: opacity, transform;
   transition-duration: 0.2s;
   /* Represents the final styles once exited */

@@ -50,6 +50,7 @@ interface UseAnchorPositioningParameters {
   trackAnchor?: boolean;
   nodeId?: string;
   allowAxisFlip?: boolean;
+  name: string;
 }
 
 interface UseAnchorPositioningReturnValue {
@@ -71,7 +72,7 @@ interface UseAnchorPositioningReturnValue {
  * @ignore - internal hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters = {},
+  params: UseAnchorPositioningParameters,
 ): UseAnchorPositioningReturnValue {
   const {
     enabled = true,
@@ -94,6 +95,7 @@ export function useAnchorPositioning(
     allowAxisFlip = true,
     open,
     nodeId,
+    name,
   } = params;
 
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
@@ -148,10 +150,10 @@ export function useAnchorPositioning(
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
         Object.entries({
-          '--available-width': `${availableWidth}px`,
-          '--available-height': `${availableHeight}px`,
-          '--anchor-width': `${reference.width}px`,
-          '--anchor-height': `${reference.height}px`,
+          [`--${name}-available-width`]: `${availableWidth}px`,
+          [`--${name}-available-height`]: `${availableHeight}px`,
+          [`--${name}-anchor-width`]: `${reference.width}px`,
+          [`--${name}-anchor-height`]: `${reference.height}px`,
         }).forEach(([key, value]) => {
           floating.style.setProperty(key, value);
         });
@@ -179,14 +181,14 @@ export function useAnchorPositioning(
         const transformX = arrowX + arrowWidth / 2;
         const transformY = arrowY + arrowHeight;
 
-        const transformOrigin = {
+        const arrowOrigin = {
           top: `${transformX}px calc(100% + ${arrowHeight}px)`,
           bottom: `${transformX}px ${-arrowHeight}px`,
           left: `calc(100% + ${arrowHeight}px) ${transformY}px`,
           right: `${-arrowHeight}px ${transformY}px`,
         }[currentRenderedSide];
 
-        elements.floating.style.setProperty('--transform-origin', transformOrigin);
+        elements.floating.style.setProperty(`--${name}-arrow-origin`, arrowOrigin);
 
         return {};
       },

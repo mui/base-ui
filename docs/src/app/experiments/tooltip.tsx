@@ -32,7 +32,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   border-radius: 4px;
   font-size: 95%;
   cursor: default;
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--tooltip-arrow-origin);
 
   &[data-instant] {
     transition-duration: 0s !important;

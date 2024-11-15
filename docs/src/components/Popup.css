@@ -1,7 +1,7 @@
 @layer components {
   .Popup {
-    max-width: var(--available-width);
-    max-height: var(--available-height);
+    max-width: var(--popover-available-width);
+    max-height: var(--popover-available-height);
     border-radius: 0.375rem;
     background-color: var(--color-popup);
     overflow: hidden;
@@ -16,7 +16,7 @@
       outline-offset: -1px;
     }
 
-    transform-origin: var(--transform-origin);
+    transform-origin: var(--popover-arrow-origin);
     transition-property: opacity, transform;
     transition-timing-function: cubic-bezier(0.3, 1.065, 0.01, 0.975);
 

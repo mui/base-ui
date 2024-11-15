@@ -17,7 +17,10 @@ export function useTooltipPositioner(
     arrowUncentered,
     renderedSide,
     renderedAlignment,
-  } = useAnchorPositioning(params);
+  } = useAnchorPositioning({
+    ...params,
+    name: 'tooltip',
+  });
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -37,8 +40,6 @@ export function useTooltipPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            maxWidth: 'var(--available-width)',
-            maxHeight: 'var(--available-height)',
           },
         });
       },

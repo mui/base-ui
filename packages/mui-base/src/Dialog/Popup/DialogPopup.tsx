@@ -104,7 +104,10 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
+      style: {
+        ...other.style,
+        '--dialog-nested-count': nestedOpenDialogCount,
+      },
     },
     customStyleHookMapping,
   });

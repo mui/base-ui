@@ -135,8 +135,8 @@ const SelectPopup = styled(Select.Popup)`
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
   min-width: min(
-    calc(var(--available-width) - ${popupPadding * 2}px),
-    calc(var(--anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
+    calc(var(--select-available-width) - ${popupPadding * 2}px),
+    calc(var(--select-anchor-width) + ${triggerPaddingX * 2 + popupPadding * 2}px)
   );
   scroll-padding: ${popupPadding}px;
 
