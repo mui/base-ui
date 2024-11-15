@@ -5,7 +5,7 @@ import { styled } from '@mui/system';
 
 export default function UnstyledPopoverIntroduction() {
   return (
-    <Popover.Root>
+    <Popover.Root openOnHover>
       <AnchorButton>Trigger</AnchorButton>
       <Popover.Positioner sideOffset={8}>
         <PopoverPopup>

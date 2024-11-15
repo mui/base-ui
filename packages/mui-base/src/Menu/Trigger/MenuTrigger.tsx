@@ -7,6 +7,17 @@ import { useMenuRootContext } from '../Root/MenuRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = {
+  open(value) {
+    if (value) {
+      return { ...triggerOpenStateMapping.open(value), 'data-pressed': '' };
+    }
+
+    return triggerOpenStateMapping.open(value);
+  },
+};
 
 /**
  *
@@ -52,7 +63,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     className,
     ownerState,
     propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
-    customStyleHookMapping: triggerOpenStateMapping,
+    customStyleHookMapping,
     extraProps: other,
   });
 

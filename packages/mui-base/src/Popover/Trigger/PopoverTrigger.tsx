@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 /**
  * Renders a trigger element that opens the popover.
@@ -24,11 +25,24 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { open, setTriggerElement, getRootTriggerProps } = usePopoverRootContext();
+  const { open, setTriggerElement, getRootTriggerProps, openOnHover } = usePopoverRootContext();
 
   const ownerState: PopoverTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
+
+  const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
+    () => ({
+      open(value) {
+        if (value && !openOnHover) {
+          return { ...triggerOpenStateMapping.open(value), 'data-pressed': '' };
+        }
+
+        return triggerOpenStateMapping.open(value);
+      },
+    }),
+    [openOnHover],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootTriggerProps,
@@ -37,7 +51,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ownerState,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: triggerOpenStateMapping,
+    customStyleHookMapping,
   });
 
   return renderElement();
