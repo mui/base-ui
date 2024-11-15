@@ -3,7 +3,6 @@ import { defineConfig } from 'vitest/config';
 
 const WORKSPACE_ROOT = path.resolve(__dirname, './');
 const CI = process.env.CI === 'true';
-const VITEST_MAX_THREADS = process.env.VITEST_MAX_THREADS;
 
 export default defineConfig({
   test: {
@@ -20,13 +19,15 @@ export default defineConfig({
     env: {
       MUI_VITEST: 'true',
     },
-    pool: 'threads',
+    pool: 'forks',
     poolOptions: {
-      threads: {
-        useAtomics: true,
-        minThreads: CI ? 2 : parseInt(VITEST_MAX_THREADS || '4', 10),
-        maxThreads: CI ? 2 : parseInt(VITEST_MAX_THREADS || '4', 10),
+      forks: {
+        minForks: CI ? 2 : undefined,
+        maxForks: CI ? 2 : undefined,
       },
     },
+  },
+  optimizeDeps: {
+    include: ['@vitest/coverage-v8/browser'],
   },
 });
