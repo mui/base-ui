@@ -1,6 +1,6 @@
 .wrapper {
   --width: 320px;
-  --duration: 300ms;
+  --duration: 1000ms;
 
   font-family: system-ui, sans-serif;
   line-height: 1.4;
@@ -55,18 +55,19 @@
   animation: slideUp var(--duration) ease-in;
 }
 
-.panel.transition[data-open] {
-  height: var(--collapsible-panel-height);
-  transition: height var(--duration) ease-out;
-}
-
 .panel.transition {
   height: 0;
   transition: height var(--duration) ease-in;
 }
 
+.panel.transition[data-open] {
+  height: var(--collapsible-panel-height);
+  transition: height var(--duration) ease-out;
+}
+
 .panel.transition[data-entering] {
-  height: 0;
+  height: var(--collapsible-panel-height);
+  /*  transition: height var(--duration) ease-out;*/
 }
 
 .panel.framer {
