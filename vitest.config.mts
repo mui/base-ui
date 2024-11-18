@@ -2,6 +2,7 @@ import path from 'path';
 import { defineConfig } from 'vitest/config';
 
 const WORKSPACE_ROOT = path.resolve(__dirname, './');
+const CI = process.env.CI === 'true';
 
 export default defineConfig({
   test: {
@@ -18,5 +19,15 @@ export default defineConfig({
     env: {
       MUI_VITEST: 'true',
     },
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        minForks: CI ? 2 : undefined,
+        maxForks: CI ? 2 : undefined,
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ['@vitest/coverage-v8/browser'],
   },
 });
