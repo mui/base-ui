@@ -91,6 +91,50 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
+    describe('Home and End keys', () => {
+      it('Home key moves focus to the first item', async () => {
+        const { getByTestId } = render(
+          <CompositeRoot enableHomeAndEndKeys>
+            <CompositeItem data-testid="1">1</CompositeItem>
+            <CompositeItem data-testid="2">2</CompositeItem>
+            <CompositeItem data-testid="3">3</CompositeItem>
+          </CompositeRoot>,
+        );
+
+        const item1 = getByTestId('1');
+        const item3 = getByTestId('3');
+
+        act(() => item3.focus());
+        expect(item3).to.have.attribute('data-active');
+
+        fireEvent.keyDown(item3, { key: 'Home' });
+        expect(item1).to.have.attribute('data-active');
+        expect(item1).to.have.attribute('tabindex', '0');
+        expect(item1).toHaveFocus();
+      })
+
+      it('End key moves focus to the last item', async () => {
+        const { getByTestId } = render(
+          <CompositeRoot enableHomeAndEndKeys>
+            <CompositeItem data-testid="1">1</CompositeItem>
+            <CompositeItem data-testid="2">2</CompositeItem>
+            <CompositeItem data-testid="3">3</CompositeItem>
+          </CompositeRoot>,
+        );
+
+        const item1 = getByTestId('1');
+        const item3 = getByTestId('3');
+
+        act(() => item1.focus());
+        expect(item1).to.have.attribute('data-active');
+
+        fireEvent.keyDown(item1, { key: 'End' });
+        expect(item3).to.have.attribute('data-active');
+        expect(item3).to.have.attribute('tabindex', '0');
+        expect(item3).toHaveFocus();
+      })
+    })
+
     describeSkipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
@@ -198,7 +242,7 @@ describe('Composite', () => {
       function App() {
         return (
           // 1 to 9 numpad
-          <CompositeRoot cols={3}>
+          <CompositeRoot cols={3} enableHomeAndEndKeys>
             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
               <CompositeItem key={i} data-testid={i}>
                 {i}
@@ -239,6 +283,14 @@ describe('Composite', () => {
       expect(getByTestId('4')).toHaveFocus();
 
       act(() => getByTestId('9').focus());
+      expect(getByTestId('9')).to.have.attribute('data-active');
+      expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+
+      fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
+      expect(getByTestId('1')).to.have.attribute('data-active');
+      expect(getByTestId('1')).to.have.attribute('tabindex', '0');
+
+      fireEvent.keyDown(getByTestId('1'), { key: 'End' });
       expect(getByTestId('9')).to.have.attribute('data-active');
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
     });

@@ -25,6 +25,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     itemSizes,
     loop,
     cols,
+    enableHomeAndEndKeys,
     ...otherProps
   } = props;
 
@@ -37,6 +38,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     activeIndex: activeIndexProp,
     onActiveIndexChange: onActiveIndexChangeProp,
     rootRef: forwardedRef,
+    enableHomeAndEndKeys,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -71,6 +73,7 @@ namespace CompositeRoot {
     onActiveIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
+    enableHomeAndEndKeys?: boolean;
   }
 }
 

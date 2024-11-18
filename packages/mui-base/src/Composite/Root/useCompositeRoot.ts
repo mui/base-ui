@@ -7,10 +7,13 @@ import { useForkRef } from '../../utils/useForkRef';
 import { ownerWindow } from '../../utils/owner';
 import {
   ALL_KEYS,
+  ALL_KEYS_WITH_EXTRA_KEYS,
   ARROW_DOWN,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
+  HOME,
+  END,
   buildCellMap,
   findNonDisabledIndex,
   getCellIndexOfCorner,
@@ -19,9 +22,11 @@ import {
   getMaxIndex,
   getMinIndex,
   HORIZONTAL_KEYS,
+  HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
   isIndexOutOfBounds,
   VERTICAL_KEYS,
+  VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
 } from '../composite';
 
@@ -34,6 +39,7 @@ export interface UseCompositeRootParameters {
   dense?: boolean;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
+  enableHomeAndEndKeys?: boolean;
 }
 
 type TextDirection = 'ltr' | 'rtl';
@@ -64,6 +70,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     activeIndex: externalActiveIndex,
     onActiveIndexChange: externalSetActiveIndex,
     rootRef: externalRef,
+    enableHomeAndEndKeys = false,
   } = params;
 
   const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
@@ -95,7 +102,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         'aria-orientation': orientation === 'both' ? undefined : orientation,
         ref: mergedRef,
         onKeyDown(event) {
-          if (!ALL_KEYS.includes(event.key)) {
+          const ALL_RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS_WITH_EXTRA_KEYS : ALL_KEYS;
+
+          if (!ALL_RELEVANT_KEYS.includes(event.key)) {
             return;
           }
 
@@ -196,12 +205,20 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               }[orientation];
 
           const preventedKeys = isGrid
-            ? ALL_KEYS
+            ? ALL_RELEVANT_KEYS
             : {
-                horizontal: HORIZONTAL_KEYS,
-                vertical: VERTICAL_KEYS,
-                both: ALL_KEYS,
+                horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
+                vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
+                both: ALL_RELEVANT_KEYS,
               }[orientation];
+
+          if (enableHomeAndEndKeys) {
+            if (event.key === HOME) {
+              nextIndex = minIndex;
+            } else if (event.key === END) {
+              nextIndex = maxIndex;
+            }
+          }
 
           if (nextIndex === activeIndex && [...toEndKeys, ...toStartKeys].includes(event.key)) {
             if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
@@ -241,6 +258,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       mergedRef,
       onActiveIndexChange,
       orientation,
+      enableHomeAndEndKeys,
     ],
   );
 

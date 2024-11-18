@@ -9,10 +9,15 @@ export const ARROW_UP = 'ArrowUp';
 export const ARROW_DOWN = 'ArrowDown';
 export const ARROW_LEFT = 'ArrowLeft';
 export const ARROW_RIGHT = 'ArrowRight';
+export const HOME = 'Home';
+export const END = 'End';
 
 export const HORIZONTAL_KEYS = [ARROW_LEFT, ARROW_RIGHT];
+export const HORIZONTAL_KEYS_WITH_EXTRA_KEYS = [ARROW_LEFT, ARROW_RIGHT, HOME, END];
 export const VERTICAL_KEYS = [ARROW_UP, ARROW_DOWN];
+export const VERTICAL_KEYS_WITH_EXTRA_KEYS = [ARROW_UP, ARROW_DOWN, HOME, END];
 export const ALL_KEYS = [...HORIZONTAL_KEYS, ...VERTICAL_KEYS];
+export const ALL_KEYS_WITH_EXTRA_KEYS = [...ALL_KEYS, HOME, END];
 
 function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();
