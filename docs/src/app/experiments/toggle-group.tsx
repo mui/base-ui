@@ -82,7 +82,7 @@ export default function ToggleButtonGroupDemo() {
       <ToggleButtonGroup.Root
         toggleMultiple
         aria-label="Text formatting"
-        direction="rtl"
+        dir="rtl"
         className={classes.group}
       >
         <ToggleButtonGroup.Item

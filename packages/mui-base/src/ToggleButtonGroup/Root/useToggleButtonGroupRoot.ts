@@ -11,7 +11,7 @@ export function useToggleButtonGroupRoot(
   const {
     value,
     defaultValue,
-    direction = 'ltr',
+    dir = 'ltr',
     disabled = false,
     onValueChange,
     toggleMultiple = false,
@@ -46,9 +46,9 @@ export function useToggleButtonGroupRoot(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         role: 'group',
-        dir: direction,
+        dir,
       }),
-    [direction],
+    [dir],
   );
 
   return React.useMemo(
@@ -101,7 +101,7 @@ export namespace UseToggleButtonGroupRoot {
      * Text direction
      * @default 'ltr'
      */
-    direction?: Direction;
+    dir?: Direction;
   }
 
   export interface ReturnValue {

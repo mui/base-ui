@@ -243,7 +243,7 @@ describe('<ToggleButtonGroup.Root />', () => {
 
     it('rtl', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root direction="rtl">
+        <ToggleButtonGroup.Root dir="rtl">
           <ToggleButtonGroup.Item value="one" />
           <ToggleButtonGroup.Item value="two" />
         </ToggleButtonGroup.Root>,

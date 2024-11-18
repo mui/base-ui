@@ -2,7 +2,7 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultValue": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
-    "direction": {
+    "dir": {
       "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
       "default": "'ltr'"
     },
