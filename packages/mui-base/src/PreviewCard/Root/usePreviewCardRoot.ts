@@ -56,7 +56,7 @@ export function usePreviewCardRoot(
 
   const openRef = useLatestRef(open);
 
-  const setOpen = React.useCallback(
+  const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
@@ -72,7 +72,6 @@ export function usePreviewCardRoot(
         }
       }
     },
-    [onOpenChange, setOpenUnwrapped, keepMounted, animated, runOnceAnimationsFinish, setMounted],
   );
 
   const context = useFloatingRootContext({
