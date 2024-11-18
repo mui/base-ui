@@ -111,7 +111,7 @@ describe('Composite', () => {
         expect(item1).to.have.attribute('data-active');
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
-      })
+      });
 
       it('End key moves focus to the last item', async () => {
         const { getByTestId } = render(
@@ -132,8 +132,8 @@ describe('Composite', () => {
         expect(item3).to.have.attribute('data-active');
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
-      })
-    })
+      });
+    });
 
     describeSkipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
@@ -293,6 +293,107 @@ describe('Composite', () => {
       fireEvent.keyDown(getByTestId('1'), { key: 'End' });
       expect(getByTestId('9')).to.have.attribute('data-active');
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+    });
+
+    describeSkipIf(isJSDOM)('rtl', () => {
+      it('horizontal orientation', async () => {
+        const { getByTestId } = render(
+          <div dir="rtl">
+            <CompositeRoot cols={3} orientation="horizontal" enableHomeAndEndKeys>
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                <CompositeItem key={i} data-testid={i}>
+                  {i}
+                </CompositeItem>
+              ))}
+            </CompositeRoot>
+          </div>,
+        );
+
+        act(() => getByTestId('1').focus());
+        expect(getByTestId('1')).to.have.attribute('data-active');
+
+        fireEvent.keyDown(getByTestId('1'), { key: 'ArrowLeft' });
+        expect(getByTestId('2')).to.have.attribute('data-active');
+        expect(getByTestId('2')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('2')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('2'), { key: 'ArrowLeft' });
+        expect(getByTestId('3')).to.have.attribute('data-active');
+        expect(getByTestId('3')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('3')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('3'), { key: 'ArrowLeft' });
+        expect(getByTestId('4')).to.have.attribute('data-active');
+        expect(getByTestId('4')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('4')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
+        expect(getByTestId('5')).to.have.attribute('data-active');
+        expect(getByTestId('5')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('5')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('5'), { key: 'Home' });
+        expect(getByTestId('1')).to.have.attribute('data-active');
+        expect(getByTestId('1')).to.have.attribute('tabindex', '0');
+
+        fireEvent.keyDown(getByTestId('1'), { key: 'End' });
+        expect(getByTestId('9')).to.have.attribute('data-active');
+        expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+      });
+
+      it('both horizontal and vertical orientation', async () => {
+        const { getByTestId } = await render(
+          <div dir="rtl">
+            <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                <CompositeItem key={i} data-testid={i} style={{ width: 32, height: 32 }}>
+                  {i}
+                </CompositeItem>
+              ))}
+            </CompositeRoot>
+          </div>,
+        );
+
+        act(() => getByTestId('1').focus());
+        expect(getByTestId('1')).to.have.attribute('data-active');
+
+        fireEvent.keyDown(getByTestId('1'), { key: 'ArrowDown' });
+        expect(getByTestId('4')).to.have.attribute('data-active');
+        expect(getByTestId('4')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('4')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
+        expect(getByTestId('5')).to.have.attribute('data-active');
+        expect(getByTestId('5')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('5')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('5'), { key: 'ArrowDown' });
+        expect(getByTestId('8')).to.have.attribute('data-active');
+        expect(getByTestId('8')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('8')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('8'), { key: 'ArrowRight' });
+        expect(getByTestId('7')).to.have.attribute('data-active');
+        expect(getByTestId('7')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('7')).toHaveFocus();
+
+        fireEvent.keyDown(getByTestId('7'), { key: 'ArrowUp' });
+        expect(getByTestId('4')).to.have.attribute('data-active');
+        expect(getByTestId('4')).to.have.attribute('tabindex', '0');
+        expect(getByTestId('4')).toHaveFocus();
+
+        act(() => getByTestId('9').focus());
+        expect(getByTestId('9')).to.have.attribute('data-active');
+        expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+
+        fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
+        expect(getByTestId('1')).to.have.attribute('data-active');
+        expect(getByTestId('1')).to.have.attribute('tabindex', '0');
+
+        fireEvent.keyDown(getByTestId('1'), { key: 'End' });
+        expect(getByTestId('9')).to.have.attribute('data-active');
+        expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+      });
     });
   });
 });

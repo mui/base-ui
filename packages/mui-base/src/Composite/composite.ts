@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+export type TextDirection = 'ltr' | 'rtl';
+
 export interface Dimensions {
   width: number;
   height: number;
@@ -88,6 +90,7 @@ export function getGridNavigatedIndex(
     minIndex,
     maxIndex,
     prevIndex,
+    rtl,
     stopEvent: stop = false,
   }: {
     event: React.KeyboardEvent;
@@ -98,6 +101,7 @@ export function getGridNavigatedIndex(
     minIndex: number;
     maxIndex: number;
     prevIndex: number;
+    rtl: boolean;
     stopEvent?: boolean;
   },
 ) {
@@ -166,9 +170,12 @@ export function getGridNavigatedIndex(
 
   // Remains on the same row/column.
   if (orientation === 'both') {
+    const nextKey = rtl ? ARROW_LEFT : ARROW_RIGHT;
+    const prevKey = rtl ? ARROW_RIGHT : ARROW_LEFT;
+
     const prevRow = Math.floor(prevIndex / cols);
 
-    if (event.key === ARROW_RIGHT) {
+    if (event.key === nextKey) {
       if (stop) {
         stopEvent(event);
       }
@@ -197,7 +204,7 @@ export function getGridNavigatedIndex(
       }
     }
 
-    if (event.key === ARROW_LEFT) {
+    if (event.key === prevKey) {
       if (stop) {
         stopEvent(event);
       }
@@ -234,7 +241,7 @@ export function getGridNavigatedIndex(
     if (isIndexOutOfBounds(elementsRef, nextIndex)) {
       if (loop && lastRow) {
         nextIndex =
-          event.key === ARROW_LEFT
+          event.key === prevKey
             ? maxIndex
             : findNonDisabledIndex(elementsRef, {
                 startingIndex: prevIndex - (prevIndex % cols) - 1,

@@ -105,6 +105,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  enableHomeAndEndKeys: PropTypes.bool,
+  /**
+   * @ignore
+   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,

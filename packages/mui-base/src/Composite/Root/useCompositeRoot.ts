@@ -28,6 +28,7 @@ import {
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
+  type TextDirection,
 } from '../composite';
 
 export interface UseCompositeRootParameters {
@@ -41,8 +42,6 @@ export interface UseCompositeRootParameters {
   rootRef?: React.Ref<Element>;
   enableHomeAndEndKeys?: boolean;
 }
-
-type TextDirection = 'ltr' | 'rtl';
 
 function getTextDirection(element: HTMLElement): TextDirection {
   if (hasComputedStyleMapSupport()) {
@@ -108,9 +107,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             return;
           }
 
-          // isRtl not yet supported for grids (cols > 1)
           const isRtl = textDirectionRef?.current === 'rtl';
-          // console.log('isRtl', isRtl);
 
           let nextIndex = activeIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
@@ -175,6 +172,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                     // eslint-disable-next-line no-nested-ternary
                     event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
                   ),
+                  rtl: isRtl,
                 },
               )
             ] as number; // navigated cell will never be nullish
@@ -207,7 +205,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           const preventedKeys = isGrid
             ? ALL_RELEVANT_KEYS
             : {
-                horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
+                horizontal: enableHomeAndEndKeys
+                  ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS
+                  : HORIZONTAL_KEYS,
                 vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
                 both: ALL_RELEVANT_KEYS,
               }[orientation];
