@@ -1,35 +1,43 @@
 @layer components {
   .TableRoot {
-    @apply text-sm;
-    table-layout: fixed;
-    width: 100%;
+    @apply text-xs;
+    color: var(--color-gray);
+    border: 1px solid var(--color-border);
+    border-collapse: separate;
+    border-radius: 0.375rem;
+    overflow: hidden;
   }
 
-  .TableHeaderCell {
-    text-align: initial;
-    font-weight: normal;
+  .TableRootTable {
+    table-layout: fixed;
+    width: 100%;
+    vertical-align: top;
+  }
 
-    &[scope='col'],
-    &[scope='colgroup'] {
-      font-weight: 500;
-    }
+  .TableHead,
+  .TableBody {
+    vertical-align: inherit;
   }
 
   .TableCell,
   .TableHeaderCell {
     padding-top: 0.625rem;
     padding-bottom: 0.625rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
 
     /* Not `border` because Safari renders transparent borders with glitches */
     box-shadow: 0 1px var(--color-border);
+  }
 
-    &:first-child {
-      padding-left: 0;
-    }
-    &:last-child {
-      padding-right: 0;
+  .TableHeaderCell {
+    text-align: initial;
+    font-weight: 500;
+
+    &[scope='col'],
+    &[scope='colgroup'] {
+      color: var(--color-foreground);
+      background-color: var(--color-panel);
     }
   }
 }

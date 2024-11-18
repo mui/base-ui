@@ -10,6 +10,7 @@ import { type BaseUIComponentProps } from '../../utils/types';
 const ownerState = {};
 
 /**
+ * A heading that labels the dialog. Renders an `<h2>` element.
  *
  * Demos:
  *

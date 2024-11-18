@@ -19,17 +19,22 @@
     transform-origin: var(--transform-origin);
     transition-property: opacity, transform;
     transition-timing-function: cubic-bezier(0.3, 1.065, 0.01, 0.975);
-    transition-duration: 220ms;
 
     &[data-open] {
       opacity: 1;
-      transform: scale(1);
+      transition-duration: 150ms;
+      @media (prefers-reduced-motion: no-preference) {
+        transform: scale(1);
+      }
     }
 
     &,
     &[data-entering] {
       opacity: 0;
-      transform: scale(0.98);
+      transition-duration: 275ms;
+      @media (prefers-reduced-motion: no-preference) {
+        transform: scale(0.98);
+      }
     }
 
     &[data-instant] {

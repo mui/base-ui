@@ -1,0 +1,8 @@
+{
+  "name": "PopoverRoot",
+  "props": {
+    "onOpenChange": {
+      "type": "(open, event, reason) => void"
+    }
+  }
+}

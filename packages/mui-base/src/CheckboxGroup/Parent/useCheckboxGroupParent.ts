@@ -20,6 +20,8 @@ export function useCheckboxGroupParent(
   } = params;
 
   const uncontrolledStateRef = React.useRef(value);
+  const disabledStatesRef = React.useRef(new Map<string, boolean>());
+
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
 
   const id = useId();
@@ -36,34 +38,48 @@ export function useCheckboxGroupParent(
       'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
       onCheckedChange(_, event) {
         const uncontrolledState = uncontrolledStateRef.current;
+
+        // None except the disabled ones that are checked, which can't be changed.
+        const none = allValues.filter(
+          (v) => disabledStatesRef.current.get(v) && uncontrolledState.includes(v),
+        );
+        // "All" that are valid:
+        // - any that aren't disabled
+        // - disabled ones that are checked
+        const all = allValues.filter(
+          (v) =>
+            !disabledStatesRef.current.get(v) ||
+            (disabledStatesRef.current.get(v) && uncontrolledState.includes(v)),
+        );
+
         const allOnOrOff =
-          uncontrolledState.length === allValues.length || uncontrolledState.length === 0;
+          uncontrolledState.length === all.length || uncontrolledState.length === 0;
 
         if (allOnOrOff) {
-          if (value.length === allValues.length) {
-            onValueChange([], event);
+          if (value.length === all.length) {
+            onValueChange(none, event);
           } else {
-            onValueChange(allValues, event);
+            onValueChange(all, event);
           }
           return;
         }
 
         if (preserveChildStates) {
           if (status === 'mixed') {
-            onValueChange(allValues, event);
+            onValueChange(all, event);
             setStatus('on');
           } else if (status === 'on') {
-            onValueChange([], event);
+            onValueChange(none, event);
             setStatus('off');
           } else if (status === 'off') {
             onValueChange(uncontrolledState, event);
             setStatus('mixed');
           }
         } else if (checked) {
-          onValueChange([], event);
+          onValueChange(none, event);
           setStatus('off');
         } else {
-          onValueChange(allValues, event);
+          onValueChange(all, event);
           setStatus('on');
         }
       },
@@ -106,6 +122,7 @@ export function useCheckboxGroupParent(
       indeterminate,
       getParentProps,
       getChildProps,
+      disabledStatesRef,
     }),
     [id, indeterminate, getParentProps, getChildProps],
   );
@@ -122,6 +139,7 @@ export namespace UseCheckboxGroupParent {
   export interface ReturnValue {
     id: string | undefined;
     indeterminate: boolean;
+    disabledStatesRef: React.MutableRefObject<Map<string, boolean>>;
     getParentProps: () => {
       id: string | undefined;
       indeterminate: boolean;

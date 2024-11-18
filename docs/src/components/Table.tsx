@@ -2,8 +2,12 @@ import * as React from 'react';
 
 import clsx from 'clsx';
 
-export function Root({ className, ...props }: React.ComponentProps<'table'>) {
-  return <table className={clsx('TableRoot', className)} {...props} />;
+export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div className={clsx('TableRoot', className)} {...props}>
+      <table className="TableRootTable">{children}</table>
+    </div>
+  );
 }
 
 export function Head({ className, ...props }: React.ComponentProps<'thead'>) {

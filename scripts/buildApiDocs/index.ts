@@ -1,18 +1,21 @@
 import yargs, { ArgumentsCamelCase } from 'yargs';
 import { buildApi } from '@mui-internal/api-docs-builder';
-import { projectSettings } from './config/projectSettings';
+import { buildReference } from 'buildReference';
+import { projectSettings, newProjectSettings } from './config/projectSettings';
 
 type CommandOptions = { grep?: string };
 
 async function run(argv: ArgumentsCamelCase<CommandOptions>) {
   const grep = argv.grep == null ? null : new RegExp(argv.grep);
-  return buildApi([projectSettings], grep);
+  await buildApi([projectSettings], grep);
+  await buildApi([newProjectSettings], grep, true);
+  await buildReference();
 }
 
 yargs(process.argv.slice(2))
   .command({
     command: '$0',
-    describe: 'Generates API documentation for the MUI packages.',
+    describe: 'Generates API documentation for Base UI.',
     builder: (command) => {
       return command.option('grep', {
         description:
