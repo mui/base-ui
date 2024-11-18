@@ -229,6 +229,9 @@ importers:
       globby:
         specifier: ^14.0.2
         version: 14.0.2
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
       karma:
         specifier: ^6.4.4
         version: 6.4.4
@@ -334,6 +337,9 @@ importers:
       terser-webpack-plugin:
         specifier: ^5.3.10
         version: 5.3.10(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0)))
+      tsc-alias:
+        specifier: ^1.8.10
+        version: 1.8.10
       tsx:
         specifier: ^4.8.2
         version: 4.8.2
@@ -681,9 +687,6 @@ importers:
       chai:
         specifier: ^4.5.0
         version: 4.5.0
-      fast-glob:
-        specifier: ^3.3.2
-        version: 3.3.2
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -696,9 +699,6 @@ importers:
       sinon:
         specifier: ^19.0.2
         version: 19.0.2
-      tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.10
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
