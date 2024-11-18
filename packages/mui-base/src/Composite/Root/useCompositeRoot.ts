@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
-import { ownerWindow } from '../../utils/owner';
 import {
   ALL_KEYS,
-  ALL_KEYS_WITH_EXTRA_KEYS,
+  ARROW_KEYS,
   ARROW_DOWN,
   ARROW_LEFT,
   ARROW_RIGHT,
@@ -21,6 +19,7 @@ import {
   getGridNavigatedIndex,
   getMaxIndex,
   getMinIndex,
+  getTextDirection,
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
@@ -40,17 +39,12 @@ export interface UseCompositeRootParameters {
   dense?: boolean;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
+  /**
+   * When `true`, pressing the Home key moves focus to the first item,
+   * and pressing the End key moves focus to the last item.
+   * @default false
+   */
   enableHomeAndEndKeys?: boolean;
-}
-
-function getTextDirection(element: HTMLElement): TextDirection {
-  if (hasComputedStyleMapSupport()) {
-    const direction = element.computedStyleMap().get('direction');
-
-    return (direction as CSSKeywordValue)?.value as TextDirection;
-  }
-
-  return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
 }
 
 // Advanced options of Composite, to be implemented later if needed.
@@ -101,9 +95,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         'aria-orientation': orientation === 'both' ? undefined : orientation,
         ref: mergedRef,
         onKeyDown(event) {
-          const ALL_RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS_WITH_EXTRA_KEYS : ALL_KEYS;
+          const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
 
-          if (!ALL_RELEVANT_KEYS.includes(event.key)) {
+          if (!RELEVANT_KEYS.includes(event.key)) {
             return;
           }
 
@@ -203,13 +197,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               }[orientation];
 
           const preventedKeys = isGrid
-            ? ALL_RELEVANT_KEYS
+            ? RELEVANT_KEYS
             : {
                 horizontal: enableHomeAndEndKeys
                   ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS
                   : HORIZONTAL_KEYS,
                 vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-                both: ALL_RELEVANT_KEYS,
+                both: RELEVANT_KEYS,
               }[orientation];
 
           if (enableHomeAndEndKeys) {
