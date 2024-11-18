@@ -1,0 +1,33 @@
+{
+  "name": "MenuRadioItem",
+  "description": "An unstyled radio menu item to be used within a Menu.",
+  "props": {
+    "value": {
+      "type": "any",
+      "required": true,
+      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
+    },
+    "closeOnClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "If `true`, the menu will close when the menu item is clicked."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the menu item will be disabled."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the menu item."
+    },
+    "label": {
+      "type": "string",
+      "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
+    },
+    "onClick": {
+      "type": "(event) => void",
+      "description": "The click handler for the menu item."
+    }
+  }
+}

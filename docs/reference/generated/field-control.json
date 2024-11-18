@@ -1,0 +1,18 @@
+{
+  "name": "FieldControl",
+  "description": "The field's control element. This is not necessary to use when using a native Base UI input\ncomponent (Checkbox, Switch, NumberField, Slider, Radio Group etc).",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "description": "Callback fired when the `value` changes. Use when controlled."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    }
+  }
+}

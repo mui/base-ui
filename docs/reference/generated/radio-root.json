@@ -1,0 +1,34 @@
+{
+  "name": "RadioRoot",
+  "description": "",
+  "props": {
+    "value": {
+      "type": "any",
+      "required": true,
+      "description": "The unique identifying value of the radio in a group."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines if the radio is disabled."
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines if the radio is readonly."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines if the radio is required."
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "AlertDialogPopup",
+  "description": "",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "description": "The container element to which the popup is appended to."
+    },
+    "finalFocus": {
+      "type": "React.Ref",
+      "description": "Determines an element to focus after the dialog is closed.\nIf not provided, the focus returns to the trigger."
+    },
+    "initialFocus": {
+      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "description": "Determines an element to focus when the dialog is opened.\nIt can be either a ref to the element or a function that returns such a ref.\nIf not provided, the first focusable element is focused."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the dialog element is kept in the DOM when closed."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    }
+  }
+}

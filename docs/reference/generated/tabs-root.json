@@ -1,0 +1,36 @@
+{
+  "name": "TabsRoot",
+  "description": "",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultValue": {
+      "type": "any",
+      "description": "The default value. Use when the component is not controlled."
+    },
+    "direction": {
+      "type": "'ltr' | 'rtl'",
+      "default": "'ltr'",
+      "description": "The direction of the text."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "description": "Callback invoked when new value is being set."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The component orientation (layout flow direction)."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "any",
+      "description": "The value of the currently selected `Tab`.\nIf you don't want any selected `Tab`, you can set this prop to `null`."
+    }
+  }
+}

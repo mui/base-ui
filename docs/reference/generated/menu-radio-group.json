@@ -1,0 +1,31 @@
+{
+  "name": "MenuRadioGroup",
+  "description": "",
+  "props": {
+    "children": {
+      "type": "React.ReactNode",
+      "description": "The content of the component."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultValue": {
+      "type": "any",
+      "description": "The default value of the selected radio button.\nThis is the uncontrolled equivalent of `value`."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "default": "() => {}",
+      "description": "Function called when the selected value changes."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "any",
+      "description": "The value of the selected radio button."
+    }
+  }
+}
