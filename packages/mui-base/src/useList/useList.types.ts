@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Simplify } from '@mui/types';
 import { ListAction } from './listActions.types';
 import {
   ActionWithContext,
@@ -7,6 +6,7 @@ import {
   StateChangeCallback,
 } from '../utils/useControllableReducer.types';
 import type { ListContextValue } from './ListContext';
+import type { Simplify } from '../utils/types';
 import { MuiCancellableEventHandler } from '../utils/MuiCancellableEvent';
 
 type ListActionContextRequiredKeys =

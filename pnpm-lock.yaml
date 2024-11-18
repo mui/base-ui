@@ -626,12 +626,6 @@ importers:
       '@floating-ui/utils':
         specifier: ^0.2.8
         version: 0.2.8
-      '@mui/types':
-        specifier: ^7.2.19
-        version: 7.2.19(types-react@19.0.0-rc.1)
-      '@mui/utils':
-        specifier: ^6.1.7
-        version: 6.1.7(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
