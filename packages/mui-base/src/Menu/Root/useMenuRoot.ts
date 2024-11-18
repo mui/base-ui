@@ -19,6 +19,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -55,12 +56,19 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
+
+  const openRef = useLatestRef(open);
+
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
     if (!nextOpen) {
       if (animated) {
-        runOnceAnimationsFinish(() => setMounted(false));
+        runOnceAnimationsFinish(() => {
+          if (!openRef.current) {
+            setMounted(false);
+          }
+        });
       } else {
         setMounted(false);
       }

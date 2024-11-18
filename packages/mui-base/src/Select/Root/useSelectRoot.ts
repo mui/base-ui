@@ -20,6 +20,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -77,6 +78,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
+  const openRef = useLatestRef(open);
+
   const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
 
   if (!mounted && controlledAlignOptionToTrigger !== alignOptionToTriggerParam) {
@@ -98,7 +101,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
     function handleUnmounted() {
       ReactDOM.flushSync(() => {
-        setMounted(false);
+        if (!openRef.current) {
+          setMounted(false);
+        }
       });
     }
 

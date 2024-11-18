@@ -15,6 +15,7 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { type GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -38,8 +39,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
   const [titleElementId, setTitleElementId] = React.useState<string | undefined>(undefined);
   const [descriptionElementId, setDescriptionElementId] = React.useState<string | undefined>(
     undefined,
@@ -48,12 +47,23 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
 
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
+
+  const openRef = useLatestRef(open);
+
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+
     if (!keepMounted && !nextOpen) {
       if (animated) {
-        runOnceAnimationsFinish(() => setMounted(false));
+        runOnceAnimationsFinish(() => {
+          if (!openRef.current) {
+            setMounted(false);
+          }
+        });
       } else {
         setMounted(false);
       }

@@ -19,6 +19,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -63,6 +64,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
+  const openRef = useLatestRef(open);
+
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
     open,
@@ -92,7 +95,11 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
       if (!keepMounted && !openValue) {
         if (animated) {
-          runOnceAnimationsFinish(() => setMounted(false));
+          runOnceAnimationsFinish(() => {
+            if (!openRef.current) {
+              setMounted(false);
+            }
+          });
         } else {
           setMounted(false);
         }
