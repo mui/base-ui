@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import refType from '@mui/utils/refType';
 import { useSwitchRoot } from './useSwitchRoot';
 import { SwitchRootContext } from './SwitchRootContext';
 import { styleHookMapping } from '../styleHooks';
@@ -9,6 +8,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../Field/Root/FieldRoot';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { refType } from '../../utils/proptypes';
 
 /**
  * The foundation for building custom-styled switches.

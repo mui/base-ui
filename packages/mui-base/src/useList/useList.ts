@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import {
   UseListParameters,
   ListItemState,
@@ -24,6 +23,7 @@ import { useTextNavigation } from '../utils/useTextNavigation';
 import { MuiCancellableEvent } from '../utils/MuiCancellableEvent';
 import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { EventHandlers } from '../utils/types';
+import { useForkRef } from '../utils/useForkRef';
 
 const EMPTY_OBJECT = {};
 const NOOP = () => {};

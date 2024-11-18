@@ -1,2 +1,3 @@
 export { default as refType } from '@mui/utils/refType';
 export { default as HTMLElementType } from '@mui/utils/HTMLElementType';
+export { default as exactProp } from '@mui/utils/exactProp';
