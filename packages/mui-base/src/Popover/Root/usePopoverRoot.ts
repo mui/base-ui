@@ -42,6 +42,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
 
@@ -68,6 +69,12 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
         } else {
           setMounted(false);
         }
+      }
+
+      if (nextOpen) {
+        setOpenReason(reason ?? null);
+      } else {
+        setOpenReason(null);
       }
     },
   );
@@ -138,6 +145,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       floatingRootContext: context,
       instantType,
       openMethod,
+      openReason,
     }),
     [
       mounted,
@@ -154,6 +162,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       instantType,
       openMethod,
       triggerProps,
+      openReason,
     ],
   );
 }
@@ -222,5 +231,6 @@ export namespace usePopoverRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
+    openReason: OpenChangeReason | null;
   }
 }
