@@ -237,7 +237,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
             onActiveIndexChange(nextIndex);
 
-            elementsRef.current[nextIndex]?.focus();
+            // Wait for FocusManager `returnFocus` to execute.
+            queueMicrotask(() => {
+              elementsRef.current[nextIndex]?.focus();
+            });
           }
         },
       }),
