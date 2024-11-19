@@ -12,7 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { FloatingFocusManager } from '@floating-ui/react';
-import { InteractionType } from '@base_ui/react/utils/useEnhancedClickHandler';
+import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
   ...baseMapping,
