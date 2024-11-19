@@ -184,14 +184,13 @@ export namespace useSelectPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
+     * If `true`, the Select is mounted.
+     */
+    mounted: boolean;
+    /**
      * If `true`, the Select is open.
      */
     open?: boolean;
-    /**
-     * If `true`, the Select is mounted.
-     * @default true
-     */
-    mounted?: boolean;
     /**
      * The Select root context.
      */
