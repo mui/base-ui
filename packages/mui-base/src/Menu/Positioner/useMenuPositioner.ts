@@ -16,9 +16,9 @@ import { useMenuRootContext } from '../Root/MenuRootContext';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { keepMounted } = params;
+  const { keepMounted, mounted } = params;
 
-  const { open, mounted } = useMenuRootContext();
+  const { open } = useMenuRootContext();
 
   const {
     positionerStyles,
@@ -29,7 +29,7 @@ export function useMenuPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext: floatingContext,
-  } = useAnchorPositioning({ ...params, mounted });
+  } = useAnchorPositioning(params);
 
   const getPositionerProps: useMenuPositioner.ReturnValue['getPositionerProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -153,10 +153,9 @@ export namespace useMenuPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
-     * If `true`, the Menu is mounted.
-     * @default true
+     * Whether the Menu is mounted.
      */
-    mounted?: boolean;
+    mounted: boolean;
     /**
      * The Menu root context.
      */

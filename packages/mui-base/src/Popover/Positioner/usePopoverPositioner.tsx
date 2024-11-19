@@ -15,9 +15,9 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { keepMounted, initialFocus, openMethod, popupRef } = params;
+  const { keepMounted, initialFocus, openMethod, popupRef, mounted } = params;
 
-  const { open, mounted } = usePopoverRootContext();
+  const { open } = usePopoverRootContext();
 
   const {
     positionerStyles,
@@ -187,6 +187,10 @@ export namespace usePopoverPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the popover is mounted.
+     */
+    mounted: boolean;
     /**
      * Whether the popover is open.
      * @default false

@@ -8,9 +8,9 @@ import { useTooltipRootContext } from '../Root/TooltipRootContext';
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { keepMounted } = params;
+  const { keepMounted, mounted } = params;
 
-  const { open, mounted, trackCursorAxis } = useTooltipRootContext();
+  const { open, trackCursorAxis } = useTooltipRootContext();
 
   const {
     positionerStyles,
@@ -20,7 +20,7 @@ export function useTooltipPositioner(
     arrowUncentered,
     renderedSide,
     renderedAlignment,
-  } = useAnchorPositioning({ ...params, mounted });
+  } = useAnchorPositioning(params);
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -155,6 +155,10 @@ export namespace useTooltipPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the tooltip is mounted.
+     */
+    mounted: boolean;
     /**
      * Whether the tooltip is open.
      * @default false

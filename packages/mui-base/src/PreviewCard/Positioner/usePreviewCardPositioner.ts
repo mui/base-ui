@@ -14,9 +14,9 @@ import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,
 ): usePreviewCardPositioner.ReturnValue {
-  const { keepMounted } = params;
+  const { keepMounted, mounted } = params;
 
-  const { open, mounted } = usePreviewCardRootContext();
+  const { open } = usePreviewCardRootContext();
 
   const {
     positionerStyles,
@@ -27,7 +27,7 @@ export function usePreviewCardPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext,
-  } = useAnchorPositioning({ ...params, mounted });
+  } = useAnchorPositioning(params);
 
   const getPositionerProps: usePreviewCardPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -153,6 +153,10 @@ export namespace usePreviewCardPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
+     * Whether the preview card is mounted.
+     */
+    mounted: boolean;
+    /**
      * If `true`, the preview card is open.
      */
     open?: boolean;
@@ -160,10 +164,6 @@ export namespace usePreviewCardPositioner {
      * The floating root context.
      */
     floatingRootContext?: FloatingRootContext;
-    /**
-     * Whether the preview card is mounted.
-     */
-    mounted?: boolean;
   }
 
   export interface ReturnValue {
