@@ -35,13 +35,13 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
 
   const onSelected = React.useCallback(
     (
-      event: React.SyntheticEvent | null,
+      event: Event | undefined,
       newValue: any | null,
       activationDirection: TabActivationDirection,
     ) => {
       setValue(newValue);
       setTabActivationDirection(activationDirection);
-      onValueChange?.(newValue, event);
+      onValueChange?.(newValue, event ?? undefined);
     },
     [onValueChange, setValue],
   );
@@ -117,7 +117,7 @@ namespace useTabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
+    onValueChange?: (value: any | null, event?: Event) => void;
   }
 
   export interface ReturnValue {

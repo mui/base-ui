@@ -15,8 +15,8 @@
     "onValueChange": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(value: number | Array<number>, activeThumb: number, event: Event) => void",
-        "describedArgs": ["value", "activeThumb", "event"]
+        "type": "function(value: number | Array<number>, event: Event, activeThumbIndex: number) => void",
+        "describedArgs": ["value", "event", "activeThumbIndex"]
       }
     },
     "onValueCommitted": {

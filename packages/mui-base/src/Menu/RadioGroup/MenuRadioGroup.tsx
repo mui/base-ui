@@ -84,7 +84,7 @@ namespace MenuRadioGroup {
      *
      * @default () => {}
      */
-    onValueChange?: (newValue: any, event: Event) => void;
+    onValueChange?: (value: any, event: Event) => void;
   }
 
   export type OwnerState = {};

@@ -11,7 +11,7 @@ export interface TabsRootContext {
    * Callback for setting new value.
    */
   onSelected: (
-    event: React.SyntheticEvent | null,
+    event: Event | undefined,
     value: any | null,
     activationDirection: TabActivationDirection,
   ) => void;
