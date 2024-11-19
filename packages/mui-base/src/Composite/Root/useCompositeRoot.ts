@@ -172,29 +172,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             ] as number; // navigated cell will never be nullish
           }
 
-          const toEndKeys = isRtl
-            ? {
-                horizontal: [ARROW_LEFT],
-                vertical: [ARROW_DOWN],
-                both: [ARROW_LEFT, ARROW_DOWN],
-              }[orientation]
-            : {
-                horizontal: [ARROW_RIGHT],
-                vertical: [ARROW_DOWN],
-                both: [ARROW_RIGHT, ARROW_DOWN],
-              }[orientation];
+          const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+          const toEndKeys = {
+            horizontal: [horizontalEndKey],
+            vertical: [ARROW_DOWN],
+            both: [horizontalEndKey, ARROW_DOWN],
+          }[orientation];
 
-          const toStartKeys = isRtl
-            ? {
-                horizontal: [ARROW_RIGHT],
-                vertical: [ARROW_UP],
-                both: [ARROW_RIGHT, ARROW_UP],
-              }[orientation]
-            : {
-                horizontal: [ARROW_LEFT],
-                vertical: [ARROW_UP],
-                both: [ARROW_LEFT, ARROW_UP],
-              }[orientation];
+          const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+          const toStartKeys = {
+            horizontal: [horizontalStartKey],
+            vertical: [ARROW_UP],
+            both: [horizontalStartKey, ARROW_UP],
+          }[orientation];
 
           const preventedKeys = isGrid
             ? RELEVANT_KEYS

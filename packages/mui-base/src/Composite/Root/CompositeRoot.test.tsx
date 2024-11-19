@@ -388,7 +388,7 @@ describe('Composite', () => {
           <div dir="rtl">
             <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
               {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                <CompositeItem key={i} data-testid={i} style={{ width: 32, height: 32 }}>
+                <CompositeItem key={i} data-testid={i}>
                   {i}
                 </CompositeItem>
               ))}
