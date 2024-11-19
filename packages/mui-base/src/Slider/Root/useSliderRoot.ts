@@ -233,7 +233,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         value: { value, name },
       });
 
-      onValueChange(value, thumbIndex, clonedEvent);
+      onValueChange(value, clonedEvent, thumbIndex);
     },
     [name, onValueChange],
   );
@@ -546,7 +546,7 @@ export namespace useSliderRoot {
      * You can pull out the new value by accessing `event.target.value` (any).
      * **Warning**: This is a generic event not a change event.
      */
-    onValueChange?: (value: number | number[], activeThumb: number, event: Event) => void;
+    onValueChange?: (value: number | number[], event: Event, activeThumbIndex: number) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
      *
