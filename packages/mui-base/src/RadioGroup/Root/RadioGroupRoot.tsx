@@ -86,7 +86,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
 
   return (
     <RadioGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot render={renderElement()} />
+      <CompositeRoot enableHomeAndEndKeys={false} render={renderElement()} />
       <input {...getInputProps()} />
     </RadioGroupRootContext.Provider>
   );
