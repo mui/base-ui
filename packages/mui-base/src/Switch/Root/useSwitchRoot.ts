@@ -154,7 +154,9 @@ export namespace useSwitchRoot {
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is not controlled.
+     * The default checked state. Use when the component is uncontrolled.
+     *
+     * @default false
      */
     defaultChecked?: boolean;
     /**

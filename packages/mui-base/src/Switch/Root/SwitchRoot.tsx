@@ -104,7 +104,9 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked state. Use when the component is not controlled.
+   * The default checked state. Use when the component is uncontrolled.
+   *
+   * @default false
    */
   defaultChecked: PropTypes.bool,
   /**

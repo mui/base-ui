@@ -12,7 +12,8 @@
     },
     "defaultChecked": {
       "type": "boolean",
-      "description": "The default checked state. Use when the component is not controlled."
+      "default": "false",
+      "description": "The default checked state. Use when the component is uncontrolled."
     },
     "disabled": {
       "type": "boolean",

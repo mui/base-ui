@@ -73,7 +73,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * @ignore
+   * If `true`, the checkbox is checked.
    */
   checked: PropTypes.bool,
   /**
@@ -91,7 +91,9 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * @ignore
+   * The default checked state. Use when the component is uncontrolled.
+   *
+   * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
@@ -121,7 +123,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
     on: PropTypes.func.isRequired,
   }).isRequired,
   /**
-   * @ignore
+   * Callback fired when the checked state is changed.
    */
   onCheckedChange: PropTypes.func,
   /**
@@ -211,8 +213,19 @@ namespace MenuCheckboxItem {
   };
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * If `true`, the checkbox is checked.
+     */
     checked?: boolean;
+    /**
+     * The default checked state. Use when the component is uncontrolled.
+     *
+     * @default false
+     */
     defaultChecked?: boolean;
+    /**
+     * Callback fired when the checked state is changed.
+     */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     children?: React.ReactNode;
     /**
@@ -248,7 +261,7 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * @ignore
+   * If `true`, the checkbox is checked.
    */
   checked: PropTypes.bool,
   /**
@@ -262,7 +275,9 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * @ignore
+   * The default checked state. Use when the component is uncontrolled.
+   *
+   * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
@@ -280,7 +295,7 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * @ignore
+   * Callback fired when the checked state is changed.
    */
   onCheckedChange: PropTypes.func,
   /**
