@@ -14,7 +14,7 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { open = false, keepMounted = false, popupRef } = params;
+  const { open = false, keepMounted = false } = params;
 
   const {
     positionerStyles,

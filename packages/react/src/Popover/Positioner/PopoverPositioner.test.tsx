@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/Popover';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen, act, waitFor } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Popover.Positioner />', () => {

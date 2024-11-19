@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { CompositeList } from '../../Composite/List/CompositeList';

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { FloatingFocusManager } from '@floating-ui/react';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
@@ -11,7 +12,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
-import { FloatingFocusManager } from '@floating-ui/react';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
@@ -77,13 +77,16 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback((interactionType: InteractionType) => {
-    if (interactionType === 'touch') {
-      return popupRef;
-    }
+  const defaultInitialFocus = React.useCallback(
+    (interactionType: InteractionType) => {
+      if (interactionType === 'touch') {
+        return popupRef;
+      }
 
-    return 0;
-  }, []);
+      return 0;
+    },
+    [popupRef],
+  );
 
   const resolvedInitialFocus = React.useMemo(() => {
     if (initialFocus == null) {

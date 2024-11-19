@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { HTMLElementType, refType } from '../../utils/proptypes';
+import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
