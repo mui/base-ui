@@ -116,11 +116,6 @@ namespace PopoverPositioner {
      * The element the popover positioner element is appended to.
      */
     container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
-     * Determines an element to focus after the popover is closed.
-     * If not provided, the focus returns to the trigger.
-     */
-    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 }
 
@@ -197,11 +192,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * Determines an element to focus after the popover is closed.
-   * If not provided, the focus returns to the trigger.
-   */
-  finalFocus: refType,
   /**
    * Whether the popover element is hidden if it appears detached from its anchor element due
    * to the anchor element being clipped (or hidden) from view.

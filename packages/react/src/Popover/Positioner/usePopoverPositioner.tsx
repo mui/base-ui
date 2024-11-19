@@ -145,14 +145,6 @@ export namespace usePopoverPositioner {
      * @default true
      */
     trackAnchor?: boolean;
-    /**
-     * Determines an element to focus when the popover is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
-     */
-    initialFocus?:
-      | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
   }
 
   export interface Parameters extends SharedParameters {

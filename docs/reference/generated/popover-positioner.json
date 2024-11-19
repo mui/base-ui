@@ -39,10 +39,6 @@
       "type": "React.Ref | HTMLElement | null",
       "description": "The element the popover positioner element is appended to."
     },
-    "finalFocus": {
-      "type": "React.Ref",
-      "description": "Determines an element to focus after the popover is closed.\nIf not provided, the focus returns to the trigger."
-    },
     "hideWhenDetached": {
       "type": "boolean",
       "default": "false",

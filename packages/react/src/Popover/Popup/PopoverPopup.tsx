@@ -74,8 +74,6 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.alignment, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
@@ -98,6 +96,8 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 
     return initialFocus;
   }, [defaultInitialFocus, initialFocus, openMethod]);
+
+  const mergedRef = useForkRef(popupRef, forwardedRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getPopupProps,
@@ -143,7 +143,7 @@ namespace PopoverPopup {
      * Determines an element to focus after the popover is closed.
      * If not provided, the focus returns to the trigger.
      */
-    finalFocus?: React.RefObject<HTMLElement>;
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 }
 
@@ -167,7 +167,7 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
   finalFocus: PropTypes.shape({
     current: (props, propName) => {
       if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
+        return null;
       }
       if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
         return new Error(`Expected prop '${propName}' to be of type Element`);

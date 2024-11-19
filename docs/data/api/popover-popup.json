@@ -4,7 +4,7 @@
     "finalFocus": {
       "type": {
         "name": "shape",
-        "description": "{ current?: (props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n} }"
+        "description": "{ current?: (props, propName) => {\n  if (props[propName] == null) {\n    return null;\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n} }"
       }
     },
     "initialFocus": {

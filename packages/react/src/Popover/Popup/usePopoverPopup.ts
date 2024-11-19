@@ -29,6 +29,7 @@ namespace usePopoverPopup {
     titleId: string | undefined;
     descriptionId: string | undefined;
   }
+
   export interface ReturnValue {
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
