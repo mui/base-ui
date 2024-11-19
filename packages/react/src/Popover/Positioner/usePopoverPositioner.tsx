@@ -27,20 +27,6 @@ export function usePopoverPositioner(
     positionerContext,
   } = useAnchorPositioning(params);
 
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback(
-    (interactionType: InteractionType) => {
-      if (interactionType === 'touch') {
-        return popupRef;
-      }
-
-      return 0;
-    },
-    [popupRef],
-  );
-
   const getPositionerProps: usePopoverPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
       (externalProps = {}) => {
