@@ -43,8 +43,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     hideWhenDetached = false,
     sticky = false,
-    initialFocus,
-    finalFocus,
     ...otherProps
   } = props;
 
@@ -69,7 +67,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     popupRef,
     openMethod,
-    initialFocus,
   });
 
   const ownerState: PopoverPositioner.OwnerState = React.useMemo(
@@ -79,16 +76,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       alignment: positioner.alignment,
     }),
     [open, positioner.side, positioner.alignment],
-  );
-
-  const contextValue: PopoverPositionerContext = React.useMemo(
-    () => ({
-      ...ownerState,
-      arrowRef: positioner.arrowRef,
-      arrowUncentered: positioner.arrowUncentered,
-      arrowStyles: positioner.arrowStyles,
-    }),
-    [ownerState, positioner.arrowRef, positioner.arrowUncentered, positioner.arrowStyles],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -109,18 +96,8 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   }
 
   return (
-    <PopoverPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>
-        <FloatingFocusManager
-          context={positioner.positionerContext}
-          modal={false}
-          disabled={!mounted}
-          initialFocus={positioner.resolvedInitialFocus}
-          returnFocus={finalFocus}
-        >
-          {renderElement()}
-        </FloatingFocusManager>
-      </FloatingPortal>
+    <PopoverPositionerContext.Provider value={positioner}>
+      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
     </PopoverPositionerContext.Provider>
   );
 });
@@ -231,15 +208,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    * @default false
    */
   hideWhenDetached: PropTypes.bool,
-  /**
-   * Determines an element to focus when the popover is opened.
-   * It can be either a ref to the element or a function that returns such a ref.
-   * If not provided, the first focusable element is focused.
-   */
-  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    PropTypes.func,
-    refType,
-  ]),
   /**
    * Whether the popover remains mounted in the DOM while closed.
    * @default false

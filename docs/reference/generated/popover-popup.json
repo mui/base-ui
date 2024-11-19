@@ -6,6 +6,14 @@
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
+    "finalFocus": {
+      "type": "{ current?: (props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n} }",
+      "description": "Determines an element to focus after the popover is closed.\nIf not provided, the focus returns to the trigger."
+    },
+    "initialFocus": {
+      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "description": "Determines an element to focus when the popover is opened.\nIt can be either a ref to the element or a function that returns such a ref.\nIf not provided, the first focusable element is focused."
+    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."

@@ -48,10 +48,6 @@
       "default": "false",
       "description": "Whether the popover element is hidden if it appears detached from its anchor element due\nto the anchor element being clipped (or hidden) from view."
     },
-    "initialFocus": {
-      "type": "React.Ref | (interactionType => HTMLElement | null)",
-      "description": "Determines an element to focus when the popover is opened.\nIt can be either a ref to the element or a function that returns such a ref.\nIf not provided, the first focusable element is focused."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",

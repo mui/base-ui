@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { Side } from '@floating-ui/react';
+import { FloatingFocusManager, type Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
@@ -43,7 +43,9 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignOptionToTrigger } = useSelectRootContext();
+  const { id, open, popupRef, transitionStatus, alignOptionToTrigger, mounted } =
+    useSelectRootContext();
+
   const positioner = useSelectPositionerContext();
 
   const { getPopupProps } = useSelectPopup();
@@ -87,7 +89,13 @@ const SelectPopup = React.forwardRef(function SelectPopup(
           dangerouslySetInnerHTML={html}
         />
       )}
-      {renderElement()}
+      <FloatingFocusManager
+        context={positioner.positionerContext}
+        modal={false}
+        disabled={!mounted}
+      >
+        {renderElement()}
+      </FloatingFocusManager>
     </React.Fragment>
   );
 });

@@ -14,9 +14,7 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { keepMounted, initialFocus, openMethod, popupRef, mounted } = params;
-
-  const { open } = usePopoverRootContext();
+  const { open = false, keepMounted = false, popupRef } = params;
 
   const {
     positionerStyles,
@@ -42,18 +40,6 @@ export function usePopoverPositioner(
     },
     [popupRef],
   );
-
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      return defaultInitialFocus(openMethod ?? '');
-    }
-
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
-
-    return initialFocus;
-  }, [defaultInitialFocus, initialFocus, openMethod]);
 
   const getPositionerProps: usePopoverPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -85,7 +71,6 @@ export function usePopoverPositioner(
       side: renderedSide,
       alignment: renderedAlignment,
       positionerContext,
-      resolvedInitialFocus,
     }),
     [
       getPositionerProps,
@@ -95,7 +80,6 @@ export function usePopoverPositioner(
       renderedSide,
       renderedAlignment,
       positionerContext,
-      resolvedInitialFocus,
     ],
   );
 }
@@ -238,9 +222,5 @@ export namespace usePopoverPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
-    /**
-     * Ref to the element to focus when the popover is opened, or `0` to focus the first element within the popover.
-     */
-    resolvedInitialFocus: React.RefObject<HTMLElement | null> | 0;
   }
 }

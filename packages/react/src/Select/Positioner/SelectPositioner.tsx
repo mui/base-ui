@@ -91,15 +91,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <FloatingPortal root={container}>
-        <FloatingFocusManager
-          context={positioner.positionerContext}
-          modal={false}
-          disabled={!mounted}
-        >
-          <SelectPositionerContext.Provider value={positioner}>
-            {renderElement()}
-          </SelectPositionerContext.Provider>
-        </FloatingFocusManager>
+        <SelectPositionerContext.Provider value={positioner}>
+          {renderElement()}
+        </SelectPositionerContext.Provider>
       </FloatingPortal>
     </CompositeList>
   );
