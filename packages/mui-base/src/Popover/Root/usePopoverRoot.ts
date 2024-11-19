@@ -183,7 +183,7 @@ export namespace usePopoverRoot {
      * Callback fired when the popover popup is requested to be opened or closed. Use when
      * controlled.
      */
-    onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
      * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
      * @default false
