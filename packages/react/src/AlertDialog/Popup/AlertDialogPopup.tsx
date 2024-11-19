@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingFocusManager, FloatingOverlay, FloatingPortal } from '@floating-ui/react';
 import { useDialogPopup } from '../../Dialog/Popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -115,6 +115,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   return (
     <FloatingPortal root={container}>
+      {mounted && <FloatingOverlay />}
       <FloatingFocusManager
         context={floatingContext}
         modal
