@@ -122,6 +122,7 @@ describe('Composite', () => {
         expect(item3).to.have.attribute('data-active');
 
         fireEvent.keyDown(item3, { key: 'Home' });
+        await flushMicrotasks();
         expect(item1).to.have.attribute('data-active');
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
@@ -143,6 +144,7 @@ describe('Composite', () => {
         expect(item1).to.have.attribute('data-active');
 
         fireEvent.keyDown(item1, { key: 'End' });
+        await flushMicrotasks();
         expect(item3).to.have.attribute('data-active');
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
@@ -319,10 +321,12 @@ describe('Composite', () => {
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
 
       fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
+      await flushMicrotasks();
       expect(getByTestId('1')).to.have.attribute('data-active');
       expect(getByTestId('1')).to.have.attribute('tabindex', '0');
 
       fireEvent.keyDown(getByTestId('1'), { key: 'End' });
+      await flushMicrotasks();
       expect(getByTestId('9')).to.have.attribute('data-active');
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
     });
@@ -345,30 +349,36 @@ describe('Composite', () => {
         expect(getByTestId('1')).to.have.attribute('data-active');
 
         fireEvent.keyDown(getByTestId('1'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
         expect(getByTestId('2')).to.have.attribute('data-active');
         expect(getByTestId('2')).to.have.attribute('tabindex', '0');
         expect(getByTestId('2')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('2'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
         expect(getByTestId('3')).to.have.attribute('data-active');
         expect(getByTestId('3')).to.have.attribute('tabindex', '0');
         expect(getByTestId('3')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('3'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
         expect(getByTestId('4')).to.have.attribute('data-active');
         expect(getByTestId('4')).to.have.attribute('tabindex', '0');
         expect(getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
         expect(getByTestId('5')).to.have.attribute('data-active');
         expect(getByTestId('5')).to.have.attribute('tabindex', '0');
         expect(getByTestId('5')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('5'), { key: 'Home' });
+        await flushMicrotasks();
         expect(getByTestId('1')).to.have.attribute('data-active');
         expect(getByTestId('1')).to.have.attribute('tabindex', '0');
 
         fireEvent.keyDown(getByTestId('1'), { key: 'End' });
+        await flushMicrotasks();
         expect(getByTestId('9')).to.have.attribute('data-active');
         expect(getByTestId('9')).to.have.attribute('tabindex', '0');
       });
@@ -390,41 +400,44 @@ describe('Composite', () => {
         expect(getByTestId('1')).to.have.attribute('data-active');
 
         fireEvent.keyDown(getByTestId('1'), { key: 'ArrowDown' });
+        await flushMicrotasks();
         expect(getByTestId('4')).to.have.attribute('data-active');
         expect(getByTestId('4')).to.have.attribute('tabindex', '0');
         expect(getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
         expect(getByTestId('5')).to.have.attribute('data-active');
         expect(getByTestId('5')).to.have.attribute('tabindex', '0');
         expect(getByTestId('5')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('5'), { key: 'ArrowDown' });
+        await flushMicrotasks();
         expect(getByTestId('8')).to.have.attribute('data-active');
         expect(getByTestId('8')).to.have.attribute('tabindex', '0');
         expect(getByTestId('8')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('8'), { key: 'ArrowRight' });
+        await flushMicrotasks();
         expect(getByTestId('7')).to.have.attribute('data-active');
         expect(getByTestId('7')).to.have.attribute('tabindex', '0');
         expect(getByTestId('7')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('7'), { key: 'ArrowUp' });
+        await flushMicrotasks();
         expect(getByTestId('4')).to.have.attribute('data-active');
         expect(getByTestId('4')).to.have.attribute('tabindex', '0');
         expect(getByTestId('4')).toHaveFocus();
 
-        act(() => getByTestId('9').focus());
+        fireEvent.keyDown(getByTestId('4'), { key: 'End' });
+        await flushMicrotasks();
         expect(getByTestId('9')).to.have.attribute('data-active');
         expect(getByTestId('9')).to.have.attribute('tabindex', '0');
 
         fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
+        await flushMicrotasks();
         expect(getByTestId('1')).to.have.attribute('data-active');
         expect(getByTestId('1')).to.have.attribute('tabindex', '0');
-
-        fireEvent.keyDown(getByTestId('1'), { key: 'End' });
-        expect(getByTestId('9')).to.have.attribute('data-active');
-        expect(getByTestId('9')).to.have.attribute('tabindex', '0');
       });
     });
   });
