@@ -24,7 +24,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue,
+    defaultValue = 0,
     direction: directionProp = 'ltr',
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',

@@ -26,38 +26,24 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
   );
 
   const onTabActivation = useEventCallback((newValue: any, event: Event) => {
-    // console.log('onTabActivation()', newValue, event.target);
     if (newValue !== selectedTabValue) {
       const activationDirection = detectActivationDirection(newValue);
       onValueChange(newValue, activationDirection, event);
     }
   });
 
-  // React.useEffect(() => {
-  //   if (value === undefined) {
-  //     return;
-  //   }
-
-  //   // when a value changes externally, the highlighted value should be synced to it
-  //   if (value != null) {
-  //     dispatch({
-  //       type: TabsListActionTypes.valueChange,
-  //       value,
-  //     });
-  //   }
-  // }, [dispatch, value]);
-
   const handleRef = useForkRef(tabsListRef, externalRef);
 
-  const getRootProps = (
-    externalProps: React.ComponentPropsWithoutRef<'div'> = {},
-  ): React.ComponentPropsWithRef<'div'> => {
-    return mergeReactProps(externalProps, {
-      'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
-      ref: handleRef,
-      role: 'tablist',
-    });
-  };
+  const getRootProps = React.useCallback(
+    (otherProps = {}): React.ComponentPropsWithRef<'div'> => {
+      return mergeReactProps(otherProps, {
+        'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+        ref: handleRef,
+        role: 'tablist',
+      });
+    },
+    [handleRef, orientation],
+  );
 
   return {
     getRootProps,

@@ -85,8 +85,6 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
       }
 
       for (const tabMetadata of tabMap.values()) {
-        // console.log(tabPanelValue, index, tabMetadata);
-
         // find by tabPanelValue
         if (
           tabPanelValue !== undefined &&
@@ -113,16 +111,22 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
     [tabMap],
   );
 
-  // FIXME
-  // used as a param for `useActivationDirectionDetector`
-  // put this into TabsRootContext
-  // use it in useTabsList
+  // used in `useActivationDirectionDetector` for setting data-activation-direction
   const getTabElementBySelectedValue = React.useCallback(
-    (/* selectedValue: any | undefined */) => {
-      // console.log('getTabElementBySelectedValue', selectedValue);
+    (selectedValue: any | undefined): HTMLElement | null => {
+      if (selectedValue === undefined) {
+        return null;
+      }
+
+      for (const [tabElement, tabMetadata] of tabMap.entries()) {
+        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
+          return tabElement as HTMLElement;
+        }
+      }
+
       return null;
     },
-    [],
+    [tabMap],
   );
 
   // TODO: no need to put this in a ref anymore?

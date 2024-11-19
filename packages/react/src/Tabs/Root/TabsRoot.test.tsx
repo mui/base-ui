@@ -802,17 +802,17 @@ describe('<Tabs.Root />', () => {
       );
 
       const root = getByTestId('root');
-      const tabs = getAllByRole('tab');
+      const [tab1, tab2] = getAllByRole('tab');
 
       expect(root).to.have.attribute('data-activation-direction', 'none');
       await act(async () => {
-        tabs[1].click();
+        tab2.click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'right');
 
       await act(async () => {
-        tabs[0].click();
+        tab1.click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'left');
@@ -829,17 +829,17 @@ describe('<Tabs.Root />', () => {
       );
 
       const root = getByTestId('root');
-      const tabs = getAllByRole('tab');
+      const [tab1, tab2] = getAllByRole('tab');
 
       expect(root).to.have.attribute('data-activation-direction', 'none');
       await act(async () => {
-        tabs[1].click();
+        tab2.click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'down');
 
       await act(async () => {
-        tabs[0].click();
+        tab1.click();
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'up');
