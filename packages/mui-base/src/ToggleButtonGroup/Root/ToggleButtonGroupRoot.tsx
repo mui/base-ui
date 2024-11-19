@@ -87,7 +87,7 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
 
   return (
     <ToggleButtonGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot render={renderElement()} rtl={dir === 'rtl'} />
+      <CompositeRoot render={renderElement()} />
     </ToggleButtonGroupRootContext.Provider>
   );
 });
