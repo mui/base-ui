@@ -130,7 +130,7 @@ namespace RadioGroupRoot {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
+    onValueChange?: (value: unknown, event: Event) => void;
   }
 }
 

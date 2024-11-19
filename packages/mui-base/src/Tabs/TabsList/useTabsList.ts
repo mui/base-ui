@@ -77,7 +77,7 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
     ) => {
       const newSelectedValue = newValue[0] ?? null;
       const activationDirection = detectActivationDirection(newSelectedValue);
-      onSelected(event, newValue[0] ?? null, activationDirection);
+      onSelected(event?.nativeEvent, newValue[0] ?? null, activationDirection);
     },
     [onSelected, detectActivationDirection],
   );

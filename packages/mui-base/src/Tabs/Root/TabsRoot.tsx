@@ -93,7 +93,7 @@ namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: any | null, event: React.SyntheticEvent | null) => void;
+    onValueChange?: (value: any | null, event?: Event) => void;
   }
 }
 

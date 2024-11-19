@@ -115,7 +115,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event);
+          onCheckedChange?.(nextChecked, event.nativeEvent);
         },
       }),
     [
@@ -177,7 +177,7 @@ export namespace useSwitchRoot {
      * @param {boolean} checked The new checked state.
      * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
      */
-    onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
+    onCheckedChange?: (checked: boolean, event: Event) => void;
     /**
      * If `true`, the component is read-only.
      * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
