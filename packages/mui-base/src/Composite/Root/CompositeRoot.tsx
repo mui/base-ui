@@ -25,11 +25,21 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     itemSizes,
     loop,
     cols,
-    rtl,
+    enableHomeAndEndKeys,
     ...otherProps
   } = props;
 
-  const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot(props);
+  const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot({
+    itemSizes,
+    cols,
+    loop,
+    dense,
+    orientation,
+    activeIndex: activeIndexProp,
+    onActiveIndexChange: onActiveIndexChangeProp,
+    rootRef: forwardedRef,
+    enableHomeAndEndKeys,
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -59,11 +69,11 @@ namespace CompositeRoot {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
-    rtl?: boolean;
     activeIndex?: number;
     onActiveIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
+    enableHomeAndEndKeys?: boolean;
   }
 }
 
@@ -95,6 +105,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  enableHomeAndEndKeys: PropTypes.bool,
+  /**
+   * @ignore
+   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,
@@ -117,10 +131,6 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  rtl: PropTypes.bool,
 } as any;
 
 export { CompositeRoot };
