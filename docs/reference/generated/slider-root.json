@@ -35,7 +35,7 @@
       "description": "The minimum steps between values in a range slider."
     },
     "onValueChange": {
-      "type": "(value, activeThumb, event) => void",
+      "type": "(value, event, activeThumbIndex) => void",
       "description": "Callback function that is fired when the slider's value changed."
     },
     "onValueCommitted": {
