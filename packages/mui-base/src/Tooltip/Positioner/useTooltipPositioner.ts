@@ -41,8 +41,6 @@ export function useTooltipPositioner(
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            maxWidth: 'var(--available-width)',
-            maxHeight: 'var(--available-height)',
           },
         });
       },

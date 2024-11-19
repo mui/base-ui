@@ -40,6 +40,7 @@ export function useMenuPositioner(
       }
 
       return mergeReactProps<'div'>(externalProps, {
+        role: 'presentation',
         hidden: !mounted,
         style: {
           ...positionerStyles,

@@ -39,13 +39,15 @@ export function usePreviewCardPositioner(
         }
 
         return mergeReactProps<'div'>(externalProps, {
+          role: 'presentation',
+          hidden: !mounted,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [positionerStyles, open, keepMounted, hidden],
+      [positionerStyles, open, keepMounted, hidden, mounted],
     );
 
   return React.useMemo(

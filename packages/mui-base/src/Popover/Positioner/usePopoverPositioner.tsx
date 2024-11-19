@@ -28,7 +28,7 @@ export function usePopoverPositioner(
     renderedSide,
     renderedAlignment,
     positionerContext,
-  } = useAnchorPositioning({ ...params, mounted });
+  } = useAnchorPositioning(params);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
