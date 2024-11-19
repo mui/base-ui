@@ -25,10 +25,21 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     itemSizes,
     loop,
     cols,
+    enableHomeAndEndKeys,
     ...otherProps
   } = props;
 
-  const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot(props);
+  const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot({
+    itemSizes,
+    cols,
+    loop,
+    dense,
+    orientation,
+    activeIndex: activeIndexProp,
+    onActiveIndexChange: onActiveIndexChangeProp,
+    rootRef: forwardedRef,
+    enableHomeAndEndKeys,
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -62,6 +73,7 @@ namespace CompositeRoot {
     onActiveIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
+    enableHomeAndEndKeys?: boolean;
   }
 }
 
@@ -90,6 +102,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   dense: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  enableHomeAndEndKeys: PropTypes.bool,
   /**
    * @ignore
    */
