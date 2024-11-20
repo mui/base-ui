@@ -9,7 +9,6 @@ import {
   useFocus,
   useHover,
   useInteractions,
-  type OpenChangeReason,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -19,6 +18,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
+import { getOpenChangeReason, type OpenChangeReason } from '../../utils/getOpenChangeReason';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -73,7 +73,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
         !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
 
       function changeState() {
-        setOpen(openValue, eventValue, reasonValue);
+        setOpen(openValue, eventValue, getOpenChangeReason(reasonValue));
       }
 
       if (animated && isHover) {
