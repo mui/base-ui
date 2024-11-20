@@ -77,9 +77,8 @@ const nextConfig = {
       },
     };
   },
-  distDir: 'export',
   transpilePackages: ['@mui/monorepo'],
-  ...(process.env.NODE_ENV === 'production' ? { output: 'export' } : {}),
+  ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   experimental: {
     esmExternals: true,
     workerThreads: false,

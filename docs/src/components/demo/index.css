@@ -69,7 +69,7 @@
 
   .DemoFilename {
     @apply text-xs;
-    font-family: var(--font-family-mono);
+    font-family: var(--font-mono);
     color: var(--color-foreground);
     font-weight: bold;
     -webkit-user-select: text;
@@ -83,7 +83,7 @@
 
   .DemoTab {
     @apply text-xs;
-    font-family: var(--font-family-mono);
+    font-family: var(--font-mono);
     cursor: default;
     position: relative;
     margin: -0.5rem;
