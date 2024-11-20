@@ -51,6 +51,8 @@ const getSortLiteralUnions: InjectPropTypesInFileOptions['getSortLiteralUnions']
 };
 
 async function generateProptypes(project: TypeScriptProject, sourceFile: string): Promise<void> {
+  console.log('generating proptypes', { project, sourceFile });
+
   const components = getPropTypesFromFile({
     filePath: sourceFile,
     project,
@@ -187,7 +189,7 @@ async function run(argv: HandlerArgv) {
 
   const promises = files.map<Promise<void>>(async (sourceFile) => {
     try {
-      const projectName = sourceFile.match(/packages\/mui-([a-zA-Z-]+)\/src/)![1];
+      const projectName = sourceFile.match(/packages\/([a-zA-Z-]+)\/src/)![1];
       const project = buildProject(projectName);
       await generateProptypes(project, sourceFile);
     } catch (error: any) {
