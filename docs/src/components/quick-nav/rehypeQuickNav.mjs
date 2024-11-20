@@ -6,6 +6,7 @@ const TITLE = 'QuickNav.Title';
 const LIST = 'QuickNav.List';
 const ITEM = 'QuickNav.Item';
 const LINK = 'QuickNav.Link';
+const DOC_DEMO = 'Demo';
 const DOC_SUBTITLE = 'Subtitle';
 
 /**
@@ -21,11 +22,6 @@ const DOC_SUBTITLE = 'Subtitle';
  */
 export function rehypeQuickNav() {
   return (tree, file) => {
-    const h1 = tree.children.find(
-      /** @param {{ tagName: string; }} node */
-      (node) => node.tagName === 'h1',
-    );
-
     /** @type {TocEntry[]} */
     const toc = file.data.toc;
     const root = createMdxElement({
@@ -37,10 +33,50 @@ export function rehypeQuickNav() {
       return;
     }
 
-    // Place quick nav after the `<Subtitle>` that immediately follows the first `<h1>`,
-    // or after the first `<h1>` if a matching `<Subtitle>` wasn't found.
-    let index = tree.children.indexOf(h1) + 2; // Adding "2" because there's also a line break below h1
-    index = tree.children[index]?.name === DOC_SUBTITLE ? index + 1 : index;
+    // Determine the placement of Quick Nav up next
+
+    /** @type {{ tagName?: string; name?: string; attributes?: Record<string, string>[] }[]} */
+    const contentNodes = tree.children.filter(
+      /** @param {{ type?: string; value?: string;  }} child */
+      (child) => {
+        return (
+          // Filter out import statements
+          child.type !== 'mdxjsEsm' &&
+          // Filter out plain line breaks
+          child.value !== '\n'
+        );
+      },
+    );
+
+    const h1 = tree.children.find(
+      /** @param {{ tagName: string; }} node */
+      (node) => node.tagName === 'h1',
+    );
+
+    const subtitle = contentNodes.find((node, i) => {
+      const prev = contentNodes[i - 1];
+      return node.name === DOC_SUBTITLE && prev === h1;
+    });
+
+    let nodeBefore = contentNodes.find((node, i) => {
+      const prev = contentNodes[i - 1];
+      return node.name === DOC_DEMO && prev === subtitle;
+    });
+
+    // Add a styling hook if a `<Demo>` element was found
+    if (nodeBefore) {
+      nodeBefore.attributes ??= [];
+      nodeBefore.attributes.push({
+        type: 'mdxJsxAttribute',
+        name: 'data-before-quick-nav',
+        value: '',
+      });
+    } else {
+      // Otherwise, place the Quick Nav node after a fallback
+      nodeBefore = subtitle ?? h1;
+    }
+
+    const index = tree.children.indexOf(nodeBefore) + 1;
     tree.children.splice(index, 0, root);
   };
 }

@@ -3,6 +3,15 @@
     background-color: var(--color-content);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
+
+    /* Coordinate the placement of Quick Nav that follows the main Demo */
+    &[data-before-quick-nav] {
+      float: left;
+      width: 100%;
+      & + * + * {
+        clear: left;
+      }
+    }
   }
 
   .DemoPlayground {
