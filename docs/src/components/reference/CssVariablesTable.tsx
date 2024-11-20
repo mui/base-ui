@@ -38,7 +38,7 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <Code className="text-navy text-xs">{name}</Code>
+                <Code className="text-navy">{name}</Code>
               </Table.HeaderCell>
               <Table.Cell>
                 <CssVaribleType />

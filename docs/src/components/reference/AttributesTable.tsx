@@ -41,7 +41,7 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <Code className="text-navy text-xs">{name}</Code>
+                <Code className="text-navy">{name}</Code>
               </Table.HeaderCell>
               <Table.Cell>
                 <AttributeType />
@@ -60,5 +60,5 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
 }
 
 function EmptyAttribute() {
-  return <span className="text-xs text-gray-500">Empty attribute</span>;
+  return <span className="text-gray-500">Empty attribute</span>;
 }
