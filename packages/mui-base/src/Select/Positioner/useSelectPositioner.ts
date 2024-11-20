@@ -42,6 +42,7 @@ export function useSelectPositioner(
     keepMounted: true,
     enabled: mounted,
     trackAnchor: params.trackAnchor ?? !alignOptionToTrigger,
+    name: 'select',
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(

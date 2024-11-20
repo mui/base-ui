@@ -63,8 +63,8 @@ const Popup = styled(BaseAlertDialog.Popup)(
   font-family: IBM Plex Sans;
   padding: 16px;
   z-index: 2100;
-  transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
-    translateY(calc(-30px * var(--nested-dialogs)));
+  transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--dialog-nested-count))))
+    translateY(calc(-30px * var(--dialog-nested-count)));
   visibility: hidden;
   opacity: 0.5;
   transition:
@@ -82,8 +82,8 @@ const Popup = styled(BaseAlertDialog.Popup)(
 
     visibility: visible;
     opacity: 1;
-    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
+    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--dialog-nested-count))))
+      translateY(calc(-30px * var(--dialog-nested-count)));
     transition:
       transform var(--transition-duration) ease-out,
       opacity var(--transition-duration) ease-out,

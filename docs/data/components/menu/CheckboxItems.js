@@ -77,7 +77,7 @@ const MenuPopup = styled(Menu.Popup)(
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
   z-index: 1;
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--menu-arrow-origin);
   opacity: 0;
   transform: scale(0.8);
   transition: opacity 100ms ease-in, transform 100ms ease-in;

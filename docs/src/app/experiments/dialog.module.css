@@ -3,8 +3,8 @@
     transform: translate(-50%, -35%) scale(0.8) translateY(0);
   }
   to {
-    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
+    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--dialog-nested-count))))
+      translateY(calc(-30px * var(--dialog-nested-count)));
   }
 }
 
@@ -20,15 +20,15 @@
 
 @keyframes dialog-closing {
   from {
-    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
+    transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--dialog-nested-count))))
+      translateY(calc(-30px * var(--dialog-nested-count)));
     opacity: 1;
     visibility: visible;
   }
 
   to {
-    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
+    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--dialog-nested-count))))
+      translateY(calc(-30px * var(--dialog-nested-count)));
     opacity: 0.5;
     visibility: hidden;
   }
@@ -76,11 +76,11 @@
   font-family: IBM Plex Sans;
   z-index: 1;
   transform: translate(-50%, -50%);
-  opacity: calc(pow(0.95, var(--nested-dialogs)));
+  opacity: calc(pow(0.95, var(--dialog-nested-count)));
 
   &.withTransitions {
-    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
+    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--dialog-nested-count))))
+      translateY(calc(-30px * var(--dialog-nested-count)));
     visibility: hidden;
     opacity: 0;
     transition:
@@ -98,8 +98,8 @@
 
       visibility: visible;
       opacity: 1;
-      transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-        translateY(calc(-30px * var(--nested-dialogs)));
+      transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--dialog-nested-count))))
+        translateY(calc(-30px * var(--dialog-nested-count)));
       transition:
         transform var(--transition-duration) ease-out,
         opacity var(--transition-duration) ease-out,
@@ -116,8 +116,8 @@
       animation:
         dialog-opening-transform var(--transition-duration) ease-out,
         dialog-opening-opacity var(--transition-duration) ease-out forwards;
-      transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
-        translateY(calc(-30px * var(--nested-dialogs)));
+      transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--dialog-nested-count))))
+        translateY(calc(-30px * var(--dialog-nested-count)));
       transition: transform var(--transition-duration) ease-out;
     }
 

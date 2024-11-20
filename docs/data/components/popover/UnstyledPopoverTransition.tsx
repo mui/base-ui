@@ -38,7 +38,7 @@ export const PopoverPopup = styled(Popover.Popup)`
   transition-duration: 0.2s;
   opacity: 0;
   transform: scale(0.9);
-  transform-origin: var(--transform-origin);
+  transform-origin: var(--popover-arrow-origin);
 
   &[data-open] {
     opacity: 1;
