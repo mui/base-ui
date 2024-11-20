@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mui/base-ui.git",
-    "directory": "packages/mui-base"
+    "directory": "packages/react"
   },
   "license": "MIT",
   "bugs": {
@@ -37,7 +37,7 @@
     "build:types": "tsc -b tsconfig.build.json",
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
-    "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/mui-base/**/*.test.{js,ts,tsx}'",
+    "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/react/**/*.test.{js,ts,tsx}'",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {

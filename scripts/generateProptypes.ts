@@ -167,7 +167,7 @@ async function run(argv: HandlerArgv) {
   // Matches files where the folder and file both start with uppercase letters
   // Example: AppBar/AppBar.d.ts
   const allFiles = await Promise.all(
-    [path.resolve(__dirname, '../packages/mui-base/src')].map((folderPath) =>
+    [path.resolve(__dirname, '../packages/react/src')].map((folderPath) =>
       glob(['[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)', '[A-Z]*/[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)'], {
         absolute: true,
         cwd: folderPath,

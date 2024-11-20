@@ -12,7 +12,7 @@ export const projectSettings: ProjectSettings = {
   typeScriptProjects: [
     {
       name: 'base',
-      rootPath: path.join(process.cwd(), 'packages/mui-base'),
+      rootPath: path.join(process.cwd(), 'packages/react'),
       entryPointPath: 'src/index.ts',
       tsConfigPath: 'tsconfig.build.json',
     },
@@ -38,7 +38,7 @@ export const newProjectSettings: ProjectSettings = {
   typeScriptProjects: [
     {
       name: 'base',
-      rootPath: path.join(process.cwd(), 'packages/mui-base'),
+      rootPath: path.join(process.cwd(), 'packages/react'),
       entryPointPath: 'src/index.ts',
       tsConfigPath: 'tsconfig.build.json',
     },

@@ -2,7 +2,7 @@ import path from 'path';
 
 export default {
   base: {
-    rootPath: path.join(process.cwd(), 'packages/mui-base'),
+    rootPath: path.join(process.cwd(), 'packages/react'),
     entryPointPath: 'src/index.ts',
     tsConfigPath: 'tsconfig.build.json',
   },
