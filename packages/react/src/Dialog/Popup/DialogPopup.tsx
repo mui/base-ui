@@ -117,7 +117,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       {modal && mounted && <FloatingOverlay />}
       <FloatingFocusManager
         context={floatingContext}
-        modal={modal}
+        modal
         disabled={!mounted}
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
