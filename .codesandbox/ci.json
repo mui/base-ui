@@ -4,7 +4,7 @@
   "node": "18",
   "packages": ["packages/mui-base"],
   "publishDirectory": {
-    "@base_ui/react": "packages/mui-base/build"
+    "@base-ui-components/react": "packages/mui-base/build"
   },
   "sandboxes": ["/.codesandbox/template"],
   "silent": true

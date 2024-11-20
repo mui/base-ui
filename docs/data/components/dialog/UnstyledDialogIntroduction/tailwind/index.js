@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Dialog } from '@base_ui/react/Dialog';
+import { Dialog } from '@base-ui-components/react/Dialog';
 
 export default function UnstyledDialogIntroduction() {
   return (

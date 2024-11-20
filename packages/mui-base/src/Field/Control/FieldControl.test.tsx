@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Field } from '@base_ui/react/Field';
+import { Field } from '@base-ui-components/react/Field';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Field.Control />', () => {

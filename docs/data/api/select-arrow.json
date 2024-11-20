@@ -5,7 +5,9 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SelectArrow",
-  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectArrow = Select.Arrow;"],
+  "imports": [
+    "import { Select } from '@base-ui-components/react/Select';\nconst SelectArrow = Select.Arrow;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

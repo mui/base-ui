@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tabs } from '@base_ui/react/Tabs';
+import { Tabs } from '@base-ui-components/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 import { TabsListProviderValue, TabsListProvider } from '../TabsList/TabsListProvider';
 import { TabsRootContext } from '../Root/TabsRootContext';

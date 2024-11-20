@@ -50,7 +50,7 @@
   },
   "name": "TooltipPositioner",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipPositioner = Tooltip.Positioner;"
+    "import { Tooltip } from '@base-ui-components/react/Tooltip';\nconst TooltipPositioner = Tooltip.Positioner;"
   ],
   "classes": [],
   "spread": true,

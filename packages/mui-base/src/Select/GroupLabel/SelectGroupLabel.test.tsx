@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base_ui/react/Select';
+import { Select } from '@base-ui-components/react/Select';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Select.GroupLabel />', () => {

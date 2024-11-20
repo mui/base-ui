@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { Switch } from '@base_ui/react/Switch';
+import { Switch } from '@base-ui-components/react/Switch';
 import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer } from '#test-utils';
 

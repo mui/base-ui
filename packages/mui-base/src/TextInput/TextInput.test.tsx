@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextInput } from '@base_ui/react/TextInput';
+import { TextInput } from '@base-ui-components/react/TextInput';
 import { createRenderer } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 

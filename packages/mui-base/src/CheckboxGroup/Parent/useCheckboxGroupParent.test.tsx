@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';
-import { Checkbox } from '@base_ui/react/Checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/CheckboxGroup';
+import { Checkbox } from '@base-ui-components/react/Checkbox';
 import { expect } from 'chai';
 
 describe('useCheckboxGroupParent', () => {

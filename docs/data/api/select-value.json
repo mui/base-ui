@@ -5,7 +5,9 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SelectValue",
-  "imports": ["import { Select } from '@base_ui/react/Select';\nconst SelectValue = Select.Value;"],
+  "imports": [
+    "import { Select } from '@base-ui-components/react/Select';\nconst SelectValue = Select.Value;"
+  ],
   "classes": [],
   "muiName": "SelectValue",
   "filename": "/packages/mui-base/src/Select/Value/SelectValue.tsx",
