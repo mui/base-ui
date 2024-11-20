@@ -1255,7 +1255,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should pass "name" and "value" as part of the event.target for onValueChange', async () => {
-      const handleValueChange = stub().callsFake((newValue, thumbIndex, event) => event.target);
+      const handleValueChange = stub().callsFake((newValue, event) => event.target);
 
       const { getByRole } = await render(
         <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,

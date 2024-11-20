@@ -22,12 +22,9 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, setTriggerElement, getTriggerProps, modal } = useAlertDialogRootContext();
+  const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
-  const ownerState: AlertDialogTrigger.OwnerState = React.useMemo(
-    () => ({ open, modal }),
-    [open, modal],
-  );
+  const ownerState: AlertDialogTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 

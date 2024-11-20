@@ -161,7 +161,7 @@ export namespace usePreviewCardRoot {
      * Callback fired when the preview card popup is requested to be opened or closed. Use when
      * controlled.
      */
-    onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
      * Whether the preview card popup opens when the trigger is hovered after the provided `delay`.
      * @default false
