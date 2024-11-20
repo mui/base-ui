@@ -35,7 +35,7 @@ export function Popup({ children, className, ...props }: Select.Positioner.Props
 export function Option({ children, className, ...props }: Select.Option.Props) {
   return (
     <Select.Option className={clsx('SelectOption', className)} {...props}>
-      <Select.OptionIndicator render={<ThickCheckIcon />} />
+      <Select.OptionIndicator render={<ThickCheckIcon width="10" height="10" />} />
       <Select.OptionText className="SelectOptionText">{children}</Select.OptionText>
     </Select.Option>
   );

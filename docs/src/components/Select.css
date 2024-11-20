@@ -12,7 +12,7 @@
     grid-template-columns: 1rem auto;
     align-items: center;
     height: 1.75rem;
-    padding-left: 0.5rem;
+    padding-left: 0.375rem;
     padding-right: 1.5rem;
     border-radius: var(--radius-sm);
 
