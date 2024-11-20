@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuRadioItemIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Menu/RadioItemIndicator/MenuRadioItemIndicator.tsx",
+  "filename": "/packages/react/src/Menu/RadioItemIndicator/MenuRadioItemIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

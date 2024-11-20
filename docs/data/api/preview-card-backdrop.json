@@ -14,7 +14,7 @@
   "themeDefaultProps": true,
   "muiName": "PreviewCardBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Backdrop/PreviewCardBackdrop.tsx",
+  "filename": "/packages/react/src/PreviewCard/Backdrop/PreviewCardBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

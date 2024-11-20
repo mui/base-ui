@@ -16,7 +16,7 @@
   "themeDefaultProps": true,
   "muiName": "RadioRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Radio/Root/RadioRoot.tsx",
+  "filename": "/packages/react/src/Radio/Root/RadioRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-radio-group/\">Radio Group</a></li></ul>",
   "cssComponent": false

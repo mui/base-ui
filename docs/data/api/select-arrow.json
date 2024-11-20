@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Arrow/SelectArrow.tsx",
+  "filename": "/packages/react/src/Select/Arrow/SelectArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

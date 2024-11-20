@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "DialogClose",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Dialog/Close/DialogClose.tsx",
+  "filename": "/packages/react/src/Dialog/Close/DialogClose.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

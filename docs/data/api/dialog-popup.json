@@ -16,7 +16,7 @@
   "themeDefaultProps": true,
   "muiName": "DialogPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Dialog/Popup/DialogPopup.tsx",
+  "filename": "/packages/react/src/Dialog/Popup/DialogPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

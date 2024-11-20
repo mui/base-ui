@@ -11,7 +11,7 @@
   "themeDefaultProps": true,
   "muiName": "Tab",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Tabs/Tab/Tab.tsx",
+  "filename": "/packages/react/src/Tabs/Tab/Tab.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

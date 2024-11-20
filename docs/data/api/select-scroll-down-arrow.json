@@ -9,7 +9,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectScrollDownArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/ScrollDownArrow/SelectScrollDownArrow.tsx",
+  "filename": "/packages/react/src/Select/ScrollDownArrow/SelectScrollDownArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

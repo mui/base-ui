@@ -57,7 +57,7 @@
   "themeDefaultProps": true,
   "muiName": "TooltipPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tooltip/Positioner/TooltipPositioner.tsx",
+  "filename": "/packages/react/src/Tooltip/Positioner/TooltipPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

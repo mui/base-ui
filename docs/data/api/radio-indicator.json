@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "RadioIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Radio/Indicator/RadioIndicator.tsx",
+  "filename": "/packages/react/src/Radio/Indicator/RadioIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-radio-group/\">Radio Group</a></li></ul>",
   "cssComponent": false

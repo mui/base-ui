@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "SliderIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Slider/Indicator/SliderIndicator.tsx",
+  "filename": "/packages/react/src/Slider/Indicator/SliderIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

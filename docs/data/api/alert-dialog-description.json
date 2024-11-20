@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "AlertDialogDescription",
   "forwardsRefTo": "HTMLParagraphElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Description/AlertDialogDescription.tsx",
+  "filename": "/packages/react/src/AlertDialog/Description/AlertDialogDescription.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

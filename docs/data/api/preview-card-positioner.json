@@ -57,7 +57,7 @@
   "themeDefaultProps": true,
   "muiName": "PreviewCardPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Positioner/PreviewCardPositioner.tsx",
+  "filename": "/packages/react/src/PreviewCard/Positioner/PreviewCardPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

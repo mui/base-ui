@@ -59,7 +59,7 @@
   "themeDefaultProps": true,
   "muiName": "PopoverPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Positioner/PopoverPositioner.tsx",
+  "filename": "/packages/react/src/Popover/Positioner/PopoverPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

@@ -15,7 +15,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "DialogRoot",
-  "filename": "/packages/mui-base/src/Dialog/Root/DialogRoot.tsx",
+  "filename": "/packages/react/src/Dialog/Root/DialogRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

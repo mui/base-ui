@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "CollapsiblePanel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Collapsible/Panel/CollapsiblePanel.tsx",
+  "filename": "/packages/react/src/Collapsible/Panel/CollapsiblePanel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
   "cssComponent": false

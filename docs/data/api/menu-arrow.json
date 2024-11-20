@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Arrow/MenuArrow.tsx",
+  "filename": "/packages/react/src/Menu/Arrow/MenuArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

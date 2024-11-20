@@ -15,7 +15,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectTrigger",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Trigger/SelectTrigger.tsx",
+  "filename": "/packages/react/src/Select/Trigger/SelectTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false
