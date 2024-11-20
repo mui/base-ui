@@ -84,7 +84,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
           setFieldTouched(true);
           setDirty(value !== validityData.initialValue);
           setCheckedValue(value);
-          onValueChange?.(value, event);
+          onValueChange?.(value, event.nativeEvent);
         },
       }),
     [

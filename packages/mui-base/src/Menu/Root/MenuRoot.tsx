@@ -115,7 +115,7 @@ namespace MenuRoot {
     /**
      * Callback fired when the component requests to be opened or closed.
      */
-    onOpenChange?: (open: boolean, event: Event | undefined) => void;
+    onOpenChange?: (open: boolean, event?: Event) => void;
     /**
      * Allows to control whether the dropdown is open.
      * This is a controlled counterpart of `defaultOpen`.

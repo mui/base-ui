@@ -218,7 +218,7 @@ export namespace useMenuRoot {
     /**
      * Callback fired when the component requests to be opened or closed.
      */
-    onOpenChange: ((open: boolean, event: Event | undefined) => void) | undefined;
+    onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
     /**
      * If `true`, the Menu is initially open.
      */

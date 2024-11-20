@@ -86,7 +86,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
 
   return (
     <RadioGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot render={renderElement()} />
+      <CompositeRoot enableHomeAndEndKeys={false} render={renderElement()} />
       <input {...getInputProps()} />
     </RadioGroupRootContext.Provider>
   );
@@ -130,7 +130,7 @@ namespace RadioGroupRoot {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: unknown, event: React.ChangeEvent<HTMLInputElement>) => void;
+    onValueChange?: (value: unknown, event: Event) => void;
   }
 }
 

@@ -180,6 +180,8 @@ export interface CommonParameters {
   /**
    * Determines whether the dialog is initally open.
    * This is an uncontrolled equivalent of the `open` prop.
+   *
+   * @default false
    */
   defaultOpen?: boolean;
   /**

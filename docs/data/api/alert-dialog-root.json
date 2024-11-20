@@ -1,7 +1,7 @@
 {
   "props": {
     "animated": { "type": { "name": "bool" }, "default": "true" },
-    "defaultOpen": { "type": { "name": "bool" } },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } }
   },

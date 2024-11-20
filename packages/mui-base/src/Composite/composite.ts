@@ -1,4 +1,8 @@
 import * as React from 'react';
+import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
+import { ownerWindow } from '../utils/owner';
+
+export type TextDirection = 'ltr' | 'rtl';
 
 export interface Dimensions {
   width: number;
@@ -9,10 +13,15 @@ export const ARROW_UP = 'ArrowUp';
 export const ARROW_DOWN = 'ArrowDown';
 export const ARROW_LEFT = 'ArrowLeft';
 export const ARROW_RIGHT = 'ArrowRight';
+export const HOME = 'Home';
+export const END = 'End';
 
 export const HORIZONTAL_KEYS = [ARROW_LEFT, ARROW_RIGHT];
+export const HORIZONTAL_KEYS_WITH_EXTRA_KEYS = [ARROW_LEFT, ARROW_RIGHT, HOME, END];
 export const VERTICAL_KEYS = [ARROW_UP, ARROW_DOWN];
-export const ALL_KEYS = [...HORIZONTAL_KEYS, ...VERTICAL_KEYS];
+export const VERTICAL_KEYS_WITH_EXTRA_KEYS = [ARROW_UP, ARROW_DOWN, HOME, END];
+export const ARROW_KEYS = [...HORIZONTAL_KEYS, ...VERTICAL_KEYS];
+export const ALL_KEYS = [...ARROW_KEYS, HOME, END];
 
 function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();
@@ -83,6 +92,7 @@ export function getGridNavigatedIndex(
     minIndex,
     maxIndex,
     prevIndex,
+    rtl,
     stopEvent: stop = false,
   }: {
     event: React.KeyboardEvent;
@@ -93,6 +103,7 @@ export function getGridNavigatedIndex(
     minIndex: number;
     maxIndex: number;
     prevIndex: number;
+    rtl: boolean;
     stopEvent?: boolean;
   },
 ) {
@@ -161,9 +172,12 @@ export function getGridNavigatedIndex(
 
   // Remains on the same row/column.
   if (orientation === 'both') {
+    const nextKey = rtl ? ARROW_LEFT : ARROW_RIGHT;
+    const prevKey = rtl ? ARROW_RIGHT : ARROW_LEFT;
+
     const prevRow = Math.floor(prevIndex / cols);
 
-    if (event.key === ARROW_RIGHT) {
+    if (event.key === nextKey) {
       if (stop) {
         stopEvent(event);
       }
@@ -192,7 +206,7 @@ export function getGridNavigatedIndex(
       }
     }
 
-    if (event.key === ARROW_LEFT) {
+    if (event.key === prevKey) {
       if (stop) {
         stopEvent(event);
       }
@@ -229,7 +243,7 @@ export function getGridNavigatedIndex(
     if (isIndexOutOfBounds(elementsRef, nextIndex)) {
       if (loop && lastRow) {
         nextIndex =
-          event.key === ARROW_LEFT
+          event.key === prevKey
             ? maxIndex
             : findNonDisabledIndex(elementsRef, {
                 startingIndex: prevIndex - (prevIndex % cols) - 1,
@@ -346,4 +360,14 @@ export function isDisabled(
     element.hasAttribute('disabled') ||
     element.getAttribute('aria-disabled') === 'true'
   );
+}
+
+export function getTextDirection(element: HTMLElement): TextDirection {
+  if (hasComputedStyleMapSupport()) {
+    const direction = element.computedStyleMap().get('direction');
+
+    return (direction as CSSKeywordValue)?.value as TextDirection;
+  }
+
+  return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
 }
