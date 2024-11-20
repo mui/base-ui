@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../Root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
@@ -38,17 +37,14 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, animated } = useDialogRootContext();
-
-  const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
-    animated,
-    open,
-    ref: forwardedRef,
-  });
+  const { render, className, keepMounted = false, container, ...other } = props;
+  const { open, hasParentDialog, mounted, transitionStatus } = useDialogRootContext();
 
   const ownerState: DialogBackdrop.OwnerState = React.useMemo(
-    () => ({ open, transitionStatus }),
+    () => ({
+      open,
+      transitionStatus,
+    }),
     [open, transitionStatus],
   );
 
@@ -56,21 +52,18 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     render: render ?? 'div',
     className,
     ownerState,
-    propGetter: getRootProps,
-    extraProps: other,
+    ref: forwardedRef,
+    extraProps: { role: 'presentation', ...other },
     customStyleHookMapping,
   });
 
-  if (!mounted && !keepMounted) {
+  // no need to render nested backdrops
+  const shouldRender = (keepMounted || mounted) && !hasParentDialog;
+  if (!shouldRender) {
     return null;
   }
 
-  if (hasParentDialog) {
-    // no need to render nested backdrops
-    return null;
-  }
-
-  return <FloatingPortal>{renderElement()}</FloatingPortal>;
+  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
 
 namespace DialogBackdrop {
@@ -81,6 +74,11 @@ namespace DialogBackdrop {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * The container element to which the backdrop is appended to.
+     * @default false
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface OwnerState {
