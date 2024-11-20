@@ -5,6 +5,7 @@ import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { ReferenceTablePopover } from './ReferenceTablePopover';
 import * as Table from '../Table';
 import type { PropDef } from './types';
+import { Code } from '../Code';
 
 interface PropsTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, PropDef>;
@@ -15,10 +16,10 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-[188px]">Prop</Table.HeaderCell>
+          <Table.HeaderCell className="w-48">Prop</Table.HeaderCell>
           <Table.HeaderCell className="w-full">Type</Table.HeaderCell>
-          <Table.HeaderCell className="w-[172px]">Default</Table.HeaderCell>
-          <Table.HeaderCell className="w-[36px]" aria-label="Description" />
+          <Table.HeaderCell className="w-44">Default</Table.HeaderCell>
+          <Table.HeaderCell className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -43,7 +44,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <code className="text-navy text-xs">{name}</code>
+                <Code className="text-navy text-xs">{name}</Code>
               </Table.HeaderCell>
               <Table.Cell>
                 <PropType />
