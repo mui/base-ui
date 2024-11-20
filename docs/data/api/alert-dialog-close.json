@@ -5,7 +5,7 @@
   },
   "name": "AlertDialogClose",
   "imports": [
-    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogClose = AlertDialog.Close;"
+    "import { AlertDialog } from '@base-ui-components/react/AlertDialog';\nconst AlertDialogClose = AlertDialog.Close;"
   ],
   "classes": [],
   "spread": true,

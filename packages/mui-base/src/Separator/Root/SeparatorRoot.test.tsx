@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { Separator } from '@base_ui/react/Separator';
+import { Separator } from '@base-ui-components/react/Separator';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Separator.Root />', () => {

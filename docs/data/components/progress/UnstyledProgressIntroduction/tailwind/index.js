@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/system';
-import { Progress as BaseProgress } from '@base_ui/react/Progress';
+import { Progress as BaseProgress } from '@base-ui-components/react/Progress';
 
 export default function UnstyledProgressIntroduction() {
   // Replace this with your app logic for determining dark mode

@@ -5,7 +5,9 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuGroup",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuGroup = Menu.Group;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuGroup = Menu.Group;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

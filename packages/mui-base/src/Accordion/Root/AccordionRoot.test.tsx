@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
-import { Accordion } from '@base_ui/react/Accordion';
+import { Accordion } from '@base-ui-components/react/Accordion';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Accordion.Root />', () => {

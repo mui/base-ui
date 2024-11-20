@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Dialog } from '@base_ui/react/Dialog';
+import { Dialog } from '@base-ui-components/react/Dialog';
 
 export default function UnstyledDialogIntroduction() {
   return (
@@ -48,7 +48,7 @@ function Controls(props: React.ComponentPropsWithoutRef<'div'>) {
   return (
     <div
       {...props}
-      className="flex flex-row-reverse bg-slate-100 dark:bg-slate-800 gap-2 p-4 mt-8 -mx-4 -mb-4"
+      className="-mx-4 mt-8 -mb-4 flex flex-row-reverse gap-2 bg-slate-100 p-4 dark:bg-slate-800"
     />
   );
 }
@@ -74,7 +74,7 @@ function Backdrop(props: Dialog.Backdrop.Props) {
   return (
     <Dialog.Backdrop
       {...props}
-      className="bg-black/35 fixed inset-0 backdrop-blur-sm z-[2000]"
+      className="fixed inset-0 z-[2000] bg-black/35 backdrop-blur-sm"
     />
   );
 }

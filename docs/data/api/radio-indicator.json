@@ -6,7 +6,7 @@
   },
   "name": "RadioIndicator",
   "imports": [
-    "import { Radio } from '@base_ui/react/Radio';\nconst RadioIndicator = Radio.Indicator;"
+    "import { Radio } from '@base-ui-components/react/Radio';\nconst RadioIndicator = Radio.Indicator;"
   ],
   "classes": [],
   "spread": true,

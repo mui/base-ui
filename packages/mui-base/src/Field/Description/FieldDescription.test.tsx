@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Field } from '@base_ui/react/Field';
-import { Checkbox } from '@base_ui/react/Checkbox';
-import { Switch } from '@base_ui/react/Switch';
-import { NumberField } from '@base_ui/react/NumberField';
-import { Slider } from '@base_ui/react/Slider';
-import { RadioGroup } from '@base_ui/react/RadioGroup';
-import { Radio } from '@base_ui/react/Radio';
+import { Field } from '@base-ui-components/react/Field';
+import { Checkbox } from '@base-ui-components/react/Checkbox';
+import { Switch } from '@base-ui-components/react/Switch';
+import { NumberField } from '@base-ui-components/react/NumberField';
+import { Slider } from '@base-ui-components/react/Slider';
+import { RadioGroup } from '@base-ui-components/react/RadioGroup';
+import { Radio } from '@base-ui-components/react/Radio';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';

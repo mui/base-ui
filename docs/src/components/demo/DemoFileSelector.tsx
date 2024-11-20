@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DemoContext } from 'docs/src/blocks/Demo';
-import { Tabs } from '@base_ui/react/Tabs';
+import { Tabs } from '@base-ui-components/react/Tabs';
 
 interface DemoFileSelectorProps {
   onTabChange?: () => void;

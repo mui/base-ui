@@ -8,7 +8,9 @@
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "RadioRoot",
-  "imports": ["import { Radio } from '@base_ui/react/Radio';\nconst RadioRoot = Radio.Root;"],
+  "imports": [
+    "import { Radio } from '@base-ui-components/react/Radio';\nconst RadioRoot = Radio.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

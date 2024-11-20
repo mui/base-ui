@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base_ui/react/Select';
+import { Select } from '@base-ui-components/react/Select';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';

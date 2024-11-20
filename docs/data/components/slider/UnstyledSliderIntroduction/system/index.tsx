@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled, useTheme, Box } from '@mui/system';
-import { Slider as BaseSlider } from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base-ui-components/react/Slider';
 
 export default function UnstyledSliderIntroduction() {
   // Replace this with your app logic for determining dark mode

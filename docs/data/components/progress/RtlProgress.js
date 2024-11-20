@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Progress as BaseProgress } from '@base_ui/react/Progress';
+import { Progress as BaseProgress } from '@base-ui-components/react/Progress';
 import { Box, styled } from '@mui/system';
 
 export default function RtlProgress() {

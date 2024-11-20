@@ -367,7 +367,7 @@ importers:
       '@babel/runtime-corejs3':
         specifier: ^7.26.0
         version: 7.26.0
-      '@base_ui/react':
+      '@base-ui-components/react':
         specifier: workspace:*
         version: link:../packages/mui-base/build
       '@emotion/cache':
@@ -700,7 +700,7 @@ importers:
       '@babel/runtime':
         specifier: ^7.26.0
         version: 7.26.0
-      '@base_ui/react':
+      '@base-ui-components/react':
         specifier: workspace:*
         version: link:../packages/mui-base/build
       '@emotion/cache':

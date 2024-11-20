@@ -6,7 +6,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SubmenuTrigger",
-  "imports": ["import { SubmenuTrigger } from '@base_ui/react/Menu';"],
+  "imports": ["import { SubmenuTrigger } from '@base-ui-components/react/Menu';"],
   "classes": [],
   "muiName": "SubmenuTrigger",
   "filename": "/packages/mui-base/src/Menu/SubmenuTrigger/SubmenuTrigger.tsx",

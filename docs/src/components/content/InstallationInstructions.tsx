@@ -21,15 +21,15 @@ export function InstallationInstructions(props: InstallationInstructionsProps) {
     <React.Fragment>
       <p>Base UI components are all available as a single package.</p>
       <PackageManagerSnippet>
-        <Npm>npm install @base_ui/react</Npm>
-        <Pnpm>pnpm add @base_ui/react</Pnpm>
-        <Yarn>yarn add @base_ui/react</Yarn>
+        <Npm>npm install @base-ui-components/react</Npm>
+        <Pnpm>pnpm add @base-ui-components/react</Pnpm>
+        <Yarn>yarn add @base-ui-components/react</Yarn>
       </PackageManagerSnippet>
       <p>Once you have the package installed, import the component.</p>
       <CodeBlock.Root>
         <CodeBlock.Pre>
           {componentNames
-            .map((name) => `import { ${name} } from '@base_ui/react/${name}';`)
+            .map((name) => `import { ${name} } from '@base-ui-components/react/${name}';`)
             .join('\n')}
         </CodeBlock.Pre>
       </CodeBlock.Root>

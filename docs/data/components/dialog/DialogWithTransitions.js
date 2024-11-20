@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Dialog as BaseDialog } from '@base_ui/react/Dialog';
+import { Dialog as BaseDialog } from '@base-ui-components/react/Dialog';
 import { styled } from '@mui/system';
 
 export default function DialogWithTransitions() {

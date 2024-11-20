@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/Collapsible';
 
 const DURATION = '350ms';
 
