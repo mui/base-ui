@@ -19,7 +19,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const {
     animated = true,
     children,
-    defaultOpen,
+    defaultOpen = false,
     dismissible = true,
     modal = true,
     onOpenChange,
@@ -73,6 +73,8 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   /**
    * Determines whether the dialog is initally open.
    * This is an uncontrolled equivalent of the `open` prop.
+   *
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**

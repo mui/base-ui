@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Switch } from '@base_ui/react/Switch';
+import { Switch } from '@base-ui-components/react/Switch';
 import { createRenderer, describeConformance } from '#test-utils';
 import { SwitchRootContext } from '../Root/SwitchRootContext';
 

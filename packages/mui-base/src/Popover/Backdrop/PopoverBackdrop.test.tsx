@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Popover } from '@base_ui/react/Popover';
+import { Popover } from '@base-ui-components/react/Popover';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Backdrop />', () => {

@@ -77,16 +77,16 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
 
 function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
-    case '@base_ui/react': {
+    case '@base-ui-components/react': {
       if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {
         // #default-branch-switch
         return {
-          '@base_ui/react': 'latest',
+          '@base-ui-components/react': 'latest',
         };
       }
       const shortSha = COMMIT_REF.slice(0, 8);
       return {
-        '@base_ui/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base_ui/react`,
+        '@base-ui-components/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base-ui-components/react`,
       };
     }
 

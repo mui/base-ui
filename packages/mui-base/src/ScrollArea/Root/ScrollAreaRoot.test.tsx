@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollArea } from '@base_ui/react/ScrollArea';
+import { ScrollArea } from '@base-ui-components/react/ScrollArea';
 import { screen, describeSkipIf } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';

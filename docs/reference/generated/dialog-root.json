@@ -9,6 +9,7 @@
     },
     "defaultOpen": {
       "type": "boolean",
+      "default": "false",
       "description": "Determines whether the dialog is initally open.\nThis is an uncontrolled equivalent of the `open` prop."
     },
     "dismissible": {

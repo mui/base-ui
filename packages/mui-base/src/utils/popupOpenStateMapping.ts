@@ -1,23 +1,41 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
 
-export const triggerOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
-  open(value) {
-    if (value) {
-      return {
-        'data-popup-open': '',
-      };
-    }
-    return null;
-  },
+const TRIGGER_HOOK = {
+  'data-popup-open': '',
 };
 
-export const popupOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
+const PRESSABLE_TRIGGER_HOOK = {
+  'data-popup-open': '',
+  'data-pressed': '',
+};
+
+const POPUP_HOOK = {
+  'data-open': '',
+};
+
+export const triggerOpenStateMapping = {
   open(value) {
     if (value) {
-      return {
-        'data-open': '',
-      };
+      return TRIGGER_HOOK;
     }
     return null;
   },
-};
+} satisfies CustomStyleHookMapping<{ open: boolean }>;
+
+export const pressableTriggerOpenStateMapping = {
+  open(value) {
+    if (value) {
+      return PRESSABLE_TRIGGER_HOOK;
+    }
+    return null;
+  },
+} satisfies CustomStyleHookMapping<{ open: boolean }>;
+
+export const popupOpenStateMapping = {
+  open(value) {
+    if (value) {
+      return POPUP_HOOK;
+    }
+    return null;
+  },
+} satisfies CustomStyleHookMapping<{ open: boolean }>;

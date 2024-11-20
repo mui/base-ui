@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Form } from '@base_ui/react/Form';
-import { Fieldset } from '@base_ui/react/Fieldset';
-import { Field } from '@base_ui/react/Field';
-import { TextInput } from '@base_ui/react/TextInput';
+import { Form } from '@base-ui-components/react/Form';
+import { Fieldset } from '@base-ui-components/react/Fieldset';
+import { Field } from '@base-ui-components/react/Field';
+import { TextInput } from '@base-ui-components/react/TextInput';
 import { styled } from '@mui/system';
 
 type Status = 'initial' | 'loading' | 'success' | 'error';

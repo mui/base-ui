@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
-import { Slider } from '@base_ui/react/Slider';
+import { Slider } from '@base-ui-components/react/Slider';
 import { createRenderer, describeConformance } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
 
@@ -1255,7 +1255,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should pass "name" and "value" as part of the event.target for onValueChange', async () => {
-      const handleValueChange = stub().callsFake((newValue, thumbIndex, event) => event.target);
+      const handleValueChange = stub().callsFake((newValue, event) => event.target);
 
       const { getByRole } = await render(
         <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,

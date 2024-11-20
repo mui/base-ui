@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
-import { act } from '@mui/internal-test-utils';
-import { Menu } from '@base_ui/react/Menu';
+import { act, screen } from '@mui/internal-test-utils';
+import { Menu } from '@base-ui-components/react/Menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { MenuRootContext } from '../Root/MenuRootContext';
 
@@ -162,6 +162,25 @@ describe('<Menu.Trigger />', () => {
 
       const button = getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'true');
+    });
+  });
+
+  describe('style hooks', () => {
+    it('should have the data-popup-open and data-pressed attributes when open', async () => {
+      await render(
+        <Menu.Root animated={false}>
+          <Menu.Trigger />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      await act(async () => {
+        trigger.click();
+      });
+
+      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).to.have.attribute('data-pressed');
     });
   });
 });

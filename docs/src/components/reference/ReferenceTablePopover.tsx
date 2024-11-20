@@ -1,5 +1,5 @@
 'use client';
-import { Popover } from '@base_ui/react/Popover';
+import { Popover } from '@base-ui-components/react/Popover';
 import * as React from 'react';
 import { ToolbarButton } from '../ToolbarButton';
 import { Popup } from '../Popup';

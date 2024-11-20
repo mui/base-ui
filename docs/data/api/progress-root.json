@@ -29,7 +29,7 @@
   },
   "name": "ProgressRoot",
   "imports": [
-    "import { Progress } from '@base_ui/react/Progress';\nconst ProgressRoot = Progress.Root;"
+    "import { Progress } from '@base-ui-components/react/Progress';\nconst ProgressRoot = Progress.Root;"
   ],
   "classes": [],
   "spread": true,

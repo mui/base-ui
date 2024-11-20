@@ -9,7 +9,7 @@
   },
   "name": "MenuRadioGroup",
   "imports": [
-    "import { Menu } from '@base_ui/react/Menu';\nconst MenuRadioGroup = Menu.RadioGroup;"
+    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuRadioGroup = Menu.RadioGroup;"
   ],
   "classes": [],
   "spread": true,

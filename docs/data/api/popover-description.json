@@ -5,7 +5,7 @@
   },
   "name": "PopoverDescription",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverDescription = Popover.Description;"
+    "import { Popover } from '@base-ui-components/react/Popover';\nconst PopoverDescription = Popover.Description;"
   ],
   "classes": [],
   "spread": true,

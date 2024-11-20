@@ -92,7 +92,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   const ownerState: DialogPopup.OwnerState = {
     open,
-    modal,
     nestedOpenDialogCount,
     transitionStatus,
   };
@@ -158,7 +157,6 @@ namespace DialogPopup {
 
   export interface OwnerState {
     open: boolean;
-    modal: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
   }

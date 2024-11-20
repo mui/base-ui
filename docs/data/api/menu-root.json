@@ -19,7 +19,9 @@
     }
   },
   "name": "MenuRoot",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuRoot = Menu.Root;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuRoot = Menu.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,

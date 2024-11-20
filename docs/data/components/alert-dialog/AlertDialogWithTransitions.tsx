@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { AlertDialog as BaseAlertDialog } from '@base_ui/react/AlertDialog';
+import { AlertDialog as BaseAlertDialog } from '@base-ui-components/react/AlertDialog';
 import { styled } from '@mui/system';
 
 export default function AlertDialogWithTransitions() {

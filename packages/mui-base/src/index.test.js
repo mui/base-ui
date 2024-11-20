@@ -6,7 +6,7 @@
 import { expect } from 'chai';
 import * as BaseUI from './index';
 
-describe('@base_ui/react', () => {
+describe('@base-ui-components/react', () => {
   it('should have exports', () => {
     expect(typeof BaseUI).to.equal('object');
   });

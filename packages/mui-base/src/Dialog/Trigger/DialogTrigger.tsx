@@ -23,12 +23,9 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, setTriggerElement, getTriggerProps, modal } = useDialogRootContext();
+  const { open, setTriggerElement, getTriggerProps } = useDialogRootContext();
 
-  const ownerState: DialogTrigger.OwnerState = React.useMemo(
-    () => ({ open, modal }),
-    [open, modal],
-  );
+  const ownerState: DialogTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
@@ -50,7 +47,6 @@ namespace DialogTrigger {
 
   export interface OwnerState {
     open: boolean;
-    modal: boolean;
   }
 }
 

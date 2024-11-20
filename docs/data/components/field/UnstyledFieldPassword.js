@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base_ui/react/Field';
-import { TextInput } from '@base_ui/react/TextInput';
+import { Field } from '@base-ui-components/react/Field';
+import { TextInput } from '@base-ui-components/react/TextInput';
 import { styled } from '@mui/system';
 
 function validate(value) {

@@ -40,7 +40,7 @@ const config: UserWorkspaceConfig = {
   },
   resolve: {
     alias: {
-      '@base_ui/react': path.resolve(WORKSPACE_ROOT, './packages/mui-base/src'),
+      '@base-ui-components/react': path.resolve(WORKSPACE_ROOT, './packages/mui-base/src'),
       docs: path.resolve(WORKSPACE_ROOT, './docs'),
     },
   },

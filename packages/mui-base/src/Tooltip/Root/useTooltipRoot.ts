@@ -182,7 +182,7 @@ export namespace useTooltipRoot {
     /**
      * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
      */
-    onOpenChange?: (isOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
      * Whether the user can move their cursor from the trigger element toward the tooltip popup element
      * without it closing using a "safe polygon" technique.

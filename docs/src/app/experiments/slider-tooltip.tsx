@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Slider } from '@base_ui/react/Slider';
-import { Tooltip } from '@base_ui/react/Tooltip';
+import { Slider } from '@base-ui-components/react/Slider';
+import { Tooltip } from '@base-ui-components/react/Tooltip';
 import { useSliderRootContext } from '../../../../packages/mui-base/src/Slider/Root/SliderRootContext';
 
 function useIsDarkMode() {
