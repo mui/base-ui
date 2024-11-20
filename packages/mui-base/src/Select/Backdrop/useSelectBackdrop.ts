@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useSelectRootContext } from '../Root/SelectRootContext';
 
 /**
  *
@@ -9,17 +10,23 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  * - [useSelectBackdrop API](https://mui.com/base-ui/api/use-select-backdrop/)
  */
 export function useSelectBackdrop() {
-  const getBackdropProps = React.useCallback((externalProps = {}) => {
-    return mergeReactProps<'div'>(externalProps, {
-      role: 'presentation',
-      style: {
-        overflow: 'auto',
-        position: 'fixed',
-        inset: 0,
-        pointerEvents: 'none',
-      },
-    });
-  }, []);
+  const { mounted } = useSelectRootContext();
+
+  const getBackdropProps = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps<'div'>(externalProps, {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          overflow: 'auto',
+          position: 'fixed',
+          inset: 0,
+          pointerEvents: 'none',
+        },
+      });
+    },
+    [mounted],
+  );
 
   return React.useMemo(
     () => ({
