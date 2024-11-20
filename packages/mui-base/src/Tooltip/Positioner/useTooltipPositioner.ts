@@ -1,7 +1,7 @@
 import * as React from 'react';
-import type { Boundary, Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
+import type { Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export function useTooltipPositioner(
@@ -101,7 +101,7 @@ export namespace useTooltipPositioner {
     alignmentOffset?: number;
     /**
      * The boundary that the tooltip element should be constrained to.
-     * @default 'clippingAncestors'
+     * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**

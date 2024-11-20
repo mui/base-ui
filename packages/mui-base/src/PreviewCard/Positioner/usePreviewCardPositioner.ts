@@ -1,13 +1,12 @@
 import * as React from 'react';
 import type {
-  Boundary,
   Padding,
   FloatingContext,
   VirtualElement,
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
+import { Boundary, useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export function usePreviewCardPositioner(
@@ -109,7 +108,7 @@ export namespace usePreviewCardPositioner {
     alignmentOffset?: number;
     /**
      * The boundary that the preview card element should be constrained to.
-     * @default 'clippingAncestors'
+     * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**

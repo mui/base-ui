@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type {
-  Boundary,
   Padding,
   VirtualElement,
   FloatingContext,
@@ -9,7 +8,7 @@ import type {
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { getInertValue } from '../../utils/getInertValue';
 
@@ -117,7 +116,7 @@ export namespace useMenuPositioner {
     alignmentOffset?: number;
     /**
      * The boundary that the Menu element should be constrained to.
-     * @default 'clippingAncestors'
+     * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**

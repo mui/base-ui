@@ -38,7 +38,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     alignment = 'center',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary = 'clippingAncestors',
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,
@@ -185,7 +185,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The boundary that the popover element should be constrained to.
-   * @default 'clippingAncestors'
+   * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
