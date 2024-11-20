@@ -2,6 +2,7 @@
 import * as React from 'react';
 import {
   FloatingRootContext,
+  OpenChangeReason,
   useClick,
   useDismiss,
   useFloatingRootContext,
@@ -48,27 +49,27 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
   const openRef = useLatestRef(open);
 
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
-
-    if (!keepMounted && !nextOpen) {
-      if (animated) {
-        runOnceAnimationsFinish(() => {
-          if (!openRef.current) {
-            setMounted(false);
-          }
-        });
-      } else {
-        setMounted(false);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      // TODO: translate reason values to Base UI terminology
+      onOpenChange?.(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+      if (!keepMounted && !nextOpen) {
+        if (animated) {
+          runOnceAnimationsFinish(() => {
+            if (!openRef.current) {
+              setMounted(false);
+            }
+          });
+        } else {
+          setMounted(false);
+        }
       }
-    }
-  });
+    },
+  );
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
@@ -192,7 +193,7 @@ export interface CommonParameters {
   /**
    * Callback invoked when the dialog is being opened or closed.
    */
-  onOpenChange?: (open: boolean, event?: Event) => void;
+  onOpenChange?: (open: boolean, event: Event | undefined, reason: string | undefined) => void;
   /**
    * Determines whether the dialog should close when clicking outside of it.
    * @default true
