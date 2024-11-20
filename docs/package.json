@@ -92,7 +92,7 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.10",
     "serve": "^14.2.4",
-    "tailwindcss": "4.0.0-alpha.34",
+    "tailwindcss": "4.0.0-alpha.35",
     "unified": "^11.0.5",
     "webpack-bundle-analyzer": "^4.10.2",
     "yargs": "^17.7.2"
