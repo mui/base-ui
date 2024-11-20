@@ -23,11 +23,11 @@ function sortByDocumentPosition(a: Node, b: Node) {
   return 0;
 }
 
-export type BaseMetadata = { index?: number | null };
+export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
 
 function areMapsEqual<CustomMetadata>(
-  map1: Map<Node, (BaseMetadata & CustomMetadata) | null>,
-  map2: Map<Node, (BaseMetadata & CustomMetadata) | null>,
+  map1: Map<Node, CompositeMetadata<CustomMetadata> | null>,
+  map2: Map<Node, CompositeMetadata<CustomMetadata> | null>,
 ) {
   if (map1.size !== map2.size) {
     return false;
@@ -53,7 +53,7 @@ function CompositeList<CustomMetadata>(props: CompositeList.Props<CustomMetadata
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
   const [map, setMap] = React.useState(
-    () => new Map<Node, (BaseMetadata & CustomMetadata) | null>(),
+    () => new Map<Node, CompositeMetadata<CustomMetadata> | null>(),
   );
 
   const register = React.useCallback((node: Node, metadata: CustomMetadata) => {
@@ -74,7 +74,7 @@ function CompositeList<CustomMetadata>(props: CompositeList.Props<CustomMetadata
     const nodes = Array.from(newMap.keys()).sort(sortByDocumentPosition);
 
     nodes.forEach((node, index) => {
-      const metadata = map.get(node) ?? ({} as BaseMetadata & CustomMetadata);
+      const metadata = map.get(node) ?? ({} as CompositeMetadata<CustomMetadata>);
 
       newMap.set(node, { ...metadata, index });
     });
@@ -108,7 +108,7 @@ namespace CompositeList {
      * `useTypeahead`'s `listRef` prop.
      */
     labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Node, (BaseMetadata & CustomMetadata) | null>) => void;
+    onMapChange?: (newMap: Map<Node, CompositeMetadata<CustomMetadata> | null>) => void;
   }
 }
 

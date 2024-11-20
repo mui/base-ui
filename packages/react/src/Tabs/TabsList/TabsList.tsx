@@ -6,6 +6,7 @@ import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { TabsRoot } from '../Root/TabsRoot';
+import { type TabMetadata } from '../Tab/useTab';
 import { useTabsList } from './useTabsList';
 import { TabsListContext } from './TabsListContext';
 
@@ -67,12 +68,11 @@ const TabsList = React.forwardRef(function TabsList(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  const tabsListContextValue = React.useMemo(
+  const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
       activateOnFocus,
       highlightedTabIndex,
       onTabActivation,
-      // getTabElement,
       setHighlightedTabIndex,
       tabsListRef,
       value,
@@ -81,7 +81,6 @@ const TabsList = React.forwardRef(function TabsList(
       activateOnFocus,
       highlightedTabIndex,
       onTabActivation,
-      // getTabElement,
       setHighlightedTabIndex,
       tabsListRef,
       value,
@@ -90,13 +89,8 @@ const TabsList = React.forwardRef(function TabsList(
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
-      {/*
-        TODO: pass `direction` prop to `rtl` prop of CompositeRoot when
-        https://github.com/mui/base-ui/pull/763 is merged
-       */}
-      <CompositeRoot
+      <CompositeRoot<TabMetadata>
         activeIndex={highlightedTabIndex}
-        alwaysPropagateEvents
         enableHomeAndEndKeys
         loop={loop}
         onActiveIndexChange={setHighlightedTabIndex}

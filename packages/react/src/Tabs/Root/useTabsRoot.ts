@@ -6,8 +6,6 @@ import type { TabPanelMetadata } from '../TabPanel/useTabPanel';
 import type { TabMetadata } from '../Tab/useTab';
 import type { TabActivationDirection } from './TabsRoot';
 
-type IdLookupFunction = (id: any) => string | undefined;
-
 function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
   const {
     value: valueProp,
@@ -17,7 +15,6 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   } = parameters;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const getTabIdByPanelValueOrIndexRef = React.useRef<IdLookupFunction>(() => undefined);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -129,14 +126,6 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
     [tabMap],
   );
 
-  // TODO: no need to put this in a ref anymore?
-  const registerGetTabIdByPanelValueOrIndexFn = React.useCallback(
-    (lookupFunction: IdLookupFunction) => {
-      getTabIdByPanelValueOrIndexRef.current = lookupFunction;
-    },
-    [],
-  );
-
   const getRootProps: useTabsRoot.ReturnValue['getRootProps'] = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'div'>(otherProps, {
@@ -152,7 +141,6 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
     getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
     onValueChange,
-    registerGetTabIdByPanelValueOrIndexFn,
     setTabMap,
     setTabPanelMap,
     tabActivationDirection,
@@ -218,12 +206,6 @@ namespace useTabsRoot {
       value: any | null,
       activationDirection: TabActivationDirection,
       event: Event,
-    ) => void;
-    /**
-     * Registers a function that returns the id of the tab with the given value.
-     */
-    registerGetTabIdByPanelValueOrIndexFn: (
-      lookupFunction: (id: any) => string | undefined,
     ) => void;
     setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;
     setTabPanelMap: (map: Map<Node, (TabPanelMetadata & { index?: number | null }) | null>) => void;

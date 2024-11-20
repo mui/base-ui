@@ -55,11 +55,10 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     return valueParam === selectedTabValue;
   }, [index, selectedTabValue, valueParam]);
 
-  // ensure the active item in Composite's roving focus group matches the selected Tab
-  // FIXME: something is wrong with this
+  // when activateOnFocus is `true`, ensure the active item in Composite's roving
+  // focus group matches the selected Tab
   useEnhancedEffect(() => {
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
-      // console.log('useEnhancedEffect update index', index);
       setHighlightedTabIndex(index);
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);

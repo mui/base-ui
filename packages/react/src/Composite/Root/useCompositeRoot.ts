@@ -45,7 +45,12 @@ export interface UseCompositeRootParameters {
    * @default false
    */
   enableHomeAndEndKeys?: boolean;
-  alwaysPropagateEvents?: boolean;
+  /**
+   * When `true`, keypress events on Composite's navigation keys
+   * be stopped with event.stopPropagation()
+   * @default false
+   */
+  stopEventPropagation?: boolean;
 }
 
 // Advanced options of Composite, to be implemented later if needed.
@@ -65,7 +70,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onActiveIndexChange: externalSetActiveIndex,
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
-    alwaysPropagateEvents = false,
+    stopEventPropagation = false,
   } = params;
 
   const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
@@ -221,7 +226,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
 
           if (nextIndex !== activeIndex && !isIndexOutOfBounds(elementsRef, nextIndex)) {
-            if (!alwaysPropagateEvents) {
+            if (stopEventPropagation) {
               event.stopPropagation();
             }
 
@@ -240,7 +245,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       }),
     [
       activeIndex,
-      alwaysPropagateEvents,
+      stopEventPropagation,
       cols,
       dense,
       elementsRef,

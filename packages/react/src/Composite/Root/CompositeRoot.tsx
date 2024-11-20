@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeList } from '../List/CompositeList';
+import { CompositeList, type CompositeMetadata } from '../List/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -11,8 +11,8 @@ import type { Dimensions } from '../composite';
 /**
  * @ignore - internal component.
  */
-const CompositeRoot = React.forwardRef(function CompositeRoot(
-  props: CompositeRoot.Props,
+const CompositeRoot = React.forwardRef(function CompositeRoot<CustomMetadata extends {}>(
+  props: CompositeRoot.Props<CustomMetadata>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -27,7 +27,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     cols,
     enableHomeAndEndKeys,
     onMapChange,
-    alwaysPropagateEvents,
+    stopEventPropagation,
     ...otherProps
   } = props;
 
@@ -40,7 +40,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
     activeIndex: activeIndexProp,
     onActiveIndexChange: onActiveIndexChangeProp,
     rootRef: forwardedRef,
-    alwaysPropagateEvents,
+    stopEventPropagation,
     enableHomeAndEndKeys,
   });
 
@@ -60,17 +60,20 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
+      <CompositeList<CustomMetadata> elementsRef={elementsRef} onMapChange={onMapChange}>
         {renderElement()}
       </CompositeList>
     </CompositeRootContext.Provider>
   );
-});
+}) as {
+  <CustomMetadata extends {}>(props: CompositeRoot.Props<CustomMetadata>): React.JSX.Element | null;
+  propTypes?: any;
+};
 
 namespace CompositeRoot {
   export interface OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props<CustomMetadata> extends BaseUIComponentProps<'div', OwnerState> {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
@@ -79,9 +82,8 @@ namespace CompositeRoot {
     itemSizes?: Dimensions[];
     dense?: boolean;
     enableHomeAndEndKeys?: boolean;
-    // TODO: can't pass a generic <CustomMetadata> into forwardRef?
-    onMapChange?: (newMap: Map<Node, any>) => void;
-    alwaysPropagateEvents?: boolean;
+    onMapChange?: (newMap: Map<Node, CompositeMetadata<CustomMetadata> | null>) => void;
+    stopEventPropagation?: boolean;
   }
 }
 
