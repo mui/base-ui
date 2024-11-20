@@ -13,9 +13,6 @@
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
 
 @theme {
-  --font-family-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
-  --font-family-sans: 'Unica 77', system-ui, sans-serif;
-
   --color-background: oklch(98% 0.25% 264);
   --color-foreground: oklch(21% 2% 264);
   --color-border: oklch(20% 12% 264 / 10%);
@@ -36,44 +33,49 @@
   --color-red: oklch(50% 55% 31);
   --color-violet: oklch(40% 60% 300);
 
-  --font-size-xs: 0.8125rem;
-  --font-size-xs--line-height: 1rem;
-  --font-size-xs--letter-spacing: 0.0015em;
+  /* Typography */
+  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-sans: 'Unica 77', system-ui, sans-serif;
 
-  --font-size-sm: 0.9375rem;
-  --font-size-sm--line-height: 1.25rem;
-  --font-size-sm--letter-spacing: 0.001em;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-xs--tracking: 0.0015em;
 
-  --font-size-base: 1rem;
-  --font-size-base--line-height: 1.5rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.25rem;
+  --text-sm--tracking: 0.001em;
 
-  --font-size-lg: 1.125rem;
-  --font-size-lg--line-height: 1.75rem;
-  --font-size-lg--letter-spacing: -0.0025em;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-base--tracking: 0em;
 
-  --font-size-xl: 1.3125rem;
-  --font-size-xl--line-height: 1.75rem;
-  --font-size-lg--letter-spacing: -0.005em;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-lg--tracking: -0.0025em;
 
-  --font-size-2xl: 1.5rem;
-  --font-size-2xl--line-height: 1.25;
-  --font-size-2xl--letter-spacing: -0.0125em;
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.75rem;
+  --text-xl--tracking: -0.005em;
 
-  --font-size-3xl: 1.875rem;
-  --font-size-3xl--line-height: 1.2;
-  --font-size-3xl--letter-spacing: -0.015em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.25;
+  --text-2xl--tracking: -0.0125em;
 
-  --font-size-4xl: 2.25rem;
-  --font-size-4xl--line-height: 2.5rem;
-  --font-size-4xl--letter-spacing: -0.015em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.2;
+  --text-3xl--tracking: -0.015em;
 
-  --font-size-5xl: 3rem;
-  --font-size-5xl--line-height: 1;
-  --font-size-5xl--letter-spacing: -0.015em;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-4xl--tracking: -0.015em;
 
-  --font-size-6xl: 3.75rem;
-  --font-size-6xl--line-height: 0.95;
-  --font-size-6xl--letter-spacing: -0.015em;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
+  --text-5xl--tracking: -0.015em;
+
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 0.95;
+  --text-6xl--tracking: -0.015em;
 }
 
 :root {
