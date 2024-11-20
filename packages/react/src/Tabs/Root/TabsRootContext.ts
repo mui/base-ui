@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
 import { type TabMetadata } from '../Tab/useTab';
-import { type TabActivationDirection } from './TabsRoot';
+import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
    * The currently selected tab's value.
    */
-  value: any | null;
+  value: TabValue;
   /**
    * Callback for setting new value.
    */
   onValueChange: (
-    value: any | null,
+    value: TabValue,
     activationDirection: TabActivationDirection,
     event: Event,
   ) => void;
@@ -25,18 +25,23 @@ export interface TabsRootContext {
    */
   direction: 'ltr' | 'rtl';
   /**
-   * Registers a function that returns the id of the tab with the given value.
-   */
-  // registerGetTabIdByPanelValueOrIndexFn?: (lookupFunction: (id: any) => string | undefined) => void;
-  getTabElementBySelectedValue: (selectedValue: any | undefined) => HTMLElement | null;
-  /**
-   * Gets the id of the tab with the given value.
+   * Gets the element of the Tab with the given value.
    * @param {any | undefined} value Value to find the tab for.
    */
-  getTabIdByPanelValueOrIndex: (panelValue: any | undefined, index: number) => string | undefined;
+  getTabElementBySelectedValue: (selectedValue: TabValue | undefined) => HTMLElement | null;
   /**
-   * Gets the id of the tab panel with the given value.
-   * @param {any | undefined} value Value to find the tab panel for.
+   * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value or index.
+   * @param (any | undefined) panelValue Value to find the Tab for.
+   * @param (number) index The index of the TabPanel to look for.
+   */
+  getTabIdByPanelValueOrIndex: (
+    panelValue: TabValue | undefined,
+    index: number,
+  ) => string | undefined;
+  /**
+   * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value or index.
+   * @param (any | undefined) tabValue Value to find the Tab for.
+   * @param (number) index The index of the Tab to look for.
    */
   getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
   setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;

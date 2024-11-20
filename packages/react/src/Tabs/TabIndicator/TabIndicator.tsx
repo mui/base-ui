@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -88,6 +89,32 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
     );
   },
 );
+
+TabIndicator.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * If `true`, the indicator will include code to render itself before React hydrates.
+   * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
+   *
+   * @default false
+   */
+  renderBeforeHydration: PropTypes.bool,
+} as any;
 
 export { TabIndicator };
 

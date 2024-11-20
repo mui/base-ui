@@ -136,11 +136,19 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  onMapChange: PropTypes.func,
+  /**
+   * @ignore
+   */
   orientation: PropTypes.oneOf(['both', 'horizontal', 'vertical']),
   /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  stopEventPropagation: PropTypes.bool,
 } as any;
 
 export { CompositeRoot };

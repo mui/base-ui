@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TabsOrientation } from '../Root/TabsRoot';
+import type { TabsOrientation, TabValue } from '../Root/TabsRoot';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { useTabsListContext } from '../TabsList/TabsListContext';
 
@@ -68,14 +69,47 @@ const Tab = React.forwardRef(function Tab(
   return renderElement();
 });
 
+Tab.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * The value of the Tab.
+   * When not specified, the value is the child position index.
+   */
+  value: PropTypes.any,
+} as any;
+
 export { Tab };
 
 namespace Tab {
   export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
     /**
-     * You can provide your own value. Otherwise, it falls back to the child position index.
+     * The value of the Tab.
+     * When not specified, the value is the child position index.
      */
-    value?: any;
+    value?: TabValue;
   }
 
   export interface OwnerState {

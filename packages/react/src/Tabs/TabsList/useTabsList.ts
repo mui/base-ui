@@ -2,9 +2,10 @@
 import * as React from 'react';
 import type { TabsRootContext } from '../Root/TabsRootContext';
 import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot';
-import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
@@ -151,13 +152,11 @@ namespace useTabsList {
 
   export interface ReturnValue {
     /**
-     * Resolver for the root slot's props.
-     * @param externalProps props for the root slot
-     * @returns props that should be spread on the root slot
+     * Resolver for the TabsList component's props.
+     * @param externalProps additional props for Tabs.TabsList
+     * @returns props that should be spread on Tabs.TabsList
      */
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
      * Callback when a Tab is activated
      * @param {any | null} newValue The value of the newly activated tab.

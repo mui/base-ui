@@ -133,6 +133,10 @@ CompositeList.propTypes /* remove-proptypes */ = {
   labelsRef: PropTypes.shape({
     current: PropTypes.arrayOf(PropTypes.string).isRequired,
   }),
+  /**
+   * @ignore
+   */
+  onMapChange: PropTypes.func,
 } as any;
 
 export { CompositeList };

@@ -160,9 +160,9 @@ namespace useTab {
 
   export interface ReturnValue {
     /**
-     * Resolver for the root slot's props.
-     * @param externalProps props for the root slot
-     * @returns props that should be spread on the root slot
+     * Resolver for the Tab component's props.
+     * @param externalProps additional props for Tabs.Tab
+     * @returns props that should be spread on Tabs.Tab
      */
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'button'>,

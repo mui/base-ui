@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { TabsRootContext } from '../Root/TabsRootContext';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
+import type { TabsRootContext } from '../Root/TabsRootContext';
+import type { TabValue } from '../Root/TabsRoot';
 
 export interface TabPanelMetadata {
   id?: string;
@@ -81,11 +83,11 @@ namespace useTabPanel {
     /**
      * The (context) value of the currently active/selected Tab.
      */
-    selectedValue: TabsRootContext['value'];
+    selectedValue: TabValue;
     /**
      * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
      */
-    value?: any;
+    value?: TabValue;
   }
 
   export interface ReturnValue {
@@ -94,13 +96,11 @@ namespace useTabPanel {
      */
     hidden: boolean;
     /**
-     * Resolver for the root slot's props.
-     * @param externalProps additional props for the root slot
-     * @returns props that should be spread on the root slot
+     * Resolver for the TabPanel component's props.
+     * @param externalProps additional props for Tabs.TabPanel
+     * @returns props that should be spread on Tabs.TabPanel
      */
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     rootRef: React.RefCallback<HTMLElement> | null;
   }
 }

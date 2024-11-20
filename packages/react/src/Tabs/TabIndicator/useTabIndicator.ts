@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { TabsListContext } from '../TabsList/TabsListContext';
 import type { TabsRootContext } from '../Root/TabsRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 
 function round(value: number) {
@@ -125,9 +126,12 @@ export namespace useTabIndicator {
       Pick<TabsListContext, 'tabsListRef'> {}
 
   export interface ReturnValue {
-    getRootProps: (
-      otherProps?: React.ComponentPropsWithRef<'span'>,
-    ) => React.ComponentPropsWithRef<'span'>;
+    /**
+     * Resolver for the TabIndicator component's props.
+     * @param externalProps additional props for Tabs.TabIndicator
+     * @returns props that should be spread on Tabs.TabIndicator
+     */
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     activeTabPosition: ActiveTabPosition | null;
   }
 }

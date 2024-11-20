@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
+import type { CompositeMetadata } from '../../Composite/List/CompositeList';
 import type { TabPanelMetadata } from '../TabPanel/useTabPanel';
 import type { TabMetadata } from '../Tab/useTab';
-import type { TabActivationDirection } from './TabsRoot';
+import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
   const {
@@ -24,21 +26,17 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   });
 
   const [tabPanelMap, setTabPanelMap] = React.useState(
-    () => new Map<Node, (TabPanelMetadata & { index?: number | null }) | null>(),
+    () => new Map<Node, CompositeMetadata<TabPanelMetadata> | null>(),
   );
   const [tabMap, setTabMap] = React.useState(
-    () => new Map<Node, (TabMetadata & { index?: number | null }) | null>(),
+    () => new Map<Node, CompositeMetadata<TabMetadata> | null>(),
   );
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabActivationDirection>('none');
 
   const onValueChange = React.useCallback(
-    (
-      newValue: any | null,
-      activationDirection: TabActivationDirection,
-      event: Event | undefined,
-    ) => {
+    (newValue: TabValue, activationDirection: TabActivationDirection, event: Event | undefined) => {
       setValue(newValue);
       setTabActivationDirection(activationDirection);
       onValueChangeProp?.(newValue, event);
@@ -48,7 +46,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
   const getTabPanelIdByTabValueOrIndex = React.useCallback(
-    (tabValue: any | undefined, index: number) => {
+    (tabValue: TabValue | undefined, index: number) => {
       if (tabValue === undefined && index < 0) {
         return undefined;
       }
@@ -76,7 +74,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValueOrIndex = React.useCallback(
-    (tabPanelValue: any | undefined, index: number) => {
+    (tabPanelValue: TabValue | undefined, index: number) => {
       if (tabPanelValue === undefined && index < 0) {
         return undefined;
       }
@@ -88,7 +86,6 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
           index > -1 &&
           tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
         ) {
-          // console.log('found by tabPanelValue', tabMetadata?.id);
           return tabMetadata?.id;
         }
 
@@ -98,7 +95,6 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
           index > -1 &&
           index === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
         ) {
-          // console.log('found by tabPanel index', tabMetadata?.id);
           return tabMetadata?.id;
         }
       }
@@ -110,7 +106,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
   const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: any | undefined): HTMLElement | null => {
+    (selectedValue: TabValue | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;
       }
@@ -156,11 +152,11 @@ namespace useTabsRoot {
      * The value of the currently selected `Tab`.
      * If you don't want any selected `Tab`, you can set this prop to `false`.
      */
-    value?: any | null;
+    value?: TabValue;
     /**
      * The default value. Use when the component is not controlled.
      */
-    defaultValue?: any | null;
+    defaultValue?: TabValue;
     /**
      * The direction of the text.
      * @default 'ltr'
@@ -169,56 +165,62 @@ namespace useTabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: any | null, event?: Event) => void;
+    onValueChange?: (value: TabValue, event?: Event) => void;
   }
 
   export interface ReturnValue {
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
+    /**
+     * Resolver for the Root component's props.
+     * @param externalProps additional props for Tabs.Root
+     * @returns props that should be spread on Tabs.Root
+     */
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
      * The direction of the text.
      */
     direction: 'ltr' | 'rtl';
     /**
-     * Gets the underlying element of the Tab with the given value.
-     * @param value Value to find the tab for.
+     * Gets the element of the Tab with the given value.
+     * @param {any | undefined} value Value to find the tab for.
      */
-    getTabElementBySelectedValue: (panelValue: any | undefined) => HTMLElement | null;
+    getTabElementBySelectedValue: (panelValue: TabValue | undefined) => HTMLElement | null;
     /**
-     * Gets the `id` attribute of the Tab with the given value.
+     * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value or index.
      * @param (any | undefined) panelValue Value to find the Tab for.
      * @param (number) index The index of the Tab to look for.
      */
-    getTabIdByPanelValueOrIndex: (panelValue: any | undefined, index: number) => string | undefined;
+    getTabIdByPanelValueOrIndex: (
+      panelValue: TabValue | undefined,
+      index: number,
+    ) => string | undefined;
     /**
-     * Gets the id of the tab panel with the given value.
+     * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value or index.
      * @param value Value to find the tab panel for.
      */
     getTabPanelIdByTabValueOrIndex: (
-      tabValue: any | undefined,
+      tabValue: TabValue | undefined,
       index: number,
     ) => string | undefined;
     /**
      * Callback for setting new value.
      */
     onValueChange: (
-      value: any | null,
+      value: TabValue,
       activationDirection: TabActivationDirection,
       event: Event,
     ) => void;
-    setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;
-    setTabPanelMap: (map: Map<Node, (TabPanelMetadata & { index?: number | null }) | null>) => void;
+    setTabMap: (map: Map<Node, CompositeMetadata<TabMetadata> | null>) => void;
+    setTabPanelMap: (map: Map<Node, CompositeMetadata<TabPanelMetadata> | null>) => void;
     /**
      * The position of the active tab relative to the previously active tab.
      */
     tabActivationDirection: TabActivationDirection;
-    tabMap: Map<Node, (TabMetadata & { index?: number | null }) | null>;
+    tabMap: Map<Node, CompositeMetadata<TabMetadata> | null>;
     tabPanelRefs: React.RefObject<(HTMLElement | null)[]>;
     /**
      * The currently selected tab's value.
      */
-    value: any | null;
+    value: TabValue;
   }
 }
 

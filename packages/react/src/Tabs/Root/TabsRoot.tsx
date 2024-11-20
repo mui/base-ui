@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeList } from '../../Composite/List/CompositeList';
@@ -102,11 +103,56 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
+TabsRoot.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * Class names applied to the element or a function that returns them based on the component's state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * The default value. Use when the component is not controlled.
+   * When the value is `null`, no Tab will be selected.
+   * @default 0
+   */
+  defaultValue: PropTypes.any,
+  /**
+   * The direction of the text.
+   * @default 'ltr'
+   */
+  direction: PropTypes.oneOf(['ltr', 'rtl']),
+  /**
+   * Callback invoked when new value is being set.
+   */
+  onValueChange: PropTypes.func,
+  /**
+   * The component orientation (layout flow direction).
+   * @default 'horizontal'
+   */
+  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  /**
+   * A function to customize rendering of the component.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * The value of the currently selected `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be selected.
+   */
+  value: PropTypes.any,
+} as any;
+
 export { TabsRoot };
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabsDirection = 'ltr' | 'rtl';
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
+export type TabValue = any | null;
 
 namespace TabsRoot {
   export type OwnerState = {
@@ -115,16 +161,18 @@ namespace TabsRoot {
     tabActivationDirection: TabActivationDirection;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
     /**
-     * The value of the currently selected `Tab`.
-     * If you don't want any selected `Tab`, you can set this prop to `null`.
+     * The value of the currently selected `Tab`. Use when the component is controlled.
+     * When the value is `null`, no Tab will be selected.
      */
-    value?: any | null;
+    value?: TabValue;
     /**
      * The default value. Use when the component is not controlled.
+     * When the value is `null`, no Tab will be selected.
+     * @default 0
      */
-    defaultValue?: any | null;
+    defaultValue?: TabValue;
     /**
      * The component orientation (layout flow direction).
      * @default 'horizontal'
@@ -138,6 +186,6 @@ namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: any | null, event?: Event) => void;
+    onValueChange?: (value: TabValue, event?: Event) => void;
   }
 }
